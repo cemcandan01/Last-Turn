@@ -1,17 +1,37 @@
-# Last Turn (Son Viraj)
+# Last Turn
 
-Telefonda oynanmak üzere tasarlanmış, tarayıcıda çalışan bir yarış oyunu projesi. Kurulum gerekmez: dosyayı tarayıcıda açman yeterli.
+iPhone için 3D sürüş ve yarış oyunu. Ana ekrana kurulan bir uygulama (PWA) olarak çalışır: kendi simgesiyle tam ekran açılır, internetsiz de oynanır ve her yeni sürüm otomatik iner.
+
+## İçerik
+
+Açık dünya: merkezde test arazisi, yollarla bağlı asfalt pist, toprak pist, drift parkı ve ralli etabı. Yarışlar (asfalt, toprak, drift puanı, ralli), lastik ve araç ayarları, sürüş yardımı seviyeleri, üç kontrol modu (tuşlar, ekran direksiyonu, telefonu yatırma) ve dört kamera.
+
+## iPhone'a kurulum
+
+1. Oyunun adresini **Safari**'de aç.
+2. Paylaş düğmesi → **Ana Ekrana Ekle**.
+3. Ana ekrandaki **Last Turn** simgesinden aç.
+
+## Güncellemeler
+
+- Uygulama internet varken her açılışta en yeni sürümü yükler.
+- Arka plandaysa ve yeni sürüm çıkmışsa üstte **"Yeni sürüm hazır · Güncelle"** düğmesi görünür.
+- Yayınlarken `index.html` içindeki `APP_VERSION` değeri artırılır; sürüm menünün altında görünür.
+
+## Yayınlama (tek seferlik)
+
+Oyun derleme gerektirmeyen statik dosyalardan oluşur; repo kökü olduğu gibi yayınlanır. Repo private olduğu için seçenekler:
+
+- **Cloudflare Pages** veya **Netlify** (ücretsiz, private repo destekler): GitHub reposunu bağla, build komutu boş, yayın klasörü `/`. Her `master` push'unda kendiliğinden yayınlanır.
+- **GitHub Pages**: repo public yapılırsa (ya da GitHub Pro ile) Settings → Pages → Branch `master` / `/ (root)`.
 
 ## Dosyalar
 
-- **`index.html` — Son Viraj** (ana oyun): Kuşbakışı 2D eleme yarışı. Her gün tarihe göre üretilen yeni bir parkur, 5 eleme turu; her yarışta son sıradaki araç elenir. Turlar arasında sınırlı parça değiştirme hakkıyla motor (Dengeli / Turbo / Tork) ve lastik (Slik / Arazi / Karışık) seçilir; zemin (asfalt, toprak, ıslak) lastik seçimini etkiler.
-- **`surus-laboratuvari.html` — Sürüş Laboratuvarı**: Three.js ile 3D sürüş fiziği test alanı. Açık dünya; merkezde test arazisi ve yollarla bağlı asfalt pist, toprak pist, drift parkı ve ralli etabı. Lastik/araç ayarları, sürüş yardımları, farklı kontrol modları (tuş, ekran direksiyonu, telefonu yatırma) ve kamera seçenekleri içerir. Buradaki mekanikler oturunca ana oyuna bağlanması planlanıyor.
+- `index.html` oyunun tamamı
+- `sw.js` çevrimdışı önbellek ve güncelleme (service worker)
+- `manifest.webmanifest`, `icons/` uygulama adı ve simgeleri
+- `vendor/three.min.js` Three.js r128 (MIT), çevrimdışı çalışsın diye repoda
 
-## Kontroller
+## Sonraki adım: App Store / TestFlight
 
-- **Dokunmatik:** ekrandaki ◀ / ▶, FREN (ve laboratuvarda GAZ) tuşları
-- **Klavye:** ← / → direksiyon, ↓ fren, ↑ gaz (laboratuvar)
-
-## Çalıştırma
-
-`index.html` veya `surus-laboratuvari.html` dosyasını doğrudan tarayıcıda aç. Sürüş Laboratuvarı Three.js'i CDN'den yüklediği için internet bağlantısı ister.
+Oyun tamamlandığında aynı kod Capacitor ile native iOS uygulamasına sarılabilir (Mac + Xcode + Apple Developer hesabı gerekir).
