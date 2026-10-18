@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Son Viraj</title>
+<style>
+:root{--bg:#0f2529;--ink:#eef3ee;--mut:#8fb0ab;--acc:#ff7a3c;--card:#173a41;--line:#2b5a63;--bad:#ff5b6e;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f2529}}
+:root[data-theme="dark"]{--bg:#0f2529}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html,body{height:100%;margin:0;overflow:hidden;touch-action:none;background:var(--bg);color:var(--ink);font-family:"Avenir Next Condensed","Arial Narrow",system-ui,sans-serif}
+canvas{position:fixed;inset:0;width:100%;height:100%}
+#hud{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);padding:10px 14px;display:flex;justify-content:space-between;pointer-events:none;font-size:20px;font-weight:700;text-shadow:0 1px 4px #000a}
+#hud small{display:block;font-size:13px;font-weight:500;color:#dfeeea}
+#big{position:fixed;left:0;right:0;top:30%;text-align:center;font-size:96px;font-weight:800;pointer-events:none;text-shadow:0 3px 12px #000a}
+#ctl{position:fixed;left:0;right:0;bottom:0;padding:10px 12px calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:10px}
+#ctl div{flex:1;height:96px;border-radius:18px;background:#ffffff1c;border:2px solid #ffffff33;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:700}
+#ctl div.on{background:#ff7a3c66;border-color:var(--acc)}
+#ctl #b{flex:.7;font-size:20px}
+#panel{position:fixed;left:0;right:0;bottom:0;max-height:70%;overflow:auto;background:var(--bg);border-top:3px solid var(--acc);padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px));touch-action:pan-y}
+#panel h1{margin:0 0 2px;font-size:30px;letter-spacing:.5px}
+#panel p{margin:2px 0 10px;color:var(--mut);font-size:16px}
+.row{display:flex;gap:8px;margin:6px 0 14px}
+.chip{flex:1;padding:10px 6px;border-radius:12px;background:var(--card);border:2px solid var(--line);text-align:center;font-size:17px;font-weight:700}
+.chip small{display:block;font-weight:500;color:var(--mut);font-size:12px;margin-top:2px}
+.chip.sel{border-color:var(--acc);background:#3a2a25}
+.lbl{font-size:15px;color:var(--mut);margin-top:4px}
+.go{width:100%;padding:15px;border:0;border-radius:14px;background:var(--acc);color:#1b0d05;font:800 22px inherit;font-family:inherit}
+.rk{display:flex;justify-content:space-between;padding:9px 12px;border-radius:10px;background:var(--card);margin:5px 0;font-size:18px;font-weight:600}
+.rk.me{border:2px solid var(--acc)}.rk.out{color:var(--bad);text-decoration:line-through;opacity:.85}
+.hidden{display:none}
+</style></head><body>
+<canvas id="c"></canvas>
+<div id="hud"><div id="h1"></div><div id="h2" style="text-align:right"></div></div>
+<div id="big"></div>
+<div id="ctl" class="hidden"><div id="l">◀</div><div id="b">FREN</div><div id="r">▶</div></div>
+<div id="panel"></div>
+<script>
+const $=s=>document.querySelector(s),cv=$('#c'),ctx=cv.getContext('2d');
+let W,H,D;function rs(){D=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*D;cv.height=H*D}
+addEventListener('resize',rs);rs();
+function rng(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const dt0=new Date(),DAY=dt0.getFullYear()*10000+(dt0.getMonth()+1)*100+dt0.getDate();
+const MON=['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+const DAYTXT=dt0.getDate()+' '+MON[dt0.getMonth()];
+const BASE=360,ACC=240,TW=150,LAPS=2,ROUNDS=5;
+const MN=['Dengeli','Turbo','Tork'],MS=[1,1.1,.94],MA=[1,.85,1.3],MD=['her yerde iyi','yüksek hız','hızlı çıkış'];
+const TN=['Slik','Arazi','Karışık'],TD=['asfalt','toprak','orta'],TG=[[1,.62,.6],[.8,1,.85],[.9,.82,.82]];
+const SN=['Asfalt','Toprak','Islak'],SC=['#3a404c','#8c6b45','#2e4659'],GR=['#1b4a3b','#47552b','#173d4c'];
+const NAMES=['Sen','Kaya','Deniz','Ece','Mert','Arda'],COL=['#ff7a3c','#4fc3f7','#ffd54a','#b388ff','#7be0a4','#ff8fb1'];
+let G,cars=[],trk,state='prep',cd=0,goT=0,raceT=0,pl=null,sel={m:0,t:0};
+const K={l:0,r:0,b:0};
+function bind(id,k){const e=$(id);const on=v=>ev=>{ev.preventDefault();K[k]=v;e.classList.toggle('on',!!v)};
+e.addEventListener('pointerdown',on(1));['pointerup','pointercancel','pointerleave'].forEach(n=>e.addEventListener(n,on(0)))}
+bind('#l','l');bind('#r','r');bind('#b','b');
+addEventListener('keydown',e=>{if(e.key=='ArrowLeft')K.l=1;if(e.key=='ArrowRight')K.r=1;if(e.key=='ArrowDown')K.b=1});
+addEventListener('keyup',e=>{if(e.key=='ArrowLeft')K.l=0;if(e.key=='ArrowRight')K.r=0;if(e.key=='ArrowDown')K.b=0});
+function mk(round){const r=rng(DAY*7+round*131),p=[r()*6.28,r()*6.28,r()*6.28],N=260,R=900,pts=[];
+for(let i=0;i<N;i++){const t=i/N*6.2832,rr=R*(1+.14*Math.sin(2*t+p[0])+.06*Math.sin(3*t+p[1])+.025*Math.sin(5*t+p[2]));pts.push([Math.cos(t)*rr,Math.sin(t)*rr*.8])}
+return{pts,N,surf:Math.floor(r()*3)}}
+function tang(k){const N=trk.N,p=trk.pts[(k+1)%N],q=trk.pts[(k-1+N)%N];return Math.atan2(p[1]-q[1],p[0]-q[0])}
+function newGame(){G={round:0,tok:4,m:0,t:0,alive:[1,2,3,0,4,5]};sel={m:0,t:0};prep()}
+function prep(){trk=mk(G.round);setup();state='prep';$('#ctl').classList.add('hidden');$('#big').textContent='';showPrep()}
+function setup(){cars=G.alive.map((id,i)=>{const r=rng(DAY+id*17+G.round*5),back=Math.floor(i/2)*4+2,side=(i%2?1:-1)*30,k=(trk.N-back)%trk.N,a=tang(k),q=trk.pts[k];
+return{id,ai:id!==0,x:q[0]-Math.sin(a)*side,y:q[1]+Math.cos(a)*side,a,v:0,idx:k,lap:-1,prog:-back,fin:null,d:0,
+sp:id?.97+r()*.07+G.round*.012:MS[sel.m],ac:id?1:MA[sel.m],grip:id?.84+r()*.16:TG[sel.t][trk.surf]}});pl=cars.find(c=>!c.ai)}
+function cost(){return G.round?(sel.m!=G.m)+(sel.t!=G.t):0}
+function chips(g,names,subs,cur){return'<div class="row">'+names.map((n,i)=>`<div class="chip ${cur==i?'sel':''}" data-g="${g}" data-i="${i}">${n}<small>${subs[i]}</small></div>`).join('')+'</div>'}
+function showPrep(){if(G.round==0){sel.m=G.m;sel.t=G.t}const P=$('#panel');P.classList.remove('hidden');
+P.innerHTML=`<h1>Son Viraj</h1><p>Günün parkuru · ${DAYTXT}</p>
+<p style="color:var(--ink)">Tur ${G.round+1}/${ROUNDS} · Zemin: <b style="color:var(--acc)">${SN[trk.surf]}</b> · ${cars.length} araç, son sıra elenir</p>
+<div class="lbl">Parça değiştirme hakkı: <b>${G.tok-cost()}</b>${G.round?'':' (ilk seçim ücretsiz)'}</div>
+<div class="lbl" style="margin-top:10px">Motor</div>${chips('m',MN,MD,sel.m)}
+<div class="lbl">Lastik</div>${chips('t',TN,TD,sel.t)}
+<button class="go" id="go">Yarışa başla</button>`;
+P.querySelectorAll('.chip').forEach(e=>e.onclick=()=>{const g=e.dataset.g,i=+e.dataset.i,old=sel[g];sel[g]=i;if(cost()>G.tok)sel[g]=old;showPrep();setup()});
+$('#go').onclick=()=>{G.tok-=cost();G.m=sel.m;G.t=sel.t;setup();P.classList.add('hidden');$('#ctl').classList.remove('hidden');state='count';cd=3}}
+function drive(c,dt){const N=trk.N,P=trk.pts;let best=1e18,bi=c.idx;
+for(let k=-6;k<=6;k++){const j=(c.idx+k+N)%N,dx=c.x-P[j][0],dy=c.y-P[j][1],q=dx*dx+dy*dy;if(q<best){best=q;bi=j}}
+if(bi<c.idx-N/2)c.lap++;else if(bi>c.idx+N/2)c.lap--;
+c.idx=bi;c.d=Math.sqrt(best);c.prog=c.lap*N+bi;if(c.fin===null&&c.prog>=LAPS*N)c.fin=raceT;
+let steer=0,brake=false,curv=0;
+if(c.ai){const T=P[(bi+8)%N];let da=Math.atan2(T[1]-c.y,T[0]-c.x)-c.a;da=Math.atan2(Math.sin(da),Math.cos(da));steer=Math.max(-1,Math.min(1,da*2.5));
+const a1=tang(bi),a2=tang((bi+16)%N),cv2=Math.atan2(Math.sin(a2-a1),Math.cos(a2-a1));curv=Math.min(.3,Math.abs(cv2)*.55)}
+else{steer=K.r-K.l;brake=!!K.b}
+const top=BASE*c.sp*(.72+.28*c.grip)*(c.d>TW/2?.5:1)*(1-curv);
+if(brake)c.v=Math.max(0,c.v-500*dt);else if(c.v<top)c.v=Math.min(top,c.v+ACC*c.ac*dt);else c.v=Math.max(top,c.v-260*dt);
+const tr=steer*2.7*(.55+.45*c.grip)*(1-.35*Math.min(1,c.v/BASE))*Math.min(1,c.v/90);
+c.a+=tr*dt;c.x+=Math.cos(c.a)*c.v*dt;c.y+=Math.sin(c.a)*c.v*dt}
+function order(){return cars.slice().sort((a,b)=>a.fin!==null&&b.fin!==null?a.fin-b.fin:a.fin!==null?-1:b.fin!==null?1:b.prog-a.prog)}
+function step(dt){raceT+=dt;for(const c of cars)drive(c,dt);
+for(let i=0;i<cars.length;i++)for(let j=i+1;j<cars.length;j++){const a=cars[i],b=cars[j],dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);
+if(d<30&&d>0){const o=(30-d)/2,nx=dx/d,ny=dy/d;a.x-=nx*o;a.y-=ny*o;b.x+=nx*o;b.y+=ny*o;a.v*=.99;b.v*=.99}}
+if(pl.fin!==null||raceT>130)endRace()}
+function endRace(){state='done';$('#ctl').classList.add('hidden');const o=order(),out=o[o.length-1],me=o.indexOf(pl)+1,dead=out===pl;
+G.alive=o.slice(0,-1).map(c=>c.id);G.round++;
+const champ=!dead&&G.alive.length==1,P=$('#panel');P.classList.remove('hidden');
+P.innerHTML=`<h1>${dead?'Elendin':champ?'Şampiyon!':'Bir üst tura geçtin'}</h1><p>${me}. sırada bitirdin${dead?' · son sıra elenir':''}</p>`+
+o.map((c,i)=>`<div class="rk ${c===pl?'me':''} ${c===out?'out':''}"><span>${i+1}. ${NAMES[c.id]}</span><span>${c===out?'elendi':c.fin!==null?(c.fin).toFixed(1)+' sn':'bitiremedi'}</span></div>`).join('')+
+`<button class="go" id="nx" style="margin-top:10px">${dead||champ?'Yeniden başla':'Sonraki tur'}</button>`;
+$('#nx').onclick=()=>dead||champ?newGame():prep()}
+function draw(){ctx.setTransform(D,0,0,D,0,0);ctx.fillStyle=GR[trk.surf];ctx.fillRect(0,0,W,H);
+ctx.save();ctx.translate(W/2,H*.6);const sc=W/560;ctx.scale(sc,sc);ctx.rotate(-pl.a-Math.PI/2);ctx.translate(-pl.x,-pl.y);
+ctx.beginPath();trk.pts.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.closePath();ctx.lineJoin='round';
+ctx.setLineDash([]);ctx.strokeStyle='#e9ecef';ctx.lineWidth=TW+26;ctx.stroke();
+ctx.setLineDash([34,34]);ctx.strokeStyle='#e5484d';ctx.stroke();
+ctx.setLineDash([]);ctx.strokeStyle=SC[trk.surf];ctx.lineWidth=TW;ctx.stroke();
+ctx.setLineDash([26,40]);ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=4;ctx.stroke();ctx.setLineDash([]);
+const s=trk.pts[0];ctx.save();ctx.translate(s[0],s[1]);ctx.rotate(tang(0));ctx.fillStyle='#fff';ctx.fillRect(-4,-TW/2,8,TW);ctx.restore();
+for(const c of cars){ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.a);ctx.fillStyle=COL[c.id];ctx.fillRect(-20,-11,40,22);
+ctx.fillStyle='#10202488';ctx.fillRect(2,-8,10,16);if(c===pl){ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.strokeRect(-20,-11,40,22)}ctx.restore()}
+ctx.restore()}
+function hud(){if(!pl)return;const o=order(),pos=o.indexOf(pl)+1,lap=Math.max(1,Math.min(LAPS,pl.lap+1));
+$('#h1').innerHTML=`Tur ${lap}/${LAPS}<small>Eleme ${G.round+(state=='done'?0:1)}/${ROUNDS} · ${SN[trk.surf]}</small>`;
+$('#h2').innerHTML=`${pos}. sıra<small>${cars.length} araç</small>`;
+$('#big').textContent=state=='count'?Math.ceil(cd):goT>0?'GO!':''}
+let last=0;function loop(ts){const dt=Math.min(.033,(ts-last)/1000||0);last=ts;
+if(state=='count'){cd-=dt;if(cd<=0){state='race';raceT=0;goT=.7}}
+else if(state=='race'){goT-=dt;step(dt)}
+if(pl){draw();hud()}requestAnimationFrame(loop)}
+newGame();requestAnimationFrame(loop);
+</script></body></html>
