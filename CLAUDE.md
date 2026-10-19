@@ -4,6 +4,13 @@ iPhone'da ana ekrana kurulan (PWA) 3D yarış oyunu. Three.js r128 (`vendor/thre
 
 Kullanıcı Türkçe konuşur, iPhone 13'te yatay oynar, kod okumaz. Arayüz metinleri, kod yorumları, commit mesajları ve kullanıcıya yazılan özetler Türkçe.
 
+## Her oturumun başında
+
+1. `git pull origin master`: başka bir sohbet yeni bir şey göndermiş olabilir.
+2. Bu dosyayı ve aşağıdaki "Kullanıcının kararları" bölümünü oku. Önceki işleri görmek için `git log --oneline -20`.
+3. İş bitince `surum-yayinla` skill'iyle yayınla. Push öncesi `git pull --rebase origin master`. Çakışma olursa diğer sohbetin işini koruyarak birleştir.
+4. Kalıcı bir karar alınırsa (kullanıcı "bundan sonra hep şöyle olsun" derse) "Kullanıcının kararları" bölümüne bir satır ekle.
+
 ## Dosya haritası
 
 `index.html` yalnız HTML iskeleti ve `APP_VERSION`. Kod `js/` altında, aşağıdaki sırayla klasik `<script>` olarak yüklenir. Hepsi aynı global kapsamı paylaşır.
@@ -57,3 +64,19 @@ node test.mjs --goruntu        # + ekran görüntüleri tools/out/ (menü, garaj
 1. Testler geçsin.
 2. `APP_VERSION`'ı artır, gerekirse `README.md`'yi güncelle.
 3. Türkçe commit: kısa başlık + maddeler. Sonra `git push origin master`.
+
+## Kullanıcının kararları (bozma, değiştirmeden önce sor)
+
+- Oyun yalnız yatay ekranda; dikey düzen için emek harcanmaz.
+- Direksiyon tuşu hassasiyeti varsayılan 0,5 (tüm önayarlarda `sens:.5`).
+- Gerçek marka adı ve logo yok; araçlar gerçek araçlardan esinlenir, kendi adları vardır (Kızıl Ok, Kor RX, Beyaz Kurt, Mavi Yıldız, Gece Mavisi).
+- Drift ile kayma ayrı: küçük kaymalar drift duruşuna geçmez. Drift yarışı açık dünyadaki ayarlarla aynı çalışır, ayrı bir drift ayarı yoktur.
+- Gerçekçi seviyede drift zor ama mümkün olmalı. Arcade'de bile denge kurmak gerekir; abartan ya da direksiyonu bırakan spin atar.
+- Kalkış patinajı hızı az düşürür. Tuşla gazda patinaj araca özgü sabit ve düşüktür; analog pedalda gazın ne kadar açıldığına bağlıdır.
+- Analog pedal: ortası sıfır, yukarı gaz, aşağı fren.
+- Çamur: içindeyken etki %100; dışarıda hızla orantılı temizlenir; araç dururken temizlenmez.
+- Her yarıştan önce garajda araç seçilir; türe uygun araç "Önerilen" olarak gelir.
+- Menü PES tarzı: solda Yarış, Serbest sürüş, Garaj, Profil, Ayarlar; arkada her yarış türünden sinematik çekimler rastgele akar, art arda aynı çekim gelmez.
+- Yarış türü kartlarındaki görseller kullanıcının seçtikleridir (img/tur_*.jpg). Değiştirmeden önce aday çekip seçtir.
+- Görseller internetten alınmaz; oyunun kendi sahnelerinden çekilir.
+

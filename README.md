@@ -33,9 +33,9 @@ Oyun derleme gerektirmeyen statik dosyalardan oluşur; repo kökü olduğu gibi 
 
 ## Dosyalar
 
-- `index.html` oyunun tamamı
+- `index.html` iskelet, `js/` oyun kodu (konulara bölünmüş), `css/stil.css` görünüm
 - `sw.js` çevrimdışı önbellek ve güncelleme (service worker)
-- `manifest.webmanifest`, `icons/` uygulama adı ve simgeleri
+- `manifest.webmanifest`, `icons/` uygulama adı ve simgeleri, `img/` menü görselleri
 - `vendor/three.min.js` Three.js r128 (MIT), çevrimdışı çalışsın diye repoda
 
 ## Sonraki adım: App Store / TestFlight
