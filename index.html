@@ -29,7 +29,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%}
 .k{pointer-events:auto;border-radius:22px;background:#ffffff22;border:2px solid #ffffff44;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;touch-action:none;text-align:center;line-height:1.1}
 .k.on{background:#ff7a3c88;border-color:var(--acc)}
 #l,#r{width:min(86px,21vw);height:100px}#b{width:min(84px,20vw);height:92px;font-size:17px}#g{width:min(104px,24vw);height:116px;font-size:22px;background:#3ddc8433;border-color:#3ddc8488}#g.on{background:#3ddc8499}
-.sheet{position:fixed;left:0;right:0;bottom:0;max-height:84%;overflow:auto;background:var(--bg);border-top:3px solid var(--acc);padding:18px 16px calc(20px + env(safe-area-inset-bottom,0px));touch-action:pan-y}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-height:calc(100% - env(safe-area-inset-top,0px) - 8px);overflow:auto;background:var(--bg);border-top:3px solid var(--acc);padding:18px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));touch-action:pan-y}
 .sheet h1{margin:0;font-size:32px}.sheet p{margin:4px 0 12px;color:var(--mut);font-size:16px;line-height:1.35}
 .card{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px 14px;margin:8px 0}
 .card b{font-size:19px}.card span{display:block;color:var(--mut);font-size:14px;margin-top:2px}
@@ -47,33 +47,35 @@ input[type=range]{width:100%;accent-color:var(--acc)}
 .btn{width:100%;padding:14px;margin-top:10px;border:0;border-radius:14px;background:var(--acc);color:#1b0d05;font:800 20px inherit;font-family:inherit}
 .btn.alt{background:var(--card);color:var(--ink);border:2px solid var(--line)}
 #ev{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 104px);text-align:center;font-size:20px;font-weight:800;text-shadow:0 1px 4px #000b;pointer-events:none}
+@media (orientation:portrait){#ev{top:calc(env(safe-area-inset-top,0px) + 196px)}}
 #big{position:fixed;left:0;right:0;top:34%;text-align:center;font-size:88px;font-weight:800;text-shadow:0 3px 12px #000a;pointer-events:none}
 details{border-bottom:1px solid var(--line);padding:2px 0}summary{font-size:18px;font-weight:800;padding:12px 0;list-style:none;cursor:pointer}summary::-webkit-details-marker{display:none}
 summary::after{content:'▾';float:right;color:var(--mut)}details[open]>summary::after{content:'▴'}
-.bar{position:sticky;top:-18px;margin:-18px -16px 6px;padding:12px 16px;background:var(--bg);display:flex;gap:8px;z-index:2;border-bottom:1px solid var(--line)}.bar .btn{margin:0;padding:11px;font-size:17px}
+.bar{position:sticky;top:-18px;margin:-18px 0 6px;padding:12px 0;background:var(--bg);display:flex;gap:8px;z-index:2;border-bottom:1px solid var(--line)}.bar .btn{margin:0;padding:11px;font-size:17px}
 .wheel{pointer-events:auto;width:150px;height:150px;border-radius:50%;border:12px solid #ffffff55;background:#0003;position:relative;touch-action:none}
 .wheel::before{content:'';position:absolute;left:50%;top:-12px;width:8px;height:30px;margin-left:-4px;background:var(--acc);border-radius:4px}
 .wheel::after{content:'';position:absolute;left:6%;right:6%;top:50%;height:10px;margin-top:-5px;background:#ffffff55;border-radius:5px}
-.pedal{pointer-events:auto;width:86px;height:170px;border-radius:22px;background:#3ddc8422;border:2px solid #3ddc8488;position:relative;touch-action:none;overflow:hidden}
-.pedal i{position:absolute;left:0;right:0;bottom:0;height:0;background:#3ddc8488}.pedal b{position:absolute;left:0;right:0;top:10px;text-align:center;font-size:15px}
+.pedal{pointer-events:auto;width:min(96px,24vw);height:min(230px,45vh);border-radius:22px;background:#ffffff18;border:2px solid #ffffff44;position:relative;touch-action:none;overflow:hidden}
+.pedal::after{content:'';position:absolute;left:8px;right:8px;top:50%;height:2px;margin-top:-1px;background:#fff8}
+.pedal i{position:absolute;left:0;right:0;bottom:50%;height:0;background:#3ddc8499}.pedal u{position:absolute;left:0;right:0;top:50%;height:0;background:#ff5b6e99}
+.pedal b,.pedal s{position:absolute;left:0;right:0;text-align:center;font-size:15px;text-decoration:none;font-weight:800}.pedal b{top:10px}.pedal s{bottom:10px}
 #cal{width:84px;height:56px;font-size:15px}
 .rk{display:flex;justify-content:space-between;padding:10px 12px;border-radius:10px;background:var(--card);margin:6px 0;font-size:18px;font-weight:600}
 #mm{position:fixed;left:auto;right:max(12px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 66px);width:120px;height:120px;border-radius:12px;background:#0007;pointer-events:none}
-#join{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 250px);padding:14px 22px;border-radius:16px;border:0;background:var(--acc);color:#1b0d05;font:800 20px inherit;font-family:inherit;box-shadow:0 4px 18px #0008}
 #upd{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 12px);z-index:10;padding:12px 18px;border-radius:14px;border:0;background:var(--acc);color:#1b0d05;font:800 17px inherit;font-family:inherit;box-shadow:0 4px 18px #0008}
 #ctl{pointer-events:auto!important}.wz{pointer-events:auto;width:min(50vw,250px);height:230px;display:flex;align-items:flex-end;justify-content:center;touch-action:none}
 </style></head><body>
 <canvas id="c"></canvas>
 <div id="hud" class="hidden"><div><div id="spd">0<small>km/sa</small></div><div id="sf"></div><div id="dr"></div><div id="lap"></div></div><div style="display:flex"><div class="ib" id="cm">🎥</div><div class="ib" id="ts">🛞</div><div class="ib" id="rs">↺</div><div class="ib" id="gs">⚙</div></div></div>
 <div id="ctl" class="hidden"></div>
-<div id="ev"></div><div id="big"></div><canvas id="mm" class="hidden" width="240" height="240"></canvas><button id="join" class="hidden"></button><button id="upd" class="hidden">Yeni sürüm hazır · Güncelle</button>
+<div id="ev"></div><div id="big"></div><canvas id="mm" class="hidden" width="240" height="240"></canvas><button id="upd" class="hidden">Yeni sürüm hazır · Güncelle</button>
 <div class="sheet" id="menu"></div>
 <div class="sheet hidden" id="set"></div>
 <div class="sheet hidden" id="res"></div>
 <script src="vendor/three.min.js"></script>
 <script>
 // sürüm: her güncellemede artırılır; açık uygulama yeni sürümü bu değerden tanır
-const APP_VERSION='1.0.0';
+const APP_VERSION='1.1.0';
 const $=s=>document.querySelector(s);
 const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),sm=(a,b,v)=>{const t=cl((v-a)/(b-a),0,1);return t*t*(3-2*t)},ad=a=>((a+Math.PI)%6.2832+6.2832)%6.2832-Math.PI;
 const L=3.2,VMAX=77.2,ACCEL=20,IZ=1.9;
@@ -106,7 +108,7 @@ fa:{n:'Serbest (asfalt)',d:'Toprak hissini asfalta taşır: yumuşak lastik, aff
 dr:{n:'Drift',d:'Drift lastiği, kilitli diferansiyel, geniş direksiyon açısı',tire:3,v:{pow:1.15,top:.92,brk:.9,bb:.55,tpf:.95,tpr:1.18,bal:.92,diff:1.1,lock:.78,sens:.7,susp:1.2,aero:.4,thr:.8,lch:.8},ast:{dft:1,ini:.8}}};
 let PK='fd',LK='real',TU={},AS={},custom=false;
 function applyPreset(){const p=PRESETS[PK];TU={...p.v};tire=p.tire;AS={...LEVELS[LK].v};if(p.ast)for(const k in p.ast)AS[k]=Math.max(AS[k],p.ast[k]);if(p.cap)for(const k in p.cap)AS[k]=Math.min(AS[k],p.cap[k]);custom=false}
-const set={ss:1,sm:1,fov:1,shk:1,inv:0};let tire=1;
+const set={ss:1,sm:1,fov:1,shk:1,inv:0,tlt:38};let tire=1;
 const TOG=[['inv','Direksiyon yönünü ters çevir','Sağ ve sol tuşlarının yönünü değiştirir'],['ss','Hıza duyarlı direksiyon','Hızlandıkça direksiyon açısı azalır'],['sm','Direksiyon yumuşatma','Tuşa basınca direksiyon kademeli döner'],['fov','Hıza göre görüş açısı','Hızlandıkça görüş genişler'],['shk','Hız sarsıntısı','Yüksek hızda kamera hafif titrer']];
 // ---------- sahne
 const R=new THREE.WebGLRenderer({canvas:$('#c'),antialias:true});R.setPixelRatio(Math.min(devicePixelRatio||1,2));
@@ -199,109 +201,106 @@ if(j.k=='kick'){if(s>=-18&&s<0)p=3.2*Math.pow((s+18)/18,1.6);else if(s>=0&&s<4)p
 else if(j.k=='table')p=2.4*sm(-16,-6,s)*(1-sm(8,18,s));else p=1.4*Math.exp(-((s/6)**2));h+=p*w}return h}
 const mkJumps=(TR,list)=>list.map(([k,f])=>{const i=idxAt(TR,f),p=TR.P[i],t=TR.T[i];return{k,i,x:p[0],z:p[1],tx:t[0],tz:t[1],w:TR.hw}});
 const onTrack=(TR,f,lat)=>{const i=idxAt(TR,f),P=TR.P[i],T=TR.T[i];return{i,x:P[0]+T[1]*(lat||0),z:P[1]-T[0]*(lat||0)}};
-// ---------- HARİTA: asfalt pist (uzun düzlük, firkete, şikan, viraj dizileri)
-const GP=off([[0,-300],[0,-100],[0,250],[20,330],[80,360],[140,330],[160,250],[170,150],[230,100],[290,140],[350,100],[380,0],[360,-120],[300,-200],[200,-180],[150,-260],[180,-380],[150,-480],[60,-520],[0,-450]],1500,0);
-const TRgp=mkTrack(GP,10);kerbs(TRgp);const Hgp=Hkerb(TRgp);
-const gpApex=[4,8,13,18].map(c=>nearest(TRgp,GP[c][0],GP[c][1],0,true)[0]);
-function surfGP(x,z){const [i,d]=nearest(TRgp,x,z,ti);ti=i;return d<=TRgp.hw+KW?1:2}
-function buildGP(){const TR=TRgp;asphaltTrack(TR);
-const tx={150:numTex('150'),100:numTex('100'),50:numTex('50')},post=new THREE.MeshLambertMaterial({color:0x666666});
-for(const ap of gpApex)for(const dd of[150,100,50]){let i=ap,d=0;while(d<dd+40){const j=(i-1+TR.N)%TR.N;d+=Math.hypot(TR.P[i][0]-TR.P[j][0],TR.P[i][1]-TR.P[j][1]);i=j}
+// ---------- yarış pistleri: her yarış türü için 3 pist. Her pist dünyada kendi bölgesinde durur ve menüden seçilince kurulur
+const TDEF=[
+{t:'gp',n:'Grand Prix',d:'Uzun düzlük, firkete, şikan ve viraj dizileri.',hw:10,p:[[0,-300],[0,-100],[0,250],[20,330],[80,360],[140,330],[160,250],[170,150],[230,100],[290,140],[350,100],[380,0],[360,-120],[300,-200],[200,-180],[150,-260],[180,-380],[150,-480],[60,-520],[0,-450]]},
+{t:'gp',n:'Kıyı Pisti',d:'Hızlı ve akıcı, geniş yarıçaplı virajlar.',hw:10,p:[[0,-320],[0,-200],[0,0],[0,200],[30,290],[120,320],[200,270],[210,170],[280,110],[380,140],[450,80],[450,-100],[390,-190],[290,-170],[220,-250],[160,-370],[70,-410],[20,-380]]},
+{t:'gp',n:'Şehir Pisti',d:'Dar, 90 derecelik köşeler. Frenleme her şey.',hw:10,p:[[0,-200],[0,100],[0,175],[15,215],[55,230],[130,230],[160,215],[170,185],[170,130],[180,100],[210,90],[290,90],[320,75],[330,45],[330,-130],[320,-160],[290,-170],[230,-170],[200,-185],[190,-215],[190,-265],[175,-292],[145,-300],[45,-300],[15,-288],[0,-260]]},
+{t:'rx',n:'Çamur Vadisi',d:'Çamur, su birikintileri ve dört rampa.',hw:11,p:[[0,-250],[0,-50],[30,80],[110,130],[200,90],[230,0],[190,-80],[120,-90],[90,-160],[140,-240],[230,-260],[280,-330],[220,-400],[100,-410],[20,-350]],j:[['table',.07],['bump',.6],['bump',.64],['kick',.83]],m:[.25,.43,.72],w:[.15,.52,.93]},
+{t:'rx',n:'Taş Ocağı',d:'Kısa ve teknik, uzun bir zıplama rampası.',hw:11,p:[[0,-200],[0,40],[50,130],[170,150],[260,80],[220,-10],[150,-40],[180,-120],[280,-150],[290,-250],[180,-300],[60,-280]],j:[['table',.1],['bump',.45],['kick',.75]],m:[.3,.6],w:[.2,.85]},
+{t:'rx',n:'Orman Kros',d:'Bol çamurlu, ritimli tümsekler.',hw:11,p:[[0,-150],[0,120],[80,200],[200,190],[240,100],[170,40],[180,-50],[290,-80],[320,-190],[230,-280],[100,-260],[40,-220]],j:[['kick',.12],['bump',.5],['bump',.54],['table',.8]],m:[.35,.65,.9],w:[.25,.7]},
+{t:'dp',n:'Drift Parkı',d:'Geniş ve akıcı, uzun drift zincirleri.',hw:16,p:[[0,-250],[0,0],[50,150],[180,220],[320,170],[360,30],[290,-70],[340,-200],[260,-330],[110,-360],[30,-320]]},
+{t:'dp',n:'Liman',d:'Uzun virajlar ve hızlı yön değişimleri.',hw:16,p:[[0,-200],[0,120],[90,240],[240,250],[330,150],[260,40],[300,-60],[420,-90],[460,-220],[350,-320],[180,-290],[80,-330]]},
+{t:'dp',n:'Dağ Yolu',d:'Sıkı S virajları, açıyı uzun tutmak gerek.',hw:16,p:[[0,-160],[0,140],[110,260],[260,250],[340,140],[300,10],[400,-80],[330,-230],[170,-210],[110,-310],[30,-290]]},
+{t:'rl',n:'Orman Etabı',d:'Firketeler, tırmanış ve iniş, rampalar.',hw:5.5,s:0,p:[[-200,-400],[-200,-300],[-160,-220],[-80,-200],[-50,-130],[-110,-80],[-170,-20],[-140,60],[-40,80],[30,30],[100,70],[90,170],[0,220],[-80,280],[-50,360],[60,380],[140,330],[200,400]],j:[['kick',.22],['table',.5],['bump',.68],['kick',.86]],m:[.3,.6,.78],w:[.12,.41,.72,.93]},
+{t:'rl',n:'Tepe Etabı',d:'Akıcı tepe yolu, büyük bir atlama.',hw:5.5,s:1,p:[[0,-420],[30,-320],[110,-280],[160,-200],[110,-120],[20,-80],[-60,-10],[-50,90],[50,130],[140,90],[230,150],[210,250],[110,290],[60,370],[150,440],[260,420]],j:[['table',.2],['kick',.55],['bump',.8]],m:[.35,.7],w:[.15,.5,.9]},
+{t:'rl',n:'Vadi Etabı',d:'Dalgalı vadi, çamur ve su geçişleri.',hw:5.5,s:2,p:[[-400,0],[-300,40],[-240,-40],[-150,-90],[-60,-40],[-70,60],[-10,150],[90,140],[130,40],[230,10],[300,90],[260,190],[330,270],[440,240],[480,140]],j:[['kick',.3],['bump',.45],['table',.75]],m:[.2,.55,.85],w:[.1,.4,.65,.95]}];
+function recenter(p){let a=1e9,b=-1e9,c=1e9,d=-1e9;for(const [x,z] of p){a=Math.min(a,x);b=Math.max(b,x);c=Math.min(c,z);d=Math.max(d,z)}return p.map(([x,z])=>[x-(a+b)/2,z-(c+d)/2])}
+function turnAt(TR,i,k){const g=j=>TR.open?cl(j,0,TR.N-1):(j+TR.N)%TR.N,a=TR.T[g(i-k)],b=TR.T[g(i+k)];return Math.abs(Math.atan2(a[0]*b[1]-a[1]*b[0],a[0]*b[0]+a[1]*b[1]))}
+// rampaları düzlüğe kaydır: verilen konumun ±100 m çevresindeki en düz nokta
+function straightF(TR,f){const i0=idxAt(TR,f);let bj=i0,bt=1e9;for(let j=i0-25;j<=i0+25;j++){const i=TR.open?cl(j,8,TR.N-9):(j+TR.N)%TR.N,t=turnAt(TR,i,6);if(t<bt){bt=t;bj=i}}return TR.S[bj]/TR.len}
+// fren tabelaları: önünde en az 110 m düzlük olan virajlar
+function autoApex(TR){const r=[];for(let i=0;i<TR.N;i++){if(!(turnAt(TR,i,5)>.3&&turnAt(TR,(i-1+TR.N)%TR.N,5)<=.3))continue;let j=i,d=0,n=0;while(n++<15&&turnAt(TR,j,5)>.12)j=(j-1+TR.N)%TR.N;
+while(d<400){const k=(j-1+TR.N)%TR.N;if(turnAt(TR,k,5)>.2)break;d+=Math.hypot(TR.P[j][0]-TR.P[k][0],TR.P[j][1]-TR.P[k][1]);j=k}if(d>=110)r.push(i)}return r}
+function boards(TR,apex){const tx={150:numTex('150'),100:numTex('100'),50:numTex('50')},post=new THREE.MeshLambertMaterial({color:0x666666});
+for(const ap of apex)for(const dd of[150,100,50]){let i=ap,d=0;while(d<dd+40){const j=(i-1+TR.N)%TR.N;d+=Math.hypot(TR.P[i][0]-TR.P[j][0],TR.P[i][1]-TR.P[j][1]);i=j}
 const P=TR.P[i],T=TR.T[i],o=TR.hw+5,x=P[0]+T[1]*o,z=P[1]-T[0]*o,b=new THREE.Mesh(new THREE.PlaneGeometry(2.4,2.4),new THREE.MeshBasicMaterial({map:tx[dd],side:THREE.DoubleSide}));
-b.position.set(x,2.6,z);b.rotation.y=Math.atan2(-T[0],-T[1]);const pst=new THREE.Mesh(new THREE.BoxGeometry(.2,1.6,.2),post);pst.position.set(x,.8,z);add(b,pst);colAdd({x,z,r:.3,t:'solid'})}
-forest(TR,260,TR.hw+20,1e9,1100,1690,-80)}
-// ---------- HARİTA: toprak pist
-const RX=off([[0,-250],[0,-50],[30,80],[110,130],[200,90],[230,0],[190,-80],[120,-90],[90,-160],[140,-240],[230,-260],[280,-330],[220,-400],[100,-410],[20,-350]],-1400,100);
-const TRrx=mkTrack(RX,11);
-const JUMPS=mkJumps(TRrx,[['table',.07],['bump',.6],['bump',.64],['kick',.83]]);
-const MUDS=[.25,.43,.72].map(f=>({...onTrack(TRrx,f),r:15})),WRX=[.15,.52,.93].map((f,k)=>({...onTrack(TRrx,f,k%2?3:-3),r:6}));
-const Hrx=(x,z)=>jumpH(JUMPS,x,z);
-function surfRX(x,z){const [i,d]=nearest(TRrx,x,z,ti);ti=i;if(d>TRrx.hw+1)return 2;for(const m of MUDS)if((x-m.x)**2+(z-m.z)**2<m.r*m.r)return 3;return 0}
-function buildRX(){terrain(1000,330,ctex('#4f7a3c','#466e35','#5a8746',80),-1260,-40);const TR=TRrx;
-ribbon(TR,-TR.hw,TR.hw,.15,i=>C3(i%6<3?0x8c6b45:0x86663f),(x,z)=>H(x,z));startLine(TR,.2);
-for(const m of MUDS){const c=new THREE.Mesh(new THREE.CircleGeometry(m.r,28),new THREE.MeshLambertMaterial({color:0x4a3524}));c.rotation.x=-Math.PI/2;c.position.set(m.x,H(m.x,m.z)+.22,m.z);add(c)}
-for(const w of WRX)puddle(w.x,w.z,w.r);
-for(let i=0;i<TR.N;i+=8)for(const sd of[-1,1]){const P=TR.P[i],T=TR.T[i],o=sd*(TR.hw+2.5);cone(P[0]+T[1]*o,P[1]-T[0]*o)}
-forest(TR,220,TR.hw+15,1e9,950,-1260,-40);edgeBush(TR,70,3,9)}
-// ---------- HARİTA: drift parkı (geniş, akıcı)
-const DP=off([[0,-250],[0,0],[50,150],[180,220],[320,170],[360,30],[290,-70],[340,-200],[260,-330],[110,-360],[30,-320]],-200,1500);
-const TRdp=mkTrack(DP,16);kerbs(TRdp);const Hdp=Hkerb(TRdp);
-function surfDP(x,z){const [i,d]=nearest(TRdp,x,z,ti);ti=i;return d<=TRdp.hw+KW?1:2}
-function buildDP(){asphaltTrack(TRdp);forest(TRdp,240,TRdp.hw+25,1e9,1300,-20,1430);edgeBush(TRdp,40,6,14)}
-// ---------- HARİTA: ralli etabı (A noktasından B noktasına, tepeli orman yolu)
-const RP=off([[-200,-400],[-200,-300],[-160,-220],[-80,-200],[-50,-130],[-110,-80],[-170,-20],[-140,60],[-40,80],[30,30],[100,70],[90,170],[0,220],[-80,280],[-50,360],[60,380],[140,330],[200,400]],300,-1600);
-const TRrl=mkTrack(RP,5.5,true);
-const H0=(x,z)=>{const lx=x-300,lz=z+1600;return(14*Math.sin(lx/85+1)*Math.cos(lz/95)+8*Math.sin((lx-lz)/60)+6*Math.cos(lz/140))*(1-sm(470,545,Math.max(Math.abs(lx),Math.abs(lz))))};
-const JRL=mkJumps(TRrl,[['kick',.22],['table',.5],['bump',.68],['kick',.86]]);
-const MRL=[.3,.6,.78].map(f=>({...onTrack(TRrl,f),r:9})),WRL=[.12,.41,.72,.93].map((f,k)=>({...onTrack(TRrl,f,k%2?1.5:-1.5),r:4}));
-// yol, enine düz kalsın diye merkez çizgisinin yüksekliğine yaslanır; dışarıda doğal tepeler
-const RLG={};for(let i=0;i<TRrl.N;i++){const k=Math.floor(TRrl.P[i][0]/30)+','+Math.floor(TRrl.P[i][1]/30);(RLG[k]||(RLG[k]=[])).push(i)}
-function nearRL(x,z){let bi=0,bd=1e18;const cx=Math.floor(x/30),cz=Math.floor(z/30);for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const L=RLG[(cx+a)+','+(cz+b)];if(L)for(const i of L){const p=TRrl.P[i],q=(x-p[0])**2+(z-p[1])**2;if(q<bd){bd=q;bi=i}}}return[bi,Math.sqrt(bd)]}
-function Hrl(x,z){const [i,d]=nearRL(x,z),w=1-sm(TRrl.hw+1,TRrl.hw+9,d),P=TRrl.P[i],T=TRrl.T[i],s_=(x-P[0])*T[0]+(z-P[1])*T[1];return H0(x,z)*(1-w)+(w>0?H0(P[0]+T[0]*s_,P[1]+T[1]*s_)*w:0)+jumpH(JRL,x,z)}
-function surfRL(x,z){const [i,d]=nearest(TRrl,x,z,ti);ti=i;if(d>TRrl.hw+.8)return 2;for(const m of MRL)if((x-m.x)**2+(z-m.z)**2<m.r*m.r)return 3;return 0}
-const rlCol=i=>{if(i<2)return C3(0xffffff);if(i>=TRrl.N-4)return C3(i%2?0x111111:0xffffff);const P=TRrl.P[i];
-for(const m of MRL)if(Math.hypot(P[0]-m.x,P[1]-m.z)<m.r)return C3(0x4a3524);for(const w of WRL)if(Math.hypot(P[0]-w.x,P[1]-w.z)<w.r)return C3(0x6d8fa8);return C3(i%6<3?0x8c6b45:0x86663f)};
-function buildRL(){terrain(1100,330,ctex('#4f7a3c','#466e35','#5a8746',90),300,-1600);const TR=TRrl;ribbon(TR,-TR.hw,TR.hw,.12,rlCol,(x,z)=>H(x,z));
-for(const w of WRL)puddle(w.x,w.z,w.r,true);forest(TR,650,TR.hw+4,TR.hw+70,1050,300,-1600);edgeBush(TR,170,1.2,5)}
-// ---------- açık dünya: merkezde test alanı, yollarla bağlı dört pist bölgesi
-const ROADS=[[[900,-100],[1150,-140],[1350,-260],[1478,-330]],[[-900,0],[-1100,-40],[-1300,-120],[-1388,-148]],
-[[0,900],[-60,1050],[-150,1200],[-190,1238]],[[-300,-900],[-480,-1150],[-490,-1750],[-380,-2060],[60,-2025]]].map(p=>mkTrack(p,6,true));
-const RDG={};ROADS.forEach((R,r)=>R.P.forEach((p,i)=>{const k=Math.floor(p[0]/30)+','+Math.floor(p[1]/30);(RDG[k]||(RDG[k]=[])).push([r,i])}));
-function roadDist(x,z){let bd=1e18;const cx=Math.floor(x/30),cz=Math.floor(z/30);for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const L=RDG[(cx+a)+','+(cz+b)];if(L)for(const [r,i] of L){const p=ROADS[r].P[i],q=(x-p[0])**2+(z-p[1])**2;if(q<bd)bd=q}}return Math.sqrt(bd)}
+b.position.set(x,2.6,z);b.rotation.y=Math.atan2(-T[0],-T[1]);const pst=new THREE.Mesh(new THREE.BoxGeometry(.2,1.6,.2),post);pst.position.set(x,.8,z);add(b,pst);colAdd({x,z,r:.3,t:'solid'})}}
+const dirtCol=i=>C3(i%6<3?0x8c6b45:0x86663f),mudMat=new THREE.MeshLambertMaterial({color:0x4a3524});
+function mkReg(def,k){const c=[(k%4-1.5)*2600,3200+Math.floor(k/4)*2600],TR=mkTrack(off(recenter(def.p),c[0],c[1]),def.hw,def.t=='rl'),R={...def,TR,c},hw=def.hw;
+const bb=bbox(TR,0),ext=Math.max(bb[1]-bb[0],bb[3]-bb[2]);R.box=bbox(TR,150);R.col=def.t=='gp'||def.t=='dp'?'#9aa3b5':'#c9a06b';
+if(def.t=='gp'||def.t=='dp'){kerbs(TR);R.kerb=1;R.H=Hkerb(TR);R.surf=(x,z)=>{const [i,d]=nearest(TR,x,z,ti);ti=i;return d<=hw+KW?1:2};
+R.build=def.t=='gp'?()=>{asphaltTrack(TR);boards(TR,autoApex(TR));forest(TR,260,hw+20,1e9,ext+500,c[0],c[1])}:()=>{asphaltTrack(TR);forest(TR,240,hw+25,1e9,ext+600,c[0],c[1]);edgeBush(TR,40,6,14)};return R}
+const J=mkJumps(TR,def.j.map(([q,f])=>[q,straightF(TR,f)])),MUD=def.m.map(f=>({...onTrack(TR,f),r:def.t=='rl'?9:15})),WAT=def.w.map((f,q)=>({...onTrack(TR,f,(q%2?1:-1)*(def.t=='rl'?1.5:3)),r:def.t=='rl'?4:6}));
+const inMud=(x,z)=>MUD.some(m=>(x-m.x)**2+(z-m.z)**2<m.r*m.r);
+if(def.t=='rx'){R.H=(x,z)=>jumpH(J,x,z);R.surf=(x,z)=>{const [i,d]=nearest(TR,x,z,ti);ti=i;return d>hw+1?2:inMud(x,z)?3:0};
+R.build=()=>{const sz=ext+260;terrain(sz,Math.round(sz/3),ctex('#4f7a3c','#466e35','#5a8746',sz/12.5),c[0],c[1]);ribbon(TR,-hw,hw,.15,dirtCol,(x,z)=>H(x,z));startLine(TR,.2);
+for(const m of MUD){const q=new THREE.Mesh(new THREE.CircleGeometry(m.r,28),mudMat);q.rotation.x=-Math.PI/2;q.position.set(m.x,H(m.x,m.z)+.22,m.z);add(q)}
+for(const w of WAT)puddle(w.x,w.z,w.r);for(let i=0;i<TR.N;i+=8)for(const sd of[-1,1]){const P=TR.P[i],T=TR.T[i],o=sd*(hw+2.5);cone(P[0]+T[1]*o,P[1]-T[0]*o)}
+forest(TR,220,hw+15,1e9,ext+300,c[0],c[1]);edgeBush(TR,70,3,9)};return R}
+// ralli: yol enine düz kalsın diye merkez çizgisinin yüksekliğine yaslanır; dışarıda doğal tepeler
+const half=ext/2+130,ph=[1+def.s*2.1,def.s*1.3,def.s*.7];R.box=[c[0]-half,c[0]+half,c[1]-half,c[1]+half];
+const H0=(x,z)=>{const lx=x-c[0],lz=z-c[1];return(14*Math.sin(lx/85+ph[0])*Math.cos(lz/95+ph[1])+8*Math.sin((lx-lz)/60+ph[2])+6*Math.cos(lz/140+ph[0]))*(1-sm(half-80,half-10,Math.max(Math.abs(lx),Math.abs(lz))))};
+const GRD={};for(let i=0;i<TR.N;i++){const q=Math.floor(TR.P[i][0]/30)+','+Math.floor(TR.P[i][1]/30);(GRD[q]||(GRD[q]=[])).push(i)}
+const nearG=(x,z)=>{let bi=0,bd=1e18;const cx=Math.floor(x/30),cz=Math.floor(z/30);for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const L=GRD[(cx+a)+','+(cz+b)];if(L)for(const i of L){const p=TR.P[i],q=(x-p[0])**2+(z-p[1])**2;if(q<bd){bd=q;bi=i}}}return[bi,Math.sqrt(bd)]};
+R.H=(x,z)=>{const [i,d]=nearG(x,z),w=1-sm(hw+1,hw+9,d),P=TR.P[i],T=TR.T[i],s_=(x-P[0])*T[0]+(z-P[1])*T[1];return H0(x,z)*(1-w)+(w>0?H0(P[0]+T[0]*s_,P[1]+T[1]*s_)*w:0)+jumpH(J,x,z)};
+R.surf=(x,z)=>{const [i,d]=nearest(TR,x,z,ti);ti=i;return d>hw+.8?2:inMud(x,z)?3:0};
+const col=i=>{if(i<2)return C3(0xffffff);if(i>=TR.N-4)return C3(i%2?0x111111:0xffffff);const P=TR.P[i];
+for(const m of MUD)if(Math.hypot(P[0]-m.x,P[1]-m.z)<m.r)return C3(0x4a3524);for(const w of WAT)if(Math.hypot(P[0]-w.x,P[1]-w.z)<w.r)return C3(0x6d8fa8);return dirtCol(i)};
+R.build=()=>{terrain(2*half,330,ctex('#4f7a3c','#466e35','#5a8746',2*half/12.5),c[0],c[1]);ribbon(TR,-hw,hw,.12,col,(x,z)=>H(x,z));
+for(const w of WAT)puddle(w.x,w.z,w.r,true);forest(TR,650,hw+4,hw+70,2*half-60,c[0],c[1]);edgeBush(TR,170,1.2,5)};return R}
+const roadDist=()=>1e9;
 const bbox=(TR,m)=>{let a=1e9,b=-1e9,c=1e9,d=-1e9;for(const p of TR.P){a=Math.min(a,p[0]);b=Math.max(b,p[0]);c=Math.min(c,p[1]);d=Math.max(d,p[1])}return[a-m,b+m,c-m,d+m]};
-const REG=[{k:'gp',n:'Asfalt pist',TR:TRgp,H:Hgp,surf:surfGP,kerb:1,box:bbox(TRgp,60),col:'#9aa3b5'},
-{k:'rx',n:'Toprak pist',TR:TRrx,H:Hrx,surf:surfRX,box:bbox(TRrx,60),col:'#c9a06b'},
-{k:'dp',n:'Drift parkı',TR:TRdp,H:Hdp,surf:surfDP,kerb:1,box:bbox(TRdp,60),col:'#9aa3b5'},
-{k:'rl',n:'Ralli etabı',TR:TRrl,H:Hrl,surf:surfRL,box:[-250,850,-2150,-1050],col:'#c9a06b'}];
+const REG=TDEF.map(mkReg);
 let CUR=null;
 function regAt(x,z){for(const r of REG){const b=r.box;if(x>b[0]&&x<b[1]&&z>b[2]&&z<b[3])return r}return null}
-const inHub=(x,z)=>Math.abs(x)<900&&Math.abs(z)<900;
+const HUBB=[-880,880,-880,880],inHub=(x,z)=>Math.abs(x)<900&&Math.abs(z)<900;
 function Hw(x,z){const r=regAt(x,z);if(r)return r.H(x,z);return inHub(x,z)?Htest(x,z):0}
-function surfW(x,z){CUR=regAt(x,z);if(roadDist(x,z)<6.3)return 1;if(CUR)return CUR.surf(x,z);return inHub(x,z)?surfTest(x,z):2}
-// yarışlar ve giriş kapıları
-const EVENTS=[{k:'asphalt',n:'Asfalt yarışı',d:'Asfalt pistte 3 tur. Fren tabelalarını kullan, hedef süreyi geç.',reg:0,pk:'ar',laps:3,limit:195},
-{k:'dirt',n:'Toprak yarışı',d:'Toprak pistte 3 tur: çamur, su, rampalar. Hedef süreyi geç.',reg:1,pk:'tr',laps:3,limit:165},
-{k:'drift',n:'Drift yarışması',d:'Drift parkında 90 saniye puan kas. Drift uzadıkça çarpan x5’e çıkar; çime çıkmak, çarpmak ya da spin komboyu yakar. Drift ayarları otomatik gelir.',reg:2,pk:'dr',time:90},
-{k:'rally',n:'Ralli etabı',d:'Orman yolunda A’dan B’ye: firketeler, tırmanış ve iniş, rampalar, çamur ve su. Hedef süreyi geç.',reg:3,pk:'tr',limit:130}];
+function surfW(x,z){CUR=regAt(x,z);if(CUR)return CUR.surf(x,z);return inHub(x,z)?surfTest(x,z):2}
+// yarışlar: hedef süre, pist uzunluğundan ve ilk pistlerin ayarlı hızından hesaplanır
+const TYP={gp:{k:'asphalt',pk:'ar',laps:3,v:35.3,n:'Asfalt yarışları',d:'3 tur. Fren tabelalarını kullan, hedef süreyi geç.'},
+rx:{k:'dirt',pk:'tr',laps:3,v:28.5,n:'Toprak yarışları',d:'3 tur: çamur, su ve rampalar. Hedef süreyi geç.'},
+dp:{k:'drift',pk:'dr',time:90,n:'Drift yarışmaları',d:'90 saniye puan topla. Drift uzadıkça çarpan x5’e çıkar; çime çıkmak, çarpmak ya da spin komboyu yakar. Drift ayarları otomatik gelir.'},
+rl:{k:'rally',pk:'tr',v:12.2,n:'Ralli etapları',d:'Orman yolunda A’dan B’ye. Hedef süreyi geç.'}};
+const EVENTS=REG.map((r,i)=>{const y=TYP[r.t],no=REG.filter((q,j)=>j<=i&&q.t==r.t).length;
+return{k:y.k+(no>1?no:''),ty:r.t,n:r.n,d:r.d,reg:i,pk:y.pk,laps:y.laps,time:y.time,limit:y.v?Math.round(r.TR.len*(y.laps||1)/y.v/5)*5:0}});
 const gate=e=>{const TR=REG[e.reg].TR;return tp(TR,e.n,TR.open?4:TR.N,TR.open?0:6)};
 EVENTS.forEach(e=>e.g=gate(e));
-const TELEW=[['Merkez (test alanı)',0,-90,Math.PI/2],['Düz yol',SX,-780,0],['Zıplama rampası',-250,-175,0],['Tırmanış yolu',-40,60,0],...EVENTS.map(e=>[e.n+' girişi',e.g[1],e.g[2],e.g[3]])];
-function signTex(t){const c=document.createElement('canvas');c.width=256;c.height=96;const x=c.getContext('2d');x.fillStyle='#1d3b44';x.fillRect(0,0,256,96);x.fillStyle='#ff7a3c';x.fillRect(0,0,256,10);
-x.fillStyle='#fff';x.font='bold 30px sans-serif';x.textAlign='center';x.fillText(t,128,62);return new THREE.CanvasTexture(c)}
-function buildWorld(){const gm=new THREE.Mesh(new THREE.PlaneGeometry(5200,5200),new THREE.MeshLambertMaterial({map:ctex('#3f7a3a','#376d33','#4a8743',420)}));gm.rotation.x=-Math.PI/2;gm.position.y=-.04;add(gm);
-buildTest();buildGP();buildRX();buildDP();buildRL();
-for(const R of ROADS){ribbon(R,-R.hw,R.hw,.08,()=>C3(0x40454f),(x,z)=>H(x,z));for(const sd of[-1,1])ribbon(R,sd*(R.hw-.5),sd*(R.hw-.2),.1,i=>i%10<5?C3(0xffffff):null,(x,z)=>H(x,z))}
-// yol başlarına tabela
-const post=new THREE.MeshLambertMaterial({color:0x666666});
-ROADS.forEach((R,k)=>{const name=['Asfalt pist →','Toprak pist →','Drift parkı →','Ralli etabı →'][k],P=R.P[2],T=R.T[2],x=P[0]+T[1]*(R.hw+3),z=P[1]-T[0]*(R.hw+3),y=H(x,z);
-const b=new THREE.Mesh(new THREE.PlaneGeometry(6,2.25),new THREE.MeshBasicMaterial({map:signTex(name),side:THREE.DoubleSide}));b.position.set(x,y+3.4,z);b.rotation.y=Math.atan2(-T[0],-T[1]);
-const p=new THREE.Mesh(new THREE.BoxGeometry(.25,2.4,.25),post);p.position.set(x,y+1.2,z);add(b,p)});
-// yarış kapıları: yerde halka ve uzaktan görünen ışık sütunu
-const gm2=new THREE.MeshBasicMaterial({color:0xff7a3c,transparent:true,opacity:.35,depthWrite:false}),rg=new THREE.MeshBasicMaterial({color:0xff7a3c});
-for(const e of EVENTS){const [_,x,z]=e.g,y=H(x,z);const ring=new THREE.Mesh(new THREE.TorusGeometry(9,.35,6,40),rg);ring.rotation.x=Math.PI/2;ring.position.set(x,y+.3,z);
-const beam=new THREE.Mesh(new THREE.CylinderGeometry(2,2,60,12,1,true),gm2);beam.position.set(x,y+30,z);add(ring,beam)}}
+const TELEW=[['Merkez (test alanı)',0,-90,Math.PI/2],['Düz yol',SX,-780,0],['Zıplama rampası',-250,-175,0],['Tırmanış yolu',-40,60,0]];
+// zemin çimi araçla birlikte kayar (doku adımına oturtulur), böylece her bölgenin altında çim olur
+const GT=12.5,ground=new THREE.Mesh(new THREE.PlaneGeometry(3000,3000),new THREE.MeshLambertMaterial({map:ctex('#3f7a3a','#376d33','#4a8743',240)}));ground.rotation.x=-Math.PI/2;ground.position.y=-.04;scene.add(ground);
+function buildWorld(){buildTest()}
 const WORLD={H:Hw,surf:surfW,TR:null,tele:TELEW,build:buildWorld};
 function loadWorld(){MAP=WORLD;H=Hw;surf=surfW;ti=0;if(!MAP.g){G=new THREE.Group();COLS={};instStart();MAP.build();instEnd();MAP.cols=COLS;COLS=null;scene.add(G);MAP.g=G}}
-// mini harita
-const MMR=2500,mmS=120/(2*MMR),mmBase=document.createElement('canvas');mmBase.width=mmBase.height=240;
-function mmDraw(){const x=mmBase.getContext('2d'),P=(a,b)=>[(a+MMR)*mmS*2,(b+MMR)*mmS*2];x.clearRect(0,0,240,240);x.fillStyle='rgba(140,107,69,.55)';const h=P(-900,-900);x.fillRect(h[0],h[1],1800*mmS*2,1800*mmS*2);
-const line=(TR,c,w)=>{x.strokeStyle=c;x.lineWidth=w;x.beginPath();TR.P.forEach((p,i)=>{const q=P(p[0],p[1]);i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1])});if(!TR.open)x.closePath();x.stroke()};
-ROADS.forEach(R=>line(R,'#cfd3da',2));REG.forEach(r=>line(r.TR,r.col,3));x.fillStyle='#ff7a3c';for(const e of EVENTS){const q=P(e.g[1],e.g[2]);x.beginPath();x.arc(q[0],q[1],5,0,7);x.fill()}}
-let RALLY_LIMIT=130;
+function ensureBuilt(r){if(r.g)return;G=new THREE.Group();COLS=MAP.cols;instStart();r.build();instEnd();COLS=null;scene.add(G);r.g=G}
+// yalnız kullanılan bölge çizilir
+function setActive(r){if(r)ensureBuilt(r);MAP.g.visible=!r;for(const q of REG)if(q.g)q.g.visible=q===r;mmDraw(r)}
+// mini harita: serbest sürüşte test alanı, yarışta o pist
+const mmBase=document.createElement('canvas');mmBase.width=mmBase.height=240;let MMV={cx:0,cz:0,r:900};
+const mmP=(a,c)=>[120+(a-MMV.cx)/MMV.r*112,120+(c-MMV.cz)/MMV.r*112];
+function mmDraw(r){const x=mmBase.getContext('2d');x.clearRect(0,0,240,240);
+if(r){const b=r.box;MMV={cx:(b[0]+b[1])/2,cz:(b[2]+b[3])/2,r:Math.max(b[1]-b[0],b[3]-b[2])/2-100};const TR=r.TR;x.strokeStyle=r.col;x.lineWidth=6;x.lineJoin='round';x.beginPath();
+TR.P.forEach((p,i)=>{const q=mmP(p[0],p[1]);i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1])});if(!TR.open)x.closePath();x.stroke();
+const s=mmP(TR.P[0][0],TR.P[0][1]);x.fillStyle='#fff';x.fillRect(s[0]-5,s[1]-5,10,10);if(TR.open){const e=mmP(TR.P[TR.N-1][0],TR.P[TR.N-1][1]);x.fillStyle='#ff7a3c';x.fillRect(e[0]-5,e[1]-5,10,10)}}
+else{MMV={cx:0,cz:0,r:900};const h=mmP(-900,-900),e=mmP(900,900);x.fillStyle='rgba(140,107,69,.55)';x.fillRect(h[0],h[1],e[0]-h[0],e[1]-h[1]);x.strokeStyle='#9aa3b5';x.lineWidth=4;
+const o=mmP(0,0);x.beginPath();x.ellipse(o[0],o[1],EA/MMV.r*112,EB/MMV.r*112,0,0,7);x.stroke();const a=mmP(SX,-800),b=mmP(SX,800);x.beginPath();x.moveTo(a[0],a[1]);x.lineTo(b[0],b[1]);x.stroke()}}
 // ---------- araç
 const car=new THREE.Group(),body=new THREE.Group();car.rotation.order='YXZ';car.add(body);
 const bm=new THREE.MeshLambertMaterial({color:0xff7a3c}),dk=new THREE.MeshLambertMaterial({color:0x1b2328});
 const b1=new THREE.Mesh(new THREE.BoxGeometry(2,.7,4.4),bm);b1.position.y=.75;const b2=new THREE.Mesh(new THREE.BoxGeometry(1.7,.6,2.1),dk);b2.position.set(0,1.35,-.2);
 const spl=new THREE.Mesh(new THREE.BoxGeometry(2,.12,.5),dk);spl.position.set(0,1.3,-2.1);body.add(b1,b2,spl);
-const fw=new THREE.Group();car.add(fw);const wg=new THREE.CylinderGeometry(.45,.45,.4,14);wg.rotateZ(Math.PI/2);
-for(const [x,z,f] of[[-1.05,1.4,1],[1.05,1.4,1],[-1.05,-1.4,0],[1.05,-1.4,0]]){const w=new THREE.Mesh(wg,dk);if(f){w.position.set(x,.45,0);fw.add(w)}else{w.position.set(x,.45,z);car.add(w)}}
-fw.position.z=1.4;scene.add(car);const V3=(x,y,z)=>new THREE.Vector3(x,y,z);
-const cock=new THREE.Group();car.add(cock);cock.visible=false;const im=new THREE.MeshLambertMaterial({color:0x2a2f35});
-const dash=new THREE.Mesh(new THREE.BoxGeometry(1.8,.22,.45),im);dash.position.set(0,1.16,.78);
-const swl=new THREE.Mesh(new THREE.TorusGeometry(.17,.025,6,20),new THREE.MeshLambertMaterial({color:0x11161a}));swl.position.set(.42,1.28,.52);
+const wg=new THREE.CylinderGeometry(.45,.45,.4,14);wg.rotateZ(Math.PI/2);const hubM=new THREE.MeshLambertMaterial({color:0x8a9099}),hg=new THREE.BoxGeometry(.42,.5,.12);
+// ön tekerler kendi yerinde (dikey eksende) döner; tüm tekerler yol aldıkça yuvarlanır
+const steerP=[],wheels=[];for(const [x,z,f] of[[-1.05,1.4,1],[1.05,1.4,1],[-1.05,-1.4,0],[1.05,-1.4,0]]){const w=new THREE.Mesh(wg,dk);w.add(new THREE.Mesh(hg,hubM));wheels.push(w);
+const pv=new THREE.Group();pv.position.set(x,.45,z);pv.add(w);car.add(pv);if(f)steerP.push(pv)}
+scene.add(car);const V3=(x,y,z)=>new THREE.Vector3(x,y,z);
+const cock=new THREE.Group();body.add(cock);cock.visible=false;const im=new THREE.MeshLambertMaterial({color:0x2a2f35});
+const dash=new THREE.Mesh(new THREE.BoxGeometry(1.8,.14,.45),im);dash.position.set(0,1.05,.85);const hoodC=new THREE.Mesh(new THREE.BoxGeometry(1.9,.12,1.3),bm);hoodC.position.set(0,.96,1.6);
+const swg=new THREE.Group();swg.position.set(.4,1.02,.45);swg.rotation.x=-.5;const swl=new THREE.Mesh(new THREE.TorusGeometry(.18,.028,6,20),new THREE.MeshLambertMaterial({color:0x11161a}));
+const spk=new THREE.Mesh(new THREE.BoxGeometry(.34,.03,.02),new THREE.MeshLambertMaterial({color:0x11161a}));swl.add(spk);swg.add(swl);
 const pil=(a,b)=>{const A=V3(...a),B=V3(...b),d=B.clone().sub(A),m=new THREE.Mesh(new THREE.CylinderGeometry(.035,.045,d.length(),6),im);m.position.copy(A).add(B).multiplyScalar(.5);m.quaternion.setFromUnitVectors(V3(0,1,0),d.normalize());return m};
-const roof=new THREE.Mesh(new THREE.BoxGeometry(1.55,.05,.08),im);roof.position.set(0,1.79,.36);
-cock.add(dash,swl,pil([.86,1.27,.98],[.74,1.78,.36]),pil([-.86,1.27,.98],[-.74,1.78,.36]),roof);
+const roof=new THREE.Mesh(new THREE.BoxGeometry(1.55,.05,.08),im);roof.position.set(0,1.8,.05);
+cock.add(hoodC,dash,swg,pil([.88,1.12,1.05],[.74,1.79,.05]),pil([-.88,1.12,1.05],[-.74,1.79,.05]),roof);
 let camMode=0,bigT=0;
 function note(t,sz){const b=$('#big');b.textContent=t;b.style.fontSize=(sz||34)+'px';bigT=1.2}
 const parts=[];for(let i=0;i<60;i++){const m=new THREE.Mesh(new THREE.SphereGeometry(.5,6,5),new THREE.MeshBasicMaterial({color:0xbfa07a,transparent:true,opacity:0,depthWrite:false}));m.visible=false;scene.add(m);parts.push({m,l:0,v:new THREE.Vector3()})}
@@ -313,24 +312,29 @@ function reset(x,z,h){const sp=MAP.tele[0];x=x??sp[1];z=z??sp[2];h=h??sp[3];S={x
 camYaw=S.h;st=0;ly=lp=0;D.act=D.t=D.score=0;DR.on=DR.k=0;DR.cool=0;LAP.run=0;LAP.t=0;LAP.armed=0;CUR=regAt(x,z);MAP.TR=CUR?CUR.TR:null;LAP.reg=CUR;if(MAP.TR){ti=nearest(MAP.TR,x,z,0,true)[0];LAP.prev=ti}}
 function bindK(id,k){const e=$(id);e.addEventListener('pointerdown',v=>{v.preventDefault();e.setPointerCapture(v.pointerId);I[k]=1;e.classList.add('on')});
 ['pointerup','pointercancel'].forEach(n=>e.addEventListener(n,()=>{I[k]=0;e.classList.remove('on')}))}
-const CT={steer:'btn',gas:'btn'};let tiltRaw=0,tiltZero=0,wheelA=0,tiltT=-1e9;
+const CT={steer:'btn',gas:'btn'};let tB=0,tG=0,tiltZero=0,wheelA=0,tiltT=-1e9;
 function askTilt(){try{const D_=window.DeviceOrientationEvent;if(D_&&D_.requestPermission)D_.requestPermission().then(r=>note(r=='granted'?'Sensör izni verildi':'Sensör izni reddedildi',26)).catch(()=>note('Bu görünümde sensör izni alınamıyor',24));
 else if(!D_)note('Cihaz yön sensörü bulunamadı',24)}catch(e){note('Sensör izni alınamadı',24)}}
-addEventListener('deviceorientation',e=>{const o=(screen.orientation&&screen.orientation.angle)||window.orientation||0;if(e.gamma==null&&e.beta==null)return;tiltT=performance.now();tiltRaw=o==90?(e.beta||0):(o==-90||o==270)?-(e.beta||0):(e.gamma||0)});
-function tiltSteer(){let a=tiltRaw-tiltZero;a=Math.abs(a)<2?0:a-Math.sign(a)*2;return -cl(a/25,-1,1)}
+addEventListener('deviceorientation',e=>{if(e.beta==null||e.gamma==null)return;tiltT=performance.now();tB=e.beta;tG=e.gamma});
+// telefonun ekran düzleminde yana yatma açısı (derece). sağ kenar aşağı = pozitif
+function tiltRoll(){const b=tB*Math.PI/180,g=tG*Math.PI/180,gx=Math.sin(g)*Math.cos(b),gy=-Math.sin(b);
+const o=((typeof window.orientation=='number'?window.orientation:(screen.orientation&&screen.orientation.angle)||0)%360+360)%360;
+const sx=o==90?-gy:o==270?gy:o==180?-gx:gx;return Math.asin(cl(sx,-1,1))*57.3}
+function tiltSteer(){let a=ad((tiltRoll()-tiltZero)/57.3)*57.3;const dz=2.5;a=Math.abs(a)<dz?0:a-Math.sign(a)*dz;const x=cl(a/(set.tlt-dz),-1,1);return -Math.sign(x)*Math.pow(Math.abs(x),1.35)}
 function bindWheel(z,e){let id=null,a0=0,base=0;const ang=v=>{const r=e.getBoundingClientRect();return Math.atan2(v.clientY-(r.top+r.height/2),v.clientX-(r.left+r.width/2))};
 z.addEventListener('pointerdown',v=>{v.preventDefault();z.setPointerCapture(v.pointerId);id=v.pointerId;a0=ang(v);base=wheelA});
 z.addEventListener('pointermove',v=>{if(v.pointerId!==id)return;const a=ang(v);wheelA=cl(wheelA+ad(a-a0),-2.1,2.1);a0=a;I.sa=-wheelA/2.1;e.style.transform=`rotate(${wheelA}rad)`});
 ['pointerup','pointercancel'].forEach(n=>z.addEventListener(n,v=>{if(v.pointerId!==id)return;id=null;wheelA=0;I.sa=0;e.style.transform=''}))}
-function bindPedal(e){const f=e.querySelector('i'),set_=v=>{const r=e.getBoundingClientRect();I.g=cl((r.bottom-v.clientY)/r.height*1.15,.1,1);f.style.height=I.g*100+'%'};
+function bindPedal(e){const fg=e.querySelector('i'),fb=e.querySelector('u'),set_=v=>{const r=e.getBoundingClientRect();let y=((r.top+r.height/2)-v.clientY)/(r.height/2);
+const dz=.08,m=Math.abs(y)<dz?0:cl((Math.abs(y)-dz)/(.9-dz),0,1);I.g=y>0?m:0;I.b=y<0?m:0;fg.style.height=I.g*50+'%';fb.style.height=I.b*50+'%'};
 e.addEventListener('pointerdown',v=>{v.preventDefault();e.setPointerCapture(v.pointerId);set_(v)});e.addEventListener('pointermove',v=>{if(e.hasPointerCapture(v.pointerId))set_(v)});
-['pointerup','pointercancel'].forEach(n=>e.addEventListener(n,()=>{I.g=0;f.style.height='0'}))}
+['pointerup','pointercancel'].forEach(n=>e.addEventListener(n,()=>{I.g=I.b=0;fg.style.height=fb.style.height='0'}))}
 function buildCtl(){const c=$('#ctl');I.l=I.r=I.g=I.b=0;I.sa=0;
 const L=CT.steer=='btn'?'<div class="g"><div class="k" id="l">◀</div><div class="k" id="r">▶</div></div>':CT.steer=='wheel'?'<div class="wz" id="wz"><div class="wheel" id="wh"></div></div>':'<div class="g"><div class="k" id="cal">Ortala</div></div>';
-const B=`<div class="k" id="b"${CT.gas=='auto'?' style="width:124px;height:116px;font-size:22px"':''}>FREN</div>`;
-c.innerHTML=L+'<div class="g">'+B+(CT.gas=='btn'?'<div class="k" id="g">GAZ</div>':CT.gas=='analog'?'<div class="pedal" id="pd"><i></i><b>GAZ</b></div>':'')+'</div>';
-if(CT.steer=='btn'){bindK('#l','l');bindK('#r','r')}else if(CT.steer=='wheel')bindWheel($('#wz'),$('#wh'));else $('#cal').onclick=()=>{if(performance.now()-tiltT>1500){askTilt();return}tiltZero=tiltRaw;note('Ortalandı',30)};
-bindK('#b','b');if(CT.gas=='btn')bindK('#g','g');else if(CT.gas=='analog')bindPedal($('#pd'))}
+const B=CT.gas=='analog'?'':`<div class="k" id="b"${CT.gas=='auto'?' style="width:124px;height:116px;font-size:22px"':''}>FREN</div>`;
+c.innerHTML=L+'<div class="g">'+B+(CT.gas=='btn'?'<div class="k" id="g">GAZ</div>':CT.gas=='analog'?'<div class="pedal" id="pd"><i></i><u></u><b>GAZ</b><s>FREN</s></div>':'')+'</div>';
+if(CT.steer=='btn'){bindK('#l','l');bindK('#r','r')}else if(CT.steer=='wheel')bindWheel($('#wz'),$('#wh'));else $('#cal').onclick=()=>{if(performance.now()-tiltT>1500){askTilt();return}tiltZero=tiltRoll();note('Ortalandı',30)};
+if(CT.gas!='analog')bindK('#b','b');if(CT.gas=='btn')bindK('#g','g');else if(CT.gas=='analog')bindPedal($('#pd'))}
 
 const KM={ArrowLeft:'l',ArrowRight:'r',ArrowUp:'g',ArrowDown:'b'};
 addEventListener('keydown',e=>{if(KM[e.key])I[KM[e.key]]=1});addEventListener('keyup',e=>{if(KM[e.key])I[KM[e.key]]=0});
@@ -344,9 +348,13 @@ function sub(h,P,M){const fx=Math.sin(S.h),fz=Math.cos(S.h),ux=Math.cos(S.h),uz=
 const vl=S.vx*fx+S.vz*fz,vt=S.vx*ux+S.vz*uz,sg=vl>=0?1:-1,vxs=Math.max(Math.abs(vl),4),a=L/2,dl=P.delta,sp=Math.hypot(vl,vt);
 const af=Math.atan2(vt+a*S.w,vxs)-dl*sg,ar=Math.atan2(vt-a*S.w,vxs);
 const wt=cl(S.axs*M.wk,-.15,.1),Df=P.Af*(.5-wt),Dr=P.Ar*(.5+wt)*M.rb;
-let ax=0,Fxr=0,Fxf=0,spin=false;
-if(I.b){if(vl>.5){const Bk=Math.min(30*M.brk,P.A*1.05);ax=-Bk;Fxf=M.bb*Bk*M.bc;Fxr=(1-M.bb)*Bk*M.bc}else if(vl>-10){const Rv=Math.min(12,Dr);ax=-Rv;Fxr=Rv*.6*M.bc}}
-else if(S.gas>.01){const av=Math.abs(vl),E=M.acc*P.gas*S.gas*Math.min(9.5*(1+.7*P.lch*Math.max(0,1-av/15)),240/Math.max(av,1))*(1-Math.pow(cl(av/P.top,0,1.2),4)),lim=Math.min(P.A*.9,Dr*.55*M.lim);spin=E>lim*1.02;const e=spin?lim*(P.loose?.8:.93):E;ax=e;Fxr=spin?Dr*(P.loose?.9:.6):Math.abs(e)*M.tc*1.8}
+let ax=0,Fxr=0,Fxf=0,spin=0;
+if(I.b){if(vl>.5){const Bk=Math.min(30*M.brk,P.A*1.05)*I.b;ax=-Bk;Fxf=M.bb*Bk*M.bc;Fxr=(1-M.bb)*Bk*M.bc}else if(vl>-10){const Rv=Math.min(12,Dr)*I.b;ax=-Rv;Fxr=Rv*.6*M.bc}}
+else if(S.gas>.01){const av=Math.abs(vl),lw=Math.max(0,1-av/15),an=CT.gas=='analog',Lc=an?1+2*P.lch*S.gas*S.gas*lw:1+.7*P.lch*lw,
+E0=M.acc*P.gas*S.gas*Math.min(9.5*Lc,240/Math.max(av,1))*(1-Math.pow(cl(av/P.top,0,1.2),4)),lim=Math.min(P.A*.9,Dr*.55*M.lim),
+// kalkış patinajı: tuşla ya da otomatik gazda aracın sabit değeri (M.sc); analog pedalda gazın ne kadar açıldığına bağlı
+E=an?E0:Math.min(E0,lim*(1+M.sc+Math.max(0,av-6)/10)),sl=Math.max(0,E/lim-1),sk=Math.min(1,sl*2.5);
+spin=sk;const e=sl>0?lim*(1-(P.loose?.2:.07)*sk):E;ax=e;Fxr=Math.max(Math.abs(e)*M.tc*1.8,Dr*(P.loose?.9:.6)*sk)}
 if(!I.b)ax-=sg*(1.2+(S.gas>.05?0:2.8))+vl*.05;
 ax-=sg*P.drag*3+vl*P.drag*.04;
 const Fyf=-cap(Df,Fxf)*pac(af,P.Bf,P.C),Fyr=-cap(Dr,Fxr)*pac(ar,P.Br,P.C);
@@ -366,28 +374,30 @@ let fx=Math.sin(S.h),fz=Math.cos(S.h),vl=S.vx*fx+S.vz*fz,vt=S.vx*Math.cos(S.h)-S
 const be=Math.atan2(vt,Math.max(vl,.5)),ab=Math.abs(be),bmax=.9-.35*cl((v-10)/45,0,1);
 // drift penceresi: açı pencere içinde kaldıkça drift sürer; çok düşerse araç düzelir, abartılırsa spin
 if(DR.cool>0)DR.cool-=dt;
-if(!S.air){if(!DR.on&&DR.cool<=0){const full=Math.abs(st)>.85;DR.hold=full&&v>14?DR.hold+dt:0;
+if(!S.air){if(!DR.on&&DR.cool<=0){const full=Math.abs(st)>(I.g>.5?.6:.7);DR.hold=full&&v>11?DR.hold+dt:0;
 if(as.dft>0&&v>10&&ab>.18&&I.g&&st*-Math.sign(be)>.5){DR.on=1;DR.dir=-Math.sign(be);DR.bt=Math.min(ab,bmax)}
-else if(as.ini>0&&full&&((v>14&&DR.hold>.18)||(as.ini>=.8&&v>12&&I.b))){DR.on=1;DR.dir=Math.sign(st);DR.bt=.3}if(DR.on)DR.t=0}
+else if(as.ini>0&&full&&((v>11&&DR.hold>.1)||(as.ini>=.8&&v>11&&I.b))){DR.on=1;DR.dir=Math.sign(st);DR.bt=.35}if(DR.on)DR.t=0}
 else if(DR.on){DR.t+=dt;const into=st*DR.dir;if(into>.3)DR.bt=Math.min(DR.bt+.45*dt,bmax+.15);else if(into<-.3)DR.bt-=.9*dt;else DR.bt-=.2*dt;if(!I.g)DR.bt-=.5*dt;
-if(ab>bmax+.5){DR.on=0;DR.cool=1.2}else if(DR.bt<.1||v<8||(ab<.07&&DR.t>.5))DR.on=0}}
+if(ab>bmax+.6){DR.on=0;DR.cool=1.2}else if(DR.bt<.1||v<6||(ab<.07&&DR.t>.5))DR.on=0}}
 DR.k+=((DR.on?1:0)-DR.k)*Math.min(1,dt*(DR.on?7:3));
 // çekiş kontrolü: drift dışındaki arka kaymada gazı keser
 if(as.tcs>0&&!DR.on)P.gas=1-as.tcs*sm(.12,.35,ab);
 const M={rb:tu.bal*(1-.4*as.ini*DR.k),bc:.45*(1-as.abs),bb:tu.bb,tc:.8*tu.diff*(1-.7*as.tcs),wk:.012*tu.susp,kin:5*as.str*(1-DR.k),al:2.5*as.str*(1-DR.k),
-dmp:.35+1.6*as.stm*(1-DR.k),acc:as.acc*tu.pow,brk:as.bra*tu.brk,lim:1+.6*as.tcs};
-let info={ar:0,spin:false};const pv0=Math.atan2(S.vx,S.vz);
+dmp:.35+1.6*as.stm*(1-DR.k),acc:as.acc*tu.pow,brk:as.bra*tu.brk,lim:1+.6*as.tcs,sc:.03+.12*tu.lch};
+let info={ar:0,spin:0};const pv0=Math.atan2(S.vx,S.vz);
 if(!S.air){const e=2;S.vx-=24*(H(S.x+e,S.z)-H(S.x-e,S.z))/(2*e)*dt;S.vz-=24*(H(S.x,S.z+e)-H(S.x,S.z-e))/(2*e)*dt;
 const spn=Math.min(1,Math.abs(vl)/VMAX),ae=1+.5*tu.aero*spn*spn;P.A*=ae;P.Af*=ae;P.Ar*=ae;
 const dmax=tu.lock*(set.ss?1-.5*Math.pow(spn,.8)*(1-sm(.1,.3,ab)):1)*(1+.12*as.str);let dlt=st*dmax;
 if(DR.k>0&&as.dft>0){const dc=cl(2*(be+DR.dir*DR.bt),-.6,.6),w=as.dft*DR.k;dlt=dlt*(1-w)+dc*w;
 const wv=ad(Math.atan2(S.vx,S.vz)-(S.pv??Math.atan2(S.vx,S.vz)))/dt,wd=wv+5*(be+DR.dir*DR.bt);S.w+=(wd-S.w)*Math.min(1,dt*10)*w}
 delta=cl(dlt,-.8,.8);P.delta=delta;
-for(let i=0;i<8;i++){const r=sub(dt/8,P,M);info.ar=r.ar;info.spin=info.spin||r.spin}S.pv=pv0;
+const v0=Math.hypot(S.vx,S.vz);for(let i=0;i<8;i++){const r=sub(dt/8,P,M);info.ar=r.ar;info.spin=Math.max(info.spin,r.spin)}S.pv=pv0;
+// drift desteği hızı korur: driftte kaybedilen hızın çoğu geri verilir ve araç drift hızına doğru itilir
+if(DR.k>.05&&as.dft>0&&I.g>0){const v1=Math.hypot(S.vx,S.vz);if(v1>1){const w=as.dft*DR.k*I.g,tgt=Math.min(P.top*.45,30),dv=Math.max(0,v0-v1)*.75*w+Math.max(0,tgt-v1)*.35*w*dt,k=(v1+dv)/v1;S.vx*=k;S.vz*=k}}
 }else S.h+=S.w*dt;
 const mx=S.x+S.vx*dt,mz=S.z+S.vz*dt,run=Math.hypot(S.vx,S.vz)*dt;
 if(run>1e-4&&H(mx,mz)-S.y>Math.max(.3,.6*run+(S.air?.3:.05))){const gx=(H(mx+1,mz)-H(mx-1,mz))/2,gz=(H(mx,mz+1)-H(mx,mz-1))/2,gl=Math.hypot(gx,gz)||1,nx=gx/gl,nz=gz/gl,vn=S.vx*nx+S.vz*nz;
-if(vn>0){S.vx-=nx*vn*1.15;S.vz-=nz*vn*1.15}S.vx*=.97;S.vz*=.97;S.w*=.5}else{S.x=cl(mx,-2450,2450);S.z=cl(mz,-2450,2450)}
+if(vn>0){S.vx-=nx*vn*1.15;S.vz-=nz*vn*1.15}S.vx*=.97;S.vz*=.97;S.w*=.5}else{const b=EV?REG[EV.reg].box:HUBB;S.x=mx;S.z=mz;if(S.x<b[0]+5||S.x>b[1]-5){S.x=cl(S.x,b[0]+5,b[1]-5);S.vx*=-.3}if(S.z<b[2]+5||S.z>b[3]-5){S.z=cl(S.z,b[2]+5,b[3]-5);S.vz*=-.3}}
 // çarpışma: ağaç ve taş sert, çalı yavaşlatır, su ıslatır
 for(const o of colNear(S.x,S.z)){const dx=S.x-o.x,dz=S.z-o.z,d=Math.hypot(dx,dz)||.01;
 if(o.t=='solid'){const rr=o.r+1.5;if(d<rr){const nx=dx/d,nz=dz/d,vn=S.vx*nx+S.vz*nz;S.x+=nx*(rr-d);S.z+=nz*(rr-d);
@@ -398,9 +408,9 @@ const g2=H(S.x,S.z),ny=S.y+S.vy*dt;
 S.kerb=CUR&&CUR.kerb&&!S.air&&g2>.02?1:0;
 if(ny>g2+.03){S.y=ny;S.vy-=24*dt;S.air=true}else if(S.air){S.air=false;S.vy=0;S.y=g2}else{S.vy=cl((g2-S.y)/dt,-30,30);S.y=g2}
 v=Math.hypot(S.vx,S.vz);fx=Math.sin(S.h);fz=Math.cos(S.h);vl=S.vx*fx+S.vz*fz;vt=S.vx*Math.cos(S.h)-S.vz*Math.sin(S.h);
-S.spin=info.spin&&v<25?1:0;if(info.spin&&loose&&!S.air)S.w+=(Math.random()-.5)*dt*7*(1-as.tcs);const beta=Math.atan2(vt,Math.max(Math.abs(vl),1)),dri=!S.air&&v>10&&Math.abs(beta)>.2;D.beta=beta;D.act=dri?1:0;
+S.spin=info.spin>.3&&v<25?1:0;if(info.spin&&loose&&!S.air)S.w+=(Math.random()-.5)*dt*7*(1-as.tcs)*info.spin;const beta=Math.atan2(vt,Math.max(Math.abs(vl),1)),dri=!S.air&&v>10&&Math.abs(beta)>.2;D.beta=beta;D.act=dri?1:0;
 if(dri){D.t+=dt;D.gap=0;D.score+=v*Math.abs(beta)*dt*4}else{D.gap+=dt;if(D.gap>.6){D.t=0;D.score=0}}
-const sm2=!S.air&&v>5&&(Math.abs(info.ar)>.16||info.spin||dri),dust=!S.air&&(si==0||si==3)&&v>6;
+const sm2=!S.air&&v>5&&(Math.abs(info.ar)>.16||info.spin>.2||dri),dust=!S.air&&(si==0||si==3)&&v>6;
 if((sm2||dust)&&Math.random()<.85){const col=si==3?0x4a3524:si==1?0xe6e6e6:si==2?0x9a8f6a:0xbfa07a;for(const s2 of[-.9,.9]){if(Math.random()<.6)puff(S.x-fx*1.6+Math.cos(S.h)*s2,S.y,S.z-fz*1.6-Math.sin(S.h)*s2,S.vx,S.vz,col)}}
 // tur zamanı
 MAP.TR=CUR?CUR.TR:null;if(LAP.reg!==CUR){LAP.reg=CUR;LAP.run=0;LAP.armed=0;LAP.prev=ti}
@@ -411,34 +421,32 @@ return{Sf,T,v,si}}
 // ---------- döngü
 const fmt=t=>t==null?'—':Math.floor(t/60)+':'+(t%60).toFixed(1).padStart(4,'0');
 let last=0,tt=0;
-let nearCur=.5,joinEv=-1;const mmc=$('#mm').getContext?$('#mm').getContext('2d'):null;
+let nearCur=.5;const mmc=$('#mm').getContext?$('#mm').getContext('2d'):null;
 function loop(ts){const dt=Math.min(.033,(ts-last)/1000||0);last=ts;tt+=dt;
 if(CT.gas=='auto'&&mode=='drive')I.g=I.b?0:1;
 let v=Math.hypot(S.vx,S.vz),Sf=SURF[surf(S.x,S.z)],T=TIRES[tire];const frozen=EV&&EV.state=='count';
 if(mode=='drive'&&!frozen){const o=phys(dt);v=o.v;Sf=o.Sf;T=o.T;if(EV)evTick(dt,o)}
 if(frozen&&mode=='drive'){EV.cd-=dt;const b=$('#big');b.style.fontSize='88px';b.textContent=EV.cd>0?Math.ceil(EV.cd):'';if(EV.cd<=0){EV.state='run';note('BAŞLA!',60)}}
 if(bigT>0){bigT-=dt;if(bigT<=0)$('#big').textContent=''}
-// yarış kapısına yaklaşınca giriş tuşu
-let je=-1;if(mode=='drive'&&!EV)EVENTS.forEach((e,i)=>{if(Math.hypot(S.x-e.g[1],S.z-e.g[2])<24)je=i});
-if(je!=joinEv){joinEv=je;const j=$('#join');if(je<0)j.classList.add('hidden');else{j.textContent='Yarışa gir: '+EVENTS[je].n;j.classList.remove('hidden')}}
+ground.position.x=Math.round(S.x/GT)*GT;ground.position.z=Math.round(S.z/GT)*GT;
 const fxm=Math.sin(S.h),fzm=Math.cos(S.h);
-car.position.set(S.x,S.y,S.z);car.rotation.y=S.h;fw.rotation.y=delta;
+car.position.set(S.x,S.y,S.z);car.rotation.y=S.h;for(const pv of steerP)pv.rotation.y=delta;{const vl_=S.vx*fxm+S.vz*fzm;for(const w of wheels)w.rotation.x+=vl_*dt/.45}
 const pt=S.air?Math.atan2(S.vy,Math.max(10,v)):Math.atan2(H(S.x+fxm*1.6,S.z+fzm*1.6)-H(S.x-fxm*1.6,S.z-fzm*1.6),3.2);pitC+=(pt-pitC)*Math.min(1,dt*10);car.rotation.x=-pitC;
 body.rotation.z+=(cl(S.w*Math.min(1,v/VMAX)*.06,-.12,.12)-body.rotation.z)*Math.min(1,dt*8);
 body.rotation.x+=(cl(-S.axs*.004,-.07,.07)-body.rotation.x)*Math.min(1,dt*6);
 const spn=Math.min(1,v/VMAX),shake=mode=='drive'?(S.kerb?.06:0)+(tt-S.hit<.35?.3:0)+(set.shk&&spn>.7?.03*(spn-.6)*3:0):0;
 const inCar=mode!='menu'&&camMode>=2,ck=inCar&&camMode==3,nr=inCar?.05:.5;
 if(nr!=nearCur){nearCur=nr;cam.near=nr;cam.updateProjectionMatrix()}
-cock.visible=ck;b2.visible=spl.visible=!ck;
-if(inCar){car.updateMatrixWorld();swl.rotation.z=-delta*2.5;
-cam.position.copy((ck?V3(.42,1.5,0):V3(0,1.32,1.05)).applyMatrix4(car.matrixWorld));cam.position.y+=(Math.random()-.5)*shake*.4;
-cam.lookAt((ck?V3(.42,1.38,12):V3(0,1.12,15)).applyMatrix4(car.matrixWorld))}
+cock.visible=ck;b1.visible=b2.visible=spl.visible=!ck;
+if(inCar){car.updateMatrixWorld(true);swl.rotation.z=-delta*2.5;const mw=body.matrixWorld;
+cam.position.copy((ck?V3(.4,1.55,-.15):V3(0,1.72,.95)).applyMatrix4(mw));cam.position.y+=(Math.random()-.5)*shake*.4;
+cam.up.set(0,1,0).applyQuaternion(body.getWorldQuaternion(new THREE.Quaternion()));cam.lookAt((ck?V3(.4,1.45,14):V3(0,1.45,16)).applyMatrix4(mw))}
 else{if(mode=='menu'){camYaw=tt*.35;ly=0;lp=0}
 else{camYaw+=ad(S.h-camYaw)*Math.min(1,dt*(D.act?2.2:4.5));if(dp===null&&performance.now()-lastDrag>1500){const d=Math.exp(-dt*3);ly*=d;lp*=d}}
 const far=camMode==1?1.6:1,pit=.3+lp,dist=(9+spn*3-cl(S.axs*.05,-1.5,1.5))*far,a=camYaw+ly;
 let cx=S.x-Math.sin(a)*dist*Math.cos(pit),cz=S.z-Math.cos(a)*dist*Math.cos(pit),cy=S.y+2.4*far+dist*Math.sin(pit);
 cy+=(Math.random()-.5)*shake;cx+=(Math.random()-.5)*shake*.6;
-cy=Math.max(cy,H(cx,cz)+1);cam.position.set(cx,cy,cz);cam.lookAt(S.x+fxm*3,S.y+1.2,S.z+fzm*3)}
+cy=Math.max(cy,H(cx,cz)+1);cam.position.set(cx,cy,cz);cam.up.set(0,1,0);cam.lookAt(S.x+fxm*3,S.y+1.2,S.z+fzm*3)}
 const bf=(innerWidth<innerHeight?78:62)+(inCar?6:0),tf=bf+(set.fov?spn*24:0);fovC+=(tf-fovC)*Math.min(1,dt*3);if(Math.abs(cam.fov-fovC)>.05){cam.fov=fovC;cam.updateProjectionMatrix()}
 for(const p of parts){if(p.l>0){p.l-=dt*1.1;p.m.position.addScaledVector(p.v,dt);const s=1+(1-p.l)*3;p.m.scale.set(s,s,s);p.m.material.opacity=Math.max(0,p.l*.45);if(p.l<=0)p.m.visible=false}}
 if(mode!='menu'){$('#spd').firstChild.nodeValue=Math.round(v*3.6);
@@ -447,20 +455,20 @@ $('#dr').textContent=D.t>0?'DRIFT '+Math.round(Math.abs(D.beta)*57.3)+'°':S.spi
 $('#lap').textContent=EV||!MAP.TR||MAP.TR.open?'':(LAP.run?'Tur '+fmt(LAP.t):'Başlangıç çizgisinden geçince tur başlar')+' · Son '+fmt(LAP.last)+' · En iyi '+fmt(LAP.best);
 $('#ev').textContent=evText();
 if(CT.steer=='tilt'){const c=$('#cal');if(c)c.textContent=performance.now()-tiltT<1500?'Ortala':'Sensör izni'}
-if(mmc){mmc.clearRect(0,0,240,240);mmc.drawImage(mmBase,0,0);const q=[(S.x+MMR)*mmS*2,(S.z+MMR)*mmS*2];mmc.fillStyle='#fff';mmc.strokeStyle='#ff7a3c';mmc.lineWidth=3;
+if(mmc){mmc.clearRect(0,0,240,240);mmc.drawImage(mmBase,0,0);const q=mmP(S.x,S.z);mmc.fillStyle='#fff';mmc.strokeStyle='#ff7a3c';mmc.lineWidth=3;
 mmc.beginPath();mmc.moveTo(q[0]+fxm*12,q[1]+fzm*12);mmc.lineTo(q[0]-fxm*6+fzm*6,q[1]-fzm*6-fxm*6);mmc.lineTo(q[0]-fxm*6-fzm*6,q[1]-fzm*6+fxm*6);mmc.closePath();mmc.fill();mmc.stroke()}}
 R.render(scene,cam);requestAnimationFrame(loop)}
 // ---------- yarışlar
 let EV=null;
 const best=k=>{try{return +localStorage.getItem('sv_'+k)||0}catch(e){return 0}},saveBest=(k,v)=>{try{localStorage.setItem('sv_'+k,v)}catch(e){}};
 function startEvent(i){const e=EVENTS[i],sv=EV&&EV.sv?EV.sv:{PK,LK,tire,TU:{...TU},AS:{...AS},custom};
-PK=e.pk;applyPreset();if(e.k=='drift'){tire=3;Object.assign(AS,{grip:0,str:.2,stm:0,tcs:0,dft:1,ini:1})}
-['#res','#set','#menu','#join'].forEach(s=>$(s).classList.add('hidden'));joinEv=-1;reset(e.g[1],e.g[2],e.g[3]);mode='drive';buildCtl();['#hud','#mm','#ctl'].forEach(s=>$(s).classList.remove('hidden'));
-EV={...e,i,sv,TR:REG[e.reg].TR,state:'count',cd:3,t:0,score:0,combo:0,ct:0,mult:1,gap:0,best:0,armed:0,lap:0,lapStart:0,bestLap:null,prev:ti,time:e.time||0,limit:e.k=='rally'?RALLY_LIMIT:e.limit||0}}
+PK=e.pk;applyPreset();if(e.ty=='dp'){tire=3;Object.assign(AS,{grip:0,str:.2,stm:0,tcs:0,dft:1,ini:1})}
+['#res','#set','#menu'].forEach(s=>$(s).classList.add('hidden'));setActive(REG[e.reg]);reset(e.g[1],e.g[2],e.g[3]);mode='drive';buildCtl();['#hud','#mm','#ctl'].forEach(s=>$(s).classList.remove('hidden'));
+EV={...e,i,sv,TR:REG[e.reg].TR,state:'count',cd:3,t:0,score:0,combo:0,ct:0,mult:1,gap:0,best:0,armed:0,lap:0,lapStart:0,bestLap:null,prev:ti,time:e.time||0,limit:e.limit||0}}
 function leaveEvent(){if(!EV)return;const sv=EV.sv;PK=sv.PK;LK=sv.LK;tire=sv.tire;TU=sv.TU;AS=sv.AS;custom=sv.custom;EV=null;$('#ev').textContent=''}
 function bank(){const p=Math.round(EV.combo*EV.mult);if(p>0){EV.score+=p;EV.best=Math.max(EV.best,p);note('+'+p,40)}EV.combo=0;EV.ct=0;EV.mult=1;EV.gap=0}
 function evTick(dt,o){if(EV.state!='run')return;EV.t+=dt;
-if(EV.k=='drift'){EV.time-=dt;const lost=o.si==2||tt-S.hit<.05||Math.abs(D.beta)>1.4;
+if(EV.ty=='dp'){EV.time-=dt;const lost=o.si==2||tt-S.hit<.05||Math.abs(D.beta)>1.4;
 if(EV.combo>0&&lost){EV.combo=0;EV.ct=0;EV.mult=1;note('KOMBO YANDI',30)}
 else if(D.act&&!lost){EV.combo+=o.v*Math.abs(D.beta)*dt*3;EV.ct+=dt;EV.gap=0;const m=Math.min(5,1+Math.floor(EV.ct/2.5));if(m>EV.mult)note('x'+m,44);EV.mult=m}
 else if(EV.combo>0){EV.gap+=dt;if(EV.gap>.8)bank()}
@@ -469,37 +477,38 @@ const N=EV.TR.N;
 if(EV.laps){if(ti>N*.4&&ti<N*.6)EV.armed=1;if(EV.prev>N*.8&&ti<N*.2&&EV.armed){EV.armed=0;EV.lap++;const lt=EV.t-EV.lapStart;EV.lapStart=EV.t;EV.bestLap=EV.bestLap==null?lt:Math.min(EV.bestLap,lt);
 if(EV.lap>=EV.laps)endEvent();else note('Tur '+(EV.lap+1)+'/'+EV.laps+' · '+fmt(lt),30)}EV.prev=ti}
 else{if(ti>N*.5)EV.armed=1;if(EV.armed&&ti>=N-4)endEvent()}}
-function evText(){if(!EV)return'';if(EV.k=='drift')return'⏱ '+Math.max(0,EV.time).toFixed(1)+' · Puan '+EV.score+(EV.combo>0?' · Kombo '+Math.round(EV.combo)+' x'+EV.mult:'');
+function evText(){if(!EV)return'';if(EV.ty=='dp')return'⏱ '+Math.max(0,EV.time).toFixed(1)+' · Puan '+EV.score+(EV.combo>0?' · Kombo '+Math.round(EV.combo)+' x'+EV.mult:'');
 return'⏱ '+fmt(EV.t)+' / '+fmt(EV.limit)+(EV.t>EV.limit?' · SÜRE AŞILDI':'')+(EV.laps?' · Tur '+Math.min(EV.lap+1,EV.laps)+'/'+EV.laps:' · %'+Math.round(100*ti/EV.TR.N))}
 function endEvent(){EV.state='done';mode='result';I.g=I.b=I.l=I.r=0;I.sa=0;$('#ctl').classList.add('hidden');let h,p;
 const row=(a,b)=>`<div class="rk"><span>${a}</span><span>${b}</span></div>`;
-if(EV.k=='drift'){const b=best('drift'),nb=EV.score>b;if(nb)saveBest('drift',EV.score);h='Drift yarışması bitti';p=row('Toplam puan',EV.score)+row('En iyi kombo',EV.best)+row('Rekor',Math.max(b,EV.score)+(nb?' · YENİ':''))}
+if(EV.ty=='dp'){const b=best(EV.k),nb=EV.score>b;if(nb)saveBest(EV.k,EV.score);h='Drift yarışması bitti';p=row('Toplam puan',EV.score)+row('En iyi kombo',EV.best)+row('Rekor',Math.max(b,EV.score)+(nb?' · YENİ':''))}
 else{const ok=EV.t<=EV.limit,b=best(EV.k),nb=ok&&(!b||EV.t<b);if(nb)saveBest(EV.k,EV.t.toFixed(2));h=ok?(EV.laps?'Yarış tamamlandı':'Etap tamamlandı'):'Süre aşıldı';
 p=row('Süren',fmt(EV.t))+row('Hedef',fmt(EV.limit))+(EV.laps?row('En iyi tur',fmt(EV.bestLap)):'')+row('Rekor',nb?fmt(EV.t)+' · YENİ':b?fmt(b):'—')}
-const r=$('#res'),k=EV.i;r.classList.remove('hidden');r.innerHTML=`<h1>${h}</h1>${p}<button class="btn" id="again">Tekrar</button><button class="btn alt" id="free">Serbest sürüşe dön</button><button class="btn alt" id="rm">Ana menü</button>`;
-$('#again').onclick=()=>startEvent(k);$('#free').onclick=()=>{r.classList.add('hidden');leaveEvent();mode='drive';buildCtl();$('#ctl').classList.remove('hidden')};$('#rm').onclick=()=>{r.classList.add('hidden');leaveEvent();showMenu()}}
-$('#join').onclick=()=>{if(joinEv>=0)startEvent(joinEv)};
+const r=$('#res'),k=EV.i;r.classList.remove('hidden');r.innerHTML=`<h1>${h}</h1>${p}<button class="btn" id="again">Tekrar</button><button class="btn alt" id="free">Test alanına git</button><button class="btn alt" id="rm">Ana menü</button>`;
+$('#again').onclick=()=>startEvent(k);$('#free').onclick=()=>{r.classList.add('hidden');startWorld()};$('#rm').onclick=()=>{r.classList.add('hidden');leaveEvent();showMenu()}}
 // ---------- menü ve ayarlar (katlanır bölümler)
 const STEER={btn:{n:'Tuşlar',d:'Sağ ve sol tuşları'},wheel:{n:'Direksiyon',d:'Ekrandaki direksiyonu çevir'},tilt:{n:'Telefonu çevir',d:'Telefonu direksiyon gibi yatır'}};
-const GASM={btn:{n:'Gaz tuşu',d:'Basınca tam gaz'},analog:{n:'Analog pedal',d:'Parmağı yukarı kaydırdıkça gaz artar'},auto:{n:'Otomatik gaz',d:'Araç kendi hızlanır, sen frenle'}};
+const GASM={btn:{n:'Gaz tuşu',d:'Basınca tam gaz'},analog:{n:'Analog pedal',d:'Ortası boş: yukarı kaydır gaz, aşağı kaydır fren. Kalkışta tam gaz patinaj yapar'},auto:{n:'Otomatik gaz',d:'Araç kendi hızlanır, sen frenle'}};
 const CAMS=['Takip','Uzak takip','Kaput','Kokpit'],CAMO={0:{n:'Takip',d:'Arkadan'},1:{n:'Uzak takip',d:'Geniş görüş'},2:{n:'Kaput',d:'Kaputun üstünden'},3:{n:'Kokpit',d:'Şoför gözünden'}};
-const OPEN=new Set(['pre','lvl']);
+const OPEN=new Set();
 const sec=(k,t,body)=>`<details data-sec="${k}"${OPEN.has(k)?' open':''}><summary>${t}</summary>${body}</details>`;
 const chipsOf=(obj,cur,attr)=>'<div class="chips" style="flex-wrap:wrap">'+Object.entries(obj).map(([k,m])=>`<div class="chip ${cur==k?'sel':''}" data-${attr}="${k}" style="flex:1 1 40%">${m.n}<small>${m.d}</small></div>`).join('')+'</div>';
-const ctlHTML=()=>sec('ctl','Kontroller','<div class="lbl">Direksiyon</div>'+chipsOf(STEER,CT.steer,'cs')+'<div class="lbl">Gaz</div>'+chipsOf(GASM,CT.gas,'cg')+'<p>Telefonu çevirme: sürüşte sol alttaki tuşa basıp sensör izni ver, sonra telefonu düz tutup “Ortala”ya bas. Yön ters gelirse Mekanikler bölümünden direksiyon yönünü çevir.</p>');
-function bindAll(root,re){root.querySelectorAll('details').forEach(d=>d.addEventListener('toggle',()=>{d.open?OPEN.add(d.dataset.sec):OPEN.delete(d.dataset.sec)}));
+const ctlHTML=()=>sec('ctl','Kontroller','<div class="lbl">Direksiyon</div>'+chipsOf(STEER,CT.steer,'cs')+'<div class="lbl">Gaz</div>'+chipsOf(GASM,CT.gas,'cg')+(CT.steer=='tilt'?`<div class="row" style="display:block"><div>Çevirme açısı <span id="v_tlt">${set.tlt}°</span><small>Tam direksiyon için telefonu ne kadar yatırman gerekir. Büyük değer daha az hassas.</small></div><input type="range" id="tlt" min="20" max="60" step="1" value="${set.tlt}"></div>`:'')+
+'<p>Telefonu çevirme: sürüşte sol alttaki tuşa basıp sensör izni ver, sonra telefonu nasıl tutacaksan öyle tutup “Ortala”ya bas. Telefonu direksiyon gibi sağa yatırınca sağa döner.</p>');
+function bindAll(root,re){const tl=root.querySelector('#tlt');if(tl)tl.oninput=()=>{set.tlt=+tl.value;root.querySelector('#v_tlt').textContent=set.tlt+'°'};root.querySelectorAll('details').forEach(d=>d.addEventListener('toggle',()=>{d.open?OPEN.add(d.dataset.sec):OPEN.delete(d.dataset.sec)}));
 root.querySelectorAll('.chip[data-pk]').forEach(e=>e.onclick=()=>{PK=e.dataset.pk;applyPreset();re()});root.querySelectorAll('.chip[data-lk]').forEach(e=>e.onclick=()=>{LK=e.dataset.lk;applyPreset();re()});
 root.querySelectorAll('.chip[data-cs]').forEach(e=>e.onclick=()=>{CT.steer=e.dataset.cs;if(CT.steer=='tilt')askTilt();buildCtl();re()});
 root.querySelectorAll('.chip[data-cg]').forEach(e=>e.onclick=()=>{CT.gas=e.dataset.cg;buildCtl();re()});root.querySelectorAll('.chip[data-cm]').forEach(e=>e.onclick=()=>{camMode=+e.dataset.cm;re()})}
-const rec=k=>{const b=best(k);return b?' Rekor: '+(k=='drift'?b:fmt(b))+'.':''};
-function showMenu(){mode='menu';leaveEvent();['#hud','#mm','#ctl','#set','#res','#join'].forEach(s=>$(s).classList.add('hidden'));joinEv=-1;$('#big').textContent='';const m=$('#menu');m.classList.remove('hidden');
-m.innerHTML=`<h1>Last Turn</h1><p>Merkezdeki test alanından başla, yollarla pistlere sür. Yarış alanındaki turuncu halkaya gelince “Yarışa gir” tuşu çıkar. Sağ üstteki haritada pistler görünür.</p>
-<div class="card go" id="go"><b>Sürüşe başla</b><span>Test alanının ortasından başlar.</span></div>`+
-sec('pre','Önayar: '+PRESETS[PK].n,chipsOf(PRESETS,PK,'pk'))+sec('lvl','Sürüş yardımı: '+LEVELS[LK].n,chipsOf(LEVELS,LK,'lk'))+ctlHTML()+
-'<div class="lbl">Yarış alanlarına ışınlan</div>'+EVENTS.map((e,i)=>`<div class="card" data-ev="${i}"><b>${e.n}</b><span>${e.d}${rec(e.k)}</span></div>`).join('')+
+const rec=e=>{const b=best(e.k);return b?' Rekor: '+(e.ty=='dp'?b:fmt(b))+'.':''};
+function showMenu(){mode='menu';leaveEvent();['#hud','#mm','#ctl','#set','#res'].forEach(s=>$(s).classList.add('hidden'));$('#big').textContent='';const m=$('#menu');m.classList.remove('hidden');
+m.innerHTML=`<h1>Last Turn</h1><p>Test alanında serbest sür ya da aşağıdan bir yarış seç.</p>
+<div class="card go" id="go"><b>Test alanı</b><span>Serbest sürüş: oval, uzun düzlük, zıplama rampası ve tırmanış yolu.</span></div>`+
+Object.entries(TYP).map(([t,y])=>`<div class="lbl" style="margin-top:18px"><b style="color:var(--ink);font-size:18px">${y.n}</b><br>${y.d}</div>`+
+EVENTS.map((e,i)=>e.ty!=t?'':`<div class="card" data-ev="${i}"><b>${e.n}</b><span>${e.d}${e.limit?' Hedef '+fmt(e.limit)+'.':''}${rec(e)}</span></div>`).join('')).join('')+
+'<div class="lbl" style="margin-top:18px"><b style="color:var(--ink);font-size:18px">Ayarlar</b></div>'+sec('pre','Önayar: '+PRESETS[PK].n,chipsOf(PRESETS,PK,'pk'))+sec('lvl','Sürüş yardımı: '+LEVELS[LK].n,chipsOf(LEVELS,LK,'lk'))+ctlHTML()+
 `<p style="font-size:13px;margin-top:14px">Sürüm ${APP_VERSION}</p>`;
-bindAll(m,showMenu);$('#go').onclick=()=>startWorld();m.querySelectorAll('.card[data-ev]').forEach(e=>e.onclick=()=>{const g=EVENTS[+e.dataset.ev].g;startWorld(g[1],g[2],g[3])})}
-function startWorld(x,z,h){leaveEvent();['#menu','#res','#set'].forEach(s=>$(s).classList.add('hidden'));reset(x,z,h);mode='drive';buildCtl();['#hud','#mm','#ctl'].forEach(s=>$(s).classList.remove('hidden'))}
+bindAll(m,showMenu);$('#go').onclick=()=>startWorld();m.querySelectorAll('.card[data-ev]').forEach(e=>e.onclick=()=>startEvent(+e.dataset.ev))}
+function startWorld(x,z,h){leaveEvent();['#menu','#res','#set'].forEach(s=>$(s).classList.add('hidden'));setActive(null);reset(x,z,h);mode='drive';buildCtl();['#hud','#mm','#ctl'].forEach(s=>$(s).classList.remove('hidden'))}
 const sliders=(D,O,o)=>D.map(t=>`<div class="row" style="display:block"><div>${t[1]} <span id="v_${o}${t[0]}">${(+O[t[0]]).toFixed(2)}</span>${t[2]?'<small>'+t[2]+'</small>':''}</div><input type="range" data-o="${o}" data-s="${t[0]}" min="${t[3]}" max="${t[4]}" step="${t[5]}" value="${O[t[0]]}"></div>`).join('');
 function resume(){$('#set').classList.add('hidden');if(mode=='pause'){mode='drive';buildCtl();$('#ctl').classList.remove('hidden')}}
 function showSet(){const s=$('#set');s.classList.remove('hidden');if(mode=='drive'){mode='pause';I.l=I.r=I.g=I.b=0;I.sa=0;$('#ctl').classList.add('hidden')}
