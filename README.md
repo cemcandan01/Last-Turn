@@ -4,9 +4,9 @@ iPhone için 3D sürüş ve yarış oyunu. Ana ekrana kurulan bir uygulama (PWA)
 
 ## İçerik
 
-- **Test alanı:** serbest sürüş; oval, uzun düzlük, zıplama rampası ve tırmanış yolu.
+- **Açık dünya** (serbest sürüş): *Çorak Topraklar* (oval, uzun düz yol, zıplama rampası, tırmanış yolu) ve *Boş Otopark* (AVM önünde geniş açık otopark, asfalt testleri için).
 - **12 yarış** (menüden seçilir): 3 asfalt pist, 3 toprak pist, 3 drift parkı ve 3 ralli etabı.
-- Lastik ve araç ayarları, sürüş yardımı seviyeleri, üç direksiyon modu (tuşlar, ekran direksiyonu, telefonu çevirme), üç gaz modu (tuş, analog pedal, otomatik) ve dört kamera.
+- Lastik ve araç ayarları, sürüş yardımı seviyeleri, üç direksiyon modu (tuşlar, ekran direksiyonu, telefonu çevirme), üç gaz modu (tuş, analog pedal, otomatik) dört kamera ve ekran yönü kilidi (otomatik, dikey, yatay).
 
 ## iPhone'a kurulum
 
