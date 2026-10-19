@@ -1,41 +1,60 @@
-<!DOCTYPE html>
-<html lang="tr"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Last Turn">
-<meta name="theme-color" content="#10252b">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<title>Last Turn</title>
-<link rel="stylesheet" href="css/stil.css">
-</head><body>
-<canvas id="c"></canvas><div id="cut"></div>
-<div id="hud" class="hidden"><div class="hTL glass"><div id="hName"></div><div id="ev"></div><div id="lap"></div></div><div class="hBt"><div class="ib glass" id="cm">🎥</div><div class="ib glass" id="ts">🛞</div><div class="ib glass" id="rs">↺</div><div class="ib glass" id="gs">⏸</div></div><div id="dr"></div>
-<div class="hSP glass"><div id="rpmb"></div><div class="sp"><span id="spd">0</span><div><b id="gear">1</b><small>km/sa</small></div></div><div id="sf"></div></div></div>
-<div id="ctl" class="hidden"></div>
-<div id="big"></div><canvas id="mm" class="hidden" width="240" height="240"></canvas><button id="upd" class="hidden">Yeni sürüm hazır · Güncelle</button>
-<div id="menu"></div>
-<div class="sheet hidden" id="set"></div>
-<div class="sheet hidden" id="res"></div>
-<div class="sheet hidden" id="gar"></div>
-<script src="vendor/three.min.js"></script>
-<script>
-// sürüm: her güncellemede artırılır; açık uygulama yeni sürümü bu değerden tanır
-const APP_VERSION='2.0.0';
-</script>
-<script src="js/temel.js"></script>
-<script src="js/sahne.js"></script>
-<script src="js/pistler.js"></script>
-<script src="js/ortam.js"></script>
-<script src="js/bolgeler.js"></script>
-<script src="js/araclar.js"></script>
-<script src="js/garaj.js"></script>
-<script src="js/fizik.js"></script>
-<script src="js/dongu.js"></script>
-<script src="js/yarislar.js"></script>
-<script src="js/menu.js"></script>
-<script src="js/pwa.js"></script>
-</body></html>
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="%UYGULAMA_ADI%" />
+    <meta name="theme-color" content="#10252b" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+    <title>%UYGULAMA_ADI%</title>
+    <!-- sürüm: açık uygulama yeni sürümü bu değerden tanır (eski sürümler de bu kalıbı arar) -->
+    <script>
+      window.APP_VERSION='%APP_VERSION%';
+    </script>
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="c"></canvas>
+      <div id="cut"></div>
+      <div id="hud" class="hidden">
+        <div class="hTL glass">
+          <div id="hName"></div>
+          <div id="ev"></div>
+          <div id="lap"></div>
+        </div>
+        <div class="hBt">
+          <div class="ib glass" id="cm">🎥</div>
+          <div class="ib glass" id="ts">🛞</div>
+          <div class="ib glass" id="rs">↺</div>
+          <div class="ib glass" id="gs">⏸</div>
+        </div>
+        <div id="dr"></div>
+        <div class="hSP glass">
+          <div id="rpmb"></div>
+          <div class="sp">
+            <span id="spd">0</span>
+            <div><b id="gear">1</b><small>km/sa</small></div>
+          </div>
+          <div id="sf"></div>
+        </div>
+      </div>
+      <div id="ctl" class="hidden"></div>
+      <div id="big"></div>
+      <canvas id="mm" class="hidden" width="240" height="240"></canvas>
+      <button id="upd" class="hidden">Yeni sürüm hazır · Güncelle</button>
+      <div id="menu"></div>
+      <div class="sheet hidden" id="set"></div>
+      <div class="sheet hidden" id="res"></div>
+      <div class="sheet hidden" id="gar"></div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,2 +1,5 @@
-tools/node_modules/
-tools/out/
+node_modules/
+dist/
+tests/cikti/
+*.log
+.DS_Store

@@ -1,0 +1,91 @@
+{
+  "aciklama": "Klasik fizik modeli için sabit girişli sürüş senaryoları. Her adım 1/60 sn. segs: [adım sayısı, girişler]. start: [x, z, yön] ya da pist üzerinde {f: pistin oranı, back: geri adım}. cols: senaryoya özel çarpışma nesneleri (dekor rastgele olduğu için dekor çarpışmaları kullanılmaz).",
+  "dt": 0.016666666666666666,
+  "senaryolar": [
+    {
+      "ad": "otopark_hizlanma_fren",
+      "dunya": 1, "arac": 0, "pk": "ar", "lk": "norm", "steer": "btn", "gas": "btn",
+      "start": [120, -3420, -1.5707963267948966],
+      "segs": [[150, {"g": 1}], [60, {"g": 1, "r": 1}], [90, {"g": 1, "l": 1}], [80, {"b": 1}], [40, {}], [80, {"b": 1}]]
+    },
+    {
+      "ad": "otopark_drift_gercekci",
+      "dunya": 1, "arac": 2, "pk": "dr", "lk": "real", "steer": "wheel", "gas": "btn",
+      "start": [30, -3550, 0],
+      "segs": [[180, {"g": 1}], [40, {"g": 1, "sa": 1}], [60, {"g": 1, "sa": -0.4}], [40, {"g": 1, "sa": 0.3}], [50, {"g": 1, "sa": -1}], [60, {"g": 1, "sa": 0.6}], [80, {}]]
+    },
+    {
+      "ad": "otopark_drift_arcade",
+      "dunya": 1, "arac": 2, "pk": "dr", "lk": "arc", "steer": "wheel", "gas": "btn",
+      "start": [30, -3550, 0],
+      "segs": [[180, {"g": 1}], [40, {"g": 1, "sa": 1}], [60, {"g": 1, "sa": -0.4}], [40, {"g": 1, "sa": 0.3}], [50, {"g": 1, "sa": -1}], [60, {"g": 1, "sa": 0.6}], [80, {}]]
+    },
+    {
+      "ad": "otopark_carpisma",
+      "dunya": 1, "arac": 0, "pk": "ar", "lk": "real", "steer": "btn", "gas": "btn", "set": {"ss": 0},
+      "start": [100, -3500, 0],
+      "cols": [
+        {"x": 100, "z": -3470, "r": 1.6, "t": "bush"},
+        {"x": 100, "z": -3440, "r": 4, "t": "water"},
+        {"x": 101.2, "z": -3390, "r": 1.3, "t": "solid"},
+        {"x": 100, "z": -3330, "hx": 6, "hz": 1, "t": "box"}
+      ],
+      "segs": [[400, {"g": 1}]]
+    },
+    {
+      "ad": "corak_toprak_analog",
+      "dunya": 0, "arac": 1, "pk": "tr", "lk": "real", "steer": "btn", "gas": "analog",
+      "start": [0, -90, 1.5707963267948966],
+      "segs": [[60, {"g": 0.5}], [60, {"g": 1}], [90, {"g": 1, "l": 1}], [60, {"g": 0.7, "r": 1}], [60, {"b": 0.6}], [60, {"g": 1}]]
+    },
+    {
+      "ad": "corak_rampa",
+      "dunya": 0, "arac": 3, "pk": "rl", "lk": "arc", "steer": "btn", "gas": "btn",
+      "start": [-250, -175, 0],
+      "segs": [[240, {"g": 1}], [60, {}]]
+    },
+    {
+      "ad": "corak_su",
+      "dunya": 0, "arac": 0, "pk": "fa", "lk": "norm", "steer": "btn", "gas": "btn",
+      "start": [0, -40, 0],
+      "cols": [{"x": 0, "z": 0, "r": 7, "t": "water"}],
+      "segs": [[200, {"g": 1}], [60, {"g": 1, "l": 1}]]
+    },
+    {
+      "ad": "camur_vadisi",
+      "yaris": 3, "arac": 1, "pk": "tr", "lk": "norm", "steer": "btn", "gas": "btn",
+      "start": {"f": 0.25, "back": 15},
+      "segs": [[180, {"g": 1}], [60, {"g": 1, "l": 1}], [60, {"g": 1, "r": 1}]]
+    },
+    {
+      "ad": "gp_kerb",
+      "yaris": 0, "arac": 0, "pk": "ar", "lk": "arc", "steer": "btn", "gas": "btn",
+      "start": {"f": 0.3, "back": 0},
+      "segs": [[120, {"g": 1}], [60, {"g": 1, "r": 1}], [60, {"g": 1, "l": 1}], [60, {"b": 1}]]
+    },
+    {
+      "ad": "drag",
+      "yaris": 13, "arac": 4, "pk": "dg", "lk": "norm", "steer": "btn", "gas": "btn",
+      "start": {"f": 0, "back": 0},
+      "segs": [[480, {"g": 1}]]
+    },
+    {
+      "ad": "tepe_kar",
+      "yaris": 10, "arac": 3, "pk": "rl", "lk": "norm", "steer": "btn", "gas": "btn", "cond": {"tod": "noon", "wx": "snow"},
+      "start": {"f": 0.1, "back": 0},
+      "segs": [[200, {"g": 1}], [40, {"g": 1, "l": 1}], [60, {"g": 1, "r": 1}], [60, {"b": 1}]]
+    },
+    {
+      "ad": "sehir_yagmur",
+      "yaris": 2, "arac": 0, "pk": "ar", "lk": "real", "steer": "btn", "gas": "btn", "cond": {"tod": "evening", "wx": "rain"}, "set": {"sm": 0, "inv": 1},
+      "start": {"f": 0.05, "back": 0},
+      "segs": [[150, {"g": 1}], [60, {"g": 1, "r": 1}], [100, {"g": 1}]]
+    },
+    {
+      "ad": "drift_parki",
+      "yaris": 6, "arac": 2, "pk": "dr", "lk": "norm", "steer": "btn", "gas": "btn",
+      "start": {"f": 0.1, "back": 0},
+      "segs": [[150, {"g": 1}], [50, {"g": 1, "r": 1}], [30, {"g": 1, "l": 1}], [50, {"g": 1, "r": 1}], [60, {"g": 1}], [40, {"b": 1}]]
+    }
+  ]
+}
