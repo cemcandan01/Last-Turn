@@ -40,7 +40,7 @@ jobs:
           else
             # derleme adımı olmayan eski yapı: dosyalar olduğu gibi
             mkdir site
-            rsync -a --exclude='.git*' --exclude=tools --exclude=docs --exclude=.claude ./ site/
+            rsync -a --exclude='.git*' --exclude=site --exclude=tools --exclude=docs --exclude=.claude --exclude='*.md' ./ site/
           fi
       - name: Deneme sürümü (gelistirme dalı → /dev/)
         run: |
