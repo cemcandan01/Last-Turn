@@ -22,28 +22,24 @@ iPhone için 3D sürüş ve yarış oyunu. Ana ekrana kurulan bir uygulama (PWA)
 
 - Uygulama internet varken her açılışta en yeni sürümü yükler.
 - Arka plandaysa ve yeni sürüm çıkmışsa üstte **"Yeni sürüm hazır · Güncelle"** düğmesi görünür.
-- Yayınlarken `index.html` içindeki `APP_VERSION` değeri artırılır; sürüm menünün altında görünür.
+- Sürüm numarası `package.json` içindeki `version`; menünün altında görünür.
 
-## Yayınlama (tek seferlik)
+## Yayın
 
-Oyun derleme gerektirmeyen statik dosyalardan oluşur; repo kökü olduğu gibi yayınlanır. Repo private olduğu için seçenekler:
+Oyun TypeScript ile yazılır ve Vite ile derlenir. Derleme ve yayın GitHub Actions'ta yapılır; bilgisayar gerekmez.
 
-- **Cloudflare Pages** veya **Netlify** (ücretsiz, private repo destekler): GitHub reposunu bağla, build komutu boş, yayın klasörü `/`. Her `master` push'unda kendiliğinden yayınlanır.
-- **GitHub Pages**: repo public yapılırsa (ya da GitHub Pro ile) Settings → Pages → Branch `master` / `/ (root)`.
-
-## Dosyalar
-
-- `index.html` iskelet, `js/` oyun kodu (konulara bölünmüş), `css/stil.css` görünüm
-- `sw.js` çevrimdışı önbellek ve güncelleme (service worker)
-- `manifest.webmanifest`, `icons/` uygulama adı ve simgeleri, `img/` menü görselleri
-- `vendor/three.min.js` Three.js r128 (MIT), çevrimdışı çalışsın diye repoda
+- `master` dalı → https://cemcandan01.github.io/Last-Turn/
+- `gelistirme` dalı → https://cemcandan01.github.io/Last-Turn/dev/ (deneme sürümü, ayrı ad ve önbellekle ana ekrana da eklenebilir)
+- Testler geçmezse yayın yapılmaz.
+- Tek seferlik ayar: GitHub → Settings → Pages → Build and deployment → Source: **GitHub Actions**.
 
 ## Sonraki adım: App Store / TestFlight
 
-Oyun tamamlandığında aynı kod Capacitor ile native iOS uygulamasına sarılabilir (Mac + Xcode + Apple Developer hesabı gerekir).
+Oyun tamamlandığında aynı kod Capacitor ile native iOS uygulamasına sarılabilir. Derleme GitHub Actions'ın macOS makinelerinde yapılabilir (Mac gerekmez); Apple Developer hesabı gerekir.
 
 ## Geliştirme
 
-- Kod `js/` altında konulara göre bölünmüş durumda. Dosya haritası, kurallar ve testler için: `CLAUDE.md`.
-- Testler: `cd tools && npm install && node test.mjs` (fizik için `--tam`, ekran görüntüleri için `--goruntu`).
+- Kod `src/` altında katmanlara ayrılmış TypeScript modülleri: `fizik` (saf, test edilebilir), `dunya`, `cizim` (three.js), `arayuz` (DOM), `oyun` (akış). Ayrıntı: `docs/MIMARI.md`, kurallar ve dosya haritası: `CLAUDE.md`.
+- Bilgisayarda: `npm ci`, `npm run dev` (anında yenilenen geliştirme sunucusu), `npm run kontrol` (tüm denetimler).
+- Testler: `npm test` (fizik, ~2 sn), `npm run test:e2e` (başsız tarayıcı), `npm run test:goruntu` (ekran görüntüleri).
 - Her geliştirme alanı için yeni sohbete yapıştırılacak istemler: `docs/GELISTIRME.md`.
