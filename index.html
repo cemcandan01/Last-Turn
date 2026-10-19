@@ -19,12 +19,6 @@ html,body{height:100%;margin:0;overflow:hidden;touch-action:none;background:var(
 #app{position:fixed;left:0;top:0;width:100%;height:100%;overflow:hidden;transform-origin:0 0}
 canvas{position:fixed;inset:0;width:100%;height:100%}
 .hidden{display:none!important}
-#hud{position:fixed;left:0;right:0;top:var(--sat);padding:10px max(14px,var(--sar)) 10px max(14px,var(--sal));display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;text-shadow:0 1px 4px #000b}
-#spd{font-size:44px;font-weight:800;line-height:1}#spd small{font-size:15px;font-weight:600;margin-left:4px}
-#sf{font-size:15px;color:#e3f1ee}
-#dr{font-size:22px;font-weight:800;color:var(--acc);height:26px}
-#lap{font-size:16px;font-weight:700;color:#fff}
-.ib{pointer-events:auto;width:46px;height:46px;border-radius:14px;background:#0008;border:2px solid #fff4;display:flex;align-items:center;justify-content:center;font-size:20px;margin-left:8px}
 #ctl{position:fixed;left:0;right:0;bottom:0;padding:10px max(12px,var(--sar)) calc(12px + var(--sab)) max(12px,var(--sal));display:flex;justify-content:space-between;align-items:flex-end;pointer-events:none}
 .g{display:flex;gap:10px}
 .k{pointer-events:auto;border-radius:22px;background:#ffffff22;border:2px solid #ffffff44;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;touch-action:none;text-align:center;line-height:1.1}
@@ -47,8 +41,6 @@ canvas{position:fixed;inset:0;width:100%;height:100%}
 input[type=range]{width:100%;accent-color:var(--acc)}
 .btn{width:100%;padding:14px;margin-top:10px;border:0;border-radius:14px;background:var(--acc);color:#1b0d05;font:800 20px inherit;font-family:inherit}
 .btn.alt{background:var(--card);color:var(--ink);border:2px solid var(--line)}
-#ev{position:fixed;left:0;right:0;top:calc(var(--sat) + 104px);text-align:center;font-size:20px;font-weight:800;text-shadow:0 1px 4px #000b;pointer-events:none}
-@media (orientation:portrait){#ev{top:calc(var(--sat) + 196px)}}
 #big{position:fixed;left:0;right:0;top:34%;text-align:center;font-size:88px;font-weight:800;text-shadow:0 3px 12px #000a;pointer-events:none}
 details{border-bottom:1px solid var(--line);padding:2px 0}summary{font-size:18px;font-weight:800;padding:12px 0;list-style:none;cursor:pointer}summary::-webkit-details-marker{display:none}
 summary::after{content:'▾';float:right;color:var(--mut)}details[open]>summary::after{content:'▴'}
@@ -62,31 +54,64 @@ summary::after{content:'▾';float:right;color:var(--mut)}details[open]>summary:
 .pedal b,.pedal s{position:absolute;left:0;right:0;text-align:center;font-size:15px;text-decoration:none;font-weight:800}.pedal b{top:10px}.pedal s{bottom:10px}
 #cal{width:84px;height:56px;font-size:15px}
 .rk{display:flex;justify-content:space-between;padding:10px 12px;border-radius:10px;background:var(--card);margin:6px 0;font-size:18px;font-weight:600}
-#mm{position:fixed;left:auto;right:max(12px,var(--sar));top:calc(var(--sat) + 66px);width:120px;height:120px;border-radius:12px;background:#0007;pointer-events:none}
 #gar{max-height:56%}.land #gar{left:auto;width:min(440px,50%);top:var(--sat);max-height:none;border-top:0;border-left:3px solid var(--acc)}
 .gh{display:flex;align-items:center;gap:8px}.gh h1{font-size:28px!important}.ga{width:48px;height:48px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--ink);font-size:20px}
 .bdg{display:inline-block;margin:4px 3px 0;padding:4px 10px;border-radius:20px;background:var(--card);border:1px solid var(--line);font-size:14px;font-weight:700}.bdg.rec{background:var(--acc);color:#1b0d05;border-color:var(--acc)}
 .gl{display:flex;gap:6px;overflow-x:auto;margin:10px 0 4px;padding-bottom:4px}.gc{flex:0 0 auto;padding:6px 10px;border-radius:12px;background:var(--card);border:2px solid var(--line);font-size:13px;font-weight:700;text-align:center}.gc b{display:block;font-size:18px}.gc.sel{border-color:var(--acc)}
 .st{display:flex;align-items:center;gap:8px;margin:7px 0;font-size:14px;font-weight:700}.st span{width:78px}.st i{flex:1;height:10px;border-radius:5px;background:#0006;overflow:hidden}.st u{display:block;height:100%;background:linear-gradient(90deg,#ff7a3c,#ffc070);border-radius:5px}.st em{font-style:normal;width:96px;text-align:right;color:var(--mut);font-size:12px}
+#hud{position:fixed;inset:0;pointer-events:none;text-shadow:0 1px 3px #0008}
+.glass{background:#0a1216a8;border:1px solid #ffffff22;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.hTL{position:absolute;left:calc(var(--sal) + 12px);top:calc(var(--sat) + 10px);border-radius:14px;padding:7px 12px;max-width:42%}
+#hName{font-size:12px;font-weight:800;color:var(--acc);letter-spacing:1px;text-transform:uppercase}#ev{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}#ev:empty{display:none}#lap{font-size:12px;color:#cfe0dc;font-variant-numeric:tabular-nums}#lap:empty{display:none}
+.hBt{position:absolute;right:calc(var(--sar) + 150px);top:calc(var(--sat) + 10px);display:flex;gap:7px}
+.ib{pointer-events:auto;width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px}
+#dr{position:absolute;left:50%;transform:translateX(-50%);top:calc(var(--sat) + 12px);font-size:18px;font-weight:800;color:#fff;padding:0 16px;border-radius:18px;background:linear-gradient(90deg,#ff7a3c,#ff3c6e);line-height:32px;letter-spacing:1px}#dr:empty{display:none}
+.hSP{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(var(--sab) + 12px);text-align:center;min-width:200px;border-radius:18px;padding:8px 14px 6px}
+#rpmb{display:flex;gap:3px;height:7px;margin-bottom:5px}#rpmb i{flex:1;border-radius:2px;background:#ffffff1f}#rpmb i.on{background:#3ddc84}#rpmb i.on.w{background:#ffc21a}#rpmb i.on.r{background:#ff3c4e}
+.sp{display:flex;align-items:flex-end;justify-content:center;gap:8px}#spd{font-size:46px;font-weight:800;line-height:.95;font-variant-numeric:tabular-nums;min-width:96px;text-align:right}
+.sp div{display:flex;flex-direction:column;align-items:flex-start}#gear{font-size:22px;color:var(--acc);line-height:1}.sp small{font-size:11px;color:#cfe0dc}
+#sf{font-size:11px;color:#b7c9c5;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40vw}
+#mm{position:fixed;left:auto;bottom:auto;right:calc(var(--sar) + 12px);top:calc(var(--sat) + 10px);width:128px;height:128px;border-radius:16px;background:#0a1216a8;border:1px solid #ffffff22;pointer-events:none}
+.k{background:#ffffff1c!important;border:1px solid #ffffff3a!important;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}.k.on{background:#ff7a3c88!important;border-color:var(--acc)!important}
+#menu{position:fixed;inset:0;display:flex;gap:16px;padding:calc(var(--sat) + 14px) calc(var(--sar) + 16px) calc(var(--sab) + 12px) calc(var(--sal) + 16px);background:linear-gradient(90deg,#081014f0 0%,#08101499 36%,#08101400 62%)}
+.mmL{width:min(290px,36%);display:flex;flex-direction:column;gap:7px;overflow:auto}
+.logo{font-size:32px;font-weight:800;letter-spacing:3px;margin:0 0 6px}.logo b{color:var(--acc);margin-left:8px}
+.nv{display:flex;align-items:center;gap:12px;padding:9px 14px;border-radius:14px;background:#ffffff10;border:1px solid #ffffff1a;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.nv i{font-style:normal;font-size:22px;width:30px;text-align:center}.nv b{font-size:18px;display:block}.nv small{color:var(--mut);font-size:12px}
+.nv.on{background:linear-gradient(90deg,#ff7a3cdd,#ff7a3c33);border-color:var(--acc)}.nv.on small{color:#2a1408}
+.ver{margin-top:auto;color:var(--mut);font-size:12px;padding-top:6px}
+.mmR{flex:1;overflow:auto;background:#0b161bd9;border:1px solid #ffffff1a;border-radius:18px;padding:12px 16px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);touch-action:pan-y}
+.mmR h2{margin:2px 0 8px;font-size:24px}.mmR p{color:var(--mut);margin:2px 0 10px;font-size:15px}
+.mbk{background:none;border:0;color:var(--acc);font:800 16px inherit;font-family:inherit;padding:0;margin-bottom:4px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tile{border-radius:14px;overflow:hidden;background:var(--card);border:2px solid var(--line);display:flex;flex-direction:column}
+.tile img{width:100%;aspect-ratio:36/22;object-fit:cover;display:block;background:#161a1e}.tile b{font-size:18px;padding:6px 10px 0}.tile small{color:var(--mut);font-size:12px;padding:0 10px}.tile em{font-style:normal;color:var(--acc);font-size:12px;font-weight:800;padding:4px 10px 8px}
+.rlist{display:flex;flex-direction:column;gap:8px}.rc{display:flex;gap:12px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:8px}
+.rc img{width:84px;height:84px;border-radius:10px;background:#0a0f12;flex:0 0 auto}.rci{flex:1}.rci b{font-size:18px}.rci small{display:block;color:var(--mut);font-size:12px}
+.rcs{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}.rcs span{flex:1;min-width:64px;background:#0006;border-radius:8px;padding:4px 7px;font-size:11px;color:var(--mut)}.rcs b{display:block;color:var(--ink);font-size:14px}
+.evh{display:flex;gap:12px;margin-bottom:4px}.evh img{width:120px;height:120px;border-radius:10px;background:#0a0f12;flex:0 0 auto}
+.note{font-size:12px!important}.inp{width:100%;padding:10px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);font:700 18px inherit;font-family:inherit;-webkit-user-select:text;user-select:text}
+.pst{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.pst span{background:var(--card);border-radius:12px;padding:8px 10px;color:var(--mut);font-size:12px}.pst b{display:block;color:var(--ink);font-size:20px}
 #upd{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--sat) + 12px);z-index:10;padding:12px 18px;border-radius:14px;border:0;background:var(--acc);color:#1b0d05;font:800 17px inherit;font-family:inherit;box-shadow:0 4px 18px #0008}
 #ctl{pointer-events:auto!important}.wz{pointer-events:auto;width:min(calc(var(--aw) * .5),250px);height:230px;display:flex;align-items:flex-end;justify-content:center;touch-action:none}
 </style></head><body>
 <canvas id="c"></canvas>
-<div id="hud" class="hidden"><div><div id="spd">0<small>km/sa</small></div><div id="sf"></div><div id="dr"></div><div id="lap"></div></div><div style="display:flex"><div class="ib" id="cm">🎥</div><div class="ib" id="ts">🛞</div><div class="ib" id="rs">↺</div><div class="ib" id="gs">⚙</div></div></div>
+<div id="hud" class="hidden"><div class="hTL glass"><div id="hName"></div><div id="ev"></div><div id="lap"></div></div><div class="hBt"><div class="ib glass" id="cm">🎥</div><div class="ib glass" id="ts">🛞</div><div class="ib glass" id="rs">↺</div><div class="ib glass" id="gs">⏸</div></div><div id="dr"></div>
+<div class="hSP glass"><div id="rpmb"></div><div class="sp"><span id="spd">0</span><div><b id="gear">1</b><small>km/sa</small></div></div><div id="sf"></div></div></div>
 <div id="ctl" class="hidden"></div>
-<div id="ev"></div><div id="big"></div><canvas id="mm" class="hidden" width="240" height="240"></canvas><button id="upd" class="hidden">Yeni sürüm hazır · Güncelle</button>
-<div class="sheet" id="menu"></div>
+<div id="big"></div><canvas id="mm" class="hidden" width="240" height="240"></canvas><button id="upd" class="hidden">Yeni sürüm hazır · Güncelle</button>
+<div id="menu"></div>
 <div class="sheet hidden" id="set"></div>
 <div class="sheet hidden" id="res"></div>
 <div class="sheet hidden" id="gar"></div>
 <script src="vendor/three.min.js"></script>
 <script>
 // sürüm: her güncellemede artırılır; açık uygulama yeni sürümü bu değerden tanır
-const APP_VERSION='1.6.0';
+const APP_VERSION='1.8.0';
 // ekran yönü kilidi: iOS ana ekran uygulamasında yön kilitlenemediği için, telefon kilitli yönün dışına dönerse içerik 90° döndürülür
 const APP=document.createElement('div');APP.id='app';[...document.body.children].filter(e=>e.tagName!='SCRIPT').forEach(e=>APP.appendChild(e));document.body.prepend(APP);
 const probe=document.createElement('div');probe.style.cssText='position:fixed;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)';document.body.appendChild(probe);
-let OLOCK='auto',ROT=0,lastLand=90,AW=innerWidth,AH=innerHeight;try{OLOCK=localStorage.getItem('lt_olock')||'auto'}catch(e){}
+let OLOCK='land',ROT=0,lastLand=90,AW=innerWidth,AH=innerHeight;
 const devO=()=>{const o=typeof window.orientation=='number'?window.orientation:(screen.orientation&&screen.orientation.angle)||0;return(o%360+360)%360};
 function layout(){const W=innerWidth,H=innerHeight,land=W>H,o=devO();if(land)lastLand=o==270?270:90;
 ROT=OLOCK=='land'&&!land?(lastLand==270?-90:90):OLOCK=='port'&&land?(o==90?-90:90):0;
@@ -131,13 +156,13 @@ dg:{n:'Drag',d:'Yarış lastiği, sert arka, düz çizgi için ayar',tire:0,cap:
 dr:{n:'Drift',d:'Drift lastiği, kilitli diferansiyel, geniş direksiyon açısı',tire:3,v:{pow:1.15,top:.92,brk:.9,bb:.55,tpf:.95,tpr:1.18,bal:.92,diff:1.1,lock:.78,sens:.5,susp:1.2,aero:.4,thr:.8,lch:.3},ast:{ini:.8}}};
 let PK='fd',LK='real',TU={},AS={},custom=false;
 function applyPreset(){const p=PRESETS[PK];TU={...p.v};tire=p.tire;AS={...LEVELS[LK].v};if(p.ast)for(const k in p.ast)AS[k]=Math.max(AS[k],p.ast[k]);if(p.cap)for(const k in p.cap)AS[k]=Math.min(AS[k],p.cap[k]);custom=false}
-const set={ss:1,sm:1,fov:1,shk:1,inv:0,tlt:38,ac:1};let tire=1;
-const TOG=[['inv','Direksiyon yönünü ters çevir','Sağ ve sol tuşlarının yönünü değiştirir'],['ss','Hıza duyarlı direksiyon','Hızlandıkça direksiyon açısı azalır'],['sm','Direksiyon yumuşatma','Tuşa basınca direksiyon kademeli döner'],['fov','Hıza göre görüş açısı','Hızlandıkça görüş genişler'],['shk','Hız sarsıntısı','Yüksek hızda kamera hafif titrer']];
+const set={ss:1,sm:1,fov:1,shk:1,inv:0,tlt:38,ac:1,shd:1};let tire=1;
+const TOG=[['inv','Direksiyon yönünü ters çevir','Sağ ve sol tuşlarının yönünü değiştirir'],['ss','Hıza duyarlı direksiyon','Hızlandıkça direksiyon açısı azalır'],['sm','Direksiyon yumuşatma','Tuşa basınca direksiyon kademeli döner'],['fov','Hıza göre görüş açısı','Hızlandıkça görüş genişler'],['shd','Gölgeler','Kapatmak eski telefonlarda akıcılığı artırır'],['shk','Hız sarsıntısı','Yüksek hızda kamera hafif titrer']];
 // ---------- sahne
-const R=new THREE.WebGLRenderer({canvas:$('#c'),antialias:true});R.setPixelRatio(Math.min(devicePixelRatio||1,2));
+const R=new THREE.WebGLRenderer({canvas:$('#c'),antialias:true});R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;R.setPixelRatio(Math.min(devicePixelRatio||1,2));
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9fd0e8);scene.fog=new THREE.Fog(0x9fd0e8,140,900);
 const cam=new THREE.PerspectiveCamera(70,1,.5,1500);
-const hemi=new THREE.HemisphereLight(0xffffff,0x7a6a50,.8);scene.add(hemi);const sun=new THREE.DirectionalLight(0xfff1d6,.9);sun.position.set(60,120,40);scene.add(sun);
+const hemi=new THREE.HemisphereLight(0xffffff,0x7a6a50,.8);scene.add(hemi);const sun=new THREE.DirectionalLight(0xfff1d6,.9);sun.position.set(60,120,40);scene.add(sun,sun.target);sun.shadow.mapSize.set(1024,1024);{const sc=sun.shadow.camera;sc.left=sc.bottom=-45;sc.right=sc.top=45;sc.near=20;sc.far=320}sun.shadow.bias=-.0006;
 function rs(){layout();R.setSize(AW,AH,false);cam.aspect=AW/AH;cam.updateProjectionMatrix()}addEventListener('resize',rs);addEventListener('orientationchange',()=>setTimeout(rs,250));rs();
 function ctex(b,c1,c2,rep){const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');x.fillStyle=b;x.fillRect(0,0,256,256);
 for(let i=0;i<1400;i++){x.fillStyle=Math.random()<.5?c1:c2;x.fillRect(Math.random()*256,Math.random()*256,2+Math.random()*5,2+Math.random()*5)}
@@ -148,7 +173,7 @@ const C3=h=>new THREE.Color(h);
 let G,H=()=>0,surf=()=>0,MAP=null,ti=0;
 const add=(...m)=>G.add(...m);
 const rnd=(()=>{let s=7;return()=>(s=(s*16807)%2147483647)/2147483647})();
-function plane(w,l,x,z,col,y,rz){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,l),new THREE.MeshLambertMaterial({color:col}));m.rotation.set(-Math.PI/2,0,rz||0);m.position.set(x,y,z);add(m)}
+function plane(w,l,x,z,col,y,rz){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,l),new THREE.MeshLambertMaterial({color:col}));m.rotation.set(-Math.PI/2,0,rz||0);m.position.set(x,y,z);m.userData.flat=1;add(m)}
 const cone=(x,z)=>{const c=new THREE.Mesh(gC,mC);c.position.set(x,H(x,z)+.6,z);add(c)};
 const gB=new THREE.DodecahedronGeometry(1.4),mB=new THREE.MeshLambertMaterial({color:0x3f7d33}),mW=new THREE.MeshLambertMaterial({color:0x6d8fa8,transparent:true,opacity:.85});
 // temas edilebilir objeler: 16 m'lik ızgarada tutulur, araç yalnız çevresindeki 9 hücreye bakar
@@ -166,7 +191,7 @@ function tree(x,z){if(roadDist(x,z)<10)return;if(rnd()>=.65)return rock(x,z);con
 function bush(x,z){if(roadDist(x,z)<9)return;const hy=H(x,z),s=.9+rnd()*.6;INST.b.push([x,hy+.5,z,s,rnd()*6,s*.6]);colAdd({x,z,r:1.6*s,t:'bush'})}
 function puddle(x,z,r,noMesh){if(!noMesh){const c=new THREE.Mesh(new THREE.CircleGeometry(r,24),mW);c.rotation.x=-Math.PI/2;c.position.set(x,H(x,z)+.24,z);add(c)}colAdd({x,z,r,t:'water'})}
 function terrain(size,seg,tex,cx=0,cz=0,hf){const gg=new THREE.PlaneGeometry(size,size,seg,seg);gg.rotateX(-Math.PI/2);const ps=gg.attributes.position;
-for(let i=0;i<ps.count;i++)ps.setY(i,(hf||H)(ps.getX(i)+cx,ps.getZ(i)+cz));gg.computeVertexNormals();const m=new THREE.Mesh(gg,new THREE.MeshLambertMaterial({map:tex}));m.position.set(cx,0,cz);add(m)}
+for(let i=0;i<ps.count;i++)ps.setY(i,(hf||H)(ps.getX(i)+cx,ps.getZ(i)+cz));gg.computeVertexNormals();const m=new THREE.Mesh(gg,new THREE.MeshLambertMaterial({map:tex}));m.userData.flat=1;m.position.set(cx,0,cz);add(m)}
 // ---------- pist araçları (kapalı Catmull-Rom eğrisi)
 function mkTrack(pts,hw,open){const P=[],m=pts.length;
 for(let i=0;i<(open?m-1:m);i++){const p0=open&&i==0?pts[0]:pts[(i-1+m)%m],p1=pts[i],p2=pts[(i+1)%m],p3=open&&i+2>=m?pts[m-1]:pts[(i+2)%m],seg=Math.ceil(Math.hypot(p2[0]-p1[0],p2[1]-p1[1])/4);
@@ -182,7 +207,7 @@ function ribbon(TR,o1,o2,y,colFn,yFn){const pos=[],col=[],N=TR.N,M=TR.open?N-1:N
 const p=(i,o)=>{const P=TR.P[i],T=TR.T[i],x=P[0]+T[1]*o,z=P[1]-T[0]*o;return[x,(yFn?yFn(x,z,o):0)+y,z]};
 for(let i=0;i<M;i++){const c=colFn(i);if(!c)continue;const j=(i+1)%N,A1=p(i,o1),A2=p(i,o2),B1=p(j,o1),B2=p(j,o2);pos.push(...A1,...A2,...B1,...A2,...B2,...B1);for(let k=0;k<6;k++)col.push(c.r,c.g,c.b)}
 const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('color',new THREE.Float32BufferAttribute(col,3));g.computeVertexNormals();
-add(new THREE.Mesh(g,new THREE.MeshLambertMaterial({vertexColors:true,side:THREE.DoubleSide})))}
+const rm=new THREE.Mesh(g,new THREE.MeshLambertMaterial({vertexColors:true,side:THREE.DoubleSide}));rm.userData.flat=1;add(rm)}
 function startLine(TR,y){const p=TR.P[0],t=TR.T[0];plane(TR.hw*2,2.5,p[0],p[1],0xffffff,y,Math.atan2(t[0],t[1]))}
 function numTex(n){const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,128,128);x.fillStyle='#d8323a';x.fillRect(0,0,128,18);x.fillStyle='#111';x.font='bold 54px sans-serif';x.textAlign='center';x.fillText(n,64,88);return new THREE.CanvasTexture(c)}
 // ---------- HARİTA 1: test arazisi
@@ -276,7 +301,7 @@ quarry:{sky:0xd9b48a,fog:[80,620],hemi:[0xfff0dc,0x8a7a66,.8],sun:[0xffe0b0,.95]
 mist:{sky:0xa9b9a8,fog:[25,280],hemi:[0xdde8dd,0x4a5a44,.72],sun:[0xe8f0e8,.45],gr:['#3c6634','#345c2e','#46703c'],leaf:0x1f4a28},
 port:{sky:0xd88a6a,fog:[120,800],hemi:[0xffd2b8,0x5a4a50,.72],sun:[0xff9a6a,.9],gr:['#5a5d62','#525559','#63666b'],water:0x3a6f8a},
 mount:{sky:0xf0a878,fog:[120,850],hemi:[0xffe0c8,0x5a5040,.76],sun:[0xffa060,.95],gr:['#4a6a3a','#425f33','#557545'],leaf:0x1f4a2a},
-snow:{sky:0xcfdbe4,fog:[55,520],hemi:[0xe8eef4,0x8a96a0,.55],sun:[0xf4f8ff,.45],gr:['#d9e1e7','#cdd6dd','#e4eaee'],leaf:0xd5e3dc,trunk:0x4a3a2c,rock:0xaab1b6,bush:0xc8d8d0},
+snow:{sky:0xb9cfe0,fog:[55,520],hemi:[0xe8eef4,0x8a96a0,.55],sun:[0xf4f8ff,.45],gr:['#d9e1e7','#cdd6dd','#e4eaee'],leaf:0x4f7562,trunk:0x4a3a2c,rock:0x8f989e,bush:0x6a8a78},
 desert:{sky:0xe6c896,fog:[120,820],hemi:[0xfff0d8,0x8a6a48,.62],sun:[0xfff0c8,.8],gr:['#c9a46c','#bd9862','#d3b078'],leaf:0x7a8a4a,rock:0xb08a60,bush:0x8a8a50}};
 const thOf=k=>({...TH0,...(TH[k]||{})}),gTex={};
 // gece farları: araca bağlı spot ışık, yalnız gece pistlerinde yanar
@@ -319,6 +344,32 @@ cs.forEach(([x,z,l,ry],k)=>{e.set(0,ry,0);q.setFromEuler(e);m4.compose(V3(x,1.3+
 const cm=lam(0xe0a020);for(let k=0;k<4;k++){const x=b[0]+40+k*90,z=(b[2]+b[3])/2+(k%2?120:-120);for(const [dx,dz] of[[-6,-6],[6,-6],[-6,6],[6,6]])add(bx(1,34,1,x+dx,17,z+dz,cm));add(bx(14,2,40,x,35,z+12,cm))}},
 mount:(R,TR,hb)=>{for(const sd of[-1,1]){wallRib(TR,sd*(TR.hw+KW+1),.3,0xb8bec4,hb,.45,3);wallRib(TR,sd*(TR.hw+KW+1),.08,0x6a6e72,hb,.2)}},
 desert:(R,TR,hb)=>{const cm=lam(0x5d7a3a);for(let k=0;k<90;k++){const i=Math.floor(rnd()*TR.N),o=(rnd()<.5?-1:1)*(TR.hw+6+rnd()*60),[x,z]=atTrack(TR,i,o);if(!clearOf(TR,x,z,TR.hw+4))continue;const y=H(x,z),h=2+rnd()*3;add(bx(.5,h,.5,x,y+h/2,z,cm),bx(.35,1.2,.35,x+.5,y+h*.6,z,cm));colAdd({x,z,r:.5,t:'solid'})}}};
+// ---------- ortam: günün saati ve hava. Tema zemini ve dekoru verir, saat ve hava ışığı, gökyüzünü, yağışı ve tutuşu belirler
+const TODS={morning:'Sabah',noon:'Öğlen',evening:'Akşam'},WXS={sun:'Güneşli',rain:'Yağmurlu',snow:'Karlı'};
+const COND={tod:'noon',wx:'sun'},WX={g:1},SUNDIR=new THREE.Vector3(60,120,40).normalize();
+// temanın varsayılan koşulları (karlı haritada kar yağar, gece temaları akşam)
+const condOf=k=>({tod:{city:'evening',coast:'evening',port:'evening',mount:'evening'}[k]||'noon',wx:k=='snow'?'snow':'sun'});
+let ENVK='day';
+function applyEnv(k){ENVK=k;const t=thOf(k),c=COND,sky=C3(t.sky),night=t.night&&c.tod=='evening';let hi=t.hemi[2],si=t.sun[1],sc=C3(t.sun[0]),fn=t.fog[0],ff=t.fog[1];
+if(t.night&&!night){sky.setHex(0x9fb8d0);hi=.78;si=.85;sc.setHex(0xfff1d6)}
+if(c.tod=='morning'){sky.lerp(C3(0xf6dcb4),.35);sc.lerp(C3(0xffe2b0),.6);si*=.85;hi*=.9;SUNDIR.set(-80,45,60).normalize()}
+else if(c.tod=='evening'&&!night){sky.lerp(C3(0xf08a5a),.45);sc.lerp(C3(0xff8a4a),.7);si*=.75;hi*=.75;SUNDIR.set(85,28,-40).normalize()}
+else SUNDIR.set(60,120,40).normalize();
+WX.g=1;if(c.wx=='rain'){sky.lerp(C3(night?0x0d1218:0x6f7882),.7);fn*=.35;ff*=.5;hi*=.75;si*=.3;WX.g=.84}
+else if(c.wx=='snow'){sky.lerp(C3(night?0x1a2028:0xc9d3dc),.7);fn*=.3;ff*=.5;hi*=.9;si*=.4;WX.g=k=='snow'?.9:.74}
+scene.background.copy(sky);scene.fog.color.copy(sky);scene.fog.near=fn;scene.fog.far=ff;hemi.color.setHex(t.hemi[0]);hemi.groundColor.setHex(t.hemi[1]);hemi.intensity=hi;sun.color.copy(sc);sun.intensity=si;
+const gk=k+(c.wx=='snow'&&k!='snow'?'_s':'');ground.material.map=gTex[gk]||(gTex[gk]=ctex(...t.gr.map(h=>c.wx=='snow'&&k!='snow'?'#'+C3(h).lerp(C3(0xe8eef2),.7).getHexString():h),240));ground.material.needsUpdate=true;
+mT.color.setHex(t.leaf);mK.color.setHex(t.trunk);mR.color.setHex(t.rock);mB.color.setHex(t.bush);headL.intensity=night||c.wx=='rain'&&c.tod=='evening'?2.4:0;
+precip.visible=c.wx!='sun';precip.userData.snow=c.wx=='snow';precip.material.color.setHex(c.wx=='snow'?0xffffff:0xa9b8c8);precip.material.size=c.wx=='snow'?.22:.09}
+// yağış: kameranın çevresinde dönen parçacık bulutu
+const PN=1600,precip=new THREE.Points(new THREE.BufferGeometry(),new THREE.PointsMaterial({color:0xffffff,size:.2,transparent:true,opacity:.85,depthWrite:false}));
+{const a=new Float32Array(PN*3);for(let i=0;i<PN;i++){a[i*3]=(Math.random()-.5)*70;a[i*3+1]=Math.random()*30;a[i*3+2]=(Math.random()-.5)*70}precip.geometry.setAttribute('position',new THREE.BufferAttribute(a,3));precip.frustumCulled=false;precip.visible=false;scene.add(precip)}
+function precipTick(dt){if(!precip.visible)return;const a=precip.geometry.attributes.position.array,sn=precip.userData.snow,vy=sn?2.2:26;
+for(let i=0;i<PN;i++){let y=a[i*3+1]-vy*dt;if(sn){a[i*3]+=Math.sin(tt*1.3+i)*dt*.8}if(y<0){y+=30;a[i*3]=(Math.random()-.5)*70;a[i*3+2]=(Math.random()-.5)*70}a[i*3+1]=y}
+precip.geometry.attributes.position.needsUpdate=true;precip.position.set(cam.position.x,cam.position.y-12,cam.position.z)}
+// gölge: güneş aracı izler, yalnız çevresindeki 90 m gölge alır
+function shadowTick(){if(!set.shd){if(sun.castShadow){sun.castShadow=false}return}sun.castShadow=true;sun.target.position.set(S.x,S.y,S.z);sun.position.set(S.x+SUNDIR.x*150,S.y+SUNDIR.y*150,S.z+SUNDIR.z*150)}
+function shadowize(g){g.traverse(o=>{if(o.isMesh||o.isInstancedMesh){o.receiveShadow=true;o.castShadow=!o.userData.flat}})}
 const dirtCol=i=>C3(i%6<3?0x8c6b45:0x86663f),mudMat=new THREE.MeshLambertMaterial({color:0x4a3524});
 function gridNear(TR){const GRD={};for(let i=0;i<TR.N;i++){const q=Math.floor(TR.P[i][0]/30)+','+Math.floor(TR.P[i][1]/30);(GRD[q]||(GRD[q]=[])).push(i)}
 return(x,z)=>{let bi=0,bd=1e18;const cx=Math.floor(x/30),cz=Math.floor(z/30);for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const L=GRD[(cx+a)+','+(cz+b)];if(L)for(const i of L){const p=TR.P[i],q=(x-p[0])**2+(z-p[1])**2;if(q<bd){bd=q;bi=i}}}return[bi,Math.sqrt(bd)]}}
@@ -409,13 +460,13 @@ const WORLDS=[{n:'Çorak Topraklar',d:'Toprak arazi: asfalt oval, uzun düz yol,
 {n:'Boş Otopark',d:'AVM önünde geniş açık otopark: park sıraları, park etmiş arabalar ve boş asfalt alan. Asfalt testleri için.',reg:PARK,tele:PARK.tele,box:PARK.box}];
 let CURW=WORLDS[0];
 // zemin çimi araçla birlikte kayar (doku adımına oturtulur), böylece her bölgenin altında çim olur
-const GT=12.5,ground=new THREE.Mesh(new THREE.PlaneGeometry(3000,3000),new THREE.MeshLambertMaterial({map:ctex('#3f7a3a','#376d33','#4a8743',240)}));ground.rotation.x=-Math.PI/2;ground.position.y=-.2;scene.add(ground);
+const GT=12.5,ground=new THREE.Mesh(new THREE.PlaneGeometry(3000,3000),new THREE.MeshLambertMaterial({map:ctex('#3f7a3a','#376d33','#4a8743',240)}));ground.rotation.x=-Math.PI/2;ground.position.y=-.2;ground.receiveShadow=true;scene.add(ground);
 function buildWorld(){buildTest()}
 const WORLD={H:Hw,surf:surfW,TR:null,tele:TELEW,build:buildWorld};
-function loadWorld(){MAP=WORLD;H=Hw;surf=surfW;ti=0;if(!MAP.g){G=new THREE.Group();COLS={};instStart();MAP.build();instEnd();MAP.cols=COLS;COLS=null;scene.add(G);MAP.g=G}}
-function ensureBuilt(r){if(r.g)return;G=new THREE.Group();COLS=MAP.cols;instStart();r.build();instEnd();COLS=null;scene.add(G);r.g=G}
+function loadWorld(){MAP=WORLD;H=Hw;surf=surfW;ti=0;if(!MAP.g){G=new THREE.Group();COLS={};instStart();MAP.build();instEnd();MAP.cols=COLS;COLS=null;shadowize(G);scene.add(G);MAP.g=G}}
+function ensureBuilt(r){if(r.g)return;G=new THREE.Group();COLS=MAP.cols;instStart();r.build();instEnd();COLS=null;shadowize(G);scene.add(G);r.g=G}
 // yalnız kullanılan bölge çizilir
-function setActive(r){applyTheme(r&&r.th||'day');if(r)ensureBuilt(r);ground.visible=!(r&&r.t=='rl');MAP.g.visible=!r;for(const q of REG)if(q.g)q.g.visible=q===r;mmDraw(r)}
+function setActive(r){applyEnv(r&&r.th||'day');if(r)ensureBuilt(r);ground.visible=!(r&&r.t=='rl');MAP.g.visible=!r;for(const q of REG)if(q.g)q.g.visible=q===r;mmDraw(r)}
 // mini harita: serbest sürüşte test alanı, yarışta o pist
 const mmBase=document.createElement('canvas');mmBase.width=mmBase.height=240;let MMV={cx:0,cz:0,r:900};
 const mmP=(a,c)=>[120+(a-MMV.cx)/MMV.r*112,120+(c-MMV.cz)/MMV.r*112];
@@ -487,7 +538,7 @@ function buildCar(d){const g=body0(d);d.ex(g,d);g.position.y=d.lift||0;const W=d
 for(const [x,z,f] of[[-W.x,W.zf,1],[W.x,W.zf,1],[-(W.rx||W.x),W.zr,0],[W.rx||W.x,W.zr,0]]){const r=f?W.r:(W.rr||W.r),w=mkWheel(r,f?W.wd:(W.rwd||W.wd),W.rim),pv=new THREE.Group();w.userData.r=r;pv.position.set(x,r+(d.lift||0)*.5,z);pv.add(w);ws.push({pv,w,f})}
 return{g,ws}}
 let CAR=CARS[0],carM=null,steerP=[],wheels=[];
-function setCar(i){CAR=CARS[i];if(carM){body.remove(carM.g);for(const w of carM.ws)car.remove(w.pv)}carM=buildCar(CAR);body.add(carM.g);for(const w of carM.ws)car.add(w.pv);
+function setCar(i){CAR=CARS[i];if(carM){body.remove(carM.g);for(const w of carM.ws)car.remove(w.pv)}carM=buildCar(CAR);body.add(carM.g);for(const w of carM.ws)car.add(w.pv);carM.g.traverse(o=>{if(o.isMesh)o.castShadow=true});for(const w of carM.ws)w.w.traverse(o=>{if(o.isMesh)o.castShadow=true});
 steerP=carM.ws.filter(w=>w.f).map(w=>w.pv);wheels=carM.ws.map(w=>w.w);bm.color.setHex(CAR.col);buildInterior(CAR);try{localStorage.setItem('lt_car',i)}catch(e){}}
 car.add(headL,headL.target);scene.add(car);const V3=(x,y,z)=>new THREE.Vector3(x,y,z);
 // ---------- kokpit: her aracın kendi iç mekânı. Kaput ve araç üstü parçalar gerçek modelden görünür, ön cam şeffaflaşır
@@ -503,31 +554,34 @@ for(let v=0;v<=mx+1e-6;v+=step){const a=dialA(v/mx);x.lineWidth=3;x.beginPath();
 x.font='16px sans-serif';x.fillStyle='#9aa3ad';x.fillText(lbl,128,196);return new THREE.CanvasTexture(c)}
 const intM={d:lam(0x23262b),p:lam(0x2f3338),l:lam(0x3c4046),k:lam(0x111316)};
 function buildInterior(d){cock.clear();const M=intM,w=d.w,hw=w/2-.07,lf=d.lift||0,gh=d.gh,yb=(gh[0][1]+gh[3][1])/2+lf,yr=Math.max(...d.p.map(p=>p[1]))+lf,
-zf=d.ws[0][0],zt=d.ws[1][0],zr=gh[1][0]-.15,fy=Math.min(...d.p.map(p=>p[1]))+lf+.08,ex=w*.21,ey=Math.min(yr-.12,Math.max(yr-.2,yb+.12)),ez=zt-.6,mz=(zf+zr)/2,L=zf-zr,dt=Math.min(yb+.03,ey-.13);EYE=[ex,ey,ez];
+zf=d.ws[0][0],zt=d.ws[1][0],zr=gh[1][0]-.15,fy=Math.min(...d.p.map(p=>p[1]))+lf+.08,ex=w*.21,ey=yr-.24,ez=zt-.4,mz=(zf+zr)/2,L=zf-zr,dt=Math.min(yb-.02,ey-.22);EYE=[ex,ey,ez];
 // zemin ve kapı iç panelleri (yol ve tekerler alttan görünmesin)
 cock.add(bx(2*hw,.04,L+.5,0,fy,mz,M.d));for(const sd of[-1,1])cock.add(bx(.06,yb-fy,L+.3,sd*hw,(yb+fy)/2,mz,M.p),bx(.13,.05,L*.6,sd*(hw-.06),yb-.14,mz-.1,M.l),bx(.04,.03,L*.5,sd*(hw-.02),yb-.3,mz,M.k));
 // torpido ön camın dibine kadar, üstü bel çizgisinin hemen üstünde
 cock.add(bx(2*hw,dt-fy,.75,0,(dt+fy)/2,zf-.18,M.d),bx(2*hw-.1,.03,.4,0,dt+.015,zf-.05,M.p));
 // gösterge kutusu ve iki kadran (devir solda, hız sağda)
-cock.add(bx(.56,.1,.3,ex,dt+.05,zf-.46,M.d));
-const mkG=(x,mx,st,lbl,red)=>{const g=new THREE.Group();g.add(new THREE.Mesh(new THREE.CircleGeometry(.085,28),new THREE.MeshBasicMaterial({map:dialTex(mx,st,lbl,red)})));
-const pv=new THREE.Group();pv.position.z=.004;pv.add(bx(.072,.008,.004,.034,0,0,new THREE.MeshBasicMaterial({color:0xff5a1f})));g.add(pv);g.position.set(x,dt+.02,zf-.62);g.rotation.set(.5,Math.PI,0);cock.add(g);return pv};
-ndR=mkG(ex+.095,8,1,'x1000 d/dk',.8);ndS=mkG(ex-.095,320,40,'km/sa');
+cock.add(bx(.34,.06,.16,ex,dt+.03,ez+.62,M.d));
+const mkG=(x,mx,st,lbl,red)=>{const g=new THREE.Group();g.add(new THREE.Mesh(new THREE.CircleGeometry(.052,28),new THREE.MeshBasicMaterial({map:dialTex(mx,st,lbl,red)})));
+const pv=new THREE.Group();pv.position.z=.004;pv.add(bx(.044,.006,.003,.021,0,0,new THREE.MeshBasicMaterial({color:0xff5a1f})));g.add(pv);g.position.set(x,dt+.04,ez+.56);g.rotation.set(.7,Math.PI,0);cock.add(g);return pv};
+ndR=mkG(ex+.06,8,1,'x1000 d/dk',.8);ndS=mkG(ex-.06,320,40,'km/sa');
 // direksiyon: üç kollu, kolonuyla
 swl=new THREE.Group();swl.add(new THREE.Mesh(new THREE.TorusGeometry(.17,.026,8,28),M.k));for(const a of[0,Math.PI,-Math.PI/2]){const sp=bx(.17,.04,.022,Math.cos(a)*.09,Math.sin(a)*.09,0,M.k);sp.rotation.z=a;swl.add(sp)}
 swl.add(new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,.05,14).rotateX(Math.PI/2),M.p),bx(.04,.02,.03,0,.19,-.01,new THREE.MeshBasicMaterial({color:0xff7a3c})));
-const sg=new THREE.Group();sg.position.set(ex,ey-.34,ez+.52);sg.rotation.x=.5;sg.add(swl,bx(.07,.07,.5,0,0,.28,M.d));cock.add(sg);
+const sg=new THREE.Group();sg.position.set(ex,ey-.36,ez+.46);sg.rotation.x=.5;sg.add(swl,bx(.07,.07,.5,0,0,.28,M.d));cock.add(sg);
 // orta konsol, vites kolu, yolcu koltuğu
 cock.add(bx(.3,.34,1.15,0,fy+.17,zf-.95,M.d));const sh=new THREE.Mesh(new THREE.CylinderGeometry(.014,.014,.24,6),M.l);sh.position.set(0,fy+.44,zf-1.1);sh.rotation.x=-.3;cock.add(sh,bx(.06,.06,.06,0,fy+.56,zf-1.14,M.k));
 cock.add(bx(.5,.14,.52,-ex,fy+.22,ez+.05,M.l),bx(.5,.72,.12,-ex,fy+.62,ez-.26,M.l,-.15),bx(.32,.2,.1,-ex,fy+1.05,ez-.3,M.l,-.15));
 // tavan döşemesi, ön cam üst çerçevesi, iç dikiz aynası
 const rl=new THREE.Mesh(new THREE.PlaneGeometry(2*hw,zt-zr+.4),new THREE.MeshLambertMaterial({color:0x3a3d43,side:THREE.DoubleSide}));rl.rotation.x=Math.PI/2;rl.position.set(0,yr-.07,(zt+zr)/2);cock.add(rl);
-cock.add(bx(2*hw,.1,.14,0,yr-.1,zt-.03,M.d),bx(.025,.05,.025,0,yr-.1,zt-.06,M.k),bx(.22,.06,.025,0,yr-.15,zt-.07,M.k));
+cock.add(bx(2*hw,.05,.1,0,yr-.065,zt-.02,M.d),bx(.025,.05,.025,0,yr-.1,zt-.06,M.k),bx(.22,.06,.025,0,yr-.15,zt-.07,M.k));
 // direkler: A (ön cam kenarı) ve B (yan camın arkası)
 for(const sd of[-1,1])cock.add(beam([sd*(hw-.03),d.ws[0][1]+lf,zf],[sd*(hw-.12),yr-.08,zt],M.d,.08),beam([sd*hw,yb,gh[1][0]+.06],[sd*(hw-.05),yr-.08,gh[1][0]],M.d,.1))}
 // ibreler: hız ve sahte vitesli devir
 const GEARS=[0,60,100,145,190,240,400];
-function gauges(kmh){if(!ndS)return;ndS.rotation.z=-dialA(kmh/320);let g=1;while(g<GEARS.length-1&&kmh>GEARS[g])g++;const lo=GEARS[g-1],hi=GEARS[g],rpm=kmh<3?(.9+1.2*S.gas):1.6+5.8*cl((kmh-lo)/(hi-lo),0,1);ndR.rotation.z=-dialA(rpm/8)}
+let RPM=1,GEAR=1;const RPMB=$('#rpmb');RPMB.innerHTML='<i></i>'.repeat(16);
+function rpmBar(){const n=Math.round(RPM/8*16);[...RPMB.children].forEach((e,k)=>e.className=k<n?(k>=13?'on r':k>=10?'on w':'on'):'')}
+function engine(kmh,dt){let g=1;while(g<GEARS.length-1&&kmh>GEARS[g])g++;const lo=GEARS[g-1],hi=GEARS[g],tg=kmh<3?(.9+1.4*S.gas):1.6+5.8*cl((kmh-lo)/(hi-lo),0,1);GEAR=kmh<1&&I.b&&!I.g?0:g;RPM+=(tg-RPM)*Math.min(1,dt*(tg<RPM?3.2:9))}
+function gauges(kmh){if(!ndS)return;ndS.rotation.z=-dialA(kmh/320);ndR.rotation.z=-dialA(RPM/8)}
 // ---------- garaj: araçları incele, seç. Yarıştan önce de buradan araç seçilir
 const GX=0,GZ=-9000,garG=new THREE.Group();scene.add(garG);garG.visible=false;
 {const fl=new THREE.Mesh(new THREE.CircleGeometry(30,48),lam(0x1c2024));fl.rotation.x=-Math.PI/2;fl.position.set(GX,.01,GZ);
@@ -607,7 +661,7 @@ else if(S.gas>.01){const av=Math.abs(vl),lw=Math.max(0,1-av/15),an=CT.gas=='anal
 E0=M.acc*P.gas*S.gas*Math.min(9.5*Lc*CAR.trq,240*CAR.pw/Math.max(av,1))/CAR.m*(1-Math.pow(cl(av/P.top,0,1.2),4)),f4=CAR.awd,lim=Math.min(P.A*.9,(f4?Math.min(Dr/(1-f4),Df/f4):Dr)*.55*M.lim)*P.lg,
 // kalkış patinajı: tuşla ya da otomatik gazda aracın sabit değeri (M.sc); analog pedalda gazın ne kadar açıldığına bağlı
 E=an?E0:Math.min(E0,lim*(1+M.sc+Math.max(0,av-6)/10)),sl=Math.max(0,E/lim-1),sk=Math.min(1,sl*2.5);
-spin=sk;const e=sl>0?lim*(1-(.03+.05*P.lz)*sk):E;ax=e;Fxr=Math.max(Math.abs(e)*(1-f4)*M.tc*1.8,Dr*(.6+.3*P.lz)*sk*(1-.5*f4));
+spin=sk;const e=sl>0?lim*(1-(.03+.05*P.lz)*sk):E;ax=e;Fxr=Math.max(Math.abs(e)*(1-f4)*M.tc*1.1,Dr*(.6+.3*P.lz)*sk*(1-.5*f4));
 // dört çekerde ön tekerler de çeker; ön tutuşun bir kısmını kullanır
 if(f4)Fxf=Math.max(Math.abs(e)*f4*1.2,Df*.5*sk*f4)}
 if(!I.b)ax-=sg*(1.2+(S.gas>.05?0:2.8))+vl*.05;
@@ -621,20 +675,21 @@ S.h+=S.w*h;S.axs+=(ax-S.axs)*Math.min(1,h*8);return{ar,spin}}
 function phys(dt){const si=surf(S.x,S.z),Sf=SURF[si],T=TIRES[tire],tu=TU,as=AS,loose=si!=1;
 if(si==3)S.mud=1;else S.mud=Math.max(0,S.mud-dt*Math.hypot(S.vx,S.vz)/(si==1?120:200));S.wet=Math.max(0,S.wet-dt/2.5);
 // lastik basıncı: yüksek = keskin ve erken kayar; gevşek zeminde düşük basınç tutuş verir
-const pg=tp=>1-(loose?.35:.15)*(tp-1),A0=Sf.a*T.g[Sf.ti]*CAR.gr[Sf.ti]/(1+.5*S.mud)*(1-.3*S.wet)*(1+.25*as.grip),B0=T.B[Sf.ti]*(si==3?.85:1);
+const pg=tp=>1-(loose?.35:.15)*(tp-1),A0=Sf.a*T.g[Sf.ti]*CAR.gr[Sf.ti]*WX.g/(1+.5*S.mud)*(1-.3*S.wet)*(1+.25*as.grip),B0=T.B[Sf.ti]*(si==3?.85:1);
 const P={A:A0,Af:A0*pg(tu.tpf)*CAR.fb,Ar:A0*pg(tu.tpr)*CAR.rb,Bf:B0*tu.tpf,Br:B0*tu.tpr,C:T.C[Sf.ti],top:VMAX*T.t[Sf.ti]*tu.top*CAR.top*(1-.04*(tu.aero-1)),drag:Sf.dr,gas:1,lch:tu.lch,loose,lz:loose?1:0,lg:T.lg?T.lg[Sf.ti]:1};
-const tg=(CT.steer=='btn'?I.l-I.r:CT.steer=='tilt'?tiltSteer():I.sa)*(set.inv?-1:1),rate=CT.steer!='btn'?14*tu.sens:tg==0?10:(set.sm?6.5*tu.sens:30);st+=(tg-st)*Math.min(1,rate*dt);S.gas+=(+I.g-S.gas)*Math.min(1,dt*(2+18*tu.thr));
+const tg=(DEMO?I.sa:CT.steer=='btn'?I.l-I.r:CT.steer=='tilt'?tiltSteer():I.sa)*(set.inv?-1:1),rate=CT.steer!='btn'?14*tu.sens:tg==0?10:(set.sm?6.5*tu.sens:30);st+=(tg-st)*Math.min(1,rate*dt);S.gas+=(+I.g-S.gas)*Math.min(1,dt*(2+18*tu.thr));
 let v=Math.hypot(S.vx,S.vz);
 let fx=Math.sin(S.h),fz=Math.cos(S.h),vl=S.vx*fx+S.vz*fz,vt=S.vx*Math.cos(S.h)-S.vz*Math.sin(S.h);
 const be=Math.atan2(vt,Math.max(vl,.5)),ab=Math.abs(be),bmax=.9-.35*cl((v-10)/45,0,1);
 // drift penceresi: açı pencere içinde kaldıkça drift sürer; çok düşerse araç düzelir, abartılırsa spin
 if(DR.cool>0)DR.cool-=dt;
 if(!S.air){if(!DR.on&&DR.cool<=0){const full=Math.abs(st)>(I.g>.5?.6:.7);DR.hold=full&&v>11?DR.hold+dt:0;
-if(as.dft>0&&v>10&&ab>.2&&I.g>.3){DR.on=1;DR.dir=-Math.sign(be);DR.bt=Math.min(ab,bmax)}
-else if(as.ini>0&&full&&((v>11&&DR.hold>.1)||(as.ini>=.8&&v>11&&I.b))){DR.on=1;DR.dir=Math.sign(st);DR.bt=.35}if(DR.on)DR.t=0}
+const dth=PK=='dr'||PK=='fd'||PK=='fa'?.35:.55;DR.nc=ab>dth&&I.g>.5&&v>11?(DR.nc||0)+dt:0;
+if(as.dft>0&&DR.nc>.25){DR.on=1;DR.dir=-Math.sign(be);DR.bt=Math.min(ab,bmax)}
+else if(as.ini>0&&full&&((v>13&&DR.hold>.15)||(as.ini>=.8&&v>11&&I.b))){DR.on=1;DR.dir=Math.sign(st);DR.bt=.35}if(DR.on)DR.t=0}
 else if(DR.on){DR.t+=dt;const into=st*DR.dir,gz=Math.min(1,+I.g);
 const hd=1.6-as.dft;// destek azaldıkça açı daha hızlı büyür: denge oyuncuya kalır
-if(into>.3)DR.bt+=(.5+.3*gz)*hd*into*dt;else if(into<-.3)DR.bt+=.9*into*dt;else DR.bt+=(gz>.5?.3*hd:-.2)*dt;if(gz<.2)DR.bt-=.5*dt;DR.bt=Math.min(DR.bt,bmax+.9);
+if(into>.3)DR.bt+=(.5+.3*gz)*hd*into*dt;else if(into<-.3)DR.bt+=.9*into*dt;else DR.bt+=(gz>.5?.12*hd:-.2)*dt;if(gz<.2)DR.bt-=.5*dt;DR.bt=Math.min(DR.bt,bmax+.9);
 if(ab>bmax+.6){DR.on=0;DR.cool=1.2;note('SPİN',40)}else if(DR.bt<.1||v<6||(ab<.07&&DR.t>.5))DR.on=0}}
 DR.k+=((DR.on?1:0)-DR.k)*Math.min(1,dt*(DR.on?7:3));
 // asfaltta drift: arka lastik kaymaya başlayınca (drift yardımı açıkken) toprakta olduğu gibi yumuşak ve uzun kayar
@@ -663,14 +718,14 @@ if(o.t=='box'){const px=o.hx+1.4-Math.abs(dx),pz=o.hz+1.4-Math.abs(dz);if(px>0&&
 const vn=S.vx*nx+S.vz*nz;if(vn<0){S.vx-=1.3*vn*nx;S.vz-=1.3*vn*nz;S.vx*=.75;S.vz*=.75;S.w+=(Math.random()-.5)*2*Math.min(1,-vn/15);if(-vn>3)S.hit=tt}}continue}
 if(o.t=='solid'){const rr=o.r+1.5;if(d<rr){const nx=dx/d,nz=dz/d,vn=S.vx*nx+S.vz*nz;S.x+=nx*(rr-d);S.z+=nz*(rr-d);
 if(vn<0){S.vx-=1.3*vn*nx;S.vz-=1.3*vn*nz;S.vx*=.75;S.vz*=.75;S.w+=(Math.random()-.5)*2*Math.min(1,-vn/15);if(-vn>3)S.hit=tt}}}
-else if(o.t=='bush'){if(d<o.r+1){const k=Math.exp(-2.2*dt);S.vx*=k;S.vz*=k;if(Math.random()<.4)puff(S.x,S.y,S.z,S.vx,S.vz,0x4f8a3a)}}
+else if(o.t=='bush'){if(d<o.r+1){const k=Math.exp(-2.2*dt);S.vx*=k;S.vz*=k;if(ENVK!='snow'&&Math.random()<.4)puff(S.x,S.y,S.z,S.vx,S.vz,mB.color.getHex())}}
 else if(d<o.r){S.wet=1;const k=Math.exp(-1.2*dt*Math.min(1,v/10));S.vx*=k;S.vz*=k;if(v>4)for(const s2 of[-1,1])if(Math.random()<.7)puff(S.x+Math.cos(S.h)*s2,S.y,S.z-Math.sin(S.h)*s2,S.vx*.5,S.vz*.5,0xcfe3f0)}}
 const g2=H(S.x,S.z);
 S.kerb=CUR&&CUR.kerb&&!S.air&&g2>.02?1:0;
 if(S.air){S.vy-=24*dt;const ay=S.y+S.vy*dt;if(ay>g2)S.y=ay;else{S.air=false;S.y=g2}}
 else{const gv=(g2-S.y)/dt;if(g2<S.y-.02&&gv<S.vy-24*dt-.5){S.air=true;S.vy-=24*dt;S.y+=S.vy*dt}else{S.vy=cl(gv,-30,30);S.y=g2}}
 v=Math.hypot(S.vx,S.vz);fx=Math.sin(S.h);fz=Math.cos(S.h);vl=S.vx*fx+S.vz*fz;vt=S.vx*Math.cos(S.h)-S.vz*Math.sin(S.h);
-S.spin=info.spin>.3&&v<25?1:0;if(info.spin&&loose&&!S.air)S.w+=(Math.random()-.5)*dt*3*(1-as.tcs)*info.spin;const beta=Math.atan2(vt,Math.max(Math.abs(vl),1)),dri=!S.air&&v>10&&Math.abs(beta)>.2;D.beta=beta;D.act=dri?1:0;
+S.spin=info.spin>.3&&v<25?1:0;if(info.spin&&loose&&!S.air)S.w+=(Math.random()-.5)*dt*1.5*(1-as.tcs)*info.spin;const beta=Math.atan2(vt,Math.max(Math.abs(vl),1)),dri=!S.air&&v>10&&(DR.on||Math.abs(beta)>.5);D.beta=beta;D.act=dri?1:0;
 if(dri){D.t+=dt;D.gap=0;D.score+=v*Math.abs(beta)*dt*4}else{D.gap+=dt;if(D.gap>.6){D.t=0;D.score=0}}
 const sm2=!S.air&&v>5&&(Math.abs(info.ar)>.16||info.spin>.2||dri),dust=!S.air&&(si==0||si==3||si>=4)&&v>6;
 if((sm2||dust)&&Math.random()<.85){const col=si>=4?0xf2f6f8:si==3?0x4a3524:si==1?0xe6e6e6:si==2?0x9a8f6a:0xbfa07a;for(const s2 of[-.9,.9]){if(Math.random()<.6)puff(S.x-fx*1.6+Math.cos(S.h)*s2,S.y,S.z-fz*1.6-Math.sin(S.h)*s2,S.vx,S.vz,col)}}
@@ -687,9 +742,9 @@ let nearCur=.5;const mmc=$('#mm').getContext?$('#mm').getContext('2d'):null;
 function loop(ts){const dt=Math.min(.033,(ts-last)/1000||0);last=ts;tt+=dt;
 if(CT.gas=='auto'&&mode=='drive')I.g=I.b?0:1;
 let v=Math.hypot(S.vx,S.vz),Sf=SURF[surf(S.x,S.z)],T=TIRES[tire];const frozen=EV&&EV.state=='count';
-if(mode=='drive'&&!frozen){const o=phys(dt);v=o.v;Sf=o.Sf;T=o.T;if(EV)evTick(dt,o)}
+if((mode=='drive'&&!frozen)||(mode=='menu'&&DEMO)){if(DEMO)demoTick();else{PROF.km+=v*dt/1000;if(tt%20<dt)saveProf()}const o=phys(dt);v=o.v;Sf=o.Sf;T=o.T;if(EV)evTick(dt,o)}
 if(frozen&&mode=='drive'){EV.cd-=dt;const b=$('#big');b.style.fontSize='88px';b.textContent=EV.cd>0?Math.ceil(EV.cd):'';if(EV.cd<=0){EV.state='run';note('BAŞLA!',60)}}
-if(EV&&REG[EV.reg].tick)REG[EV.reg].tick(EV);
+if(EV&&REG[EV.reg].tick)REG[EV.reg].tick(EV);precipTick(dt);shadowTick();
 if(bigT>0){bigT-=dt;if(bigT<=0)$('#big').textContent=''}
 ground.position.x=Math.round(S.x/GT)*GT;ground.position.z=Math.round(S.z/GT)*GT;
 if(mode=='garage'){S.x=GX;S.z=GZ;S.y=.12;S.h=tt*.3+ly;S.vx=S.vz=S.w=0;S.axs=0;delta=0}
@@ -701,11 +756,11 @@ body.rotation.x+=(cl(-S.axs*.004,-.07,.07)-body.rotation.x)*Math.min(1,dt*6);
 const spn=Math.min(1,v/VMAX),shake=mode=='drive'?(S.kerb?.06:0)+(tt-S.hit<.35?.3:0)+(set.shk&&spn>.7?.03*(spn-.6)*3:0):0;
 const inCar=mode!='menu'&&mode!='garage'&&camMode>=2,ck=inCar&&camMode==3,nr=inCar?.15:.5;
 if(nr!=nearCur){nearCur=nr;cam.near=nr;cam.updateProjectionMatrix()}
-cock.visible=ck;if(carM.g.userData.ck!==ck){carM.g.userData.ck=ck;carM.g.traverse(o=>{if(o.userData.pan)o.visible=!ck})}glassQM.opacity=ck?.12:1;glassQM.depthWrite=!ck;if(ck)gauges(v*3.6);
+cock.visible=ck;if(carM.g.userData.ck!==ck){carM.g.userData.ck=ck;carM.g.traverse(o=>{if(o.userData.pan)o.visible=!ck})}glassQM.opacity=ck?.12:1;glassQM.depthWrite=!ck;engine(v*3.6,dt);if(ck)gauges(v*3.6);
 if(inCar){car.updateMatrixWorld(true);swl.rotation.z=-delta*2.5;const mw=body.matrixWorld;
 const hy=CAR.ws[0][1]+.62+(CAR.lift||0),hz=CAR.ws[0][0]-.1;cam.position.copy((ck?V3(...EYE):V3(0,hy,hz)).applyMatrix4(mw));cam.position.y+=(Math.random()-.5)*shake*.4;
 cam.up.set(0,1,0).applyQuaternion(body.getWorldQuaternion(new THREE.Quaternion()));cam.lookAt((ck?V3(EYE[0],EYE[1]-.15,EYE[2]+14):V3(0,hy-.27,16)).applyMatrix4(mw))}
-else{if(mode=='menu'){camYaw=tt*.35;ly=0;lp=0}
+else{if(mode=='menu'){camYaw+=ad(S.h-camYaw)*Math.min(1,dt*1.5);ly=Math.sin(tt*.13)*1.6;lp=.1+Math.sin(tt*.07)*.1}
 else{camYaw+=ad(S.h-camYaw)*Math.min(1,dt*(D.act?2.2:4.5));if(dp===null&&performance.now()-lastDrag>1500){const d=Math.exp(-dt*3);ly*=d;lp*=d}}
 const far=camMode==1?1.6:1,pit=.3+lp,dist=(9+spn*3-cl(S.axs*.05,-1.5,1.5))*far,a=camYaw+ly;
 let cx=S.x-Math.sin(a)*dist*Math.cos(pit),cz=S.z-Math.cos(a)*dist*Math.cos(pit),cy=S.y+2.4*far+dist*Math.sin(pit);
@@ -715,11 +770,11 @@ cy=Math.max(cy,H(cx,cz)+1);cam.position.set(cx,cy,cz);cam.up.set(0,1,0);cam.look
 if(mode=='garage'){const a=.55,lnd=AW>AH,dd=lnd?8.2:8.8;cam.position.set(GX+Math.sin(a)*dd,lnd?2.3:3.2,GZ+Math.cos(a)*dd);cam.up.set(0,1,0);cam.lookAt(GX+(lnd?Math.cos(a)*3.4:0),lnd?.6:-1.5,GZ-(lnd?Math.sin(a)*3.4:0))}
 const bf=camMode==3&&inCar?(AW<AH?64:54):(AW<AH?78:62)+(inCar?6:0),tf=bf+(set.fov?spn*24:0);fovC+=(tf-fovC)*Math.min(1,dt*3);if(Math.abs(cam.fov-fovC)>.05){cam.fov=fovC;cam.updateProjectionMatrix()}
 for(const p of parts){if(p.l>0){p.l-=dt*1.1;p.m.position.addScaledVector(p.v,dt);const s=1+(1-p.l)*3;p.m.scale.set(s,s,s);p.m.material.opacity=Math.max(0,p.l*.45);if(p.l<=0)p.m.visible=false}}
-if(mode!='menu'){$('#spd').firstChild.nodeValue=Math.round(v*3.6);
-$('#sf').textContent=CAR.n+' · '+Sf.n+' · '+T.n+' lastik · '+(custom?'Özel':PRESETS[PK].n)+' · '+LEVELS[LK].n+(S.mud>.05?' · Çamur %'+Math.round(S.mud*100):'')+(S.wet>.05?' · Islak':'')+(CUR?' · '+CUR.n:'');
+if(mode!='menu'&&mode!='garage'){$('#spd').textContent=Math.round(v*3.6);$('.hSP').style.display=camMode==3?'none':'';$('#gear').textContent=GEAR||'N';rpmBar();$('#hName').textContent=EV?EV.n:CURW.n;
+$('#sf').textContent=CAR.n+' · '+Sf.n+' · '+T.n+' lastik'+(S.mud>.05?' · Çamur %'+Math.round(S.mud*100):'')+(S.wet>.05?' · Islak':'')+(COND.wx!='sun'?' · '+WXS[COND.wx]:'');
 $('#dr').textContent=D.t>0?'DRIFT '+Math.round(Math.abs(D.beta)*57.3)+'°':S.spin?'PATİNAJ':S.air?'HAVADA':'';
-$('#lap').textContent=EV||!MAP.TR||MAP.TR.open?'':(LAP.run?'Tur '+fmt(LAP.t):'Başlangıç çizgisinden geçince tur başlar')+' · Son '+fmt(LAP.last)+' · En iyi '+fmt(LAP.best);
-$('#ev').textContent=evText();
+$('#lap').textContent=EV||!MAP.TR||MAP.TR.open?(EV&&EV.ty=='dp'?'Drift uzadıkça çarpan artar':''):'Son '+fmt(LAP.last)+' · En iyi '+fmt(LAP.best);
+$('#ev').textContent=EV?evText():MAP.TR&&!MAP.TR.open?(LAP.run?'⏱ '+fmt(LAP.t):'Çizgiden geç, tur başlasın'):'';
 if(CT.steer=='tilt'){const c=$('#cal');if(c)c.textContent=performance.now()-tiltT<1500?'Ortala':'Sensör izni'}
 if(mmc){mmc.clearRect(0,0,240,240);mmc.drawImage(mmBase,0,0);const q=mmP(S.x,S.z);mmc.fillStyle='#fff';mmc.strokeStyle='#ff7a3c';mmc.lineWidth=3;
 mmc.beginPath();mmc.moveTo(q[0]+fxm*12,q[1]+fzm*12);mmc.lineTo(q[0]-fxm*6+fzm*6,q[1]-fzm*6-fxm*6);mmc.lineTo(q[0]-fxm*6-fzm*6,q[1]-fzm*6+fxm*6);mmc.closePath();mmc.fill();mmc.stroke()}}
@@ -729,7 +784,7 @@ let EV=null;
 const best=k=>{try{return +localStorage.getItem('sv_'+k)||0}catch(e){return 0}},saveBest=(k,v)=>{try{localStorage.setItem('sv_'+k,v)}catch(e){}};
 function startEvent(i,ci){const e=EVENTS[i],sv=EV&&EV.sv?EV.sv:{PK,LK,tire,TU:{...TU},AS:{...AS},custom,car:CARS.indexOf(CAR)};
 // açık dünyada sürdüğün araçla girersen ayarları aynen kalır (drift otoparktaki gibi); başka araçta o aracın önayarı yüklenir
-if(ci!=null&&CARS[ci]!==CAR){setCar(ci);PK=CAR.pk;applyPreset()}
+if(ci!=null&&CARS[ci]!==CAR){setCar(ci);PK=CAR.pk;applyPreset()}{const u=CARS.indexOf(CAR);PROF.use[u]=(PROF.use[u]||0)+1}
 ['#res','#set','#menu'].forEach(s=>$(s).classList.add('hidden'));setActive(REG[e.reg]);reset(e.g[1],e.g[2],e.g[3]);mode='drive';buildCtl();['#hud','#mm','#ctl'].forEach(s=>$(s).classList.remove('hidden'));
 EV={...e,i,sv,TR:REG[e.reg].TR,state:'count',cd:3,t:0,score:0,combo:0,ct:0,mult:1,gap:0,best:0,armed:0,lap:0,lapStart:0,bestLap:null,prev:ti,time:e.time||0,limit:e.limit||0}}
 function leaveEvent(){if(!EV)return;const sv=EV.sv;if(CARS[sv.car]!==CAR)setCar(sv.car);PK=sv.PK;LK=sv.LK;tire=sv.tire;TU=sv.TU;AS=sv.AS;custom=sv.custom;EV=null;$('#ev').textContent=''}
@@ -747,13 +802,13 @@ else{if(ti>N*.5)EV.armed=1;if(EV.armed&&ti>=N-(EV.ty=='dg'?1:4)){EV.trap=Math.hy
 function evText(){if(!EV)return'';if(EV.ty=='dp')return'⏱ '+Math.max(0,EV.time).toFixed(1)+' · Puan '+EV.score+(EV.combo>0?' · Kombo '+Math.round(EV.combo)+' x'+EV.mult:'');
 if(EV.ty=='dg')return'⏱ '+EV.t.toFixed(2)+' / '+EV.limit.toFixed(1)+' sn · '+Math.round(100*ti/(EV.TR.N-1))+'%';
 return'⏱ '+fmt(EV.t)+' / '+fmt(EV.limit)+(EV.t>EV.limit?' · SÜRE AŞILDI':'')+(EV.laps?' · Tur '+Math.min(EV.lap+1,EV.laps)+'/'+EV.laps:' · %'+Math.round(100*ti/EV.TR.N))}
-function endEvent(){EV.state='done';mode='result';I.g=I.b=I.l=I.r=0;I.sa=0;$('#ctl').classList.add('hidden');let h,p;
+function endEvent(){EV.state='done';mode='result';PROF.races++;if(EV.ty=='dp'?EV.score>0:EV.t<=EV.limit)PROF.wins++;saveProf();I.g=I.b=I.l=I.r=0;I.sa=0;$('#ctl').classList.add('hidden');let h,p;
 const row=(a,b)=>`<div class="rk"><span>${a}</span><span>${b}</span></div>`;
 if(EV.ty=='dp'){const b=best(EV.k),nb=EV.score>b;if(nb)saveBest(EV.k,EV.score);h='Drift yarışması bitti';p=row('Toplam puan',EV.score)+row('En iyi kombo',EV.best)+row('Rekor',Math.max(b,EV.score)+(nb?' · YENİ':''))}
 else{const ok=EV.t<=EV.limit,b=best(EV.k),nb=ok&&(!b||EV.t<b);if(nb)saveBest(EV.k,EV.t.toFixed(EV.ty=='dg'?3:2));h=ok?(EV.laps?'Yarış tamamlandı':EV.ty=='dg'?'Hedef geçildi':'Etap tamamlandı'):'Süre aşıldı';
 p=EV.ty=='dg'?row('Süren',fmt3(EV.t))+row('Hedef',fmt3(EV.limit))+row('Bitiş hızı',Math.round(EV.trap)+' km/sa')+row('Rekor',nb?fmt3(EV.t)+' · YENİ':b?fmt3(+b):'—'):row('Süren',fmt(EV.t))+row('Hedef',fmt(EV.limit))+(EV.laps?row('En iyi tur',fmt(EV.bestLap)):'')+row('Rekor',nb?fmt(EV.t)+' · YENİ':b?fmt(b):'—')}
 const r=$('#res'),k=EV.i;r.classList.remove('hidden');r.innerHTML=`<h1>${h}</h1>${p}<button class="btn" id="again">Tekrar</button><button class="btn alt" id="free">Açık dünyaya dön</button><button class="btn alt" id="rm">Ana menü</button>`;
-$('#again').onclick=()=>startEvent(k);$('#free').onclick=()=>{r.classList.add('hidden');startWorld(WORLDS.indexOf(CURW))};$('#rm').onclick=()=>{r.classList.add('hidden');leaveEvent();showMenu()}}
+$('#again').onclick=()=>startEvent(k);$('#free').onclick=()=>{r.classList.add('hidden');startWorld(WORLDS.indexOf(CURW))};$('#rm').onclick=()=>{r.classList.add('hidden');leaveEvent();showMenu(['home'])}}
 // ---------- menü ve ayarlar (katlanır bölümler)
 const STEER={btn:{n:'Tuşlar',d:'Sağ ve sol tuşları'},wheel:{n:'Direksiyon',d:'Ekrandaki direksiyonu çevir'},tilt:{n:'Telefonu çevir',d:'Telefonu direksiyon gibi yatır'}};
 const GASM={btn:{n:'Gaz tuşu',d:'Basınca tam gaz'},analog:{n:'Analog pedal',d:'Ortası boş: yukarı kaydır gaz, aşağı kaydır fren. Kalkışta tam gaz patinaj yapar'},auto:{n:'Otomatik gaz',d:'Araç kendi hızlanır, sen frenle'}};
@@ -763,7 +818,7 @@ const sec=(k,t,body)=>`<details data-sec="${k}"${OPEN.has(k)?' open':''}><summar
 const chipsOf=(obj,cur,attr)=>'<div class="chips" style="flex-wrap:wrap">'+Object.entries(obj).map(([k,m])=>`<div class="chip ${cur==k?'sel':''}" data-${attr}="${k}" style="flex:1 1 40%">${m.n}<small>${m.d}</small></div>`).join('')+'</div>';
 const OLK={auto:{n:'Otomatik',d:'Telefonla döner'},port:{n:'Dikey',d:'Hep dikey kalır'},land:{n:'Yatay',d:'Hep yatay kalır'}};
 const carHTML=()=>sec('car','Araç: '+CAR.n,chipsOf(Object.fromEntries(CARS.map((c,i)=>[i,{n:c.n,d:c.d}])),CARS.indexOf(CAR),'cr')+`<div class="row" id="acr"><div>Yarışta türe uygun araç<small>Yarışa o türün aracıyla girilir. Kapalıysa seçili araçla girersin.</small></div><i class="${set.ac?'on':''}">${set.ac?'Açık':'Kapalı'}</i></div>`);
-const ctlHTML=()=>sec('ctl','Kontroller','<div class="lbl">Ekran yönü</div>'+chipsOf(OLK,OLOCK,'ol')+'<div class="lbl">Direksiyon</div>'+chipsOf(STEER,CT.steer,'cs')+'<div class="lbl">Gaz</div>'+chipsOf(GASM,CT.gas,'cg')+(CT.steer=='tilt'?`<div class="row" style="display:block"><div>Çevirme açısı <span id="v_tlt">${set.tlt}°</span><small>Tam direksiyon için telefonu ne kadar yatırman gerekir. Büyük değer daha az hassas.</small></div><input type="range" id="tlt" min="20" max="60" step="1" value="${set.tlt}"></div>`:'')+
+const ctlHTML=()=>sec('ctl','Kontroller','<div class="lbl">Direksiyon</div>'+chipsOf(STEER,CT.steer,'cs')+'<div class="lbl">Gaz</div>'+chipsOf(GASM,CT.gas,'cg')+(CT.steer=='tilt'?`<div class="row" style="display:block"><div>Çevirme açısı <span id="v_tlt">${set.tlt}°</span><small>Tam direksiyon için telefonu ne kadar yatırman gerekir. Büyük değer daha az hassas.</small></div><input type="range" id="tlt" min="20" max="60" step="1" value="${set.tlt}"></div>`:'')+
 '<p>Telefonu çevirme: sürüşte sol alttaki tuşa basıp sensör izni ver, sonra telefonu nasıl tutacaksan öyle tutup “Ortala”ya bas. Telefonu direksiyon gibi sağa yatırınca sağa döner.</p>');
 function bindAll(root,re){const tl=root.querySelector('#tlt');if(tl)tl.oninput=()=>{set.tlt=+tl.value;root.querySelector('#v_tlt').textContent=set.tlt+'°'};root.querySelectorAll('details').forEach(d=>d.addEventListener('toggle',()=>{d.open?OPEN.add(d.dataset.sec):OPEN.delete(d.dataset.sec)}));
 root.querySelectorAll('.chip[data-pk]').forEach(e=>e.onclick=()=>{PK=e.dataset.pk;applyPreset();re()});root.querySelectorAll('.chip[data-lk]').forEach(e=>e.onclick=()=>{LK=e.dataset.lk;applyPreset();re()});
@@ -771,33 +826,76 @@ root.querySelectorAll('.chip[data-cs]').forEach(e=>e.onclick=()=>{CT.steer=e.dat
 root.querySelectorAll('.chip[data-cr]').forEach(e=>e.onclick=()=>{setCar(+e.dataset.cr);PK=CAR.pk;applyPreset();re()});const ac=root.querySelector('#acr');if(ac)ac.onclick=()=>{set.ac^=1;re()};
 root.querySelectorAll('.chip[data-ol]').forEach(e=>e.onclick=()=>{OLOCK=e.dataset.ol;try{localStorage.setItem('lt_olock',OLOCK)}catch(_){}rs();re()});root.querySelectorAll('.chip[data-cg]').forEach(e=>e.onclick=()=>{CT.gas=e.dataset.cg;buildCtl();re()});root.querySelectorAll('.chip[data-cm]').forEach(e=>e.onclick=()=>{camMode=+e.dataset.cm;re()})}
 const rec=e=>{const b=best(e.k);return b?' Rekor: '+(e.ty=='dp'?b:e.ty=='dg'?fmt3(b):fmt(b))+'.':''};
-function showMenu(){mode='menu';leaveEvent();['#hud','#mm','#ctl','#set','#res'].forEach(s=>$(s).classList.add('hidden'));$('#big').textContent='';const m=$('#menu');m.classList.remove('hidden');
-m.innerHTML=`<h1>Last Turn</h1><p>Açık dünyada serbest sür ya da bir yarış seç.</p>
-<div class="lbl" style="margin-top:14px"><b style="color:var(--ink);font-size:18px">Açık dünya</b><br>Serbest sürüş, süre ve kural yok.</div>`+
-WORLDS.map((w,i)=>`<div class="card go" data-w="${i}"><b>${w.n}</b><span>${w.d}</span></div>`).join('')+
-`<div class="lbl" style="margin-top:18px"><b style="color:var(--ink);font-size:18px">Garaj</b></div><div class="card go" id="gar0"><b>${CAR.ic} ${CAR.n}</b><span>Araçları incele, açık dünyada süreceğin aracı seç. Yarışlardan önce de araç seçilir.</span></div>`+
-Object.entries(TYP).map(([t,y])=>`<div class="lbl" style="margin-top:18px"><b style="color:var(--ink);font-size:18px">${y.n}</b><br>${y.d}</div>`+
-EVENTS.map((e,i)=>e.ty!=t?'':`<div class="card" data-ev="${i}"><b>${e.n}</b><span>${e.d}${e.limit?' Hedef '+(e.ty=='dg'?fmt3(e.limit):fmt(e.limit))+'.':''}${rec(e)}</span></div>`).join('')).join('')+
-'<div class="lbl" style="margin-top:18px"><b style="color:var(--ink);font-size:18px">Ayarlar</b></div>'+sec('pre','Önayar: '+PRESETS[PK].n,chipsOf(PRESETS,PK,'pk'))+sec('lvl','Sürüş yardımı: '+LEVELS[LK].n,chipsOf(LEVELS,LK,'lk'))+ctlHTML()+
-`<p style="font-size:13px;margin-top:14px">Sürüm ${APP_VERSION}</p>`;
-bindAll(m,showMenu);m.querySelectorAll('.card[data-w]').forEach(e=>e.onclick=()=>startWorld(+e.dataset.w));m.querySelectorAll('.card[data-ev]').forEach(e=>e.onclick=()=>openGarage(+e.dataset.ev));$('#gar0').onclick=()=>openGarage(null)}
+// ---------- profil: yerel olarak saklanır
+const PROF=(()=>{let p={name:'Sürücü',races:0,wins:0,km:0,use:{}};try{Object.assign(p,JSON.parse(localStorage.getItem('lt_prof')||'{}'))}catch(e){}return p})();
+const saveProf=()=>{try{localStorage.setItem('lt_prof',JSON.stringify(PROF))}catch(e){}};
+// ---------- menü arkasında canlı yarış: otomatik pilot bir aracı bir pistte sürer
+let DEMO=null;
+function demoStart(){if(DEMO)return;const picks=[[0,0],[1,0],[8,2],[6,2],[3,1],[4,1],[2,0]],pk=picks[Math.floor(Math.random()*picks.length)],e=EVENTS[pk[0]],r=REG[e.reg];
+DEMO={sv:{car:CARS.indexOf(CAR),PK,LK,TU:{...TU},AS:{...AS},tire,custom,cond:{...COND}},TR:r.TR};setCar(pk[1]);LK='norm';PK=CAR.pk;applyPreset();
+Object.assign(COND,condOf(r.th));setActive(r);reset(e.g[1],e.g[2],e.g[3]);camMode=0}
+function demoStop(){if(!DEMO)return;const v=DEMO.sv;DEMO=null;if(CARS[v.car]!==CAR)setCar(v.car);PK=v.PK;LK=v.LK;TU=v.TU;AS=v.AS;tire=v.tire;custom=v.custom;Object.assign(COND,v.cond);I.g=I.b=0;I.sa=0}
+function demoTick(){const TR=DEMO.TR,N=TR.N,k=j=>TR.open?Math.min(j,N-1):(j+N)%N;if(TR.open&&ti>N-12){const p=TR.P[4];reset(p[0],p[1],Math.atan2(TR.T[4][0],TR.T[4][1]));return}
+const q=TR.P[k(ti+7)];let a=Math.atan2(q[0]-S.x,q[1]-S.z)-S.h;a=Math.atan2(Math.sin(a),Math.cos(a));I.sa=cl(a*2.4,-1,1);
+const ta=TR.T[k(ti)],tb=TR.T[k(ti+16)],turn=Math.abs(Math.atan2(ta[0]*tb[1]-ta[1]*tb[0],ta[0]*tb[0]+ta[1]*tb[1])),vt=44-30*Math.min(1,turn*1.4),v=Math.hypot(S.vx,S.vz);I.g=v<vt?1:0;I.b=v>vt+5?1:0}
+// ---------- küçük resimler: araçlar garajda çekilir, pist şekilleri çizilir
+const THUMB={};
+function carThumbs(){if(THUMB.car)return;THUMB.car=[];const keep=CARS.indexOf(CAR),vis=[MAP.g.visible,ground.visible],cp=cam.position.clone(),cf=cam.fov;
+garG.visible=true;MAP.g.visible=false;for(const q of REG)if(q.g)q.g.visible=false;ground.visible=false;R.setSize(360,220,false);cam.aspect=360/220;cam.fov=38;cam.updateProjectionMatrix();
+CARS.forEach((c,i)=>{setCar(i);car.position.set(GX,.12,GZ);car.rotation.set(0,.9,0);body.rotation.set(0,0,0);cam.position.set(GX+5.6,1.9,GZ+5.2);cam.lookAt(GX,.55,GZ);car.updateMatrixWorld(true);R.render(scene,cam);THUMB.car[i]=R.domElement.toDataURL('image/jpeg',.82)});
+setCar(keep);garG.visible=false;MAP.g.visible=vis[0];ground.visible=vis[1];cam.position.copy(cp);cam.fov=cf;rs()}
+function trackThumb(r){if(r._th)return r._th;const c=document.createElement('canvas');c.width=c.height=160;const x=c.getContext('2d'),TR=r.TR,b=bbox(TR,0),s=136/Math.max(b[1]-b[0],b[3]-b[2]),ox=80-(b[0]+b[1])/2*s,oz=80-(b[2]+b[3])/2*s;
+x.lineJoin=x.lineCap='round';for(const [w,col] of[[10,'#0a0f12'],[5,r.col]]){x.strokeStyle=col;x.lineWidth=w;x.beginPath();TR.P.forEach((p,i)=>{const X=p[0]*s+ox,Z=p[1]*s+oz;i?x.lineTo(X,Z):x.moveTo(X,Z)});if(!TR.open)x.closePath();x.stroke()}
+const p0=TR.P[0];x.fillStyle='#ff7a3c';x.beginPath();x.arc(p0[0]*s+ox,p0[1]*s+oz,6,0,7);x.fill();return r._th=c.toDataURL()}
+// ---------- ana menü
+const TYPES=[['gp','Asfalt','Pist yarışları, fren tabelaları, kerbler'],['rx','Toprak','Rallikros: çamur, rampa, karışık zemin'],['rl','Ralli','A’dan B’ye orman, kar ve çöl etapları'],['dp','Drift','90 saniyede en yüksek drift puanı'],['dg','Drag','Düz çizgide milisaniyeler']];
+const NAV=[['race','🏁','Yarış','Pist türünü seç, yarışını seç'],['free','🗺️','Serbest sürüş','Açık dünyada kuralsız sür'],['garage','🔧','Garaj','Araçları incele ve seç'],['profile','👤','Profil','İstatistikler ve rekorlar'],['settings','⚙️','Ayarlar','Kontroller, kamera, sürüş yardımı']];
+let MV=['home'];
+const evLen=e=>(REG[e.reg].TR.len*(e.laps||1)/1000).toFixed(2)+' km'+(e.laps?' · '+e.laps+' tur':'');
+const evAvg=e=>e.ty=='dp'?e.time+' sn':e.ty=='dg'?fmt3(e.limit):fmt(e.limit);
+const prOf=e=>{const b=best(e.k);return b?(e.ty=='dp'?b+' puan':e.ty=='dg'?fmt3(+b):fmt(+b)):'—'};
+const condChips=()=>'<div class="lbl">Günün saati</div>'+chipsOf(Object.fromEntries(Object.entries(TODS).map(([k,n])=>[k,{n,d:''}])),COND.tod,'tod')+'<div class="lbl">Hava</div>'+chipsOf(Object.fromEntries(Object.entries(WXS).map(([k,n])=>[k,{n,d:k=='sun'?'':'Zemin daha kaygan'}])),COND.wx,'wx');
+function showMenu(v){mode='menu';leaveEvent();['#hud','#mm','#ctl','#set','#res','#gar'].forEach(s=>$(s).classList.add('hidden'));$('#big').textContent='';if(v)MV=v;
+const cur=MV[MV.length-1],top=MV[0];if(cur=='settings')demoStop();else demoStart();const m=$('#menu');m.classList.remove('hidden');
+m.innerHTML=`<div class="mmL"><div class="logo">LAST<b>TURN</b></div>${NAV.map(([k,ic,n,d])=>`<div class="nv ${top==k?'on':''}" data-nav="${k}"><i>${ic}</i><div><b>${n}</b><small>${d}</small></div></div>`).join('')}
+<div class="ver">${PROF.name} · Sürüm ${APP_VERSION}</div></div>${cur=='home'?'':`<div class="mmR">${view(cur)}</div>`}`;
+m.querySelectorAll('.nv').forEach(e=>e.onclick=()=>{const k=e.dataset.nav;if(k=='garage'){demoStop();openGarage(null);return}showMenu([k])});
+const bk=m.querySelector('#mbk');if(bk)bk.onclick=()=>{MV.pop();showMenu(MV.length?MV:['home'])};
+m.querySelectorAll('[data-ty]').forEach(e=>e.onclick=()=>showMenu([...MV,'t:'+e.dataset.ty]));
+m.querySelectorAll('[data-ev]').forEach(e=>e.onclick=()=>{Object.assign(COND,condOf(REG[EVENTS[+e.dataset.ev].reg].th));showMenu([...MV,'e:'+e.dataset.ev])});
+m.querySelectorAll('.chip[data-tod]').forEach(e=>e.onclick=()=>{COND.tod=e.dataset.tod;showMenu()});m.querySelectorAll('.chip[data-wx]').forEach(e=>e.onclick=()=>{COND.wx=e.dataset.wx;showMenu()});
+const go=m.querySelector('#mgo');if(go)go.onclick=()=>{const ev=+go.dataset.go,c={...COND};demoStop();Object.assign(COND,c);openGarage(ev)};
+m.querySelectorAll('[data-w]').forEach(e=>e.onclick=()=>{const c={...COND};demoStop();Object.assign(COND,c);startWorld(+e.dataset.w)});
+const nm=m.querySelector('#pname');if(nm)nm.onchange=()=>{PROF.name=nm.value.trim().slice(0,20)||'Sürücü';saveProf();showMenu()};
+if(cur=='settings')bindSettings(m.querySelector('.mmR'),()=>showMenu())}
+function view(cur){const back=MV.length>1?'<button class="mbk" id="mbk">‹ Geri</button>':'';
+if(cur=='race'){carThumbs();return`<h2>Yarış türü</h2><div class="tiles">${TYPES.map(([t,n,d])=>{const ci=CARS.findIndex(c=>c.ty==(t=='rx'?'rx':t)),cnt=EVENTS.filter(e=>e.ty==t).length;
+return`<div class="tile" data-ty="${t}"><img src="${THUMB.car[ci]}"><b>${n}</b><small>${d}</small><em>${cnt} yarış</em></div>`}).join('')}</div>`}
+if(cur.startsWith('t:')){const t=cur.slice(2),y=TYP[t];return`${back}<h2>${TYPES.find(q=>q[0]==t)[1]} yarışları</h2><p>${y.d}</p><div class="rlist">${EVENTS.map((e,i)=>e.ty!=t?'':`<div class="rc" data-ev="${i}"><img src="${trackThumb(REG[e.reg])}"><div class="rci"><b>${e.n}</b><small>${e.d}</small>
+<div class="rcs"><span>Uzunluk<b>${evLen(e)}</b></span><span>${e.ty=='dp'?'Süre':'Ort. bitiş'}<b>${evAvg(e)}</b></span><span>PR<b>${prOf(e)}</b></span><span>WR<b>—</b></span></div></div></div>`).join('')}</div><p class="note">WR: çevrimiçi özellikler gelince dünya rekorları burada görünecek.</p>`}
+if(cur.startsWith('e:')){const i=+cur.slice(2),e=EVENTS[i],r=REG[e.reg];return`${back}<div class="evh"><img src="${trackThumb(r)}"><div><h2>${e.n}</h2><p>${e.d}</p>
+<div class="rcs"><span>Uzunluk<b>${evLen(e)}</b></span><span>${e.ty=='dp'?'Süre':'Ort. bitiş'}<b>${evAvg(e)}</b></span><span>PR<b>${prOf(e)}</b></span><span>WR<b>—</b></span></div></div></div>
+${condChips()}<button class="btn" id="mgo" data-go="${i}">Araç seç ›</button>`}
+if(cur=='free')return`<h2>Serbest sürüş</h2>${WORLDS.map((w,i)=>`<div class="card go" data-w="${i}"><b>${w.n}</b><span>${w.d}</span></div>`).join('')}${condChips()}<p class="note">Araç: ${CAR.ic} ${CAR.n} (Garajdan değiştirebilirsin)</p>`;
+if(cur=='profile'){const fav=Object.entries(PROF.use).sort((a,b)=>b[1]-a[1])[0];return`<h2>Profil</h2><div class="lbl">Sürücü adı</div><input id="pname" class="inp" value="${PROF.name.replace(/"/g,'')}" maxlength="20">
+<div class="pst"><span>Yarış<b>${PROF.races}</b></span><span>Hedef geçildi<b>${PROF.wins}</b></span><span>Toplam yol<b>${PROF.km.toFixed(1)} km</b></span><span>En çok kullanılan<b>${fav?CARS[+fav[0]].n:'—'}</b></span></div>
+<div class="lbl">Kişisel rekorlar</div>${EVENTS.map(e=>`<div class="rk"><span>${e.n}</span><span>${prOf(e)}</span></div>`).join('')}`}
+if(cur=='settings')return`<h2>Ayarlar</h2>`+settingsHTML();return''}
+// ayarlar: menüde ve duraklatma ekranında aynı içerik
+const settingsHTML=()=>sec('pre','Önayar: '+(custom?'Özel':PRESETS[PK].n),chipsOf(PRESETS,PK,'pk'))+sec('lvl','Sürüş yardımı: '+LEVELS[LK].n,chipsOf(LEVELS,LK,'lk'))+
+sec('cam','Kamera: '+CAMS[camMode],chipsOf(CAMO,camMode,'cm'))+ctlHTML()+sec('tir','Lastik: '+TIRES[tire].n,'<div class="chips" style="flex-wrap:wrap">'+TIRES.map((t,i)=>`<div class="chip ${tire==i?'sel':''}" data-t="${i}" style="flex:1 1 40%">${t.n}<small>${t.d}</small></div>`).join('')+'</div>')+
+sec('mek','Mekanikler',TOG.map(t=>`<div class="row" data-k="${t[0]}"><div>${t[1]}<small>${t[2]}</small></div><i class="${set[t[0]]?'on':''}">${set[t[0]]?'Açık':'Kapalı'}</i></div>`).join(''))+
+sec('tun','Araç ayarları',sliders(TUNE,TU,'tu'))+sec('ast','Sürüş yardımları (ayrıntılı)',sliders(AST,AS,'as'));
+function bindSettings(s,re){bindAll(s,re);s.querySelectorAll('.chip[data-t]').forEach(e=>e.onclick=()=>{tire=+e.dataset.t;custom=true;re()});s.querySelectorAll('.row[data-k]').forEach(r=>r.onclick=()=>{set[r.dataset.k]^=1;re()});
+s.querySelectorAll('input[data-o]').forEach(e=>e.oninput=()=>{(e.dataset.o=='tu'?TU:AS)[e.dataset.s]=+e.value;s.querySelector('#v_'+e.dataset.o+e.dataset.s).textContent=(+e.value).toFixed(2);custom=true})}
 function startWorld(w){leaveEvent();['#menu','#res','#set'].forEach(s=>$(s).classList.add('hidden'));CURW=WORLDS[w||0];setActive(CURW.reg);reset();mode='drive';buildCtl();['#hud','#mm','#ctl'].forEach(s=>$(s).classList.remove('hidden'))}
 const sliders=(D,O,o)=>D.map(t=>`<div class="row" style="display:block"><div>${t[1]} <span id="v_${o}${t[0]}">${(+O[t[0]]).toFixed(2)}</span>${t[2]?'<small>'+t[2]+'</small>':''}</div><input type="range" data-o="${o}" data-s="${t[0]}" min="${t[3]}" max="${t[4]}" step="${t[5]}" value="${O[t[0]]}"></div>`).join('');
 function resume(){$('#set').classList.add('hidden');if(mode=='pause'){mode='drive';buildCtl();$('#ctl').classList.remove('hidden')}}
 function showSet(){const s=$('#set');s.classList.remove('hidden');if(mode=='drive'){mode='pause';I.l=I.r=I.g=I.b=0;I.sa=0;$('#ctl').classList.add('hidden')}
-s.innerHTML=`<div class="bar"><button class="btn" id="cl">Sürüşe dön</button><button class="btn alt" id="mn">Ana menü</button></div><p style="margin:0 0 4px">Oyun duraklatıldı.</p>`+
-sec('pre','Önayar: '+(custom?'Özel':PRESETS[PK].n),chipsOf(PRESETS,PK,'pk'))+sec('lvl','Sürüş yardımı: '+LEVELS[LK].n,chipsOf(LEVELS,LK,'lk'))+
-sec('cam','Kamera: '+CAMS[camMode],chipsOf(CAMO,camMode,'cm'))+ctlHTML()+
-sec('tir','Lastik: '+TIRES[tire].n,'<div class="chips" style="flex-wrap:wrap">'+TIRES.map((t,i)=>`<div class="chip ${tire==i?'sel':''}" data-t="${i}" style="flex:1 1 40%">${t.n}<small>${t.d}</small></div>`).join('')+'</div>')+
-(EV?'':sec('tp','Işınlan','<div class="chips" style="flex-wrap:wrap">'+CURW.tele.map((t,i)=>`<div class="chip" data-p="${i}" style="flex:1 1 40%">${t[0]}</div>`).join('')+'</div>'))+
-sec('mek','Mekanikler',TOG.map(t=>`<div class="row" data-k="${t[0]}"><div>${t[1]}<small>${t[2]}</small></div><i class="${set[t[0]]?'on':''}">${set[t[0]]?'Açık':'Kapalı'}</i></div>`).join(''))+
-sec('tun','Araç ayarları',sliders(TUNE,TU,'tu'))+sec('ast','Sürüş yardımları (ayrıntılı)',sliders(AST,AS,'as'));
-bindAll(s,showSet);
-s.querySelectorAll('.chip[data-t]').forEach(e=>e.onclick=()=>{tire=+e.dataset.t;custom=true;showSet()});
-s.querySelectorAll('.chip[data-p]').forEach(e=>e.onclick=()=>{const p=CURW.tele[+e.dataset.p];reset(p[1],p[2],p[3]);resume()});
-s.querySelectorAll('.row[data-k]').forEach(r=>r.onclick=()=>{set[r.dataset.k]^=1;showSet()});
-s.querySelectorAll('input[data-o]').forEach(e=>e.oninput=()=>{(e.dataset.o=='tu'?TU:AS)[e.dataset.s]=+e.value;$('#v_'+e.dataset.o+e.dataset.s).textContent=(+e.value).toFixed(2);custom=true});
-$('#cl').onclick=resume;$('#mn').onclick=()=>{s.classList.add('hidden');showMenu()}}
+s.innerHTML=`<div class="bar"><button class="btn" id="cl">Sürüşe dön</button><button class="btn alt" id="mn">Ana menü</button></div><p style="margin:0 0 4px">Oyun duraklatıldı.</p>`+settingsHTML()+
+(EV?'':sec('tp','Işınlan','<div class="chips" style="flex-wrap:wrap">'+CURW.tele.map((t,i)=>`<div class="chip" data-p="${i}" style="flex:1 1 40%">${t[0]}</div>`).join('')+'</div>'));
+bindSettings(s,showSet);s.querySelectorAll('.chip[data-p]').forEach(e=>e.onclick=()=>{const p=CURW.tele[+e.dataset.p];reset(p[1],p[2],p[3]);resume()});
+$('#cl').onclick=resume;$('#mn').onclick=()=>{s.classList.add('hidden');showMenu(['home'])}}
 $('#gs').onclick=showSet;$('#ts').onclick=()=>{tire=(tire+1)%TIRES.length;custom=true;note(TIRES[tire].n+' lastik',30)};
 // ↺: serbest sürüşte en yakın yola/piste, yarışta pistin en yakın noktasına koyar (süre işlemeye devam eder)
 $('#rs').onclick=()=>{if(mode!='drive')return;const TR=EV?EV.TR:MAP.TR,rg=EV?REG[EV.reg]:CUR;if(TR){let i=ti;
