@@ -76,7 +76,7 @@ summary::after{content:'▾';float:right;color:var(--mut)}details[open]>summary:
 <script src="vendor/three.min.js"></script>
 <script>
 // sürüm: her güncellemede artırılır; açık uygulama yeni sürümü bu değerden tanır
-const APP_VERSION='1.2.0';
+const APP_VERSION='1.3.0';
 // ekran yönü kilidi: iOS ana ekran uygulamasında yön kilitlenemediği için, telefon kilitli yönün dışına dönerse içerik 90° döndürülür
 const APP=document.createElement('div');APP.id='app';[...document.body.children].filter(e=>e.tagName!='SCRIPT').forEach(e=>APP.appendChild(e));document.body.prepend(APP);
 const probe=document.createElement('div');probe.style.cssText='position:fixed;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)';document.body.appendChild(probe);
@@ -100,7 +100,7 @@ const TIRES=[
 {n:'Yarış',d:'Asfaltta en iyi, toprakta kayar',g:[.45,1.15],B:[6,10],C:[1.7,1.58],t:[.78,1.08]},
 {n:'Toprak',d:'Toprakta tam tutuş, asfaltta yavaş',g:[1.25,.78],B:[4.5,7],C:[1.3,1.48],t:[1,.9]},
 {n:'Karışık',d:'Dengeli, uçlarda zayıf',g:[.8,.97],B:[5.5,8.5],C:[1.45,1.52],t:[.9,.97]},
-{n:'Drift',d:'Düşük tutuş, yumuşak ve uzun kayma',g:[.68,.76],B:[4.2,5.5],C:[1.22,1.28],t:[.9,.95]}];
+{n:'Drift',d:'Yanlamasına düşük tutuş, yumuşak ve uzun kayma; ileri yönde iyi çekiş',lg:[1.35,1.3],g:[.68,.76],B:[4.2,5.5],C:[1.22,1.28],t:[.9,.95]}];
 const TUNE=[['pow','Motor gücü','Hızlanma',.6,1.5,.05],['top','Vites oranı','Yüksek: tepe hız artar, çıkış yavaşlar',.85,1.15,.01],
 ['brk','Fren gücü','',.6,1.4,.05],['bb','Fren dengesi (ön)','Düşük: arka erken kilitlenir, araç frende döner',.4,.8,.01],
 ['tpf','Ön lastik basıncı','Düşük: affedici, toprakta tutuş. Yüksek: keskin, erken kayar',.8,1.25,.01],['tpr','Arka lastik basıncı','Yüksek: arka kolay kayar (drift)',.8,1.25,.01],
@@ -112,15 +112,15 @@ const AST=[['grip','Yol tutuş desteği','Tüm lastiklere ek tutuş',0,1,.05],['
 ['stm','Denge kontrolü','Savrulmayı söndürür (driftte devre dışı)',0,1,.05],['tcs','Çekiş kontrolü','Gazda patinajı ve istenmeyen arka kaymayı azaltır',0,1,.05],
 ['abs','ABS','Frende kilitlenmeyi ve arka savrulmayı önler',0,1,.05],['dft','Drift desteği','Seçtiğin drift açısını tutar. Açıyı abartırsan yine spin olur',0,1,.05],
 ['ini','Drift başlatma','Hızlıyken direksiyonu tam kırınca arka gevşer',0,1,.05],['acc','Güç desteği','',1,1.35,.01],['bra','Fren desteği','',1,1.35,.01]];
-const LEVELS={arc:{n:'Arcade',d:'Tüm yardımlar açık',v:{grip:1,str:1,stm:.7,tcs:.8,abs:1,dft:1,ini:1,acc:1.3,bra:1.35}},
-norm:{n:'Dengeli',d:'Orta seviye yardım',v:{grip:.4,str:.4,stm:.4,tcs:.5,abs:1,dft:.7,ini:.5,acc:1.15,bra:1.15}},
-real:{n:'Gerçekçi',d:'Minimum yardım, gerçek tutuş sınırı',v:{grip:0,str:0,stm:0,tcs:0,abs:0,dft:.35,ini:0,acc:1,bra:1}}};
+const LEVELS={arc:{n:'Arcade',d:'Tüm yardımlar açık',v:{grip:1,str:1,stm:.7,tcs:.8,abs:1,dft:.75,ini:1,acc:1.3,bra:1.35}},
+norm:{n:'Dengeli',d:'Orta seviye yardım',v:{grip:.4,str:.4,stm:.4,tcs:.5,abs:1,dft:.55,ini:.5,acc:1.15,bra:1.15}},
+real:{n:'Gerçekçi',d:'Minimum yardım, gerçek tutuş sınırı',v:{grip:0,str:0,stm:0,tcs:0,abs:0,dft:.4,ini:0,acc:1,bra:1}}};
 const PRESETS={
 ar:{n:'Asfalt yarışı',d:'Yarış lastiği, sıkı arka, yüksek bastırma',tire:0,cap:{ini:.3,dft:.5},v:{pow:1,top:1,brk:1.1,bb:.62,tpf:1,tpr:.97,bal:1.03,diff:.45,lock:.5,sens:.5,susp:.8,aero:1.3,thr:.6,lch:.35}},
 tr:{n:'Toprak yarışı',d:'Toprak lastiği, düşük basınç, yumuşak süspansiyon',tire:1,cap:{ini:.4,dft:.7},v:{pow:1,top:.95,brk:.95,bb:.58,tpf:.9,tpr:.9,bal:.98,diff:.7,lock:.6,sens:.5,susp:1.15,aero:.6,thr:.55,lch:.6}},
-fd:{n:'Serbest (toprak)',d:'Rahat, kaymaya izin veren toprak sürüşü',tire:1,v:{pow:1,top:1,brk:1,bb:.6,tpf:.9,tpr:.92,bal:1,diff:.8,lock:.55,sens:.5,susp:1,aero:.5,thr:.5,lch:.55},ast:{dft:.8}},
-fa:{n:'Serbest (asfalt)',d:'Toprak hissini asfalta taşır: yumuşak lastik, affedici kayma',tire:2,v:{pow:1,top:1,brk:1,bb:.6,tpf:.85,tpr:.88,bal:1.02,diff:.6,lock:.55,sens:.5,susp:.95,aero:.8,thr:.55,lch:.4},ast:{dft:.8,ini:.5}},
-dr:{n:'Drift',d:'Drift lastiği, kilitli diferansiyel, geniş direksiyon açısı',tire:3,v:{pow:1.15,top:.92,brk:.9,bb:.55,tpf:.95,tpr:1.18,bal:.92,diff:1.1,lock:.78,sens:.5,susp:1.2,aero:.4,thr:.8,lch:.8},ast:{dft:1,ini:.8}}};
+fd:{n:'Serbest (toprak)',d:'Rahat, kaymaya izin veren toprak sürüşü',tire:1,v:{pow:1,top:1,brk:1,bb:.6,tpf:.9,tpr:.92,bal:1,diff:.8,lock:.55,sens:.5,susp:1,aero:.5,thr:.5,lch:.55}},
+fa:{n:'Serbest (asfalt)',d:'Toprak hissini asfalta taşır: yumuşak lastik, affedici kayma',tire:2,v:{pow:1,top:1,brk:1,bb:.6,tpf:.85,tpr:.88,bal:1.02,diff:.6,lock:.55,sens:.5,susp:.95,aero:.8,thr:.55,lch:.4},ast:{ini:.5}},
+dr:{n:'Drift',d:'Drift lastiği, kilitli diferansiyel, geniş direksiyon açısı',tire:3,v:{pow:1.15,top:.92,brk:.9,bb:.55,tpf:.95,tpr:1.18,bal:.92,diff:1.1,lock:.78,sens:.5,susp:1.2,aero:.4,thr:.8,lch:.3},ast:{ini:.8}}};
 let PK='fd',LK='real',TU={},AS={},custom=false;
 function applyPreset(){const p=PRESETS[PK];TU={...p.v};tire=p.tire;AS={...LEVELS[LK].v};if(p.ast)for(const k in p.ast)AS[k]=Math.max(AS[k],p.ast[k]);if(p.cap)for(const k in p.cap)AS[k]=Math.min(AS[k],p.cap[k]);custom=false}
 const set={ss:1,sm:1,fov:1,shk:1,inv:0,tlt:38};let tire=1;
@@ -400,7 +400,7 @@ const wt=cl(S.axs*M.wk,-.15,.1),Df=P.Af*(.5-wt),Dr=P.Ar*(.5+wt)*M.rb;
 let ax=0,Fxr=0,Fxf=0,spin=0;
 if(I.b){if(vl>.5){const Bk=Math.min(30*M.brk,P.A*1.05)*I.b;ax=-Bk;Fxf=M.bb*Bk*M.bc;Fxr=(1-M.bb)*Bk*M.bc}else if(vl>-10){const Rv=Math.min(12,Dr)*I.b;ax=-Rv;Fxr=Rv*.6*M.bc}}
 else if(S.gas>.01){const av=Math.abs(vl),lw=Math.max(0,1-av/15),an=CT.gas=='analog',Lc=an?1+2*P.lch*S.gas*S.gas*lw:1+.7*P.lch*lw,
-E0=M.acc*P.gas*S.gas*Math.min(9.5*Lc,240/Math.max(av,1))*(1-Math.pow(cl(av/P.top,0,1.2),4)),lim=Math.min(P.A*.9,Dr*.55*M.lim),
+E0=M.acc*P.gas*S.gas*Math.min(9.5*Lc,240/Math.max(av,1))*(1-Math.pow(cl(av/P.top,0,1.2),4)),lim=Math.min(P.A*.9,Dr*.55*M.lim)*P.lg,
 // kalkış patinajı: tuşla ya da otomatik gazda aracın sabit değeri (M.sc); analog pedalda gazın ne kadar açıldığına bağlı
 E=an?E0:Math.min(E0,lim*(1+M.sc+Math.max(0,av-6)/10)),sl=Math.max(0,E/lim-1),sk=Math.min(1,sl*2.5);
 spin=sk;const e=sl>0?lim*(1-(.03+.05*P.lz)*sk):E;ax=e;Fxr=Math.max(Math.abs(e)*M.tc*1.8,Dr*(.6+.3*P.lz)*sk)}
@@ -416,7 +416,7 @@ function phys(dt){const si=surf(S.x,S.z),Sf=SURF[si],T=TIRES[tire],tu=TU,as=AS,l
 if(si==3)S.mud=1;else S.mud=Math.max(0,S.mud-dt*Math.hypot(S.vx,S.vz)/(si==1?120:200));S.wet=Math.max(0,S.wet-dt/2.5);
 // lastik basıncı: yüksek = keskin ve erken kayar; gevşek zeminde düşük basınç tutuş verir
 const pg=tp=>1-(loose?.35:.15)*(tp-1),A0=Sf.a*T.g[Sf.ti]/(1+.5*S.mud)*(1-.3*S.wet)*(1+.25*as.grip),B0=T.B[Sf.ti]*(si==3?.85:1);
-const P={A:A0,Af:A0*pg(tu.tpf),Ar:A0*pg(tu.tpr),Bf:B0*tu.tpf,Br:B0*tu.tpr,C:T.C[Sf.ti],top:VMAX*T.t[Sf.ti]*tu.top*(1-.04*(tu.aero-1)),drag:Sf.dr,gas:1,lch:tu.lch,loose,lz:loose?1:0};
+const P={A:A0,Af:A0*pg(tu.tpf),Ar:A0*pg(tu.tpr),Bf:B0*tu.tpf,Br:B0*tu.tpr,C:T.C[Sf.ti],top:VMAX*T.t[Sf.ti]*tu.top*(1-.04*(tu.aero-1)),drag:Sf.dr,gas:1,lch:tu.lch,loose,lz:loose?1:0,lg:T.lg?T.lg[Sf.ti]:1};
 const tg=(CT.steer=='btn'?I.l-I.r:CT.steer=='tilt'?tiltSteer():I.sa)*(set.inv?-1:1),rate=CT.steer!='btn'?14*tu.sens:tg==0?10:(set.sm?6.5*tu.sens:30);st+=(tg-st)*Math.min(1,rate*dt);S.gas+=(+I.g-S.gas)*Math.min(1,dt*(2+18*tu.thr));
 let v=Math.hypot(S.vx,S.vz);
 let fx=Math.sin(S.h),fz=Math.cos(S.h),vl=S.vx*fx+S.vz*fz,vt=S.vx*Math.cos(S.h)-S.vz*Math.sin(S.h);
@@ -424,16 +424,18 @@ const be=Math.atan2(vt,Math.max(vl,.5)),ab=Math.abs(be),bmax=.9-.35*cl((v-10)/45
 // drift penceresi: açı pencere içinde kaldıkça drift sürer; çok düşerse araç düzelir, abartılırsa spin
 if(DR.cool>0)DR.cool-=dt;
 if(!S.air){if(!DR.on&&DR.cool<=0){const full=Math.abs(st)>(I.g>.5?.6:.7);DR.hold=full&&v>11?DR.hold+dt:0;
-if(as.dft>0&&v>10&&ab>.18&&I.g&&st*-Math.sign(be)>.5){DR.on=1;DR.dir=-Math.sign(be);DR.bt=Math.min(ab,bmax)}
+if(as.dft>0&&v>10&&ab>.2&&I.g>.3){DR.on=1;DR.dir=-Math.sign(be);DR.bt=Math.min(ab,bmax)}
 else if(as.ini>0&&full&&((v>11&&DR.hold>.1)||(as.ini>=.8&&v>11&&I.b))){DR.on=1;DR.dir=Math.sign(st);DR.bt=.35}if(DR.on)DR.t=0}
-else if(DR.on){DR.t+=dt;const into=st*DR.dir;if(into>.3)DR.bt=Math.min(DR.bt+.45*dt,bmax+.15);else if(into<-.3)DR.bt-=.9*dt;else DR.bt-=.2*dt;if(!I.g)DR.bt-=.5*dt;
-if(ab>bmax+.6){DR.on=0;DR.cool=1.2}else if(DR.bt<.1||v<6||(ab<.07&&DR.t>.5))DR.on=0}}
+else if(DR.on){DR.t+=dt;const into=st*DR.dir,gz=Math.min(1,+I.g);
+const hd=1.6-as.dft;// destek azaldıkça açı daha hızlı büyür: denge oyuncuya kalır
+if(into>.3)DR.bt+=(.5+.3*gz)*hd*into*dt;else if(into<-.3)DR.bt+=.9*into*dt;else DR.bt+=(gz>.5?.3*hd:-.2)*dt;if(gz<.2)DR.bt-=.5*dt;DR.bt=Math.min(DR.bt,bmax+.9);
+if(ab>bmax+.6){DR.on=0;DR.cool=1.2;note('SPİN',40)}else if(DR.bt<.1||v<6||(ab<.07&&DR.t>.5))DR.on=0}}
 DR.k+=((DR.on?1:0)-DR.k)*Math.min(1,dt*(DR.on?7:3));
 // asfaltta drift: arka lastik kaymaya başlayınca (drift yardımı açıkken) toprakta olduğu gibi yumuşak ve uzun kayar
 {const kz=Math.max(DR.k,sm(.1,.3,ab)*Math.min(1,+I.g)*as.dft);if(!loose&&kz>0){P.Br*=1-.45*kz;P.Bf*=1-.2*kz;P.Ar*=1-.1*kz;P.C+=(1.3-P.C)*kz;P.lz=kz}}
 // çekiş kontrolü: drift dışındaki arka kaymada gazı keser
 if(as.tcs>0&&!DR.on)P.gas=1-as.tcs*sm(.12,.35,ab);
-const M={rb:tu.bal*(1-.4*as.ini*DR.k),bc:.45*(1-as.abs),bb:tu.bb,tc:.8*tu.diff*(1-.7*as.tcs),wk:.012*tu.susp,kin:5*as.str*(1-DR.k),al:2.5*as.str*(1-DR.k),
+const M={rb:tu.bal*(1-.3*as.ini*DR.k),bc:.45*(1-as.abs),bb:tu.bb,tc:.8*tu.diff*(1-.7*as.tcs),wk:.012*tu.susp,kin:5*as.str*(1-DR.k),al:2.5*as.str*(1-DR.k),
 dmp:.35+1.6*as.stm*(1-DR.k),acc:as.acc*tu.pow,brk:as.bra*tu.brk,lim:1+.6*as.tcs,sc:.02+.08*tu.lch};
 let info={ar:0,spin:0};const pv0=Math.atan2(S.vx,S.vz);
 if(!S.air){const e=2;S.vx-=24*(H(S.x+e,S.z)-H(S.x-e,S.z))/(2*e)*dt;S.vz-=24*(H(S.x,S.z+e)-H(S.x,S.z-e))/(2*e)*dt;
@@ -516,7 +518,7 @@ R.render(scene,cam);requestAnimationFrame(loop)}
 let EV=null;
 const best=k=>{try{return +localStorage.getItem('sv_'+k)||0}catch(e){return 0}},saveBest=(k,v)=>{try{localStorage.setItem('sv_'+k,v)}catch(e){}};
 function startEvent(i){const e=EVENTS[i],sv=EV&&EV.sv?EV.sv:{PK,LK,tire,TU:{...TU},AS:{...AS},custom};
-PK=e.pk;applyPreset();if(e.ty=='dp'){tire=3;Object.assign(AS,{grip:0,str:.2,stm:0,tcs:0,dft:1,ini:1})}
+PK=e.pk;applyPreset();if(e.ty=='dp'){tire=3;Object.assign(AS,{grip:0,str:Math.min(AS.str,.2),stm:0,tcs:0,ini:1})}
 ['#res','#set','#menu'].forEach(s=>$(s).classList.add('hidden'));setActive(REG[e.reg]);reset(e.g[1],e.g[2],e.g[3]);mode='drive';buildCtl();['#hud','#mm','#ctl'].forEach(s=>$(s).classList.remove('hidden'));
 EV={...e,i,sv,TR:REG[e.reg].TR,state:'count',cd:3,t:0,score:0,combo:0,ct:0,mult:1,gap:0,best:0,armed:0,lap:0,lapStart:0,bestLap:null,prev:ti,time:e.time||0,limit:e.limit||0}}
 function leaveEvent(){if(!EV)return;const sv=EV.sv;PK=sv.PK;LK=sv.LK;tire=sv.tire;TU=sv.TU;AS=sv.AS;custom=sv.custom;EV=null;$('#ev').textContent=''}
