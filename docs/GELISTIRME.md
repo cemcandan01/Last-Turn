@@ -13,9 +13,10 @@ Her alan için yeni bir sohbet aç ve aşağıdaki istemi yapıştır. Altına o
 ## 1. Fizik ve sürüş hissi
 
 ```
-Last Turn'ün fizik ve sürüş hissi üzerinde çalışacağız. Fizik src/fizik/ altında ve saf (three ve DOM yok): klasik.ts (bisiklet modeli, drift durumu DR, çarpışma), veriler.ts (zeminler, lastikler, ayarlar, yardım seviyeleri, önayarlar), simulasyon.ts (sabit adım). Araç değerleri src/arac/araclar.ts (CARS: trq, pw, m, fb, rb, iz, awd...).
+Last Turn'ün fizik ve sürüş hissi üzerinde çalışacağız. Fizik src/fizik/ altında ve saf (three ve DOM yok). İki motor var: klasik.ts (bisiklet modeli, varsayılan) ve yeni/ (katı gövde, 4 teker, süspansiyon, lastik modeli, motor-vites; Ayarlar → Fizik motoru). Ortak drift penceresi DR ve drift puanı ortak.ts'te; veriler.ts zeminler, lastikler, ayarlar, yardım seviyeleri, önayarlar; simulasyon.ts sabit adım. Araç değerleri src/arac/araclar.ts (CARS: trq, pw, m, fb, rb, iz, awd, ff, hcg, dv...).
+Hangi motor üzerinde çalışacağımızı belirt (yoksa sor). Klasik değişirse altın iz testi kırılır: bilerek değiştirdiysen `npm run altin-iz`.
 Kurallar: kayma ile drift ayrımını koru (drift modu yalnız bilinçli driftte açılır). Gerçekçi seviyede araç gazda kendi kendine spin atmamalı. Fizikte Math.random kullanma.
-Her değişiklikten sonra `npm test` çalıştır (altın iz + spin/drift, ~2 sn). Klasik fiziği bilerek değiştirirsen `npm run altin-iz` ile izi yenile. Gerekirse tests/birim/'e yeni bir ölçüm ekle (fren mesafesi, viraj hızı gibi; tests/yardimci/surucu.ts gerçek pistte otomatik pilot kurar). Sonuçları sayılarla anlat.
+Her değişiklikten sonra `npm test` (altın iz + iki motorda spin/drift ve yeni motor testleri, ~10 sn) ve gerekirse `npm run olcum` (0-100, fren, tur süreleri) çalıştır. Gerekirse tests/birim/'e yeni bir ölçüm ekle (fren mesafesi, viraj hızı gibi; tests/yardimci/surucu.ts gerçek pistte otomatik pilot kurar). Sonuçları sayılarla anlat.
 Bugünkü isteğim:
 ```
 

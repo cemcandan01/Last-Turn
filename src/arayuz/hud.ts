@@ -53,7 +53,7 @@ export function hudGuncelle(v: number, Sf: Zemin, T: Lastik) {
   yazi(E.spd, String(Math.round(v * 3.6)));
   const gizli = oyun.camMode == 3 ? "none" : "";
   if (E.hSP.style.display != gizli) E.hSP.style.display = gizli;
-  yazi(E.gear, String(motor.GEAR || "N"));
+  yazi(E.gear, motor.GEAR < 0 ? "R" : String(motor.GEAR || "N"));
   rpmBar();
   yazi(E.hName, EV ? EV.n : oyun.CURW.n);
   yazi(

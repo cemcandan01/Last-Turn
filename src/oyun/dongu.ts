@@ -33,7 +33,9 @@ import { yaris } from "./yarislar";
 export let tt = 0;
 let last = 0,
   birikim = 0;
-const q = new THREE.Quaternion();
+const q = new THREE.Quaternion(),
+  qA = new THREE.Quaternion(),
+  qB = new THREE.Quaternion();
 
 /** bir kare */
 function kare(ts: number) {
@@ -94,7 +96,7 @@ function kare(ts: number) {
     gy = mode == "garage" ? S.y : py,
     gz = mode == "garage" ? S.z : pz,
     gh = mode == "garage" ? S.h : ph;
-  sahneGuncelle(dt, v, gx, gy, gz, gh);
+  sahneGuncelle(dt, v, gx, gy, gz, gh, al);
   if (mode == "menu" && CINE) cineCam();
   parcacikTick(dt);
   if (mode != "menu" && mode != "garage") {
@@ -109,28 +111,42 @@ function kare(ts: number) {
 }
 
 /** araç modeli, gövde hareketi, kokpit ve kamera */
-function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h: number) {
+function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h: number, al: number) {
   const S = sim.S,
     { mode, camMode } = oyun,
     delta = sim.d.delta;
   const fxm = Math.sin(h),
     fzm = Math.cos(h);
   car.position.set(x, y, z);
-  car.rotation.y = h;
   for (const pv of model.steerP) pv.rotation.y = delta;
-  {
+  const Y = sim.yeni;
+  if (Y && (mode == "drive" || mode == "pause" || mode == "result")) {
+    // yeni fizik: gövdenin gerçek yönelimi (iki adım arası ara değer), tekerlerde süspansiyon ve dönüş
+    const P = sim.onceki;
+    qA.set(P.qx, P.qy, P.qz, P.qw);
+    qB.set(Y.qx, Y.qy, Y.qz, Y.qw);
+    car.quaternion.slerpQuaternions(qA, qB, al);
+    body.rotation.set(0, 0, 0);
+    for (const tm of model.carM!.ws) {
+      const tk = Y.tk[tm.pv.userData.fi];
+      tm.pv.position.y = tm.pv.userData.y0 + (tk.temas ? cl(tk.sik - tk.c0, -0.12, 0.16) : -0.1);
+      tm.w.rotation.x = tk.don;
+    }
+  } else {
+    car.rotation.set(0, h, 0);
+    for (const tm of model.carM!.ws) tm.pv.position.y = tm.pv.userData.y0;
     const vl_ = S.vx * fxm + S.vz * fzm;
     for (const w of model.wheels) w.rotation.x += (vl_ * dt) / w.userData.r;
+    // gövde eğimi: havada hız yönüne, yerde yokuşa göre; yalpa ve ivmeyle yatış
+    const pt = S.air
+      ? Math.atan2(S.vy, Math.max(10, v))
+      : Math.atan2(Hw(x + fxm * 1.6, z + fzm * 1.6) - Hw(x - fxm * 1.6, z - fzm * 1.6), 3.2);
+    kamera.pitC += (pt - kamera.pitC) * Math.min(1, dt * 10);
+    car.rotation.x = -kamera.pitC;
+    body.rotation.z +=
+      (cl(S.w * Math.min(1, v / VMAX) * 0.06, -0.12, 0.12) - body.rotation.z) * Math.min(1, dt * 8);
+    body.rotation.x += (cl(-S.axs * 0.004, -0.07, 0.07) - body.rotation.x) * Math.min(1, dt * 6);
   }
-  // gövde eğimi: havada hız yönüne, yerde yokuşa göre; yalpa ve ivmeyle yatış
-  const pt = S.air
-    ? Math.atan2(S.vy, Math.max(10, v))
-    : Math.atan2(Hw(x + fxm * 1.6, z + fzm * 1.6) - Hw(x - fxm * 1.6, z - fzm * 1.6), 3.2);
-  kamera.pitC += (pt - kamera.pitC) * Math.min(1, dt * 10);
-  car.rotation.x = -kamera.pitC;
-  body.rotation.z +=
-    (cl(S.w * Math.min(1, v / VMAX) * 0.06, -0.12, 0.12) - body.rotation.z) * Math.min(1, dt * 8);
-  body.rotation.x += (cl(-S.axs * 0.004, -0.07, 0.07) - body.rotation.x) * Math.min(1, dt * 6);
   const spn = Math.min(1, v / VMAX),
     shake =
       mode == "drive" || CINE
@@ -158,7 +174,10 @@ function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h
   }
   glassQM.opacity = ck ? 0.12 : 1;
   glassQM.depthWrite = !ck;
-  engine(v * 3.6, dt);
+  if (Y && mode != "menu" && mode != "garage") {
+    motor.RPM = Y.rpm / 1000;
+    motor.GEAR = Y.vites;
+  } else engine(v * 3.6, dt);
   if (ck) gauges(v * 3.6, motor.RPM);
   if (inCar) {
     car.updateMatrixWorld(true);

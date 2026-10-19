@@ -184,6 +184,8 @@ interface TekerModeli {
   f: number;
 }
 
+export type { TekerModeli };
+
 function buildCar(d: Arac) {
   const g = body0(d);
   EK[d.k]?.(g, d);
@@ -201,6 +203,9 @@ function buildCar(d: Arac) {
       pv = new THREE.Group();
     w.userData.r = r;
     pv.position.set(x, r + (d.lift || 0) * 0.5, z);
+    // yeni fizikte süspansiyon hareketi için taban yükseklik; fizik teker sırası: sol ön, sağ ön, sol arka, sağ arka
+    pv.userData.y0 = pv.position.y;
+    pv.userData.fi = (f ? 0 : 2) + (x > 0 ? 0 : 1);
     pv.add(w);
     ws.push({ pv, w, f });
   }

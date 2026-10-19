@@ -11,7 +11,7 @@ import { COND, type GununSaati, type Hava } from "../cizim/ortam";
 import { REG } from "../dunya/bolgeler";
 import { Hw, surfW } from "../dunya/dunya";
 import { curvAt, KW, trackAt, type Pist } from "../dunya/pist";
-import { zeminRengi } from "../fizik/klasik";
+import { zeminRengi } from "../fizik/ortak";
 import { setActive } from "./bolge";
 import { carIndex, oyun, setCar } from "./durum";
 import { girdiSifirla } from "./girdi";

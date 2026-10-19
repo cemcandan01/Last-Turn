@@ -15,5 +15,12 @@
     "noEmit": true,
     "allowJs": true
   },
-  "include": ["src", "tests", "vite.config.ts", "vitest.config.ts", "eslint.config.js"]
+  "include": [
+    "src",
+    "tests",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "vitest.olcum.config.ts",
+    "eslint.config.js"
+  ]
 }

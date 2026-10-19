@@ -19,7 +19,7 @@ import { donguBaslat } from "./oyun/dongu";
 import { oyun, setCar } from "./oyun/durum";
 import { girdiKur } from "./oyun/girdi";
 import { applyPreset, kurulum } from "./oyun/kurulum";
-import { reset } from "./oyun/surus";
+import { reset, sim } from "./oyun/surus";
 import { pwaKur } from "./pwa/kayit";
 
 // eski testler ve hata ayıklama için oyunun iç durumuna erişim
@@ -46,6 +46,7 @@ surusTuslariKur();
   kurulum.pk = oyun.CAR.pk;
 }
 applyPreset();
+sim.motorSec(set.fiz ? "yeni" : "klasik");
 loadWorld();
 mmDraw();
 reset();

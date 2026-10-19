@@ -1,20 +1,26 @@
 // Simülasyon: araç fiziğini sabit adımla ilerletir. Çizim kare hızından bağımsızdır; ekran 30, 60 ya da 120 Hz
 // olsun, aynı girişler aynı sonucu verir (tekrar izleme, hayalet araç, testler). Çizim iki adım arasını ara değerle bulur.
+// İki fizik motoru: klasik (bisiklet modeli, oyunun ayarlı hissi) ve yeni (katı gövde, 4 teker, süspansiyon, aktarma).
 import { mulberry32, type Rastgele } from "../cekirdek/rastgele";
 import { klasikAdim, type AdimSonucu, type SimDurumu } from "./klasik";
 import type { AracDurumu, FizikBaglami, FizikGirdisi } from "./tipler";
+import { yeniAdim, yeniBaslat, type YeniDurum } from "./yeni/model";
 
-/** sabit fizik adımı (sn): klasik model bu adımı içeride 8'e böler (480 Hz) */
+/** sabit fizik adımı (sn): modeller bu adımı içeride 8'e böler (480 Hz) */
 export const ADIM = 1 / 60;
 
-export type FizikMotoru = "klasik";
+export type FizikMotoru = "klasik" | "yeni";
 
-/** çizim için ara değer alınan alanlar */
+/** çizim için ara değer alınan alanlar (yönelim yalnız yeni modelde) */
 export interface Poz {
   x: number;
   y: number;
   z: number;
   h: number;
+  qx: number;
+  qy: number;
+  qz: number;
+  qw: number;
 }
 
 export function yeniAracDurumu(x = 0, z = 0, h = 0, y = 0): AracDurumu {
@@ -48,8 +54,10 @@ export class Simulasyon {
     zaman: 0,
   };
   /** önceki adımın konumu (ara değer için) */
-  onceki: Poz = { x: 0, y: 0, z: 0, h: 0 };
+  onceki: Poz = { x: 0, y: 0, z: 0, h: 0, qx: 0, qy: 0, qz: 0, qw: 1 };
   motor: FizikMotoru = "klasik";
+  /** yeni modelin durumu (gövde, tekerler, motor); klasik modelde ya da sıfırlamadan sonra boş */
+  yeni: YeniDurum | null = null;
   /** fizik içi rastgelelik: tohumlu */
   rng: Rastgele;
 
@@ -61,6 +69,13 @@ export class Simulasyon {
     return this.d.S;
   }
 
+  /** fizik motorunu değiştir: yeni model ilk adımda aracın şimdiki durumundan kurulur */
+  motorSec(m: FizikMotoru) {
+    if (m == this.motor) return;
+    this.motor = m;
+    this.yeni = null;
+  }
+
   /** aracı (x, z) noktasına h yönüyle koy; hız ve drift durumu sıfırlanır */
   sifirla(x: number, z: number, h: number, y: number) {
     const d = this.d;
@@ -70,22 +85,32 @@ export class Simulasyon {
     d.D.act = d.D.t = d.D.score = 0;
     d.DR.on = d.DR.k = 0;
     d.DR.cool = 0;
+    this.yeni = null;
     this.pozKaydet();
   }
 
   /** şimdiki konumu ara değerin başlangıcı yap (ışınlanma, sıfırlama) */
   pozKaydet() {
-    const S = this.d.S;
-    this.onceki.x = S.x;
-    this.onceki.y = S.y;
-    this.onceki.z = S.z;
-    this.onceki.h = S.h;
+    const S = this.d.S,
+      o = this.onceki,
+      Y = this.yeni;
+    o.x = S.x;
+    o.y = S.y;
+    o.z = S.z;
+    o.h = S.h;
+    if (Y) {
+      o.qx = Y.qx;
+      o.qy = Y.qy;
+      o.qz = Y.qz;
+      o.qw = Y.qw;
+    }
   }
 
   /** bir sabit adım */
   adim(gi: FizikGirdisi, cx: FizikBaglami): AdimSonucu {
+    if (this.motor == "yeni" && !this.yeni) this.yeni = yeniBaslat(this.d, cx);
     this.pozKaydet();
-    const r = klasikAdim(this.d, gi, cx, ADIM);
+    const r = this.yeni ? yeniAdim(this.d, this.yeni, gi, cx, ADIM) : klasikAdim(this.d, gi, cx, ADIM);
     this.d.zaman += ADIM;
     return r;
   }

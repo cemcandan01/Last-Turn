@@ -20,6 +20,8 @@ export interface SurusAyari {
   pk?: OnayarAnahtari;
   lk: SeviyeAnahtari;
   wx?: string;
+  /** fizik motoru (varsayılan klasik) */
+  motor?: "klasik" | "yeni";
 }
 
 export function surucuKur(a: SurusAyari) {
@@ -39,6 +41,7 @@ export function surucuKur(a: SurusAyari) {
     karli: () => tema == "snow",
   };
   const sim = new Simulasyon(7);
+  sim.motorSec(a.motor || "klasik");
   const olaylar = { spin: 0 };
   const cx: FizikBaglami = {
     dunya: W,

@@ -46,6 +46,10 @@ export interface Arac {
   tl: number;
   /** yerden yükseklik farkı */
   lift?: number;
+  /** yeni fizik: ön aksın taşıdığı ağırlık oranı, ağırlık merkezi yüksekliği (m), azami devir (d/dk) */
+  ff?: number;
+  hcg?: number;
+  dv?: number;
   /** far yok (drag arabasında yuvarlak farlar ayrıca) */
   rhl?: number;
   /** yan profil (z ileri, y yukarı), yan cam, ön cam, arka cam */
@@ -96,6 +100,9 @@ export const CARS: Arac[] = [
     wk: 0.7,
     hp: 480,
     kg: 1240,
+    ff: 0.43,
+    hcg: 0.42,
+    dv: 8200,
     w: 1.8,
     col: 0xd01f26,
     hl: 0.62,
@@ -175,6 +182,9 @@ export const CARS: Arac[] = [
     wk: 1.0,
     hp: 600,
     kg: 1300,
+    ff: 0.6,
+    hcg: 0.5,
+    dv: 7800,
     w: 1.84,
     col: 0x1b2340,
     hl: 0.72,
@@ -265,6 +275,9 @@ export const CARS: Arac[] = [
     wk: 1.1,
     hp: 450,
     kg: 1250,
+    ff: 0.52,
+    hcg: 0.46,
+    dv: 7600,
     w: 2.02,
     col: 0xf0f0ec,
     hl: 0.62,
@@ -347,6 +360,9 @@ export const CARS: Arac[] = [
     wk: 1.5,
     hp: 330,
     kg: 1230,
+    ff: 0.58,
+    hcg: 0.52,
+    dv: 7500,
     w: 1.76,
     col: 0x1d4fc4,
     hl: 0.7,
@@ -423,6 +439,9 @@ export const CARS: Arac[] = [
     wk: 1.3,
     hp: 1100,
     kg: 1550,
+    ff: 0.56,
+    hcg: 0.5,
+    dv: 6800,
     w: 1.86,
     col: 0x1d3a8c,
     hl: 0.72,

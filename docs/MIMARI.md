@@ -41,6 +41,21 @@ her kare (requestAnimationFrame):
 - Ekran 60 Hz'de her karede bir adım; 120 Hz ekranda iki karede bir adım (ara değerle akıcı); kare düşerse karede birden çok adım (oyun ağırlaşmaz).
 - Klasik model 1/60 sn'lik adımı içeride 8 ara adıma böler (480 Hz).
 
+## Fizik motorları
+
+| | Klasik | Yeni (deneysel) |
+|---|---|---|
+| Gövde | 2 boyutlu nokta + yükseklik; yatış ve yunuslama yalnız görüntüde | 3 boyutlu katı cisim: frende öne, virajda yana yatar, havada döner |
+| Tekerler | ön ve arka aks tek lastik (bisiklet modeli) | 4 teker, her biri zemini ışınla bulur; yay, amortisör (basma/açılma), tampon, denge çubukları |
+| Lastik | kayma açısı eğrisi + sürtünme çemberi | kayma oranı (teker dönüşü) ve kayma açısı birlikte (sürtünme elipsi), yüke duyarlı; her teker kendi zemininde |
+| Teker dönüşü | yok (çekiş kuvvet sınırıyla) | her tekerin açısal hızı; örtük çözücü (ikiye bölme): patinaj, kilitlenme, ABS gerçek |
+| Aktarma | sahte vites (yalnız gösterge) | tork eğrili motor, 6 ileri otomatik vites (tork kesmeli geçiş), geri vites, kalkış debriyajı, diferansiyel kilidi, dört çekerde ön/arka paylaşım |
+| Yardımlar | hız ve yalpa üzerinde doğrudan | kuvvet ve tork olarak: viraj desteği, denge kontrolü (aşırı dönüşü söndürür), çekiş kontrolü ve tuşla kalkış sınırı (her teker, her ara adım), ABS, drift desteği |
+| Çarpışma | hız yansıması + rastgele savrulma | darbe gövdenin vurduğu noktadan: araç vuruş yerine göre döner (rastgelelik yok) |
+| Adım maliyeti | ~0,04 ms | ~0,5 ms (adım başına zemin eğimi bir kez, ara adımda düzlem) |
+
+Ortak olan: drift penceresi (DR), drift puanı, çamur ve ıslaklık, toz ve duman (`fizik/ortak.ts`), sabit adım, aynı `AracDurumu`. Yeni motorun tur süreleri asfaltta klasikle aynı tempoda (otomatik pilotla ölçülür: `npm run olcum`).
+
 ## Belirlenimcilik
 
 - Fizik `Math.random` kullanmaz: savrulma gibi rastgelelik `Simulasyon.rng` (tohumlu). Toz gibi yalnız görsel rastgelelik ayrı (`gorselRng`).

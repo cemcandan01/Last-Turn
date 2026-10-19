@@ -1,0 +1,257 @@
+// Yeni fizik motoru testleri: kararlılık, temel değerler, kullanıcı kararları (spin, drift, kalkış), sağlamlık
+import { describe, expect, it } from "vitest";
+import { CARS } from "../../src/arac/araclar";
+import { cl } from "../../src/cekirdek/matematik";
+import { mulberry32 } from "../../src/cekirdek/rastgele";
+import { ipucu } from "../../src/dunya/pist";
+import type { FizikGirdisi } from "../../src/fizik/tipler";
+import { surucuKur } from "../yardimci/surucu";
+
+const DT = 1 / 60;
+const gir = (g = 0, b = 0, tg = 0, analogGaz = false, analogDireksiyon = false): FizikGirdisi => ({
+  tg,
+  g,
+  b,
+  analogDireksiyon,
+  analogGaz,
+});
+const sonlu = (...a: number[]) => a.every(Number.isFinite);
+
+describe("yeni fizik: kararlılık ve temel değerler", () => {
+  for (let ci = 0; ci < CARS.length; ci++)
+    it(CARS[ci].n, () => {
+      const s = surucuKur({ dunya: 0, arac: ci, lk: "norm", motor: "yeni" });
+      const S = s.sim.S;
+      // duruş: kıpırdamamalı, salınmamalı
+      s.reset(210, -780, 0);
+      let ymin = 1e9,
+        ymax = -1e9;
+      for (let k = 0; k < 180; k++) {
+        s.adim(gir());
+        if (k > 60) {
+          ymin = Math.min(ymin, S.y);
+          ymax = Math.max(ymax, S.y);
+        }
+      }
+      expect(Math.hypot(S.x - 210, S.z + 780), "duruşta kayma (m)").toBeLessThan(0.01);
+      expect(ymax - ymin, "duruşta salınım (m)").toBeLessThan(0.005);
+      // hızlanma ve azami hız (düz asfalt yol)
+      let t100 = -1,
+        vmax = 0;
+      for (let k = 0; k < 30 / DT && S.z < 760; k++) {
+        s.adim(gir(1));
+        const v = Math.hypot(S.vx, S.vz) * 3.6;
+        if (t100 < 0 && v >= 100) t100 = k * DT;
+        vmax = Math.max(vmax, v);
+      }
+      expect(t100, "0-100 km/sa (sn)").toBeGreaterThan(1.5);
+      expect(t100, "0-100 km/sa (sn)").toBeLessThan(5);
+      expect(vmax, "azami hız (km/sa)").toBeGreaterThan(170);
+      // fren: 100 km/sa'dan
+      s.reset(210, -780, 0);
+      for (let k = 0; k < 600 && Math.hypot(S.vx, S.vz) < 27.78; k++) s.adim(gir(1));
+      const z0 = S.z;
+      for (let k = 0; k < 600 && Math.hypot(S.vx, S.vz) > 0.3; k++) s.adim(gir(0, 1));
+      expect(S.z - z0, "100-0 fren mesafesi (m)").toBeLessThan(30);
+      expect(S.z - z0).toBeGreaterThan(5);
+    });
+});
+
+describe("yeni fizik: gerçekçi seviyede otomatik pilot spin atmaz", () => {
+  for (const [yaris, arac, ad] of [
+    [0, 0, "Grand Prix"],
+    [9, 3, "Orman Etabı"],
+    [3, 1, "Çamur Vadisi"],
+  ] as const)
+    it(ad, () => {
+      const s = surucuKur({ yaris, arac, lk: "real", motor: "yeni" });
+      const TR = s.bolge!.TR!,
+        rally = TR.open,
+        i0 = rally ? 4 : TR.N - 6,
+        P = TR.P[i0];
+      s.reset(P[0], P[1], Math.atan2(TR.T[i0][0], TR.T[i0][1]));
+      let spin = 0,
+        sp = false;
+      for (let k = 0; k < 15 / DT; k++) {
+        const S = s.sim.S,
+          ti = ipucu.ti,
+          q = TR.P[TR.open ? Math.min(ti + 7, TR.N - 1) : (ti + 7) % TR.N];
+        let a = Math.atan2(q[0] - S.x, q[1] - S.z) - S.h;
+        a = Math.atan2(Math.sin(a), Math.cos(a));
+        const v = Math.hypot(S.vx, S.vz);
+        s.adim(
+          gir(
+            v < (rally ? 16 : 24) ? 1 : 0,
+            v > (rally ? 20 : 30) ? 1 : 0,
+            (a > 0.06 ? 1 : 0) - (a < -0.06 ? 1 : 0),
+          ),
+        );
+        const ab = Math.abs(s.sim.d.D.beta);
+        if (ab > 1.3 && !sp) {
+          spin++;
+          sp = true;
+        }
+        if (ab < 0.4) sp = false;
+      }
+      expect(spin, "spin").toBe(0);
+      expect((100 * ipucu.ti) / TR.N, "ilerleme %").toBeGreaterThan(5);
+    });
+});
+
+describe("yeni fizik: drift dengesi (Boş Otopark, Beyaz Kurt, drift önayarı)", () => {
+  for (const [lk, st] of [
+    ["real", "usta"],
+    ["real", "abartan"],
+    ["arc", "usta"],
+  ] as const)
+    it(`${lk} / ${st}`, () => {
+      const s = surucuKur({ dunya: 1, arac: 2, pk: "dr", lk, motor: "yeni" });
+      s.reset(30, -3550, 0);
+      const DR = s.sim.d.DR,
+        D = s.sim.d.D;
+      let ph = 0,
+        act = 0,
+        n = 0,
+        sp = 0,
+        c = 0;
+      const surus = (sn: number) => {
+        for (let k = 0; k < sn / DT; k++) {
+          let sa = 0;
+          if (ph == 1) {
+            sa = 1;
+            if (DR.on) ph = 2;
+          } else if (ph == 2) {
+            if (DR.cool > 1.15 && !c) {
+              sp++;
+              c = 1;
+            }
+            if (DR.cool < 1) c = 0;
+            sa = st == "usta" ? DR.dir * cl(2.2 * (0.55 - Math.abs(D.beta)), -1, 1) : DR.dir;
+            n++;
+            if (D.act) act++;
+          }
+          s.adim(gir(1, 0, sa, false, true));
+        }
+      };
+      surus(3);
+      ph = 1;
+      surus(6);
+      const yuzde = (100 * act) / Math.max(n, 1);
+      if (st == "usta") {
+        expect(yuzde, "driftte geçen süre %").toBeGreaterThan(70);
+        expect(sp, "spin").toBe(0);
+      } else expect(sp, "abartan spin atmalı").toBeGreaterThan(0);
+    });
+});
+
+describe("yeni fizik: kurallar ve sağlamlık", () => {
+  it("belirlenimci: aynı girişler aynı sonuç", () => {
+    const sur = () => {
+      const s = surucuKur({ yaris: 0, arac: 0, lk: "real", motor: "yeni" });
+      const TR = s.bolge!.TR!,
+        P = TR.P[10];
+      s.reset(P[0], P[1], Math.atan2(TR.T[10][0], TR.T[10][1]));
+      const r = mulberry32(5);
+      for (let k = 0; k < 600; k++) s.adim(gir(r(), r() < 0.2 ? r() : 0, r() * 2 - 1, true, true));
+      const S = s.sim.S;
+      return [S.x, S.z, S.h, S.vx, S.vz];
+    };
+    expect(sur()).toEqual(sur());
+  });
+
+  it("yokuşta başlangıç: araç fırlamaz", () => {
+    const s = surucuKur({ yaris: 9, arac: 3, lk: "real", motor: "yeni" });
+    const TR = s.bolge!.TR!;
+    for (const i of [4, 40, 120, 300]) {
+      const P = TR.P[i];
+      s.reset(P[0], P[1], Math.atan2(TR.T[i][0], TR.T[i][1]));
+      let vmax = 0;
+      for (let k = 0; k < 120; k++) {
+        s.adim(gir());
+        vmax = Math.max(vmax, Math.hypot(s.sim.S.vx, s.sim.S.vz, s.sim.S.vy));
+      }
+      expect(vmax, `nokta ${i}: en büyük hız (m/s)`).toBeLessThan(6);
+    }
+  });
+
+  it("rampadan atlama: havalanır, dik iner", () => {
+    const s = surucuKur({ dunya: 0, arac: 3, lk: "arc", motor: "yeni" });
+    s.reset(-250, -175, 0);
+    let hava = 0;
+    for (let k = 0; k < 360; k++) {
+      s.adim(gir(1));
+      if (s.sim.S.air) hava++;
+    }
+    for (let k = 0; k < 120; k++) s.adim(gir());
+    const Y = s.sim.yeni!,
+      // gövdenin yukarı ekseninin dünya y bileşeni
+      upY = 1 - 2 * (Y.qx * Y.qx + Y.qz * Y.qz);
+    expect(hava * DT, "havada geçen süre (sn)").toBeGreaterThan(0.2);
+    expect(upY, "inişten sonra dik").toBeGreaterThan(0.9);
+  });
+
+  it("çarpışma: ağaca çarpınca yavaşlar, içinden geçmez", () => {
+    const s = surucuKur({ dunya: 1, arac: 0, lk: "real", motor: "yeni" });
+    s.cx.dunya.yakin = () => [{ x: 100, z: -3420, r: 1.3, t: "solid" as const }];
+    s.reset(100, -3500, 0);
+    let vOnce = 0,
+      dmin = 1e9;
+    for (let k = 0; k < 240; k++) {
+      s.adim(gir(1));
+      const S = s.sim.S;
+      if (S.z < -3430) vOnce = Math.hypot(S.vx, S.vz);
+      dmin = Math.min(dmin, Math.hypot(S.x - 100, S.z + 3420));
+    }
+    expect(vOnce, "çarpmadan önce hız").toBeGreaterThan(15);
+    expect(dmin, "ağaca en yakın (m)").toBeGreaterThan(2.3);
+  });
+
+  it("kalkış patinajı: tuşla düşük ve sabit, analogda gaza bağlı", () => {
+    const kalkis = (g: number, analog: boolean) => {
+      const s = surucuKur({ dunya: 1, arac: 4, lk: "real", motor: "yeni" });
+      s.reset(100, -3500, 0);
+      let kMax = 0;
+      for (let k = 0; k < 90; k++) {
+        s.adim(gir(g, 0, 0, analog));
+        const Y = s.sim.yeni!;
+        if (k > 20) kMax = Math.max(kMax, Y.tk[2].kap, Y.tk[3].kap);
+      }
+      return kMax;
+    };
+    const tus = kalkis(1, false),
+      analogTam = kalkis(1, true),
+      analogYarim = kalkis(0.35, true);
+    expect(tus, "tuşla patinaj").toBeLessThan(0.25);
+    expect(analogTam, "analog tam gazda patinaj tuştan fazla").toBeGreaterThan(tus);
+    expect(analogYarim, "analog yarım gaz tam gazdan az").toBeLessThan(analogTam);
+  });
+
+  it("rastgele girişlerle uzun sürüş: değerler sonlu kalır", { timeout: 60000 }, () => {
+    for (const [yaris, arac] of [
+      [0, 0],
+      [3, 1],
+      [10, 3],
+      [6, 2],
+    ] as const) {
+      const s = surucuKur({ yaris, arac, lk: "real", motor: "yeni" });
+      const TR = s.bolge!.TR!,
+        P = TR.P[0];
+      s.reset(P[0], P[1], Math.atan2(TR.T[0][0], TR.T[0][1]));
+      const r = mulberry32(yaris + 11);
+      let g = 0,
+        b = 0,
+        tg = 0;
+      for (let k = 0; k < 40 / DT; k++) {
+        if (k % 30 == 0) {
+          g = r() < 0.7 ? r() : 0;
+          b = r() < 0.2 ? r() : 0;
+          tg = r() * 2 - 1;
+        }
+        s.adim(gir(g, b, tg, true, true));
+        const S = s.sim.S;
+        expect(sonlu(S.x, S.y, S.z, S.vx, S.vz, S.h)).toBe(true);
+        expect(Math.hypot(S.vx, S.vz)).toBeLessThan(120);
+      }
+    }
+  });
+});
