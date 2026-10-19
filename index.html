@@ -76,7 +76,7 @@ summary::after{content:'▾';float:right;color:var(--mut)}details[open]>summary:
 <script src="vendor/three.min.js"></script>
 <script>
 // sürüm: her güncellemede artırılır; açık uygulama yeni sürümü bu değerden tanır
-const APP_VERSION='1.3.0';
+const APP_VERSION='1.4.0';
 // ekran yönü kilidi: iOS ana ekran uygulamasında yön kilitlenemediği için, telefon kilitli yönün dışına dönerse içerik 90° döndürülür
 const APP=document.createElement('div');APP.id='app';[...document.body.children].filter(e=>e.tagName!='SCRIPT').forEach(e=>APP.appendChild(e));document.body.prepend(APP);
 const probe=document.createElement('div');probe.style.cssText='position:fixed;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)';document.body.appendChild(probe);
@@ -120,10 +120,12 @@ ar:{n:'Asfalt yarışı',d:'Yarış lastiği, sıkı arka, yüksek bastırma',ti
 tr:{n:'Toprak yarışı',d:'Toprak lastiği, düşük basınç, yumuşak süspansiyon',tire:1,cap:{ini:.4,dft:.7},v:{pow:1,top:.95,brk:.95,bb:.58,tpf:.9,tpr:.9,bal:.98,diff:.7,lock:.6,sens:.5,susp:1.15,aero:.6,thr:.55,lch:.6}},
 fd:{n:'Serbest (toprak)',d:'Rahat, kaymaya izin veren toprak sürüşü',tire:1,v:{pow:1,top:1,brk:1,bb:.6,tpf:.9,tpr:.92,bal:1,diff:.8,lock:.55,sens:.5,susp:1,aero:.5,thr:.5,lch:.55}},
 fa:{n:'Serbest (asfalt)',d:'Toprak hissini asfalta taşır: yumuşak lastik, affedici kayma',tire:2,v:{pow:1,top:1,brk:1,bb:.6,tpf:.85,tpr:.88,bal:1.02,diff:.6,lock:.55,sens:.5,susp:.95,aero:.8,thr:.55,lch:.4},ast:{ini:.5}},
+rl:{n:'Ralli',d:'Toprak lastiği, uzun ve yumuşak süspansiyon, dengeli diferansiyel',tire:1,cap:{ini:.4},v:{pow:1,top:.97,brk:1,bb:.6,tpf:.88,tpr:.9,bal:1,diff:.6,lock:.62,sens:.5,susp:1.4,aero:.7,thr:.6,lch:.4}},
+dg:{n:'Drag',d:'Yarış lastiği, sert arka, düz çizgi için ayar',tire:0,cap:{ini:0,dft:0},v:{pow:1,top:1.05,brk:1,bb:.62,tpf:1.1,tpr:.9,bal:1.1,diff:1,lock:.45,sens:.5,susp:1.3,aero:.4,thr:.7,lch:.7}},
 dr:{n:'Drift',d:'Drift lastiği, kilitli diferansiyel, geniş direksiyon açısı',tire:3,v:{pow:1.15,top:.92,brk:.9,bb:.55,tpf:.95,tpr:1.18,bal:.92,diff:1.1,lock:.78,sens:.5,susp:1.2,aero:.4,thr:.8,lch:.3},ast:{ini:.8}}};
 let PK='fd',LK='real',TU={},AS={},custom=false;
 function applyPreset(){const p=PRESETS[PK];TU={...p.v};tire=p.tire;AS={...LEVELS[LK].v};if(p.ast)for(const k in p.ast)AS[k]=Math.max(AS[k],p.ast[k]);if(p.cap)for(const k in p.cap)AS[k]=Math.min(AS[k],p.cap[k]);custom=false}
-const set={ss:1,sm:1,fov:1,shk:1,inv:0,tlt:38};let tire=1;
+const set={ss:1,sm:1,fov:1,shk:1,inv:0,tlt:38,ac:1};let tire=1;
 const TOG=[['inv','Direksiyon yönünü ters çevir','Sağ ve sol tuşlarının yönünü değiştirir'],['ss','Hıza duyarlı direksiyon','Hızlandıkça direksiyon açısı azalır'],['sm','Direksiyon yumuşatma','Tuşa basınca direksiyon kademeli döner'],['fov','Hıza göre görüş açısı','Hızlandıkça görüş genişler'],['shk','Hız sarsıntısı','Yüksek hızda kamera hafif titrer']];
 // ---------- sahne
 const R=new THREE.WebGLRenderer({canvas:$('#c'),antialias:true});R.setPixelRatio(Math.min(devicePixelRatio||1,2));
@@ -229,7 +231,10 @@ const TDEF=[
 {t:'dp',n:'Dağ Yolu',d:'Sıkı S virajları, açıyı uzun tutmak gerek.',hw:16,p:[[0,-160],[0,140],[110,260],[260,250],[340,140],[300,10],[400,-80],[330,-230],[170,-210],[110,-310],[30,-290]]},
 {t:'rl',n:'Orman Etabı',d:'Firketeler, tırmanış ve iniş, rampalar.',hw:5.5,s:0,p:[[-200,-400],[-200,-300],[-160,-220],[-80,-200],[-50,-130],[-110,-80],[-170,-20],[-140,60],[-40,80],[30,30],[100,70],[90,170],[0,220],[-80,280],[-50,360],[60,380],[140,330],[200,400]],j:[['kick',.22],['table',.5],['bump',.68],['kick',.86]],m:[.3,.6,.78],w:[.12,.41,.72,.93]},
 {t:'rl',n:'Tepe Etabı',d:'Akıcı tepe yolu, büyük bir atlama.',hw:5.5,s:1,p:[[0,-420],[30,-320],[110,-280],[160,-200],[110,-120],[20,-80],[-60,-10],[-50,90],[50,130],[140,90],[230,150],[210,250],[110,290],[60,370],[150,440],[260,420]],j:[['table',.2],['kick',.55],['bump',.8]],m:[.35,.7],w:[.15,.5,.9]},
-{t:'rl',n:'Vadi Etabı',d:'Dalgalı vadi, çamur ve su geçişleri.',hw:5.5,s:2,p:[[-400,0],[-300,40],[-240,-40],[-150,-90],[-60,-40],[-70,60],[-10,150],[90,140],[130,40],[230,10],[300,90],[260,190],[330,270],[440,240],[480,140]],j:[['kick',.3],['bump',.45],['table',.75]],m:[.2,.55,.85],w:[.1,.4,.65,.95]}];
+{t:'rl',n:'Vadi Etabı',d:'Dalgalı vadi, çamur ve su geçişleri.',hw:5.5,s:2,p:[[-400,0],[-300,40],[-240,-40],[-150,-90],[-60,-40],[-70,60],[-10,150],[90,140],[130,40],[230,10],[300,90],[260,190],[330,270],[440,240],[480,140]],j:[['kick',.3],['bump',.45],['table',.75]],m:[.2,.55,.85],w:[.1,.4,.65,.95]},
+{t:'dg',n:'Sekizde Bir Mil',d:'201 metre. Kalkış her şey.',hw:6,p:[[0,0],[0,201]],tg:7.0},
+{t:'dg',n:'Çeyrek Mil',d:'402 metre, klasik drag mesafesi.',hw:6,p:[[0,0],[0,402]],tg:10.6},
+{t:'dg',n:'Yarım Mil',d:'805 metre. Azami hız da önemli.',hw:6,p:[[0,0],[0,805]],tg:17.0}];
 function recenter(p){let a=1e9,b=-1e9,c=1e9,d=-1e9;for(const [x,z] of p){a=Math.min(a,x);b=Math.max(b,x);c=Math.min(c,z);d=Math.max(d,z)}return p.map(([x,z])=>[x-(a+b)/2,z-(c+d)/2])}
 function turnAt(TR,i,k){const g=j=>TR.open?cl(j,0,TR.N-1):(j+TR.N)%TR.N,a=TR.T[g(i-k)],b=TR.T[g(i+k)];return Math.abs(Math.atan2(a[0]*b[1]-a[1]*b[0],a[0]*b[0]+a[1]*b[1]))}
 // rampaları düzlüğe kaydır: verilen konumun ±100 m çevresindeki en düz nokta
@@ -241,9 +246,25 @@ function boards(TR,apex){const tx={150:numTex('150'),100:numTex('100'),50:numTex
 for(const ap of apex)for(const dd of[150,100,50]){let i=ap,d=0;while(d<dd+40){const j=(i-1+TR.N)%TR.N;d+=Math.hypot(TR.P[i][0]-TR.P[j][0],TR.P[i][1]-TR.P[j][1]);i=j}
 const P=TR.P[i],T=TR.T[i],o=TR.hw+5,x=P[0]+T[1]*o,z=P[1]-T[0]*o,b=new THREE.Mesh(new THREE.PlaneGeometry(2.4,2.4),new THREE.MeshBasicMaterial({map:tx[dd],side:THREE.DoubleSide}));
 b.position.set(x,2.6,z);b.rotation.y=Math.atan2(-T[0],-T[1]);const pst=new THREE.Mesh(new THREE.BoxGeometry(.2,1.6,.2),post);pst.position.set(x,.8,z);add(b,pst);colAdd({x,z,r:.3,t:'solid'})}}
+// drag: düz pist, iki şerit, ışıklı başlangıç ağacı, bitiş takı, beton duvarlar
+function dragReg(R,TR,c){const z0=TR.P[0][1],z1=TR.P[TR.N-1][1],x=c[0],za=z0-60,zb=z1+380,mz=(za+zb)/2,ln=zb-za;
+R.box=[x-120,x+140,za-40,zb+40];R.H=()=>0;R.surf=(px,pz)=>{ti=nearest(TR,px,pz,ti)[0];return px>x-7&&px<x+19&&pz>za&&pz<zb?1:2};
+R.build=()=>{plane(26,ln,x+6,mz,0x34383f,.05);plane(.25,ln,x+6,mz,0xf0f0ea,.07);for(const sx of[-6.5,18.5])plane(.25,ln,x+sx,mz,0xf0f0ea,.07);
+plane(12,.6,x,z0,0xffffff,.08);plane(12,.6,x+12,z0,0xffffff,.08);for(let k=0;k<10;k++)plane(2.6,1.3,x-5.7+k*2.6,z1,k%2?0x111111:0xffffff,.08),plane(2.6,1.3,x-5.7+k*2.6,z1+1.3,k%2?0xffffff:0x111111,.08);
+const cm=lam(0xb9b6ad);for(const wx of[x-7.6,x+19.6]){const wl=new THREE.Mesh(new THREE.BoxGeometry(.6,1.1,ln),cm);wl.position.set(wx,.55,mz);add(wl);colAdd({t:'box',x:wx,z:mz,hx:.3,hz:ln/2})}
+const tx={};for(let d=100;d<z1-z0;d+=100){tx[d]=tx[d]||numTex(String(d));const b=new THREE.Mesh(new THREE.PlaneGeometry(1.6,1.6),new THREE.MeshBasicMaterial({map:tx[d],side:THREE.DoubleSide}));b.position.set(x-8.2,2.2,z0+d);b.rotation.y=Math.PI;add(b)}
+// başlangıç ağacı: üç sarı, bir yeşil ışık
+const tm=lam(0x222428);add(bx(.25,2.6,.25,x+6,1.3,z0+7,tm),bx(.8,1.9,.25,x+6,2.4,z0+7,tm));R.lt=[];
+for(let k=0;k<4;k++){const m=new THREE.MeshBasicMaterial({color:0x332a10}),q=new THREE.Mesh(new THREE.CircleGeometry(.17,14),m);q.position.set(x+6,3.0-k*.42,z0+6.86);q.rotation.y=Math.PI;add(q);R.lt.push(m)}
+const gm=lam(0x2a2d33);add(bx(.5,7.5,.5,x-8.5,3.75,z1,gm),bx(.5,7.5,.5,x+20.5,3.75,z1,gm),bx(29.5,1.2,.6,x+6,7.6,z1,gm));
+const sg=new THREE.Mesh(new THREE.PlaneGeometry(14,1.1),new THREE.MeshBasicMaterial({map:textTex('FİNİŞ',512,40,'#2a2d33','#ff7a3c'),side:THREE.DoubleSide}));sg.position.set(x+6,7.6,z1-.32);add(sg);
+const st=lam(0x8d9096);for(let k=0;k<4;k++)add(bx(4,1+k*1.1,(z1-z0)*.6,x-12-k*3,(1+k*1.1)/2,z0+(z1-z0)*.3,st));
+for(let zz=za;zz<zb;zz+=18){tree(x-30,zz);tree(x+34,zz)}};
+R.tick=e=>{const on=e.state=='count'?Math.min(3,Math.floor(3.4-e.cd)):e.state=='run'?4:0;R.lt.forEach((m,k)=>m.color.setHex(k<3?(on>k&&on<4?0xffc21a:0x332a10):(on==4?0x2bd34a:0x0f2a14)))};return R}
 const dirtCol=i=>C3(i%6<3?0x8c6b45:0x86663f),mudMat=new THREE.MeshLambertMaterial({color:0x4a3524});
-function mkReg(def,k){const c=[(k%4-1.5)*2600,3200+Math.floor(k/4)*2600],TR=mkTrack(off(recenter(def.p),c[0],c[1]),def.hw,def.t=='rl'),R={...def,TR,c},hw=def.hw;
-const bb=bbox(TR,0),ext=Math.max(bb[1]-bb[0],bb[3]-bb[2]);R.box=bbox(TR,150);R.col=def.t=='gp'||def.t=='dp'?'#9aa3b5':'#c9a06b';
+function mkReg(def,k){const c=[(k%4-1.5)*2600,3200+Math.floor(k/4)*2600],TR=mkTrack(off(recenter(def.p),c[0],c[1]),def.hw,def.t=='rl'||def.t=='dg'),R={...def,TR,c},hw=def.hw;
+const bb=bbox(TR,0),ext=Math.max(bb[1]-bb[0],bb[3]-bb[2]);R.box=bbox(TR,150);
+if(def.t=='dg'){R.col='#9aa3b5';return dragReg(R,TR,c)}R.col=def.t=='gp'||def.t=='dp'?'#9aa3b5':'#c9a06b';
 if(def.t=='gp'||def.t=='dp'){kerbs(TR);R.kerb=1;R.H=Hkerb(TR);R.surf=(x,z)=>{const [i,d]=nearest(TR,x,z,ti);ti=i;return d<=hw+KW?1:2};
 R.build=def.t=='gp'?()=>{asphaltTrack(TR);boards(TR,autoApex(TR));forest(TR,260,hw+20,1e9,ext+500,c[0],c[1])}:()=>{asphaltTrack(TR);forest(TR,240,hw+25,1e9,ext+600,c[0],c[1]);edgeBush(TR,40,6,14)};return R}
 const J=mkJumps(TR,def.j.map(([q,f])=>[q,straightF(TR,f)])),MUD=def.m.map(f=>({...onTrack(TR,f),r:def.t=='rl'?9:15})),WAT=def.w.map((f,q)=>({...onTrack(TR,f,(q%2?1:-1)*(def.t=='rl'?1.5:3)),r:def.t=='rl'?4:6}));
@@ -276,10 +297,11 @@ function surfW(x,z){CUR=regAt(x,z);if(CUR)return CUR.surf(x,z);return inHub(x,z)
 const TYP={gp:{k:'asphalt',pk:'ar',laps:3,v:35.3,n:'Asfalt yarışları',d:'3 tur. Fren tabelalarını kullan, hedef süreyi geç.'},
 rx:{k:'dirt',pk:'tr',laps:3,v:28.5,n:'Toprak yarışları',d:'3 tur: çamur, su ve rampalar. Hedef süreyi geç.'},
 dp:{k:'drift',pk:'dr',time:90,n:'Drift yarışmaları',d:'90 saniye puan topla. Drift uzadıkça çarpan x5’e çıkar; çime çıkmak, çarpmak ya da spin komboyu yakar. Drift ayarları otomatik gelir.'},
-rl:{k:'rally',pk:'tr',v:12.2,n:'Ralli etapları',d:'Orman yolunda A’dan B’ye. Hedef süreyi geç.'}};
+rl:{k:'rally',pk:'rl',v:12.2,n:'Ralli etapları',d:'Orman yolunda A’dan B’ye. Hedef süreyi geç.'},
+dg:{k:'drag',pk:'dg',n:'Drag yarışları',d:'Düz çizgide en kısa süre. Işıklar yeşile dönünce gaz. Kalkışta patinajı iyi ayarla.'}};
 const EVENTS=REG.map((r,i)=>{const y=TYP[r.t],no=REG.filter((q,j)=>j<=i&&q.t==r.t).length;
-return{k:y.k+(no>1?no:''),ty:r.t,n:r.n,d:r.d,reg:i,pk:y.pk,laps:y.laps,time:y.time,limit:y.v?Math.round(r.TR.len*(y.laps||1)/y.v/5)*5:0}});
-const gate=e=>{const TR=REG[e.reg].TR;return tp(TR,e.n,TR.open?4:TR.N,TR.open?0:6)};
+return{k:y.k+(no>1?no:''),ty:r.t,n:r.n,d:r.d,reg:i,pk:y.pk,laps:y.laps,time:y.time,limit:r.tg||(y.v?Math.round(r.TR.len*(y.laps||1)/y.v/5)*5:0)}});
+const gate=e=>{const TR=REG[e.reg].TR;return tp(TR,e.n,e.ty=='dg'?1:TR.open?4:TR.N,TR.open?0:6)};
 EVENTS.forEach(e=>e.g=gate(e));
 const TELEW=[['Merkez',0,-90,Math.PI/2],['Düz yol',SX,-780,0],['Zıplama rampası',-250,-175,0],['Tırmanış yolu',-40,60,0]];
 // ---------- açık dünya: Boş Otopark (AVM önünde geniş açık otopark)
@@ -316,7 +338,7 @@ const WORLDS=[{n:'Çorak Topraklar',d:'Toprak arazi: asfalt oval, uzun düz yol,
 {n:'Boş Otopark',d:'AVM önünde geniş açık otopark: park sıraları, park etmiş arabalar ve boş asfalt alan. Asfalt testleri için.',reg:PARK,tele:PARK.tele,box:PARK.box}];
 let CURW=WORLDS[0];
 // zemin çimi araçla birlikte kayar (doku adımına oturtulur), böylece her bölgenin altında çim olur
-const GT=12.5,ground=new THREE.Mesh(new THREE.PlaneGeometry(3000,3000),new THREE.MeshLambertMaterial({map:ctex('#3f7a3a','#376d33','#4a8743',240)}));ground.rotation.x=-Math.PI/2;ground.position.y=-.04;scene.add(ground);
+const GT=12.5,ground=new THREE.Mesh(new THREE.PlaneGeometry(3000,3000),new THREE.MeshLambertMaterial({map:ctex('#3f7a3a','#376d33','#4a8743',240)}));ground.rotation.x=-Math.PI/2;ground.position.y=-.2;scene.add(ground);
 function buildWorld(){buildTest()}
 const WORLD={H:Hw,surf:surfW,TR:null,tele:TELEW,build:buildWorld};
 function loadWorld(){MAP=WORLD;H=Hw;surf=surfW;ti=0;if(!MAP.g){G=new THREE.Group();COLS={};instStart();MAP.build();instEnd();MAP.cols=COLS;COLS=null;scene.add(G);MAP.g=G}}
@@ -336,12 +358,66 @@ const o=mmP(0,0);x.beginPath();x.ellipse(o[0],o[1],EA/MMV.r*112,EB/MMV.r*112,0,0
 // ---------- araç
 const car=new THREE.Group(),body=new THREE.Group();car.rotation.order='YXZ';car.add(body);
 const bm=new THREE.MeshLambertMaterial({color:0xff7a3c}),dk=new THREE.MeshLambertMaterial({color:0x1b2328});
-const b1=new THREE.Mesh(new THREE.BoxGeometry(2,.7,4.4),bm);b1.position.y=.75;const b2=new THREE.Mesh(new THREE.BoxGeometry(1.7,.6,2.1),dk);b2.position.set(0,1.35,-.2);
-const spl=new THREE.Mesh(new THREE.BoxGeometry(2,.12,.5),dk);spl.position.set(0,1.3,-2.1);body.add(b1,b2,spl);
-const wg=new THREE.CylinderGeometry(.45,.45,.4,14);wg.rotateZ(Math.PI/2);const hubM=new THREE.MeshLambertMaterial({color:0x8a9099}),hg=new THREE.BoxGeometry(.42,.5,.12);
-// ön tekerler kendi yerinde (dikey eksende) döner; tüm tekerler yol aldıkça yuvarlanır
-const steerP=[],wheels=[];for(const [x,z,f] of[[-1.05,1.4,1],[1.05,1.4,1],[-1.05,-1.4,0],[1.05,-1.4,0]]){const w=new THREE.Mesh(wg,dk);w.add(new THREE.Mesh(hg,hubM));wheels.push(w);
-const pv=new THREE.Group();pv.position.set(x,.45,z);pv.add(w);car.add(pv);if(f)steerP.push(pv)}
+// ---------- araçlar: her yarış türü için kendi aracı. Gövde, yan profilin enine uzatılmasıyla kurulur
+const lam=c=>new THREE.MeshLambertMaterial({color:c}),glassM=lam(0x18232d),blackM=lam(0x15171a),lightM=new THREE.MeshBasicMaterial({color:0xfff4d6}),tailM=new THREE.MeshBasicMaterial({color:0xc81e28});
+// yan profil (z ileri, y yukarı) → genişliği w olan gövde parçası
+function prof(pts,w,m,bev){const sh=new THREE.Shape();pts.forEach(([z,y],i)=>i?sh.lineTo(z,y):sh.moveTo(z,y));const b=bev??.04;
+const g=new THREE.ExtrudeGeometry(sh,{depth:w,bevelEnabled:b>0,bevelThickness:b,bevelSize:b,bevelSegments:1,steps:1});g.rotateY(-Math.PI/2);g.translate(w/2,0,0);g.computeVertexNormals();return new THREE.Mesh(g,m)}
+// iki profil noktası arasında cam (ön/arka cam), dışa doğru hafifçe kaldırılmış
+function glassQ(a,b,ww){const dz=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dz,dy),q=new THREE.Mesh(new THREE.PlaneGeometry(ww,l),glassM);q.material.side=THREE.DoubleSide;
+q.rotation.x=Math.atan2(dz,dy);q.position.set(0,(a[1]+b[1])/2-dz/l*.05,(a[0]+b[0])/2+dy/l*.05);return q}
+const bx=(w,h,d,x,y,z,m,rx)=>{const q=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);q.position.set(x,y,z);if(rx)q.rotation.x=rx;return q};
+function decal(t,w,h,fg){const c=document.createElement('canvas');c.width=128;c.height=96;const x=c.getContext('2d');x.fillStyle=fg||'#fff';x.font='bold 80px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(t,64,52);
+const tx=new THREE.CanvasTexture(c);return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:tx,transparent:true,depthWrite:false}))}
+function numbers(g,t,w,z,y,s,fg){for(const sd of[-1,1]){const d=decal(t,.75*s,.56*s,fg);d.position.set(sd*(w/2+.06),y,z);d.rotation.y=sd*Math.PI/2;g.add(d)}}
+function mkWheel(r,wd,rimC){const g=new THREE.Group(),rm=lam(rimC);g.add(new THREE.Mesh(new THREE.CylinderGeometry(r,r,wd,18).rotateZ(Math.PI/2),blackM));
+g.add(new THREE.Mesh(new THREE.CylinderGeometry(r*.64,r*.64,wd+.02,12).rotateZ(Math.PI/2),rm));const sp=bx(wd+.04,r*1.2,r*.16,0,0,0,rm);g.add(sp);const s2=sp.clone();s2.rotation.x=Math.PI/2;g.add(s2);return g}
+// ortak gövde: profil + yan camlar + ön/arka cam + renk panelleri + farlar
+function body0(d){const g=new THREE.Group(),m=lam(d.col),w=d.w;g.add(prof(d.p,w,m));g.add(prof(d.gh,w+.1,glassM,0));g.add(glassQ(d.ws[0],d.ws[1],w*.86),glassQ(d.rw[0],d.rw[1],w*.82));
+for(const [pts,c] of d.pan||[])g.add(prof(pts,w+.1,lam(c),0));const zf=Math.max(...d.p.map(p=>p[0])),zr=Math.min(...d.p.map(p=>p[0]));
+for(const sd of[-1,1]){if(!d.rhl)g.add(bx(.36,.12,.06,sd*(w/2-.28),d.hl,zf+.02,lightM));g.add(bx(.34,.12,.06,sd*(w/2-.26),d.tl,zr-.02,tailM))}return g}
+const CARS=[
+{k:'gt',ty:'gp',n:'Kızıl Ok',d:'Ortadan motorlu pist arabası. Asfaltta yüksek tutuş, keskin yön değişimi.',pk:'ar',gr:[.9,1.1],pow:1.1,top:1.08,awd:0,iz:.9,
+w:1.8,col:0xd01f26,hl:.62,tl:.72,p:[[-2.18,.3],[-2.22,.55],[-2.2,.86],[-2.0,.92],[-1.2,.98],[-.62,1.16],[.3,1.17],[1.1,.84],[2.05,.66],[2.22,.52],[2.2,.36],[2.05,.28]],
+gh:[[-.6,.98],[-.5,1.12],[.26,1.13],[.98,.87]],ws:[[1.1,.84],[.3,1.17]],rw:[[-.62,1.16],[-1.2,.98]],
+pan:[[[[-.62,1.1],[.3,1.11],[.3,1.24],[-.62,1.23]],0x111214],[[[-1.15,.55],[-.72,.86],[-.66,.55]],0x111214]],
+wh:{r:.33,wd:.26,rim:0xc8ccd2,x:.8,zf:1.3,zr:-1.36},
+ex:(g,d)=>{g.add(bx(1.72,.05,.2,0,.98,-2.04,blackM,-.15),bx(1.86,.06,.22,0,.3,2.12,blackM))}},
+{k:'rx',ty:'rx',n:'Kor RX',d:'Dört çeker rallikros hatchback. Güçlü kalkış, toprakta çevik.',pk:'tr',gr:[1.08,1],pow:1.2,top:.92,awd:.45,iz:.85,
+w:1.84,col:0x1b2340,hl:.72,tl:.86,p:[[-1.98,.32],[-2.05,.55],[-2.02,.82],[-1.92,1.06],[-1.62,1.4],[.12,1.45],[1.0,1.0],[1.88,.86],[2.05,.66],[2.05,.42],[1.92,.3]],
+gh:[[-1.56,1.08],[-1.5,1.36],[.08,1.4],[.86,1.04]],ws:[[1.0,1.0],[.12,1.45]],rw:[[-1.62,1.4],[-1.92,1.06]],
+pan:[[[[.35,.34],[.35,.96],[.98,.98],[1.86,.84],[2.0,.6],[2.0,.34]],0xd42a2a],[[[-.55,.36],[-.2,.98],[.3,.98],[.3,.36]],0xf2c200],[[[-1.95,.34],[-1.95,.8],[-1.2,.8],[-1.0,.34]],0xd42a2a]],
+wh:{r:.36,wd:.28,rim:0x222428,x:.86,zf:1.28,zr:-1.28},
+ex:(g,d)=>{const r=lam(0x15171a);g.add(bx(1.74,.06,.46,0,1.58,-1.78,r,.2),bx(.05,.32,.5,-.85,1.48,-1.76,r),bx(.05,.32,.5,.85,1.48,-1.76,r),bx(1.96,.05,.3,0,.3,2.06,r));
+for(const sd of[-1,1])for(const z of[1.28,-1.28])g.add(bx(.12,.16,.95,sd*(d.w/2+.05),.72,z,r));numbers(g,'71',d.w,-.05,.72,1,'#ffffff')}},
+{k:'dr',ty:'dp',n:'Beyaz Kurt',d:'Geniş gövdeli arkadan itişli drift arabası. Kilitli diferansiyel, büyük kanat.',pk:'dr',gr:[.95,1],pow:1.12,top:1,awd:0,iz:.85,
+w:2.02,col:0xf0f0ec,hl:.62,tl:.74,p:[[-2.22,.24],[-2.3,.5],[-2.26,.82],[-2.1,.92],[-1.45,.95],[-1.0,1.24],[.2,1.26],[1.0,.92],[2.12,.77],[2.36,.56],[2.38,.32],[2.3,.2]],
+gh:[[-.98,.97],[-.88,1.22],[.17,1.23],[.92,.94]],ws:[[1.0,.92],[.2,1.26]],rw:[[-1.0,1.24],[-1.45,.95]],
+pan:[[[[-.15,.26],[-.15,.9],[.95,.9],[2.0,.74],[2.25,.52],[2.25,.26]],0xf2b81e],[[[-2.25,.3],[-2.25,.5],[-1.5,.5],[-1.4,.3]],0x15171a]],
+wh:{r:.35,wd:.32,rim:0x18181a,x:.96,zf:1.35,zr:-1.32},
+ex:(g,d)=>{const k=blackM,wm=lam(0xf0f0ec);g.add(bx(1.98,.05,.4,0,1.5,-1.98,k,.12),bx(.06,.52,.2,-.62,1.2,-1.92,k),bx(.06,.52,.2,.62,1.2,-1.92,k),bx(.06,.24,.5,-.99,1.52,-1.98,k),bx(.06,.24,.5,.99,1.52,-1.98,k));
+g.add(bx(2.04,.04,.4,0,.2,2.32,k));numbers(g,'23',d.w,.35,.6,1.1,'#15171a')}},
+{k:'rl',ty:'rl',n:'Mavi Yıldız',d:'Dört çeker ralli sedanı. Uzun süspansiyon, toprak ve çamurda sağlam.',pk:'rl',gr:[1.1,.97],pow:1.05,top:.97,awd:.5,iz:.95,
+w:1.76,col:0x1d4fc4,hl:.7,tl:.84,lift:.06,p:[[-2.15,.36],[-2.25,.6],[-2.22,.9],[-2.1,.98],[-1.35,1.0],[-1.0,1.38],[.3,1.42],[1.08,.99],[2.0,.86],[2.22,.66],[2.22,.42],[2.08,.36]],
+gh:[[-.98,1.03],[-.9,1.34],[.27,1.38],[.98,1.02]],ws:[[1.08,.99],[.3,1.42]],rw:[[-1.0,1.38],[-1.35,1.0]],
+pan:[[[[-2.18,.46],[-1.2,.7],[.4,.62],[2.15,.66],[2.15,.5],[.4,.48],[-1.2,.56],[-2.18,.38]],0x9de03a]],
+wh:{r:.35,wd:.25,rim:0xc9a227,x:.82,zf:1.36,zr:-1.32},
+ex:(g,d)=>{const k=blackM,bm=lam(d.col);g.add(bx(1.62,.06,.36,0,1.34,-1.98,bm,.1),bx(.06,.34,.14,-.6,1.16,-1.98,k),bx(.06,.34,.14,.6,1.16,-1.98,k),bx(.5,.1,.5,0,.95,1.45,k));
+for(const sd of[-1,1])for(const z of[1.36,-1.32])g.add(bx(.3,.36,.03,sd*.82,.42,z-.42,k));numbers(g,'5',d.w,-.4,.8,1,'#ffffff')}},
+{k:'dg',ty:'dg',n:'Gece Mavisi',d:'Kompresörlü klasik drag arabası. Çok güçlü, düz çizgide rakipsiz, virajda hantal.',pk:'dg',gr:[.85,.95],pow:1.75,top:1.18,awd:0,iz:1.2,
+w:1.86,col:0x1d3a8c,hl:.72,tl:.8,p:[[-2.32,.4],[-2.36,.62],[-2.32,.88],[-2.2,.98],[-1.5,1.0],[-1.05,1.3],[.1,1.31],[.82,1.0],[2.2,.93],[2.36,.86],[2.38,.5],[2.3,.4]],
+gh:[[-1.02,1.03],[-.94,1.27],[.07,1.28],[.78,1.02]],ws:[[.82,1.0],[.1,1.31]],rw:[[-1.05,1.3],[-1.5,1.0]],
+rhl:1,wh:{r:.32,wd:.18,rim:0xd8dbe0,x:.8,zf:1.42,zr:-1.36,rr:.44,rwd:.42,rx:.84},
+ex:(g,d)=>{const s=lam(0xc9ccd1),rd=lam(0xd8232a),wt=lam(0xf2f2f2);g.add(bx(.56,.28,.72,0,1.07,1.2,s));
+for(const x of[-.19,0,.19]){const c=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,.2,14).rotateX(Math.PI/2),rd);c.position.set(x,1.3,1.42);g.add(c)}
+for(const x of[-.16,.16]){g.add(bx(.18,.02,1.42,x,.975,1.5,wt,-.05),bx(.18,.02,1.16,x,1.33,-.48,wt),bx(.18,.02,.7,x,1.01,-1.85,wt))}
+g.add(bx(1.9,.14,.12,0,.5,2.4,s),bx(1.9,.14,.12,0,.46,-2.38,s));for(const sd of[-1,1]){const h=new THREE.Mesh(new THREE.CircleGeometry(.12,14),lightM);h.position.set(sd*.68,.72,2.39);g.add(h)}}}];
+function buildCar(d){const g=body0(d);d.ex(g,d);g.position.y=d.lift||0;const W=d.wh,ws=[];
+for(const [x,z,f] of[[-W.x,W.zf,1],[W.x,W.zf,1],[-(W.rx||W.x),W.zr,0],[W.rx||W.x,W.zr,0]]){const r=f?W.r:(W.rr||W.r),w=mkWheel(r,f?W.wd:(W.rwd||W.wd),W.rim),pv=new THREE.Group();w.userData.r=r;pv.position.set(x,r+(d.lift||0)*.5,z);pv.add(w);ws.push({pv,w,f})}
+return{g,ws}}
+let CAR=CARS[0],carM=null,steerP=[],wheels=[];
+function setCar(i){CAR=CARS[i];if(carM){body.remove(carM.g);for(const w of carM.ws)car.remove(w.pv)}carM=buildCar(CAR);body.add(carM.g);for(const w of carM.ws)car.add(w.pv);
+steerP=carM.ws.filter(w=>w.f).map(w=>w.pv);wheels=carM.ws.map(w=>w.w);bm.color.setHex(CAR.col);cock.scale.y=Math.max(...CAR.p.map(p=>p[1]))/1.45;try{localStorage.setItem('lt_car',i)}catch(e){}}
 scene.add(car);const V3=(x,y,z)=>new THREE.Vector3(x,y,z);
 const cock=new THREE.Group();body.add(cock);cock.visible=false;const im=new THREE.MeshLambertMaterial({color:0x2a2f35});
 const dash=new THREE.Mesh(new THREE.BoxGeometry(1.8,.14,.45),im);dash.position.set(0,1.05,.85);const hoodC=new THREE.Mesh(new THREE.BoxGeometry(1.9,.12,1.3),bm);hoodC.position.set(0,.96,1.6);
@@ -400,14 +476,16 @@ const wt=cl(S.axs*M.wk,-.15,.1),Df=P.Af*(.5-wt),Dr=P.Ar*(.5+wt)*M.rb;
 let ax=0,Fxr=0,Fxf=0,spin=0;
 if(I.b){if(vl>.5){const Bk=Math.min(30*M.brk,P.A*1.05)*I.b;ax=-Bk;Fxf=M.bb*Bk*M.bc;Fxr=(1-M.bb)*Bk*M.bc}else if(vl>-10){const Rv=Math.min(12,Dr)*I.b;ax=-Rv;Fxr=Rv*.6*M.bc}}
 else if(S.gas>.01){const av=Math.abs(vl),lw=Math.max(0,1-av/15),an=CT.gas=='analog',Lc=an?1+2*P.lch*S.gas*S.gas*lw:1+.7*P.lch*lw,
-E0=M.acc*P.gas*S.gas*Math.min(9.5*Lc,240/Math.max(av,1))*(1-Math.pow(cl(av/P.top,0,1.2),4)),lim=Math.min(P.A*.9,Dr*.55*M.lim)*P.lg,
+E0=M.acc*P.gas*S.gas*Math.min(9.5*Lc,240/Math.max(av,1))*(1-Math.pow(cl(av/P.top,0,1.2),4)),f4=CAR.awd,lim=Math.min(P.A*.9,(f4?Math.min(Dr/(1-f4),Df/f4):Dr)*.55*M.lim)*P.lg,
 // kalkış patinajı: tuşla ya da otomatik gazda aracın sabit değeri (M.sc); analog pedalda gazın ne kadar açıldığına bağlı
 E=an?E0:Math.min(E0,lim*(1+M.sc+Math.max(0,av-6)/10)),sl=Math.max(0,E/lim-1),sk=Math.min(1,sl*2.5);
-spin=sk;const e=sl>0?lim*(1-(.03+.05*P.lz)*sk):E;ax=e;Fxr=Math.max(Math.abs(e)*M.tc*1.8,Dr*(.6+.3*P.lz)*sk)}
+spin=sk;const e=sl>0?lim*(1-(.03+.05*P.lz)*sk):E;ax=e;Fxr=Math.max(Math.abs(e)*(1-f4)*M.tc*1.8,Dr*(.6+.3*P.lz)*sk*(1-.5*f4));
+// dört çekerde ön tekerler de çeker; ön tutuşun bir kısmını kullanır
+if(f4)Fxf=Math.max(Math.abs(e)*f4*1.2,Df*.5*sk*f4)}
 if(!I.b)ax-=sg*(1.2+(S.gas>.05?0:2.8))+vl*.05;
 ax-=sg*P.drag*3+vl*P.drag*.04;
 const Fyf=-cap(Df,Fxf)*pac(af,P.Bf,P.C),Fyr=-cap(Dr,Fxr)*pac(ar,P.Br,P.C);
-ax-=Fyf*Math.sin(dl);const ay=Fyf*Math.cos(dl)+Fyr,dw=(a*Fyf*Math.cos(dl)-a*Fyr)/IZ-S.w*M.dmp;
+ax-=Fyf*Math.sin(dl);const ay=Fyf*Math.cos(dl)+Fyr,dw=(a*Fyf*Math.cos(dl)-a*Fyr)/(IZ*CAR.iz)-S.w*M.dmp;
 S.vx+=(ax*fx+ay*ux)*h;S.vz+=(ax*fz+ay*uz)*h;S.w+=dw*h;
 if(M.kin>0&&sp>2){const lim=P.A*1.1/Math.max(sp,1),wk=cl(vl/L*Math.tan(dl),-lim,lim);S.w+=(wk-S.w)*Math.min(1,h*M.kin);const k=Math.min(1,h*M.al);S.vx-=ux*vt*k;S.vz-=uz*vt*k}
 const lk=cl(1-sp/5,0,1);if(lk>0){S.w+=(vl/L*Math.tan(dl)-S.w)*Math.min(1,h*12)*lk;const k=Math.min(1,h*10)*lk;S.vx-=ux*vt*k;S.vz-=uz*vt*k}
@@ -415,8 +493,8 @@ S.h+=S.w*h;S.axs+=(ax-S.axs)*Math.min(1,h*8);return{ar,spin}}
 function phys(dt){const si=surf(S.x,S.z),Sf=SURF[si],T=TIRES[tire],tu=TU,as=AS,loose=si!=1;
 if(si==3)S.mud=1;else S.mud=Math.max(0,S.mud-dt*Math.hypot(S.vx,S.vz)/(si==1?120:200));S.wet=Math.max(0,S.wet-dt/2.5);
 // lastik basıncı: yüksek = keskin ve erken kayar; gevşek zeminde düşük basınç tutuş verir
-const pg=tp=>1-(loose?.35:.15)*(tp-1),A0=Sf.a*T.g[Sf.ti]/(1+.5*S.mud)*(1-.3*S.wet)*(1+.25*as.grip),B0=T.B[Sf.ti]*(si==3?.85:1);
-const P={A:A0,Af:A0*pg(tu.tpf),Ar:A0*pg(tu.tpr),Bf:B0*tu.tpf,Br:B0*tu.tpr,C:T.C[Sf.ti],top:VMAX*T.t[Sf.ti]*tu.top*(1-.04*(tu.aero-1)),drag:Sf.dr,gas:1,lch:tu.lch,loose,lz:loose?1:0,lg:T.lg?T.lg[Sf.ti]:1};
+const pg=tp=>1-(loose?.35:.15)*(tp-1),A0=Sf.a*T.g[Sf.ti]*CAR.gr[Sf.ti]/(1+.5*S.mud)*(1-.3*S.wet)*(1+.25*as.grip),B0=T.B[Sf.ti]*(si==3?.85:1);
+const P={A:A0,Af:A0*pg(tu.tpf),Ar:A0*pg(tu.tpr),Bf:B0*tu.tpf,Br:B0*tu.tpr,C:T.C[Sf.ti],top:VMAX*T.t[Sf.ti]*tu.top*CAR.top*(1-.04*(tu.aero-1)),drag:Sf.dr,gas:1,lch:tu.lch,loose,lz:loose?1:0,lg:T.lg?T.lg[Sf.ti]:1};
 const tg=(CT.steer=='btn'?I.l-I.r:CT.steer=='tilt'?tiltSteer():I.sa)*(set.inv?-1:1),rate=CT.steer!='btn'?14*tu.sens:tg==0?10:(set.sm?6.5*tu.sens:30);st+=(tg-st)*Math.min(1,rate*dt);S.gas+=(+I.g-S.gas)*Math.min(1,dt*(2+18*tu.thr));
 let v=Math.hypot(S.vx,S.vz);
 let fx=Math.sin(S.h),fz=Math.cos(S.h),vl=S.vx*fx+S.vz*fz,vt=S.vx*Math.cos(S.h)-S.vz*Math.sin(S.h);
@@ -436,7 +514,7 @@ DR.k+=((DR.on?1:0)-DR.k)*Math.min(1,dt*(DR.on?7:3));
 // çekiş kontrolü: drift dışındaki arka kaymada gazı keser
 if(as.tcs>0&&!DR.on)P.gas=1-as.tcs*sm(.12,.35,ab);
 const M={rb:tu.bal*(1-.3*as.ini*DR.k),bc:.45*(1-as.abs),bb:tu.bb,tc:.8*tu.diff*(1-.7*as.tcs),wk:.012*tu.susp,kin:5*as.str*(1-DR.k),al:2.5*as.str*(1-DR.k),
-dmp:.35+1.6*as.stm*(1-DR.k),acc:as.acc*tu.pow,brk:as.bra*tu.brk,lim:1+.6*as.tcs,sc:.02+.08*tu.lch};
+dmp:.35+1.6*as.stm*(1-DR.k),acc:as.acc*tu.pow*CAR.pow,brk:as.bra*tu.brk,lim:1+.6*as.tcs,sc:.02+.08*tu.lch};
 let info={ar:0,spin:0};const pv0=Math.atan2(S.vx,S.vz);
 if(!S.air){const e=2;S.vx-=24*(H(S.x+e,S.z)-H(S.x-e,S.z))/(2*e)*dt;S.vz-=24*(H(S.x,S.z+e)-H(S.x,S.z-e))/(2*e)*dt;
 const spn=Math.min(1,Math.abs(vl)/VMAX),ae=1+.5*tu.aero*spn*spn;P.A*=ae;P.Af*=ae;P.Ar*=ae;
@@ -475,7 +553,7 @@ if(LAP.prev>N*.8&&ti<N*.2){if(LAP.run&&LAP.armed){LAP.last=LAP.t;LAP.best=LAP.be
 if(LAP.run)LAP.t+=dt;LAP.prev=ti}
 return{Sf,T,v,si}}
 // ---------- döngü
-const fmt=t=>t==null?'—':Math.floor(t/60)+':'+(t%60).toFixed(1).padStart(4,'0');
+const fmt=t=>t==null?'—':Math.floor(t/60)+':'+(t%60).toFixed(1).padStart(4,'0'),fmt3=t=>t.toFixed(3)+' sn';
 let last=0,tt=0;
 let nearCur=.5;const mmc=$('#mm').getContext?$('#mm').getContext('2d'):null;
 function loop(ts){const dt=Math.min(.033,(ts-last)/1000||0);last=ts;tt+=dt;
@@ -483,20 +561,21 @@ if(CT.gas=='auto'&&mode=='drive')I.g=I.b?0:1;
 let v=Math.hypot(S.vx,S.vz),Sf=SURF[surf(S.x,S.z)],T=TIRES[tire];const frozen=EV&&EV.state=='count';
 if(mode=='drive'&&!frozen){const o=phys(dt);v=o.v;Sf=o.Sf;T=o.T;if(EV)evTick(dt,o)}
 if(frozen&&mode=='drive'){EV.cd-=dt;const b=$('#big');b.style.fontSize='88px';b.textContent=EV.cd>0?Math.ceil(EV.cd):'';if(EV.cd<=0){EV.state='run';note('BAŞLA!',60)}}
+if(EV&&REG[EV.reg].tick)REG[EV.reg].tick(EV);
 if(bigT>0){bigT-=dt;if(bigT<=0)$('#big').textContent=''}
 ground.position.x=Math.round(S.x/GT)*GT;ground.position.z=Math.round(S.z/GT)*GT;
 const fxm=Math.sin(S.h),fzm=Math.cos(S.h);
-car.position.set(S.x,S.y,S.z);car.rotation.y=S.h;for(const pv of steerP)pv.rotation.y=delta;{const vl_=S.vx*fxm+S.vz*fzm;for(const w of wheels)w.rotation.x+=vl_*dt/.45}
+car.position.set(S.x,S.y,S.z);car.rotation.y=S.h;for(const pv of steerP)pv.rotation.y=delta;{const vl_=S.vx*fxm+S.vz*fzm;for(const w of wheels)w.rotation.x+=vl_*dt/w.userData.r}
 const pt=S.air?Math.atan2(S.vy,Math.max(10,v)):Math.atan2(H(S.x+fxm*1.6,S.z+fzm*1.6)-H(S.x-fxm*1.6,S.z-fzm*1.6),3.2);pitC+=(pt-pitC)*Math.min(1,dt*10);car.rotation.x=-pitC;
 body.rotation.z+=(cl(S.w*Math.min(1,v/VMAX)*.06,-.12,.12)-body.rotation.z)*Math.min(1,dt*8);
 body.rotation.x+=(cl(-S.axs*.004,-.07,.07)-body.rotation.x)*Math.min(1,dt*6);
 const spn=Math.min(1,v/VMAX),shake=mode=='drive'?(S.kerb?.06:0)+(tt-S.hit<.35?.3:0)+(set.shk&&spn>.7?.03*(spn-.6)*3:0):0;
-const inCar=mode!='menu'&&camMode>=2,ck=inCar&&camMode==3,nr=inCar?.05:.5;
+const inCar=mode!='menu'&&camMode>=2,ck=inCar&&camMode==3,nr=inCar?.15:.5;
 if(nr!=nearCur){nearCur=nr;cam.near=nr;cam.updateProjectionMatrix()}
-cock.visible=ck;b1.visible=b2.visible=spl.visible=!ck;for(const w of wheels)w.visible=!ck;
+cock.visible=ck;carM.g.visible=!ck;for(const w of wheels)w.visible=!ck;
 if(inCar){car.updateMatrixWorld(true);swl.rotation.z=-delta*2.5;const mw=body.matrixWorld;
-cam.position.copy((ck?V3(.4,1.55,-.15):V3(0,1.72,.95)).applyMatrix4(mw));cam.position.y+=(Math.random()-.5)*shake*.4;
-cam.up.set(0,1,0).applyQuaternion(body.getWorldQuaternion(new THREE.Quaternion()));cam.lookAt((ck?V3(.4,1.45,14):V3(0,1.45,16)).applyMatrix4(mw))}
+const cs=cock.scale.y,hy=CAR.ws[0][1]+.62+(CAR.lift||0),hz=CAR.ws[0][0]-.1;cam.position.copy((ck?V3(.4,1.55*cs,-.15):V3(0,hy,hz)).applyMatrix4(mw));cam.position.y+=(Math.random()-.5)*shake*.4;
+cam.up.set(0,1,0).applyQuaternion(body.getWorldQuaternion(new THREE.Quaternion()));cam.lookAt((ck?V3(.4,1.45*cs,14):V3(0,hy-.27,16)).applyMatrix4(mw))}
 else{if(mode=='menu'){camYaw=tt*.35;ly=0;lp=0}
 else{camYaw+=ad(S.h-camYaw)*Math.min(1,dt*(D.act?2.2:4.5));if(dp===null&&performance.now()-lastDrag>1500){const d=Math.exp(-dt*3);ly*=d;lp*=d}}
 const far=camMode==1?1.6:1,pit=.3+lp,dist=(9+spn*3-cl(S.axs*.05,-1.5,1.5))*far,a=camYaw+ly;
@@ -506,7 +585,7 @@ cy=Math.max(cy,H(cx,cz)+1);cam.position.set(cx,cy,cz);cam.up.set(0,1,0);cam.look
 const bf=(AW<AH?78:62)+(inCar?6:0),tf=bf+(set.fov?spn*24:0);fovC+=(tf-fovC)*Math.min(1,dt*3);if(Math.abs(cam.fov-fovC)>.05){cam.fov=fovC;cam.updateProjectionMatrix()}
 for(const p of parts){if(p.l>0){p.l-=dt*1.1;p.m.position.addScaledVector(p.v,dt);const s=1+(1-p.l)*3;p.m.scale.set(s,s,s);p.m.material.opacity=Math.max(0,p.l*.45);if(p.l<=0)p.m.visible=false}}
 if(mode!='menu'){$('#spd').firstChild.nodeValue=Math.round(v*3.6);
-$('#sf').textContent=Sf.n+' · '+T.n+' lastik · '+(custom?'Özel':PRESETS[PK].n)+' · '+LEVELS[LK].n+(S.mud>.05?' · Çamur %'+Math.round(S.mud*100):'')+(S.wet>.05?' · Islak':'')+(CUR?' · '+CUR.n:'');
+$('#sf').textContent=CAR.n+' · '+Sf.n+' · '+T.n+' lastik · '+(custom?'Özel':PRESETS[PK].n)+' · '+LEVELS[LK].n+(S.mud>.05?' · Çamur %'+Math.round(S.mud*100):'')+(S.wet>.05?' · Islak':'')+(CUR?' · '+CUR.n:'');
 $('#dr').textContent=D.t>0?'DRIFT '+Math.round(Math.abs(D.beta)*57.3)+'°':S.spin?'PATİNAJ':S.air?'HAVADA':'';
 $('#lap').textContent=EV||!MAP.TR||MAP.TR.open?'':(LAP.run?'Tur '+fmt(LAP.t):'Başlangıç çizgisinden geçince tur başlar')+' · Son '+fmt(LAP.last)+' · En iyi '+fmt(LAP.best);
 $('#ev').textContent=evText();
@@ -517,11 +596,11 @@ R.render(scene,cam);requestAnimationFrame(loop)}
 // ---------- yarışlar
 let EV=null;
 const best=k=>{try{return +localStorage.getItem('sv_'+k)||0}catch(e){return 0}},saveBest=(k,v)=>{try{localStorage.setItem('sv_'+k,v)}catch(e){}};
-function startEvent(i){const e=EVENTS[i],sv=EV&&EV.sv?EV.sv:{PK,LK,tire,TU:{...TU},AS:{...AS},custom};
-PK=e.pk;applyPreset();if(e.ty=='dp'){tire=3;Object.assign(AS,{grip:0,str:Math.min(AS.str,.2),stm:0,tcs:0,ini:1})}
+function startEvent(i){const e=EVENTS[i],sv=EV&&EV.sv?EV.sv:{PK,LK,tire,TU:{...TU},AS:{...AS},custom,car:CARS.indexOf(CAR)};
+if(set.ac)setCar(CARS.findIndex(c=>c.ty==e.ty));PK=e.pk;applyPreset();if(e.ty=='dp'){tire=3;Object.assign(AS,{grip:0,str:Math.min(AS.str,.2),stm:0,tcs:0,ini:1})}
 ['#res','#set','#menu'].forEach(s=>$(s).classList.add('hidden'));setActive(REG[e.reg]);reset(e.g[1],e.g[2],e.g[3]);mode='drive';buildCtl();['#hud','#mm','#ctl'].forEach(s=>$(s).classList.remove('hidden'));
 EV={...e,i,sv,TR:REG[e.reg].TR,state:'count',cd:3,t:0,score:0,combo:0,ct:0,mult:1,gap:0,best:0,armed:0,lap:0,lapStart:0,bestLap:null,prev:ti,time:e.time||0,limit:e.limit||0}}
-function leaveEvent(){if(!EV)return;const sv=EV.sv;PK=sv.PK;LK=sv.LK;tire=sv.tire;TU=sv.TU;AS=sv.AS;custom=sv.custom;EV=null;$('#ev').textContent=''}
+function leaveEvent(){if(!EV)return;const sv=EV.sv;if(CARS[sv.car]!==CAR)setCar(sv.car);PK=sv.PK;LK=sv.LK;tire=sv.tire;TU=sv.TU;AS=sv.AS;custom=sv.custom;EV=null;$('#ev').textContent=''}
 function bank(){const p=Math.round(EV.combo*EV.mult);if(p>0){EV.score+=p;EV.best=Math.max(EV.best,p);note('+'+p,40)}EV.combo=0;EV.ct=0;EV.mult=1;EV.gap=0}
 function evTick(dt,o){if(EV.state!='run')return;EV.t+=dt;
 if(EV.ty=='dp'){EV.time-=dt;const lost=o.si==2||tt-S.hit<.05||Math.abs(D.beta)>1.4;
@@ -532,14 +611,15 @@ if(EV.time<=0){bank();endEvent()}return}
 const N=EV.TR.N;
 if(EV.laps){if(ti>N*.4&&ti<N*.6)EV.armed=1;if(EV.prev>N*.8&&ti<N*.2&&EV.armed){EV.armed=0;EV.lap++;const lt=EV.t-EV.lapStart;EV.lapStart=EV.t;EV.bestLap=EV.bestLap==null?lt:Math.min(EV.bestLap,lt);
 if(EV.lap>=EV.laps)endEvent();else note('Tur '+(EV.lap+1)+'/'+EV.laps+' · '+fmt(lt),30)}EV.prev=ti}
-else{if(ti>N*.5)EV.armed=1;if(EV.armed&&ti>=N-4)endEvent()}}
+else{if(ti>N*.5)EV.armed=1;if(EV.armed&&ti>=N-(EV.ty=='dg'?1:4)){EV.trap=Math.hypot(S.vx,S.vz)*3.6;endEvent()}}}
 function evText(){if(!EV)return'';if(EV.ty=='dp')return'⏱ '+Math.max(0,EV.time).toFixed(1)+' · Puan '+EV.score+(EV.combo>0?' · Kombo '+Math.round(EV.combo)+' x'+EV.mult:'');
+if(EV.ty=='dg')return'⏱ '+EV.t.toFixed(2)+' / '+EV.limit.toFixed(1)+' sn · '+Math.round(100*ti/(EV.TR.N-1))+'%';
 return'⏱ '+fmt(EV.t)+' / '+fmt(EV.limit)+(EV.t>EV.limit?' · SÜRE AŞILDI':'')+(EV.laps?' · Tur '+Math.min(EV.lap+1,EV.laps)+'/'+EV.laps:' · %'+Math.round(100*ti/EV.TR.N))}
 function endEvent(){EV.state='done';mode='result';I.g=I.b=I.l=I.r=0;I.sa=0;$('#ctl').classList.add('hidden');let h,p;
 const row=(a,b)=>`<div class="rk"><span>${a}</span><span>${b}</span></div>`;
 if(EV.ty=='dp'){const b=best(EV.k),nb=EV.score>b;if(nb)saveBest(EV.k,EV.score);h='Drift yarışması bitti';p=row('Toplam puan',EV.score)+row('En iyi kombo',EV.best)+row('Rekor',Math.max(b,EV.score)+(nb?' · YENİ':''))}
-else{const ok=EV.t<=EV.limit,b=best(EV.k),nb=ok&&(!b||EV.t<b);if(nb)saveBest(EV.k,EV.t.toFixed(2));h=ok?(EV.laps?'Yarış tamamlandı':'Etap tamamlandı'):'Süre aşıldı';
-p=row('Süren',fmt(EV.t))+row('Hedef',fmt(EV.limit))+(EV.laps?row('En iyi tur',fmt(EV.bestLap)):'')+row('Rekor',nb?fmt(EV.t)+' · YENİ':b?fmt(b):'—')}
+else{const ok=EV.t<=EV.limit,b=best(EV.k),nb=ok&&(!b||EV.t<b);if(nb)saveBest(EV.k,EV.t.toFixed(EV.ty=='dg'?3:2));h=ok?(EV.laps?'Yarış tamamlandı':EV.ty=='dg'?'Hedef geçildi':'Etap tamamlandı'):'Süre aşıldı';
+p=EV.ty=='dg'?row('Süren',fmt3(EV.t))+row('Hedef',fmt3(EV.limit))+row('Bitiş hızı',Math.round(EV.trap)+' km/sa')+row('Rekor',nb?fmt3(EV.t)+' · YENİ':b?fmt3(+b):'—'):row('Süren',fmt(EV.t))+row('Hedef',fmt(EV.limit))+(EV.laps?row('En iyi tur',fmt(EV.bestLap)):'')+row('Rekor',nb?fmt(EV.t)+' · YENİ':b?fmt(b):'—')}
 const r=$('#res'),k=EV.i;r.classList.remove('hidden');r.innerHTML=`<h1>${h}</h1>${p}<button class="btn" id="again">Tekrar</button><button class="btn alt" id="free">Açık dünyaya dön</button><button class="btn alt" id="rm">Ana menü</button>`;
 $('#again').onclick=()=>startEvent(k);$('#free').onclick=()=>{r.classList.add('hidden');startWorld(WORLDS.indexOf(CURW))};$('#rm').onclick=()=>{r.classList.add('hidden');leaveEvent();showMenu()}}
 // ---------- menü ve ayarlar (katlanır bölümler)
@@ -550,20 +630,22 @@ const OPEN=new Set();
 const sec=(k,t,body)=>`<details data-sec="${k}"${OPEN.has(k)?' open':''}><summary>${t}</summary>${body}</details>`;
 const chipsOf=(obj,cur,attr)=>'<div class="chips" style="flex-wrap:wrap">'+Object.entries(obj).map(([k,m])=>`<div class="chip ${cur==k?'sel':''}" data-${attr}="${k}" style="flex:1 1 40%">${m.n}<small>${m.d}</small></div>`).join('')+'</div>';
 const OLK={auto:{n:'Otomatik',d:'Telefonla döner'},port:{n:'Dikey',d:'Hep dikey kalır'},land:{n:'Yatay',d:'Hep yatay kalır'}};
+const carHTML=()=>sec('car','Araç: '+CAR.n,chipsOf(Object.fromEntries(CARS.map((c,i)=>[i,{n:c.n,d:c.d}])),CARS.indexOf(CAR),'cr')+`<div class="row" id="acr"><div>Yarışta türe uygun araç<small>Yarışa o türün aracıyla girilir. Kapalıysa seçili araçla girersin.</small></div><i class="${set.ac?'on':''}">${set.ac?'Açık':'Kapalı'}</i></div>`);
 const ctlHTML=()=>sec('ctl','Kontroller','<div class="lbl">Ekran yönü</div>'+chipsOf(OLK,OLOCK,'ol')+'<div class="lbl">Direksiyon</div>'+chipsOf(STEER,CT.steer,'cs')+'<div class="lbl">Gaz</div>'+chipsOf(GASM,CT.gas,'cg')+(CT.steer=='tilt'?`<div class="row" style="display:block"><div>Çevirme açısı <span id="v_tlt">${set.tlt}°</span><small>Tam direksiyon için telefonu ne kadar yatırman gerekir. Büyük değer daha az hassas.</small></div><input type="range" id="tlt" min="20" max="60" step="1" value="${set.tlt}"></div>`:'')+
 '<p>Telefonu çevirme: sürüşte sol alttaki tuşa basıp sensör izni ver, sonra telefonu nasıl tutacaksan öyle tutup “Ortala”ya bas. Telefonu direksiyon gibi sağa yatırınca sağa döner.</p>');
 function bindAll(root,re){const tl=root.querySelector('#tlt');if(tl)tl.oninput=()=>{set.tlt=+tl.value;root.querySelector('#v_tlt').textContent=set.tlt+'°'};root.querySelectorAll('details').forEach(d=>d.addEventListener('toggle',()=>{d.open?OPEN.add(d.dataset.sec):OPEN.delete(d.dataset.sec)}));
 root.querySelectorAll('.chip[data-pk]').forEach(e=>e.onclick=()=>{PK=e.dataset.pk;applyPreset();re()});root.querySelectorAll('.chip[data-lk]').forEach(e=>e.onclick=()=>{LK=e.dataset.lk;applyPreset();re()});
 root.querySelectorAll('.chip[data-cs]').forEach(e=>e.onclick=()=>{CT.steer=e.dataset.cs;if(CT.steer=='tilt')askTilt();buildCtl();re()});
+root.querySelectorAll('.chip[data-cr]').forEach(e=>e.onclick=()=>{setCar(+e.dataset.cr);PK=CAR.pk;applyPreset();re()});const ac=root.querySelector('#acr');if(ac)ac.onclick=()=>{set.ac^=1;re()};
 root.querySelectorAll('.chip[data-ol]').forEach(e=>e.onclick=()=>{OLOCK=e.dataset.ol;try{localStorage.setItem('lt_olock',OLOCK)}catch(_){}rs();re()});root.querySelectorAll('.chip[data-cg]').forEach(e=>e.onclick=()=>{CT.gas=e.dataset.cg;buildCtl();re()});root.querySelectorAll('.chip[data-cm]').forEach(e=>e.onclick=()=>{camMode=+e.dataset.cm;re()})}
-const rec=e=>{const b=best(e.k);return b?' Rekor: '+(e.ty=='dp'?b:fmt(b))+'.':''};
+const rec=e=>{const b=best(e.k);return b?' Rekor: '+(e.ty=='dp'?b:e.ty=='dg'?fmt3(b):fmt(b))+'.':''};
 function showMenu(){mode='menu';leaveEvent();['#hud','#mm','#ctl','#set','#res'].forEach(s=>$(s).classList.add('hidden'));$('#big').textContent='';const m=$('#menu');m.classList.remove('hidden');
 m.innerHTML=`<h1>Last Turn</h1><p>Açık dünyada serbest sür ya da bir yarış seç.</p>
 <div class="lbl" style="margin-top:14px"><b style="color:var(--ink);font-size:18px">Açık dünya</b><br>Serbest sürüş, süre ve kural yok.</div>`+
 WORLDS.map((w,i)=>`<div class="card go" data-w="${i}"><b>${w.n}</b><span>${w.d}</span></div>`).join('')+
 Object.entries(TYP).map(([t,y])=>`<div class="lbl" style="margin-top:18px"><b style="color:var(--ink);font-size:18px">${y.n}</b><br>${y.d}</div>`+
-EVENTS.map((e,i)=>e.ty!=t?'':`<div class="card" data-ev="${i}"><b>${e.n}</b><span>${e.d}${e.limit?' Hedef '+fmt(e.limit)+'.':''}${rec(e)}</span></div>`).join('')).join('')+
-'<div class="lbl" style="margin-top:18px"><b style="color:var(--ink);font-size:18px">Ayarlar</b></div>'+sec('pre','Önayar: '+PRESETS[PK].n,chipsOf(PRESETS,PK,'pk'))+sec('lvl','Sürüş yardımı: '+LEVELS[LK].n,chipsOf(LEVELS,LK,'lk'))+ctlHTML()+
+EVENTS.map((e,i)=>e.ty!=t?'':`<div class="card" data-ev="${i}"><b>${e.n}</b><span>${e.d}${e.limit?' Hedef '+(e.ty=='dg'?fmt3(e.limit):fmt(e.limit))+'.':''}${rec(e)}</span></div>`).join('')).join('')+
+'<div class="lbl" style="margin-top:18px"><b style="color:var(--ink);font-size:18px">Ayarlar</b></div>'+carHTML()+sec('pre','Önayar: '+PRESETS[PK].n,chipsOf(PRESETS,PK,'pk'))+sec('lvl','Sürüş yardımı: '+LEVELS[LK].n,chipsOf(LEVELS,LK,'lk'))+ctlHTML()+
 `<p style="font-size:13px;margin-top:14px">Sürüm ${APP_VERSION}</p>`;
 bindAll(m,showMenu);m.querySelectorAll('.card[data-w]').forEach(e=>e.onclick=()=>startWorld(+e.dataset.w));m.querySelectorAll('.card[data-ev]').forEach(e=>e.onclick=()=>startEvent(+e.dataset.ev))}
 function startWorld(w){leaveEvent();['#menu','#res','#set'].forEach(s=>$(s).classList.add('hidden'));CURW=WORLDS[w||0];setActive(CURW.reg);reset();mode='drive';buildCtl();['#hud','#mm','#ctl'].forEach(s=>$(s).classList.remove('hidden'))}
@@ -590,6 +672,7 @@ $('#rs').onclick=()=>{if(mode!='drive')return;const TR=EV?EV.TR:MAP.TR,rg=EV?REG
 if(rg&&rg.inMud)for(let n=0;n<TR.N&&[0,3,-3].some(k=>{const q=TR.P[TR.open?cl(i+k,0,TR.N-1):(i+k+TR.N)%TR.N];return rg.inMud(q[0],q[1])});n++)i=TR.open?Math.min(i+1,TR.N-1):(i+1)%TR.N;
 const P=TR.P[i],T=TR.T[i],t=EV?EV.t:0;reset(P[0],P[1],Math.atan2(T[0],T[1]));if(EV){EV.t=t;EV.prev=ti;EV.combo=0;EV.mult=1;EV.ct=0}}else{S.vx=S.vz=S.w=0;S.y=H(S.x,S.z)+.5;S.air=true}};
 $('#cm').onclick=()=>{camMode=(camMode+1)%4;note(CAMS[camMode],30)};
+{let ci=1;try{const v=localStorage.getItem('lt_car');if(v!=null&&CARS[+v])ci=+v}catch(e){}setCar(ci);PK=CAR.pk}
 applyPreset();loadWorld();mmDraw();reset();buildCtl();showMenu();requestAnimationFrame(loop);
 // ---------- uygulama (PWA): çevrimdışı önbellek ve güncelleme kontrolü
 if('serviceWorker' in navigator&&location.protocol!='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
