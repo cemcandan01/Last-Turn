@@ -108,7 +108,7 @@ summary::after{content:'▾';float:right;color:var(--mut)}details[open]>summary:
 <script src="vendor/three.min.js"></script>
 <script>
 // sürüm: her güncellemede artırılır; açık uygulama yeni sürümü bu değerden tanır
-const APP_VERSION='1.9.0';
+const APP_VERSION='1.9.1';
 // ekran yönü kilidi: iOS ana ekran uygulamasında yön kilitlenemediği için, telefon kilitli yönün dışına dönerse içerik 90° döndürülür
 const APP=document.createElement('div');APP.id='app';[...document.body.children].filter(e=>e.tagName!='SCRIPT').forEach(e=>APP.appendChild(e));document.body.prepend(APP);
 const probe=document.createElement('div');probe.style.cssText='position:fixed;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)';document.body.appendChild(probe);
@@ -911,8 +911,8 @@ m.querySelectorAll('[data-w]').forEach(e=>e.onclick=()=>{const c={...COND};demoS
 const nm=m.querySelector('#pname');if(nm)nm.onchange=()=>{PROF.name=nm.value.trim().slice(0,20)||'Sürücü';saveProf();showMenu()};
 if(cur=='settings')bindSettings(m.querySelector('.mmR'),()=>showMenu())}
 function view(cur){const back=MV.length>1?'<button class="mbk" id="mbk">‹ Geri</button>':'';
-if(cur=='race'){carThumbs();return`<h2>Yarış türü</h2><div class="tiles">${TYPES.map(([t,n,d])=>{const ci=CARS.findIndex(c=>c.ty==(t=='rx'?'rx':t)),cnt=EVENTS.filter(e=>e.ty==t).length;
-return`<div class="tile" data-ty="${t}"><img src="${THUMB.car[ci]}"><b>${n}</b><small>${d}</small><em>${cnt} yarış</em></div>`}).join('')}</div>`}
+if(cur=='race'){return`<h2>Yarış türü</h2><div class="tiles">${TYPES.map(([t,n,d])=>{const cnt=EVENTS.filter(e=>e.ty==t).length;
+return`<div class="tile" data-ty="${t}"><img src="img/tur_${t}.jpg" alt="${n}"><b>${n}</b><small>${d}</small><em>${cnt} yarış</em></div>`}).join('')}</div>`}
 if(cur.startsWith('t:')){const t=cur.slice(2),y=TYP[t];return`${back}<h2>${TYPES.find(q=>q[0]==t)[1]} yarışları</h2><p>${y.d}</p><div class="rlist">${EVENTS.map((e,i)=>e.ty!=t?'':`<div class="rc" data-ev="${i}"><img src="${trackThumb(REG[e.reg])}"><div class="rci"><b>${e.n}</b><small>${e.d}</small>
 <div class="rcs"><span>Uzunluk<b>${evLen(e)}</b></span><span>${e.ty=='dp'?'Süre':'Ort. bitiş'}<b>${evAvg(e)}</b></span><span>PR<b>${prOf(e)}</b></span><span>WR<b>—</b></span></div></div></div>`).join('')}</div><p class="note">WR: çevrimiçi özellikler gelince dünya rekorları burada görünecek.</p>`}
 if(cur.startsWith('e:')){const i=+cur.slice(2),e=EVENTS[i],r=REG[e.reg];return`${back}<div class="evh"><img src="${trackThumb(r)}"><div><h2>${e.n}</h2><p>${e.d}</p>
