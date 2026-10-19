@@ -92,10 +92,11 @@ summary::after{content:'▾';float:right;color:var(--mut)}details[open]>summary:
 .evh{display:flex;gap:12px;margin-bottom:4px}.evh img{width:120px;height:120px;border-radius:10px;background:#0a0f12;flex:0 0 auto}
 .note{font-size:12px!important}.inp{width:100%;padding:10px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);font:700 18px inherit;font-family:inherit;-webkit-user-select:text;user-select:text}
 .pst{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.pst span{background:var(--card);border-radius:12px;padding:8px 10px;color:var(--mut);font-size:12px}.pst b{display:block;color:var(--ink);font-size:20px}
+#cut{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none}
 #upd{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--sat) + 12px);z-index:10;padding:12px 18px;border-radius:14px;border:0;background:var(--acc);color:#1b0d05;font:800 17px inherit;font-family:inherit;box-shadow:0 4px 18px #0008}
 #ctl{pointer-events:auto!important}.wz{pointer-events:auto;width:min(calc(var(--aw) * .5),250px);height:230px;display:flex;align-items:flex-end;justify-content:center;touch-action:none}
 </style></head><body>
-<canvas id="c"></canvas>
+<canvas id="c"></canvas><div id="cut"></div>
 <div id="hud" class="hidden"><div class="hTL glass"><div id="hName"></div><div id="ev"></div><div id="lap"></div></div><div class="hBt"><div class="ib glass" id="cm">🎥</div><div class="ib glass" id="ts">🛞</div><div class="ib glass" id="rs">↺</div><div class="ib glass" id="gs">⏸</div></div><div id="dr"></div>
 <div class="hSP glass"><div id="rpmb"></div><div class="sp"><span id="spd">0</span><div><b id="gear">1</b><small>km/sa</small></div></div><div id="sf"></div></div></div>
 <div id="ctl" class="hidden"></div>
@@ -107,7 +108,7 @@ summary::after{content:'▾';float:right;color:var(--mut)}details[open]>summary:
 <script src="vendor/three.min.js"></script>
 <script>
 // sürüm: her güncellemede artırılır; açık uygulama yeni sürümü bu değerden tanır
-const APP_VERSION='1.8.0';
+const APP_VERSION='1.9.0';
 // ekran yönü kilidi: iOS ana ekran uygulamasında yön kilitlenemediği için, telefon kilitli yönün dışına dönerse içerik 90° döndürülür
 const APP=document.createElement('div');APP.id='app';[...document.body.children].filter(e=>e.tagName!='SCRIPT').forEach(e=>APP.appendChild(e));document.body.prepend(APP);
 const probe=document.createElement('div');probe.style.cssText='position:fixed;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)';document.body.appendChild(probe);
@@ -350,8 +351,9 @@ const COND={tod:'noon',wx:'sun'},WX={g:1},SUNDIR=new THREE.Vector3(60,120,40).no
 // temanın varsayılan koşulları (karlı haritada kar yağar, gece temaları akşam)
 const condOf=k=>({tod:{city:'evening',coast:'evening',port:'evening',mount:'evening'}[k]||'noon',wx:k=='snow'?'snow':'sun'});
 let ENVK='day';
-function applyEnv(k){ENVK=k;const t=thOf(k),c=COND,sky=C3(t.sky),night=t.night&&c.tod=='evening';let hi=t.hemi[2],si=t.sun[1],sc=C3(t.sun[0]),fn=t.fog[0],ff=t.fog[1];
+function applyEnv(k){ENVK=k;const t=thOf(k),c=COND,sky=C3(t.sky),night=t.night&&c.tod=='evening'||c.tod=='night';let hi=t.hemi[2],si=t.sun[1],sc=C3(t.sun[0]),fn=t.fog[0],ff=t.fog[1];
 if(t.night&&!night){sky.setHex(0x9fb8d0);hi=.78;si=.85;sc.setHex(0xfff1d6)}
+if(c.tod=='night'&&!t.night){sky.setHex(0x070b12);hi=.26;si=.08;sc.setHex(0x8899cc);fn*=.5;ff*=.6}
 if(c.tod=='morning'){sky.lerp(C3(0xf6dcb4),.35);sc.lerp(C3(0xffe2b0),.6);si*=.85;hi*=.9;SUNDIR.set(-80,45,60).normalize()}
 else if(c.tod=='evening'&&!night){sky.lerp(C3(0xf08a5a),.45);sc.lerp(C3(0xff8a4a),.7);si*=.75;hi*=.75;SUNDIR.set(85,28,-40).normalize()}
 else SUNDIR.set(60,120,40).normalize();
@@ -742,7 +744,8 @@ let nearCur=.5;const mmc=$('#mm').getContext?$('#mm').getContext('2d'):null;
 function loop(ts){const dt=Math.min(.033,(ts-last)/1000||0);last=ts;tt+=dt;
 if(CT.gas=='auto'&&mode=='drive')I.g=I.b?0:1;
 let v=Math.hypot(S.vx,S.vz),Sf=SURF[surf(S.x,S.z)],T=TIRES[tire];const frozen=EV&&EV.state=='count';
-if((mode=='drive'&&!frozen)||(mode=='menu'&&DEMO)){if(DEMO)demoTick();else{PROF.km+=v*dt/1000;if(tt%20<dt)saveProf()}const o=phys(dt);v=o.v;Sf=o.Sf;T=o.T;if(EV)evTick(dt,o)}
+if(mode=='menu'&&CINE)cineTick(dt);
+if(mode=='drive'&&!frozen){PROF.km+=v*dt/1000;if(tt%20<dt)saveProf();const o=phys(dt);v=o.v;Sf=o.Sf;T=o.T;if(EV)evTick(dt,o)}
 if(frozen&&mode=='drive'){EV.cd-=dt;const b=$('#big');b.style.fontSize='88px';b.textContent=EV.cd>0?Math.ceil(EV.cd):'';if(EV.cd<=0){EV.state='run';note('BAŞLA!',60)}}
 if(EV&&REG[EV.reg].tick)REG[EV.reg].tick(EV);precipTick(dt);shadowTick();
 if(bigT>0){bigT-=dt;if(bigT<=0)$('#big').textContent=''}
@@ -753,8 +756,8 @@ car.position.set(S.x,S.y,S.z);car.rotation.y=S.h;for(const pv of steerP)pv.rotat
 const pt=S.air?Math.atan2(S.vy,Math.max(10,v)):Math.atan2(H(S.x+fxm*1.6,S.z+fzm*1.6)-H(S.x-fxm*1.6,S.z-fzm*1.6),3.2);pitC+=(pt-pitC)*Math.min(1,dt*10);car.rotation.x=-pitC;
 body.rotation.z+=(cl(S.w*Math.min(1,v/VMAX)*.06,-.12,.12)-body.rotation.z)*Math.min(1,dt*8);
 body.rotation.x+=(cl(-S.axs*.004,-.07,.07)-body.rotation.x)*Math.min(1,dt*6);
-const spn=Math.min(1,v/VMAX),shake=mode=='drive'?(S.kerb?.06:0)+(tt-S.hit<.35?.3:0)+(set.shk&&spn>.7?.03*(spn-.6)*3:0):0;
-const inCar=mode!='menu'&&mode!='garage'&&camMode>=2,ck=inCar&&camMode==3,nr=inCar?.15:.5;
+const spn=Math.min(1,v/VMAX),shake=mode=='drive'||CINE?(CINE&&CINE.cam=='cock'?.07:0)+(S.kerb?.06:0)+(tt-S.hit<.35?.3:0)+(set.shk&&spn>.7?.03*(spn-.6)*3:0):0;
+const inCar=(mode!='menu'||CINE&&CINE.cam=='cock')&&mode!='garage'&&camMode>=2,ck=inCar&&camMode==3,nr=inCar?.15:.5;
 if(nr!=nearCur){nearCur=nr;cam.near=nr;cam.updateProjectionMatrix()}
 cock.visible=ck;if(carM.g.userData.ck!==ck){carM.g.userData.ck=ck;carM.g.traverse(o=>{if(o.userData.pan)o.visible=!ck})}glassQM.opacity=ck?.12:1;glassQM.depthWrite=!ck;engine(v*3.6,dt);if(ck)gauges(v*3.6);
 if(inCar){car.updateMatrixWorld(true);swl.rotation.z=-delta*2.5;const mw=body.matrixWorld;
@@ -769,6 +772,7 @@ cy=Math.max(cy,H(cx,cz)+1);cam.position.set(cx,cy,cz);cam.up.set(0,1,0);cam.look
 // garaj kamerası: araç dikeyde üst yarıda, yatayda solda (panel sağda)
 if(mode=='garage'){const a=.55,lnd=AW>AH,dd=lnd?8.2:8.8;cam.position.set(GX+Math.sin(a)*dd,lnd?2.3:3.2,GZ+Math.cos(a)*dd);cam.up.set(0,1,0);cam.lookAt(GX+(lnd?Math.cos(a)*3.4:0),lnd?.6:-1.5,GZ-(lnd?Math.sin(a)*3.4:0))}
 const bf=camMode==3&&inCar?(AW<AH?64:54):(AW<AH?78:62)+(inCar?6:0),tf=bf+(set.fov?spn*24:0);fovC+=(tf-fovC)*Math.min(1,dt*3);if(Math.abs(cam.fov-fovC)>.05){cam.fov=fovC;cam.updateProjectionMatrix()}
+if(mode=='menu'&&CINE)cineCam();
 for(const p of parts){if(p.l>0){p.l-=dt*1.1;p.m.position.addScaledVector(p.v,dt);const s=1+(1-p.l)*3;p.m.scale.set(s,s,s);p.m.material.opacity=Math.max(0,p.l*.45);if(p.l<=0)p.m.visible=false}}
 if(mode!='menu'&&mode!='garage'){$('#spd').textContent=Math.round(v*3.6);$('.hSP').style.display=camMode==3?'none':'';$('#gear').textContent=GEAR||'N';rpmBar();$('#hName').textContent=EV?EV.n:CURW.n;
 $('#sf').textContent=CAR.n+' · '+Sf.n+' · '+T.n+' lastik'+(S.mud>.05?' · Çamur %'+Math.round(S.mud*100):'')+(S.wet>.05?' · Islak':'')+(COND.wx!='sun'?' · '+WXS[COND.wx]:'');
@@ -831,13 +835,51 @@ const PROF=(()=>{let p={name:'Sürücü',races:0,wins:0,km:0,use:{}};try{Object.
 const saveProf=()=>{try{localStorage.setItem('lt_prof',JSON.stringify(PROF))}catch(e){}};
 // ---------- menü arkasında canlı yarış: otomatik pilot bir aracı bir pistte sürer
 let DEMO=null;
-function demoStart(){if(DEMO)return;const picks=[[0,0],[1,0],[8,2],[6,2],[3,1],[4,1],[2,0]],pk=picks[Math.floor(Math.random()*picks.length)],e=EVENTS[pk[0]],r=REG[e.reg];
-DEMO={sv:{car:CARS.indexOf(CAR),PK,LK,TU:{...TU},AS:{...AS},tire,custom,cond:{...COND}},TR:r.TR};setCar(pk[1]);LK='norm';PK=CAR.pk;applyPreset();
-Object.assign(COND,condOf(r.th));setActive(r);reset(e.g[1],e.g[2],e.g[3]);camMode=0}
-function demoStop(){if(!DEMO)return;const v=DEMO.sv;DEMO=null;if(CARS[v.car]!==CAR)setCar(v.car);PK=v.PK;LK=v.LK;TU=v.TU;AS=v.AS;tire=v.tire;custom=v.custom;Object.assign(COND,v.cond);I.g=I.b=0;I.sa=0}
-function demoTick(){const TR=DEMO.TR,N=TR.N,k=j=>TR.open?Math.min(j,N-1):(j+N)%N;if(TR.open&&ti>N-12){const p=TR.P[4];reset(p[0],p[1],Math.atan2(TR.T[4][0],TR.T[4][1]));return}
-const q=TR.P[k(ti+7)];let a=Math.atan2(q[0]-S.x,q[1]-S.z)-S.h;a=Math.atan2(Math.sin(a),Math.cos(a));I.sa=cl(a*2.4,-1,1);
-const ta=TR.T[k(ti)],tb=TR.T[k(ti+16)],turn=Math.abs(Math.atan2(ta[0]*tb[1]-ta[1]*tb[0],ta[0]*tb[0]+ta[1]*tb[1])),vt=44-30*Math.min(1,turn*1.4),v=Math.hypot(S.vx,S.vz);I.g=v<vt?1:0;I.b=v>vt+5?1:0}
+// ---------- menü arka planı: kısa sinematik çekimler. Araç pist boyunca senaryoyla sürülür, kamera çekime göre konumlanır
+const SHOTS=[
+{ty:'gp',ev:0,car:0,c:{tod:'noon',wx:'sun'},cam:'track',f:.62,v:62,dur:5},
+{ty:'gp',ev:1,car:0,c:{tod:'evening',wx:'sun'},cam:'front',f:.12,v:48,dur:5},
+{ty:'gp',ev:2,car:0,c:{tod:'evening',wx:'sun'},cam:'side',f:.3,v:36,dur:5},
+{ty:'rl',ev:9,car:3,c:{tod:'night',wx:'rain'},cam:'cock',f:.33,v:22,dur:6},
+{ty:'rl',ev:10,car:3,c:{tod:'noon',wx:'snow'},cam:'heli',f:.42,v:21,dur:5,dr:.3},
+{ty:'rx',ev:3,car:1,c:{tod:'noon',wx:'sun'},cam:'chase',f:.04,v:28,dur:5,dr:.25},
+{ty:'rx',ev:4,car:1,c:{tod:'noon',wx:'sun'},cam:'track',f:.6,v:30,dur:5,dr:.35},
+{ty:'dp',ev:6,car:2,c:{tod:'evening',wx:'sun'},cam:'orbit',f:.3,v:22,dur:6,dr:.7},
+{ty:'dp',ev:8,car:2,c:{tod:'evening',wx:'sun'},cam:'track',f:.45,v:24,dur:5,dr:.65},
+{ty:'dg',ev:13,car:4,c:{tod:'evening',wx:'sun'},cam:'launch',f:0,v:0,dur:5.5}];
+let CINE=null,BAG=[],LASTSHOT=-1;
+// pist üzerinde s metredeki nokta ve yön (iki nokta arasında doğrusal)
+function trackAt(TR,s){const L=TR.len;s=TR.open?cl(s,0,TR.S[TR.N-1]):((s%L)+L)%L;let lo=0,hi=TR.N-1;while(lo<hi){const m=(lo+hi+1)>>1;if(TR.S[m]<=s)lo=m;else hi=m-1}
+const i=lo,j=TR.open?Math.min(i+1,TR.N-1):(i+1)%TR.N,sl=((j>i?TR.S[j]:TR.len)-TR.S[i])||1,u=cl((s-TR.S[i])/sl,0,1),P=TR.P[i],Q=TR.P[j],A=TR.T[i],B=TR.T[j];
+return{x:P[0]+(Q[0]-P[0])*u,z:P[1]+(Q[1]-P[1])*u,a:Math.atan2(A[0]+(B[0]-A[0])*u,A[1]+(B[1]-A[1])*u)}}
+const curvAt=(TR,s)=>ad(trackAt(TR,s+8).a-trackAt(TR,s-8).a)/16;
+// bir sonraki çekim: torba boşalana kadar her çekim bir kez, art arda aynı çekim yok
+function nextShot(){if(!BAG.length){BAG=SHOTS.map((_,i)=>i).sort(()=>Math.random()-.5);if(BAG[0]===LASTSHOT)BAG.push(BAG.shift())}return LASTSHOT=BAG.shift()}
+function cineStart(){const sh=SHOTS[nextShot()],e=EVENTS[sh.ev],r=REG[e.reg],TR=r.TR;setCar(sh.car);Object.assign(COND,sh.c);setActive(r);
+const s0=sh.f*TR.len;CINE={...sh,TR,s:s0,s0,t:0,vv:sh.v,side:Math.random()<.5?1:-1,th:Math.random()*6.28,pv:null};camMode=sh.cam=='cock'?3:0;cineCar(0);
+const cut=$('#cut');cut.style.transition='none';cut.style.opacity=1;requestAnimationFrame(()=>{cut.style.transition='opacity .45s';cut.style.opacity=0})}
+// aracı senaryoya göre yerleştir: hız, drift açısı, duman
+function cineCar(dt){const C=CINE,TR=C.TR;if(C.cam=='launch'){C.vv=C.t<1.3?0:Math.min(95,C.vv+15*dt)}C.s+=C.vv*dt;
+const p=trackAt(TR,C.s),k=curvAt(TR,C.s),dr=C.dr?C.dr*cl(Math.abs(k)*45,.35,1)*Math.sign(k||1):0,h=p.a+dr,x=p.x+(C.cam=='launch'?0:Math.sin(C.t*.7)*.6),z=p.z;
+const vx=Math.sin(p.a)*C.vv,vz=Math.cos(p.a)*C.vv,pw=S.w;S.w=dt?ad(h-S.h)/dt:0;S.axs=dt?(C.vv-Math.hypot(S.vx,S.vz))/dt:0;S.x=x;S.z=z;S.y=H(x,z);S.h=h;S.vx=vx;S.vz=vz;S.air=false;S.gas=1;delta=cl(-dr*.8+k*3,-.5,.5);
+const burn=C.cam=='launch'&&C.t<2.2,smoke=Math.abs(dr)>.2||burn||(C.vv>8&&surf(x,z)!=1&&Math.random()<.5);
+if(smoke&&dt){const si=surf(x,z),col=si>=4?0xf2f6f8:si==3?0x4a3524:si==1?0xe6e6e6:si==2?0x9a8f6a:0xbfa07a,fx=Math.sin(h),fz=Math.cos(h);for(const s2 of[-.9,.9])if(Math.random()<.7)puff(x-fx*1.6+Math.cos(h)*s2,S.y,z-fz*1.6-Math.sin(h)*s2,burn?Math.random()*2-1:vx*.4,burn?Math.random()*2-1:vz*.4,col)}}
+function cineTick(dt){CINE.t+=dt;cineCar(dt);if(CINE.t>CINE.dur)cineStart()}
+// kamera: çekim türüne göre; yakından hızlı geçişte sarsıntı
+function cineCam(){const C=CINE,TR=C.TR,v=C.vv,fx=Math.sin(S.h),fz=Math.cos(S.h),car_=V3(S.x,S.y+.8,S.z);let P,L=car_.clone(),fov=58,shk=0;
+if(C.cam=='track'||C.cam=='launch'){if(!C.pv){const ln=C.cam=='launch',sc=ln?C.s0+10:C.s0+C.v*2.6,q=trackAt(TR,sc),o=ln?5:(TR.hw+KW+(TR.kb?3.2:5.5))*C.side;C.pv=V3(q.x+Math.cos(q.a)*o,0,q.z-Math.sin(q.a)*o);
+// kamera yol yüksekliğinin altında kalmasın (yükseltili pistlerde set arkasında kalmasın)
+C.pv.y=Math.max(H(C.pv.x,C.pv.z),H(q.x,q.z))+(ln?.5:1.1)}
+P=C.pv.clone();const d=P.distanceTo(car_);fov=C.cam=='launch'?50:cl(18+d*.55,24,60);shk=Math.max(0,1-d/18)*v/50*.35+(C.cam=='launch'&&C.t<2.2?.04:0)}
+else if(C.cam=='front'){const q=trackAt(TR,C.s+11-C.t*1.2);P=V3(q.x,H(q.x,q.z)+.7,q.z);fov=50;shk=.015}
+else if(C.cam=='side'){const q=trackAt(TR,C.s+2),o=8*C.side;P=V3(q.x+Math.cos(q.a)*o,0,q.z-Math.sin(q.a)*o);P.y=H(P.x,P.z)+1.3;fov=46;shk=.01}
+else if(C.cam=='chase'){P=V3(S.x-fx*5.2,S.y+1.05,S.z-fz*5.2);L=V3(S.x+fx*8,S.y+.7,S.z+fz*8);fov=72;shk=.06}
+else if(C.cam=='heli'){P=V3(S.x+Math.cos(S.h)*18*C.side-fx*8,S.y+13,S.z-Math.sin(S.h)*18*C.side-fz*8);fov=44}
+else if(C.cam=='orbit'){const a=C.th+C.t*.45;P=V3(S.x+Math.sin(a)*7.5,S.y+1.5,S.z+Math.cos(a)*7.5);fov=55}
+else return;// kokpit: normal araç içi kamera
+P.x+=(Math.random()-.5)*shk;P.y+=(Math.random()-.5)*shk;cam.position.copy(P);cam.up.set(0,1,0);cam.lookAt(L);cam.fov=fov;cam.updateProjectionMatrix()}
+function demoStart(){if(DEMO)return;DEMO={sv:{car:CARS.indexOf(CAR),PK,LK,TU:{...TU},AS:{...AS},tire,custom,cond:{...COND},cam:camMode}};cineStart()}
+function demoStop(){if(!DEMO)return;const v=DEMO.sv;DEMO=null;CINE=null;if(CARS[v.car]!==CAR)setCar(v.car);PK=v.PK;LK=v.LK;TU=v.TU;AS=v.AS;tire=v.tire;custom=v.custom;camMode=v.cam;Object.assign(COND,v.cond);I.g=I.b=0;I.sa=0;$('#cut').style.opacity=0}
 // ---------- küçük resimler: araçlar garajda çekilir, pist şekilleri çizilir
 const THUMB={};
 function carThumbs(){if(THUMB.car)return;THUMB.car=[];const keep=CARS.indexOf(CAR),vis=[MAP.g.visible,ground.visible],cp=cam.position.clone(),cf=cam.fov;
