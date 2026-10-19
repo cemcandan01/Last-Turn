@@ -1,7 +1,7 @@
 // Last Turn service worker: oyun dosyaları internet varken her açılışta ağdan tazelenir,
 // yoksa önbellekten açılır. Three.js ve simgeler değişmediği için önce önbellekten gelir.
-const CACHE='last-turn-v2';
-const CORE=['./','index.html','manifest.webmanifest','vendor/three.min.js','icons/icon-192.png','icons/icon-512.png','icons/apple-touch-icon.png','img/tur_gp.jpg','img/tur_rx.jpg','img/tur_rl.jpg','img/tur_dp.jpg','img/tur_dg.jpg'];
+const CACHE='last-turn-v3';
+const CORE=['./','index.html','css/stil.css','js/temel.js','js/sahne.js','js/pistler.js','js/ortam.js','js/bolgeler.js','js/araclar.js','js/garaj.js','js/fizik.js','js/dongu.js','js/yarislar.js','js/menu.js','js/pwa.js','manifest.webmanifest','vendor/three.min.js','icons/icon-192.png','icons/icon-512.png','icons/apple-touch-icon.png','img/tur_gp.jpg','img/tur_rx.jpg','img/tur_rl.jpg','img/tur_dp.jpg','img/tur_dg.jpg'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==location.origin)return;

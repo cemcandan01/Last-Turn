@@ -41,3 +41,9 @@ Oyun derleme gerektirmeyen statik dosyalardan oluşur; repo kökü olduğu gibi 
 ## Sonraki adım: App Store / TestFlight
 
 Oyun tamamlandığında aynı kod Capacitor ile native iOS uygulamasına sarılabilir (Mac + Xcode + Apple Developer hesabı gerekir).
+
+## Geliştirme
+
+- Kod `js/` altında konulara göre bölünmüş durumda. Dosya haritası, kurallar ve testler için: `CLAUDE.md`.
+- Testler: `cd tools && npm install && node test.mjs` (fizik için `--tam`, ekran görüntüleri için `--goruntu`).
+- Her geliştirme alanı için yeni sohbete yapıştırılacak istemler: `docs/GELISTIRME.md`.
