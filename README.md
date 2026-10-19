@@ -5,7 +5,8 @@ iPhone için 3D sürüş ve yarış oyunu. Ana ekrana kurulan bir uygulama (PWA)
 ## İçerik
 
 - **Açık dünya** (serbest sürüş): *Çorak Topraklar* (oval, uzun düz yol, zıplama rampası, tırmanış yolu) ve *Boş Otopark* (AVM önünde geniş açık otopark, asfalt testleri için).
-- **15 yarış** (menüden seçilir): 3 asfalt pist, 3 toprak pist, 3 drift parkı, 3 ralli etabı ve 3 drag pisti (201 m, 402 m, 805 m).
+- **15 yarış**, her pistin kendi teması var: Grand Prix (tribünler, tepeli), Kıyı Pisti (gün batımı, deniz), Şehir Pisti (gece, gökdelenler, beton duvarlar), Çamur Vadisi, Taş Ocağı (asfalt-toprak karışık), Orman Kros (sisli), Drift Parkı, Liman (konteynerler, vinçler), Dağ Yolu (büyük iniş-çıkışlar, bariyerler), Orman Etabı, Tepe Etabı (karlı), Vadi Etabı (çöl) ve 3 drag pisti.
+- **Garaj**: araçları dönen platformda incele, azami hız, hızlanma, güç, yol tutuşu, arazi, fren ve çeviklik değerlerini karşılaştır. Her yarıştan önce araç seçilir.
 - **5 araç**, her yarış türü için bir tane: *Kızıl Ok* (ortadan motorlu pist arabası), *Kor RX* (dört çeker rallikros), *Beyaz Kurt* (geniş gövdeli drift arabası), *Mavi Yıldız* (dört çeker ralli sedanı), *Gece Mavisi* (kompresörlü drag arabası). Yarışa varsayılan olarak türüne uygun araçla girilir.
 - Lastik ve araç ayarları, sürüş yardımı seviyeleri, üç direksiyon modu (tuşlar, ekran direksiyonu, telefonu çevirme), üç gaz modu (tuş, analog pedal, otomatik) dört kamera ve ekran yönü kilidi (otomatik, dikey, yatay).
 
