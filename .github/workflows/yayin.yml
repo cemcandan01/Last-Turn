@@ -1,0 +1,70 @@
+# Yayın: master → https://cemcandan01.github.io/Last-Turn/ , gelistirme dalı → .../Last-Turn/dev/ (deneme sürümü).
+# Testler geçmezse yayın yapılmaz, telefondaki sürüm değişmez. Deneme sürümü derlenemezse yalnız ana sürüm yayınlanır.
+# Gerekli tek ayar: Settings → Pages → Build and deployment → Source: GitHub Actions
+name: Yayın
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  derle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Ana sürüm (master)
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+            npx playwright install --with-deps chromium
+            npm run typecheck
+            npm run lint
+            npm test
+            npm run build
+            npm run test:e2e
+            mv dist site
+          else
+            # derleme adımı olmayan eski yapı: dosyalar olduğu gibi
+            mkdir site
+            rsync -a --exclude='.git*' --exclude=tools --exclude=docs --exclude=.claude ./ site/
+          fi
+      - name: Deneme sürümü (gelistirme dalı → /dev/)
+        run: |
+          if git ls-remote --exit-code --heads origin gelistirme > /dev/null; then
+            git fetch --depth 1 origin gelistirme
+            git worktree add ../gel FETCH_HEAD
+            cd ../gel
+            if npm ci && npx playwright install --with-deps chromium && npm test && npx vite build --mode gelistirme && npm run test:e2e; then
+              mv dist "$GITHUB_WORKSPACE/site/dev"
+            else
+              mkdir -p "$GITHUB_WORKSPACE/site/dev"
+              echo '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Deneme</title><p style="font:18px sans-serif;padding:24px">Deneme sürümü derlenemedi ya da testleri geçmedi. Ana sürüm etkilenmedi.</p>' > "$GITHUB_WORKSPACE/site/dev/index.html"
+            fi
+          fi
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  yayinla:
+    needs: derle
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.dep.outputs.page_url }}
+    steps:
+      - id: dep
+        uses: actions/deploy-pages@v4
