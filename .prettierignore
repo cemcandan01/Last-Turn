@@ -7,3 +7,5 @@ package-lock.json
 *.md
 # eski kurulu uygulamalar sürümü APP_VERSION='...' kalıbıyla arar: tırnaklar değişmemeli
 index.html
+# regresyon kayıtları regression sohbetinin ürettiği JSON'lar
+docs/regresyon/

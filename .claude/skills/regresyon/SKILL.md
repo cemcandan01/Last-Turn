@@ -16,7 +16,7 @@ Merkez ve bildirimler: `merkez` skill'i (sayfayı tazele, sonra bildir). Durumu 
 git fetch origin --prune
 git ls-remote --exit-code --heads origin regresyon      # açık regresyon var mı
 git show origin/regresyon:docs/regresyon/durum.json     # varsa: suruyor | onay-bekliyor | tamamlandi
-git rev-list --count --no-merges origin/master..origin/gelistirme   # canlıda olmayan yeni iş
+git rev-list --count --no-merges origin/master..origin/gelistirme -- src public index.html vite.config.ts tsconfig.json   # canlıda olmayan oyun işi (sürüm açma, sürüm numarası, kural commit'leri sayılmaz)
 for b in $(git branch -r --format='%(refname:short)' | grep -vE '^origin/(HEAD|master|gelistirme|regresyon)$'); do
   n=$(git rev-list --count --no-merges origin/gelistirme..$b); [ "$n" != 0 ] && echo "$b: $n commit push bekliyor"
 done
@@ -37,7 +37,7 @@ git checkout -B regresyon origin/gelistirme
 npm ci
 mkdir -p docs/regresyon && echo '{"surum":"0.1.37","asama":"suruyor","not":"0.1.37 test ediliyor","tarih":"<ISO>"}' > docs/regresyon/durum.json
 git add docs/regresyon && git commit -m "Regresyon 0.1.37 başladı"
-git push -u origin regresyon       # dondurma işareti: bu dal durdukça konu sohbetleri denemeye gönderemez
+git push -u --force-with-lease origin regresyon   # dondurma işareti (dal önceki regresyondan kalır, yeniden kurulur): bu dal durdukça konu sohbetleri denemeye gönderemez
 ```
 Merkezi tazele (aşama "Regresyon sürüyor"). `durum.json`'daki `not`u her aşamada güncel tut (ör. "İlk koşum: 3 hata, düzeltiliyor"); merkez bunu gösterir.
 Sürüm adı `package.json`'daki sürümdür (ör. 0.1.37); raporlarda bu adı kullan. Sürüme hangi dalların hangi işlerle girdiğini çıkar: her dal için `git log --no-merges --format='%h %s' origin/master..origin/<dal>`.
@@ -96,9 +96,8 @@ git checkout master && git pull origin master && git merge --no-ff --no-edit reg
   git checkout gelistirme && git pull origin gelistirme && git merge --no-edit master
   npm version minor --no-git-tag-version          # 0.1.37 → 0.2.0
   git commit -am "Sürüm 0.2 başladı" && git push origin gelistirme
-  git push origin --delete regresyon              # dondurma kalkar
   ```
-  Dal silinemezse (ortam reddederse): `regresyon` dalında `durum.json`'u `"asama": "tamamlandi"` yapıp gönder; dondurma böyle de kalkar.
+  Dondurmayı kaldır: `regresyon` dalında `durum.json`'u `"asama": "tamamlandi"` yap, commit'le, gönder (bulut ortamı dal silmeyi reddeder; dal kalır, "tamamlandi" dondurmanın kalktığı anlamına gelir; bir sonraki regresyon dalı yeniden kurar).
 - Merkezi tazele ve bildir ("<sürüm> canlıda, canlı duman geçti. <sonraki sürüm> başladı.").
 - Kullanıcıya kısa yaz: canlıya çıkan sürüm, canlı duman sonucu, "0.2 geliştirmeleri başladı, konu sohbetlerinde 'push' diyebilirsin".
 
