@@ -210,9 +210,13 @@ console.log("Ses");
     while (performance.now() - t0 < 8000 && !(LT.sesBilgi().durum == "running" && LT.sesBilgi().motor))
       await new Promise((r) => setTimeout(r, 50));
     const surus = LT.sesBilgi();
-    const t1 = LT.sim.d.zaman;
+    // kendi sürüşü: önceki testler aracı yarışta ya da menüde bırakmış olabilir
+    LT.startWorld(1);
+    const t1 = LT.sim.d.zaman,
+      g0 = performance.now();
     LT.I.g = 1;
-    while (LT.sim.d.zaman - t1 < 1) await new Promise((r) => setTimeout(r, 20));
+    while (LT.sim.d.zaman - t1 < 1 && performance.now() - g0 < 10000)
+      await new Promise((r) => setTimeout(r, 20));
     LT.I.g = 0;
     LT.showMenu(["home"]);
     await new Promise((r) => setTimeout(r, 300));
