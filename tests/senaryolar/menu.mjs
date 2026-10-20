@@ -25,4 +25,10 @@ export default [
     p: 3,
     tarayici: "gecis",
   },
+  {
+    id: "arka-video",
+    ad: "Menü arka plan videosu: menüde oynuyor ve 3B çizim duruyor, sürüşte gizli",
+    p: 2,
+    tarayici: "arka-video",
+  },
 ];

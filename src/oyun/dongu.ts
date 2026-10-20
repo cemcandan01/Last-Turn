@@ -7,6 +7,7 @@ import { ekran } from "../cekirdek/ekran";
 import { kareKaydet } from "../cekirdek/performans";
 import { bildirimTick, note } from "../arayuz/bildirim";
 import { engine, hudGuncelle, motor } from "../arayuz/hud";
+import { arkaVideoTick } from "../arayuz/arka-video";
 import { duzenleyici } from "../arayuz/hud-duzenleyici";
 import { miniHaritaCiz } from "../arayuz/mini-harita";
 import { body, car, model } from "../cizim/arac-modeli";
@@ -46,6 +47,13 @@ function kare(ts: number) {
   const dt = Math.min(0.1, (ts - last) / 1000 || 0);
   last = ts;
   tt += dt;
+  // menüde arka plan videosu ekranı kaplıyorsa 3B sahne hiç çizilmez (pil ve ısı); ses ve bildirimler sürer
+  if (arkaVideoTick()) {
+    bildirimTick(dt);
+    sesTick(dt);
+    requestAnimationFrame(kare);
+    return;
+  }
   const { mode } = oyun,
     EV = yaris.EV,
     S = sim.S;
