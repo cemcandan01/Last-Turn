@@ -41,7 +41,7 @@ export function surucuKur(a: SurusAyari) {
     surf: surfW,
     yakin: (x, z) => dunya.cols.yakin(x, z),
     kutu: () => kutu,
-    kerbli: () => !!(dunya.cur && dunya.cur.kerb),
+    kerb: (x, z) => (dunya.cur && dunya.cur.Hk ? dunya.cur.Hk(x, z) : 0),
     havaTutusu: () => havaTutusu(tema, wx),
     karli: () => tema == "snow",
   };

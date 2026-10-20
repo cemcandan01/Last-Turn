@@ -39,7 +39,7 @@ const dunyaSorgusu: DunyaSorgusu = {
   surf: surfW,
   yakin: (x, z) => dunya.cols.yakin(x, z),
   kutu: () => (yaris.EV ? REG[yaris.EV.reg].box : oyun.CURW.box),
-  kerbli: () => !!(dunya.cur && dunya.cur.kerb),
+  kerb: (x, z) => (dunya.cur && dunya.cur.Hk ? dunya.cur.Hk(x, z) : 0),
   havaTutusu: () => ortam.g,
   karli: () => ortam.k == "snow",
 };

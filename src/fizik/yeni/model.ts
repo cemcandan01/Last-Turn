@@ -771,7 +771,13 @@ export function yeniAdim(
     vt2 = Y.vx * fz - Y.vz * fx;
   S.axs += ((vl2 - Y.vlOnce) / dt - S.axs) * Math.min(1, dt * 8);
   Y.vlOnce = vl2;
-  S.kerb = W.kerbli() && !S.air && W.H(S.x, S.z) > 0.02 ? 1 : 0;
+  // kerb sarsıntısı: yere değen bir teker kerbin üstündeyse (yokuşlu pistte taban yükseklik sayılmaz)
+  S.kerb = 0;
+  for (let i = 0; i < 4 && !S.air; i++) {
+    if (!Y.tk[i].temas) continue;
+    noktaDunya(Y, F, F.tk[i].x, 0, F.tk[i].z, T1);
+    if (W.kerb(T1.x, T1.z) > 0.02) S.kerb = 1;
+  }
   S.spin = kMaxArka > 0.3 && v2 < 25 ? 1 : 0;
   const dri = driftSkoru(d, v2, vl2, vt2, dt);
   tozVeDuman(d, cx, si, v2, !S.air && v2 > 5 && (kMaxArka > 0.25 || aMaxArka > 0.3 || dri));
