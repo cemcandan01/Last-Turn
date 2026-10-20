@@ -78,7 +78,7 @@ Yalnız kullanıcı bu sohbette "push" / "onay" / "canlıya al" deyince:
 git checkout master && git pull origin master && git merge --no-ff --no-edit regresyon
 ```
 - `README.md` "İçerik" bölümüne bu sürümde oyuncunun göreceği özellikleri ekle.
-- Sürüm numarası değişmez (canlıya denemede denenen sürüm çıkar). `npm run kontrol`; `git commit -am "Yayın 0.1.37"` (değişiklik yoksa merge commit'i yeter); `git tag v0.1.37`; `git push origin master --tags`.
+- Sürüm numarası değişmez (canlıya denemede denenen sürüm çıkar). `npm run kontrol`; merge commit başlığı ya da ek commit `Yayın 0.1.37: …` olsun (sürümün kalıcı kaydı budur); `git push origin master`. Sonra etiketi dene: `git tag v0.1.37 && git push origin v0.1.37`; bulut ortamı etiket gönderimini reddederse (403) bırak, kayıt "Yayın" commit'idir.
 - GitHub Actions'ta "Yayın" iş akışının `canli-duman` adımını izle (`mcp__github__actions_list`). Kalırsa açılan "Canlı duman hatası" kaydını oku, düzelt ve kullanıcıya bildir (acil düzeltme: `CLAUDE.md` → "Acil düzeltme").
 - Sonraki sürümü aç:
   ```
