@@ -61,6 +61,8 @@ export interface Bolge extends Partial<Omit<PistTanimi, "t" | "n" | "th">> {
   H: (x: number, z: number) => number;
   surf: (x: number, z: number) => number;
   build: () => void;
+  /** kerb yüksekliği (taban hariç): kerb sarsıntısı yalnız teker kerbe çıkınca */
+  Hk?: (x: number, z: number) => number;
   /** taban yükseklik (kerbsiz) */
   Hb?: ((x: number, z: number) => number) | null;
   inMud?: (x: number, z: number) => boolean;
@@ -204,7 +206,7 @@ function mkReg(def: PistTanimi, k: number): Bolge {
     R.kerb = 1;
     const A = def.el || 0,
       ep = def.ep || 0,
-      HK = Hkerb(TR),
+      HK = (R.Hk = Hkerb(TR)),
       nG = gridNear(TR);
     // pist çizgisi boyunca yükseklik: pist boyunca konumun (s) düzgün fonksiyonu (kapalı pistte başı sonuna bağlanır);
     // çevre arazisi yarı yükseklikte ve bölge kenarında sıfıra iner
