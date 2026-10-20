@@ -12,7 +12,7 @@ Sayfa: https://claude.ai/artifact/MNacFzHf5D2kibH1MEyXkq (Claude uygulamasında 
 1. `git fetch origin --prune && node tests/surec/merkez-durumu.mjs` → `tests/cikti/merkez.json` (aşama, ne yapılacağı, dallar, son olaylar, son regresyon tablosu).
 2. Yükle: `Artifact` aracı, `url` yukarıdaki sayfa, `file_path` = `tests/cikti/merkez.json`, `asset: true`. Yanıttaki `/_blob/<id>` adresini al.
 3. `ArtifactData` `get` → `datasets` / `durum` (sürümünü ve eski `source.url`'yi not al), sonra `update` aynı belge, `if_version` ile: `{"source": {"kind": "file", "url": "<yeni /_blob adresi>", "name": "merkez.json"}, "updated": {"at": "<ISO zaman>", "by": "<dal> sohbeti"}}`. Sürüm çakışırsa (başka bir sohbet de tazeledi) yeniden `get` ve tekrar dene.
-4. Eski dosyayı sil: `Artifact` `action: "delete"`, `url` sayfa, `path` eski adresin 32 haneli kimliği (yalnız 3. adım başarılıysa; yoksa yeni dosya sayfada görünmez).
+4. Eski dosyayı **silme**: sistem her silmeyi kullanıcıya onaylatır, sohbetler bunu kendi başına yapamaz. Eski dosyalar küçüktür (~5 KB; sayfanın sınırı 5000 dosya, 1 GB); yer sorunu yoktur. Toplu temizliği kullanıcı yanındayken `kurallar` sohbeti yapar.
 5. Bir adım reddedilirse (izin, ağ) işi durdurma: kullanıcıya tek satırla söyle, bildirimi yine gönder.
 
 ## Bildir
