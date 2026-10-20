@@ -19,7 +19,7 @@ export { hudDuzenleyiciAc, hudDuzenleyiciKapat, duzenleyici } from "../arayuz/hu
 export { oyun, setCar } from "./durum";
 export { I } from "./girdi";
 export { kurulum, applyPreset } from "./kurulum";
-export { demoStop } from "./sinematik";
+export { demoStop, CINE } from "./sinematik";
 export { sim, reset } from "./surus";
 export { EVENTS, startEvent, yaris } from "./yarislar";
 import { tt } from "./dongu";
