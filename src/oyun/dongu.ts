@@ -19,6 +19,7 @@ import { parcacikTick } from "../cizim/parcaciklar";
 import { cam, R, scene } from "../cizim/sahne";
 import { V3 } from "../cizim/yardimci";
 import { zeminTasi } from "../cizim/zemin";
+import { sesTick } from "../ses/ses";
 import { REG } from "../dunya/bolgeler";
 import { Hw } from "../dunya/dunya";
 import { VMAX } from "../fizik/veriler";
@@ -104,6 +105,7 @@ function kare(ts: number) {
     hudGuncelle(v);
     miniHaritaCiz(gx, gz, Math.sin(gh), Math.cos(gh));
   }
+  sesTick(dt);
   const t2 = performance.now();
   R.render(scene, cam);
   const t3 = performance.now();

@@ -25,3 +25,5 @@ import { tt } from "./dongu";
 /** görsel saat */
 export const saat = () => tt;
 export const surum = __APP_VERSION__;
+export { sesKaydi } from "../ses/kayit";
+export { sesBilgi } from "../ses/ses";
