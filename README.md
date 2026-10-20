@@ -8,10 +8,11 @@ iPhone için 3D sürüş ve yarış oyunu. Ana ekrana kurulan bir uygulama (PWA)
 - **15 yarış**, her pistin kendi teması var: Grand Prix (tribünler, tepeli), Kıyı Pisti (gün batımı, deniz), Şehir Pisti (gece, gökdelenler, beton duvarlar), Çamur Vadisi, Taş Ocağı (asfalt-toprak karışık), Orman Kros (sisli), Drift Parkı, Liman (konteynerler, vinçler), Dağ Yolu (büyük iniş-çıkışlar, bariyerler), Orman Etabı, Tepe Etabı (karlı), Vadi Etabı (çöl) ve 3 drag pisti.
 - **Garaj**: araçları dönen platformda incele, azami hız, hızlanma, güç, yol tutuşu, arazi, fren ve çeviklik değerlerini karşılaştır. Her yarıştan önce araç seçilir.
 - **5 araç**, her yarış türü için bir tane: *Kızıl Ok* (ortadan motorlu pist arabası), *Kor RX* (dört çeker rallikros), *Beyaz Kurt* (geniş gövdeli drift arabası), *Mavi Yıldız* (dört çeker ralli sedanı), *Gece Mavisi* (kompresörlü drag arabası). Yarışa varsayılan olarak türüne uygun araçla girilir.
-- **Ana menü**: Yarış, Serbest sürüş, Garaj, Profil, Ayarlar; arkada canlı yarış. Yarış türü → pist listesi (şekil, uzunluk, ortalama süre, kişisel rekor) → günün saati ve hava → araç seçimi.
+- **Ana menü**: ekranın altında soldan sağa görselli kartlar (Yarış, Serbest sürüş, Garaj, Profil, Ayarlar); arkada her yarış türünden sinematik çekimler akar. Yarış türü → pist listesi (şekil, uzunluk, ortalama süre, kişisel rekor) → günün saati ve hava → araç seçimi.
 - **Koşullar**: sabah, öğlen, akşam; güneşli, yağmurlu, karlı (yağışta zemin kayganlaşır). Gölgeler.
 - **Fizik motoru:** 4 teker, süspansiyon, gerçek vites ve patinaj; gövde frende öne, virajda yana yatar. Toprakta lastik sınırı aşılınca araç kayar.
 - **Göstergeler (HUD)** (Ayarlar → Göstergeler): hız, sayaç, tuşlar ve harita ayrı ayrı seçilir, önizlemede anında görünür; hazır düzenler Köşe, Kadran, Bant, Sade. Göstergeler aracı kapatmaz; gaz ve fren pedal biçiminde.
+- **Sesler**: oyunun içinde üretilir; her aracın kendi motor sesi (turbo, valf, patlamalar), lastik, zemin, rüzgâr, kerb ve çarpma sesleri, yarış ve arayüz sesleri. Menüde rock müzik çalar, sürüşte müzik yok (Ayarlar'da ses ve müzik seviyesi).
 - **Performans göstergesi** (Ayarlar → Mekanikler): kare hızı, fizik ve çizim süresi.
 - Lastik ve araç ayarları, sürüş yardımı seviyeleri, üç direksiyon modu (tuşlar, ekran direksiyonu, telefonu çevirme), üç gaz modu (tuş, analog pedal, otomatik) dört kamera. Oyun yatay ekranda oynanır.
 

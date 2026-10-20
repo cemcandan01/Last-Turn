@@ -1,8 +1,6 @@
 {
   "kip": "regresyon",
-  "dallar": [
-    "--sure"
-  ],
+  "dallar": ["--sure"],
   "dk": 2.1,
   "ozet": {
     "fizik": {
