@@ -1,5 +1,7 @@
 # Yayın: master → https://cemcandan01.github.io/Last-Turn/ , gelistirme dalı → .../Last-Turn/dev/ (deneme sürümü).
-# Testler geçmezse yayın yapılmaz, telefondaki sürüm değişmez. Deneme sürümü derlenemezse yalnız ana sürüm yayınlanır.
+# Yayından önce duman testi (tip denetimi, kod denetimi, hızlı tarayıcı turu); geçmezse yayın yapılmaz, telefondaki sürüm
+# değişmez. Deneme sürümü derlenemezse yalnız ana sürüm yayınlanır. Yayından sonra canlı adreste duman koşar; bozulma
+# varsa "Canlı duman hatası" kaydı (issue) açılır.
 # Gerekli tek ayar: Settings → Pages → Build and deployment → Source: GitHub Actions
 name: Yayın
 
@@ -33,9 +35,7 @@ jobs:
             npx playwright install --with-deps chromium
             npm run typecheck
             npm run lint
-            npm test
-            npm run build
-            npm run test:e2e
+            node tests/kosucu.mjs duman
             mv dist site
           else
             # derleme adımı olmayan eski yapı: dosyalar olduğu gibi
@@ -48,7 +48,7 @@ jobs:
             git fetch --depth 1 origin gelistirme
             git worktree add ../gel FETCH_HEAD
             cd ../gel
-            if npm ci && npx playwright install --with-deps chromium && npm test && npx vite build --mode gelistirme && npm run test:e2e; then
+            if npm ci && npx playwright install --with-deps chromium && npx vite build --mode gelistirme && node tests/kosucu.mjs duman --derlemeden; then
               mv dist "$GITHUB_WORKSPACE/site/dev"
             else
               mkdir -p "$GITHUB_WORKSPACE/site/dev"
@@ -68,3 +68,44 @@ jobs:
     steps:
       - id: dep
         uses: actions/deploy-pages@v4
+
+  canli-duman:
+    needs: yayinla
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci && npx playwright install --with-deps chromium
+      - name: Yeni sürüm canlıda mı
+        run: |
+          V=$(node -p "require('./package.json').version")
+          A="https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/"
+          echo "ADRES=$A" >> "$GITHUB_ENV"
+          for i in $(seq 1 40); do
+            curl -fsS "$A?$(date +%s)" | grep -q "APP_VERSION='$V'" && exit 0
+            sleep 15
+          done
+          echo "canlı adreste $V görünmedi"; exit 1
+      - name: Canlı duman (ana sürüm)
+        run: node tests/kosucu.mjs duman --adres "$ADRES"
+      - name: Canlı duman (deneme sürümü)
+        if: always()
+        run: |
+          curl -fsS "${ADRES}dev/" | grep -q APP_VERSION || { echo "deneme sürümü yok"; exit 0; }
+          cp tests/cikti/rapor.md tests/cikti/rapor-ana.md 2>/dev/null || true
+          node tests/kosucu.mjs duman --adres "${ADRES}dev/"
+      - name: Hata kaydı
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo "Yayından sonra canlı adreste duman testi kaldı: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"; echo;
+            cat tests/cikti/rapor-ana.md tests/cikti/rapor.md 2>/dev/null; } > govde.md
+          gh issue create --title "Canlı duman hatası: $(node -p "require('./package.json').version")" --body-file govde.md

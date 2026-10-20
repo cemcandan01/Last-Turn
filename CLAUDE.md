@@ -4,9 +4,10 @@ iPhone'da ana ekrana kurulan (PWA) 3D yarış oyunu. **TypeScript + Vite + Three
 
 - `master` → https://cemcandan01.github.io/Last-Turn/ (kullanıcının telefonundaki oyun)
 - `gelistirme` dalı → https://cemcandan01.github.io/Last-Turn/dev/ (deneme sürümü; ayrı ad, ayrı önbellek). Ortak deneme alanıdır: içinde çalışılmaz, konu dalları buraya birleştirilir.
-- **Konu dalları:** her sohbet kendi dalında çalışır (`hud`, `fizik`, `garaj`, `menu`, `pist`, `altyapi` gibi; sohbetin alanının kısa adı). Ayrıntı: "Dallar ve yayın".
+- **Konu dalları:** her sohbet kendi dalında çalışır (`hud`, `fizik`, `garaj`, `menu`, `pist`, `ses`, `altyapi` gibi; sohbetin alanının kısa adı). Ayrıntı: "Dallar ve yayın".
+- **Özel sohbetler:** `kurallar` dalı (bu dosyanın, skill'lerin ve geliştirme sürecinin yönetimi), `regresyon` dalı ("regression" sohbeti: gece regresyonu, `regresyon` skill'i).
 
-Her iki yayında da testler geçmezse yayın yapılmaz. Kullanıcı uygulamayı internet varken açınca yeni sürüm iner.
+Her iki yayında da duman testi geçmezse yayın yapılmaz; yayından sonra canlı adreste duman koşar. Kullanıcı uygulamayı internet varken açınca yeni sürüm iner.
 
 Kullanıcı Türkçe konuşur, iPhone 13'te yatay oynar, kod okumaz. Arayüz metinleri, kod yorumları, commit mesajları ve kullanıcıya yazılan özetler Türkçe. Kod tanımlayıcıları İngilizce ya da Türkçe olabilir; çevredeki kodla aynı olsun.
 
@@ -15,14 +16,18 @@ Kullanıcı Türkçe konuşur, iPhone 13'te yatay oynar, kod okumaz. Arayüz met
 1. Kendi konu dalına geç: `git fetch origin`; dal varsa `git checkout <konu> && git pull origin <konu> && git merge origin/master`, yoksa `git checkout -b <konu> origin/master`. Ortamın atadığı bir dal adı varsa onu konu dalı olarak kullan. `master` ya da `gelistirme` üzerinde doğrudan çalışma.
 2. Bağımlılıklar oturum başında kendiliğinden kurulur (`.claude/oturum-basi.sh`). Kurulmadıysa: `npm ci`.
 3. Bu dosyayı ve "Kullanıcının kararları" bölümünü oku. Önceki işler: `git log --oneline -20`. Mimari: `docs/MIMARI.md`.
-4. İş bitince `surum-yayinla` skill'iyle denemeye ya da ana sürüme gönder ("Dallar ve yayın"). Çakışma olursa diğer sohbetin işini koruyarak birleştir.
+4. İş bitince `surum-yayinla` skill'iyle denemeye ya da (kullanıcı "push" deyince) ana sürüme gönder ("Dallar ve yayın"). Çakışma olursa diğer sohbetin işini koruyarak birleştir.
 5. Kalıcı bir karar alınırsa (kullanıcı "bundan sonra hep şöyle olsun" derse) "Kullanıcının kararları" bölümüne bir satır ekle.
 
 ## Komutlar
 
 ```
-npm run kontrol       # hepsi: tip denetimi, ESLint, birim testleri, derleme, tarayıcı testi (~1 dk)
-npm test              # birim ve fizik testleri (Node, ~2 sn)
+npm run kontrol       # yayın öncesi: tip denetimi, ESLint, biçim, duman (~30 sn)
+npm run alan -- fizik # duman + bir dalın (ya da fizik,hud gibi birkaçının) bütün senaryoları
+npm run duman         # hızlı tur: derleme, temel birim testleri, tarayıcıda açılış/yarışlar/garaj/sürüş (~15 sn)
+npm run regresyon     # bütün dalların bütün senaryoları önem sırasıyla (en fazla 55 dk); gece koşumu
+npm run kontrol:tam   # eskisi gibi her şey: bütün birim testleri + bütün tarayıcı bölümleri (~2 dk)
+npm test              # bütün birim ve fizik testleri (Node, ~40 sn)
 npm run build         # dist/ (ana sürüm)
 npm run test:e2e      # derlenmiş oyun başsız Chromium'da (önce build)
 npm run test:goruntu  # + ekran görüntüleri tests/cikti/ (menü, garaj, yarış, kokpit, 15 pist)
@@ -54,10 +59,12 @@ npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 | `public/` | Olduğu gibi kopyalanır: `icons/`, `img/` (`menu_*`: ana menü kartları, `tur_*`: yarış türü kartları) |
 | `tests/birim/` | Vitest `fizik`: kararlılık, hızlanma, fren, spin, toprakta sınır (frensiz tur yok, abartan spin), drift dengesi, drift yarışı (%80 tek kombo), asfaltta titreşim yok (5 araç × 9 asfalt pist, kerb sarsıntısı), kalkış, atlama, çarpışma, rastgele sürüş |
 | `tests/olcum/` | Ölçüm koşuları (`npm run olcum`): araç değerleri, tur süreleri (eski klasik motorla karşılaştırma), `ralli` (toprakta tam gaz + tam direksiyon), `drift` ve `drift-izgara` (drift pistlerinde tek kombo oranı), `titresim` (her araç her asfalt pistte poz sıçraması ve kerb sarsıntısı), adım maliyeti |
-| `tests/e2e/duman.mjs` | Playwright: derlenmiş oyunda menü, 15 yarış, dünyalar, garaj, sürüş |
+| `tests/kosucu.mjs` | Test koşucusu: `duman`, `alan <dal>`, `regresyon`, `liste`; dal dal rapor `tests/cikti/rapor.md` |
+| `tests/senaryolar/` | Her dalın senaryoları kendi dosyasında (`<dal>.mjs`): önem (P1-P3), duman, birim grubu ya da tarayıcı bölümü (`BENIOKU.md`) |
+| `tests/e2e/duman.mjs` | Playwright: derlenmiş oyunu (ya da `--adres` ile canlıyı) açar, `tests/e2e/bolumler/` bölümlerini koşar (açılış, yarışlar, garaj, sürüş, kerb, HUD); `goruntu` ekran görüntüleri |
 | `tests/veri/` | Senaryolar ve kayıtlı fizik izi |
 | `tests/yardimci/` | Node'da sürüş: test sürücüsü (`surucu`), otomatik pilot (`pilot`), drift pilotu ve drift yarışı puan kuralları (`drift-pilot`), sürüş denemeleri (`denemeler`: sanal düz zemin, frensiz tur), sahte tuval |
-| `.github/workflows/` | `denetim` (her dalda testler), `yayin` (master ve gelistirme → Pages), `deneme-tetik` |
+| `.github/workflows/` | `denetim` (konu dalında alan testi), `yayin` (duman → master ve gelistirme → Pages → canlı duman), `deneme-tetik` |
 | `docs/` | `MIMARI.md` (katmanlar, veri akışı), `GELISTIRME.md` (sohbet başlangıç istemleri), `HUD.md` (HUD standardı) |
 
 ## Kurallar ve tuzaklar
@@ -85,25 +92,38 @@ npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 
 ## Test
 
-- Fizik veya sürüş değişikliğinde `npm test` (spin, drift, toprak, titreşim). Yeni bir ölçüm gerekiyorsa `tests/birim/`'e ekle; `tests/yardimci/surucu.ts` gerçek pistte otomatik pilot kurar.
+Kullanıcı her değişikliği canlıdan önce kendi eliyle dener; otomatik test üç katmandır:
+
+| Ne zaman | Ne koşar | Komut |
+|---|---|---|
+| Geliştirirken ve göndermeden önce | Değişen dalların senaryoları + duman (tip denetimi, ESLint, biçim ayrıca) | `npm run alan -- <dal>`, `npm run kontrol` |
+| Yayında (GitHub Actions) | Duman; geçmezse yayın yok. Yayından sonra canlı adreste duman, kalırsa "Canlı duman hatası" kaydı | `yayin.yml` |
+| Geliştirme yapılan günlerin gecesi 04:00 | Regresyon: bütün dalların senaryoları P1 → P2 → P3, en fazla 55 dk ("regression" sohbeti) | `npm run regresyon` |
+
+- **Senaryo sahipliği:** her senaryo bir dala aittir (`tests/senaryolar/<dal>.mjs`) ve bir önemi vardır: P1 kritik (oyun açılmaz, sürülmez, yarış bitmez), P2 önemli (bir özellik bozulur), P3 ayrıntı. Her dal yalnız kendi senaryo dosyasını değiştirir. Yeni test yazan, onu kendi dalının dosyasına kaydeder; kayıtsız testler regresyonda `kayitsiz` satırına düşer.
+- **Duman** (`duman: true`) yalnız birkaç saniyelik, oyunun temelini denetleyen P1 senaryolardır; yavaş senaryo dumana eklenmez.
+- Fizik veya sürüş değişikliğinde `npm run alan -- fizik` (spin, drift, toprak, titreşim) ve `npm run olcum`. Yeni bir ölçüm gerekiyorsa `tests/birim/`'e ekle; `tests/yardimci/surucu.ts` gerçek pistte otomatik pilot kurar.
 - Görsel değişiklikte `npm run build && npm run test:goruntu`, sonra `tests/cikti/` görüntülerine bak.
 - Başsız tarayıcı yavaş çizer (~14 fps); beklemeleri simülasyon saatiyle (`LT.sim.d.zaman`) yap, gerçek zamanla değil.
 - WebGL karesini almak için `LT.R.render(LT.scene, LT.cam); LT.R.domElement.toDataURL()`.
-- Yeni özellik eklersen onu deneyen bir test ekle.
+- Yeni özellik eklersen onu deneyen bir test ekle ve kendi dalının senaryo dosyasına önemiyle kaydet. Test atlanmaz, kapatılmaz.
 
 ## Dallar ve yayın
 
 ```
 konu dalı (hud, fizik, …) ──merge──► gelistirme ──► /Last-Turn/dev/   (deneme: onaylanmamış işler birlikte)
-        └──────── kullanıcı onaylayınca ──merge──► master ──► /Last-Turn/ (telefondaki oyun)
+        └──────── kullanıcı "push" deyince ──merge──► master ──► /Last-Turn/ (telefondaki oyun) ──► canlı duman
+gece 04:00: gelistirme + bütün konu dalları ──► regresyon ──► düzeltmeler ──► gelistirme ──► (0 hata, "push") ──► master
 ```
 
 1. Her sohbet kendi konu dalında çalışır ve commit'lerini o dala gönderir: `git push -u origin <konu>` (Denetim testleri çalıştırır).
-2. **Denemeye gönder** (büyük ya da riskli iş, ya da kullanıcı "denemeye gönder" derse): `npm run kontrol` geçsin; `git checkout gelistirme && git pull origin gelistirme && git merge --no-ff <konu>`, çakışmayı iki işi de koruyarak çöz, `npm run kontrol`, `git push origin gelistirme`, sonra konu dalına geri dön. Deneme sürümünde başka sohbetlerin onaylanmamış işleri de bulunabilir; bu normaldir.
-3. **Ana sürüme yayınla** (kullanıcı onaylayınca, "yayınla" / "pushla" derse; küçük düzeltmeler doğrudan): `gelistirme`'yi değil **konu dalını** birleştir, böylece başka sohbetlerin onaylanmamış işleri ana sürüme girmez: `git checkout master && git pull origin master && git merge --no-ff <konu>`, sürümü artır (`npm version patch|minor --no-git-tag-version`), `npm run kontrol`, Türkçe commit, `git push origin master`. Ardından `gelistirme`'yi güncel tut: `git checkout gelistirme && git pull origin gelistirme && git merge master && git push origin gelistirme`.
-4. GitHub Actions testleri tekrar çalıştırır ve yayınlar (~3 dk). Sonucu `mcp__github__actions_list` ile kontrol et.
+2. **Denemeye gönder** (iş bitince kullanıcı telefonda denesin diye, ya da kullanıcı "denemeye gönder" derse): `npm run kontrol` ve alan testi geçsin; `git checkout gelistirme && git pull origin gelistirme && git merge --no-ff <konu>`, çakışmayı iki işi de koruyarak çöz, `npm run kontrol`, `git push origin gelistirme`, sonra konu dalına geri dön. Deneme sürümünde başka sohbetlerin onaylanmamış işleri de bulunabilir; bu normaldir.
+3. **Ana sürüme yayınla** (kullanıcı "push" / "pushla" / "yayınla" deyince; değişikliğin boyutu ne olursa olsun, kullanıcı demeden asla): `gelistirme`'yi değil **konu dalını** birleştir, böylece başka sohbetlerin onaylanmamış işleri ana sürüme girmez: `git checkout master && git pull origin master && git merge --no-ff <konu>`, sürümü artır (`npm version patch|minor --no-git-tag-version`), `npm run kontrol`, Türkçe commit, `git push origin master`. Ardından `gelistirme`'yi güncel tut: `git checkout gelistirme && git pull origin gelistirme && git merge master && git push origin gelistirme`.
+4. GitHub Actions dumanı tekrar koşar, yayınlar, sonra canlı adreste duman koşar (~5 dk). Sonucu `mcp__github__actions_list` ile kontrol et; canlı duman kalırsa açılan "Canlı duman hatası" kaydına bak, kendi işinden geldiyse hemen düzelt.
 5. Konu dalı uzun yaşıyorsa ara ara `git merge origin/master` ile güncelle (çakışmalar küçükken çözülsün). Aynı dosyanın aynı satırlarına iki sohbet dokunduysa ve hangisinin kalacağı açık değilse kullanıcıya sor.
 6. Commit, rebase ya da force-push ile başka sohbetin dalının geçmişi değiştirilmez; yalnız kendi konu dalında çalışılır.
+7. **Gece regresyonu** ("regression" sohbeti, `regresyon` skill'i): o gün herhangi bir konu dalında commit olduysa 04:00'te `gelistirme` ve bütün konu dalları `regresyon` dalında birleştirilir, regresyon koşar. Her hata onu yakalayan senaryonun dalına yazılır ve düzeltme commit'i o dalın adıyla başlar (`[fizik] …`), ama düzeltmeleri yalnız regression sohbeti, yalnız `regresyon` dalında yapar: böylece düzeltmeler birbiriyle çakışmaz. Düzeltmeler denemeye (`gelistirme`) gider, 0 hata kalana kadar regresyon tekrarlanır, kullanıcıya dal dal rapor verilir; kullanıcı o sohbette "push" deyince `regresyon` ana sürüme birleştirilir.
+8. **Çakışmalar:** gece düzeltmeleri bir konu dalının üzerinde çalıştığı dosyaya dokunduysa, o sohbet oturum başında `git merge origin/master` yaparken çakışmayı iki işi de koruyarak çözer ve dokunulan dalın senaryolarını da koşar (`npm run alan -- <konu>,<diğer>`). Kısacası: çakışmayı sonra birleştiren çözer; aynı satırı ters yönde değiştiren iki iş varsa kullanıcıya sorar.
 
 ## Kullanıcının kararları (bozma, değiştirmeden önce sor)
 
@@ -123,7 +143,9 @@ konu dalı (hud, fizik, …) ──merge──► gelistirme ──► /Last-Tur
 - Menüde yarış oyunlarına uygun rock tarzı müzik çalar; sürüşte müzik yok.
 - Altyapı: TypeScript + Vite + Three.js (npm), derleme ve yayın GitHub Actions'ta. Kod okunur biçimde yazılır (Prettier), eski sıkıştırılmış tek satır stili bırakıldı.
 - Riskli değişiklikler önce deneme sürümünde (`/dev/`) denenir.
-- Ana sürüme (`master`, telefondaki oyun) yalnız kullanıcı açıkça "ana sürüme / prod'a pushla" deyince gönderilir; küçük düzeltmeler dahil. Bitince iş konu dalına ve istenirse denemeye (`gelistirme`) gider.
+- Kullanıcı bir sohbette "push" deyince o sohbetin işi, değişikliğin boyutu ne olursa olsun ana sürüme (`master`, telefondaki oyun) gönderilir. Kullanıcı demeden ana sürüme hiçbir şey gitmez, küçük düzeltmeler dahil. Bitince iş konu dalına ve denemeye (`gelistirme`) gider.
+- Test kapsamı: canlıdan önce yalnız değişen alanın senaryoları + duman (kullanıcı ayrıca elle dener). Canlıdan sonra canlı adreste duman. Bütün dalların bütün senaryoları yalnız gece regresyonunda.
+- Gece regresyonu yalnız geliştirme yapılan günlerde (konu dallarında commit varsa) 04:00'te (İstanbul saati), "regression" sohbetinde koşar; en fazla ~1 saat, önem sırasıyla. Hatalar sahibi dalın adıyla o sohbette çözülür, 0 hata kalana kadar denemede tekrar koşulur; dal dal rapor (geçti/kaldı, hata sayısı, düzeltme sonrası sonuç) verilir; canlıya kullanıcı o sohbette "push" deyince gider.
 - Her sohbet kendi konu dalında çalışır; deneme sürümü (`gelistirme`) konu dallarının birleştiği tek ortak deneme alanıdır (telefonda tek deneme uygulaması). Ana sürüme yalnız kullanıcının onayladığı konu dalı birleştirilir.
 - Fizik motoru tek: yeni motor (katı gövde, 4 teker). Ayarlarda motor seçimi yok.
 - Rallide ve toprakta tam gaz + tam direksiyon yola tutunmaz; virajdan önce fren gerekir. Dengeli ve gerçekçide abartan spin atar.
