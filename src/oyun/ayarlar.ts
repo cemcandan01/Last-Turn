@@ -29,6 +29,52 @@ export type GazModu = "btn" | "analog" | "auto";
 /** kontrol modları */
 export const CT = { steer: "btn" as DireksiyonModu, gas: "btn" as GazModu };
 
+/** HUD (docs/HUD.md): her gösterge ayrı seçilir; hazır düzenler bunların birleşimidir */
+export const HUD_PARCALARI = {
+  hiz: {
+    n: "Hız",
+    s: { kose: "Panel", kadran: "Kadran", bant: "Üstte", sade: "Yazı" },
+  },
+  sayac: { n: "Sayaç", s: { panel: "Panel", yazi: "Yazı" } },
+  tus: { n: "Tuşlar", s: { panel: "Panel", simge: "Simge" } },
+  harita: {
+    n: "Harita",
+    s: { kare: "Kare", yuvarlak: "Yuvarlak", kucuk: "Küçük", kapali: "Kapalı" },
+  },
+} as const;
+export type HudParcasi = keyof typeof HUD_PARCALARI;
+export type HudSecimi = { [K in HudParcasi]: keyof (typeof HUD_PARCALARI)[K]["s"] };
+export type HudDuzeni = "kose" | "kadran" | "bant" | "sade";
+export const HUDLAR: Record<HudDuzeni, { n: string; d: string; p: HudSecimi }> = {
+  kose: {
+    n: "Köşe",
+    d: "Hız sağda, gaz tuşunun üstünde",
+    p: { hiz: "kose", sayac: "panel", tus: "panel", harita: "kare" },
+  },
+  kadran: {
+    n: "Kadran",
+    d: "Yuvarlak hız kadranı, yuvarlak harita",
+    p: { hiz: "kadran", sayac: "panel", tus: "panel", harita: "yuvarlak" },
+  },
+  bant: {
+    n: "Bant",
+    d: "Hız üstte ortada, alt taraf boş",
+    p: { hiz: "bant", sayac: "panel", tus: "panel", harita: "kare" },
+  },
+  sade: {
+    n: "Sade",
+    d: "Panelsiz, en az gösterge",
+    p: { hiz: "sade", sayac: "yazi", tus: "simge", harita: "kucuk" },
+  },
+};
+export const gorunum: HudSecimi = { ...HUDLAR.kose.p };
+
+/** seçim bir hazır düzene denk geliyorsa onun adı, değilse "ozel" */
+export const hudDuzeni = (): HudDuzeni | "ozel" =>
+  (Object.keys(HUDLAR) as HudDuzeni[]).find((k) =>
+    (Object.keys(gorunum) as HudParcasi[]).every((p) => HUDLAR[k].p[p] == gorunum[p]),
+  ) || "ozel";
+
 /** aç/kapat ayarları: [anahtar, ad, açıklama] */
 export const TOG: [keyof typeof set, string, string][] = [
   ["inv", "Direksiyon yönünü ters çevir", "Sağ ve sol tuşlarının yönünü değiştirir"],
@@ -43,6 +89,8 @@ export const TOG: [keyof typeof set, string, string][] = [
 interface AyarKaydi {
   set?: Partial<typeof set>;
   CT?: Partial<typeof CT>;
+  /** eski kayıtlarda hazır düzen adı (3.2 öncesi deneme), yenilerde parça seçimi */
+  hud?: HudDuzeni | Partial<HudSecimi>;
   cam?: number;
   lk?: SeviyeAnahtari;
 }
@@ -52,9 +100,16 @@ export function ayarlariYukle(): AyarKaydi {
   const k = okuJson<AyarKaydi>("lt_ayar", {});
   if (k.set) Object.assign(set, k.set);
   if (k.CT) Object.assign(CT, k.CT);
+  if (typeof k.hud == "string") {
+    if (k.hud in HUDLAR) Object.assign(gorunum, HUDLAR[k.hud].p);
+  } else if (k.hud)
+    for (const p of Object.keys(HUD_PARCALARI) as HudParcasi[]) {
+      const v = k.hud[p];
+      if (v && v in HUD_PARCALARI[p].s) (gorunum as Record<string, string>)[p] = v;
+    }
   return k;
 }
 
 export function ayarlariKaydet(cam: number, lk: SeviyeAnahtari) {
-  yazJson("lt_ayar", { set, CT, cam, lk });
+  yazJson("lt_ayar", { set, CT, hud: gorunum, cam, lk });
 }

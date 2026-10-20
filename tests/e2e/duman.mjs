@@ -199,6 +199,144 @@ ok(
   `gazla araç ilerliyor: 2 sn'de ${sr.yol.toFixed(0)} m, ${sr.v.toFixed(0)} km/sa, ${sr.vites}. vites, ${Math.round(sr.devir)} d/dk`,
 );
 console.log(`  (başsız tarayıcı: ${sr.fps.toFixed(0)} fps, ${sr.cagri} çizim çağrısı)`);
+
+console.log("HUD düzenleri (docs/HUD.md)");
+// her düzen ve kontrol türünde göstergeler birbirine ve tuşlara değmemeli, ekrandan taşmamalı;
+// drift yarışında drift sayacı tek (üst orta), sol üstte toplam puan
+const hudSonuc = await p.evaluate(async () => {
+  const sorun = [];
+  const ctl = [
+    { steer: "btn", gas: "btn" },
+    { steer: "wheel", gas: "analog" },
+    { steer: "tilt", gas: "auto" },
+  ];
+  // iPhone 13 yatay güvenli alanı
+  const a = document.querySelector("#app").style;
+  for (const [k, v] of [
+    ["--sal", "47px"],
+    ["--sar", "47px"],
+    ["--sab", "21px"],
+    ["--sat", "0px"],
+  ])
+    a.setProperty(k, v);
+  LT.demoStop();
+  const dp = LT.EVENTS.findIndex((e) => e.ty == "dp"),
+    P = LT.HUD_PARCALARI;
+  for (const c of ctl) {
+    Object.assign(LT.CT, c);
+    LT.startEvent(dp, 2);
+    const EV = LT.yaris.EV;
+    EV.score = 2844;
+    EV.combo = 1240;
+    EV.mult = 3;
+    // geri sayımda kalsın: kombo bankaya geçmesin
+    EV.cd = 1e9;
+    LT.sim.S.vx = 30;
+    for (const hiz of Object.keys(P.hiz.s))
+      for (const harita of Object.keys(P.harita.s))
+        for (const [sayac, tus] of [
+          ["panel", "panel"],
+          ["yazi", "simge"],
+        ]) {
+          Object.assign(LT.gorunum, { hiz, harita, sayac, tus });
+          LT.hudDuzeniUygula();
+          await new Promise((r) => setTimeout(r, 40));
+          const W = innerWidth,
+            H = innerHeight,
+            ad = [hiz, harita, sayac, c.steer + "+" + c.gas].join("/");
+          const kutular = [".hTL", ".hBt", "#dr", ".hSP", "#mm", "#ctl > *"]
+            .flatMap((q) => [...document.querySelectorAll(q)].map((e) => [q, e.getBoundingClientRect()]))
+            .filter(([, r]) => r.width > 0 && r.height > 0);
+          for (const [q, r] of kutular)
+            if (r.left < 0 || r.top < 0 || r.right > W || r.bottom > H)
+              sorun.push(ad + ": " + q + " ekrandan taşıyor");
+          for (let i = 0; i < kutular.length; i++)
+            for (let j = i + 1; j < kutular.length; j++) {
+              const [qa, ra] = kutular[i],
+                [qb, rb] = kutular[j];
+              if (ra.left < rb.right && rb.left < ra.right && ra.top < rb.bottom && rb.top < ra.bottom)
+                sorun.push(ad + ": " + qa + " ile " + qb + " çakışıyor");
+            }
+          // kadran yayı kendi dairesinin içinde (Safari'de taşıyordu)
+          if (hiz == "kadran") {
+            const k = document.querySelector(".kd").getBoundingClientRect(),
+              d = document.querySelector(".hSP").getBoundingClientRect();
+            if (k.left < d.left || k.top < d.top || k.right > d.right + 0.5 || k.bottom > d.bottom + 0.5)
+              sorun.push(ad + ": kadran yayı daireden taşıyor");
+          }
+          const ev = document.querySelector("#ev").textContent,
+            dr = document.querySelector("#dr");
+          if (!ev.includes("2844") || /kombo/i.test(ev))
+            sorun.push(ad + ": sol üstte toplam puan yok ya da kombo var: " + ev);
+          if (dr.classList.contains("hidden") || !document.querySelector("#drP").textContent.includes("1240"))
+            sorun.push(ad + ": üst ortada kombo görünmüyor");
+        }
+  }
+  // serbest sürüşte drift açısı gösterilmez
+  LT.startWorld(1);
+  LT.oyun.mode = "pause";
+  LT.sim.d.D.t = 1;
+  LT.sim.d.D.beta = 0.6;
+  await new Promise((r) => setTimeout(r, 300));
+  if (
+    !document.querySelector("#dr").classList.contains("hidden") ||
+    /°/.test(document.querySelector("#hud").textContent)
+  )
+    sorun.push("serbest sürüşte drift açısı görünüyor");
+  Object.assign(LT.CT, { steer: "btn", gas: "btn" });
+  Object.assign(LT.gorunum, LT.HUDLAR.kose.p);
+  LT.hudDuzeniUygula();
+  for (const k of ["--sal", "--sar", "--sab", "--sat"]) a.removeProperty(k);
+  LT.showMenu(["home"]);
+  return sorun;
+});
+ok(
+  !hudSonuc.length,
+  "HUD seçenekleri (hız × harita × sayaç/tuş) × 3 kontrol türü: çakışma ve taşma yok, tek drift sayacı, açı yok" +
+    (hudSonuc.length ? " — " + hudSonuc.slice(0, 4).join("; ") : ""),
+);
+const hd = await p.evaluate(async () => {
+  LT.showMenu(["settings"]);
+  const ac = document.querySelector("[data-hdac]");
+  if (!ac) return { hata: "ayarlarda Göstergeler yok" };
+  ac.click();
+  const r = {
+    acik: LT.duzenleyici.acik,
+    hud: !document.querySelector("#hud").classList.contains("hidden"),
+    menuGizli: document.querySelector("#menu").classList.contains("hidden"),
+  };
+  document.querySelector('#hdP [data-pr="hiz"][data-v="bant"]').click();
+  r.bant = document.querySelector("#app").dataset.hiz == "bant";
+  document.querySelector('#hdP [data-hz="kadran"]').click();
+  r.kadran = document.querySelector("#app").dataset.harita == "yuvarlak";
+  await new Promise((r) => setTimeout(r, 200));
+  r.ornek = document.querySelector("#spd").textContent == "96";
+  // seçim paneli göstergelere değmiyor
+  const pr = document.querySelector("#hdP").getBoundingClientRect();
+  r.cakisma = [".hTL", ".hBt", "#dr", ".hSP", "#mm", "#ctl > *"]
+    .flatMap((q) => [...document.querySelectorAll(q)])
+    .map((e) => e.getBoundingClientRect())
+    .some((b) => b.width && pr.left < b.right && b.left < pr.right && pr.top < b.bottom && b.top < pr.bottom);
+  document.querySelector("#hdOk").click();
+  r.kapandi = !LT.duzenleyici.acik && !document.querySelector("#menu").classList.contains("hidden");
+  r.kayit = JSON.parse(localStorage.getItem("lt_ayar") || "{}").hud?.hiz == "kadran";
+  Object.assign(LT.gorunum, LT.HUDLAR.kose.p);
+  LT.hudDuzeniUygula();
+  return r;
+});
+ok(
+  hd.acik &&
+    hd.hud &&
+    hd.menuGizli &&
+    hd.bant &&
+    hd.kadran &&
+    hd.ornek &&
+    !hd.cakisma &&
+    hd.kapandi &&
+    hd.kayit,
+  "HUD düzenleyici: ayarlardan açılıyor, seçim anında uygulanıyor, kalıcı, panel göstergelere değmiyor " +
+    JSON.stringify(hd),
+);
 ok(!p.errs.length, "akışlarda sayfa hatası yok " + (p.errs[0] || ""));
 
 if (GOR) {
@@ -250,6 +388,28 @@ if (GOR) {
       Buffer.from(d.split(",")[1], "base64"),
     );
   }
+  // HUD düzenleri: drift yarışında kombo sürerken
+  for (const hud of ["kose", "kadran", "bant", "sade"])
+    await kare("hud_" + hud, async () => {
+      LT.oyun.camMode = 0;
+      Object.assign(LT.gorunum, LT.HUDLAR[hud].p);
+      LT.hudDuzeniUygula();
+      LT.startEvent(
+        LT.EVENTS.findIndex((e) => e.ty == "dp"),
+        2,
+      );
+      Object.assign(LT.yaris.EV, { score: 2844, combo: 1240, mult: 3, ct: 6.1 });
+      LT.sim.S.vx = 26;
+    });
+  await kare("hud_duzenleyici", () => {
+    LT.showMenu(["settings"]);
+    LT.hudDuzenleyiciAc();
+  });
+  await g.evaluate(() => {
+    LT.hudDuzenleyiciKapat();
+    Object.assign(LT.gorunum, LT.HUDLAR.kose.p);
+    LT.hudDuzeniUygula();
+  });
   // virajda gövde yatışı (araç kendi kamerasıyla, otoparkta)
   const yv = await g.evaluate(async () => {
     LT.oyun.camMode = 1;

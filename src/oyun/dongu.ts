@@ -7,6 +7,7 @@ import { ekran } from "../cekirdek/ekran";
 import { kareKaydet } from "../cekirdek/performans";
 import { bildirimTick, note } from "../arayuz/bildirim";
 import { engine, hudGuncelle, motor } from "../arayuz/hud";
+import { duzenleyici } from "../arayuz/hud-duzenleyici";
 import { miniHaritaCiz } from "../arayuz/mini-harita";
 import { body, car, model } from "../cizim/arac-modeli";
 import { GX, GZ } from "../cizim/garaj-sahnesi";
@@ -26,7 +27,7 @@ import { CT, set } from "./ayarlar";
 import { oyun } from "./durum";
 import { I } from "./girdi";
 import { CINE, cineCam, cineTick } from "./sinematik";
-import { sim, son, surusAdimi } from "./surus";
+import { sim, surusAdimi } from "./surus";
 import { yaris } from "./yarislar";
 
 /** görsel saat (menü, garaj, yağış) */
@@ -99,8 +100,8 @@ function kare(ts: number) {
   sahneGuncelle(dt, v, gx, gy, gz, gh, al);
   if (mode == "menu" && CINE) cineCam();
   parcacikTick(dt);
-  if (mode != "menu" && mode != "garage") {
-    hudGuncelle(v, son.Sf, son.T);
+  if (mode != "menu" && mode != "garage" && !duzenleyici.acik) {
+    hudGuncelle(v);
     miniHaritaCiz(gx, gz, Math.sin(gh), Math.cos(gh));
   }
   const t2 = performance.now();

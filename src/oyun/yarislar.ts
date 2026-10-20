@@ -249,40 +249,6 @@ export function evTick(dt: number, o: AdimSonucu) {
 }
 
 /** HUD'daki yarış satırı */
-export function evText() {
-  const EV = yaris.EV;
-  if (!EV) return "";
-  const ti = ipucu.ti;
-  if (EV.ty == "dp")
-    return (
-      "⏱ " +
-      Math.max(0, EV.time).toFixed(1) +
-      " · Puan " +
-      EV.score +
-      (EV.combo > 0 ? " · Kombo " + Math.round(EV.combo) + " x" + EV.mult : "")
-    );
-  if (EV.ty == "dg")
-    return (
-      "⏱ " +
-      EV.t.toFixed(2) +
-      " / " +
-      EV.limit.toFixed(1) +
-      " sn · " +
-      Math.round((100 * ti) / (EV.TR.N - 1)) +
-      "%"
-    );
-  return (
-    "⏱ " +
-    fmt(EV.t) +
-    " / " +
-    fmt(EV.limit) +
-    (EV.t > EV.limit ? " · SÜRE AŞILDI" : "") +
-    (EV.laps
-      ? " · Tur " + Math.min(EV.lap + 1, EV.laps) + "/" + EV.laps
-      : " · %" + Math.round((100 * ti) / EV.TR.N))
-  );
-}
-
 /** yarış bitti: profil, rekor, sonuç ekranı */
 export function endEvent() {
   const EV = yaris.EV!;

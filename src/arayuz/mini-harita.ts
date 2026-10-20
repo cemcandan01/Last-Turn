@@ -19,8 +19,15 @@ export function miniHaritaKur(canvas: HTMLCanvasElement) {
   mmc = canvas.getContext ? canvas.getContext("2d") : null;
 }
 
-export function mmDraw(r?: Bolge | null) {
+/** oyundaki bölge (önizleme geçici çizer, sonra bu geri çizilir) */
+let etkin: Bolge | null | undefined;
+
+/** geçici çizimden sonra oyundaki bölgenin haritasına dön */
+export const mmGeriAl = () => mmDraw(etkin);
+
+export function mmDraw(r?: Bolge | null, gecici = false) {
   if (!mmBase) return;
+  if (!gecici) etkin = r;
   const x = mmBase.getContext("2d")!;
   x.clearRect(0, 0, 240, 240);
   if (r && r.mm) {

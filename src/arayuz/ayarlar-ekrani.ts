@@ -10,13 +10,24 @@ import {
   type OnayarAnahtari,
   type SeviyeAnahtari,
 } from "../fizik/veriler";
-import { ayarlariKaydet, CT, set, TOG, type DireksiyonModu, type GazModu } from "../oyun/ayarlar";
+import {
+  ayarlariKaydet,
+  CT,
+  HUDLAR,
+  hudDuzeni,
+  set,
+  TOG,
+  type DireksiyonModu,
+  type GazModu,
+  type HudDuzeni,
+} from "../oyun/ayarlar";
 import { CAMS, oyun } from "../oyun/durum";
 import { askTilt, girdiSifirla } from "../oyun/girdi";
 import { applyPreset, kurulum } from "../oyun/kurulum";
 import { reset } from "../oyun/surus";
 import { yaris } from "../oyun/yarislar";
 import { note } from "./bildirim";
+import { hudDuzenleyiciAc } from "./hud-duzenleyici";
 import { kontrolleriKur } from "./kontroller";
 import { showMenu } from "./menu";
 import { performansGoster } from "../cekirdek/performans";
@@ -93,6 +104,7 @@ export const settingsHTML = () =>
   sec("lvl", "Sürüş yardımı: " + LEVELS[kurulum.lk].n, chipsOf(LEVELS, kurulum.lk, "lk")) +
   sec("cam", "Kamera: " + CAMS[oyun.camMode], chipsOf(CAMO, oyun.camMode, "cm")) +
   ctlHTML() +
+  `<div class="card hdAc" data-hdac><b>Göstergeler (HUD)</b><span>${hudDuzeni() == "ozel" ? "Özel" : HUDLAR[hudDuzeni() as HudDuzeni].n} · hız, sayaç, tuşlar ve harita; önizlemeli</span></div>` +
   sec(
     "tir",
     "Lastik: " + TIRES[kurulum.tire].n,
@@ -154,6 +166,7 @@ function bindAll(root: HTMLElement, re: () => void) {
     CT.gas = e.dataset.cg as GazModu;
     kontrolleriKur();
   });
+  root.querySelectorAll<HTMLElement>("[data-hdac]").forEach((e) => (e.onclick = hudDuzenleyiciAc));
   tikla(".chip[data-cm]", (e) => {
     oyun.camMode = +e.dataset.cm!;
   });

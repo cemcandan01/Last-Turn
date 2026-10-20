@@ -5,7 +5,7 @@ import { oku } from "./cekirdek/depo";
 import { $ } from "./cekirdek/dom";
 import { ekranKur } from "./cekirdek/ekran";
 import { performansGoster } from "./cekirdek/performans";
-import { hudKur } from "./arayuz/hud";
+import { hudDuzeniUygula, hudKur } from "./arayuz/hud";
 import { kontrolleriKur } from "./arayuz/kontroller";
 import { showMenu } from "./arayuz/menu";
 import { miniHaritaKur, mmDraw } from "./arayuz/mini-harita";
@@ -37,6 +37,7 @@ surusTuslariKur();
 // kayıtlı ayarlar ve araç
 {
   const k = ayarlariYukle();
+  hudDuzeniUygula();
   if (k.cam != null) oyun.camMode = k.cam;
   if (k.lk) kurulum.lk = k.lk;
   let ci = 1;
