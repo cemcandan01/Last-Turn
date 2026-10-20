@@ -9,6 +9,8 @@ import { duzZemin, frensiz } from "../yardimci/denemeler";
 import { DRIFT_PILOT, driftTuru } from "../yardimci/drift-pilot";
 import { egrilik, pilot } from "../yardimci/pilot";
 import { surucuKur } from "../yardimci/surucu";
+import { titresimOlc } from "../yardimci/titresim";
+import { TDEF } from "../../src/dunya/pist-tanimlari";
 
 const DT = 1 / 60;
 const gir = (g = 0, b = 0, tg = 0, analogGaz = false, analogDireksiyon = false): FizikGirdisi => ({
@@ -180,29 +182,39 @@ describe("drift yarışı (Drift Parkı, Beyaz Kurt, drift önayarı)", () => {
   });
 });
 
-describe("asfalt pistte titreşim yok (Kızıl Ok)", () => {
-  // pist yüksekliği basamaksız olmalı: tepeli pistte dikey ivme düz zemindekine yakın kalır
-  for (const [yaris, ad] of [
-    [0, "Grand Prix"],
-    [1, "Kıyı Pisti"],
-  ] as const)
-    it(ad, () => {
-      const s = surucuKur({ yaris, arac: 0, lk: "norm" });
-      const TR = s.bolge!.TR!,
-        i0 = TR.N - 6,
-        P = TR.P[i0];
-      s.reset(P[0], P[1], Math.atan2(TR.T[i0][0], TR.T[i0][1]));
-      const pl = pilot(TR, egrilik(TR), 0.9);
-      let vy0 = 0,
-        enB = 0;
-      for (let k = 0; k < 30 / DT; k++) {
-        s.adim(pl(s.sim.S));
-        const Y = s.sim.yeni!;
-        if (k > 120) enB = Math.max(enB, Math.abs((Y.vy - vy0) / DT));
-        vy0 = Y.vy;
+describe("asfalt pistte titreşim yok (her araç, her asfalt pist)", () => {
+  // pist yüksekliği basamaksız olmalı: adımdan adıma poz sıçramaz, dikey ivme küçük kalır. Kerb sarsıntısı
+  // (kamera) yalnız teker kerbe çıkınca açılır; yokuşlu pistte taban yüksekliği kerb sayılmaz.
+  for (let yaris = 0; yaris < TDEF.length; yaris++) {
+    if (!["gp", "dp", "dg"].includes(TDEF[yaris].t)) continue;
+    it(TDEF[yaris].n, () => {
+      for (let arac = 0; arac < CARS.length; arac++) {
+        const o = titresimOlc(yaris, arac, 20),
+          ad = CARS[arac].n;
+        expect(o.asfalt, `${ad}: asfaltta geçen süre`).toBeGreaterThan(0.6);
+        expect(o.yanlisKerb, `${ad}: asfaltta kerb sarsıntısı`).toBe(0);
+        expect(o.y, `${ad}: yükseklik sıçraması (mm)`).toBeLessThan(1.5);
+        expect(Math.max(o.egim, o.yatis), `${ad}: eğim/yatış sıçraması (°)`).toBeLessThan(0.3);
+        expect(o.yon, `${ad}: yön sıçraması (°)`).toBeLessThan(0.4);
+        expect(o.ay, `${ad}: en büyük dikey ivme (m/s²)`).toBeLessThan(8);
       }
-      expect(enB, "en büyük dikey ivme (m/s²)").toBeLessThan(2);
     });
+  }
+  it("kerbe çıkan teker sarsıntıyı açar (Grand Prix)", () => {
+    const s = surucuKur({ yaris: 0, arac: 0, lk: "norm" });
+    const TR = s.bolge!.TR!,
+      i = TR.kb!.findIndex((k, j) => k && TR.kb![j + 2] && TR.kb![j - 2]),
+      [tx, tz] = TR.T[i];
+    let acik = 0;
+    // pist kenarına, sol tekerler kerbin üstünde olacak kadar dışarıya
+    for (const sd of [-1, 1]) {
+      const o = sd * (TR.hw + 0.3);
+      s.reset(TR.P[i][0] + tz * o, TR.P[i][1] - tx * o, Math.atan2(tx, tz));
+      for (let k = 0; k < 30; k++) s.adim(gir());
+      acik += s.sim.S.kerb;
+    }
+    expect(acik, "kerbde sarsıntı").toBeGreaterThan(0);
+  });
 });
 
 describe("kurallar ve sağlamlık", () => {

@@ -88,8 +88,8 @@ export interface DunyaSorgusu {
   yakin(x: number, z: number): Iterable<Carpisan>;
   /** sürülebilir alan [xmin, xmax, zmin, zmax] */
   kutu(): [number, number, number, number];
-  /** bulunulan bölgede kerb var mı (son surf çağrısına göre) */
-  kerbli(): boolean;
+  /** noktadaki kerb yüksekliği (m; taban yükseklik hariç, kerb yoksa 0). Bölge son surf çağrısına göre */
+  kerb(x: number, z: number): number;
   /** hava tutuş çarpanı (yağmur, kar) */
   havaTutusu(): number;
   /** karlı tema mı (çalıda kar tozu yerine yaprak çıkmaz) */
