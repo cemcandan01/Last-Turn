@@ -179,6 +179,16 @@ input[type="range"] {
   font-size: 20px;
   font-family: inherit;
 }
+/* parmak düğmenin üzerindeyken (arayuz/dokunma.ts); dışına kayınca söner */
+.btn.basili,
+.chip.basili,
+.ga.basili,
+.gc.basili,
+.gses.basili,
+.mbk.basili {
+  filter: brightness(1.25);
+  transform: scale(0.97);
+}
 .btn.alt {
   background: var(--card);
   color: var(--ink);
@@ -638,11 +648,11 @@ details[open] > summary::after {
 .mk:first-child b {
   font-size: 24px;
 }
-.mk:active {
+.mk.basili {
   transform: translateY(-4px) scale(0.98);
   border-color: var(--acc);
 }
-.mk:active img {
+.mk.basili img {
   transform: scale(1.06);
 }
 @keyframes mkGel {
@@ -741,9 +751,9 @@ details[open] > summary::after {
 .tile:nth-child(5) {
   animation-delay: 240ms;
 }
-.tile:active,
-.rc:active,
-.card.go:active {
+.tile.basili,
+.rc.basili,
+.card.go.basili {
   border-color: var(--acc);
 }
 .tile img {
@@ -1066,7 +1076,7 @@ details[open] > summary::after {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.ib:active {
+.ib.basili {
   background: #ff7a3c88;
 }
 #mm {

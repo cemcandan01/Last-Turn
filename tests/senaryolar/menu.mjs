@@ -13,4 +13,10 @@ export default [
     p: 2,
     tarayici: "garaj-ses",
   },
+  {
+    id: "dokunma",
+    ad: "Dokunma: parmak düğmeden kayıp dışarıda kalkınca tıklama iptal, geri dönüp bırakınca tıklanır",
+    p: 2,
+    tarayici: "dokunma",
+  },
 ];
