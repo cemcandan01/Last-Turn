@@ -6,6 +6,8 @@ export { openGarage, closeGarage } from "../arayuz/garaj";
 export { showSet } from "../arayuz/ayarlar-ekrani";
 export { R, scene, cam } from "../cizim/sahne";
 export { kamera } from "../cizim/kamera";
+export { aynaDurumu } from "../cizim/ayna";
+export { kokpit } from "../cizim/kokpit";
 export { COND } from "../cizim/ortam";
 export { perf } from "../cekirdek/performans";
 export { REG } from "../dunya/bolgeler";
@@ -17,7 +19,7 @@ export { hudDuzenleyiciAc, hudDuzenleyiciKapat, duzenleyici } from "../arayuz/hu
 export { oyun, setCar } from "./durum";
 export { I } from "./girdi";
 export { kurulum, applyPreset } from "./kurulum";
-export { demoStop } from "./sinematik";
+export { demoStop, CINE } from "./sinematik";
 export { sim, reset } from "./surus";
 export { EVENTS, startEvent, yaris } from "./yarislar";
 import { tt } from "./dongu";

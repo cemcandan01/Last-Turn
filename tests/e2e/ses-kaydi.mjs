@@ -38,6 +38,7 @@ const HEPSI = [
   ["muzik", "gt", 56],
   ...["gt", "rx", "dr", "rl", "dg"].map((a) => ["motor", a, 14]),
   ["surus", "dr", 14],
+  ...["gt", "rx", "dr", "rl", "dg"].map((a) => ["dinle", a, 5.5]),
 ];
 const sec = process.argv.slice(2);
 const isler = sec.length

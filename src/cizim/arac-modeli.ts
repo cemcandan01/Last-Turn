@@ -8,6 +8,7 @@ import { blackM, glassM, glassQM, lightM, tailM, bm } from "./malzemeler";
 import { scene } from "./sahne";
 import { bx, lam } from "./yardimci";
 import { buildInterior, cock } from "./kokpit";
+import { arkaKam, aynalariSifirla, aynaYuzu } from "./ayna";
 
 /** araç: dış grup (konum, yön, eğim), gövde (yalpa, yatış) */
 export const car = new THREE.Group(),
@@ -106,6 +107,20 @@ function body0(d: Arac) {
   for (const sd of [-1, 1]) {
     if (!d.rhl) g.add(bx(0.36, 0.12, 0.06, sd * (w / 2 - 0.28), d.hl, zf + 0.02, lightM));
     g.add(bx(0.34, 0.12, 0.06, sd * (w / 2 - 0.26), d.tl, zr - 0.02, tailM));
+  }
+  // yan aynalar: ön camın dibinde, kapının dışında; yüzleri arka görüntünün kendi yanını gösterir
+  const [az, ay] = d.ws[0];
+  for (const sd of [-1, 1]) {
+    const x = sd * (w / 2 + 0.15),
+      y = ay + 0.1,
+      z = az - 0.22,
+      yz = aynaYuzu(0.21, 0.12, sd > 0 ? 1 : 0.5, sd > 0 ? 0.5 : 0);
+    yz.position.set(x, y, z - 0.046);
+    g.add(
+      bx(0.24, 0.15, 0.09, x, y, z, m),
+      bx(0.14, 0.03, 0.04, sd * (w / 2 + 0.03), y - 0.03, z, blackM),
+      yz,
+    );
   }
   return g;
 }
@@ -222,6 +237,7 @@ export const model = {
 /** aracın görsel modelini kur (iç mekân dahil) */
 export function aracModeliKur(d: Arac) {
   const M = model;
+  aynalariSifirla();
   if (M.carM) {
     body.remove(M.carM.g);
     for (const w of M.carM.ws) car.remove(w.pv);
@@ -240,4 +256,12 @@ export function aracModeliKur(d: Arac) {
   M.wheels = cm.ws.map((w) => w.w);
   bm.color.setHex(d.col);
   buildInterior(d);
+  // aynaların kamerası: aracın arka üstünde, arkaya (gövdenin -z yönüne) bakar
+  arkaKam.position.set(
+    0,
+    Math.max(...d.p.map((p) => p[1])) + (d.lift || 0) + 0.12,
+    Math.min(...d.p.map((p) => p[0])) - 0.1,
+  );
+  arkaKam.rotation.set(-0.06, 0, 0);
+  body.add(arkaKam);
 }

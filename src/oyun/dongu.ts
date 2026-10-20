@@ -12,6 +12,7 @@ import { miniHaritaCiz } from "../arayuz/mini-harita";
 import { body, car, model } from "../cizim/arac-modeli";
 import { GX, GZ } from "../cizim/garaj-sahnesi";
 import { kamera } from "../cizim/kamera";
+import { aynaCiz } from "../cizim/ayna";
 import { cock, gauges, kokpit } from "../cizim/kokpit";
 import { glassQM } from "../cizim/malzemeler";
 import { precipTick, shadowTick } from "../cizim/ortam";
@@ -107,6 +108,8 @@ function kare(ts: number) {
   }
   sesTick(dt);
   const t2 = performance.now();
+  // aynalar ana çizimden önce: performans göstergesi ana çizimin çağrı sayısını göstersin
+  aynaCiz(R, cock.visible);
   R.render(scene, cam);
   const t3 = performance.now();
   kareKaydet(dt * 1000, t1 - t0, t3 - t2, adim, R.info.render.calls, R.info.render.triangles);

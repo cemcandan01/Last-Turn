@@ -1,11 +1,14 @@
 // Menü arka planı: kısa sinematik çekimler. Araç pist boyunca senaryoyla sürülür, kamera çekime göre konumlanır.
 // Torba boşalana kadar her çekim bir kez gelir, art arda aynı çekim gelmez. Çekim sırasında araç ve koşullar
 // geçicidir; demoStop() hepsini geri yükler.
+// Çekimden çekime geçiş, yarış oyunlarının menü ve tekrar izlemelerindeki gibi yakınlaşarak çözülme: eski çekimin
+// son karesi #gecis tuvaline alınır, yeni çekim altında oynarken hafifçe büyüyüp kaybolur (kararma yok). Yeni pistin
+// kurulması o karenin arkasında olur; çözülme yeni çekimin ilk karesi çizildikten sonra başlar, takılma görünmez.
 import * as THREE from "three";
 import { $ } from "../cekirdek/dom";
 import { ad, cl } from "../cekirdek/matematik";
 import { puff } from "../cizim/parcaciklar";
-import { cam } from "../cizim/sahne";
+import { cam, R, scene } from "../cizim/sahne";
 import { V3 } from "../cizim/yardimci";
 import { COND, type GununSaati, type Hava } from "../cizim/ortam";
 import { REG } from "../dunya/bolgeler";
@@ -171,7 +174,51 @@ function nextShot() {
   return (LASTSHOT = BAG.shift()!);
 }
 
+/** geçiş karesi: eski çekimin son görüntüsü (yarı çözünürlük yeter, çözülürken büyür) */
+function kareYakala() {
+  const g = $<HTMLCanvasElement>("#gecis"),
+    c = R.domElement,
+    w = Math.max(1, c.width >> 1),
+    h = Math.max(1, c.height >> 1);
+  g.getAnimations().forEach((a) => a.cancel());
+  if (g.width != w || g.height != h) {
+    g.width = w;
+    g.height = h;
+  }
+  R.render(scene, cam);
+  g.getContext("2d")!.drawImage(c, 0, 0, w, h);
+  g.classList.remove("hidden");
+  return g;
+}
+
+/** yeni çekim çizildikten sonra eski kare yakınlaşarak çözülür */
+function cozul(g: HTMLCanvasElement) {
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      const a = g.animate(
+        [
+          { opacity: 1, transform: "scale(1)" },
+          { opacity: 0, transform: "scale(1.08)" },
+        ],
+        { duration: 1000, easing: "cubic-bezier(.33,0,.2,1)", fill: "forwards" },
+      );
+      a.onfinish = () => {
+        g.classList.add("hidden");
+        a.cancel();
+      };
+    }),
+  );
+}
+
+function gecisiKaldir() {
+  const g = $<HTMLCanvasElement>("#gecis");
+  g.getAnimations().forEach((a) => a.cancel());
+  g.classList.add("hidden");
+}
+
 function cineStart() {
+  // önceki çekimden geçiliyorsa son kare alınır; menüye ilk girişte kısa bir açılış (karadan)
+  const g = CINE ? kareYakala() : null;
   const sh = SHOTS[nextShot()],
     e = EVENTS[sh.ev],
     r = REG[e.reg],
@@ -193,11 +240,15 @@ function cineStart() {
   };
   oyun.camMode = sh.cam == "cock" ? 3 : 0;
   cineCar(0);
+  if (g) {
+    cozul(g);
+    return;
+  }
   const cut = $("#cut");
   cut.style.transition = "none";
   cut.style.opacity = "1";
   requestAnimationFrame(() => {
-    cut.style.transition = "opacity .45s";
+    cut.style.transition = "opacity .7s";
     cut.style.opacity = "0";
   });
 }
@@ -335,4 +386,5 @@ export function demoStop() {
   Object.assign(COND, v.cond);
   girdiSifirla();
   $("#cut").style.opacity = "0";
+  gecisiKaldir();
 }
