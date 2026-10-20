@@ -47,7 +47,7 @@ export default [
   },
   {
     id: "kerb-tarayici",
-    ad: "Tarayıcıda kerbe değmeden sarsıntı yok (5 araç × 9 pist)",
+    ad: "Tarayıcıda kerbe değmeden sarsıntı yok (5 araç × 18 asfalt pist)",
     p: 3,
     tarayici: "kerb",
   },

@@ -32,7 +32,7 @@ import {
   straightF,
   type Pist,
 } from "./pist";
-import { TDEF, type PistTanimi } from "./pist-tanimlari";
+import { pistNoktalari, TDEF, type PistTanimi } from "./pist-tanimlari";
 import { thOf } from "./temalar";
 
 export type Kutu = [number, number, number, number];
@@ -184,7 +184,7 @@ function dragReg(R: Bolge, TR: Pist, c: V2): Bolge {
 /** bir pist tanımından bölge kur (k: pist sırası, dünyadaki yerini belirler) */
 function mkReg(def: PistTanimi, k: number): Bolge {
   const c: V2 = [((k % 4) - 1.5) * 2600, 3200 + Math.floor(k / 4) * 2600],
-    TR = mkTrack(off(recenter(def.p), c[0], c[1]), def.hw, def.t == "rl" || def.t == "dg"),
+    TR = mkTrack(off(recenter(pistNoktalari(def)), c[0], c[1]), def.hw, def.t == "rl" || def.t == "dg"),
     hw = def.hw;
   const R: Bolge = {
     ...def,
@@ -206,13 +206,16 @@ function mkReg(def: PistTanimi, k: number): Bolge {
     R.kerb = 1;
     const A = def.el || 0,
       ep = def.ep || 0,
+      ek = def.ek || 0,
       HK = (R.Hk = Hkerb(TR)),
       nG = gridNear(TR);
     // pist çizgisi boyunca yükseklik: pist boyunca konumun (s) düzgün fonksiyonu (kapalı pistte başı sonuna bağlanır);
     // çevre arazisi yarı yükseklikte ve bölge kenarında sıfıra iner
     const hS = (q: number) => {
       const u = (q / TR.len) * 6.2832;
-      return (A * (1 + 0.6 * Math.sin(u + ep) + 0.4 * Math.sin(2 * u + ep * 1.7 + 1))) / 2;
+      // ek: pist boyunca ek tepe sayısı (kör tepeler); genlik küçük, eğim yumuşak kalsın
+      const t = ek ? 0.25 * Math.sin(ek * u + ep * 2.3) : 0;
+      return (A * (1 + 0.6 * Math.sin(u + ep) + 0.4 * Math.sin(2 * u + ep * 1.7 + 1) + t)) / 2;
     };
     TR.hc = TR.S.map(hS);
     const ed = (x: number, z: number) => {
@@ -322,12 +325,14 @@ function mkReg(def: PistTanimi, k: number): Bolge {
   // ralli: yol enine düz kalsın diye merkez çizgisinin yüksekliğine yaslanır; dışarıda doğal tepeler
   const half = ext / 2 + 130,
     s = def.s || 0,
-    ph = [1 + s * 2.1, s * 1.3, s * 0.7];
+    ph = [1 + s * 2.1, s * 1.3, s * 0.7],
+    hs = def.hs ?? 1;
   R.box = [c[0] - half, c[0] + half, c[1] - half, c[1] + half];
   const H0 = (x: number, z: number) => {
     const lx = x - c[0],
       lz = z - c[1];
     return (
+      hs *
       (14 * Math.sin(lx / 85 + ph[0]) * Math.cos(lz / 95 + ph[1]) +
         8 * Math.sin((lx - lz) / 60 + ph[2]) +
         6 * Math.cos(lz / 140 + ph[0])) *
@@ -516,7 +521,7 @@ function mkPark(idx: number): Bolge {
   return R;
 }
 
-/** tüm bölgeler: 15 pist + Boş Otopark (sonda) */
+/** tüm bölgeler: 30 pist + Boş Otopark (sonda) */
 export const REG: Bolge[] = TDEF.map(mkReg);
 export const PARK = mkPark(REG.length);
 REG.push(PARK);

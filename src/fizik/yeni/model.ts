@@ -466,7 +466,7 @@ export function yeniAdim(
     NT.push(normal(W.H, A.x, A.z, v3()));
   }
   // gövde noktaları: yalnız zemine yakın olanlar ara adımlarda denetlenir
-  const gn = GOVDE_NOKTALARI(CAR.w, F).filter(([bx_, by_, bz_]) => {
+  const gn = GOVDE_NOKTALARI(CAR.w, F, CAR.lift || 0).filter(([bx_, by_, bz_]) => {
     noktaDunya(Y, F, bx_, by_, bz_, A);
     return A.y - W.H(A.x, A.z) < 0.6 + Math.abs(Y.vy) * dt * 2;
   });
@@ -517,7 +517,11 @@ export function yeniAdim(
       }
       const cv = (c - tk.sik) / h;
       let f = t.k * c + (cv > 0 ? t.cb : t.cr) * cv;
-      if (c > t.tampon) f += t.k * 8 * (c - t.tampon) + t.cb * 2 * Math.max(0, cv);
+      // tampon: sertliği ve sönümü 3 cm içinde yumuşakça devreye girer (sert frende dalan önde darbe olmasın)
+      if (c > t.tampon) {
+        const p = c - t.tampon;
+        f += (t.k * 8 * p * p) / (p + 0.03) + t.cb * 2 * Math.max(0, cv) * Math.min(1, p / 0.03);
+      }
       // üst sınır: sert inişte bile durağan yükün 12 katı (sayısal patlamayı önler)
       Fs[i] = cl(f, 0, 12 * t.Fz0);
       tk.temas = true;
@@ -785,15 +789,17 @@ export function yeniAdim(
 }
 
 /** gövdenin zemine değebilecek noktaları (model koordinatı) */
-function GOVDE_NOKTALARI(w: number, F: AracFizigi): [number, number, number][] {
+function GOVDE_NOKTALARI(w: number, F: AracFizigi, lift: number): [number, number, number][] {
+  // gövde, çizimdeki gibi lift kadar yüksekte (ralli aracı): alt köşeler de o kadar yukarıda
   const x = w / 2 - 0.1,
+    y = 0.18 + lift,
     on = F.tk[0].z + 0.8,
     arka = F.tk[2].z - 0.8;
   return [
-    [x, 0.18, on],
-    [-x, 0.18, on],
-    [x, 0.18, arka],
-    [-x, 0.18, arka],
+    [x, y, on],
+    [-x, y, on],
+    [x, y, arka],
+    [-x, y, arka],
     [x * 0.8, 1.15, 0.3],
     [-x * 0.8, 1.15, 0.3],
     [0, 1.2, -0.6],

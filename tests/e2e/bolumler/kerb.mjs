@@ -1,5 +1,5 @@
 /* global LT */
-// Asfalt pistlerde (5 araç × 9 pist) kerbe değmeden sarsıntı yok
+// Asfalt pistlerde (5 araç × 18 asfalt pist) kerbe değmeden sarsıntı yok
 export default async function ({ p, ok }) {
   // asfalt pistte duran araçta kerb sarsıntısı (kamera) kapalı: yokuşlu pistte taban yükseklik kerb sayılmaz
   const kb = await p.evaluate(async () => {
@@ -29,6 +29,6 @@ export default async function ({ p, ok }) {
   });
   ok(
     !kb.length,
-    "asfalt pistlerde (5 araç × 9 pist) kerbe değmeden sarsıntı yok " + kb.slice(0, 3).join(", "),
+    "asfalt pistlerde (5 araç × 18 asfalt pist) kerbe değmeden sarsıntı yok " + kb.slice(0, 3).join(", "),
   );
 }

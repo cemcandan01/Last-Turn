@@ -2,8 +2,9 @@
 //   YARIS=6,7,8 npm run olcum -- drift-izgara
 import { it } from "vitest";
 import { DRIFT_PILOT, driftTuru } from "../yardimci/drift-pilot";
+import { pistNo } from "../../src/dunya/pist-tanimlari";
 it("ızgara", () => {
-  for (const yaris of (process.env.YARIS || "6").split(",").map(Number))
+  for (const yaris of (process.env.YARIS || String(pistNo("dp", 3))).split(",").map(Number))
     for (const lk of ["real", "norm"] as const) {
       const sonuc: number[] = [];
       for (const aci of [0.35, 0.45, 0.55, 0.65])

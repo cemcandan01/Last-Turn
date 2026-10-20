@@ -4,6 +4,7 @@
 import { it } from "vitest";
 import { CARS } from "../../src/arac/araclar";
 import { duzZemin, frensiz, tamKirik } from "../yardimci/denemeler";
+import { pistNo } from "../../src/dunya/pist-tanimlari";
 
 const derece = (r: number) => (r * 57.3).toFixed(0) + "°";
 const kmh = (v: number) => (v * 3.6).toFixed(0);
@@ -21,10 +22,10 @@ it("düz toprak", () => {
 
 it("pistte", () => {
   for (const [yaris, arac] of [
-    [3, 1],
-    [4, 1],
-    [9, 3],
-    [11, 3],
+    [pistNo("rx", 2), 1],
+    [pistNo("rx", 5), 1],
+    [pistNo("rl", 2), 3],
+    [pistNo("rl", 5), 3],
   ] as const)
     for (const lk of ["real", "norm", "arc"] as const) {
       const a = tamKirik(yaris, arac, lk),

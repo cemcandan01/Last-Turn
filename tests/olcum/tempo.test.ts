@@ -2,6 +2,7 @@
 import { it } from "vitest";
 import { CARS } from "../../src/arac/araclar";
 import { ipucu, nearest } from "../../src/dunya/pist";
+import { pistNo } from "../../src/dunya/pist-tanimlari";
 import { surucuKur } from "../yardimci/surucu";
 import { egrilik, pilot } from "../yardimci/pilot";
 import { EVENTS_HEDEF } from "../yardimci/hedefler";
@@ -54,15 +55,15 @@ export function turSur(yaris: number, arac: number, cesaret: number, lk: "real" 
 
 it("tempo", () => {
   for (const [yaris, arac] of [
-    [0, 0],
-    [1, 0],
-    [2, 0],
-    [3, 1],
-    [4, 1],
-    [5, 1],
-    [9, 3],
-    [10, 3],
-    [11, 3],
+    [pistNo("gp", 3), 0],
+    [pistNo("gp", 2), 0],
+    [pistNo("gp", 5), 0],
+    [pistNo("rx", 2), 1],
+    [pistNo("rx", 3), 1],
+    [pistNo("rx", 4), 1],
+    [pistNo("rl", 2), 3],
+    [pistNo("rl", 6), 3],
+    [pistNo("rl", 3), 3],
   ] as const) {
     let en = Infinity,
       enC = 0;

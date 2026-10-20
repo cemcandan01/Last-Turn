@@ -18,6 +18,7 @@ import { girdiSifirla } from "./girdi";
 import { kurulumKaydet, kurulumYukle, type KurulumKaydi } from "./kurulum";
 import { sim } from "./surus";
 import { EVENTS } from "./yarislar";
+import { pistNo } from "../dunya/pist-tanimlari";
 
 type KameraTuru = "track" | "front" | "side" | "cock" | "heli" | "chase" | "orbit" | "launch";
 
@@ -36,17 +37,93 @@ interface Cekim {
 }
 
 const SHOTS: Cekim[] = [
-  { ty: "gp", ev: 0, car: 0, c: { tod: "noon", wx: "sun" }, cam: "track", f: 0.62, v: 62, dur: 5 },
-  { ty: "gp", ev: 1, car: 0, c: { tod: "evening", wx: "sun" }, cam: "front", f: 0.12, v: 48, dur: 5 },
-  { ty: "gp", ev: 2, car: 0, c: { tod: "evening", wx: "sun" }, cam: "side", f: 0.3, v: 36, dur: 5 },
-  { ty: "rl", ev: 9, car: 3, c: { tod: "night", wx: "rain" }, cam: "cock", f: 0.33, v: 22, dur: 6 },
-  { ty: "rl", ev: 10, car: 3, c: { tod: "noon", wx: "snow" }, cam: "heli", f: 0.42, v: 21, dur: 5, dr: 0.3 },
-  { ty: "rx", ev: 3, car: 1, c: { tod: "noon", wx: "sun" }, cam: "chase", f: 0.04, v: 28, dur: 5, dr: 0.25 },
-  { ty: "rx", ev: 4, car: 1, c: { tod: "noon", wx: "sun" }, cam: "track", f: 0.6, v: 30, dur: 5, dr: 0.35 },
-  { ty: "dp", ev: 6, car: 2, c: { tod: "evening", wx: "sun" }, cam: "orbit", f: 0.3, v: 22, dur: 6, dr: 0.7 },
+  {
+    ty: "gp",
+    ev: pistNo("gp", 3),
+    car: 0,
+    c: { tod: "noon", wx: "sun" },
+    cam: "track",
+    f: 0.62,
+    v: 62,
+    dur: 5,
+  },
+  {
+    ty: "gp",
+    ev: pistNo("gp", 2),
+    car: 0,
+    c: { tod: "evening", wx: "sun" },
+    cam: "front",
+    f: 0.12,
+    v: 48,
+    dur: 5,
+  },
+  {
+    ty: "gp",
+    ev: pistNo("gp", 5),
+    car: 0,
+    c: { tod: "evening", wx: "sun" },
+    cam: "side",
+    f: 0.3,
+    v: 36,
+    dur: 5,
+  },
+  {
+    ty: "rl",
+    ev: pistNo("rl", 2),
+    car: 3,
+    c: { tod: "night", wx: "rain" },
+    cam: "cock",
+    f: 0.33,
+    v: 22,
+    dur: 6,
+  },
+  {
+    ty: "rl",
+    ev: pistNo("rl", 6),
+    car: 3,
+    c: { tod: "noon", wx: "snow" },
+    cam: "heli",
+    f: 0.42,
+    v: 21,
+    dur: 5,
+    dr: 0.3,
+  },
+  {
+    ty: "rx",
+    ev: pistNo("rx", 2),
+    car: 1,
+    c: { tod: "noon", wx: "sun" },
+    cam: "chase",
+    f: 0.04,
+    v: 28,
+    dur: 5,
+    dr: 0.25,
+  },
+  {
+    ty: "rx",
+    ev: pistNo("rx", 3),
+    car: 1,
+    c: { tod: "noon", wx: "sun" },
+    cam: "track",
+    f: 0.6,
+    v: 30,
+    dur: 5,
+    dr: 0.35,
+  },
   {
     ty: "dp",
-    ev: 8,
+    ev: pistNo("dp", 3),
+    car: 2,
+    c: { tod: "evening", wx: "sun" },
+    cam: "orbit",
+    f: 0.3,
+    v: 22,
+    dur: 6,
+    dr: 0.7,
+  },
+  {
+    ty: "dp",
+    ev: pistNo("dp", 6),
     car: 2,
     c: { tod: "evening", wx: "sun" },
     cam: "track",
@@ -55,7 +132,16 @@ const SHOTS: Cekim[] = [
     dur: 5,
     dr: 0.65,
   },
-  { ty: "dg", ev: 13, car: 4, c: { tod: "evening", wx: "sun" }, cam: "launch", f: 0, v: 0, dur: 5.5 },
+  {
+    ty: "dg",
+    ev: pistNo("dg", 3),
+    car: 4,
+    c: { tod: "evening", wx: "sun" },
+    cam: "launch",
+    f: 0,
+    v: 0,
+    dur: 5.5,
+  },
 ];
 
 interface CekimDurumu extends Cekim {
