@@ -309,13 +309,19 @@ export class MotorSesi {
     }
     // gaz kesince (ve anti-lag araçlarda vites geçişinde) egzoz patlamaları
     if (p.patlama) {
-      if (birak && u > 0.4) this.patlamaBitis = t + 0.35 + 1.1 * p.patlama * u;
-      if (vitesBasi && p.patlama > 0.7 && u > 0.5) this.patlamaBitis = Math.max(this.patlamaBitis, t + 0.12);
-      if (kesici && Math.random() < dt * 4 * p.patlama) this.pat(t, 0.5);
+      // gaz kesince birkaç tok patlama (seyrek, düzensiz aralıklarla); anti-lag araçlarda vites geçişinde de
+      if (birak && u > 0.45) {
+        this.patlamaBitis = t + 0.3 + 0.8 * p.patlama * u;
+        this.sonrakiPatlama = t + 0.04 + Math.random() * 0.08;
+      }
+      if (vitesBasi && p.patlama > 0.7 && u > 0.5) {
+        this.patlamaBitis = Math.max(this.patlamaBitis, t + 0.1);
+        this.sonrakiPatlama = Math.min(this.sonrakiPatlama, t + 0.02);
+      }
       if (t < this.patlamaBitis && m.gaz < 0.3 && t >= this.sonrakiPatlama) {
-        this.pat(t, 1);
-        this.sonrakiPatlama = t + 0.025 + (Math.random() * 0.14) / (0.4 + p.patlama);
-      } else if (m.gaz < 0.05 && u > 0.3 && Math.random() < dt * 1.5 * p.patlama * u) this.pat(t, 0.45);
+        this.pat(t, 0.7 + 0.3 * u);
+        this.sonrakiPatlama = t + 0.07 + (Math.random() * 0.25) / (0.5 + p.patlama);
+      }
     }
     this.gazOnce = m.gaz;
     this.kesikOnce = m.kesik;

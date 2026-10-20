@@ -82,7 +82,7 @@ export const MOTORLAR: Record<string, MotorProfili> = {
     valf: 0,
     kompresor: 0,
     disli: 0,
-    patlama: 0.35,
+    patlama: 0.15,
     govde: 0.7,
     vtec: 0.7,
   },
@@ -103,7 +103,7 @@ export const MOTORLAR: Record<string, MotorProfili> = {
     valf: 1,
     kompresor: 0,
     disli: 0.8,
-    patlama: 1,
+    patlama: 0.5,
     govde: 0.8,
   },
   // Beyaz Kurt (Nissan Silvia S15'ten esinlenir): turbolu 2.0 sıra 4, kalın drift egzozu, valf kesik kesik öter
@@ -123,7 +123,7 @@ export const MOTORLAR: Record<string, MotorProfili> = {
     valf: 2,
     kompresor: 0,
     disli: 0,
-    patlama: 0.5,
+    patlama: 0.4,
     govde: 0.7,
   },
   // Mavi Yıldız (Subaru Impreza'dan esinlenir): turbolu boxer 4, eşit olmayan manifold homurtusu
@@ -163,7 +163,7 @@ export const MOTORLAR: Record<string, MotorProfili> = {
     valf: 0,
     kompresor: 1,
     disli: 0,
-    patlama: 0.35,
+    patlama: 0.25,
     govde: 1,
   },
 };
@@ -403,20 +403,27 @@ export function cakil(sr: number, tohum = 7) {
   return normallestir(s, 0.2);
 }
 
-/** egzoz patlaması (gaz kesince, anti-lag): kısa sert darbe ve tok gümbürtü */
+/**
+ * egzoz patlaması (gaz kesince, anti-lag): egzozda yanan yakıtın tok "bap" sesi. Gövdesi alçak frekansta
+ * (egzoz borusunun rezonansı ~90-220 Hz), başında kısa ve boğuk bir darbe; tiz çıtırtı yok.
+ */
 export function patlama(sr: number, tohum: number) {
   const r = mulberry32(tohum),
-    L = Math.round(0.18 * sr),
+    L = Math.round(0.22 * sr),
     s = new Float32Array(L),
-    f = 55 + r() * 40,
-    bp = Biquad.bant(500 + r() * 1400, 0.9, sr);
+    f = 90 + r() * 130,
+    darbe = Biquad.alcak(700 + r() * 500, 0.8, sr),
+    boru = Biquad.bant(f, 4, sr);
   for (let i = 0; i < L; i++) {
     const t = i / sr,
-      kirpik = (r() * 2 - 1) * Math.exp(-t / (0.004 + r() * 0.003)),
-      tok = Math.sin(2 * Math.PI * f * t * (1 - t * 2)) * Math.exp(-t / 0.035);
-    // birkaç ardışık çatırtı
-    const cat = r() < 0.004 * Math.exp(-t / 0.05) ? (r() * 2 - 1) * 2 : 0;
-    s[i] = Math.tanh(2.5 * (bp.adim(kirpik * 3 + cat) + 0.8 * tok));
+      zarf = Math.min(1, t / 0.0015) * Math.exp(-t / 0.012),
+      n = (r() * 2 - 1) * zarf,
+      // boru rezonansı: darbeyle uyarılan, ~60 ms'de sönen tok ses
+      y =
+        darbe.adim(n) * 1.2 +
+        boru.adim(n) * 9 +
+        Math.sin(2 * Math.PI * f * 0.5 * t) * Math.exp(-t / 0.03) * 0.5;
+    s[i] = Math.tanh(1.8 * y);
   }
   return normallestir(s, 0.3);
 }
