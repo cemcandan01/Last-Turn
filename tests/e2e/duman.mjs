@@ -370,8 +370,8 @@ if (GOR) {
   fs.mkdirSync(CIKTI, { recursive: true });
   console.log("Ekran görüntüleri → tests/cikti/");
   const g = await sayfa();
-  const kare = async (ad, js) => {
-    await g.evaluate(js);
+  const kare = async (ad, js, arg) => {
+    await g.evaluate(js, arg);
     await g.waitForTimeout(1200);
     await g.screenshot({ path: path.join(CIKTI, ad + ".png") });
   };
@@ -417,17 +417,21 @@ if (GOR) {
   }
   // HUD düzenleri: drift yarışında kombo sürerken
   for (const hud of ["kose", "kadran", "bant", "sade"])
-    await kare("hud_" + hud, async () => {
-      LT.oyun.camMode = 0;
-      Object.assign(LT.gorunum, LT.HUDLAR[hud].p);
-      LT.hudDuzeniUygula();
-      LT.startEvent(
-        LT.EVENTS.findIndex((e) => e.ty == "dp"),
-        2,
-      );
-      Object.assign(LT.yaris.EV, { score: 2844, combo: 1240, mult: 3, ct: 6.1 });
-      LT.sim.S.vx = 26;
-    });
+    await kare(
+      "hud_" + hud,
+      async (hud) => {
+        LT.oyun.camMode = 0;
+        Object.assign(LT.gorunum, LT.HUDLAR[hud].p);
+        LT.hudDuzeniUygula();
+        LT.startEvent(
+          LT.EVENTS.findIndex((e) => e.ty == "dp"),
+          2,
+        );
+        Object.assign(LT.yaris.EV, { score: 2844, combo: 1240, mult: 3, ct: 6.1 });
+        LT.sim.S.vx = 26;
+      },
+      hud,
+    );
   await kare("hud_duzenleyici", () => {
     LT.showMenu(["settings"]);
     LT.hudDuzenleyiciAc();
