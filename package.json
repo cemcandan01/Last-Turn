@@ -21,7 +21,8 @@
     "duman": "node tests/kosucu.mjs duman",
     "alan": "node tests/kosucu.mjs alan",
     "regresyon": "node tests/kosucu.mjs regresyon",
-    "olcum": "vitest run --config vitest.olcum.config.ts"
+    "olcum": "vitest run --config vitest.olcum.config.ts",
+    "ses": "node tests/e2e/ses-kaydi.mjs"
   },
   "engines": {
     "node": ">=22.12"

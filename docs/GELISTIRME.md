@@ -52,9 +52,9 @@ Bugünkü isteğim:
 ## 5. Menü, HUD ve akış
 
 ```
-Last Turn'ün menüsü, HUD'ı ve oyuncu akışı üzerinde çalışacağız. Ana menü src/arayuz/menu.ts (showMenu, MV görünüm yığını), ayarlar ve duraklatma src/arayuz/ayarlar-ekrani.ts, menü arka planı src/oyun/sinematik.ts (SHOTS). HUD src/arayuz/hud.ts ve index.html'de (#hud yapısı). Stiller src/stil.css. Garaj src/arayuz/garaj.ts.
+Last Turn'ün menüsü, HUD'ı ve oyuncu akışı üzerinde çalışacağız. Ana menü src/arayuz/menu.ts (showMenu, MV görünüm yığını; altta görselli kartlar NAV, alt ekranlar view), ayarlar ve duraklatma src/arayuz/ayarlar-ekrani.ts, menü arka planı src/oyun/sinematik.ts (SHOTS). HUD src/arayuz/hud.ts ve index.html'de (#hud yapısı). Stiller src/stil.css. Garaj src/arayuz/garaj.ts.
 Kural: oyun yalnız yatay ekranda. Çentik boşlukları için --sat/--sar/--sab/--sal değişkenlerini kullan. HUD yazılarını yazi() ile güncelle (yalnız değişince DOM'a yazar).
-Değişiklikten sonra `npm run build && npm run test:goruntu` çalıştır ve tests/cikti/menu.png, yaris_turu.png, pist_listesi.png, yaris.png görüntülerine bak.
+Değişiklikten sonra `npm run build && npm run test:goruntu` çalıştır ve tests/cikti/menu.png, menu_serbest.png, menu_yaris_ayrinti.png, menu_profil.png, yaris_turu.png, pist_listesi.png, yaris.png görüntülerine bak.
 Bugünkü isteğim:
 ```
 

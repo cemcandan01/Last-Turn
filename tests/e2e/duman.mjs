@@ -13,7 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const BOLUMLER = ["acilis", "yarislar", "garaj", "surus", "kerb", "hud-cakisma", "hud-duzenleyici"];
+const BOLUMLER = ["acilis", "yarislar", "garaj", "surus", "kerb", "ses", "hud-cakisma", "hud-duzenleyici"];
 
 const KOK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.."),
   arg = (a) => process.argv.includes(a),

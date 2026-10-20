@@ -82,6 +82,21 @@ const ctlHTML = () =>
       "<p>Telefonu çevirme: sürüşte sol alttaki tuşa basıp sensör izni ver, sonra telefonu nasıl tutacaksan öyle tutup “Ortala”ya bas. Telefonu direksiyon gibi sağa yatırınca sağa döner.</p>",
   );
 
+/** ses seviyeleri: oyun sesleri ve menü müziği */
+const SESLER: [keyof typeof set, string, string][] = [
+  ["ses", "Oyun sesleri", "Motor, lastik, çarpma, menü tıkları"],
+  ["muz", "Müzik", "Menüde ve garajda çalan müzik"],
+];
+const sesHTML = () =>
+  sec(
+    "ses",
+    "Ses",
+    SESLER.map(
+      ([k, n, d]) =>
+        `<div class="row" style="display:block"><div>${n} <span id="v_${k}">%${set[k]}</span><small>${d}</small></div><input type="range" data-ses="${k}" min="0" max="100" step="5" value="${set[k]}"></div>`,
+    ).join("") + "<p>Ses ilk dokunuşta açılır. iPhone sessiz moddaysa (yandaki düğme) oyun sesi gelmez.</p>",
+  );
+
 const sliders = (D: AyarSatiri[], O: Record<string, number>, o: string) =>
   D.map(
     (t) =>
@@ -104,6 +119,7 @@ export const settingsHTML = () =>
   sec("lvl", "Sürüş yardımı: " + LEVELS[kurulum.lk].n, chipsOf(LEVELS, kurulum.lk, "lk")) +
   sec("cam", "Kamera: " + CAMS[oyun.camMode], chipsOf(CAMO, oyun.camMode, "cm")) +
   ctlHTML() +
+  sesHTML() +
   `<div class="card hdAc" data-hdac><b>Göstergeler (HUD)</b><span>${hudDuzeni() == "ozel" ? "Özel" : HUDLAR[hudDuzeni() as HudDuzeni].n} · hız, sayaç, tuşlar ve harita; önizlemeli</span></div>` +
   sec(
     "tir",
@@ -134,6 +150,14 @@ function bindAll(root: HTMLElement, re: () => void) {
       root.querySelector("#v_tlt")!.textContent = set.tlt + "°";
       kaydet();
     };
+  root.querySelectorAll<HTMLInputElement>("input[data-ses]").forEach((e) => {
+    const k = e.dataset.ses as keyof typeof set;
+    e.oninput = () => {
+      set[k] = +e.value;
+      root.querySelector("#v_" + k)!.textContent = "%" + set[k];
+    };
+    e.onchange = kaydet;
+  });
   root.querySelectorAll<HTMLDetailsElement>("details").forEach((d) =>
     d.addEventListener("toggle", () => {
       if (d.open) OPEN.add(d.dataset.sec!);

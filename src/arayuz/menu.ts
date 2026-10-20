@@ -1,4 +1,5 @@
-// Ana menü (PES tarzı): solda Yarış, Serbest sürüş, Garaj, Profil, Ayarlar; arkada sinematik çekimler.
+// Ana menü: altta soldan sağa görselli kartlar (Yarış, Serbest sürüş, Garaj, Profil, Ayarlar); arkada sinematik
+// çekimler. Kartlar oyunun kendi sahnelerinden çekilmiş görselleri gösterir (public/img/menu_*.jpg).
 // Yarış türü → pist listesi (şekil, uzunluk, ortalama süre, rekor) → günün saati ve hava → garajda araç seçimi.
 import { CARS } from "../arac/araclar";
 import { fmt, fmt3 } from "../cekirdek/bicim";
@@ -24,12 +25,13 @@ const TYPES: [string, string, string][] = [
   ["dp", "Drift", "90 saniyede en yüksek drift puanı"],
   ["dg", "Drag", "Düz çizgide milisaniyeler"],
 ];
-const NAV: [string, string, string, string][] = [
-  ["race", "🏁", "Yarış", "Pist türünü seç, yarışını seç"],
-  ["free", "🗺️", "Serbest sürüş", "Açık dünyada kuralsız sür"],
-  ["garage", "🔧", "Garaj", "Araçları incele ve seç"],
-  ["profile", "👤", "Profil", "İstatistikler ve rekorlar"],
-  ["settings", "⚙️", "Ayarlar", "Kontroller, kamera, sürüş yardımı"],
+/** ana menü kartları: anahtar, görsel, başlık */
+const NAV: [string, string, string][] = [
+  ["race", "yaris", "Yarış"],
+  ["free", "serbest", "Serbest sürüş"],
+  ["garage", "garaj", "Garaj"],
+  ["profile", "profil", "Profil"],
+  ["settings", "ayarlar", "Ayarlar"],
 ];
 
 /** görünüm yığını: ["race", "t:gp", "e:0"] gibi */
@@ -97,17 +99,23 @@ export function showMenu(v?: string[]) {
   gizle("#hud", "#mm", "#ctl", "#set", "#res", "#gar");
   $("#big").textContent = "";
   if (v) MV = v;
-  const cur = MV[MV.length - 1],
-    top = MV[0];
+  const cur = MV[MV.length - 1];
   if (cur == "settings") demoStop();
   else demoStart();
   const m = $("#menu");
   m.classList.remove("hidden");
-  m.innerHTML = `<div class="mmL"><div class="logo">LAST<b>TURN</b></div>${NAV.map(([k, ic, n, d]) => `<div class="nv ${top == k ? "on" : ""}" data-nav="${k}"><i>${ic}</i><div><b>${n}</b><small>${d}</small></div></div>`).join("")}
-<div class="ver">${PROF.name} · Sürüm ${__APP_VERSION__}${import.meta.env.MODE == "gelistirme" ? " · deneme" : ""}</div></div>${cur == "home" ? "" : `<div class="mmR">${view(cur)}</div>`}`;
+  m.classList.toggle("sub", cur != "home");
+  const logo = `<div class="logo">LAST<b>TURN</b></div>`;
+  if (cur == "home")
+    m.innerHTML = `<div class="mtop">${logo}<div class="mpro"><i>${PROF.name.trim().charAt(0).toUpperCase() || "S"}</i><div><b>${PROF.name}</b><small>Sürüm ${__APP_VERSION__}${import.meta.env.MODE == "gelistirme" ? " · deneme" : ""}</small></div></div></div>
+<div class="mcards">${NAV.map(([k, g, n], i) => `<button class="mk" data-nav="${k}" style="--i:${i}"><img src="img/menu_${g}.jpg" alt=""><b>${n}</b></button>`).join("")}</div>`;
+  else {
+    const [bas, ust, ic] = view(cur);
+    m.innerHTML = `<div class="mbar"><button class="mbk" id="mbk" aria-label="Geri"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><div class="mbt">${ust ? `<small>${ust}</small>` : ""}<h2>${bas}</h2></div>${logo}</div><div class="mbody v-${cur.split(":")[0]}">${ic}</div>`;
+  }
   const tikla = (sel: string, f: (e: HTMLElement) => void) =>
     m.querySelectorAll<HTMLElement>(sel).forEach((e) => (e.onclick = () => f(e)));
-  tikla(".nv", (e) => {
+  tikla(".mk", (e) => {
     const k = e.dataset.nav!;
     if (k == "garage") {
       demoStop();
@@ -158,46 +166,67 @@ export function showMenu(v?: string[]) {
       saveProf();
       showMenu();
     };
-  if (cur == "settings") bindSettings(m.querySelector<HTMLElement>(".mmR")!, () => showMenu());
+  if (cur == "settings") bindSettings(m.querySelector<HTMLElement>(".mbody")!, () => showMenu());
 }
 
-function view(cur: string) {
-  const back = MV.length > 1 ? '<button class="mbk" id="mbk">‹ Geri</button>' : "";
+/** alt ekran: [başlık, üst başlık, içerik] */
+function view(cur: string): [string, string, string] {
   if (cur == "race") {
-    return `<h2>Yarış türü</h2><div class="tiles">${TYPES.map(([t, n, d]) => {
-      const cnt = EVENTS.filter((e) => e.ty == t).length;
-      return `<div class="tile" data-ty="${t}"><img src="img/tur_${t}.jpg" alt="${n}"><b>${n}</b><small>${d}</small><em>${cnt} yarış</em></div>`;
-    }).join("")}</div>`;
+    return [
+      "Yarış türü",
+      "Yarış",
+      `<div class="tiles">${TYPES.map(([t, n, d]) => {
+        const cnt = EVENTS.filter((e) => e.ty == t).length;
+        return `<div class="tile" data-ty="${t}"><img src="img/tur_${t}.jpg" alt="${n}"><b>${n}</b><small>${d}</small><em>${cnt} yarış</em></div>`;
+      }).join("")}</div>`,
+    ];
   }
   if (cur.startsWith("t:")) {
     const t = cur.slice(2) as keyof typeof TYP,
       y = TYP[t];
-    return `${back}<h2>${TYPES.find((q) => q[0] == t)![1]} yarışları</h2><p>${y.d}</p><div class="rlist">${EVENTS.map(
-      (e, i) =>
+    return [
+      TYPES.find((q) => q[0] == t)![1] + " yarışları",
+      "Yarış",
+      `<p>${y.d}</p><div class="rlist">${EVENTS.map((e, i) =>
         e.ty != t
           ? ""
           : `<div class="rc" data-ev="${i}"><img src="${trackThumb(REG[e.reg])}"><div class="rci"><b>${e.n}</b><small>${e.d}</small>
 <div class="rcs"><span>Uzunluk<b>${evLen(e)}</b></span><span>${e.ty == "dp" ? "Süre" : "Ort. bitiş"}<b>${evAvg(e)}</b></span><span>PR<b>${prOf(e)}</b></span><span>WR<b>—</b></span></div></div></div>`,
-    ).join("")}</div><p class="note">WR: çevrimiçi özellikler gelince dünya rekorları burada görünecek.</p>`;
+      ).join(
+        "",
+      )}</div><p class="note">WR: çevrimiçi özellikler gelince dünya rekorları burada görünecek.</p>`,
+    ];
   }
   if (cur.startsWith("e:")) {
     const i = +cur.slice(2),
       e = EVENTS[i],
       r = REG[e.reg];
-    return `${back}<div class="evh"><img src="${trackThumb(r)}"><div><h2>${e.n}</h2><p>${e.d}</p>
-<div class="rcs"><span>Uzunluk<b>${evLen(e)}</b></span><span>${e.ty == "dp" ? "Süre" : "Ort. bitiş"}<b>${evAvg(e)}</b></span><span>PR<b>${prOf(e)}</b></span><span>WR<b>—</b></span></div></div></div>
-${condChips()}<button class="btn" id="mgo" data-go="${i}">Araç seç ›</button>`;
+    return [
+      e.n,
+      TYPES.find((q) => q[0] == e.ty)![1] + " yarışları",
+      `<div><div class="evh"><img src="${trackThumb(r)}"><div><p>${e.d}</p>
+<div class="rcs"><span>Uzunluk<b>${evLen(e)}</b></span><span>${e.ty == "dp" ? "Süre" : "Ort. bitiş"}<b>${evAvg(e)}</b></span><span>PR<b>${prOf(e)}</b></span><span>WR<b>—</b></span></div></div></div><button class="btn" id="mgo" data-go="${i}">Araç seç ›</button></div>
+<div class="evk">${condChips()}</div>`,
+    ];
   }
   if (cur == "free")
-    return `<h2>Serbest sürüş</h2>${WORLDS.map((w, i) => `<div class="card go" data-w="${i}"><b>${w.n}</b><span>${w.d}</span></div>`).join("")}${condChips()}<p class="note">Dünyayı seçince garajda aracını seçersin. Önayarı sürüşte duraklatma menüsünden değiştirebilirsin.</p>`;
+    return [
+      "Serbest sürüş",
+      "Dünya seç",
+      `<div class="wl">${WORLDS.map((w, i) => `<div class="card go" data-w="${i}"><b>${w.n}</b><span>${w.d}</span></div>`).join("")}</div><div class="evk">${condChips()}<p class="note">Dünyayı seçince garajda aracını seçersin. Önayarı sürüşte duraklatma menüsünden değiştirebilirsin.</p></div>`,
+    ];
   if (cur == "profile") {
     const fav = Object.entries(PROF.use).sort((a, b) => b[1] - a[1])[0];
-    return `<h2>Profil</h2><div class="lbl">Sürücü adı</div><input id="pname" class="inp" value="${PROF.name.replace(/"/g, "")}" maxlength="20">
-<div class="pst"><span>Yarış<b>${PROF.races}</b></span><span>Hedef geçildi<b>${PROF.wins}</b></span><span>Toplam yol<b>${PROF.km.toFixed(1)} km</b></span><span>En çok kullanılan<b>${fav ? CARS[+fav[0]].n : "—"}</b></span></div>
-<div class="lbl">Kişisel rekorlar</div>${EVENTS.map((e) => `<div class="rk"><span>${e.n}</span><span>${prOf(e)}</span></div>`).join("")}`;
+    return [
+      "Profil",
+      "Sürücü",
+      `<div class="pcol"><div class="lbl">Sürücü adı</div><input id="pname" class="inp" value="${PROF.name.replace(/"/g, "")}" maxlength="20">
+<div class="pst"><span>Yarış<b>${PROF.races}</b></span><span>Hedef geçildi<b>${PROF.wins}</b></span><span>Toplam yol<b>${PROF.km.toFixed(1)} km</b></span><span>En çok kullanılan<b>${fav ? CARS[+fav[0]].n : "—"}</b></span></div></div>
+<div class="pcol"><div class="lbl">Kişisel rekorlar</div>${EVENTS.map((e) => `<div class="rk"><span>${e.n}</span><span>${prOf(e)}</span></div>`).join("")}</div>`,
+    ];
   }
-  if (cur == "settings") return `<h2>Ayarlar</h2>` + settingsHTML();
-  return "";
+  if (cur == "settings") return ["Ayarlar", "", settingsHTML()];
+  return ["", "", ""];
 }
 
 /** açık dünyada serbest sürüş */

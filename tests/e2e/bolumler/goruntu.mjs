@@ -10,6 +10,9 @@ export default async function ({ sayfa, fs, path, CIKTI }) {
     await g.screenshot({ path: path.join(CIKTI, ad + ".png") });
   };
   await kare("menu", () => LT.showMenu(["home"]));
+  await kare("menu_serbest", () => LT.showMenu(["free"]));
+  await kare("menu_yaris_ayrinti", () => LT.showMenu(["race", "t:gp", "e:0"]));
+  await kare("menu_profil", () => LT.showMenu(["profile"]));
   await kare("yaris_turu", () => LT.showMenu(["race"]));
   await kare("pist_listesi", () => LT.showMenu(["race", "t:dp"]));
   await kare("garaj", () => {

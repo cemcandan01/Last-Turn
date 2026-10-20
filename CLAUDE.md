@@ -5,6 +5,7 @@ iPhone'da ana ekrana kurulan (PWA) 3D yarış oyunu. **TypeScript + Vite + Three
 - `master` → https://cemcandan01.github.io/Last-Turn/ (canlı: kullanıcının telefonundaki oyun). Yalnız regresyondan geçmiş, kullanıcının onayladığı sürüm girer.
 - `gelistirme` dalı → https://cemcandan01.github.io/Last-Turn/dev/ (deneme sürümü; ayrı ad, ayrı önbellek). Sürümün toplandığı ortak alan: içinde çalışılmaz, kullanıcı konu sohbetinde "push" deyince konu dalı buraya birleştirilir.
 - **Konu dalları:** her sohbet kendi dalında çalışır (`hud`, `fizik`, `garaj`, `menu`, `pist`, `ses`, `altyapi` gibi; sohbetin alanının kısa adı). Ayrıntı: "Dallar ve yayın".
+- **Last Turn Merkezi:** https://claude.ai/artifact/MNacFzHf5D2kibH1MEyXkq (Claude uygulamasında): aşama, push bekleyen dallar, sürümler, son olaylar, son regresyon. Sohbetler önemli her olayda tazeler ve telefon bildirimi gönderir (`merkez` skill'i).
 - **Özel sohbetler:** `kurallar` dalı (bu dosyanın, skill'lerin ve geliştirme sürecinin yönetimi), `regresyon` dalı ("regression" sohbeti: sürüm regresyonu ve canlıya çıkış, `regresyon` skill'i).
 
 Her iki yayında da duman testi geçmezse yayın yapılmaz; yayından sonra canlı ve deneme adreslerinde duman koşar. Kullanıcı uygulamayı internet varken açınca yeni sürüm iner.
@@ -34,6 +35,7 @@ npm run test:goruntu  # + ekran görüntüleri tests/cikti/ (menü, garaj, yarı
 npm run typecheck     # tip denetimi
 npm run lint          # ESLint
 npm run format        # Prettier ile biçimlendir
+npm run ses           # sesleri kaydet: tests/cikti/ses/ (müzik, 5 motor, sürüş efektleri; .wav ve .m4a; önce build)
 npm run olcum         # fizik ölçümleri: 0-100, azami hız, fren, tur süreleri, toprakta sınır, drift pisti, adım maliyeti
 npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 ```
@@ -53,10 +55,12 @@ npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 | `src/cizim/` | three.js: `sahne` (renderer, kamera, ışık), `ortam` (saat, hava, yağış, gölge), `arac-modeli`, `kokpit`, `garaj-sahnesi`, `parcaciklar`, `kamera` (takip ve bakış durumu), `zemin`, `dokular`, `malzemeler`, `yardimci` |
 | `src/arayuz/` | DOM: `menu` (ana menü, `startWorld`), `ayarlar-ekrani` (ayarlar, duraklatma), `garaj`, `sonuc`, `hud` (göstergeler; düzen `#app[data-hud]`), `kontroller` (dokunmatik tuşlar), `surus-tuslari`, `mini-harita`, `bildirim` |
 | `src/oyun/` | Oyun akışı: `durum` (mod, kamera, araç, `setCar`), `kurulum` (önayar, yardım, `applyPreset`), `ayarlar` (set, CT, kalıcı), `girdi` (I, eğim, klavye), `surus` (simülasyonu oyuna bağlar, `reset`, tur sayacı), `yarislar` (EVENTS, startEvent, evTick), `sinematik` (menü arka planı), `bolge` (setActive), `dongu` (ana döngü), `profil`, `api` (testler için `window.LT`) |
+| `src/ses/` | `sentez` (**saf**: motor katmanları fiziksel modelle, çakıl, patlama, valf, çarpma, süzgeçler; `MOTORLAR` araç türüne göre), `baglam` (AudioContext, iOS ilk dokunuş kilidi, kanallar), `motor` (katmanları devire göre karıştırır; turbo, valf, kompresör, patlamalar), `efektler` (lastik, zemin, rüzgâr, kerb, çarpma; arayüz ve yarış sesleri), `muzik` (menü rock parçası), `ses` (oyun durumunu okur, `sesTick` döngüde), `kayit` (çevrimdışı kayıt, testler için) |
 | `src/pwa/` | `kayit` (service worker, yeni sürüm kontrolü), `sw-sablon.js` (derlemede `dist/sw.js` olur) |
-| `public/` | Olduğu gibi kopyalanır: `icons/`, `img/` (menü görselleri) |
+| `public/` | Olduğu gibi kopyalanır: `icons/`, `img/` (`menu_*`: ana menü kartları, `tur_*`: yarış türü kartları) |
 | `tests/birim/` | Vitest `fizik`: kararlılık, hızlanma, fren, spin, toprakta sınır (frensiz tur yok, abartan spin), drift dengesi, drift yarışı (%80 tek kombo), asfaltta titreşim yok (5 araç × 9 asfalt pist, kerb sarsıntısı), kalkış, atlama, çarpışma, rastgele sürüş |
 | `tests/olcum/` | Ölçüm koşuları (`npm run olcum`): araç değerleri, tur süreleri (eski klasik motorla karşılaştırma), `ralli` (toprakta tam gaz + tam direksiyon), `drift` ve `drift-izgara` (drift pistlerinde tek kombo oranı), `titresim` (her araç her asfalt pistte poz sıçraması ve kerb sarsıntısı), adım maliyeti |
+| `tests/surec/merkez-durumu.mjs` | Last Turn Merkezi verisi: dallar, aşama, sürümler, son olaylar, son regresyon git'ten (`tests/cikti/merkez.json`) |
 | `tests/kosucu.mjs` | Test koşucusu: `duman`, `alan <dal>`, `regresyon`, `liste`; dal dal rapor `tests/cikti/rapor.md` |
 | `tests/senaryolar/` | Her dalın senaryoları kendi dosyasında (`<dal>.mjs`): önem (P1-P3), duman, birim grubu ya da tarayıcı bölümü (`BENIOKU.md`) |
 | `tests/e2e/duman.mjs` | Playwright: derlenmiş oyunu (ya da `--adres` ile canlıyı) açar, `tests/e2e/bolumler/` bölümlerini koşar (açılış, yarışlar, garaj, sürüş, kerb, HUD); `goruntu` ekran görüntüleri |
@@ -85,6 +89,7 @@ npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 - **Kokpit:** Gövde içeriden görünmez (tek yüzlü), iç mekân `cock` grubunda. `userData.pan` taşıyan parçalar (renk panelleri, yan camlar) kokpitte gizlenir. Ön cam `glassQM` kokpitte şeffaflaşır.
 - **Sürüm:** Sürüm numarası `package.json` → `version`; artırma kuralı "Sürümler" bölümünde. `index.html`'deki `window.APP_VERSION='%APP_VERSION%'` satırının tek tırnakları değişmemeli: kurulu eski uygulamalar güncellemeyi bu kalıpla bulur (Prettier bu dosyayı biçimlendirmez).
 - **Service worker:** Derlemede dosya listesiyle üretilir; elle liste tutulmaz. Ana sürüm `last-turn-…`, deneme sürümü `last-turn-dev-…` önbelleğini kullanır.
+- **Ses:** Ses dosyası yok, hepsi oyunda üretilir (`src/ses/`). Motor sesi fizikten okunur (`sim.yeni.rpm`, `vitesT`, `S.gas`), lastik sesi tekerlerin kaymasından (`tk.tanA`, `tk.kap`, `tk.zemin`). Ses ilk dokunuşta açılır (iOS). Seviyeler `set.ses`, `set.muz`. Ses değişikliğinde `npm run build && npm run ses`, sonra `tests/cikti/ses/` kayıtlarını kullanıcıya dinlet (kendin dinleyemezsin; spektrum ve seviye ölçümüne bak).
 - **Kayıtlar:** localStorage anahtarları: `lt_prof`, `lt_car`, `lt_ayar`, `sv_<yarış>`. Yeni alan eklersen eski kayıtlarla uyumlu kalsın (`okuJson` varsayılanla birleştirir).
 
 ## Test
@@ -110,7 +115,9 @@ Kullanıcı her değişikliği canlıdan önce kendi eliyle dener; otomatik test
 ```
 konu dalı ──"push"──► gelistirme (0.1.1, 0.1.2, … her push +1) ──► /Last-Turn/dev/ ──► kullanıcı telefonda dener
                                      │
-   gece 04:00: yeni iş var + push bekleyen dal yok ──► regresyon (sürüm dondurulur, ör. 0.1.37)
+   00:00: yeni iş var + push bekleyen dal yok ──► bildirim "testlere hazır" ──► "başlat" ya da 04:00
+                                     ▼
+                                regresyon (sürüm dondurulur, ör. 0.1.37)
                                      │   hatalar sahibi dalın adıyla düzeltilir, denemede 0 hata olana kadar tekrar
                                      ▼
               rapor + onay isteği ──"push"──► master ──► /Last-Turn/ (canlı, v0.1.37) ──► canlı duman
@@ -120,7 +127,7 @@ konu dalı ──"push"──► gelistirme (0.1.1, 0.1.2, … her push +1) ─�
 1. **Konu dalı:** her sohbet kendi dalında çalışır, `gelistirme`'den açılır ve onunla güncel tutulur (`git merge origin/gelistirme`). Commit'ler o dala gönderilir: `git push -u origin <konu>` (Denetim alan testini koşar).
 2. **"push" → deneme** (`surum-yayinla`): konu sohbetinde kullanıcı "push" deyince, işin boyutu ne olursa olsun, konu dalı `gelistirme`'ye birleştirilir, yama numarası artırılır (`npm version patch --no-git-tag-version`), `npm run kontrol`, `Deneme 0.1.5: …` commit'i, `git push origin gelistirme`. Kullanıcı "push" demediyse iş konu dalında kalır ("push bekleyen iş").
 3. **Dondurma:** `origin/regresyon` dalı durdukça sürüm regresyondadır ya da canlı onayı bekler; konu sohbetleri `gelistirme`'ye göndermez, işi kendi dalında tutar ve kullanıcıya bir sonraki sürüme gireceğini söyler. Dal canlıya çıkışla silinir.
-4. **Regresyon** ("regression" sohbeti, `regresyon` skill'i): her gece 04:00'te denetlenir. Canlıda olmayan yeni iş varsa ve hiçbir konu dalında push bekleyen commit yoksa (sürümün geliştirmeleri bitmiştir) başlar; push bekleyen dal varsa başlamaz, hangi dalın beklediğini yazar. Her hata onu yakalayan senaryonun dalına yazılır, düzeltme commit'i o dalın adıyla başlar (`[fizik] …`), ama düzeltmeleri yalnız regression sohbeti, yalnız `regresyon` dalında yapar: düzeltmeler birbiriyle çakışmaz. Düzeltmeler denemeye gider (yama +1), 0 hata kalana kadar tekrarlanır.
+4. **Regresyon** ("regression" sohbeti, `regresyon` skill'i): her gece 00:00'da denetlenir. Canlıda olmayan yeni iş varsa ve hiçbir konu dalında push bekleyen commit yoksa (sürümün geliştirmeleri bitmiştir) kullanıcıya "testlere hazır" bildirimi gider; kullanıcı regression sohbetinde "başlat" derse hemen, demezse 04:00'te başlar. Push bekleyen dal varsa başlamaz; merkez hangi dalın beklediğini gösterir. Her hata onu yakalayan senaryonun dalına yazılır, düzeltme commit'i o dalın adıyla başlar (`[fizik] …`), ama düzeltmeleri yalnız regression sohbeti, yalnız `regresyon` dalında yapar: düzeltmeler birbiriyle çakışmaz. Düzeltmeler denemeye gider (yama +1), 0 hata kalana kadar tekrarlanır.
 5. **Canlıya çıkış:** regresyon bitince regression sohbeti dal dal rapor verir (her dalda ne geliştirildi, hangi hatalar çıktı, nasıl çözüldü, son test tablosu) ve onay ister. Kullanıcı o sohbette "push" deyince `regresyon` → `master` (`Yayın 0.1.37` commit'i), canlı duman; `gelistirme` 0.2.0'a geçer, dondurma kalkar. **Konu sohbetleri `master`'a yazmaz.**
 6. **Acil düzeltme** (yalnız kullanıcı açıkça "canlıya acil düzeltme" / "hemen canlıya" derse): `duzeltme` dalı `origin/master`'dan açılır, düzeltilir, `npm run alan -- <dal>`, yama artırılır (0.1.37 → 0.1.38), kullanıcı onaylayınca `master`'a `Yayın 0.1.38: …` commit'iyle birleştirilir; sonra `master` `gelistirme`'ye birleştirilir (`package.json` sürüm satırında `gelistirme`'ninki kalır).
 7. GitHub Actions dumanı tekrar koşar, yayınlar, sonra canlı ve deneme adreslerinde duman koşar (~5 dk). Sonucu `mcp__github__actions_list` ile kontrol et; kalırsa açılan "Canlı duman hatası" kaydına bak, kendi işinden geldiyse hemen düzelt.
@@ -145,16 +152,19 @@ konu dalı ──"push"──► gelistirme (0.1.1, 0.1.2, … her push +1) ─�
 - Analog pedal: ortası sıfır, yukarı gaz, aşağı fren.
 - Çamur: içindeyken etki %100; dışarıda hızla orantılı temizlenir; araç dururken temizlenmez.
 - Her yarıştan önce garajda araç seçilir; türe uygun araç "Önerilen" olarak gelir.
-- Menü PES tarzı: solda Yarış, Serbest sürüş, Garaj, Profil, Ayarlar; arkada her yarış türünden sinematik çekimler rastgele akar, art arda aynı çekim gelmez.
+- Ana menü: üstte logo ve profil, ekranın altında soldan sağa görselli kartlar (Yarış, Serbest sürüş, Garaj, Profil, Ayarlar), kartlarda yalnız başlık; dikey liste ya da aşağı kaydırma yok. Kart görselleri oyunun kendi sahnelerinden (`public/img/menu_*.jpg`). Arkada her yarış türünden sinematik çekimler rastgele akar, art arda aynı çekim gelmez. Alt ekranlar (yarış türü, pistler) de yatay dizilir.
 - Yarış türü kartlarındaki görseller kullanıcının seçtikleridir (`public/img/tur_*.jpg`). Değiştirmeden önce aday çekip seçtir.
 - Görseller internetten alınmaz; oyunun kendi sahnelerinden çekilir.
+- Sesler şimdilik oyunun içinde üretilir (sentez). Gerçek motor kayıtları (internetten, telifsiz) kullanıcı bilgisayar başına geçince birlikte seçilecek; o zamana kadar ses dosyası indirilmez.
+- Menüde yarış oyunlarına uygun rock tarzı müzik çalar; sürüşte müzik yok.
 - Altyapı: TypeScript + Vite + Three.js (npm), derleme ve yayın GitHub Actions'ta. Kod okunur biçimde yazılır (Prettier), eski sıkıştırılmış tek satır stili bırakıldı.
 - Riskli değişiklikler önce deneme sürümünde (`/dev/`) denenir.
 - Konu sohbetinde "push" = denemeye (`gelistirme`) gönder, işin boyutu ne olursa olsun; her gönderim yama numarasını artırır. Canlıya (`master`) yalnız regression sohbeti, regresyon bittikten ve kullanıcı rapora bakıp onay verdikten sonra gönderir. Tek istisna kullanıcının açıkça istediği acil düzeltme.
-- `kurallar` sohbeti yalnız süreç ve kural değişikliklerini (CLAUDE.md, `docs/`, `.claude/`, `tests/` altyapısı, `.github/workflows/`) gönderir; oyun kodu (`src/`, `public/`, `index.html`) bu yetkinin dışındadır. Kurallar yalnız denemeye (`gelistirme`) gider: konu dalları oradan alır, canlıya bir sonraki sürümle kendiliğinden çıkar; sürüm numarası değişmez. İstisna: GitHub iş akışları (`.github/workflows/`; yayın `master`'daki iş akışıyla yapılır), oturum başı (`.claude/oturum-basi.sh`, `.claude/settings.json`) ve bu dosyanın "Her oturumun başında" bölümü `master`'dan okunduğu için onlara dokunan değişiklik `master`'a da hemen gönderilir.
+- `kurallar` sohbeti yalnız süreç ve kural değişikliklerini (CLAUDE.md, `docs/`, `.claude/`, `tests/` altyapısı, `.github/workflows/`) gönderir; oyun kodu (`src/`, `public/`, `index.html`) bu yetkinin dışındadır. Kurallar yalnız denemeye (`gelistirme`) gider: konu dalları oradan alır, canlıya bir sonraki sürümle kendiliğinden çıkar; sürüm numarası değişmez. Bu dosya da öyle: oturum `master`'dan açılsa da dala geçince daldaki güncel hâli okunur. Tek istisna `master`'dan çalışan dosyalar: GitHub iş akışları (`.github/workflows/`; yayın `master`'daki iş akışıyla yapılır) ve oturum başı betiği (`.claude/oturum-basi.sh`, `.claude/settings.json`); bunlara dokunan değişiklik `master`'a da hemen gönderilir.
 - Sürümler: 0.1.0 bu sürecin kurulduğu kilometre taşı. Denemeye her gönderim 0.1.1, 0.1.2, …; regresyon + onaylı canlı çıkıştan sonra 0.2.0 başlar.
 - Test kapsamı: canlıdan önce yalnız değişen alanın senaryoları + duman (kullanıcı ayrıca elle dener). Canlıdan sonra canlı adreste duman. Bütün dalların bütün senaryoları yalnız gece regresyonunda.
-- Regresyon her gece 04:00'te (İstanbul saati) "regression" sohbetinde denetlenir: denemede canlıda olmayan iş varsa ve hiçbir dalda push bekleyen iş yoksa başlar. En fazla ~1 saat, önem sırasıyla. Hatalar sahibi dalın adıyla o sohbette çözülür, 0 hata kalana kadar denemede tekrar koşulur. Onay istemeden önce dal dal rapor: her dalda neler oldu, hangi hatalar çıktı, nasıl çözüldü, düzeltme sonrası test sonucu. Regresyon süresince sürüm dondurulur.
+- Regresyon her gece 00:00'da (İstanbul saati) "regression" sohbetinde denetlenir: denemede canlıda olmayan iş varsa ve hiçbir dalda push bekleyen iş yoksa "<sürüm> canlı geçişi öncesi testlerine hazır" bildirimi gelir; kullanıcı "başlat" derse hemen, demezse 04:00'te başlar. En fazla ~1 saat, önem sırasıyla. Hatalar sahibi dalın adıyla o sohbette çözülür, 0 hata kalana kadar denemede tekrar koşulur. Onay istemeden önce dal dal rapor: her dalda neler oldu, hangi hatalar çıktı, nasıl çözüldü, düzeltme sonrası test sonucu. Regresyon süresince sürüm dondurulur.
+- Bildirimler ve merkez: konu sohbeti işi bitirip push beklemeye geçince "<dal>: geliştirme kontrol ve push onayınızı bekliyor" bildirimi gönderir. Regression sohbeti testlere hazır olunca, canlıya hazır olunca ve kullanıcı kararı gereken her durumda bildirir. Hepsi Last Turn Merkezi'nde de görünür.
 - Her sohbet kendi konu dalında çalışır; deneme sürümü (`gelistirme`) konu dallarının birleştiği tek ortak deneme alanıdır (telefonda tek deneme uygulaması).
 - Fizik motoru tek: yeni motor (katı gövde, 4 teker). Ayarlarda motor seçimi yok.
 - Rallide ve toprakta tam gaz + tam direksiyon yola tutunmaz; virajdan önce fren gerekir. Dengeli ve gerçekçide abartan spin atar.
