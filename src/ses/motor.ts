@@ -23,6 +23,11 @@ export interface MotorGirdisi {
   hiz: number;
 }
 
+/** garajdaki "motoru dinle" kaydının süresi (sn) */
+export const DINLE_SURE = 5;
+/** dinleme senaryosu: rölanti, kısa gaz vuruşu, devir kesiciye kadar uzun gaz, gaz kesme (patlamalar), rölanti */
+export const dinleGaz = (s: number) => ((s > 0.5 && s < 0.82) || (s > 1.7 && s < 3.1) ? 1 : 0);
+
 /** Float32Array → AudioBuffer */
 export function tampon(ctx: BaseAudioContext, s: Float32Array) {
   const b = ctx.createBuffer(1, s.length, ctx.sampleRate);
@@ -83,6 +88,8 @@ const ONBELLEK = new Map<string, { devir: number; gaz: AudioBuffer; bos: AudioBu
 export class MotorSesi {
   /** motor katmanlarının ana kazancı (devir ve yüke göre) */
   private cikis: GainNode;
+  /** VTEC: yüksek kama geçince tizler kabarır */
+  private vtecF: BiquadFilterNode;
   /** ek parçalar (turbo, valf, patlama) */
   private ek: GainNode;
   private katman: Katman[] = [];
@@ -108,7 +115,11 @@ export class MotorSesi {
   ) {
     this.cikis = ctx.createGain();
     this.cikis.gain.value = 0;
-    this.cikis.connect(hedef);
+    this.vtecF = ctx.createBiquadFilter();
+    this.vtecF.type = "highshelf";
+    this.vtecF.frequency.value = 1400;
+    this.vtecF.gain.value = 0;
+    this.cikis.connect(this.vtecF).connect(hedef);
     this.ek = ctx.createGain();
     this.ek.gain.value = 0;
     this.ek.connect(hedef);
@@ -117,6 +128,9 @@ export class MotorSesi {
   get hazir() {
     return !!this.p;
   }
+
+  /** çalan katmanların aracı (araç türü + azami devir); yeni araç hesaplanırken eskisi çalmaya devam eder */
+  kurulu = "";
 
   /** aracın motorunu kur (k: araç türü). Katmanlar karelere bölünerek hesaplanır */
   async kur(k: string, devirMax: number) {
@@ -153,6 +167,7 @@ export class MotorSesi {
       bos: dongu(ctx, b.bos, this.cikis, t),
     }));
     this.p = p;
+    this.kurulu = anahtar;
     this.dMax = devirMax;
     if (!this.patlamalar.length)
       for (let i = 0; i < 4; i++) this.patlamalar.push(tampon(ctx, patlama(sr, 40 + i)));
@@ -209,6 +224,7 @@ export class MotorSesi {
     for (const x of [this.turbo, this.komp, this.disli]) if (x) x.o.stop();
     this.turbo = this.komp = this.disli = null;
     this.p = null;
+    this.kurulu = "";
   }
 
   /** her kare: t bağlam saati, seviye 0-1 (0: sessiz) */
@@ -246,7 +262,14 @@ export class MotorSesi {
       k.gaz.g.gain.setTargetAtTime(w[i] * yG, t, 0.02);
       k.bos.g.gain.setTargetAtTime(w[i] * yB * 0.75, t, 0.02);
     });
-    this.cikis.gain.setTargetAtTime(seviye * (0.42 + 0.58 * u) * (0.6 + 0.4 * yuk), t, 0.03);
+    // VTEC: eşiğin üstünde gazdayken ses birden sertleşir ve yükselir
+    const vtec = p.vtec != null && u >= p.vtec && yuk > 0.5 ? 1 : 0;
+    this.vtecF.gain.setTargetAtTime(vtec * 6, t, 0.025);
+    this.cikis.gain.setTargetAtTime(
+      seviye * (0.42 + 0.58 * u) * (0.6 + 0.4 * yuk) * (1 + 0.25 * vtec),
+      t,
+      0.03,
+    );
     this.ek.gain.setTargetAtTime(seviye, t, 0.03);
 
     const birak = this.gazOnce > 0.5 && m.gaz < 0.2,

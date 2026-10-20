@@ -38,6 +38,10 @@ export interface MotorProfili {
   kompresor: number;
   disli: number;
   patlama: number;
+  /** egzoz türbülansı (0-1): her ateşlemeden sonra alçak frekanslı uğultu; sesi dolgunlaştırır */
+  govde: number;
+  /** VTEC: bu devir oranının (devir / azami) üstünde yüksek kam: ses sertleşir ve yükselir */
+  vtec?: number;
 }
 
 // ateşleme sıraları (krank açısı, egzoz kolu)
@@ -54,109 +58,113 @@ const BOXER4: [number, number][] = [
   [360, 0],
   [540, 1],
 ];
-/** sıra 6: 1-5-3-6-2-4, ön ve arka üçlü ayrı kolda */
-const SIRA6: [number, number][] = [0, 120, 240, 360, 480, 600].map((a, i) => [a, i % 2]);
-/** düz krank V8: sıralar sırayla ateşler, her kol eşit aralıklı (çığlık) */
-const V8_DUZ: [number, number][] = [0, 90, 180, 270, 360, 450, 540, 630].map((a, i) => [a, i % 2]);
+/** 90° V6, kaydırılmış krank muylusu: 120° eşit aralıklı ateşleme, sıralar sırayla */
+const V6: [number, number][] = [0, 120, 240, 360, 480, 600].map((a, i) => [a, i % 2]);
 /** çapraz krank V8 (1-8-7-2-6-5-4-3): her kolda aralıklar eşit değil (homurtu) */
 const V8_CAPRAZ: [number, number][] = [0, 1, 0, 1, 1, 0, 1, 0].map((k, i) => [i * 90, k]);
 
-/** araç türüne göre motor (gerçek araçlardan esinlenir) */
+/** araç türüne göre motor: esinlenilen gerçek aracın motor dizilimi ve egzoz karakteri */
 export const MOTORLAR: Record<string, MotorProfili> = {
-  // Kızıl Ok: ortadan motorlu pist arabası, düz krank V8, atmosferik, yüksek devirde çığlık
+  // Kızıl Ok (Acura NSX'ten esinlenir): ortadan motorlu, atmosferik 90° V6, 8000 devire çıkar; VTEC'te ses sertleşir
   gt: {
-    ad: "Düz krank V8",
-    ates: V8_DUZ,
-    kolGecikme: [0, 0],
-    boru: 0.0021,
-    boruGb: 0.55,
-    darbe: 0.0024,
+    ad: "Atmosferik V6 (VTEC)",
+    ates: V6,
+    kolGecikme: [0, 0.0004],
+    boru: 0.0034,
+    boruGb: 0.5,
+    darbe: 0.0036,
     puruz: 0.25,
-    lope: 0.06,
-    kesim: [7000, 2300],
-    gumbur: [140, 3],
-    surus: 2.2,
+    lope: 0.12,
+    kesim: [5200, 1700],
+    gumbur: [160, 6],
+    surus: 2,
     turbo: 0,
     valf: 0,
     kompresor: 0,
     disli: 0,
-    patlama: 0.6,
+    patlama: 0.35,
+    govde: 0.7,
+    vtec: 0.7,
   },
-  // Kor RX: rallikros hatchback, turbolu sıra 4, anti-lag patlamaları, düz dişli şanzıman
+  // Kor RX (Ford Focus rallikrostan esinlenir): turbolu sıra 4, anti-lag patlamaları, düz dişli şanzıman
   rx: {
-    ad: "Turbo sıra 4",
+    ad: "Turbo sıra 4 (rallikros)",
     ates: SIRA4,
     kolGecikme: [0, 0],
-    boru: 0.0031,
+    boru: 0.0042,
     boruGb: 0.5,
-    darbe: 0.0032,
-    puruz: 0.45,
-    lope: 0.1,
-    kesim: [5200, 1600],
-    gumbur: [110, 5],
-    surus: 3,
+    darbe: 0.0042,
+    puruz: 0.5,
+    lope: 0.18,
+    kesim: [4600, 1500],
+    gumbur: [160, 6],
+    surus: 2.8,
     turbo: 1,
     valf: 1,
     kompresor: 0,
     disli: 0.8,
     patlama: 1,
+    govde: 0.8,
   },
-  // Beyaz Kurt: drift arabası, turbolu sıra 6, pürüzsüz, valf kesik kesik öter
+  // Beyaz Kurt (Nissan Silvia S15'ten esinlenir): turbolu 2.0 sıra 4, kalın drift egzozu, valf kesik kesik öter
   dr: {
-    ad: "Turbo sıra 6",
-    ates: SIRA6,
+    ad: "Turbo sıra 4 (drift)",
+    ates: SIRA4,
     kolGecikme: [0, 0],
-    boru: 0.0026,
+    boru: 0.0055,
     boruGb: 0.55,
-    darbe: 0.0028,
-    puruz: 0.2,
-    lope: 0.05,
-    kesim: [5600, 1800],
-    gumbur: [120, 3],
-    surus: 2,
+    darbe: 0.0048,
+    puruz: 0.35,
+    lope: 0.15,
+    kesim: [3800, 1300],
+    gumbur: [140, 7],
+    surus: 2.4,
     turbo: 0.8,
     valf: 2,
     kompresor: 0,
     disli: 0,
-    patlama: 0.35,
+    patlama: 0.5,
+    govde: 0.7,
   },
-  // Mavi Yıldız: ralli sedanı, turbolu boxer 4, eşit olmayan manifold homurtusu
+  // Mavi Yıldız (Subaru Impreza'dan esinlenir): turbolu boxer 4, eşit olmayan manifold homurtusu
   rl: {
     ad: "Turbo boxer 4",
     ates: BOXER4,
     kolGecikme: [0, 0.0028],
-    boru: 0.0036,
+    boru: 0.005,
     boruGb: 0.5,
-    darbe: 0.0038,
+    darbe: 0.005,
     puruz: 0.4,
-    lope: 0.15,
-    kesim: [4400, 1400],
-    gumbur: [95, 6],
-    surus: 2.6,
+    lope: 0.25,
+    kesim: [3600, 1200],
+    gumbur: [130, 7],
+    surus: 2.4,
     turbo: 1,
     valf: 1,
     kompresor: 0,
-    disli: 0.6,
+    disli: 0.5,
     patlama: 0.8,
+    govde: 0.8,
   },
-  // Gece Mavisi: kompresörlü klasik drag arabası, çapraz krank V8, büyük kam
+  // Gece Mavisi (Dodge Charger'dan esinlenir): kompresörlü büyük V8, çapraz krank, derin homurtu
   dg: {
     ad: "Kompresörlü V8",
     ates: V8_CAPRAZ,
     kolGecikme: [0, 0.0006],
-    boru: 0.0042,
+    boru: 0.0062,
     boruGb: 0.6,
-    darbe: 0.0045,
+    darbe: 0.006,
     puruz: 0.35,
     lope: 0.6,
-    kesim: [3900, 1200],
-    gumbur: [75, 7],
-    surus: 2.8,
+    kesim: [3000, 1000],
+    gumbur: [110, 8],
+    surus: 2.6,
     turbo: 0,
     valf: 0,
     kompresor: 1,
     disli: 0,
-    patlama: 0.3,
+    patlama: 0.35,
+    govde: 1,
   },
 };
 
@@ -283,12 +291,16 @@ export function motorKatmani(
   // uyarım: her kol için darbeler (çevrim çevrim küçük düzensizliklerle)
   const kol = [new Float32Array(L), new Float32Array(L)],
     dL = p.darbe * sr * (0.85 + 0.3 * (1 - yuk)),
-    // silindirler arası sabit fark: düşük devirde belirgin
-    dusuk = 1 - 0.85 * Math.min(1, u * 1.6),
+    // silindirler arası sabit fark: düşük devirde belirgin, yüksekte de biraz kalır (sesin "kalınlığı")
+    dusuk = 1 - 0.6 * Math.min(1, u * 1.6),
     silFark = p.ates.map(() => (rng() * 2 - 1) * p.lope * dusuk),
     // büyük kamlı motorda ateşleme anları da kayar (rölantide "lope")
     silZaman = p.ates.map(() => (rng() * 2 - 1) * p.lope * dusuk * 0.0025 * sr),
-    gurultu = p.puruz * (0.35 + 0.5 * yuk);
+    gurultu = p.puruz * (0.35 + 0.5 * yuk),
+    // egzoz türbülansı: ateşleme aralığının ~%35'i boyunca sönen gürültü (ayrı tampon, alçak geçirilir)
+    gov = new Float32Array(L),
+    govTau = (0.35 * Tn) / p.ates.length,
+    govA = p.govde * (0.5 + 0.5 * yuk);
   for (let c = 0; c < N; c++)
     p.ates.forEach(([aci, k], j) => {
       let A = (0.3 + 0.7 * yuk) * (1 + silFark[j]) * (1 + (rng() - 0.5) * 0.4 * p.puruz);
@@ -307,16 +319,23 @@ export function motorKatmani(
           zarf = x < 0.5 ? 1 : 1 - (x - 0.5) * 2;
         s[((n % L) + L) % L] += A * (darbeBicimi(x) + gurultu * (rng() * 2 - 1) * zarf * Math.exp(-x * 3));
       }
+      if (govA > 0)
+        for (let n = n0; n < t0 + govTau * 4; n++)
+          gov[((n % L) + L) % L] += A * govA * (rng() * 2 - 1) * Math.exp(-(n - t0) / govTau);
     });
   // egzoz kolları: her kol kendi borusunda yankılanır, kendi içinde doyar (V8'de kollar arası homurtu)
   const D = Math.round(p.boru * sr),
     tarak = [new Tarak(D, p.boruGb, 0.45), new Tarak(Math.round(D * 1.13), p.boruGb * 0.92, 0.4)],
-    kesim = p.kesim[1] + (p.kesim[0] - p.kesim[1]) * yuk * (0.6 + 0.4 * u),
+    // susturucu odası: ikinci, daha uzun ve zayıf yankı (keskin tarak tınısını yumuşatır)
+    oda = new Tarak(Math.round(D * 2.7), 0.35, 0.3),
+    govLp = [Biquad.alcak(380 + 320 * u, 0.7, sr), Biquad.alcak(380 + 320 * u, 0.7, sr)],
+    vtec = p.vtec != null && u >= p.vtec,
+    kesim = (p.kesim[1] + (p.kesim[0] - p.kesim[1]) * yuk * (0.6 + 0.4 * u)) * (vtec ? 1.35 : 1),
     sus = [Biquad.alcak(kesim, 0.75, sr), Biquad.alcak(kesim * 1.6, 0.6, sr)],
     gum = Biquad.tepe(p.gumbur[0], 1.1, p.gumbur[1], sr),
-    parlak = Biquad.tepe(1800 + 1200 * u, 0.9, 2 + 3 * yuk, sr),
+    parlak = Biquad.tepe(1500 + 900 * u, 0.9, 1 + 2 * yuk + (vtec ? 3 : 0), sr),
     dc = Biquad.yuksek(28, 0.7, sr),
-    surus = p.surus * (0.55 + 0.45 * yuk),
+    surus = p.surus * (0.55 + 0.45 * yuk) * (vtec ? 1.25 : 1),
     ts = Math.tanh(surus),
     out = new Float32Array(L);
   for (let tur = 0; tur < 2; tur++)
@@ -324,6 +343,7 @@ export function motorKatmani(
       const a = tarak[0].adim(kol[0][n]),
         b = tarak[1].adim(kol[1][n]);
       let y = Math.tanh(a * 1.4) + Math.tanh(b * 1.4);
+      y = oda.adim(y) + govLp[1].adim(govLp[0].adim(gov[n]));
       y = sus[1].adim(sus[0].adim(y));
       y = parlak.adim(gum.adim(y));
       y = dc.adim(Math.tanh(y * surus) / ts);

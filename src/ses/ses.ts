@@ -2,13 +2,14 @@
 // Ses, ilk dokunuşta açılır (iOS). Seviyeler Ayarlar → Ses'ten (set.ses, set.muz).
 import { cl } from "../cekirdek/matematik";
 import { set } from "../oyun/ayarlar";
+import { CARS } from "../arac/araclar";
 import { oyun } from "../oyun/durum";
 import { I } from "../oyun/girdi";
 import { sim } from "../oyun/surus";
 import { yaris } from "../oyun/yarislar";
 import { sesDurumu, sesKilidiKur } from "./baglam";
 import { arayuzSesi, SurusSesleri } from "./efektler";
-import { MotorSesi } from "./motor";
+import { DINLE_SURE, dinleGaz, MotorSesi } from "./motor";
 import { Muzik } from "./muzik";
 
 let M: MotorSesi | null = null,
@@ -33,7 +34,17 @@ const once = {
 /** son 0,2 sn'nin hızları (çarpma şiddeti) */
 const hizlar: number[] = [];
 /** garajda ve geri sayımda sanal motor (fizik çalışmazken) */
-const sanal = { devir: 900, gaz: 0, blip: 0, blipBekle: false };
+const sanal = { devir: 900, gaz: 0 };
+/** garajda "motoru dinle": 5 sn'lik kayıt (bekle: motor katmanları hazırlanıyor) */
+const dinle = { arac: -1, bas: -1, bekle: false };
+/** tıklanabilir öğe mi: düğme, açılır başlık ya da onclick bağlı bir öğe (sürüş tuşları hariç) */
+function etkilesim(el: Element | null): HTMLElement | null {
+  for (let e = el as HTMLElement | null; e && e !== document.body; e = e.parentElement) {
+    if (e.id == "ctl") return null;
+    if (e.onclick || e.tagName == "BUTTON" || e.tagName == "SUMMARY" || e.tagName == "A") return e;
+  }
+  return null;
+}
 
 const seviye = (v: number) => (cl(v, 0, 100) / 100) ** 1.6;
 
@@ -50,21 +61,25 @@ export function sesKur() {
     const ctx = sesDurumu.ctx;
     if (ctx && MZ && ctx.state == "running") MZ.planla(ctx.currentTime + 0.3);
   }, 50);
-  // menü tıkları (sürüş tuşları hariç)
+  // tık sesi yalnız gerçek etkileşimde: dokunup bırakınca (click). Parmağı üzerinde gezdirmek, kaydırmak ses çıkarmaz
   document.addEventListener(
-    "pointerdown",
+    "click",
     (e) => {
       const ctx = sesDurumu.ctx,
         k = sesDurumu.k;
       if (!ctx || !k || ctx.state != "running") return;
-      const el = (e.target as Element | null)?.closest?.(
-        ".btn,.chip,.nv,.card,.gc,.row,button,summary,.ib,[data-nav],#gpv,#gnx",
-      );
-      if (!el || el.closest("#ctl")) return;
-      arayuzSesi.tik(ctx, k.efekt, ctx.currentTime, el.classList.contains("chip"));
+      const el = etkilesim(e.target as Element | null);
+      if (el) arayuzSesi.tik(ctx, k.efekt, ctx.currentTime, el.classList.contains("chip"));
     },
     { capture: true, passive: true },
   );
+  // garajdaki "motoru dinle" düğmesi (arayüz garaj.ts'te): incelenen aracın motorunu 5 sn çal
+  document.addEventListener("lt:motor-dinle", (e) => {
+    const a = (e as CustomEvent<{ arac?: number }>).detail?.arac;
+    dinle.arac = a != null && CARS[a] ? a : CARS.indexOf(oyun.CAR);
+    dinle.bas = -1;
+    dinle.bekle = true;
+  });
 }
 
 /** her kare */
@@ -80,7 +95,18 @@ export function sesTick(dt: number) {
     v = Math.hypot(S.vx, S.vz);
 
   // müzik: menüde tam, garajda ve sonuçta kısık, sürüşte yok
-  const mh = mod == "menu" ? 1 : mod == "garage" ? 0.55 : mod == "result" ? 0.8 : mod == "pause" ? 0.35 : 0;
+  const mh =
+    mod == "menu"
+      ? 1
+      : mod == "garage"
+        ? dinle.bas >= 0 || dinle.bekle
+          ? 0.12
+          : 0.55
+        : mod == "result"
+          ? 0.8
+          : mod == "pause"
+            ? 0.35
+            : 0;
   k.muzik.gain.setTargetAtTime(mh * seviye(set.muz) * 0.9, t, mh ? 0.6 : 0.3);
   if (mh > 0 && set.muz > 0) {
     once.sessiz = 0;
@@ -95,27 +121,33 @@ export function sesTick(dt: number) {
   // motor: araç değişince yeniden kurulur
   const car = oyun.CAR,
     dMax = car.dv ?? 7500,
-    anahtar = car.k + dMax;
+    anahtar = car.k + ":" + dMax;
   if (anahtar != once.arac) {
     once.arac = anahtar;
     void M.kur(car.k, dMax);
-    if (mod == "garage") sanal.blipBekle = true;
   }
-  if (mod == "garage" && once.mod != "garage") sanal.blipBekle = true;
-  if (sanal.blipBekle && M.hazir) {
-    sanal.blipBekle = false;
-    sanal.blip = t + 0.32;
+  // garajda motor kendiliğinden çalışmaz; yalnız "motoru dinle" ile 5 sn
+  if (mod != "garage" || (dinle.arac >= 0 && CARS[dinle.arac] !== car)) dinle.bekle = false;
+  if (dinle.bekle && M.kurulu == anahtar) {
+    dinle.bekle = false;
+    dinle.bas = t;
+    sanal.devir = 900;
+  }
+  const dinliyor = mod == "garage" && dinle.bas >= 0 && t - dinle.bas < DINLE_SURE;
+  if (dinle.bas >= 0 && !dinliyor) {
+    document.dispatchEvent(new CustomEvent("lt:motor-dinle-bitti", { detail: { arac: dinle.arac } }));
+    dinle.bas = -1;
   }
   const geriSayim = mod == "drive" && !!EV && EV.state == "count";
   if (mod == "garage" || mod == "result" || geriSayim) {
-    // fizik çalışmıyor: garajda gaz vuruşu, geri sayımda oyuncunun gazı, sonuçta rölantiye iner
-    const gaz = mod == "garage" ? (t < sanal.blip ? 1 : 0) : geriSayim ? I.g : 0;
+    // fizik çalışmıyor: garajda dinleme senaryosu, geri sayımda oyuncunun gazı, sonuçta rölantiye iner
+    const gaz = dinliyor ? dinleGaz(t - dinle.bas) : geriSayim ? I.g : 0;
     sanal.gaz = gaz;
-    const h = gaz ? 900 + gaz * 0.8 * (dMax - 900) : 900;
-    sanal.devir += (h - sanal.devir) * Math.min(1, dt * (h > sanal.devir ? 5 : 1.8));
+    const h = gaz ? 900 + gaz * 0.99 * (dMax - 900) : 900;
+    sanal.devir += (h - sanal.devir) * Math.min(1, dt * (h > sanal.devir ? (dinliyor ? 2.6 : 5) : 1.8));
   } else if (Y) sanal.devir = Y.rpm;
   const sesli = mod == "drive" || mod == "garage" || mod == "result",
-    ms = mod == "garage" ? 0.75 : mod == "result" ? 0.35 : sesli ? 1 : 0;
+    ms = mod == "garage" ? (dinliyor ? 1 : 0) : mod == "result" ? 0.35 : sesli ? 1 : 0;
   if (Y && mod == "drive" && !geriSayim)
     M.guncelle(t, dt, { devir: Y.rpm, gaz: S.gas, kesik: Y.vitesT > 0, hiz: v }, ms);
   else M.guncelle(t, dt, { devir: sanal.devir, gaz: sanal.gaz, kesik: false, hiz: 0 }, ms);
@@ -199,6 +231,7 @@ export function sesTick(dt: number) {
 /** testler için: bağlamın durumu, motor kuruldu mu, müzik çalıyor mu */
 export const sesBilgi = () => ({
   durum: sesDurumu.ctx?.state ?? "yok",
+  dinliyor: dinle.bas >= 0 || dinle.bekle,
   motor: !!M?.hazir,
   muzik: !!MZ?.caliyor,
 });

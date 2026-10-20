@@ -4,7 +4,7 @@ import { VITESLER } from "../fizik/yeni/arac-fizigi";
 import { CARS } from "../arac/araclar";
 import { karistiriciKur } from "./baglam";
 import { arayuzSesi, SurusSesleri, type SurusGirdisi } from "./efektler";
-import { MotorSesi } from "./motor";
+import { DINLE_SURE, dinleGaz, MotorSesi } from "./motor";
 import { Muzik } from "./muzik";
 
 const SR = 44100,
@@ -79,7 +79,13 @@ export async function sesKaydi(tur: string, arac = "gt", sn = 14): Promise<strin
   for (let t = 0; t < sn; t += ADIM) {
     let gaz = 0;
     const s = bosSurus();
-    if (tur == "motor") {
+    if (tur == "dinle") {
+      // garajdaki "motoru dinle" düğmesinin çaldığı 5 sn (ses.ts'teki sanal motorla aynı)
+      gaz = t < DINLE_SURE ? dinleGaz(t) : 0;
+      const h = gaz ? 900 + 0.99 * (dMax - 900) : 900;
+      devir += (h - devir) * Math.min(1, ADIM * (h > devir ? 2.6 : 1.8));
+      s.zemin = [0, 0, 0, 0, 0, 0];
+    } else if (tur == "motor") {
       if (t > 1.5 && t < 1.9) gaz = 1;
       else if (t > 3.5 && t < 11.5) gaz = 1;
       if (t < 3.5) {
