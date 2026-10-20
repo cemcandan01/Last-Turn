@@ -3,7 +3,8 @@
 iPhone'da ana ekrana kurulan (PWA) 3D yarış oyunu. **TypeScript + Vite + Three.js 0.186**. Kaynak `src/` altında modüllerdir; derleme çıktısı (`dist/`) GitHub Actions ile GitHub Pages'e yüklenir.
 
 - `master` → https://cemcandan01.github.io/Last-Turn/ (kullanıcının telefonundaki oyun)
-- `gelistirme` dalı → https://cemcandan01.github.io/Last-Turn/dev/ (deneme sürümü; ayrı ad, ayrı önbellek)
+- `gelistirme` dalı → https://cemcandan01.github.io/Last-Turn/dev/ (deneme sürümü; ayrı ad, ayrı önbellek). Ortak deneme alanıdır: içinde çalışılmaz, konu dalları buraya birleştirilir.
+- **Konu dalları:** her sohbet kendi dalında çalışır (`hud`, `fizik`, `garaj`, `menu`, `pist`, `altyapi` gibi; sohbetin alanının kısa adı). Ayrıntı: "Dallar ve yayın".
 
 Her iki yayında da testler geçmezse yayın yapılmaz. Kullanıcı uygulamayı internet varken açınca yeni sürüm iner.
 
@@ -11,10 +12,10 @@ Kullanıcı Türkçe konuşur, iPhone 13'te yatay oynar, kod okumaz. Arayüz met
 
 ## Her oturumun başında
 
-1. `git pull origin master` (deneme dalında çalışıyorsan `git pull origin gelistirme`).
+1. Kendi konu dalına geç: `git fetch origin`; dal varsa `git checkout <konu> && git pull origin <konu> && git merge origin/master`, yoksa `git checkout -b <konu> origin/master`. Ortamın atadığı bir dal adı varsa onu konu dalı olarak kullan. `master` ya da `gelistirme` üzerinde doğrudan çalışma.
 2. Bağımlılıklar oturum başında kendiliğinden kurulur (`.claude/oturum-basi.sh`). Kurulmadıysa: `npm ci`.
 3. Bu dosyayı ve "Kullanıcının kararları" bölümünü oku. Önceki işler: `git log --oneline -20`. Mimari: `docs/MIMARI.md`.
-4. İş bitince `surum-yayinla` skill'iyle yayınla. Push öncesi `git pull --rebase`. Çakışma olursa diğer sohbetin işini koruyarak birleştir.
+4. İş bitince `surum-yayinla` skill'iyle denemeye ya da ana sürüme gönder ("Dallar ve yayın"). Çakışma olursa diğer sohbetin işini koruyarak birleştir.
 5. Kalıcı bir karar alınırsa (kullanıcı "bundan sonra hep şöyle olsun" derse) "Kullanıcının kararları" bölümüne bir satır ekle.
 
 ## Komutlar
@@ -86,13 +87,19 @@ npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 - WebGL karesini almak için `LT.R.render(LT.scene, LT.cam); LT.R.domElement.toDataURL()`.
 - Yeni özellik eklersen onu deneyen bir test ekle.
 
-## Yayın
+## Dallar ve yayın
 
-1. `npm run kontrol` geçsin.
-2. `package.json` sürümünü artır, gerekirse `README.md`'yi güncelle.
-3. Türkçe commit: kısa başlık + maddeler. `git pull --rebase origin master`, sonra `git push origin master`.
+```
+konu dalı (hud, fizik, …) ──merge──► gelistirme ──► /Last-Turn/dev/   (deneme: onaylanmamış işler birlikte)
+        └──────── kullanıcı onaylayınca ──merge──► master ──► /Last-Turn/ (telefondaki oyun)
+```
+
+1. Her sohbet kendi konu dalında çalışır ve commit'lerini o dala gönderir: `git push -u origin <konu>` (Denetim testleri çalıştırır).
+2. **Denemeye gönder** (büyük ya da riskli iş, ya da kullanıcı "denemeye gönder" derse): `npm run kontrol` geçsin; `git checkout gelistirme && git pull origin gelistirme && git merge --no-ff <konu>`, çakışmayı iki işi de koruyarak çöz, `npm run kontrol`, `git push origin gelistirme`, sonra konu dalına geri dön. Deneme sürümünde başka sohbetlerin onaylanmamış işleri de bulunabilir; bu normaldir.
+3. **Ana sürüme yayınla** (kullanıcı onaylayınca, "yayınla" / "pushla" derse; küçük düzeltmeler doğrudan): `gelistirme`'yi değil **konu dalını** birleştir, böylece başka sohbetlerin onaylanmamış işleri ana sürüme girmez: `git checkout master && git pull origin master && git merge --no-ff <konu>`, sürümü artır (`npm version patch|minor --no-git-tag-version`), `npm run kontrol`, Türkçe commit, `git push origin master`. Ardından `gelistirme`'yi güncel tut: `git checkout gelistirme && git pull origin gelistirme && git merge master && git push origin gelistirme`.
 4. GitHub Actions testleri tekrar çalıştırır ve yayınlar (~3 dk). Sonucu `mcp__github__actions_list` ile kontrol et.
-5. Büyük ya da riskli değişiklik önce `gelistirme` dalına gider: kullanıcı `/dev/` adresinde dener, onaylarsa `master`'a birleştirilir.
+5. Konu dalı uzun yaşıyorsa ara ara `git merge origin/master` ile güncelle (çakışmalar küçükken çözülsün). Aynı dosyanın aynı satırlarına iki sohbet dokunduysa ve hangisinin kalacağı açık değilse kullanıcıya sor.
+6. Commit, rebase ya da force-push ile başka sohbetin dalının geçmişi değiştirilmez; yalnız kendi konu dalında çalışılır.
 
 ## Kullanıcının kararları (bozma, değiştirmeden önce sor)
 
@@ -110,6 +117,7 @@ npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 - Görseller internetten alınmaz; oyunun kendi sahnelerinden çekilir.
 - Altyapı: TypeScript + Vite + Three.js (npm), derleme ve yayın GitHub Actions'ta. Kod okunur biçimde yazılır (Prettier), eski sıkıştırılmış tek satır stili bırakıldı.
 - Riskli değişiklikler önce deneme sürümünde (`/dev/`) denenir.
+- Her sohbet kendi konu dalında çalışır; deneme sürümü (`gelistirme`) konu dallarının birleştiği tek ortak deneme alanıdır (telefonda tek deneme uygulaması). Ana sürüme yalnız kullanıcının onayladığı konu dalı birleştirilir.
 - Fizik motoru tek: yeni motor (katı gövde, 4 teker). Ayarlarda motor seçimi yok.
 - Rallide ve toprakta tam gaz + tam direksiyon yola tutunmaz; virajdan önce fren gerekir. Dengeli ve gerçekçide abartan spin atar.
 - Drift pistinde turun ~%80'i tek komboda geçilebilmeli; zorluk adil olmalı (gerçekçide ölçülü açı başarır, abartan yakar).

@@ -76,8 +76,9 @@ GitHub Actions her gönderimde hepsini çalıştırır; `master` ve `gelistirme`
 ## Yayın akışı
 
 ```
-sohbet (bulut) ──push──► gelistirme ──Actions: test + derle──► /Last-Turn/dev/   (deneme)
-                 └─push──► master     ──Actions: test + derle──► /Last-Turn/       (telefondaki oyun)
+sohbet ──push──► konu dalı (hud, fizik, …) ──Actions: test
+                    ├─merge──► gelistirme ──Actions: test + derle──► /Last-Turn/dev/   (deneme, ortak)
+                    └─merge (onaylanınca)──► master ──Actions: test + derle──► /Last-Turn/ (telefondaki oyun)
 ```
 
 - Service worker derlemede dosya listesiyle üretilir (`src/pwa/sw-sablon.js` → `dist/sw.js`). Özetli dosyalar (`assets/…-abc123.js`) önbellekten, `index.html` ağdan gelir.
@@ -89,4 +90,4 @@ sohbet (bulut) ──push──► gelistirme ──Actions: test + derle──�
 2. `npm ci`
 3. `npm run dev -- --host` → bilgisayarda ve aynı ağdaki iPhone'da `http://<bilgisayar-ip>:5173` (anında yenileme)
 4. Editör: VS Code + ESLint + Prettier eklentileri (ayarlar depoda: `.editorconfig`, `.prettierrc.json`, `eslint.config.js`)
-5. Gönderim ve yayın aynı: `master` / `gelistirme` dallarına push.
+5. Gönderim ve yayın aynı: konu dalında çalış, `gelistirme` / `master`'a birleştirip push (`CLAUDE.md` → Dallar ve yayın).
