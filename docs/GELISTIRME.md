@@ -5,8 +5,10 @@ Her alan için yeni bir sohbet aç ve aşağıdaki istemi yapıştır. Altına o
 İpuçları:
 - Küçük işlerde (metin, renk, tek ayar) daha hafif bir model ya da düşük düşünme seviyesi yeterli. Fizik ve tasarım gibi zor işlerde güçlü model kullan.
 - Görmen gerekmeyen işlerde "ekran görüntüsü kontrolü yapma, sadece testleri çalıştır" de.
-- İş bitince "yayınla" demen yeterli. `surum-yayinla` skill'i sürümü artırıp gönderir. Önce denemek istersen "denemeye gönder" de: değişiklik https://cemcandan01.github.io/Last-Turn/dev/ adresine gelir, telefonda dener, beğenince "yayınla" dersin.
-- Her sohbet kendi dalında çalışır (HUD sohbeti `hud`, fizik sohbeti `fizik` gibi). "Denemeye gönder" dediğinde iş ortak deneme sürümüne eklenir; orada başka sohbetlerin denemedeki işleri de görünür. "Yayınla" dediğinde yalnız o sohbetin işi ana oyuna gider. Aynı anda birkaç sohbet çalışabilir; çakışma olursa sohbet iki işi de koruyarak birleştirir, karar gerekirse sana sorar.
+- İş bitince "push" de: değişiklik ne kadar büyük olursa olsun deneme sürümüne gider (https://cemcandan01.github.io/Last-Turn/dev/), sürüm numarası bir artar (0.1.4 → 0.1.5). Telefonda deneme uygulamasından bakarsın.
+- Canlıya (telefondaki asıl oyun) konu sohbetlerinden gönderilmez. Bütün dallardaki işler denemeye gönderildiyse "regression" sohbeti gece 04:00'te bütün testleri koşar, hataları düzeltir ve sana dal dal rapor verip onay ister. Orada "push" deyince sürüm (ör. 0.1.37) canlıya çıkar, sonraki sürüm 0.2 başlar. Push demediğin bir iş varsa regresyon başlamaz, o dalı bekler.
+- Testler hızlıdır: sohbet yalnız kendi alanının senaryolarını ve kısa bir duman turunu koşar; bütün testler regresyonda koşar.
+- Her sohbet kendi dalında çalışır (HUD sohbeti `hud`, fizik sohbeti `fizik` gibi). "Push" dediğinde iş ortak deneme sürümüne eklenir; orada başka sohbetlerin işleri de görünür. Aynı anda birkaç sohbet çalışabilir; çakışma olursa sohbet iki işi de koruyarak birleştirir, karar gerekirse sana sorar.
 
 ---
 
@@ -15,7 +17,7 @@ Her alan için yeni bir sohbet aç ve aşağıdaki istemi yapıştır. Altına o
 ```
 Last Turn'ün fizik ve sürüş hissi üzerinde çalışacağız. Fizik src/fizik/ altında ve saf (three ve DOM yok). Motor yeni/model.ts (katı gövde, 4 teker, süspansiyon, lastik modeli, motor-vites); tek motor. Ortak drift penceresi DR ve drift puanı ortak.ts'te; veriler.ts zeminler, lastikler, ayarlar, yardım seviyeleri, önayarlar; simulasyon.ts sabit adım. Araç değerleri src/arac/araclar.ts (CARS: trq, pw, m, fb, rb, iz, awd, ff, hcg, dv...).
 Kurallar: kayma ile drift ayrımını koru (drift modu yalnız bilinçli driftte açılır). Gerçekçi seviyede araç gazda kendi kendine spin atmamalı. Fizikte Math.random kullanma.
-Her değişiklikten sonra `npm test` (spin, toprak, drift, titreşim, ~25 sn) ve gerekirse `npm run olcum` (0-100, fren, tur süreleri) çalıştır. Gerekirse tests/birim/'e yeni bir ölçüm ekle (fren mesafesi, viraj hızı gibi; tests/yardimci/surucu.ts gerçek pistte otomatik pilot kurar). Sonuçları sayılarla anlat.
+Her değişiklikten sonra `npm test` (spin, toprak, drift, titreşim, ~40 sn; yalnız fizik senaryoları: `npm run alan -- fizik`) ve gerekirse `npm run olcum` (0-100, fren, tur süreleri) çalıştır. Gerekirse tests/birim/'e yeni bir ölçüm ekle (fren mesafesi, viraj hızı gibi; tests/yardimci/surucu.ts gerçek pistte otomatik pilot kurar). Sonuçları sayılarla anlat.
 Bugünkü isteğim:
 ```
 
