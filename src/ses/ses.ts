@@ -133,7 +133,9 @@ export function sesTick(dt: number) {
     dinle.bas = t;
     sanal.devir = 900;
   }
-  const dinliyor = mod == "garage" && dinle.bas >= 0 && t - dinle.bas < DINLE_SURE;
+  // başka araca geçilince dinleme biter
+  const dinliyor =
+    mod == "garage" && dinle.bas >= 0 && t - dinle.bas < DINLE_SURE && CARS[dinle.arac] === car;
   if (dinle.bas >= 0 && !dinliyor) {
     document.dispatchEvent(new CustomEvent("lt:motor-dinle-bitti", { detail: { arac: dinle.arac } }));
     dinle.bas = -1;

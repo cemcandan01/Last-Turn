@@ -20,23 +20,28 @@ export default async function ({ p, ok }) {
     LT.showMenu(["home"]);
     await new Promise((r) => setTimeout(r, 300));
     const menu = LT.sesBilgi();
-    // garaj: araç seçmek motoru çalıştırmaz; "motoru dinle" olayı 5 sn çalar, sonra bitti olayı gelir
+    return { surus, menu };
+  });
+  // garaj: araç seçmek motoru çalıştırmaz; "Motoru dinle" düğmesi (menü dalı) incelenen aracı 5 sn çalar
+  await p.evaluate(async () => {
     LT.openGarage(null);
     await new Promise((r) => setTimeout(r, 400));
-    const garajSessiz = !LT.sesBilgi().dinliyor;
-    let bitti = false;
-    document.addEventListener("lt:motor-dinle-bitti", () => (bitti = true), { once: true });
-    document.dispatchEvent(
-      new CustomEvent("lt:motor-dinle", { detail: { arac: LT.CARS.indexOf(LT.oyun.CAR) } }),
-    );
+    window.__bitti = false;
+    document.addEventListener("lt:motor-dinle-bitti", () => (window.__bitti = true), { once: true });
+  });
+  const garajSessiz = await p.evaluate(() => !LT.sesBilgi().dinliyor);
+  await p.click("#gses");
+  const gd = await p.evaluate(async () => {
+    const g1 = performance.now();
     await new Promise((r) => setTimeout(r, 300));
     const dinliyor = LT.sesBilgi().dinliyor;
-    const g1 = performance.now();
-    while (!bitti && performance.now() - g1 < 9000) await new Promise((r) => setTimeout(r, 100));
+    while (!window.__bitti && performance.now() - g1 < 9000) await new Promise((r) => setTimeout(r, 100));
+    const sure = (performance.now() - g1) / 1000;
     LT.closeGarage();
     LT.showMenu(["home"]);
-    return { surus, menu, garajSessiz, dinliyor, bitti, sure: (performance.now() - g1 + 300) / 1000 };
+    return { dinliyor, bitti: window.__bitti, sure };
   });
+  Object.assign(ss, { garajSessiz, ...gd });
   ok(
     ss.surus.durum == "running" && ss.surus.motor,
     `dokununca ses açılıyor, motor sesi kuruluyor (${ss.surus.durum})`,
@@ -45,7 +50,7 @@ export default async function ({ p, ok }) {
   ok(ss.garajSessiz, "garajda araç seçince motor kendiliğinden çalışmıyor");
   ok(
     ss.dinliyor && ss.bitti && ss.sure > 4 && ss.sure < 7,
-    `garajda "motoru dinle": incelenen aracın motoru ~5 sn çalıyor (${ss.sure.toFixed(1)} sn)`,
+    `garajda "Motoru dinle" düğmesi: incelenen aracın motoru ~5 sn çalıyor (${ss.sure.toFixed(1)} sn)`,
   );
   ok(p.errs.length == h0, "seslerle sürüşte hata yok " + (p.errs[h0] || ""));
 }
