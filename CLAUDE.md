@@ -51,7 +51,7 @@ npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 | `src/oyun/` | Oyun akışı: `durum` (mod, kamera, araç, `setCar`), `kurulum` (önayar, yardım, `applyPreset`), `ayarlar` (set, CT, kalıcı), `girdi` (I, eğim, klavye), `surus` (simülasyonu oyuna bağlar, `reset`, tur sayacı), `yarislar` (EVENTS, startEvent, evTick), `sinematik` (menü arka planı), `bolge` (setActive), `dongu` (ana döngü), `profil`, `api` (testler için `window.LT`) |
 | `src/ses/` | `sentez` (**saf**: motor katmanları fiziksel modelle, çakıl, patlama, valf, çarpma, süzgeçler; `MOTORLAR` araç türüne göre), `baglam` (AudioContext, iOS ilk dokunuş kilidi, kanallar), `motor` (katmanları devire göre karıştırır; turbo, valf, kompresör, patlamalar), `efektler` (lastik, zemin, rüzgâr, kerb, çarpma; arayüz ve yarış sesleri), `muzik` (menü rock parçası), `ses` (oyun durumunu okur, `sesTick` döngüde), `kayit` (çevrimdışı kayıt, testler için) |
 | `src/pwa/` | `kayit` (service worker, yeni sürüm kontrolü), `sw-sablon.js` (derlemede `dist/sw.js` olur) |
-| `public/` | Olduğu gibi kopyalanır: `icons/`, `img/` (menü görselleri) |
+| `public/` | Olduğu gibi kopyalanır: `icons/`, `img/` (`menu_*`: ana menü kartları, `tur_*`: yarış türü kartları) |
 | `tests/birim/` | Vitest `fizik`: kararlılık, hızlanma, fren, spin, toprakta sınır (frensiz tur yok, abartan spin), drift dengesi, drift yarışı (%80 tek kombo), asfaltta titreşim yok (5 araç × 9 asfalt pist, kerb sarsıntısı), kalkış, atlama, çarpışma, rastgele sürüş |
 | `tests/olcum/` | Ölçüm koşuları (`npm run olcum`): araç değerleri, tur süreleri (eski klasik motorla karşılaştırma), `ralli` (toprakta tam gaz + tam direksiyon), `drift` ve `drift-izgara` (drift pistlerinde tek kombo oranı), `titresim` (her araç her asfalt pistte poz sıçraması ve kerb sarsıntısı), adım maliyeti |
 | `tests/e2e/duman.mjs` | Playwright: derlenmiş oyunda menü, 15 yarış, dünyalar, garaj, sürüş |
@@ -116,7 +116,7 @@ konu dalı (hud, fizik, …) ──merge──► gelistirme ──► /Last-Tur
 - Analog pedal: ortası sıfır, yukarı gaz, aşağı fren.
 - Çamur: içindeyken etki %100; dışarıda hızla orantılı temizlenir; araç dururken temizlenmez.
 - Her yarıştan önce garajda araç seçilir; türe uygun araç "Önerilen" olarak gelir.
-- Menü PES tarzı: solda Yarış, Serbest sürüş, Garaj, Profil, Ayarlar; arkada her yarış türünden sinematik çekimler rastgele akar, art arda aynı çekim gelmez.
+- Ana menü: üstte logo ve profil, ekranın altında soldan sağa görselli kartlar (Yarış, Serbest sürüş, Garaj, Profil, Ayarlar), kartlarda yalnız başlık; dikey liste ya da aşağı kaydırma yok. Kart görselleri oyunun kendi sahnelerinden (`public/img/menu_*.jpg`). Arkada her yarış türünden sinematik çekimler rastgele akar, art arda aynı çekim gelmez. Alt ekranlar (yarış türü, pistler) de yatay dizilir.
 - Yarış türü kartlarındaki görseller kullanıcının seçtikleridir (`public/img/tur_*.jpg`). Değiştirmeden önce aday çekip seçtir.
 - Görseller internetten alınmaz; oyunun kendi sahnelerinden çekilir.
 - Sesler şimdilik oyunun içinde üretilir (sentez). Gerçek motor kayıtları (internetten, telifsiz) kullanıcı bilgisayar başına geçince birlikte seçilecek; o zamana kadar ses dosyası indirilmez.
