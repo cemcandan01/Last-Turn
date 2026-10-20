@@ -5,9 +5,10 @@ Her alan için yeni bir sohbet aç ve aşağıdaki istemi yapıştır. Altına o
 İpuçları:
 - Küçük işlerde (metin, renk, tek ayar) daha hafif bir model ya da düşük düşünme seviyesi yeterli. Fizik ve tasarım gibi zor işlerde güçlü model kullan.
 - Görmen gerekmeyen işlerde "ekran görüntüsü kontrolü yapma, sadece testleri çalıştır" de.
-- İş bitince sohbet değişikliği deneme sürümüne gönderir: https://cemcandan01.github.io/Last-Turn/dev/ adresinde telefonda dener, beğenince "push" dersin; değişiklik ne kadar büyük olursa olsun ana oyuna gider (`surum-yayinla` skill'i sürümü artırır, yayından sonra canlıda hızlı bir duman testi koşar).
-- Testler hızlıdır: sohbet yalnız kendi alanının senaryolarını ve kısa bir duman turunu koşar. Bütün alanların bütün testleri, geliştirme yapılan günlerin gecesi 04:00'te "regression" sohbetinde koşar; hataları orada düzeltir ve sana dal dal rapor verir. Oradaki düzeltmeleri de telefonda deneyip o sohbette "push" dersin.
-- Her sohbet kendi dalında çalışır (HUD sohbeti `hud`, fizik sohbeti `fizik` gibi). "Denemeye gönder" dediğinde iş ortak deneme sürümüne eklenir; orada başka sohbetlerin denemedeki işleri de görünür. "Yayınla" dediğinde yalnız o sohbetin işi ana oyuna gider. Aynı anda birkaç sohbet çalışabilir; çakışma olursa sohbet iki işi de koruyarak birleştirir, karar gerekirse sana sorar.
+- İş bitince "push" de: değişiklik ne kadar büyük olursa olsun deneme sürümüne gider (https://cemcandan01.github.io/Last-Turn/dev/), sürüm numarası bir artar (0.1.4 → 0.1.5). Telefonda deneme uygulamasından bakarsın.
+- Canlıya (telefondaki asıl oyun) konu sohbetlerinden gönderilmez. Bütün dallardaki işler denemeye gönderildiyse "regression" sohbeti gece 04:00'te bütün testleri koşar, hataları düzeltir ve sana dal dal rapor verip onay ister. Orada "push" deyince sürüm (ör. 0.1.37) canlıya çıkar, sonraki sürüm 0.2 başlar. Push demediğin bir iş varsa regresyon başlamaz, o dalı bekler.
+- Testler hızlıdır: sohbet yalnız kendi alanının senaryolarını ve kısa bir duman turunu koşar; bütün testler regresyonda koşar.
+- Her sohbet kendi dalında çalışır (HUD sohbeti `hud`, fizik sohbeti `fizik` gibi). "Push" dediğinde iş ortak deneme sürümüne eklenir; orada başka sohbetlerin işleri de görünür. Aynı anda birkaç sohbet çalışabilir; çakışma olursa sohbet iki işi de koruyarak birleştirir, karar gerekirse sana sorar.
 
 ---
 
