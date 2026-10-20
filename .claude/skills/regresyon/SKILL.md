@@ -18,17 +18,20 @@ git ls-remote --exit-code --heads origin regresyon      # açık regresyon var m
 git show origin/regresyon:docs/regresyon/durum.json     # varsa: suruyor | onay-bekliyor | tamamlandi
 git rev-list --count --no-merges origin/master..origin/gelistirme -- src public index.html vite.config.ts tsconfig.json   # canlıda olmayan oyun işi (sürüm açma, sürüm numarası, kural commit'leri sayılmaz)
 for b in $(git branch -r --format='%(refname:short)' | grep -vE '^origin/(HEAD|master|gelistirme|regresyon)$'); do
-  n=$(git rev-list --count --no-merges origin/gelistirme..$b); [ "$n" != 0 ] && echo "$b: $n commit push bekliyor"
+  n=$(git rev-list --count --no-merges origin/gelistirme..$b); [ "$n" != 0 ] && echo "$b: $n commit bekletiliyor (bu sürüme girmez)"
 done
 ```
 Açık regresyon: `origin/regresyon` duruyor ve `durum.json` "tamamlandi" değil.
 
-Üç giriş var:
-- **00:00 görevi (hazırlık):** merkezi tazele. Açık regresyon varsa: onay bekliyorsa bildir ("Regresyon kararını bekliyor: <sürüm> canlı onayı"), yoksa bir şey yapma. Yeni iş yoksa ya da push bekleyen dal varsa: bildirim gönderme, sohbete tek satır yaz. Yeni iş var ve bekleyen dal yoksa: **başlatma**, yalnız bildir: "<sürüm> canlı geçişi öncesi testlerine hazır. Başlatmak için regression sohbetinde "başlat" de; demezsen 04:00'te başlar." ve sohbete aynı satırı yaz.
-- **Kullanıcı "başlat" / "regresyon koş" dedi:** açık regresyon varsa yeniden başlatma, durumunu söyle. Push bekleyen dal varsa söyle ve sor ("menu 2 commit bekliyor; beklensin mi, onsuz mu başlayayım?"). Yoksa 2. adımdan başla (yeni iş yoksa bile kullanıcı istediyse koş).
-- **04:00 görevi (otomatik başlangıç):** açık regresyon varsa: yarıda kaldıysa kaldığı adımdan devam et, onay bekliyorsa bir şey yapma (00:00'da hatırlatıldı). Yeni iş yoksa ya da push bekleyen dal varsa tek satır yaz, merkezi tazele, bitir. Koşullar tamamsa 2. adımdan başla.
+Konu sohbetleri işi testler geçince kendiliğinden denemeye gönderir; dalda kalan iş, kullanıcının bilerek beklettiği iştir. **Bekletilen dal regresyonu durdurmaz**, yalnız bu sürüme girmez; bildirimde ve raporda adını say.
 
-Kullanıcı bir dal için "beklemesin" derse o dalı bu sürümde yok say.
+Üç giriş var:
+- **00:00 görevi (hazırlık):** merkezi tazele. Açık regresyon varsa: onay bekliyorsa bildir ("Regresyon kararını bekliyor: <sürüm> canlı onayı"), yoksa bir şey yapma. Yeni iş yoksa: bildirim gönderme, sohbete tek satır yaz. Yeni iş varsa: **başlatma**, yalnız bildir: "<sürüm> canlı geçişi öncesi testlerine hazır. "başlat" dersen hemen, demezsen 04:00'te başlar; "bu gece başlama" dersen beklerim." (bekletilen dal varsa: " Bekleyen: <dal> (bu sürüme girmez).") ve sohbete aynı satırı yaz.
+- **Kullanıcı "başlat" / "regresyon koş" dedi:** açık regresyon varsa yeniden başlatma, durumunu söyle. Bekletilen dal varsa adını söyle (bu sürüme girmez). 2. adımdan başla (yeni iş yoksa bile kullanıcı istediyse koş).
+- **Kullanıcı "bu gece başlama" / "bekle" dedi:** 04:00'te başlatma; sohbete not düş, merkezi tazele. Sonraki 00:00'da yeniden sorulur.
+- **04:00 görevi (otomatik başlangıç):** açık regresyon varsa: yarıda kaldıysa kaldığı adımdan devam et, onay bekliyorsa bir şey yapma (00:00'da hatırlatıldı). Kullanıcı bu gece "bu gece başlama" dediyse ya da yeni iş yoksa tek satır yaz, merkezi tazele, bitir. Yoksa 2. adımdan başla.
+
+**Bir dalı sürümden çıkarmak:** kullanıcı onay öncesi "<dal> bu sürüme girmesin" derse `regresyon` dalında o dalın bu sürümdeki birleştirme commit'lerini `git revert -m 1 <commit>` ile geri al (`git log --merges --first-parent --format='%h %s' origin/master..regresyon` ile bul), commit başlığı `[<dal>] bu sürümden çıkarıldı`; regresyonu tekrar koş, raporda belirt. Canlıya çıkıştan sonra, 0.2'yi açarken bu geri almayı `gelistirme`'de geri al (`git revert <geri alma commit'i>`), böylece iş sonraki sürümde yeniden yer alır.
 
 ## 2. Sürümü dondur
 

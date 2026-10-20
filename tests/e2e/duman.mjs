@@ -18,11 +18,14 @@ const BOLUMLER = [
   "yarislar",
   "garaj",
   "garaj-ses",
+  "dokunma",
+  "gecis",
   "surus",
   "kerb",
   "ses",
   "hud-cakisma",
   "hud-duzenleyici",
+  "kokpit",
 ];
 
 const KOK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.."),
