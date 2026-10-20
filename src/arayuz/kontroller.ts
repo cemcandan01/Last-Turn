@@ -100,13 +100,13 @@ export function kontrolleriKur() {
       : CT.steer == "wheel"
         ? '<div class="wz" id="wz"><div class="wheel" id="wh"></div></div>'
         : '<div class="g"><div class="k" id="cal">Ortala</div></div>';
-  const B = CT.gas == "analog" ? "" : '<div class="k" id="b">FREN</div>';
+  const B = CT.gas == "analog" ? "" : '<div class="k pd" id="b">FREN</div>';
   c.innerHTML =
     L +
     '<div class="g">' +
     B +
     (CT.gas == "btn"
-      ? '<div class="k" id="g">GAZ</div>'
+      ? '<div class="k pd" id="g">GAZ</div>'
       : CT.gas == "analog"
         ? '<div class="pedal" id="pd"><i></i><u></u><b>GAZ</b><s>FREN</s></div>'
         : "") +
