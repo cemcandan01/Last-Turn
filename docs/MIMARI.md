@@ -56,6 +56,21 @@ her kare (requestAnimationFrame):
 
 Drift penceresi (DR), drift puanı, çamur ve ıslaklık, toz ve duman `fizik/ortak.ts`'te. Tur süreleri otomatik pilotla ölçülür (`npm run olcum`); eski klasik (bisiklet) motorun süreleri karşılaştırma için ölçüm dosyasında durur. Eski motor 3.1'de kaldırıldı (git geçmişinde: `src/fizik/klasik.ts`).
 
+## Ses (ses/)
+
+Ses dosyası yoktur; her şey oyunda üretilir. `ses/ses.ts → sesTick` her karede oyun durumunu okur (ana döngünün sonunda).
+
+```
+fizik (sim.yeni.rpm, vitesT, S.gas, teker kaymaları) ─► motor.ts   ─┐
+teker zeminleri, hız, kerb, çarpma, havada            ─► efektler.ts ┼─► araç kanalı ─► kokpit süzgeci ─┐
+yarış (geri sayım, drift kombosu, bitiş), menü tıkları ─► efektler.ts ┘                     efekt kanalı ┼─► ana ─► sınırlayıcı ─► hoparlör
+mod (menü, garaj, sonuç, duraklatma)                  ─► muzik.ts ─────────────────────► müzik kanalı ┘
+```
+
+- **Motor:** `sentez.ts` her araç için 5 devirde, gazda ve gaz kapalıyken 1 sn'lik kesintisiz döngüler üretir: silindirlerin ateşleme darbeleri (dizilime göre aralık ve egzoz kolu), boru yankısı (tarak süzgeci), susturucu, gövde gümbürtüsü, doygunluk. Oyunda katmanlar devire göre çapraz geçişle ve hızlandırılarak çalınır. Üstüne turbo ıslığı, üfleme valfi, kompresör, düz dişli, devir kesici, gaz kesince patlamalar.
+- **iOS:** bağlam ilk dokunuşta kurulur (`baglam.ts`); arka plana geçince askıya alınır.
+- **Kayıt:** `kayit.ts` aynı sesleri çevrimdışı bağlamda senaryoyla çalar; `npm run ses` dosyaya yazar (dinlemek, spektrumuna bakmak için).
+
 ## Belirlenimcilik
 
 - Fizik `Math.random` kullanmaz: savrulma gibi rastgelelik `Simulasyon.rng` (tohumlu). Toz gibi yalnız görsel rastgelelik ayrı (`gorselRng`).

@@ -21,6 +21,7 @@ import { girdiKur } from "./oyun/girdi";
 import { applyPreset, kurulum } from "./oyun/kurulum";
 import { reset } from "./oyun/surus";
 import { pwaKur } from "./pwa/kayit";
+import { sesKur } from "./ses/ses";
 
 // eski testler ve hata ayıklama için oyunun iç durumuna erişim
 import * as oyunApi from "./oyun/api";
@@ -54,6 +55,7 @@ kontrolleriKur();
 showMenu();
 performansGoster(!!set.perf || location.search.includes("perf"));
 pwaKur();
+sesKur();
 donguBaslat();
 
 (window as unknown as { LT: typeof oyunApi }).LT = oyunApi;
