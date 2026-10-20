@@ -11,6 +11,7 @@ iPhone için 3D sürüş ve yarış oyunu. Ana ekrana kurulan bir uygulama (PWA)
 - **Ana menü**: Yarış, Serbest sürüş, Garaj, Profil, Ayarlar; arkada canlı yarış. Yarış türü → pist listesi (şekil, uzunluk, ortalama süre, kişisel rekor) → günün saati ve hava → araç seçimi.
 - **Koşullar**: sabah, öğlen, akşam; güneşli, yağmurlu, karlı (yağışta zemin kayganlaşır). Gölgeler.
 - **Fizik motoru:** 4 teker, süspansiyon, gerçek vites ve patinaj; gövde frende öne, virajda yana yatar. Toprakta lastik sınırı aşılınca araç kayar.
+- **Göstergeler (HUD)** (Ayarlar → Göstergeler): hız, sayaç, tuşlar ve harita ayrı ayrı seçilir, önizlemede anında görünür; hazır düzenler Köşe, Kadran, Bant, Sade. Göstergeler aracı kapatmaz; gaz ve fren pedal biçiminde.
 - **Performans göstergesi** (Ayarlar → Mekanikler): kare hızı, fizik ve çizim süresi.
 - Lastik ve araç ayarları, sürüş yardımı seviyeleri, üç direksiyon modu (tuşlar, ekran direksiyonu, telefonu çevirme), üç gaz modu (tuş, analog pedal, otomatik) dört kamera. Oyun yatay ekranda oynanır.
 
