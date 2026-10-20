@@ -7,7 +7,6 @@ import { ipucu } from "../../src/dunya/pist";
 import type { FizikGirdisi } from "../../src/fizik/tipler";
 import { duzZemin, frensiz } from "../yardimci/denemeler";
 import { DRIFT_PILOT, driftTuru } from "../yardimci/drift-pilot";
-import { egrilik, pilot } from "../yardimci/pilot";
 import { surucuKur } from "../yardimci/surucu";
 import { titresimOlc } from "../yardimci/titresim";
 import { TDEF } from "../../src/dunya/pist-tanimlari";
