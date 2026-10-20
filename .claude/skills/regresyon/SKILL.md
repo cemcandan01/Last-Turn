@@ -1,6 +1,6 @@
 ---
 name: regresyon
-description: Last Turn sürüm regresyonu ve canlıya çıkış. "regression" sohbetinde her gece 04:00'te koşulları denetler; sürümün geliştirmeleri bitmişse (denemeye gelen yeni iş var, hiçbir dalda push bekleyen iş yok) bütün dalların senaryolarını önem sırasıyla en fazla 55 dk koşar, hataları sahibi dalın adıyla düzeltir, denemeye gönderir, 0 hata kalana kadar tekrarlar, dal dal rapor verip canlıya çıkış için kullanıcıdan onay ister; onay gelince sürümü canlıya çıkarır ve sonraki sürümü (0.x+1.0) açar. Gece koşumunda, kullanıcı "regresyon koş", "regresyon raporu" dediğinde ya da regresyon sonrası "push" / "onay" dediğinde kullan.
+description: Last Turn sürüm regresyonu ve canlıya çıkış. "regression" sohbetinde her gece 00:00'da hazırlığı denetleyip kullanıcıya bildirir, kullanıcı "başlat" derse hemen, demezse 04:00'te başlar; sürümün geliştirmeleri bitmişse (denemeye gelen yeni iş var, hiçbir dalda push bekleyen iş yok) bütün dalların senaryolarını önem sırasıyla en fazla 55 dk koşar, hataları sahibi dalın adıyla düzeltir, denemeye gönderir, 0 hata kalana kadar tekrarlar, dal dal rapor verip canlıya çıkış için kullanıcıdan onay ister; onay gelince sürümü canlıya çıkarır ve sonraki sürümü (0.x+1.0) açar. 00:00 ve 04:00 görevlerinde, kullanıcı "başlat", "regresyon koş", "regresyon raporu" dediğinde ya da regresyon sonrası "push" / "onay" dediğinde kullan.
 ---
 
 # Regresyon ve canlıya çıkış
@@ -9,28 +9,37 @@ Bu sohbetin dalı `regresyon`. Başka bir sohbetin konu dalına yazılmaz. Düze
 
 Sürüm düzeni (`CLAUDE.md` → "Sürümler"): `gelistirme`'ye her gönderim yamayı artırır (0.1.1, 0.1.2, …). Regresyon sürümü dondurur, canlıya o sırada denemede olan sürüm (ör. 0.1.37) çıkar, ardından `gelistirme` 0.2.0'a geçer.
 
-## 1. Başlasın mı?
+## 1. Hazır mı, başlasın mı?
 
+Merkez ve bildirimler: `merkez` skill'i (sayfayı tazele, sonra bildir). Durumu öğren:
 ```
 git fetch origin --prune
 git ls-remote --exit-code --heads origin regresyon      # açık regresyon var mı
+git show origin/regresyon:docs/regresyon/durum.json     # varsa: suruyor | onay-bekliyor | tamamlandi
 git rev-list --count --no-merges origin/master..origin/gelistirme   # canlıda olmayan yeni iş
 for b in $(git branch -r --format='%(refname:short)' | grep -vE '^origin/(HEAD|master|gelistirme|regresyon)$'); do
   n=$(git rev-list --count --no-merges origin/gelistirme..$b); [ "$n" != 0 ] && echo "$b: $n commit push bekliyor"
 done
 ```
-- **Açık regresyon var** (`origin/regresyon` duruyor): yeniden başlatma. Onay bekliyorsa tek satır hatırlat ("0.1.37 canlıya çıkış için onayını bekliyor"), yarıda kaldıysa kaldığı adımdan devam et.
-- **Yeni iş yok** (sayı 0): tek satır yaz ("Denemede yeni iş yok, regresyon koşulmadı.") ve bitir.
-- **Push bekleyen dal var:** sürümün geliştirmeleri bitmemiş demektir; başlama. Tek satırda hangi dalda kaç commit beklediğini yaz ("menu: 2 commit push bekliyor; o sohbette 'push' de ya da 'beklemesin' de"). Kullanıcı bir dal için "beklemesin" derse o dalı bu sürümde yok say.
-- Koşullar tamamsa başla. Kullanıcı elle "regresyon koş" dediyse yalnız açık regresyon denetimi geçerlidir.
+Açık regresyon: `origin/regresyon` duruyor ve `durum.json` "tamamlandi" değil.
+
+Üç giriş var:
+- **00:00 görevi (hazırlık):** merkezi tazele. Açık regresyon varsa: onay bekliyorsa bildir ("Regresyon kararını bekliyor: <sürüm> canlı onayı"), yoksa bir şey yapma. Yeni iş yoksa ya da push bekleyen dal varsa: bildirim gönderme, sohbete tek satır yaz. Yeni iş var ve bekleyen dal yoksa: **başlatma**, yalnız bildir: "<sürüm> canlı geçişi öncesi testlerine hazır. Başlatmak için regression sohbetinde "başlat" de; demezsen 04:00'te başlar." ve sohbete aynı satırı yaz.
+- **Kullanıcı "başlat" / "regresyon koş" dedi:** açık regresyon varsa yeniden başlatma, durumunu söyle. Push bekleyen dal varsa söyle ve sor ("menu 2 commit bekliyor; beklensin mi, onsuz mu başlayayım?"). Yoksa 2. adımdan başla (yeni iş yoksa bile kullanıcı istediyse koş).
+- **04:00 görevi (otomatik başlangıç):** açık regresyon varsa: yarıda kaldıysa kaldığı adımdan devam et, onay bekliyorsa bir şey yapma (00:00'da hatırlatıldı). Yeni iş yoksa ya da push bekleyen dal varsa tek satır yaz, merkezi tazele, bitir. Koşullar tamamsa 2. adımdan başla.
+
+Kullanıcı bir dal için "beklemesin" derse o dalı bu sürümde yok say.
 
 ## 2. Sürümü dondur
 
 ```
 git checkout -B regresyon origin/gelistirme
 npm ci
+mkdir -p docs/regresyon && echo '{"surum":"0.1.37","asama":"suruyor","not":"0.1.37 test ediliyor","tarih":"<ISO>"}' > docs/regresyon/durum.json
+git add docs/regresyon && git commit -m "Regresyon 0.1.37 başladı"
 git push -u origin regresyon       # dondurma işareti: bu dal durdukça konu sohbetleri denemeye gönderemez
 ```
+Merkezi tazele (aşama "Regresyon sürüyor"). `durum.json`'daki `not`u her aşamada güncel tut (ör. "İlk koşum: 3 hata, düzeltiliyor"); merkez bunu gösterir.
 Sürüm adı `package.json`'daki sürümdür (ör. 0.1.37); raporlarda bu adı kullan. Sürüme hangi dalların hangi işlerle girdiğini çıkar: her dal için `git log --no-merges --format='%h %s' origin/master..origin/<dal>`.
 
 ## 3. İlk koşum
@@ -38,7 +47,9 @@ Sürüm adı `package.json`'daki sürümdür (ör. 0.1.37); raporlarda bu adı k
 ```
 node tests/kosucu.mjs regresyon --sure 55
 cp tests/cikti/rapor.json tests/cikti/rapor-ilk.json
+cp tests/cikti/rapor-ilk.json docs/regresyon/ilk-rapor.json && cp tests/cikti/rapor.json docs/regresyon/son-rapor.json
 ```
+Rapor dosyalarını ve `durum.json` notunu commit'le, `regresyon` dalına gönder, merkezi tazele.
 Senaryolar `tests/senaryolar/<dal>.mjs`'te, önem sırasıyla (P1 → P2 → P3) koşar; süre dolunca kalanlar "koşulmadı" olur. `kayitsiz` satırı hiçbir senaryoya bağlanmamış testtir: dosyanın hangi dala ait olduğuna bakıp o dalın senaryo dosyasına ekle.
 
 ## 4. Hataları çöz
@@ -59,11 +70,11 @@ npm version patch --no-git-tag-version && git commit -am "Deneme x.y.z: regresyo
 git checkout regresyon && git merge --ff-only gelistirme && git push origin regresyon
 node tests/kosucu.mjs regresyon --sure 55 --ilk tests/cikti/rapor-ilk.json
 ```
-Yeni hata varsa 4'e dön. **0 hata** kalana kadar sürdür. Aynı hata üç denemede çözülemezse dur ve kullanıcıya sor.
+Her koşumdan sonra `cp tests/cikti/rapor.json docs/regresyon/son-rapor.json`, commit, gönder, merkezi tazele. Yeni hata varsa 4'e dön. **0 hata** kalana kadar sürdür. Aynı hata üç denemede çözülemezse dur, kullanıcıya sor ve bildir ("Regresyon kararını bekliyor: …").
 
 ## 6. Rapor ve onay isteği
 
-0 hata olunca sohbete Türkçe rapor yaz (bildirim aracı varsa kısa bir bildirim de gönder) ve **canlıya çıkış için onay iste**. Onay gelmeden `master`'a hiçbir şey gönderme.
+0 hata olunca `durum.json`'u `"asama": "onay-bekliyor"` yap, commit'le, gönder ve merkezi tazele. Sohbete Türkçe rapor yaz, bildir ("<sürüm> canlıya hazır: <n> dal, <m> hata çözüldü. Rapor regression sohbetinde; onay için "push" de.") ve **canlıya çıkış için onay iste**. Onay gelmeden `master`'a hiçbir şey gönderme.
 
 1. **Sürüm:** ad (ör. 0.1.37), deneme adresi https://cemcandan01.github.io/Last-Turn/dev/ ("telefonda deneyebilirsin").
 2. **Her dalda neler oldu:** dal dal, oyuncunun göreceği dille 1-3 madde (2. adımdaki commit listesinden).
@@ -87,6 +98,8 @@ git checkout master && git pull origin master && git merge --no-ff --no-edit reg
   git commit -am "Sürüm 0.2 başladı" && git push origin gelistirme
   git push origin --delete regresyon              # dondurma kalkar
   ```
+  Dal silinemezse (ortam reddederse): `regresyon` dalında `durum.json`'u `"asama": "tamamlandi"` yapıp gönder; dondurma böyle de kalkar.
+- Merkezi tazele ve bildir ("<sürüm> canlıda, canlı duman geçti. <sonraki sürüm> başladı.").
 - Kullanıcıya kısa yaz: canlıya çıkan sürüm, canlı duman sonucu, "0.2 geliştirmeleri başladı, konu sohbetlerinde 'push' diyebilirsin".
 
 Rebase ve force-push yok. Tek istisna bu sohbetin kendi `regresyon` dalı: her regresyonda yeniden kurulur (`checkout -B`), gerekirse `--force-with-lease`.
