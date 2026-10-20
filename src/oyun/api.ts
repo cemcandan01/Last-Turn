@@ -6,6 +6,8 @@ export { openGarage, closeGarage } from "../arayuz/garaj";
 export { showSet } from "../arayuz/ayarlar-ekrani";
 export { R, scene, cam } from "../cizim/sahne";
 export { kamera } from "../cizim/kamera";
+export { aynaDurumu } from "../cizim/ayna";
+export { kokpit } from "../cizim/kokpit";
 export { COND } from "../cizim/ortam";
 export { perf } from "../cekirdek/performans";
 export { REG } from "../dunya/bolgeler";

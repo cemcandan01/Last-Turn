@@ -4,6 +4,7 @@ import * as THREE from "three";
 import type { Arac } from "../arac/araclar";
 import { cl } from "../cekirdek/matematik";
 import { bx, lam, V3 } from "./yardimci";
+import { aynaYuzu } from "./ayna";
 
 export const cock = new THREE.Group();
 cock.visible = false;
@@ -16,6 +17,8 @@ export const kokpit = {
   ndR: null as THREE.Group | null,
   /** sürücünün göz konumu (gövde koordinatı) */
   EYE: [0.4, 1.3, -0.2] as [number, number, number],
+  /** kapı iç panelinin üstü (pencere eşiği) */
+  kt: 0,
 };
 
 const beam = (a: number[], b: number[], m: THREE.Material, t: number) => {
@@ -95,13 +98,16 @@ export function buildInterior(d: Arac) {
     L = zf - zr,
     dt = Math.min(yb - 0.02, ey - 0.22);
   kokpit.EYE = [ex, ey, ez];
+  // kapı iç panellerinin üstü göz hizasının belirgin altında: yan camdan yol ve yan ayna görünsün
+  // (dış gövde içeriden görünmez, bu yüzden panelin üstü pencere eşiği olur)
+  const kt = (kokpit.kt = Math.max(fy + 0.25, Math.min(yb, ey - 0.2)));
   // zemin ve kapı iç panelleri (yol ve tekerler alttan görünmesin)
   cock.add(bx(2 * hw, 0.04, L + 0.5, 0, fy, mz, M.d));
   for (const sd of [-1, 1])
     cock.add(
-      bx(0.06, yb - fy, L + 0.3, sd * hw, (yb + fy) / 2, mz, M.p),
-      bx(0.13, 0.05, L * 0.6, sd * (hw - 0.06), yb - 0.14, mz - 0.1, M.l),
-      bx(0.04, 0.03, L * 0.5, sd * (hw - 0.02), yb - 0.3, mz, M.k),
+      bx(0.06, kt - fy, L + 0.3, sd * hw, (kt + fy) / 2, mz, M.p),
+      bx(0.1, 0.025, L + 0.3, sd * (hw - 0.03), kt, mz, M.d),
+      bx(0.1, 0.04, L * 0.5, sd * (hw - 0.05), kt - 0.12, mz - 0.1, M.l),
     );
   // torpido ön camın dibine kadar, üstü bel çizgisinin hemen üstünde
   cock.add(
@@ -174,6 +180,9 @@ export function buildInterior(d: Arac) {
     bx(0.025, 0.05, 0.025, 0, yr - 0.1, zt - 0.06, M.k),
     bx(0.22, 0.06, 0.025, 0, yr - 0.15, zt - 0.07, M.k),
   );
+  const dk = aynaYuzu(0.2, 0.048, 1, 0);
+  dk.position.set(0, yr - 0.15, zt - 0.084);
+  cock.add(dk);
   // direkler: A (ön cam kenarı) ve B (yan camın arkası)
   for (const sd of [-1, 1])
     cock.add(
