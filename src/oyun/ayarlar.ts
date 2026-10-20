@@ -21,6 +21,9 @@ export const set = {
   shd: 1,
   /** performans göstergesi */
   perf: 0,
+  /** ses seviyeleri (0-100): oyun sesleri ve menü müziği */
+  ses: 85,
+  muz: 70,
 };
 
 export type DireksiyonModu = "btn" | "wheel" | "tilt";
