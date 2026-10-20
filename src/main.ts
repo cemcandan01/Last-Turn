@@ -5,6 +5,7 @@ import { oku } from "./cekirdek/depo";
 import { $ } from "./cekirdek/dom";
 import { ekranKur } from "./cekirdek/ekran";
 import { performansGoster } from "./cekirdek/performans";
+import { dokunmaKur } from "./arayuz/dokunma";
 import { hudDuzeniUygula, hudKur } from "./arayuz/hud";
 import { kontrolleriKur } from "./arayuz/kontroller";
 import { showMenu } from "./arayuz/menu";
@@ -27,6 +28,8 @@ import { sesKur } from "./ses/ses";
 import * as oyunApi from "./oyun/api";
 
 ekranKur();
+// ilk kurulan: iptal edilen dokunuşların tıklamasını öteki dinleyicilerden (tık sesi) önce yutar
+dokunmaKur();
 rendererKur($<HTMLCanvasElement>("#c"));
 zeminKur();
 hudKur();

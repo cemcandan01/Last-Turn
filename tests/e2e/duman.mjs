@@ -18,6 +18,7 @@ const BOLUMLER = [
   "yarislar",
   "garaj",
   "garaj-ses",
+  "dokunma",
   "surus",
   "kerb",
   "ses",
