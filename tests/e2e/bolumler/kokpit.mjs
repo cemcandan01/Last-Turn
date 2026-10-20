@@ -1,5 +1,5 @@
 /* global LT */
-// Kokpit: kapı panelleri göz hizasının altında (yan camdan dışarısı görünür); yan aynalar ve dikiz aynası
+// Kokpit: göz ön camın alt kenarının üstünde; kapı panelleri göz hizasının altında (yan camdan dışarısı görünür); yan aynalar ve dikiz aynası
 // kokpitte arka görüntüyü gösterir, başka kameralarda çizilmez
 export default async function ({ p, ok }) {
   const r = await p.evaluate(async () => {
@@ -15,6 +15,7 @@ export default async function ({ p, ok }) {
       sonuc.push({
         n: LT.CARS[c].n,
         esik: LT.kokpit.EYE[1] - LT.kokpit.kt,
+        cam: LT.kokpit.EYE[1] - LT.CARS[c].ws[0][1] - (LT.CARS[c].lift || 0),
         yuz: a.yuz,
         acik: a.acik,
         cizim: a.cizim,
@@ -32,6 +33,11 @@ export default async function ({ p, ok }) {
   ok(
     r.sonuc.every((s) => s.esik >= 0.15),
     "kokpitte kapı panelleri göz hizasının altında: " + r.sonuc.map((s) => s.esik.toFixed(2)).join(", "),
+  );
+  ok(
+    r.sonuc.every((s) => s.cam >= 0.12),
+    "göz ön camın alt kenarının üstünde, yol torpidonun üstünden görünüyor: " +
+      r.sonuc.map((s) => s.cam.toFixed(2)).join(", "),
   );
   ok(
     r.sonuc.every((s) => s.yuz == 3 && s.acik && s.cizim > 0 && s.orta.some((v) => v > 0)),
