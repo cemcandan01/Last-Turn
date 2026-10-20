@@ -191,10 +191,52 @@ export function kerbs(TR: Pist) {
 export const KW = 1.6,
   kerbProf = (k: number) => (k <= 0 || k >= KW ? 0 : 0.09 * sm(0, 0.4, k) * (1 - sm(1.2, KW, k)));
 
+/**
+ * en yakın nokta i'nin iki yanındaki pist parçalarına izdüşüm: pist boyunca konum s (m) ve pist çizgisine uzaklık d.
+ * İzdüşüm doğrusu parça boyunca dönen teğete diktir (teğet noktalarda sürekli): s ve d noktalar arasında ve
+ * viraj içinde de basamaksız değişir. Yükseklik ve kerb bundan hesaplanınca araç titremez.
+ */
+export function parcayaIzdusum(TR: Pist, x: number, z: number, i: number): [number, number] {
+  const N = TR.N;
+  const yedek: [number, number] = [TR.S[i], Math.hypot(x - TR.P[i][0], z - TR.P[i][1])];
+  for (let k = 0; k < 2; k++) {
+    let a = k ? i : i - 1,
+      b = k ? i + 1 : i;
+    if (TR.open && (a < 0 || b >= N)) continue;
+    a = (a + N) % N;
+    b = b % N;
+    const P = TR.P[a],
+      Q = TR.P[b],
+      Ta = TR.T[a],
+      Tb = TR.T[b];
+    // f(t) = (p − C(t)) · T(t): t = 0'da ≥ 0, t = 1'de ≤ 0 ise izdüşüm bu parçada
+    const f = (t: number) => {
+      const cx = P[0] + (Q[0] - P[0]) * t,
+        cz = P[1] + (Q[1] - P[1]) * t,
+        tx = Ta[0] + (Tb[0] - Ta[0]) * t,
+        tz = Ta[1] + (Tb[1] - Ta[1]) * t;
+      return ((x - cx) * tx + (z - cz) * tz) / (Math.hypot(tx, tz) || 1);
+    };
+    const f0 = f(0),
+      f1 = f(1);
+    if (f0 < 0 || f1 > 0) continue;
+    // doğrusala yakın: iki adım kiriş yöntemi
+    let t = f0 / (f0 - f1 || 1);
+    const ft = f(t);
+    t = ft > 0 ? t + ((1 - t) * ft) / (ft - f1 || 1) : (t * f0) / (f0 - ft || 1);
+    t = cl(t, 0, 1);
+    const cx = P[0] + (Q[0] - P[0]) * t,
+      cz = P[1] + (Q[1] - P[1]) * t,
+      l = Math.hypot(Q[0] - P[0], Q[1] - P[1]);
+    return [TR.S[a] + t * l, Math.hypot(x - cx, z - cz)];
+  }
+  return yedek;
+}
+
 export function Hkerb(TR: Pist) {
   return (x: number, z: number) => {
-    const [i, d] = nearest(TR, x, z, ipucu.ti);
-    return TR.kb![i] ? kerbProf(d - TR.hw) : 0;
+    const i = nearest(TR, x, z, ipucu.ti)[0];
+    return TR.kb![i] ? kerbProf(parcayaIzdusum(TR, x, z, i)[1] - TR.hw) : 0;
   };
 }
 

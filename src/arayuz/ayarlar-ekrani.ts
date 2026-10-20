@@ -14,7 +14,7 @@ import { ayarlariKaydet, CT, set, TOG, type DireksiyonModu, type GazModu } from 
 import { CAMS, oyun } from "../oyun/durum";
 import { askTilt, girdiSifirla } from "../oyun/girdi";
 import { applyPreset, kurulum } from "../oyun/kurulum";
-import { reset, sim } from "../oyun/surus";
+import { reset } from "../oyun/surus";
 import { yaris } from "../oyun/yarislar";
 import { note } from "./bildirim";
 import { kontrolleriKur } from "./kontroller";
@@ -33,13 +33,6 @@ const GASM: Record<GazModu, { n: string; d: string }> = {
     d: "Ortası boş: yukarı kaydır gaz, aşağı kaydır fren. Kalkışta tam gaz patinaj yapar",
   },
   auto: { n: "Otomatik gaz", d: "Araç kendi hızlanır, sen frenle" },
-};
-const FIZIK = {
-  0: { n: "Klasik", d: "Oyunun ayarlı sürüş hissi" },
-  1: {
-    n: "Yeni (deneysel)",
-    d: "4 teker, süspansiyon, gerçek vites ve patinaj; gövde frende öne, virajda yana yatar",
-  },
 };
 const CAMO = {
   0: { n: "Takip", d: "Arkadan" },
@@ -86,14 +79,18 @@ const sliders = (D: AyarSatiri[], O: Record<string, number>, o: string) =>
 
 const kaydet = () => ayarlariKaydet(oyun.camMode, kurulum.lk);
 
+/** önayar yalnız serbest sürüşte (duraklatma menüsünde) seçilir; yarışta aracın kendi önayarı kullanılır */
+const serbestSurus = () => !yaris.EV && (oyun.mode == "pause" || oyun.mode == "drive");
+
 export const settingsHTML = () =>
-  sec(
-    "pre",
-    "Önayar: " + (kurulum.custom ? "Özel" : PRESETS[kurulum.pk].n),
-    chipsOf(PRESETS, kurulum.pk, "pk"),
-  ) +
+  (serbestSurus()
+    ? sec(
+        "pre",
+        "Önayar: " + (kurulum.custom ? "Özel" : PRESETS[kurulum.pk].n),
+        chipsOf(PRESETS, kurulum.pk, "pk"),
+      )
+    : "") +
   sec("lvl", "Sürüş yardımı: " + LEVELS[kurulum.lk].n, chipsOf(LEVELS, kurulum.lk, "lk")) +
-  sec("fiz", "Fizik motoru: " + FIZIK[set.fiz as 0 | 1].n, chipsOf(FIZIK, set.fiz, "fz")) +
   sec("cam", "Kamera: " + CAMS[oyun.camMode], chipsOf(CAMO, oyun.camMode, "cm")) +
   ctlHTML() +
   sec(
@@ -159,10 +156,6 @@ function bindAll(root: HTMLElement, re: () => void) {
   });
   tikla(".chip[data-cm]", (e) => {
     oyun.camMode = +e.dataset.cm!;
-  });
-  tikla(".chip[data-fz]", (e) => {
-    set.fiz = +e.dataset.fz!;
-    sim.motorSec(set.fiz ? "yeni" : "klasik");
   });
 }
 

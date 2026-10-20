@@ -1,5 +1,5 @@
-// Garaj ekranı: araçları dönen platformda incele, özellikleri karşılaştır, seç. Yarıştan önce de buradan seçilir;
-// türe uygun araç "Önerilen" olarak gelir.
+// Garaj ekranı: araçları dönen platformda incele, özellikleri karşılaştır, seç. Yarıştan ve serbest sürüşten önce de
+// buradan seçilir; yarışta türe uygun araç "Önerilen" olarak gelir.
 import { CARS } from "../arac/araclar";
 import { STAT } from "../arac/istatistik";
 import { cl } from "../cekirdek/matematik";
@@ -7,17 +7,19 @@ import { gizle, $ } from "../cekirdek/dom";
 import { garG } from "../cizim/garaj-sahnesi";
 import { ground } from "../cizim/zemin";
 import { REG } from "../dunya/bolgeler";
-import { dunya } from "../dunya/dunya";
+import { dunya, WORLDS } from "../dunya/dunya";
 import { PRESETS } from "../fizik/veriler";
 import { carIndex, oyun, setCar } from "../oyun/durum";
 import { kamera } from "../cizim/kamera";
 import { applyPreset, kurulum } from "../oyun/kurulum";
 import { EVENTS, startEvent } from "../oyun/yarislar";
-import { showMenu } from "./menu";
+import { showMenu, startWorld } from "./menu";
 
 interface GarajDurumu {
   /** yarış (yoksa null) */
   ev: number | null;
+  /** serbest sürüş dünyası (yoksa null) */
+  w: number | null;
   /** girişteki araç, önerilen araç, gösterilen araç */
   prev: number;
   rec: number;
@@ -25,10 +27,11 @@ interface GarajDurumu {
 }
 let GAR: GarajDurumu | null = null;
 
-export function openGarage(ev: number | null) {
+/** garajı aç: yarıştan önce (ev), serbest sürüşten önce (w) ya da menüden (ikisi de null) */
+export function openGarage(ev: number | null, w: number | null = null) {
   const prev = carIndex(),
     rec = ev != null ? CARS.findIndex((c) => c.ty == EVENTS[ev].ty) : -1;
-  GAR = { ev, prev, rec, i: rec >= 0 ? rec : prev };
+  GAR = { ev, w, prev, rec, i: rec >= 0 ? rec : prev };
   oyun.mode = "garage";
   kamera.ly = 0;
   gizle("#menu", "#hud", "#mm", "#ctl", "#set", "#res");
@@ -60,7 +63,7 @@ function showGar() {
     )
     .join("")}
 <p style="font-size:14px;margin-top:8px">${c.hp} hp · ${c.kg} kg · ${c.awd ? "Dört çeker" : "Arkadan itiş"} · Önayar: ${PRESETS[c.pk].n}</p>
-<button class="btn" id="gok">${G.ev != null ? "Bu araçla yarış: " + EVENTS[G.ev].n : "Bu aracı kullan"}</button><button class="btn alt" id="gbk">Geri</button>`;
+<button class="btn" id="gok">${G.ev != null ? "Bu araçla yarış: " + EVENTS[G.ev].n : G.w != null ? "Bu araçla sür: " + WORLDS[G.w].n : "Bu aracı kullan"}</button><button class="btn alt" id="gbk">Geri</button>`;
   const go = (k: number) => {
     G.i = (k + CARS.length) % CARS.length;
     showGar();
@@ -71,18 +74,20 @@ function showGar() {
   $("#gbk").onclick = () => {
     setCar(G.prev);
     closeGarage();
-    showMenu();
+    showMenu(G.w != null ? ["free"] : undefined);
   };
   $("#gok").onclick = () => {
-    const { ev, i, prev } = G;
+    const { ev, w, i, prev } = G;
     closeGarage();
     if (ev != null) {
       setCar(prev);
       startEvent(ev, i);
-    } else {
-      kurulum.pk = oyun.CAR.pk;
-      applyPreset();
-      showMenu();
+      return;
     }
+    // serbest sürüş: aracın önayarıyla başlar (önayar sonra duraklatma menüsünden değiştirilebilir)
+    kurulum.pk = oyun.CAR.pk;
+    applyPreset();
+    if (w != null) startWorld(w);
+    else showMenu();
   };
 }

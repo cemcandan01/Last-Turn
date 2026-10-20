@@ -1,10 +1,8 @@
 // Fizik verileri: zeminler, lastikler, araç ayarları, sürüş yardımları, yardım seviyeleri ve önayarlar.
 // Saf veri: three ve DOM kullanmaz.
 
-/** aks mesafesi (m), klasik modelin azami hızı (m/s), yalpa ataleti çarpanı */
-export const L = 3.2,
-  VMAX = 77.2,
-  IZ = 1.9;
+/** azami hız ölçeği (m/s): araçların tasarım azami hızı bundan çarpanlarla bulunur; hıza duyarlı direksiyon da buna göre */
+export const VMAX = 77.2;
 
 /** oyunun yerçekimi (m/s²): zıplamalar çabuk ve net olsun diye gerçeğin yaklaşık 2,4 katı */
 export const YERCEKIMI = 24;

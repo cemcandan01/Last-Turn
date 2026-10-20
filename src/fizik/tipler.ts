@@ -3,7 +3,7 @@
 import type { Arac } from "../arac/araclar";
 import type { Rastgele } from "../cekirdek/rastgele";
 import type { Carpisan } from "./carpisma";
-import type { Ayarlar, OnayarAnahtari, Yardimlar } from "./veriler";
+import type { Ayarlar, Lastik, OnayarAnahtari, Yardimlar, Zemin } from "./veriler";
 
 /** aracın yer düzlemindeki durumu (x-z düzlemi, y yukarı; yön h, ileri = (sin h, cos h)) */
 export interface AracDurumu {
@@ -113,4 +113,25 @@ export interface FizikBaglami {
   rng: Rastgele;
   /** görsel rastgelelik (toz parçacıkları). Fizik sonucunu etkilemez */
   gorselRng: Rastgele;
+}
+
+/** bir fizik adımının durumu: araç, drift, direksiyon ve simülasyon saati */
+export interface SimDurumu {
+  S: AracDurumu;
+  DR: DriftDurumu;
+  D: DriftSkoru;
+  /** süzülmüş direksiyon (-1..1) */
+  st: number;
+  /** ön teker açısı (rad) */
+  delta: number;
+  /** simülasyon zamanı (s) */
+  zaman: number;
+}
+
+/** adımın oyuna döndürdüğü özet: aracın altındaki zemin, lastik, hız, zemin indeksi */
+export interface AdimSonucu {
+  Sf: Zemin;
+  T: Lastik;
+  v: number;
+  si: number;
 }

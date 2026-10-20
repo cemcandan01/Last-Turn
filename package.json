@@ -1,6 +1,6 @@
 {
   "name": "last-turn",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "private": true,
   "type": "module",
   "description": "iPhone için 3D sürüş ve yarış oyunu (PWA)",
@@ -17,7 +17,6 @@
     "test:e2e": "node tests/e2e/duman.mjs",
     "test:goruntu": "node tests/e2e/duman.mjs --goruntu",
     "kontrol": "npm run typecheck && npm run lint && npm run test && npm run build && npm run test:e2e",
-    "altin-iz": "ALTIN_IZ=yaz vitest run tests/birim/klasik-iz.test.ts",
     "olcum": "vitest run --config vitest.olcum.config.ts"
   },
   "engines": {

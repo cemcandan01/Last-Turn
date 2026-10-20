@@ -1,4 +1,4 @@
-// Ölçüm (test değil): yeni fizik motorunun temel değerleri. npx vitest run tests/olcum --silent=false
+// Ölçüm (test değil): araçların temel değerleri (duruş, 0-100, azami hız, fren). npm run olcum
 import { it } from "vitest";
 import { CARS } from "../../src/arac/araclar";
 import { surucuKur } from "../yardimci/surucu";
@@ -6,7 +6,7 @@ import { surucuKur } from "../yardimci/surucu";
 const DT = 1 / 60;
 it("duruş, hızlanma, azami hız, fren", () => {
   for (let ci = 0; ci < 5; ci++) {
-    const s = surucuKur({ dunya: 0, arac: ci, lk: "norm", motor: "yeni" });
+    const s = surucuKur({ dunya: 0, arac: ci, lk: "norm" });
     // Çorak Topraklar uzun düz yol (asfalt), güneye bakarak başla
     s.reset(210, -780, 0);
     const S = s.sim.S;

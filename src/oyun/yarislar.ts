@@ -8,7 +8,7 @@ import { kontrolleriKur } from "../arayuz/kontroller";
 import { sonucGoster } from "../arayuz/sonuc";
 import { REG, type Tele } from "../dunya/bolgeler";
 import { ipucu, tp, type Pist } from "../dunya/pist";
-import type { AdimSonucu } from "../fizik/klasik";
+import type { AdimSonucu } from "../fizik/tipler";
 import type { OnayarAnahtari } from "../fizik/veriler";
 import { setActive } from "./bolge";
 import { carIndex, oyun, setCar } from "./durum";
@@ -129,12 +129,11 @@ export function startEvent(i: number, ci?: number) {
   const e = EVENTS[i],
     EV = yaris.EV,
     sv = EV && EV.sv ? EV.sv : { ...kurulumKaydet(), car: carIndex() };
-  // açık dünyada sürdüğün araçla girersen ayarları aynen kalır (drift otoparktaki gibi); başka araçta o aracın önayarı yüklenir
-  if (ci != null && CARS[ci] !== oyun.CAR) {
-    setCar(ci);
-    kurulum.pk = oyun.CAR.pk;
-    applyPreset();
-  }
+  // yarışta önayar seçilmez: aracın kendi önayarı ve oyuncunun yardım seviyesi yüklenir (önayar yalnız serbest
+  // sürüşte). Böylece drift yarışı, otoparkta aynı araçla drift önayarında sürmekle birebir aynıdır.
+  if (ci != null && CARS[ci] !== oyun.CAR) setCar(ci);
+  kurulum.pk = oyun.CAR.pk;
+  applyPreset();
   {
     const u = carIndex();
     PROF.use[u] = (PROF.use[u] || 0) + 1;

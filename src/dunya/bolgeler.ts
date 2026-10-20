@@ -4,7 +4,7 @@
 // build() görsel nesneleri ve çarpışma nesnelerini kurar.
 import * as THREE from "three";
 import type { YarisTuru } from "../arac/araclar";
-import { cl, sm, type V2 } from "../cekirdek/matematik";
+import { sm, type V2 } from "../cekirdek/matematik";
 import { ctex, numTex, textTex } from "../cizim/dokular";
 import { bx, C3, lam } from "../cizim/yardimci";
 import { boards, edgeBush, forest, PROPS } from "./dekor";
@@ -24,6 +24,7 @@ import {
   KW,
   mkJumps,
   mkTrack,
+  parcayaIzdusum,
   nearest,
   off,
   onTrack,
@@ -205,25 +206,19 @@ function mkReg(def: PistTanimi, k: number): Bolge {
       ep = def.ep || 0,
       HK = Hkerb(TR),
       nG = gridNear(TR);
-    // pist çizgisi boyunca yükseklik (kapalı pistte başı sonuna bağlanır), çevre arazisi yarı yükseklikte ve bölge kenarında sıfıra iner
-    const hc = (TR.hc = TR.S.map((q) => {
+    // pist çizgisi boyunca yükseklik: pist boyunca konumun (s) düzgün fonksiyonu (kapalı pistte başı sonuna bağlanır);
+    // çevre arazisi yarı yükseklikte ve bölge kenarında sıfıra iner
+    const hS = (q: number) => {
       const u = (q / TR.len) * 6.2832;
       return (A * (1 + 0.6 * Math.sin(u + ep) + 0.4 * Math.sin(2 * u + ep * 1.7 + 1))) / 2;
-    }));
+    };
+    TR.hc = TR.S.map(hS);
     const ed = (x: number, z: number) => {
       const b = R.box;
       return sm(10, 140, Math.min(x - b[0], b[1] - x, z - b[2], b[3] - z));
     };
-    // yükseklik iki pist noktası arasında doğrusal: basamak olmasın
-    const hAt = (x: number, z: number, i: number) => {
-      const P = TR.P[i],
-        T = TR.T[i],
-        pr = (x - P[0]) * T[0] + (z - P[1]) * T[1],
-        j = (i + (pr >= 0 ? 1 : -1) + TR.N) % TR.N,
-        Q = TR.P[j],
-        l = Math.hypot(Q[0] - P[0], Q[1] - P[1]) || 1;
-      return hc[i] + (hc[j] - hc[i]) * cl(Math.abs(pr) / l, 0, 1);
-    };
+    // yükseklik pist parçasına izdüşümden: noktadan noktaya geçişte basamak ve kırık olmasın (araç titremesin)
+    const hAt = (x: number, z: number, i: number) => hS(parcayaIzdusum(TR, x, z, i)[0]);
     const Hb = (R.Hb = A
       ? (x: number, z: number) => {
           const [i, d] = nG(x, z),

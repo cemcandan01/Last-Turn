@@ -6,11 +6,9 @@ import { REG, regAt } from "../../src/dunya/bolgeler";
 import { dunya, ensureBuilt, Hw, loadWorld, surfW, WORLDS } from "../../src/dunya/dunya";
 import { ipucu, nearest } from "../../src/dunya/pist";
 import { havaTutusu } from "../../src/dunya/temalar";
-import type { AdimSonucu } from "../../src/fizik/klasik";
 import { Simulasyon } from "../../src/fizik/simulasyon";
-import type { DunyaSorgusu, FizikBaglami, FizikGirdisi } from "../../src/fizik/tipler";
-import type { OnayarAnahtari, SeviyeAnahtari } from "../../src/fizik/veriler";
-import { kurulumYap } from "./senaryo";
+import type { AdimSonucu, DunyaSorgusu, FizikBaglami, FizikGirdisi } from "../../src/fizik/tipler";
+import { LEVELS, PRESETS, type OnayarAnahtari, type SeviyeAnahtari } from "../../src/fizik/veriler";
 
 export interface SurusAyari {
   /** açık dünya ya da yarış (bölge) */
@@ -20,8 +18,15 @@ export interface SurusAyari {
   pk?: OnayarAnahtari;
   lk: SeviyeAnahtari;
   wx?: string;
-  /** fizik motoru (varsayılan klasik) */
-  motor?: "klasik" | "yeni";
+}
+
+/** önayar ve yardım seviyesinden sürüş kurulumu (oyundaki applyPreset ile aynı) */
+export function kurulumYap(arac: number, pk: OnayarAnahtari, lk: SeviyeAnahtari, ss = 1, sm = 1) {
+  const p = PRESETS[pk];
+  const as = { ...LEVELS[lk].v };
+  if (p.ast) for (const k in p.ast) as[k] = Math.max(as[k], p.ast[k]!);
+  if (p.cap) for (const k in p.cap) as[k] = Math.min(as[k], p.cap[k]!);
+  return { car: CARS[arac], pk, tire: p.tire, tu: { ...p.v }, as, ss, sm };
 }
 
 export function surucuKur(a: SurusAyari) {
@@ -41,7 +46,6 @@ export function surucuKur(a: SurusAyari) {
     karli: () => tema == "snow",
   };
   const sim = new Simulasyon(7);
-  sim.motorSec(a.motor || "klasik");
   const olaylar = { spin: 0 };
   const cx: FizikBaglami = {
     dunya: W,

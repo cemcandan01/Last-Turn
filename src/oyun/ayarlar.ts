@@ -21,8 +21,6 @@ export const set = {
   shd: 1,
   /** performans göstergesi */
   perf: 0,
-  /** fizik motoru: 0 klasik, 1 yeni (deneysel) */
-  fiz: 0,
 };
 
 export type DireksiyonModu = "btn" | "wheel" | "tilt";

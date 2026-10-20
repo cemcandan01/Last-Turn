@@ -71,7 +71,9 @@ function dialTex(mx: number, step: number, lbl: string, red?: number) {
   return new THREE.CanvasTexture(c);
 }
 
-const intM = { d: lam(0x23262b), p: lam(0x2f3338), l: lam(0x3c4046), k: lam(0x111316) };
+// iç mekân renkleri: sıcak kahve ve taba deri; gri-mavi asfalttan kolayca ayrılsın
+// d: torpido, taban, direkler; p: torpido üstü ve kapı panelleri; l: koltuklar; k: siyah ayrıntılar
+const intM = { d: lam(0x3a2a22), p: lam(0x7e5636), l: lam(0x8e3a2c), k: lam(0x141210) };
 
 export function buildInterior(d: Arac) {
   cock.clear();

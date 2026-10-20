@@ -144,11 +144,12 @@ export function showMenu(v?: string[]) {
       Object.assign(COND, c);
       openGarage(ev);
     };
+  // serbest sürüş: önce garajda araç seçilir
   tikla("[data-w]", (e) => {
     const c = { ...COND };
     demoStop();
     Object.assign(COND, c);
-    startWorld(+e.dataset.w!);
+    openGarage(null, +e.dataset.w!);
   });
   const nm = m.querySelector<HTMLInputElement>("#pname");
   if (nm)
@@ -188,7 +189,7 @@ function view(cur: string) {
 ${condChips()}<button class="btn" id="mgo" data-go="${i}">Araç seç ›</button>`;
   }
   if (cur == "free")
-    return `<h2>Serbest sürüş</h2>${WORLDS.map((w, i) => `<div class="card go" data-w="${i}"><b>${w.n}</b><span>${w.d}</span></div>`).join("")}${condChips()}<p class="note">Araç: ${oyun.CAR.ic} ${oyun.CAR.n} (Garajdan değiştirebilirsin)</p>`;
+    return `<h2>Serbest sürüş</h2>${WORLDS.map((w, i) => `<div class="card go" data-w="${i}"><b>${w.n}</b><span>${w.d}</span></div>`).join("")}${condChips()}<p class="note">Dünyayı seçince garajda aracını seçersin. Önayarı sürüşte duraklatma menüsünden değiştirebilirsin.</p>`;
   if (cur == "profile") {
     const fav = Object.entries(PROF.use).sort((a, b) => b[1] - a[1])[0];
     return `<h2>Profil</h2><div class="lbl">Sürücü adı</div><input id="pname" class="inp" value="${PROF.name.replace(/"/g, "")}" maxlength="20">

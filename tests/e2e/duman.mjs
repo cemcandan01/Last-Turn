@@ -147,6 +147,32 @@ const gr = await p.evaluate(() => {
   }
 });
 ok(!gr.startsWith("HATA"), "garaj açılıyor ve araç değişiyor");
+const sg = await p.evaluate(() => {
+  LT.showMenu(["free"]);
+  document.querySelector("[data-w='1']").click();
+  const gar = !document.querySelector("#gar").classList.contains("hidden");
+  document.querySelector("#gnx").click();
+  document.querySelector("#gok").click();
+  const r = { gar, mod: LT.oyun.mode, w: LT.oyun.CURW.n, pk: LT.kurulum.pk, aracPk: LT.oyun.CAR.pk };
+  LT.showSet();
+  r.serbestOnayar = !!document.querySelector("#set details[data-sec='pre']");
+  LT.showMenu(["home"]);
+  LT.demoStop();
+  LT.startEvent(6, 2);
+  LT.showSet();
+  r.yarisOnayar = !!document.querySelector("#set details[data-sec='pre']");
+  r.yarisPk = LT.kurulum.pk;
+  LT.showMenu(["home"]);
+  return r;
+});
+ok(
+  sg.gar && sg.mod == "drive" && sg.w == "Boş Otopark" && sg.pk == sg.aracPk,
+  "serbest sürüşten önce garaj açılıyor, araç kendi önayarıyla başlıyor",
+);
+ok(
+  sg.serbestOnayar && !sg.yarisOnayar && sg.yarisPk == "dr",
+  "önayar yalnız serbest sürüşte; drift yarışında aracın drift önayarı",
+);
 
 console.log("Sürüş");
 const sr = await p.evaluate(async () => {
@@ -158,44 +184,21 @@ const sr = await p.evaluate(async () => {
   LT.I.g = 1;
   while (LT.sim.d.zaman - t0 < 2) await new Promise((r) => setTimeout(r, 20));
   LT.I.g = 0;
+  const Y = LT.sim.yeni;
   return {
     yol: Math.hypot(S.x - x0, S.z - z0),
     v: Math.hypot(S.vx, S.vz) * 3.6,
+    vites: Y && Y.vites,
+    devir: Y && Y.rpm,
     fps: LT.perf.fps,
     cagri: LT.perf.cagri,
   };
 });
 ok(
-  sr.yol > 10 && sr.v > 30,
-  `gazla araç ilerliyor: 2 sn'de ${sr.yol.toFixed(0)} m, ${sr.v.toFixed(0)} km/sa`,
+  sr.yol > 10 && sr.v > 30 && sr.vites >= 1 && sr.devir > 1000,
+  `gazla araç ilerliyor: 2 sn'de ${sr.yol.toFixed(0)} m, ${sr.v.toFixed(0)} km/sa, ${sr.vites}. vites, ${Math.round(sr.devir)} d/dk`,
 );
 console.log(`  (başsız tarayıcı: ${sr.fps.toFixed(0)} fps, ${sr.cagri} çizim çağrısı)`);
-const yf = await p.evaluate(async () => {
-  LT.set.fiz = 1;
-  LT.sim.motorSec("yeni");
-  LT.startWorld(1);
-  const S = LT.sim.S,
-    x0 = S.x,
-    z0 = S.z,
-    t0 = LT.sim.d.zaman;
-  LT.I.g = 1;
-  while (LT.sim.d.zaman - t0 < 2) await new Promise((r) => setTimeout(r, 20));
-  LT.I.g = 0;
-  const Y = LT.sim.yeni;
-  const r = {
-    yol: Math.hypot(S.x - x0, S.z - z0),
-    v: Math.hypot(S.vx, S.vz) * 3.6,
-    vites: Y && Y.vites,
-    devir: Y && Y.rpm,
-  };
-  LT.set.fiz = 0;
-  LT.sim.motorSec("klasik");
-  return r;
-});
-ok(
-  yf.yol > 10 && yf.vites >= 1 && yf.devir > 1000,
-  `yeni fizik: 2 sn'de ${yf.yol.toFixed(0)} m, ${yf.v.toFixed(0)} km/sa, ${yf.vites}. vites, ${Math.round(yf.devir)} d/dk`,
-);
 ok(!p.errs.length, "akışlarda sayfa hatası yok " + (p.errs[0] || ""));
 
 if (GOR) {
@@ -247,10 +250,8 @@ if (GOR) {
       Buffer.from(d.split(",")[1], "base64"),
     );
   }
-  // yeni fizik: virajda gövde yatışı (araç kendi kamerasıyla, otoparkta)
+  // virajda gövde yatışı (araç kendi kamerasıyla, otoparkta)
   const yv = await g.evaluate(async () => {
-    LT.set.fiz = 1;
-    LT.sim.motorSec("yeni");
     LT.oyun.camMode = 1;
     LT.startWorld(1);
     const t0 = LT.sim.d.zaman;
@@ -261,11 +262,9 @@ if (GOR) {
     LT.R.render(LT.scene, LT.cam);
     const d = LT.R.domElement.toDataURL("image/jpeg", 0.85);
     LT.I.g = LT.I.l = 0;
-    LT.set.fiz = 0;
-    LT.sim.motorSec("klasik");
     return d;
   });
-  fs.writeFileSync(path.join(CIKTI, "yeni_fizik_viraj.jpg"), Buffer.from(yv.split(",")[1], "base64"));
+  fs.writeFileSync(path.join(CIKTI, "viraj.jpg"), Buffer.from(yv.split(",")[1], "base64"));
   await g.close();
 }
 

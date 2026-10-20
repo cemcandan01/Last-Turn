@@ -1,10 +1,9 @@
-// İki fizik modelinin (klasik ve yeni) ortak sürüş mantığı: zemin izleri (çamur, ıslaklık), direksiyon ve gaz
+// Sürüş mantığının lastik ve gövdeden bağımsız kısmı: zemin izleri (çamur, ıslaklık), direksiyon ve gaz
 // süzgeci, drift penceresi (DR), drift göstergesi ve puanı (D), toz ve duman. Kullanıcı kararları burada:
 // drift modu yalnız bilinçli driftte açılır (açı eşiği + gaz + 0,25 sn), abartan spin atar.
 import { cl } from "../cekirdek/matematik";
-import type { AracDurumu, FizikBaglami, FizikGirdisi } from "./tipler";
+import type { AracDurumu, FizikBaglami, FizikGirdisi, SimDurumu } from "./tipler";
 import { DRIFT_ONAYARLARI } from "./veriler";
-import type { SimDurumu } from "./klasik";
 
 /** çamur: içindeyken %100, dışarıda hızla orantılı temizlenir; ıslaklık 2,5 sn'de kurur */
 export function zeminIzleri(S: AracDurumu, si: number, dt: number) {

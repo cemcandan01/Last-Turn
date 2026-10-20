@@ -1,10 +1,13 @@
-// Yeni fizik motoru testleri: kararlılık, temel değerler, kullanıcı kararları (spin, drift, kalkış), sağlamlık
+// Fizik motoru testleri: kararlılık, temel değerler, kullanıcı kararları (spin, drift, kalkış), sağlamlık
 import { describe, expect, it } from "vitest";
 import { CARS } from "../../src/arac/araclar";
 import { cl } from "../../src/cekirdek/matematik";
 import { mulberry32 } from "../../src/cekirdek/rastgele";
 import { ipucu } from "../../src/dunya/pist";
 import type { FizikGirdisi } from "../../src/fizik/tipler";
+import { duzZemin, frensiz } from "../yardimci/denemeler";
+import { DRIFT_PILOT, driftTuru } from "../yardimci/drift-pilot";
+import { egrilik, pilot } from "../yardimci/pilot";
 import { surucuKur } from "../yardimci/surucu";
 
 const DT = 1 / 60;
@@ -17,10 +20,10 @@ const gir = (g = 0, b = 0, tg = 0, analogGaz = false, analogDireksiyon = false):
 });
 const sonlu = (...a: number[]) => a.every(Number.isFinite);
 
-describe("yeni fizik: kararlılık ve temel değerler", () => {
+describe("kararlılık ve temel değerler", () => {
   for (let ci = 0; ci < CARS.length; ci++)
     it(CARS[ci].n, () => {
-      const s = surucuKur({ dunya: 0, arac: ci, lk: "norm", motor: "yeni" });
+      const s = surucuKur({ dunya: 0, arac: ci, lk: "norm" });
       const S = s.sim.S;
       // duruş: kıpırdamamalı, salınmamalı
       s.reset(210, -780, 0);
@@ -57,14 +60,14 @@ describe("yeni fizik: kararlılık ve temel değerler", () => {
     });
 });
 
-describe("yeni fizik: gerçekçi seviyede otomatik pilot spin atmaz", () => {
+describe("gerçekçi seviyede otomatik pilot spin atmaz", () => {
   for (const [yaris, arac, ad] of [
     [0, 0, "Grand Prix"],
     [9, 3, "Orman Etabı"],
     [3, 1, "Çamur Vadisi"],
   ] as const)
     it(ad, () => {
-      const s = surucuKur({ yaris, arac, lk: "real", motor: "yeni" });
+      const s = surucuKur({ yaris, arac, lk: "real" });
       const TR = s.bolge!.TR!,
         rally = TR.open,
         i0 = rally ? 4 : TR.N - 6,
@@ -98,14 +101,32 @@ describe("yeni fizik: gerçekçi seviyede otomatik pilot spin atmaz", () => {
     });
 });
 
-describe("yeni fizik: drift dengesi (Boş Otopark, Beyaz Kurt, drift önayarı)", () => {
+describe("toprakta sınır: tam gaz ve tam direksiyon yola tutunmaz", () => {
+  it("frensiz tam gazla tur atılamaz (Çamur Vadisi, Kor RX, gerçekçi)", () => {
+    const r = frensiz(3, 1, "real");
+    expect(r.disari + 3 * r.spin, "pist dışında geçen süre + spin").toBeGreaterThan(4);
+  });
+  it("gerçekçi: 80 km/sa'te tam direksiyon + tam gaz aracı kaydırır (Kor RX)", () => {
+    const r = duzZemin(1, "real", 22);
+    expect(r.bMax * 57.3, "en büyük kayma (derece)").toBeGreaterThan(30);
+  });
+  it("gerçekçi: arkadan itişli araç toprakta abartınca spin atar (Kızıl Ok)", () => {
+    expect(duzZemin(0, "real", 22).spin).toBeGreaterThan(0);
+  });
+  it("dengeli: abartan spin atar, gaz kesince toparlar (Mavi Yıldız)", () => {
+    expect(duzZemin(3, "norm", 22).spin, "tam gaz").toBeGreaterThan(0);
+    expect(duzZemin(3, "norm", 22, { g: 0 }).spin, "gaz kapalı").toBe(0);
+  });
+});
+
+describe("drift dengesi (Boş Otopark, Beyaz Kurt, drift önayarı)", () => {
   for (const [lk, st] of [
     ["real", "usta"],
     ["real", "abartan"],
     ["arc", "usta"],
   ] as const)
     it(`${lk} / ${st}`, () => {
-      const s = surucuKur({ dunya: 1, arac: 2, pk: "dr", lk, motor: "yeni" });
+      const s = surucuKur({ dunya: 1, arac: 2, pk: "dr", lk });
       s.reset(30, -3550, 0);
       const DR = s.sim.d.DR,
         D = s.sim.d.D;
@@ -144,10 +165,50 @@ describe("yeni fizik: drift dengesi (Boş Otopark, Beyaz Kurt, drift önayarı)"
     });
 });
 
-describe("yeni fizik: kurallar ve sağlamlık", () => {
+describe("drift yarışı (Drift Parkı, Beyaz Kurt, drift önayarı)", () => {
+  it("gerçekçi: ölçülü açıyla turun %80'i tek komboda geçer", { timeout: 30000 }, () => {
+    const r = driftTuru(6, "real", DRIFT_PILOT, 75);
+    expect(r.oran, "en uzun kombo / tur").toBeGreaterThan(0.8);
+    expect(r.spin, "spin").toBe(0);
+  });
+  it("gerçekçi: açıyı abartan komboyu yakar", { timeout: 30000 }, () => {
+    const r = driftTuru(6, "real", { ...DRIFT_PILOT, aci: 0.65 }, 75);
+    expect(r.oran, "en uzun kombo / tur").toBeLessThan(0.8);
+  });
+  it("dengeli: turun %80'i tek komboda geçer", { timeout: 30000 }, () => {
+    expect(driftTuru(6, "norm", DRIFT_PILOT, 75).oran).toBeGreaterThan(0.8);
+  });
+});
+
+describe("asfalt pistte titreşim yok (Kızıl Ok)", () => {
+  // pist yüksekliği basamaksız olmalı: tepeli pistte dikey ivme düz zemindekine yakın kalır
+  for (const [yaris, ad] of [
+    [0, "Grand Prix"],
+    [1, "Kıyı Pisti"],
+  ] as const)
+    it(ad, () => {
+      const s = surucuKur({ yaris, arac: 0, lk: "norm" });
+      const TR = s.bolge!.TR!,
+        i0 = TR.N - 6,
+        P = TR.P[i0];
+      s.reset(P[0], P[1], Math.atan2(TR.T[i0][0], TR.T[i0][1]));
+      const pl = pilot(TR, egrilik(TR), 0.9);
+      let vy0 = 0,
+        enB = 0;
+      for (let k = 0; k < 30 / DT; k++) {
+        s.adim(pl(s.sim.S));
+        const Y = s.sim.yeni!;
+        if (k > 120) enB = Math.max(enB, Math.abs((Y.vy - vy0) / DT));
+        vy0 = Y.vy;
+      }
+      expect(enB, "en büyük dikey ivme (m/s²)").toBeLessThan(2);
+    });
+});
+
+describe("kurallar ve sağlamlık", () => {
   it("belirlenimci: aynı girişler aynı sonuç", () => {
     const sur = () => {
-      const s = surucuKur({ yaris: 0, arac: 0, lk: "real", motor: "yeni" });
+      const s = surucuKur({ yaris: 0, arac: 0, lk: "real" });
       const TR = s.bolge!.TR!,
         P = TR.P[10];
       s.reset(P[0], P[1], Math.atan2(TR.T[10][0], TR.T[10][1]));
@@ -160,7 +221,7 @@ describe("yeni fizik: kurallar ve sağlamlık", () => {
   });
 
   it("yokuşta başlangıç: araç fırlamaz", () => {
-    const s = surucuKur({ yaris: 9, arac: 3, lk: "real", motor: "yeni" });
+    const s = surucuKur({ yaris: 9, arac: 3, lk: "real" });
     const TR = s.bolge!.TR!;
     for (const i of [4, 40, 120, 300]) {
       const P = TR.P[i];
@@ -175,7 +236,7 @@ describe("yeni fizik: kurallar ve sağlamlık", () => {
   });
 
   it("rampadan atlama: havalanır, dik iner", () => {
-    const s = surucuKur({ dunya: 0, arac: 3, lk: "arc", motor: "yeni" });
+    const s = surucuKur({ dunya: 0, arac: 3, lk: "arc" });
     s.reset(-250, -175, 0);
     let hava = 0;
     for (let k = 0; k < 360; k++) {
@@ -191,7 +252,7 @@ describe("yeni fizik: kurallar ve sağlamlık", () => {
   });
 
   it("çarpışma: ağaca çarpınca yavaşlar, içinden geçmez", () => {
-    const s = surucuKur({ dunya: 1, arac: 0, lk: "real", motor: "yeni" });
+    const s = surucuKur({ dunya: 1, arac: 0, lk: "real" });
     s.cx.dunya.yakin = () => [{ x: 100, z: -3420, r: 1.3, t: "solid" as const }];
     s.reset(100, -3500, 0);
     let vOnce = 0,
@@ -208,7 +269,7 @@ describe("yeni fizik: kurallar ve sağlamlık", () => {
 
   it("kalkış patinajı: tuşla düşük ve sabit, analogda gaza bağlı", () => {
     const kalkis = (g: number, analog: boolean) => {
-      const s = surucuKur({ dunya: 1, arac: 4, lk: "real", motor: "yeni" });
+      const s = surucuKur({ dunya: 1, arac: 4, lk: "real" });
       s.reset(100, -3500, 0);
       let kMax = 0;
       for (let k = 0; k < 90; k++) {
@@ -233,7 +294,7 @@ describe("yeni fizik: kurallar ve sağlamlık", () => {
       [10, 3],
       [6, 2],
     ] as const) {
-      const s = surucuKur({ yaris, arac, lk: "real", motor: "yeni" });
+      const s = surucuKur({ yaris, arac, lk: "real" });
       const TR = s.bolge!.TR!,
         P = TR.P[0];
       s.reset(P[0], P[1], Math.atan2(TR.T[0][0], TR.T[0][1]));

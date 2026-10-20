@@ -4,9 +4,8 @@
 // Oyun ölçeği: yerçekimi klasik modelle aynı (YERCEKIMI = 24); tutuş katsayıları gerçekçi aralıkta.
 // Sürüş yardımları (ABS, çekiş, denge, viraj, drift) kuvvet ve tork olarak uygulanır.
 import { ad, cl, sm } from "../../cekirdek/matematik";
-import type { AdimSonucu, SimDurumu } from "../klasik";
 import { direksiyonVeGaz, driftPenceresi, driftSiniri, driftSkoru, tozVeDuman, zeminIzleri } from "../ortak";
-import type { FizikBaglami, FizikGirdisi } from "../tipler";
+import type { AdimSonucu, FizikBaglami, FizikGirdisi, SimDurumu } from "../tipler";
 import { SURF, TIRES, VMAX, YERCEKIMI } from "../veriler";
 import { aracFizigi, RHO, torkEgrisi, VITESLER, type AracFizigi } from "./arac-fizigi";
 import { lastikKuvveti, type LastikParam, type LastikSonucu } from "./lastik";
@@ -16,8 +15,19 @@ export const ARA = 8;
 /** düşük hızda kayma hesabının paydası (m/s): durağan araçta titreşimi önler */
 const VD_X = 3,
   VD_Y = 2;
-/** tutuş ölçeği: klasik modelle aynı yarış temposu için */
+/** tutuş ölçeği: yarış temposu pistlerin hedef sürelerine uysun diye */
 export const TUTUS = 1.15;
+/**
+ * gevşek zemin (toprak, çim, çamur, kar): tutuş asfalttan düşük, tepe kayma açısı küçük (en çok ~13,5°) ve tepeden
+ * sonra kuvvet düşer; arka biraz daha gevşek. Lastik sınırı aşınca araç kayar: toprakta tam gaz ve tam direksiyonla
+ * viraj dönülmez (fren gerekir), abartan spin atar.
+ */
+export const GEVSEK_TUTUS = 0.75,
+  GEVSEK_TEPE = 0.24,
+  GEVSEK_C = 1.55,
+  GEVSEK_ARKA = 0.92;
+/** dört çekerde akslar arası bağ (1/s): düşük değer arka tekerin gazla patinaj yapmasına izin verir */
+const AKS_BAGI = 20;
 
 export interface YeniTeker {
   /** açısal hız (rad/s), dönme açısı (çizim) */
@@ -336,20 +346,22 @@ export function yeniAdim(
         pg) /
       (1 + 0.5 * S.mud);
     mu *= t.on ? CAR.fb : CAR.rb * (1 - 0.3 * as.ini * DR.k);
+    if (gevsek) mu *= GEVSEK_TUTUS * (t.on ? 1 : GEVSEK_ARKA);
     let B = T.B[ti] * (zi == 3 ? 0.85 : 1) * tp,
-      Cc = T.C[ti];
+      Cc = gevsek ? Math.max(T.C[ti], GEVSEK_C) : T.C[ti];
     // asfaltta drift: arka lastik kaymaya başlayınca (drift yardımı açıkken) toprakta olduğu gibi yumuşak ve uzun kayar
     if (!gevsek && kz > 0) {
       B *= t.on ? 1 - 0.2 * kz : 1 - 0.45 * kz;
       if (!t.on) mu *= 1 - 0.1 * kz;
       Cc += (1.3 - Cc) * kz;
     }
-    const C1 = Math.max(1.05, Cc);
+    const C1 = Math.max(1.05, Cc),
+      ap = Math.tan(Math.PI / (2 * C1)) / B;
     LP.push({
       muY: mu,
       muX: mu * (T.lg ? T.lg[ti] : 1),
       kp: gevsek ? 0.18 : 0.11,
-      ap: Math.tan(Math.PI / (2 * C1)) / B,
+      ap: gevsek ? Math.min(ap, GEVSEK_TEPE) : ap,
       C: Cc,
     });
     muOrt += mu / 4;
@@ -616,7 +628,7 @@ export function yeniAdim(
       kenet(0, 1, 40);
       const on = (Y.tk[0].w + Y.tk[1].w) / 2,
         arka = (Y.tk[2].w + Y.tk[3].w) / 2,
-        l = Math.min(1, h * 60) * 0.5 * (on - arka);
+        l = Math.min(1, h * AKS_BAGI) * 0.5 * (on - arka);
       Y.tk[0].w -= l;
       Y.tk[1].w -= l;
       Y.tk[2].w += l;

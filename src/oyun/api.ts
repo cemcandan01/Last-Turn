@@ -3,6 +3,7 @@
 export { CARS } from "../arac/araclar";
 export { showMenu, startWorld } from "../arayuz/menu";
 export { openGarage, closeGarage } from "../arayuz/garaj";
+export { showSet } from "../arayuz/ayarlar-ekrani";
 export { R, scene, cam } from "../cizim/sahne";
 export { kamera } from "../cizim/kamera";
 export { COND } from "../cizim/ortam";
