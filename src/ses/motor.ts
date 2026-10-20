@@ -5,6 +5,7 @@ import { sm } from "../cekirdek/matematik";
 import {
   gurultu,
   katmanDevirleri,
+  motorEq,
   motorKatmani,
   motorProfili,
   patlama,
@@ -147,9 +148,9 @@ export class MotorSesi {
       const devirler = katmanDevirleri(devirMax);
       for (let i = 0; i < devirler.length; i++) {
         const d = devirler[i],
-          gaz = tampon(ctx, motorKatmani(p, d, 1, devirMax, sr, 11 + i));
+          gaz = tampon(ctx, motorKatmani(p, d, 1, devirMax, sr, 11 + i, motorEq(k, i)));
         if (ctx instanceof AudioContext) await bekle();
-        const bos = tampon(ctx, motorKatmani(p, d, 0, devirMax, sr, 31 + i));
+        const bos = tampon(ctx, motorKatmani(p, d, 0, devirMax, sr, 31 + i, motorEq(k, i)));
         if (ctx instanceof AudioContext) await bekle();
         if (no != this.kurNo) return;
         tamponlar.push({ devir: d, gaz, bos });

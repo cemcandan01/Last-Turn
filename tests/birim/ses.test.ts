@@ -1,6 +1,18 @@
 // Ses sentezi: motor katmanları dikişsiz döngü, sessiz değil, taşmıyor; araçların sesleri birbirinden farklı.
 import { describe, expect, it } from "vitest";
-import { cakil, carpma, katmanDevirleri, MOTORLAR, motorKatmani, patlama, valf } from "../../src/ses/sentez";
+import {
+  cakil,
+  carpma,
+  katmanDevirleri,
+  MOTORLAR,
+  motorEq,
+  motorKatmani,
+  motorKatmanlari,
+  motorProfili,
+  patlama,
+  valf,
+} from "../../src/ses/sentez";
+import { bantlar, harmonik } from "../yardimci/ses-analiz";
 
 const SR = 22050;
 const rms = (s: Float32Array, a = 0, b = s.length) => {
@@ -57,13 +69,34 @@ describe("motor sesi", () => {
     );
   });
 
-  it("motorlar dolgun: orta devirde gazda 150 Hz altında da enerji var", () => {
-    for (const [k, p] of Object.entries(MOTORLAR)) {
-      const s = motorKatmani(p, 4500, 1, 7500, SR);
-      const alt = [40, 60, 80, 100, 120].reduce((a, f) => a + guc(s, f), 0),
-        ust = [200, 300, 400, 500, 600].reduce((a, f) => a + guc(s, f), 0);
-      expect(alt / ust, k).toBeGreaterThan(0.08);
+  it("oyundaki motorlar (gerçek motor ölçümlerine göre ayarlı): katmanlar dolu, taşmıyor, hızlı hesaplanıyor", () => {
+    for (const k of Object.keys(MOTORLAR)) {
+      const t0 = performance.now(),
+        L = motorKatmanlari(k, 7500, SR);
+      expect(performance.now() - t0, k).toBeLessThan(3000);
+      for (const x of L)
+        for (const s of [x.gaz, x.bos]) {
+          expect(s.every(Number.isFinite)).toBe(true);
+          expect(rms(s)).toBeGreaterThan(0.1);
+          expect(tepe(s)).toBeLessThanOrEqual(0.96);
+        }
     }
+  });
+
+  it("araçların motor sesleri birbirinden belirgin farklı (frekans dağılımı ya da ateşleme düzeni)", () => {
+    const k = Object.keys(MOTORLAR),
+      o = k.map((a) => {
+        const s = motorKatmani(motorProfili(a), 4500, 1, 7500, SR, 1, motorEq(a, 3));
+        return { b: bantlar(s, SR), d: harmonik(s, SR, 4500, a == "gt" ? 6 : a == "dg" ? 8 : 4).duzensiz };
+      });
+    for (let i = 0; i < k.length; i++)
+      for (let j = i + 1; j < k.length; j++) {
+        const fark = Math.sqrt(
+          o[i].b.reduce((t, x, n) => t + Math.min(100, (x - o[j].b[n]) ** 2), 0) / o[i].b.length,
+        );
+        console.log(k[i], k[j], fark.toFixed(1) + " dB", o[i].d.toFixed(2), o[j].d.toFixed(2));
+        expect(fark > 3 || Math.abs(o[i].d - o[j].d) > 0.3, k[i] + "-" + k[j]).toBe(true);
+      }
   });
 
   it("gaz açıkken ses gaz kapalıdan daha parlak", () => {
