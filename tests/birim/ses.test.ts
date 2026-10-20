@@ -48,13 +48,22 @@ describe("motor sesi", () => {
     expect(guc(s, f)).toBeGreaterThan(3 * guc(s, f * 1.37));
   });
 
-  it("büyük kamlı V8 rölantide homurdanır (ateşleme frekansının yan bantları), düz krank V8 düzgün", () => {
+  it("büyük kamlı V8 rölantide homurdanır (ateşleme frekansının yan bantları), V6 daha düzgün", () => {
     const d = 1000,
-      f = (4 * d) / 60,
-      capraz = motorKatmani(MOTORLAR.dg, d, 1, 6800, SR),
-      duz = motorKatmani(MOTORLAR.gt, d, 1, 8200, SR);
-    const oran = (s: Float32Array) => (guc(s, f * 0.875) + guc(s, f * 1.125)) / guc(s, f);
-    expect(oran(capraz)).toBeGreaterThan(4 * oran(duz));
+      oran = (s: Float32Array, f: number) => (guc(s, f * 0.875) + guc(s, f * 1.125)) / guc(s, f);
+    // ateşleme frekansı: V8'de 4, V6'da 3 × devir/60
+    expect(oran(motorKatmani(MOTORLAR.dg, d, 1, 6800, SR), (4 * d) / 60)).toBeGreaterThan(
+      2 * oran(motorKatmani(MOTORLAR.gt, d, 1, 8000, SR), (3 * d) / 60),
+    );
+  });
+
+  it("motorlar dolgun: orta devirde gazda 150 Hz altında da enerji var", () => {
+    for (const [k, p] of Object.entries(MOTORLAR)) {
+      const s = motorKatmani(p, 4500, 1, 7500, SR);
+      const alt = [40, 60, 80, 100, 120].reduce((a, f) => a + guc(s, f), 0),
+        ust = [200, 300, 400, 500, 600].reduce((a, f) => a + guc(s, f), 0);
+      expect(alt / ust, k).toBeGreaterThan(0.08);
+    }
   });
 
   it("gaz açıkken ses gaz kapalıdan daha parlak", () => {
