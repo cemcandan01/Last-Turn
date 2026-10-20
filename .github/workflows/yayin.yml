@@ -98,7 +98,13 @@ jobs:
       - name: Canlı duman (deneme sürümü)
         if: always()
         run: |
-          curl -fsS "${ADRES}dev/" | grep -q APP_VERSION || { echo "deneme sürümü yok"; exit 0; }
+          git fetch -q --depth 1 origin gelistirme || { echo "deneme dalı yok"; exit 0; }
+          V=$(git show FETCH_HEAD:package.json | node -p "JSON.parse(require('fs').readFileSync(0)).version")
+          for i in $(seq 1 40); do
+            curl -fsS "${ADRES}dev/?$(date +%s)" | grep -q "APP_VERSION='$V'" && break
+            sleep 15
+          done
+          curl -fsS "${ADRES}dev/" | grep -q "APP_VERSION='$V'" || { echo "deneme adresinde $V görünmedi"; exit 1; }
           cp tests/cikti/rapor.md tests/cikti/rapor-ana.md 2>/dev/null || true
           node tests/kosucu.mjs duman --adres "${ADRES}dev/"
       - name: Hata kaydı
