@@ -374,6 +374,55 @@ details[open] > summary::after {
   font-size: 14px;
   font-weight: 700;
 }
+.gses {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: #0006;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 800;
+}
+.gses i {
+  font-style: normal;
+}
+.gses.on {
+  border-color: var(--acc);
+  color: var(--acc);
+}
+/* çalarken ses dalgası */
+.dalga {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+.dalga u {
+  width: 3px;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--acc);
+  animation: dalga 0.6s ease-in-out infinite alternate;
+}
+.dalga u:nth-child(2) {
+  animation-delay: -0.2s;
+}
+.dalga u:nth-child(3) {
+  animation-delay: -0.4s;
+}
+.dalga u:nth-child(4) {
+  animation-delay: -0.1s;
+}
+@keyframes dalga {
+  from {
+    transform: scaleY(0.25);
+  }
+}
 .bdg.rec {
   background: var(--acc);
   color: #1b0d05;
