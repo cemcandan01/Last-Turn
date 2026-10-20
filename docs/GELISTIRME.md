@@ -5,62 +5,64 @@ Her alan için yeni bir sohbet aç ve aşağıdaki istemi yapıştır. Altına o
 İpuçları:
 - Küçük işlerde (metin, renk, tek ayar) daha hafif bir model ya da düşük düşünme seviyesi yeterli. Fizik ve tasarım gibi zor işlerde güçlü model kullan.
 - Görmen gerekmeyen işlerde "ekran görüntüsü kontrolü yapma, sadece testleri çalıştır" de.
-- İş bitince "yayınla" demen yeterli. `surum-yayinla` skill'i sürümü artırıp gönderir.
+- İş bitince "yayınla" demen yeterli. `surum-yayinla` skill'i sürümü artırıp gönderir. Önce denemek istersen "denemeye gönder" de: değişiklik https://cemcandan01.github.io/Last-Turn/dev/ adresine gelir, telefonda dener, beğenince "yayınla" dersin.
+- Aynı anda iki sohbet aynı dosyalarda çalışmasın; çalışıyorsa her biri göndermeden önce diğerinin işini çekip birleştirir.
 
 ---
 
 ## 1. Fizik ve sürüş hissi
 
 ```
-Last Turn'ün fizik ve sürüş hissi üzerinde çalışacağız. İlgili dosyalar js/fizik.js (phys, sub, drift durumu DR), js/temel.js (lastikler, önayarlar, yardım seviyeleri) ve js/araclar.js'teki araç fizik değerleri (CARS: trq, pw, m, fb, rb, iz, awd...).
-Kurallar: kayma ile drift ayrımını koru (drift modu yalnız bilinçli driftte açılır). Gerçekçi seviyede araç gazda kendi kendine spin atmamalı.
-Her değişiklikten sonra `cd tools && node test.mjs --tam` çalıştır. Gerekirse tools/test.mjs'e yeni bir ölçüm ekle (fren mesafesi, viraj hızı gibi). Sonuçları sayılarla anlat.
+Last Turn'ün fizik ve sürüş hissi üzerinde çalışacağız. Fizik src/fizik/ altında ve saf (three ve DOM yok). Motor yeni/model.ts (katı gövde, 4 teker, süspansiyon, lastik modeli, motor-vites); tek motor. Ortak drift penceresi DR ve drift puanı ortak.ts'te; veriler.ts zeminler, lastikler, ayarlar, yardım seviyeleri, önayarlar; simulasyon.ts sabit adım. Araç değerleri src/arac/araclar.ts (CARS: trq, pw, m, fb, rb, iz, awd, ff, hcg, dv...).
+Kurallar: kayma ile drift ayrımını koru (drift modu yalnız bilinçli driftte açılır). Gerçekçi seviyede araç gazda kendi kendine spin atmamalı. Fizikte Math.random kullanma.
+Her değişiklikten sonra `npm test` (spin, toprak, drift, titreşim, ~25 sn) ve gerekirse `npm run olcum` (0-100, fren, tur süreleri) çalıştır. Gerekirse tests/birim/'e yeni bir ölçüm ekle (fren mesafesi, viraj hızı gibi; tests/yardimci/surucu.ts gerçek pistte otomatik pilot kurar). Sonuçları sayılarla anlat.
 Bugünkü isteğim:
 ```
 
 ## 2. Araçlar ve garaj
 
 ```
-Last Turn'ün araçları ve garajı üzerinde çalışacağız. Araç modelleri ve değerleri js/araclar.js'te (CARS, body0, buildCar, kokpit buildInterior). Garaj ekranı js/garaj.js'te (STAT özellik çubukları, openGarage), stiller css/stil.css'te.
-Araçlar yan profilin enine uzatılmasıyla kurulur. Marka adı ve logo kullanma, gerçek araçlardan yalnız esinlen. Yeni araç eklersen garaj çubukları için ölçülen değerleri (a100, lat, b100, t90) test botuyla ölç.
-Görsel değişiklikten sonra `cd tools && node test.mjs --goruntu` çalıştır ve tools/out/garaj.png ile kokpit.png'ye bak.
+Last Turn'ün araçları ve garajı üzerinde çalışacağız. Araç değerleri ve gövde profilleri src/arac/araclar.ts'te (CARS), garaj çubukları src/arac/istatistik.ts'te. Araç modeli src/cizim/arac-modeli.ts (gövde, tekerler, araca özel parçalar EK), kokpit src/cizim/kokpit.ts. Garaj ekranı src/arayuz/garaj.ts, garaj sahnesi src/cizim/garaj-sahnesi.ts, stiller src/stil.css.
+Araçlar yan profilin enine uzatılmasıyla kurulur. Marka adı ve logo kullanma, gerçek araçlardan yalnız esinlen. Yeni araç eklersen garaj çubukları için ölçülen değerleri (a100, lat, b100, t90) Node'da test sürücüsüyle ölç (tests/yardimci/surucu.ts).
+Görsel değişiklikten sonra `npm run build && npm run test:goruntu` çalıştır ve tests/cikti/garaj.png ile kokpit.png'ye bak.
 Bugünkü isteğim:
 ```
 
 ## 3. Pistler ve dünyalar
 
 ```
-Last Turn'ün pistleri ve açık dünyaları üzerinde çalışacağız. Pist tanımları js/pistler.js'te (TDEF: kontrol noktaları, tema, yükseklik, rampa/çamur/su; temalar TH; dekorlar PROPS). Pist kurucusu, yarış listesi ve açık dünyalar js/bolgeler.js'te (mkReg, EVENTS, WORLDS, Boş Otopark).
-Kurallar: pistler kendini kesmemeli (kontrol noktası değiştirince kollar arası açıklığı ve en küçük viraj yarıçapını kontrol et). Bölge kutuları çakışmamalı. Yeni pist hedef süresi gerçekçi olmalı.
-Değişiklikten sonra `cd tools && node test.mjs --goruntu` çalıştır ve tools/out/pist_*.jpg görüntülerine bak.
+Last Turn'ün pistleri ve açık dünyaları üzerinde çalışacağız. Pist tanımları src/dunya/pist-tanimlari.ts'te (TDEF: kontrol noktaları, tema, yükseklik, rampa/çamur/su), pist kurucusu src/dunya/bolgeler.ts'te (mkReg, drag, Boş Otopark), dekorlar src/dunya/dekor.ts (PROPS), temalar src/dunya/temalar.ts, Çorak Topraklar src/dunya/corak.ts, yarış listesi src/oyun/yarislar.ts (TYP, EVENTS).
+Kurallar: pistler kendini kesmemeli (kontrol noktası değiştirince kollar arası açıklığı ve en küçük viraj yarıçapını kontrol et). Bölge kutuları çakışmamalı. Yeni pist hedef süresi gerçekçi olmalı (Node'da otomatik pilotla ölç). Dekorda yalnız kurucu.ts'teki rnd() kullan (her pistin kendi tohumu var).
+Değişiklikten sonra `npm run kontrol` ve `npm run test:goruntu` çalıştır, tests/cikti/pist_*.jpg görüntülerine bak.
 Bugünkü isteğim:
 ```
 
 ## 4. Grafik, ışık ve hava
 
 ```
-Last Turn'ün grafikleri, ışığı ve havası üzerinde çalışacağız. Saat ve hava js/ortam.js'te (applyEnv, COND, yağış parçacıkları, gölge). Temalar js/pistler.js'te (TH). Renderer ve sahne js/sahne.js'te.
-Açık konular: yağmur damlaları nokta şeklinde (çizgi olmalı), cama düşen damla yok, ıslak yolda yansıma yok, gece ışıkları sınırlı.
-Kural: iPhone 13'te akıcı kalmalı. Ağır bir efekt eklersen ayarlardan kapatılabilir yap (Mekanikler bölümü, TOG listesi).
-Değişiklikten sonra `cd tools && node test.mjs --goruntu` çalıştır ve görüntülere bak.
+Last Turn'ün grafikleri, ışığı ve havası üzerinde çalışacağız. Saat ve hava src/cizim/ortam.ts'te (applyEnv, COND, yağış, gölge). Temalar src/dunya/temalar.ts. Renderer, kamera ve ışıklar src/cizim/sahne.ts. Three.js 0.186 (npm); renk yönetimi kapalı ve ışıklar ISIK (π) çarpanıyla, eski görünüm korunsun diye.
+Açık konular: yağmur damlaları nokta şeklinde (çizgi olmalı), cama düşen damla yok, ıslak yolda yansıma yok, gece ışıkları sınırlı. WebGPU denemesi (Safari 26) yapılabilir.
+Kural: iPhone 13'te akıcı kalmalı. Ağır bir efekt eklersen ayarlardan kapatılabilir yap (src/oyun/ayarlar.ts, TOG listesi). Performans göstergesiyle ölç (Ayarlar → Mekanikler → Performans göstergesi).
+Değişiklikten sonra `npm run build && npm run test:goruntu` çalıştır ve görüntülere bak.
 Bugünkü isteğim:
 ```
 
 ## 5. Menü, HUD ve akış
 
 ```
-Last Turn'ün menüsü, HUD'ı ve oyuncu akışı üzerinde çalışacağız. Ana menü, profil, ayarlar ve sinematik arka plan js/menu.js'te (showMenu, MV görünüm yığını, SHOTS). HUD js/dongu.js'te (HUD güncellemesi) ve index.html'de (#hud yapısı). Stiller css/stil.css'te. Garaj js/garaj.js'te.
-Kural: oyun yalnız yatay ekranda. Çentik boşlukları için --sat/--sar/--sab/--sal değişkenlerini kullan.
-Değişiklikten sonra `cd tools && node test.mjs --goruntu` çalıştır ve tools/out/menu.png, yaris_turu.png, pist_listesi.png, yaris.png görüntülerine bak.
+Last Turn'ün menüsü, HUD'ı ve oyuncu akışı üzerinde çalışacağız. Ana menü src/arayuz/menu.ts (showMenu, MV görünüm yığını), ayarlar ve duraklatma src/arayuz/ayarlar-ekrani.ts, menü arka planı src/oyun/sinematik.ts (SHOTS). HUD src/arayuz/hud.ts ve index.html'de (#hud yapısı). Stiller src/stil.css. Garaj src/arayuz/garaj.ts.
+Kural: oyun yalnız yatay ekranda. Çentik boşlukları için --sat/--sar/--sab/--sal değişkenlerini kullan. HUD yazılarını yazi() ile güncelle (yalnız değişince DOM'a yazar).
+Değişiklikten sonra `npm run build && npm run test:goruntu` çalıştır ve tests/cikti/menu.png, yaris_turu.png, pist_listesi.png, yaris.png görüntülerine bak.
 Bugünkü isteğim:
 ```
 
 ## 6. Oyun modları ve ilerleme
 
 ```
-Last Turn'e oyun modları ve ilerleme sistemi ekleyeceğiz: kariyer, kilit açma, para veya puan, araç geliştirme, rakip araçlar gibi. Yarış akışı js/yarislar.js'te (startEvent, evTick, endEvent, rekorlar). Profil ve menü js/menu.js'te (PROF, showMenu). Yarış listesi js/bolgeler.js'te (TYP, EVENTS).
-Kayıtlar localStorage'da tutuluyor (lt_prof, sv_*). Yeni alan eklersen eski kayıtlarla uyumlu kalsın.
-Önce önerini kısaca anlat, onaylarsam yap. Değişiklikten sonra `cd tools && node test.mjs` çalıştır.
+Last Turn'e oyun modları ve ilerleme sistemi ekleyeceğiz: kariyer, kilit açma, para veya puan, araç geliştirme, rakip araçlar gibi. Yarış akışı src/oyun/yarislar.ts (startEvent, evTick, endEvent), sonuç ekranı src/arayuz/sonuc.ts, profil ve rekorlar src/oyun/profil.ts, menü src/arayuz/menu.ts.
+Kayıtlar localStorage'da (lt_prof, lt_car, lt_ayar, sv_*). Yeni alan eklersen eski kayıtlarla uyumlu kalsın (src/cekirdek/depo.ts → okuJson varsayılanla birleştirir).
+Rakip araçlar için fizik saf ve sabit adımlı: birden çok Simulasyon örneği aynı dünyada çalışabilir (src/fizik/simulasyon.ts).
+Önce önerini kısaca anlat, onaylarsam yap. Değişiklikten sonra `npm run kontrol` çalıştır.
 Bugünkü isteğim:
 ```
 
@@ -68,8 +70,8 @@ Bugünkü isteğim:
 
 ```
 Last Turn'e ses ekleyeceğiz: motor sesi (devir ve gaza bağlı), lastik sürtünmesi ve drift, çarpışma, çakıl ve çamur, menü sesleri. Oyunda henüz hiç ses yok.
-Web Audio API ile sentezle ya da küçük ses dosyaları kullan (img/ gibi ses/ klasörü, sw.js CORE listesine ekle). Motor devri js/araclar.js'teki engine() fonksiyonundaki RPM ve GEAR'dan, kayma ve patinaj js/fizik.js'teki D.beta ve S.spin'den okunabilir.
-iOS'ta ses ancak ilk dokunuştan sonra başlar, bunu ele al. Ayarlara ses seviyesi ekle.
+Web Audio API ile sentezle ya da küçük ses dosyaları kullan (public/ses/ klasörü; service worker derlemede kendiliğinden önbelleğe alır). Yeni bir modül aç: src/ses/. Devir ve vites src/arayuz/hud.ts'teki motor nesnesinden, kayma ve patinaj sim.d.D.beta ve sim.S.spin'den (src/oyun/surus.ts) okunabilir. Fizik olayları (spin, toz) src/oyun/surus.ts'teki baglam.olay'dan dinlenebilir.
+iOS'ta ses ancak ilk dokunuştan sonra başlar, bunu ele al. Ayarlara ses seviyesi ekle (src/oyun/ayarlar.ts).
 Bugünkü isteğim:
 ```
 
@@ -77,15 +79,25 @@ Bugünkü isteğim:
 
 ```
 Last Turn'ün performansı ve iPhone uyumu üzerinde çalışacağız. Hedef: iPhone 13'te akıcı 60 fps.
-Bakılacak yerler: js/sahne.js (renderer, piksel oranı), js/ortam.js (gölge), js/pistler.js ve js/bolgeler.js (dekor sayısı, arazi çözünürlüğü), js/dongu.js (kare başına iş). Önce ölç: bölge kurma süreleri, sahnedeki çizim çağrısı ve üçgen sayısı (R.info). Sonra en büyük kazancı veren değişikliği öner.
-Değişiklikten sonra `cd tools && node test.mjs --goruntu` çalıştır, görüntü kalitesi düşmüş mü bak.
+Ölçüm: oyundaki performans göstergesi (Ayarlar → Mekanikler, ya da adrese ?perf ekle): kare hızı, kare süresi, en kötü kare, fizik ve çizim süresi, çizim çağrısı, üçgen. Kullanıcıdan telefonda ekran görüntüsü iste.
+Bakılacak yerler: src/cizim/sahne.ts (renderer, piksel oranı), src/cizim/ortam.ts (gölge), src/dunya/ (dekor sayısı, arazi çözünürlüğü), src/oyun/dongu.ts (kare başına iş). Önce ölç, sonra en büyük kazancı veren değişikliği öner.
+Değişiklikten sonra `npm run build && npm run test:goruntu` çalıştır, görüntü kalitesi düşmüş mü bak.
 Bugünkü isteğim:
 ```
 
 ## 9. Çevrimiçi (ileride)
 
 ```
-Last Turn'e çevrimiçi özellikler eklemeyi planlayacağız: dünya rekorları (WR), hayalet araç, sıralama tablosu. Oyun şu an GitHub Pages'te statik olarak yayınlanıyor, sunucu yok. Menüde WR alanları şimdilik boş (js/menu.js).
+Last Turn'e çevrimiçi özellikler eklemeyi planlayacağız: dünya rekorları (WR), hayalet araç, sıralama tablosu. Oyun şu an GitHub Pages'te statik olarak yayınlanıyor, sunucu yok. Menüde WR alanları şimdilik boş (src/arayuz/menu.ts).
+Fizik sabit adımlı ve tohumlu (belirlenimci): bir turun girişleri kaydedilip aynı sonuçla tekrar oynatılabilir; hayalet araç için bu kullanılabilir (src/fizik/simulasyon.ts).
 Önce seçenekleri, maliyetlerini ve gereken servisleri kısaca anlat. Kod yazmadan önce benim onayımı al.
+Bugünkü isteğim:
+```
+
+## 10. Altyapı
+
+```
+Last Turn'ün altyapısı üzerinde çalışacağız: derleme (Vite), testler (Vitest, Playwright), yayın (GitHub Actions → Pages, gelistirme → /dev/), PWA (service worker), fizik motoru çekirdeği, kod düzeni. Mimari docs/MIMARI.md'de.
+Kural: tüm testler geçmeden yayınlama; riskli değişiklik önce deneme sürümüne (/dev/) gider.
 Bugünkü isteğim:
 ```

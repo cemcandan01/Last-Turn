@@ -1,0 +1,59 @@
+// Sonuç ekranı: süre, hedef, rekor; tekrar, açık dünya, ana menü
+import { fmt, fmt3 } from "../cekirdek/bicim";
+import { $ } from "../cekirdek/dom";
+import { WORLDS } from "../dunya/dunya";
+import { oyun } from "../oyun/durum";
+import { best, saveBest } from "../oyun/profil";
+import { leaveEvent, startEvent, type Yaris } from "../oyun/yarislar";
+import { showMenu, startWorld } from "./menu";
+
+export function sonucGoster(EV: Yaris) {
+  let h: string, p: string;
+  const row = (a: string, b: string | number) => `<div class="rk"><span>${a}</span><span>${b}</span></div>`;
+  if (EV.ty == "dp") {
+    const b = best(EV.k),
+      nb = EV.score > b;
+    if (nb) saveBest(EV.k, EV.score);
+    h = "Drift yarışması bitti";
+    p =
+      row("Toplam puan", EV.score) +
+      row("En iyi kombo", EV.best) +
+      row("Rekor", Math.max(b, EV.score) + (nb ? " · YENİ" : ""));
+  } else {
+    const ok = EV.t <= EV.limit,
+      b = best(EV.k),
+      nb = ok && (!b || EV.t < b);
+    if (nb) saveBest(EV.k, EV.t.toFixed(EV.ty == "dg" ? 3 : 2));
+    h = ok
+      ? EV.laps
+        ? "Yarış tamamlandı"
+        : EV.ty == "dg"
+          ? "Hedef geçildi"
+          : "Etap tamamlandı"
+      : "Süre aşıldı";
+    p =
+      EV.ty == "dg"
+        ? row("Süren", fmt3(EV.t)) +
+          row("Hedef", fmt3(EV.limit)) +
+          row("Bitiş hızı", Math.round(EV.trap || 0) + " km/sa") +
+          row("Rekor", nb ? fmt3(EV.t) + " · YENİ" : b ? fmt3(+b) : "—")
+        : row("Süren", fmt(EV.t)) +
+          row("Hedef", fmt(EV.limit)) +
+          (EV.laps ? row("En iyi tur", fmt(EV.bestLap)) : "") +
+          row("Rekor", nb ? fmt(EV.t) + " · YENİ" : b ? fmt(b) : "—");
+  }
+  const r = $("#res"),
+    k = EV.i;
+  r.classList.remove("hidden");
+  r.innerHTML = `<h1>${h}</h1>${p}<button class="btn" id="again">Tekrar</button><button class="btn alt" id="free">Açık dünyaya dön</button><button class="btn alt" id="rm">Ana menü</button>`;
+  $("#again").onclick = () => startEvent(k);
+  $("#free").onclick = () => {
+    r.classList.add("hidden");
+    startWorld(WORLDS.indexOf(oyun.CURW));
+  };
+  $("#rm").onclick = () => {
+    r.classList.add("hidden");
+    leaveEvent();
+    showMenu(["home"]);
+  };
+}

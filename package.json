@@ -1,0 +1,41 @@
+{
+  "name": "last-turn",
+  "version": "3.1.0",
+  "private": true,
+  "type": "module",
+  "description": "iPhone için 3D sürüş ve yarış oyunu (PWA)",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview --host",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.node.json",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:izle": "vitest",
+    "test:e2e": "node tests/e2e/duman.mjs",
+    "test:goruntu": "node tests/e2e/duman.mjs --goruntu",
+    "kontrol": "npm run typecheck && npm run lint && npm run test && npm run build && npm run test:e2e",
+    "olcum": "vitest run --config vitest.olcum.config.ts"
+  },
+  "engines": {
+    "node": ">=22.12"
+  },
+  "dependencies": {
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.20.5",
+    "@types/three": "^0.186.0",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
+    "playwright": "^1.64.1",
+    "prettier": "^3.9.10",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.0",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.5"
+  }
+}

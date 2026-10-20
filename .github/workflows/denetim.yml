@@ -1,0 +1,34 @@
+# Denetim: her gönderimde tip denetimi, kod denetimi, biçim, birim testleri, derleme ve tarayıcı testi.
+name: Denetim
+
+on:
+  push:
+    branches-ignore: [master, gelistirme]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  denetim:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Tip denetimi
+        run: npm run typecheck
+      - name: Kod denetimi
+        run: npm run lint
+      - name: Biçim
+        run: npm run format:check
+      - name: Birim ve fizik testleri
+        run: npm test
+      - name: Derleme
+        run: npm run build
+      - name: Tarayıcı
+        run: npx playwright install --with-deps chromium
+      - name: Tarayıcı testi
+        run: npm run test:e2e

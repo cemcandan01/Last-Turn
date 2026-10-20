@@ -1,0 +1,18 @@
+# gelistirme dalına gönderim: master'daki yayın iş akışını çalıştırır (deneme sürümü /dev/ adresinde güncellenir).
+# Pages yalnız ana daldan yayın kabul ettiği için derleme ve yayın master'daki iş akışında yapılır.
+name: Deneme tetikleyici
+
+on:
+  push:
+    branches: [gelistirme]
+
+permissions:
+  actions: write
+
+jobs:
+  tetikle:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh workflow run yayin.yml --ref master --repo "$GITHUB_REPOSITORY"
+        env:
+          GH_TOKEN: ${{ github.token }}

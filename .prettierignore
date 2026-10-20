@@ -1,0 +1,9 @@
+dist/
+node_modules/
+tests/veri/
+tests/cikti/
+public/
+package-lock.json
+*.md
+# eski kurulu uygulamalar sürümü APP_VERSION='...' kalıbıyla arar: tırnaklar değişmemeli
+index.html

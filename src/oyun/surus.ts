@@ -1,0 +1,124 @@
+// Sürüş: simülasyonu oyuna bağlar. Dünya sorgusu, sürüş kurulumu ve olaylar buradan fiziğe verilir;
+// her sabit adımda fizik, yarış mantığı ve serbest sürüş tur sayacı sırayla çalışır.
+import { note } from "../arayuz/bildirim";
+import { puff } from "../cizim/parcaciklar";
+import { ortam } from "../cizim/ortam";
+import { mB } from "../dunya/kurucu";
+import { dunya, Hw, surfW } from "../dunya/dunya";
+import { REG, regAt, type Bolge } from "../dunya/bolgeler";
+import { ipucu, nearest } from "../dunya/pist";
+import { ADIM, Simulasyon } from "../fizik/simulasyon";
+import type { AdimSonucu, DunyaSorgusu, FizikBaglami, SurusKurulumu } from "../fizik/tipler";
+import { SURF, TIRES } from "../fizik/veriler";
+import { kameraSifirla } from "../cizim/kamera";
+import { set } from "./ayarlar";
+import { oyun } from "./durum";
+import { fizikGirdisi } from "./girdi";
+import { kurulum } from "./kurulum";
+import { PROF, saveProf } from "./profil";
+import { yaris, evTick } from "./yarislar";
+
+export const sim = new Simulasyon(1);
+
+/** son fizik adımının sonucu (HUD zemin ve lastik adı) */
+export let son: AdimSonucu = { Sf: SURF[0], T: TIRES[1], v: 0, si: 0 };
+
+/** serbest sürüşte tur sayacı (kapalı pistlerde) */
+export const LAP = {
+  run: 0,
+  t: 0,
+  last: null as number | null,
+  best: null as number | null,
+  armed: 0,
+  prev: 0,
+  reg: null as Bolge | null,
+};
+
+const dunyaSorgusu: DunyaSorgusu = {
+  H: Hw,
+  surf: surfW,
+  yakin: (x, z) => dunya.cols.yakin(x, z),
+  kutu: () => (yaris.EV ? REG[yaris.EV.reg].box : oyun.CURW.box),
+  kerbli: () => !!(dunya.cur && dunya.cur.kerb),
+  havaTutusu: () => ortam.g,
+  karli: () => ortam.k == "snow",
+};
+
+const surusKurulumu = (): SurusKurulumu => ({
+  car: oyun.CAR,
+  pk: kurulum.pk,
+  tire: kurulum.tire,
+  tu: kurulum.tu,
+  as: kurulum.as,
+  ss: set.ss,
+  sm: set.sm,
+});
+
+const baglam: FizikBaglami = {
+  dunya: dunyaSorgusu,
+  kurulum: surusKurulumu(),
+  olay: { spin: () => note("SPİN", 40), puf: puff, caliRengi: () => mB.color.getHex() },
+  rng: sim.rng,
+  gorselRng: Math.random,
+};
+
+/** aracı (x, z) noktasına koy; verilmezse açık dünyanın ilk ışınlanma noktası */
+export function reset(x?: number, z?: number, h?: number) {
+  const sp = oyun.CURW.tele[0];
+  x = x ?? sp[1];
+  z = z ?? sp[2];
+  h = h ?? sp[3];
+  sim.sifirla(x, z, h, Hw(x, z));
+  kameraSifirla(h);
+  LAP.run = 0;
+  LAP.t = 0;
+  LAP.armed = 0;
+  dunya.cur = regAt(x, z);
+  dunya.TR = dunya.cur ? dunya.cur.TR : null;
+  LAP.reg = dunya.cur;
+  if (dunya.TR) {
+    ipucu.ti = nearest(dunya.TR, x, z, 0, true)[0];
+    LAP.prev = ipucu.ti;
+  }
+}
+
+/** bir sabit adım: fizik, yarış, tur sayacı */
+export function surusAdimi() {
+  const S = sim.S;
+  PROF.km += (Math.hypot(S.vx, S.vz) * ADIM) / 1000;
+  baglam.kurulum = surusKurulumu();
+  baglam.rng = sim.rng;
+  son = sim.adim(fizikGirdisi(), baglam);
+  if (sim.d.zaman % 20 < ADIM) saveProf();
+  turSayaci(ADIM);
+  if (yaris.EV) evTick(ADIM, son);
+}
+
+/** serbest sürüşte kapalı pistlerde tur zamanı */
+function turSayaci(dt: number) {
+  const cur = dunya.cur;
+  dunya.TR = cur ? cur.TR : null;
+  if (LAP.reg !== cur) {
+    LAP.reg = cur;
+    LAP.run = 0;
+    LAP.armed = 0;
+    LAP.prev = ipucu.ti;
+  }
+  const TR = dunya.TR;
+  if (TR && !TR.open && !yaris.EV) {
+    const N = TR.N,
+      ti = ipucu.ti;
+    if (ti > N * 0.4 && ti < N * 0.6) LAP.armed = 1;
+    if (LAP.prev > N * 0.8 && ti < N * 0.2) {
+      if (LAP.run && LAP.armed) {
+        LAP.last = LAP.t;
+        LAP.best = LAP.best == null ? LAP.t : Math.min(LAP.best, LAP.t);
+      }
+      LAP.run = 1;
+      LAP.t = 0;
+      LAP.armed = 0;
+    }
+    if (LAP.run) LAP.t += dt;
+    LAP.prev = ti;
+  }
+}
