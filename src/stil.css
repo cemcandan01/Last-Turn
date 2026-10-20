@@ -269,8 +269,11 @@ details[open] > summary::after {
   width: min(96px, calc(var(--aw) * 0.24));
   height: min(230px, calc(var(--ah) * 0.45));
   border-radius: 22px;
-  background: #ffffff18;
-  border: 2px solid #ffffff44;
+  background:
+    repeating-linear-gradient(180deg, #ffffff12 0 3px, transparent 3px 12px) 12px 14px / calc(100% - 24px)
+      calc(100% - 28px) no-repeat,
+    linear-gradient(180deg, #34424ad9, #141b1fd9);
+  border: 1px solid #ffffff38;
   position: relative;
   touch-action: none;
   overflow: hidden;
@@ -291,7 +294,7 @@ details[open] > summary::after {
   right: 0;
   bottom: 50%;
   height: 0;
-  background: #3ddc8499;
+  background: #ff7a3c99;
 }
 .pedal u {
   position: absolute;
@@ -299,7 +302,7 @@ details[open] > summary::after {
   right: 0;
   top: 50%;
   height: 0;
-  background: #ff5b6e99;
+  background: #e8eef080;
 }
 .pedal b,
 .pedal s {
@@ -1045,7 +1048,7 @@ details[open] > summary::after {
   border-color: transparent;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-  padding: 0;
+  /* iç boşluk korunur: yazı panelli sürümle aynı yerde durur */
   text-shadow:
     0 1px 2px #000,
     0 0 8px #000a;
@@ -1087,8 +1090,8 @@ details[open] > summary::after {
 .k {
   pointer-events: auto;
   border-radius: 22px;
-  background: #ffffff1c;
-  border: 1px solid #ffffff3a;
+  background: #0b1418a0;
+  border: 1px solid #ffffff38;
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   display: flex;
@@ -1110,30 +1113,59 @@ details[open] > summary::after {
   width: min(88px, calc(var(--aw) * 0.21));
   height: 96px;
 }
-#b {
-  width: min(84px, calc(var(--aw) * 0.2));
-  height: 92px;
-  font-size: 17px;
-  background: #ff5b6e26;
-  border-color: #ff5b6e70;
+/* gaz ve fren pedal biçiminde: koyu cam, yatay oluklar, hafif öne yatık; basınca turuncu ve daha çok yatar.
+   Fren geniş ve kısa, gaz dar ve uzun (gerçek pedaller gibi). Renk yalnız basınca (vurgu rengi tek) */
+.pd {
+  position: relative;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: 9px;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  color: #dfe8e6;
+  background: linear-gradient(180deg, #34424ad9, #141b1fd9) !important;
+  border: 1px solid #ffffff38;
+  border-radius: 14px 14px 20px 20px;
+  transform: perspective(260px) rotateX(9deg);
+  transform-origin: 50% 100%;
+  transition:
+    transform 0.08s,
+    box-shadow 0.08s;
+  box-shadow:
+    inset 0 1px 0 #ffffff30,
+    0 4px 10px #0006;
 }
-#b.on {
-  background: #ff5b6e99;
+.pd::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  right: 13px;
+  top: 12px;
+  bottom: 30px;
+  border-radius: 8px;
+  background: repeating-linear-gradient(180deg, #ffffff2e 0 3px, transparent 3px 10px);
+}
+.pd.on {
+  transform: perspective(260px) rotateX(24deg);
+  border-color: var(--acc);
+  box-shadow:
+    inset 0 1px 0 #ffffff30,
+    0 0 16px #ff7a3c88;
+}
+.pd.on::before {
+  background: repeating-linear-gradient(180deg, #ff7a3ccc 0 3px, transparent 3px 10px);
+}
+#b {
+  width: min(96px, calc(var(--aw) * 0.22));
+  height: 84px;
 }
 #g {
-  width: min(104px, calc(var(--aw) * 0.24));
+  width: min(78px, calc(var(--aw) * 0.19));
   height: 112px;
-  font-size: 22px;
-  background: #3ddc8430;
-  border-color: #3ddc8488;
-}
-#g.on {
-  background: #3ddc8499;
 }
 #app[data-gas="auto"] #b {
   width: 120px;
-  height: 112px;
-  font-size: 22px;
+  height: 100px;
 }
 
 /* --- HUD düzenleyici: örnek oyun görüntüsü, ortada seçim paneli (aracın yeri) --- */

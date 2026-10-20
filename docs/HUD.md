@@ -56,7 +56,10 @@ bilgi konmaz), Steven Hoober'ın başparmak bölgeleri ve oyuncuların "HUD ekra
 
 - Paneller koyu cam: `--pan` (#0b1418, %72) + 1 px açık kenar `--panK` + bulanıklık. Köşe yarıçapı 12-16 px.
 - Vurgu rengi tek: turuncu `--acc` (#ff7a3c): etiketler, vites, çarpan, kadran yayı. Uyarı sarı (#ffd27a).
-  Gaz yeşil, fren kırmızı tonlu.
+  Tuşlarda ayrı renk yok (yeşil gaz / kırmızı fren uyumsuz bulundu): hepsi koyu cam, basılınca turuncu.
+- Gaz ve fren pedal biçiminde (`.pd`): yatay oluklu, hafif öne yatık, basınca daha çok yatar ve oluklar
+  turuncu yanar. Fren geniş ve kısa, gaz dar ve uzun. Analog pedalda gaz dolgusu turuncu, fren beyaz.
+- Panelsiz ("Yazı") seçeneklerde iç boşluk korunur: yazı panelli sürümle aynı yerde durur, kenara yapışmaz.
 - Yazı boyları: ana değer 22-40 px, etiket 11 px büyük harf ve harf aralıklı, ikincil 12 px. 10 px altı yok.
 - Simgeler SVG çizgi simge (2,2 px çizgi), emoji kullanılmaz (her cihazda farklı görünür).
 - Her yazının altında gölge var: açık gökyüzünde de karanlık yolda da okunur.
