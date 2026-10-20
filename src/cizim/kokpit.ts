@@ -4,6 +4,7 @@ import * as THREE from "three";
 import type { Arac } from "../arac/araclar";
 import { cl } from "../cekirdek/matematik";
 import { bx, lam, V3 } from "./yardimci";
+import { aynaYuzu } from "./ayna";
 
 export const cock = new THREE.Group();
 cock.visible = false;
@@ -16,6 +17,8 @@ export const kokpit = {
   ndR: null as THREE.Group | null,
   /** sürücünün göz konumu (gövde koordinatı) */
   EYE: [0.4, 1.3, -0.2] as [number, number, number],
+  /** kapı iç panelinin üstü (pencere eşiği) */
+  kt: 0,
 };
 
 const beam = (a: number[], b: number[], m: THREE.Material, t: number) => {
@@ -95,21 +98,29 @@ export function buildInterior(d: Arac) {
     L = zf - zr,
     dt = Math.min(yb - 0.02, ey - 0.22);
   kokpit.EYE = [ex, ey, ez];
+  // kapı iç panellerinin üstü göz hizasının belirgin altında: yan camdan yol ve yan ayna görünsün
+  // (dış gövde içeriden görünmez, bu yüzden panelin üstü pencere eşiği olur)
+  const kt = (kokpit.kt = Math.max(fy + 0.25, Math.min(yb, ey - 0.2)));
   // zemin ve kapı iç panelleri (yol ve tekerler alttan görünmesin)
   cock.add(bx(2 * hw, 0.04, L + 0.5, 0, fy, mz, M.d));
   for (const sd of [-1, 1])
     cock.add(
-      bx(0.06, yb - fy, L + 0.3, sd * hw, (yb + fy) / 2, mz, M.p),
-      bx(0.13, 0.05, L * 0.6, sd * (hw - 0.06), yb - 0.14, mz - 0.1, M.l),
-      bx(0.04, 0.03, L * 0.5, sd * (hw - 0.02), yb - 0.3, mz, M.k),
+      bx(0.06, kt - fy, L + 0.3, sd * hw, (kt + fy) / 2, mz, M.p),
+      bx(0.1, 0.025, L + 0.3, sd * (hw - 0.03), kt, mz, M.d),
+      bx(0.1, 0.04, L * 0.5, sd * (hw - 0.05), kt - 0.12, mz - 0.1, M.l),
     );
   // torpido ön camın dibine kadar, üstü bel çizgisinin hemen üstünde
   cock.add(
     bx(2 * hw, dt - fy, 0.75, 0, (dt + fy) / 2, zf - 0.18, M.d),
     bx(2 * hw - 0.1, 0.03, 0.4, 0, dt + 0.015, zf - 0.05, M.p),
   );
-  // gösterge kutusu ve iki kadran (devir solda, hız sağda)
-  cock.add(bx(0.34, 0.06, 0.16, ex, dt + 0.03, ez + 0.62, M.d));
+  // gösterge grubu: kadranlar sürücüye dönük ve eğik; arka panel kadranların arkasında, siperlik üstünde
+  // (kutu kadranların önünde kalırsa alt yarılarını kapatır). Grup Y'de π döndüğü için yerel x ters.
+  const gk = new THREE.Group();
+  gk.position.set(ex, dt + 0.056, ez + 0.56);
+  gk.rotation.set(0.7, Math.PI, 0);
+  gk.add(bx(0.27, 0.12, 0.02, 0, -0.002, -0.015, M.k), bx(0.29, 0.01, 0.05, 0, 0.06, 0.012, M.d));
+  cock.add(gk);
   const mkG = (x: number, mx: number, st: number, lbl: string, red?: number) => {
     const g = new THREE.Group();
     g.add(
@@ -122,13 +133,12 @@ export function buildInterior(d: Arac) {
     pv.position.z = 0.004;
     pv.add(bx(0.044, 0.006, 0.003, 0.021, 0, 0, new THREE.MeshBasicMaterial({ color: 0xff5a1f })));
     g.add(pv);
-    g.position.set(x, dt + 0.04, ez + 0.56);
-    g.rotation.set(0.7, Math.PI, 0);
-    cock.add(g);
+    g.position.x = -x;
+    gk.add(g);
     return pv;
   };
-  kokpit.ndR = mkG(ex + 0.06, 8, 1, "x1000 d/dk", 0.8);
-  kokpit.ndS = mkG(ex - 0.06, 320, 40, "km/sa");
+  kokpit.ndR = mkG(0.06, 8, 1, "x1000 d/dk", 0.8);
+  kokpit.ndS = mkG(-0.06, 320, 40, "km/sa");
   // direksiyon: üç kollu, kolonuyla
   const swl = (kokpit.swl = new THREE.Group());
   swl.add(new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.026, 8, 28), M.k));
@@ -170,6 +180,9 @@ export function buildInterior(d: Arac) {
     bx(0.025, 0.05, 0.025, 0, yr - 0.1, zt - 0.06, M.k),
     bx(0.22, 0.06, 0.025, 0, yr - 0.15, zt - 0.07, M.k),
   );
+  const dk = aynaYuzu(0.2, 0.048, 1, 0);
+  dk.position.set(0, yr - 0.15, zt - 0.084);
+  cock.add(dk);
   // direkler: A (ön cam kenarı) ve B (yan camın arkası)
   for (const sd of [-1, 1])
     cock.add(
