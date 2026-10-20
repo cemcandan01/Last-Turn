@@ -1,5 +1,6 @@
 // HUD: hız ve vites, yarış/tur bilgisi (sol üst), drift ve kombo göstergesi (üst orta), uyarılar.
-// Düzen (Köşe, Kadran, Bant, Sade) #app[data-hud] ile seçilir; yerleşim stil.css'te. Kurallar: docs/HUD.md.
+// Her gösterge ayrı seçilir (#app[data-hiz|sayac|tus|harita]; düzenleyici hud-duzenleyici.ts); yerleşim
+// stil.css'te. Kurallar: docs/HUD.md.
 // Yazılar yalnız değişince DOM'a yazılır.
 import { fmt } from "../cekirdek/bicim";
 import { cl } from "../cekirdek/matematik";
@@ -40,9 +41,20 @@ export function hudKur() {
   hudDuzeniUygula();
 }
 
-/** seçili HUD düzenini uygula (ayar değişince de çağrılır) */
+/** seçili göstergeleri uygula (ayar değişince de çağrılır): #app[data-hiz|sayac|tus|harita] */
 export function hudDuzeniUygula() {
-  $("#app").dataset.hud = gorunum.hud;
+  Object.assign($("#app").dataset, gorunum);
+  kadranF = -1;
+}
+
+/** kadran yayı: hız ölçeğe oranla (0-1) */
+function kadranYay(f: number) {
+  const y = Math.round(cl(f, 0, 1) * 200) / 2;
+  if (y == kadranF) return;
+  kadranF = y;
+  E.kdV.style.strokeDasharray = y + " 100";
+  // sıfırda yuvarlak uç nokta gibi görünmesin
+  E.kdV.style.visibility = y > 0 ? "" : "hidden";
 }
 
 /** sol üst panel: büyük satır ve alt satır */
@@ -74,24 +86,19 @@ function olayPaneli(): [string, string] {
   return ["", ""];
 }
 
-/** üst orta: drift yarışında kombo (puan, çarpan, sonraki çarpana kalan); serbestte drift açısı ya da durum */
+/** üst orta: drift yarışında kombo (puan, çarpan, sonraki çarpana kalan); patinaj ve havada durumu.
+ *  Drift açısı gösterilmez (kullanıcı kararı); ileride driftte kazanılan anlık XP buraya gelir. */
 function driftGostergesi() {
   const S = sim.S,
     D = sim.d.D,
-    EV = yaris.EV,
-    aci = Math.round(Math.abs(D.beta) * 57.3) + "°";
+    EV = yaris.EV;
   let k = "";
   if (EV && EV.ty == "dp" && EV.combo > 0) {
     k = "kombo";
-    yazi(E.drA, D.t > 0 ? "DRIFT " + aci : "KOMBO");
+    yazi(E.drA, D.t > 0 ? "DRIFT" : "KOMBO");
     yazi(E.drP, String(Math.round(EV.combo)));
     yazi(E.drX, "x" + EV.mult);
     E.drB.style.width = (EV.mult >= 5 ? 100 : Math.round(((EV.ct % 2.5) / 2.5) * 100)) + "%";
-  } else if (D.t > 0) {
-    k = "aci";
-    yazi(E.drA, "DRIFT");
-    yazi(E.drP, aci);
-    yazi(E.drX, "");
   } else if (S.spin || S.air) {
     k = "durum";
     yazi(E.drA, S.spin ? "PATİNAJ" : "HAVADA");
@@ -104,6 +111,25 @@ function driftGostergesi() {
   }
 }
 
+/** HUD düzenleyicide örnek değerler (oyun döngüsü bu sırada HUD'a yazmaz) */
+export function hudOrnekDoldur() {
+  yazi(E.hName, "Drift Parkı");
+  yazi(E.ev, "2844 puan");
+  yazi(E.lap, "⏱ 48.2 sn kaldı");
+  yazi(E.spd, "96");
+  yazi(E.gear, "3");
+  yazi(E.sf, "");
+  E.hSP.style.display = "";
+  kadranF = -1;
+  kadranYay(96 / (VMAX * 3.6));
+  yazi(E.drA, "DRIFT");
+  yazi(E.drP, "1240");
+  yazi(E.drX, "x3");
+  E.drB.style.width = "45%";
+  durum.dr = "kombo";
+  E.dr.className = "kombo";
+}
+
 export function hudGuncelle(v: number) {
   const S = sim.S,
     EV = yaris.EV,
@@ -112,13 +138,7 @@ export function hudGuncelle(v: number) {
   const gizli = oyun.camMode == 3 ? "none" : "";
   if (E.hSP.style.display != gizli) E.hSP.style.display = gizli;
   yazi(E.gear, motor.GEAR < 0 ? "R" : String(motor.GEAR || "N"));
-  if (gorunum.hud == "kadran") {
-    const f = Math.round(cl(kmh / (VMAX * 3.6), 0, 1) * 200) / 2;
-    if (f != kadranF) {
-      kadranF = f;
-      E.kdV.style.strokeDasharray = f + " 100";
-    }
-  }
+  if (gorunum.hiz == "kadran") kadranYay(kmh / (VMAX * 3.6));
   yazi(E.hName, EV ? EV.n : oyun.CURW.n);
   const [ana, alt] = olayPaneli();
   yazi(E.ev, ana);

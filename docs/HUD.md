@@ -70,26 +70,36 @@ bilgi konmaz), Steven Hoober'ın başparmak bölgeleri ve oyuncuların "HUD ekra
   tuş grubunun yüksekliğine (`--cR`) göre yer değiştirir. Analog pedal uzun olduğu için hız onun yanına geçer.
 - Basılı tuş turuncu (`.on`) olur: parmağın altında olsa da kenarından görülür.
 
-## 6. Düzenler
+## 6. Göstergeleri seçme
 
-Oyuncu Ayarlar → Gösterge düzeni'nden seçer (`gorunum.hud`, `lt_ayar` içinde kalıcı). Düzenler yalnız yerleşimi
-ve biçimi değiştirir, içerik aynıdır.
+Oyuncu Ayarlar → **Göstergeler (HUD)** kartından düzenleyiciyi açar (`arayuz/hud-duzenleyici.ts`). Düzenleyici
+oyunun kendi sahnesinden çekilmiş örnek görüntünün (`public/img/hud_onizleme.jpg`) üstünde gerçek HUD öğelerini,
+tuşları ve örnek değerleri gösterir; seçim anında uygulanır ve kaydedilir (`gorunum`, `lt_ayar` içinde).
+Seçim paneli ortada, aracın yerinde durur; göstergelere değmez. Açıkken oyun döngüsü HUD'a yazmaz.
 
-| Düzen | Hız | Harita | Not |
-|---|---|---|---|
-| Köşe (varsayılan) | sağda, gaz tuşunun üstünde, cam panel | kare | Forza Horizon tarzı |
-| Kadran | sağda, yuvarlak kadran, hıza göre dolan yay | yuvarlak | klasik gösterge hissi |
-| Bant | üstte ortada, ince şerit | kare | alt yarı tamamen boş |
-| Sade | sağda, panelsiz gölgeli yazı | küçük, saydam | en az gösterge |
+Her gösterge ayrı seçilir (`oyun/ayarlar.ts → HUD_PARCALARI`, `#app[data-hiz|sayac|tus|harita]`):
 
-Yeni düzen eklerken: `oyun/ayarlar.ts → HUDLAR`, `stil.css`'te `#app[data-hud="…"]` kuralları; içerik
-`arayuz/hud.ts`'te değişmez.
+| Parça | Seçenekler |
+|---|---|
+| Hız | Panel (sağda, gazın üstünde), Kadran (yuvarlak, hıza göre dolan yay), Üstte (ortada şerit), Yazı (panelsiz) |
+| Sayaç | Panel, Yazı (panelsiz; drift kombosu da panelsiz) |
+| Tuşlar | Panel, Simge (panelsiz) |
+| Harita | Kare, Yuvarlak, Küçük (yarı saydam), Kapalı |
+
+Hazır düzenler bunların birleşimidir (`HUDLAR`): Köşe (varsayılan), Kadran, Bant, Sade. Seçim hiçbirine
+uymuyorsa "Özel" görünür.
+
+- Drift açısı gösterilmez (kullanıcı kararı). Üst ortada yalnız drift yarışındaki kombo, patinaj ve havada.
+  İleride seviye/XP gelince driftte kazanılan anlık XP buraya konur.
+- Yeni seçenek eklerken: `HUD_PARCALARI`'na satır, `stil.css`'te `#app[data-…="…"]` kuralı; içerik
+  `arayuz/hud.ts`'te değişmez.
 
 ## 7. Denetim
 
-- `npm run test:e2e` her düzen × kontrol türü (tuşlar, direksiyon + analog pedal, telefonu çevirme +
+- `npm run test:e2e` her hız × harita seçeneği, panelli ve panelsiz, × kontrol türü (tuşlar, direksiyon + analog pedal, telefonu çevirme +
   otomatik gaz) için iPhone 13 güvenli alanıyla göstergelerin birbirine ve tuşlara değmediğini, ekrandan
-  taşmadığını ve drift sayacının tek olduğunu denetler. Yeni bir HUD öğesi bu teste eklenir.
-- `npm run test:goruntu` → `tests/cikti/hud_*.png`: her düzenin drift yarışındaki görüntüsü. HUD değişikliğinden
+  taşmadığını, kadran yayının dairesinden çıkmadığını, drift sayacının tek olduğunu ve düzenleyicinin
+  çalıştığını denetler. Yeni bir HUD öğesi bu teste eklenir.
+- `npm run test:goruntu` → `tests/cikti/hud_*.png`: her hazır düzenin drift yarışındaki görüntüsü ve düzenleyici. HUD değişikliğinden
   sonra bunlara bakılır.
 - Kokpit kamerasında hız paneli gizlenir (kokpitin kendi göstergeleri var).
