@@ -123,6 +123,7 @@ konu dalı (hud, fizik, …) ──merge──► gelistirme ──► /Last-Tur
 - Menüde yarış oyunlarına uygun rock tarzı müzik çalar; sürüşte müzik yok.
 - Altyapı: TypeScript + Vite + Three.js (npm), derleme ve yayın GitHub Actions'ta. Kod okunur biçimde yazılır (Prettier), eski sıkıştırılmış tek satır stili bırakıldı.
 - Riskli değişiklikler önce deneme sürümünde (`/dev/`) denenir.
+- Ana sürüme (`master`, telefondaki oyun) yalnız kullanıcı açıkça "ana sürüme / prod'a pushla" deyince gönderilir; küçük düzeltmeler dahil. Bitince iş konu dalına ve istenirse denemeye (`gelistirme`) gider.
 - Her sohbet kendi konu dalında çalışır; deneme sürümü (`gelistirme`) konu dallarının birleştiği tek ortak deneme alanıdır (telefonda tek deneme uygulaması). Ana sürüme yalnız kullanıcının onayladığı konu dalı birleştirilir.
 - Fizik motoru tek: yeni motor (katı gövde, 4 teker). Ayarlarda motor seçimi yok.
 - Rallide ve toprakta tam gaz + tam direksiyon yola tutunmaz; virajdan önce fren gerekir. Dengeli ve gerçekçide abartan spin atar.
