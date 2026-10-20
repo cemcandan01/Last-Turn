@@ -27,11 +27,37 @@ interface GarajDurumu {
 }
 let GAR: GarajDurumu | null = null;
 
+/** motor dinleme: hangi aracın sesi çalıyor, ne zaman bitecek (ses tarafından "bitti" gelmezse 6 sn sonra kendiliğinden) */
+let DINLE: { arac: number; zaman: number } | null = null,
+  dinleBagli = false;
+const DINLE_SURE = 6000;
+
+/** ses butonunun görünümü: çalarken "Dinleniyor" ve dalga çubukları */
+function sesButonu() {
+  const b = document.querySelector<HTMLElement>("#gses");
+  if (!b || !GAR) return;
+  const on = !!DINLE && DINLE.arac == GAR.i && performance.now() < DINLE.zaman;
+  b.classList.toggle("on", on);
+  b.innerHTML = on ? '<i class="dalga"><u></u><u></u><u></u><u></u></i>Dinleniyor…' : "<i>🔊</i>Motoru dinle";
+}
+
+/** ses tarafının "bitti" olayını bir kez bağla (yükleme anında değil, garaj ilk açılınca) */
+function dinleBagla() {
+  if (dinleBagli) return;
+  dinleBagli = true;
+  document.addEventListener("lt:motor-dinle-bitti", (e) => {
+    const a = (e as CustomEvent<{ arac: number }>).detail?.arac;
+    if (DINLE && (a == null || a == DINLE.arac)) DINLE = null;
+    sesButonu();
+  });
+}
+
 /** garajı aç: yarıştan önce (ev), serbest sürüşten önce (w) ya da menüden (ikisi de null) */
 export function openGarage(ev: number | null, w: number | null = null) {
   const prev = carIndex(),
     rec = ev != null ? CARS.findIndex((c) => c.ty == EVENTS[ev].ty) : -1;
   GAR = { ev, w, prev, rec, i: rec >= 0 ? rec : prev };
+  dinleBagla();
   oyun.mode = "garage";
   kamera.ly = 0;
   gizle("#menu", "#hud", "#mm", "#ctl", "#set", "#res");
@@ -43,6 +69,7 @@ export function openGarage(ev: number | null, w: number | null = null) {
 }
 
 export function closeGarage() {
+  DINLE = null;
   garG.visible = false;
   gizle("#gar");
   GAR = null;
@@ -54,7 +81,7 @@ function showGar() {
   if (oyun.CAR !== c) setCar(G.i);
   const g = $("#gar");
   g.classList.remove("hidden");
-  g.innerHTML = `<div class="gh"><button class="ga" id="gpv">◀</button><div style="flex:1;text-align:center"><h1>${c.n}</h1><span class="bdg">${c.ic} ${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}</div><button class="ga" id="gnx">▶</button></div>
+  g.innerHTML = `<div class="gh"><button class="ga" id="gpv">◀</button><div style="flex:1;text-align:center"><h1>${c.n}</h1><span class="bdg">${c.ic} ${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}<br><button class="gses" id="gses"></button></div><button class="ga" id="gnx">▶</button></div>
 <div class="gl">${CARS.map((q, k) => `<div class="gc ${k == G.i ? "sel" : ""}" data-gi="${k}"><b>${q.ic}</b>${q.n}</div>`).join("")}</div>
 <p>${c.d}</p>${STAT(c)
     .map(
@@ -67,6 +94,18 @@ function showGar() {
   const go = (k: number) => {
     G.i = (k + CARS.length) % CARS.length;
     showGar();
+  };
+  sesButonu();
+  // motoru dinle: sesi ses modülü çalar (olay sözleşmesi: lt:motor-dinle → lt:motor-dinle-bitti); tekrar basınca baştan
+  $("#gses").onclick = () => {
+    const arac = G.i;
+    DINLE = { arac, zaman: performance.now() + DINLE_SURE };
+    document.dispatchEvent(new CustomEvent("lt:motor-dinle", { detail: { arac } }));
+    sesButonu();
+    setTimeout(() => {
+      if (DINLE && DINLE.arac == arac && performance.now() >= DINLE.zaman) DINLE = null;
+      sesButonu();
+    }, DINLE_SURE + 50);
   };
   $("#gpv").onclick = () => go(G.i - 1);
   $("#gnx").onclick = () => go(G.i + 1);
