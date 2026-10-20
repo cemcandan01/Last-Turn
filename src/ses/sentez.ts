@@ -8,6 +8,7 @@
 // sesin karakteri buradan doğar. Her katman belirli bir devirde, gazda ya da gaz kapalıyken üretilir; oyunda
 // katmanlar devire göre çapraz geçişle ve hızlandırılarak çalınır (kayıtlı motor seslerinin çalınma biçimi).
 import { mulberry32, type Rastgele } from "../cekirdek/rastgele";
+import { MOTOR_AYAR } from "./hedefler";
 
 /** motor karakteri: silindir dizilimi, egzoz, susturucu ve ek parçalar */
 export interface MotorProfili {
@@ -16,6 +17,8 @@ export interface MotorProfili {
   ates: [number, number][];
   /** egzoz kollarının ek gecikmesi (sn): eşit olmayan manifold boyu boxer homurtusunu verir */
   kolGecikme: [number, number];
+  /** ikinci egzoz kolunun boru boyu oranı (1: iki kol aynı; farklı boylar kollar arası homurtu verir) */
+  kolFark?: number;
   /** manifold yankısı: tarak süzgeci gecikmesi (sn) ve geri beslemesi */
   boru: number;
   boruGb: number;
@@ -69,7 +72,7 @@ export const MOTORLAR: Record<string, MotorProfili> = {
   gt: {
     ad: "Atmosferik V6 (VTEC)",
     ates: V6,
-    kolGecikme: [0, 0.0004],
+    kolGecikme: [0, 0],
     boru: 0.0034,
     boruGb: 0.5,
     darbe: 0.0036,
@@ -82,7 +85,7 @@ export const MOTORLAR: Record<string, MotorProfili> = {
     valf: 0,
     kompresor: 0,
     disli: 0,
-    patlama: 0.35,
+    patlama: 0.15,
     govde: 0.7,
     vtec: 0.7,
   },
@@ -103,7 +106,7 @@ export const MOTORLAR: Record<string, MotorProfili> = {
     valf: 1,
     kompresor: 0,
     disli: 0.8,
-    patlama: 1,
+    patlama: 0.5,
     govde: 0.8,
   },
   // Beyaz Kurt (Nissan Silvia S15'ten esinlenir): turbolu 2.0 sıra 4, kalın drift egzozu, valf kesik kesik öter
@@ -123,7 +126,7 @@ export const MOTORLAR: Record<string, MotorProfili> = {
     valf: 2,
     kompresor: 0,
     disli: 0,
-    patlama: 0.5,
+    patlama: 0.4,
     govde: 0.7,
   },
   // Mavi Yıldız (Subaru Impreza'dan esinlenir): turbolu boxer 4, eşit olmayan manifold homurtusu
@@ -163,12 +166,20 @@ export const MOTORLAR: Record<string, MotorProfili> = {
     valf: 0,
     kompresor: 1,
     disli: 0,
-    patlama: 0.35,
+    patlama: 0.25,
     govde: 1,
   },
 };
 
-export const motorProfili = (k: string): MotorProfili => MOTORLAR[k] ?? MOTORLAR.gt;
+/** aracın motoru: elle verilen karakter + gerçek motor seslerine göre uydurulmuş değerler (hedefler.ts) */
+export function motorProfili(k: string): MotorProfili {
+  const p = MOTORLAR[k] ?? MOTORLAR.gt,
+    a = MOTOR_AYAR[k];
+  return a ? { ...p, govde: a.govde, puruz: a.puruz, lope: a.lope, kolFark: a.kolFark } : p;
+}
+
+/** katmanın frekans dağılımı ayarı (katmanDevirleri sırasıyla); yoksa ayarsız */
+export const motorEq = (k: string, katman: number): number[] | undefined => MOTOR_AYAR[k]?.eq[katman];
 
 // ---------- süzgeçler (RBJ biquad)
 
@@ -281,6 +292,7 @@ export function motorKatmani(
   devirMax: number,
   sr: number,
   tohum = 1,
+  eq?: number[],
 ): Float32Array {
   const rng = mulberry32(tohum),
     T = 120 / devir,
@@ -325,7 +337,10 @@ export function motorKatmani(
     });
   // egzoz kolları: her kol kendi borusunda yankılanır, kendi içinde doyar (V8'de kollar arası homurtu)
   const D = Math.round(p.boru * sr),
-    tarak = [new Tarak(D, p.boruGb, 0.45), new Tarak(Math.round(D * 1.13), p.boruGb * 0.92, 0.4)],
+    tarak = [
+      new Tarak(D, p.boruGb, 0.45),
+      new Tarak(Math.round(D * (p.kolFark ?? 1.13)), p.boruGb * 0.92, 0.4),
+    ],
     // susturucu odası: ikinci, daha uzun ve zayıf yankı (keskin tarak tınısını yumuşatır)
     oda = new Tarak(Math.round(D * 2.7), 0.35, 0.3),
     govLp = [Biquad.alcak(380 + 320 * u, 0.7, sr), Biquad.alcak(380 + 320 * u, 0.7, sr)],
@@ -337,7 +352,9 @@ export function motorKatmani(
     dc = Biquad.yuksek(28, 0.7, sr),
     surus = p.surus * (0.55 + 0.45 * yuk) * (vtec ? 1.25 : 1),
     ts = Math.tanh(surus),
-    out = new Float32Array(L);
+    out = new Float32Array(L),
+    // gerçek motorların ölçülmüş frekans dağılımına göre ayar (1/3 oktav, hedefler.ts)
+    esit = eq ? eqSuzgecleri(eq, sr) : [];
   for (let tur = 0; tur < 2; tur++)
     for (let n = 0; n < L; n++) {
       const a = tarak[0].adim(kol[0][n]),
@@ -347,17 +364,35 @@ export function motorKatmani(
       y = sus[1].adim(sus[0].adim(y));
       y = parlak.adim(gum.adim(y));
       y = dc.adim(Math.tanh(y * surus) / ts);
+      for (const e of esit) y = e.adim(y);
       if (tur) out[n] = y;
     }
   return normallestir(out, 0.22);
 }
 
+/** 1/3 oktav bant merkezleri (Hz): motor sesinin frekans dağılımı bu bantlarda ölçülür ve ayarlanır */
+export const EQ_BANTLAR = [
+  40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 4000,
+  5000, 6300, 8000,
+];
+
+/** bant kazançlarından (dB) tepe süzgeçleri: her bant için 1/3 oktav genişliğinde */
+export function eqSuzgecleri(eq: number[], sr: number): Biquad[] {
+  const r: Biquad[] = [];
+  eq.forEach((g, i) => {
+    const f = EQ_BANTLAR[i];
+    if (f < sr * 0.45 && Math.abs(g) > 0.25) r.push(Biquad.tepe(f, 4.32, g, sr));
+  });
+  return r;
+}
+
 /** bir aracın tüm katmanları: her devirde gazda ve gaz kapalı */
-export function motorKatmanlari(p: MotorProfili, devirMax: number, sr: number) {
+export function motorKatmanlari(k: string, devirMax: number, sr: number) {
+  const p = motorProfili(k);
   return katmanDevirleri(devirMax).map((d, i) => ({
     devir: d,
-    gaz: motorKatmani(p, d, 1, devirMax, sr, 11 + i),
-    bos: motorKatmani(p, d, 0, devirMax, sr, 31 + i),
+    gaz: motorKatmani(p, d, 1, devirMax, sr, 11 + i, motorEq(k, i)),
+    bos: motorKatmani(p, d, 0, devirMax, sr, 31 + i, motorEq(k, i)),
   }));
 }
 
@@ -403,20 +438,27 @@ export function cakil(sr: number, tohum = 7) {
   return normallestir(s, 0.2);
 }
 
-/** egzoz patlaması (gaz kesince, anti-lag): kısa sert darbe ve tok gümbürtü */
+/**
+ * egzoz patlaması (gaz kesince, anti-lag): egzozda yanan yakıtın tok "bap" sesi. Gövdesi alçak frekansta
+ * (egzoz borusunun rezonansı ~90-220 Hz), başında kısa ve boğuk bir darbe; tiz çıtırtı yok.
+ */
 export function patlama(sr: number, tohum: number) {
   const r = mulberry32(tohum),
-    L = Math.round(0.18 * sr),
+    L = Math.round(0.22 * sr),
     s = new Float32Array(L),
-    f = 55 + r() * 40,
-    bp = Biquad.bant(500 + r() * 1400, 0.9, sr);
+    f = 90 + r() * 130,
+    darbe = Biquad.alcak(700 + r() * 500, 0.8, sr),
+    boru = Biquad.bant(f, 4, sr);
   for (let i = 0; i < L; i++) {
     const t = i / sr,
-      kirpik = (r() * 2 - 1) * Math.exp(-t / (0.004 + r() * 0.003)),
-      tok = Math.sin(2 * Math.PI * f * t * (1 - t * 2)) * Math.exp(-t / 0.035);
-    // birkaç ardışık çatırtı
-    const cat = r() < 0.004 * Math.exp(-t / 0.05) ? (r() * 2 - 1) * 2 : 0;
-    s[i] = Math.tanh(2.5 * (bp.adim(kirpik * 3 + cat) + 0.8 * tok));
+      zarf = Math.min(1, t / 0.0015) * Math.exp(-t / 0.012),
+      n = (r() * 2 - 1) * zarf,
+      // boru rezonansı: darbeyle uyarılan, ~60 ms'de sönen tok ses
+      y =
+        darbe.adim(n) * 1.2 +
+        boru.adim(n) * 9 +
+        Math.sin(2 * Math.PI * f * 0.5 * t) * Math.exp(-t / 0.03) * 0.5;
+    s[i] = Math.tanh(1.8 * y);
   }
   return normallestir(s, 0.3);
 }
