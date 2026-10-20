@@ -91,6 +91,42 @@ const imgs = await p.evaluate(async () => {
   return [...document.querySelectorAll(".tile img")].map((i) => i.naturalWidth > 0);
 });
 ok(imgs.length == 5 && imgs.every(Boolean), "5 yarış türü görseli yükleniyor");
+const ana = await p.evaluate(async () => {
+  LT.showMenu(["home"]);
+  await new Promise((r) => setTimeout(r, 800));
+  const k = [...document.querySelectorAll("#menu .mcards .mk")],
+    m = document.querySelector("#menu").getBoundingClientRect(),
+    // kartlar altta, soldan sağa tek sırada ve ekranın içinde (giriş animasyonundan bağımsız: yerleşim konumu)
+    r = k.map((e) => ({
+      left: e.offsetLeft,
+      right: e.offsetLeft + e.offsetWidth,
+      top: e.offsetTop,
+      bottom: e.offsetTop + e.offsetHeight,
+    })),
+    sira = r.every((b, i) => !i || (b.left >= r[i - 1].right - 1 && Math.abs(b.top - r[0].top) < 2)),
+    icinde = r.every(
+      (b) => b.left >= 0 && b.right <= m.width + 1 && b.bottom <= m.height + 1 && b.top > m.height * 0.4,
+    ),
+    gorsel = k.every((e) => e.querySelector("img").naturalWidth > 0),
+    adlar = k.map((e) => e.textContent.trim());
+  k[0].click();
+  const yarisAcildi = !!document.querySelector("#menu .tile[data-ty]");
+  document.querySelector("#mbk").click();
+  return {
+    n: k.length,
+    sira,
+    icinde,
+    gorsel,
+    adlar,
+    yarisAcildi,
+    eve: !!document.querySelector("#menu .mk"),
+  };
+});
+ok(
+  ana.n == 5 && ana.sira && ana.icinde && ana.gorsel && ana.yarisAcildi && ana.eve,
+  "ana ekran: altta soldan sağa 5 görselli kart, Yarış kartı açılıyor, geri ana ekrana döner " +
+    JSON.stringify(ana),
+);
 const surum = await p.evaluate(() => [
   LT.surum,
   document.documentElement.outerHTML.match(/APP_VERSION='([^']+)'/)?.[1],
@@ -370,12 +406,15 @@ if (GOR) {
   fs.mkdirSync(CIKTI, { recursive: true });
   console.log("Ekran görüntüleri → tests/cikti/");
   const g = await sayfa();
-  const kare = async (ad, js) => {
-    await g.evaluate(js);
+  const kare = async (ad, js, arg) => {
+    await g.evaluate(js, arg);
     await g.waitForTimeout(1200);
     await g.screenshot({ path: path.join(CIKTI, ad + ".png") });
   };
   await kare("menu", () => LT.showMenu(["home"]));
+  await kare("menu_serbest", () => LT.showMenu(["free"]));
+  await kare("menu_yaris_ayrinti", () => LT.showMenu(["race", "t:gp", "e:0"]));
+  await kare("menu_profil", () => LT.showMenu(["profile"]));
   await kare("yaris_turu", () => LT.showMenu(["race"]));
   await kare("pist_listesi", () => LT.showMenu(["race", "t:dp"]));
   await kare("garaj", () => {
@@ -417,17 +456,21 @@ if (GOR) {
   }
   // HUD düzenleri: drift yarışında kombo sürerken
   for (const hud of ["kose", "kadran", "bant", "sade"])
-    await kare("hud_" + hud, async () => {
-      LT.oyun.camMode = 0;
-      Object.assign(LT.gorunum, LT.HUDLAR[hud].p);
-      LT.hudDuzeniUygula();
-      LT.startEvent(
-        LT.EVENTS.findIndex((e) => e.ty == "dp"),
-        2,
-      );
-      Object.assign(LT.yaris.EV, { score: 2844, combo: 1240, mult: 3, ct: 6.1 });
-      LT.sim.S.vx = 26;
-    });
+    await kare(
+      "hud_" + hud,
+      async (hud) => {
+        LT.oyun.camMode = 0;
+        Object.assign(LT.gorunum, LT.HUDLAR[hud].p);
+        LT.hudDuzeniUygula();
+        LT.startEvent(
+          LT.EVENTS.findIndex((e) => e.ty == "dp"),
+          2,
+        );
+        Object.assign(LT.yaris.EV, { score: 2844, combo: 1240, mult: 3, ct: 6.1 });
+        LT.sim.S.vx = 26;
+      },
+      hud,
+    );
   await kare("hud_duzenleyici", () => {
     LT.showMenu(["settings"]);
     LT.hudDuzenleyiciAc();
