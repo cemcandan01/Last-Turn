@@ -6,7 +6,7 @@ Her alan için yeni bir sohbet aç ve aşağıdaki istemi yapıştır. Altına o
 - Küçük işlerde (metin, renk, tek ayar) daha hafif bir model ya da düşük düşünme seviyesi yeterli. Fizik ve tasarım gibi zor işlerde güçlü model kullan.
 - Görmen gerekmeyen işlerde "ekran görüntüsü kontrolü yapma, sadece testleri çalıştır" de.
 - İş bitince "yayınla" demen yeterli. `surum-yayinla` skill'i sürümü artırıp gönderir. Önce denemek istersen "denemeye gönder" de: değişiklik https://cemcandan01.github.io/Last-Turn/dev/ adresine gelir, telefonda dener, beğenince "yayınla" dersin.
-- Aynı anda iki sohbet aynı dosyalarda çalışmasın; çalışıyorsa her biri göndermeden önce diğerinin işini çekip birleştirir.
+- Her sohbet kendi dalında çalışır (HUD sohbeti `hud`, fizik sohbeti `fizik` gibi). "Denemeye gönder" dediğinde iş ortak deneme sürümüne eklenir; orada başka sohbetlerin denemedeki işleri de görünür. "Yayınla" dediğinde yalnız o sohbetin işi ana oyuna gider. Aynı anda birkaç sohbet çalışabilir; çakışma olursa sohbet iki işi de koruyarak birleştirir, karar gerekirse sana sorar.
 
 ---
 
