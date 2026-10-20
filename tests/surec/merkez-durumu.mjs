@@ -18,7 +18,9 @@ const git = (...a) => {
   }
 };
 const var_ = (ref) => git("rev-parse", "--verify", "--quiet", ref) != "";
-const sayi = (aralik) => Number(git("rev-list", "--count", "--no-merges", aralik) || 0);
+const sayi = (aralik, ...yol) => Number(git("rev-list", "--count", "--no-merges", aralik, ...yol) || 0);
+// yeni iş sayımında yalnız sürüm numarası ve regresyon kaydı değiştiren commit'ler sayılmaz ("Sürüm 0.2 başladı" gibi)
+const ISSIZ = ["--", ".", ":!package.json", ":!package-lock.json", ":!docs/regresyon"];
 const dosya = (ref, yol) => {
   const t = git("show", `${ref}:${yol}`);
   try {
@@ -61,7 +63,7 @@ for (const d of dallar) {
 // sürüm ve aşama
 const deneme = surumu("origin/gelistirme"),
   canli = surumu("origin/master"),
-  yeniIs = sayi("origin/master..origin/gelistirme"),
+  yeniIs = sayi("origin/master..origin/gelistirme", ...ISSIZ),
   rdurum = var_("origin/regresyon") ? dosya("origin/regresyon", "docs/regresyon/durum.json") : null,
   // dal silinemediyse "tamamlandi" yazılır: dondurma kalkmıştır
   regresyon = var_("origin/regresyon") && rdurum?.asama != "tamamlandi";

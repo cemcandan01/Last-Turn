@@ -16,7 +16,7 @@ Merkez ve bildirimler: `merkez` skill'i (sayfayı tazele, sonra bildir). Durumu 
 git fetch origin --prune
 git ls-remote --exit-code --heads origin regresyon      # açık regresyon var mı
 git show origin/regresyon:docs/regresyon/durum.json     # varsa: suruyor | onay-bekliyor | tamamlandi
-git rev-list --count --no-merges origin/master..origin/gelistirme   # canlıda olmayan yeni iş
+git rev-list --count --no-merges origin/master..origin/gelistirme -- . ':!package.json' ':!package-lock.json' ':!docs/regresyon'   # canlıda olmayan yeni iş (sürüm açma ve sürüm numarası commit'leri sayılmaz)
 for b in $(git branch -r --format='%(refname:short)' | grep -vE '^origin/(HEAD|master|gelistirme|regresyon)$'); do
   n=$(git rev-list --count --no-merges origin/gelistirme..$b); [ "$n" != 0 ] && echo "$b: $n commit push bekliyor"
 done
@@ -96,9 +96,8 @@ git checkout master && git pull origin master && git merge --no-ff --no-edit reg
   git checkout gelistirme && git pull origin gelistirme && git merge --no-edit master
   npm version minor --no-git-tag-version          # 0.1.37 → 0.2.0
   git commit -am "Sürüm 0.2 başladı" && git push origin gelistirme
-  git push origin --delete regresyon              # dondurma kalkar
   ```
-  Dal silinemezse (ortam reddederse): `regresyon` dalında `durum.json`'u `"asama": "tamamlandi"` yapıp gönder; dondurma böyle de kalkar.
+  Dondurmayı kaldır: `regresyon` dalında `durum.json`'u `"asama": "tamamlandi"` yap, commit'le, gönder (bulut ortamı dal silmeyi reddeder; dal kalır, "tamamlandi" dondurmanın kalktığı anlamına gelir; bir sonraki regresyon dalı yeniden kurar).
 - Merkezi tazele ve bildir ("<sürüm> canlıda, canlı duman geçti. <sonraki sürüm> başladı.").
 - Kullanıcıya kısa yaz: canlıya çıkan sürüm, canlı duman sonucu, "0.2 geliştirmeleri başladı, konu sohbetlerinde 'push' diyebilirsin".
 
