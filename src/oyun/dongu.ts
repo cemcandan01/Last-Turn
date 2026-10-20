@@ -26,7 +26,7 @@ import { CT, set } from "./ayarlar";
 import { oyun } from "./durum";
 import { I } from "./girdi";
 import { CINE, cineCam, cineTick } from "./sinematik";
-import { sim, son, surusAdimi } from "./surus";
+import { sim, surusAdimi } from "./surus";
 import { yaris } from "./yarislar";
 
 /** görsel saat (menü, garaj, yağış) */
@@ -100,7 +100,7 @@ function kare(ts: number) {
   if (mode == "menu" && CINE) cineCam();
   parcacikTick(dt);
   if (mode != "menu" && mode != "garage") {
-    hudGuncelle(v, son.Sf, son.T);
+    hudGuncelle(v);
     miniHaritaCiz(gx, gz, Math.sin(gh), Math.cos(gh));
   }
   const t2 = performance.now();

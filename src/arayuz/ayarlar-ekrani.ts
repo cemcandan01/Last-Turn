@@ -10,13 +10,24 @@ import {
   type OnayarAnahtari,
   type SeviyeAnahtari,
 } from "../fizik/veriler";
-import { ayarlariKaydet, CT, set, TOG, type DireksiyonModu, type GazModu } from "../oyun/ayarlar";
+import {
+  ayarlariKaydet,
+  CT,
+  gorunum,
+  HUDLAR,
+  set,
+  TOG,
+  type DireksiyonModu,
+  type GazModu,
+  type HudDuzeni,
+} from "../oyun/ayarlar";
 import { CAMS, oyun } from "../oyun/durum";
 import { askTilt, girdiSifirla } from "../oyun/girdi";
 import { applyPreset, kurulum } from "../oyun/kurulum";
 import { reset } from "../oyun/surus";
 import { yaris } from "../oyun/yarislar";
 import { note } from "./bildirim";
+import { hudDuzeniUygula } from "./hud";
 import { kontrolleriKur } from "./kontroller";
 import { showMenu } from "./menu";
 import { performansGoster } from "../cekirdek/performans";
@@ -93,6 +104,7 @@ export const settingsHTML = () =>
   sec("lvl", "Sürüş yardımı: " + LEVELS[kurulum.lk].n, chipsOf(LEVELS, kurulum.lk, "lk")) +
   sec("cam", "Kamera: " + CAMS[oyun.camMode], chipsOf(CAMO, oyun.camMode, "cm")) +
   ctlHTML() +
+  sec("hud", "Gösterge düzeni: " + HUDLAR[gorunum.hud].n, chipsOf(HUDLAR, gorunum.hud, "hd")) +
   sec(
     "tir",
     "Lastik: " + TIRES[kurulum.tire].n,
@@ -153,6 +165,10 @@ function bindAll(root: HTMLElement, re: () => void) {
   tikla(".chip[data-cg]", (e) => {
     CT.gas = e.dataset.cg as GazModu;
     kontrolleriKur();
+  });
+  tikla(".chip[data-hd]", (e) => {
+    gorunum.hud = e.dataset.hd as HudDuzeni;
+    hudDuzeniUygula();
   });
   tikla(".chip[data-cm]", (e) => {
     oyun.camMode = +e.dataset.cm!;

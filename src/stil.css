@@ -57,59 +57,6 @@ canvas {
 .hidden {
   display: none !important;
 }
-#ctl {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 10px max(12px, var(--sar)) calc(12px + var(--sab)) max(12px, var(--sal));
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  pointer-events: none;
-}
-.g {
-  display: flex;
-  gap: 10px;
-}
-.k {
-  pointer-events: auto;
-  border-radius: 22px;
-  background: #ffffff22;
-  border: 2px solid #ffffff44;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 30px;
-  font-weight: 800;
-  touch-action: none;
-  text-align: center;
-  line-height: 1.1;
-}
-.k.on {
-  background: #ff7a3c88;
-  border-color: var(--acc);
-}
-#l,
-#r {
-  width: min(86px, calc(var(--aw) * 0.21));
-  height: 100px;
-}
-#b {
-  width: min(84px, calc(var(--aw) * 0.2));
-  height: 92px;
-  font-size: 17px;
-}
-#g {
-  width: min(104px, calc(var(--aw) * 0.24));
-  height: 116px;
-  font-size: 22px;
-  background: #3ddc8433;
-  border-color: #3ddc8488;
-}
-#g.on {
-  background: #3ddc8499;
-}
 .sheet {
   position: fixed;
   left: 0;
@@ -240,7 +187,7 @@ input[type="range"] {
   position: fixed;
   left: 0;
   right: 0;
-  top: 34%;
+  top: 38%;
   text-align: center;
   font-size: 88px;
   font-weight: 800;
@@ -482,173 +429,6 @@ details[open] > summary::after {
   text-align: right;
   color: var(--mut);
   font-size: 12px;
-}
-#hud {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  text-shadow: 0 1px 3px #0008;
-}
-.glass {
-  background: #0a1216a8;
-  border: 1px solid #ffffff22;
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-}
-.hTL {
-  position: absolute;
-  left: calc(var(--sal) + 12px);
-  top: calc(var(--sat) + 10px);
-  border-radius: 14px;
-  padding: 7px 12px;
-  max-width: 42%;
-}
-#hName {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--acc);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-#ev {
-  font-size: 20px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-}
-#ev:empty {
-  display: none;
-}
-#lap {
-  font-size: 12px;
-  color: #cfe0dc;
-  font-variant-numeric: tabular-nums;
-}
-#lap:empty {
-  display: none;
-}
-.hBt {
-  position: absolute;
-  right: calc(var(--sar) + 150px);
-  top: calc(var(--sat) + 10px);
-  display: flex;
-  gap: 7px;
-}
-.ib {
-  pointer-events: auto;
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-}
-#dr {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: calc(var(--sat) + 12px);
-  font-size: 18px;
-  font-weight: 800;
-  color: #fff;
-  padding: 0 16px;
-  border-radius: 18px;
-  background: linear-gradient(90deg, #ff7a3c, #ff3c6e);
-  line-height: 32px;
-  letter-spacing: 1px;
-}
-#dr:empty {
-  display: none;
-}
-.hSP {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: calc(var(--sab) + 12px);
-  text-align: center;
-  min-width: 200px;
-  border-radius: 18px;
-  padding: 8px 14px 6px;
-}
-#rpmb {
-  display: flex;
-  gap: 3px;
-  height: 7px;
-  margin-bottom: 5px;
-}
-#rpmb i {
-  flex: 1;
-  border-radius: 2px;
-  background: #ffffff1f;
-}
-#rpmb i.on {
-  background: #3ddc84;
-}
-#rpmb i.on.w {
-  background: #ffc21a;
-}
-#rpmb i.on.r {
-  background: #ff3c4e;
-}
-.sp {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 8px;
-}
-#spd {
-  font-size: 46px;
-  font-weight: 800;
-  line-height: 0.95;
-  font-variant-numeric: tabular-nums;
-  min-width: 96px;
-  text-align: right;
-}
-.sp div {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-#gear {
-  font-size: 22px;
-  color: var(--acc);
-  line-height: 1;
-}
-.sp small {
-  font-size: 11px;
-  color: #cfe0dc;
-}
-#sf {
-  font-size: 11px;
-  color: #b7c9c5;
-  margin-top: 3px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 40vw;
-}
-#mm {
-  position: fixed;
-  left: auto;
-  bottom: auto;
-  right: calc(var(--sar) + 12px);
-  top: calc(var(--sat) + 10px);
-  width: 128px;
-  height: 128px;
-  border-radius: 16px;
-  background: #0a1216a8;
-  border: 1px solid #ffffff22;
-  pointer-events: none;
-}
-.k {
-  background: #ffffff1c !important;
-  border: 1px solid #ffffff3a !important;
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-}
-.k.on {
-  background: #ff7a3c88 !important;
-  border-color: var(--acc) !important;
 }
 #menu {
   position: fixed;
@@ -896,9 +676,6 @@ details[open] > summary::after {
   font-family: inherit;
   box-shadow: 0 4px 18px #0008;
 }
-#ctl {
-  pointer-events: auto !important;
-}
 .wz {
   pointer-events: auto;
   width: min(calc(var(--aw) * 0.5), 250px);
@@ -910,7 +687,7 @@ details[open] > summary::after {
 }
 #perf {
   position: fixed;
-  top: calc(4px + var(--sat));
+  bottom: calc(4px + var(--sab));
   left: 50%;
   transform: translateX(-50%);
   z-index: 50;
@@ -924,4 +701,440 @@ details[open] > summary::after {
   padding: 3px 8px;
   border-radius: 8px;
   white-space: nowrap;
+}
+
+/* ================= HUD ve dokunmatik kontroller =================
+   Kurallar: docs/HUD.md. Düzen #app[data-hud] (kose, kadran, bant, sade) ile seçilir.
+   Kenar boşlukları: iPhone yatayda çentik yalnız ekranın orta yüksekliğinde; köşeler boş.
+   Bu yüzden üstteki göstergeler ve alttaki tuşlar güvenli alanın yarısından fazlasını kullanır. */
+#app {
+  --hx: max(16px, calc(var(--sal) - 20px));
+  --hxr: max(16px, calc(var(--sar) - 20px));
+  --hy: max(8px, var(--sat));
+  --hb: max(10px, calc(var(--sab) - 8px));
+  /* alttaki tuşlar çentik hizasına uzanabilir: kenardan çentik derinliği kadar (33 px) içeride */
+  --cx: max(16px, calc(var(--sal) - 14px));
+  --cxr: max(16px, calc(var(--sar) - 14px));
+  /* sağ tuş grubunun yüksekliği: hız göstergesi bunun üstüne oturur */
+  --cR: 112px;
+  --mmW: 104px;
+  --pan: #0b1418b8;
+  --panK: #ffffff24;
+}
+#app[data-gas="analog"] {
+  --cR: min(220px, calc(var(--ah) * 0.45));
+}
+#app[data-hud="sade"] {
+  --mmW: 96px;
+}
+#hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  text-shadow: 0 1px 3px #000a;
+  font-variant-numeric: tabular-nums;
+}
+.hTL,
+.hSP,
+#dr,
+.ib,
+#mm {
+  background: var(--pan);
+  border: 1px solid var(--panK);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+/* sol üst: yarış adı, ana değer (süre ya da toplam puan), alt satır */
+.hTL {
+  position: absolute;
+  left: var(--hx);
+  top: var(--hy);
+  border-radius: 14px;
+  padding: 6px 12px 7px;
+  max-width: min(260px, 32%);
+}
+#hName {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--acc);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#ev {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+#lap {
+  font-size: 12px;
+  color: #cfe0dc;
+  white-space: nowrap;
+}
+#ev:empty,
+#lap:empty {
+  display: none;
+}
+
+/* sağ üst: tuşlar haritanın solunda tek sıra */
+.hBt {
+  position: absolute;
+  right: calc(var(--hxr) + var(--mmW) + 8px);
+  top: var(--hy);
+  display: flex;
+  gap: 6px;
+}
+.ib {
+  pointer-events: auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #eef3ee;
+}
+.ib svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ib:active {
+  background: #ff7a3c88;
+}
+#mm {
+  position: fixed;
+  left: auto;
+  bottom: auto;
+  right: var(--hxr);
+  top: var(--hy);
+  width: var(--mmW);
+  height: var(--mmW);
+  border-radius: 16px;
+  pointer-events: none;
+}
+
+/* üst orta: drift / kombo. Ekranın tek drift sayacı; toplam puan sol üstte */
+#dr {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: var(--hy);
+  text-align: center;
+  border-radius: 14px;
+  padding: 4px 14px 6px;
+  min-width: 120px;
+}
+#drA {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--acc);
+}
+.drS {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+}
+#drP {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+}
+#drX {
+  font-style: normal;
+  font-size: 18px;
+  font-weight: 800;
+  color: #1b0d05;
+  background: var(--acc);
+  border-radius: 8px;
+  padding: 0 6px;
+  text-shadow: none;
+}
+#drX:empty,
+#drP:empty {
+  display: none;
+}
+#dr u {
+  display: none;
+  height: 4px;
+  margin-top: 5px;
+  border-radius: 2px;
+  background: #ffffff26;
+  overflow: hidden;
+}
+#dr s {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #ff7a3c, #ffc070);
+}
+#dr.kombo u {
+  display: block;
+}
+#dr.aci,
+#dr.durum {
+  min-width: 0;
+  padding: 3px 14px;
+  border: 0;
+  background: linear-gradient(90deg, #ff7a3c, #ff3c6e);
+}
+#dr.aci #drA,
+#dr.durum #drA {
+  color: #fff;
+}
+#dr.aci .drS {
+  display: inline-flex;
+}
+#dr.aci #drA {
+  display: inline;
+  margin-right: 6px;
+}
+#dr.aci #drP {
+  font-size: 18px;
+}
+#dr.durum {
+  background: #0b1418d0;
+}
+#dr.durum #drA {
+  font-size: 14px;
+}
+
+/* hız: büyük rakam, vites, birim; altında yalnız uyarılar (çamur, ıslak, hava) */
+.hSP {
+  position: absolute;
+  right: var(--hxr);
+  bottom: calc(var(--hb) + var(--cR) + 12px);
+  border-radius: 16px;
+  padding: 6px 12px 6px;
+  text-align: right;
+}
+.kd {
+  display: none;
+}
+.sp {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 6px;
+}
+#spd {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 0.9;
+  min-width: 2.2ch;
+  text-align: right;
+}
+.sp div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+#gear {
+  font-size: 18px;
+  color: var(--acc);
+  line-height: 1;
+}
+.sp small {
+  font-size: 10px;
+  color: #cfe0dc;
+}
+#sf {
+  font-size: 11px;
+  color: #ffd27a;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+#sf:empty {
+  display: none;
+}
+/* analog pedal uzun: hız pedalın üstüne değil yanına (harita ile çakışmasın) */
+#app[data-gas="analog"] .hSP {
+  bottom: var(--hb);
+  right: calc(var(--cxr) + min(96px, calc(var(--aw) * 0.24)) + 12px);
+}
+
+/* --- Kadran: yuvarlak hız kadranı ve yuvarlak harita --- */
+#app[data-hud="kadran"] #mm {
+  border-radius: 50%;
+}
+#app[data-hud="kadran"] .hSP {
+  width: 112px;
+  height: 112px;
+  padding: 0;
+  border-radius: 50%;
+  text-align: center;
+}
+#app[data-hud="kadran"] .kd {
+  display: block;
+  position: absolute;
+  inset: 4px;
+}
+.kd path {
+  fill: none;
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+.kdA {
+  stroke: #ffffff26;
+}
+.kdV {
+  stroke: var(--acc);
+  stroke-dasharray: 0 100;
+}
+#app[data-hud="kadran"] .sp {
+  position: absolute;
+  inset: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding-top: 6px;
+}
+#app[data-hud="kadran"] #spd {
+  font-size: 34px;
+  min-width: 0;
+  text-align: center;
+}
+#app[data-hud="kadran"] .sp div {
+  flex-direction: row-reverse;
+  align-items: baseline;
+  gap: 5px;
+}
+#app[data-hud="kadran"] #sf {
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* --- Bant: hız üstte ortada; alt orta ve araç tamamen boş --- */
+#app[data-hud="bant"] .hSP {
+  right: auto;
+  bottom: auto;
+  left: 50%;
+  top: var(--hy);
+  transform: translateX(-50%);
+  padding: 4px 14px;
+  text-align: center;
+}
+#app[data-hud="bant"] #spd {
+  font-size: 30px;
+}
+#app[data-hud="bant"] #dr {
+  top: calc(var(--hy) + 56px);
+}
+
+/* --- Sade: panel yok, yalnız gölgeli yazı; daha küçük harita ve tuşlar --- */
+#app[data-hud="sade"] .hTL,
+#app[data-hud="sade"] .hSP,
+#app[data-hud="sade"] .ib {
+  background: none;
+  border-color: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+#app[data-hud="sade"] #hud {
+  text-shadow:
+    0 1px 2px #000,
+    0 0 8px #000a;
+}
+#app[data-hud="sade"] .ib svg {
+  filter: drop-shadow(0 1px 2px #000);
+}
+#app[data-hud="sade"] #mm {
+  background: #0b141870;
+  border: 0;
+  opacity: 0.9;
+}
+#app[data-hud="sade"] .hTL {
+  padding: 0;
+}
+#app[data-hud="sade"] .hSP {
+  padding: 0;
+}
+
+/* --- dokunmatik kontroller: alt köşeler (başparmak bölgesi) --- */
+#ctl {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0 var(--cxr) var(--hb) var(--cx);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  pointer-events: none;
+}
+.g {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+.k {
+  pointer-events: auto;
+  border-radius: 22px;
+  background: #ffffff1c;
+  border: 1px solid #ffffff3a;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: 800;
+  touch-action: none;
+  text-align: center;
+  line-height: 1.1;
+  text-shadow: 0 1px 3px #0008;
+}
+.k.on {
+  background: #ff7a3c88;
+  border-color: var(--acc);
+}
+#l,
+#r {
+  width: min(88px, calc(var(--aw) * 0.21));
+  height: 96px;
+}
+#b {
+  width: min(84px, calc(var(--aw) * 0.2));
+  height: 92px;
+  font-size: 17px;
+  background: #ff5b6e26;
+  border-color: #ff5b6e70;
+}
+#b.on {
+  background: #ff5b6e99;
+}
+#g {
+  width: min(104px, calc(var(--aw) * 0.24));
+  height: 112px;
+  font-size: 22px;
+  background: #3ddc8430;
+  border-color: #3ddc8488;
+}
+#g.on {
+  background: #3ddc8499;
+}
+#app[data-gas="auto"] #b {
+  width: 120px;
+  height: 112px;
+  font-size: 22px;
+}
+#app[data-hud="sade"] #dr.kombo {
+  background: none;
+  border-color: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }

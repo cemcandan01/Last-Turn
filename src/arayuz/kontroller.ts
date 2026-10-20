@@ -88,18 +88,19 @@ function bindPedal(e: HTMLElement) {
 
 /** kontrol moduna göre tuşları kur */
 export function kontrolleriKur() {
-  const c = $("#ctl");
+  const c = $("#ctl"),
+    app = $("#app");
   girdiSifirla();
+  // HUD göstergeleri tuşların yüksekliğine göre yerleşir (stil.css: --cL, --cR)
+  app.dataset.steer = CT.steer;
+  app.dataset.gas = CT.gas;
   const L =
     CT.steer == "btn"
       ? '<div class="g"><div class="k" id="l">◀</div><div class="k" id="r">▶</div></div>'
       : CT.steer == "wheel"
         ? '<div class="wz" id="wz"><div class="wheel" id="wh"></div></div>'
         : '<div class="g"><div class="k" id="cal">Ortala</div></div>';
-  const B =
-    CT.gas == "analog"
-      ? ""
-      : `<div class="k" id="b"${CT.gas == "auto" ? ' style="width:124px;height:116px;font-size:22px"' : ""}>FREN</div>`;
+  const B = CT.gas == "analog" ? "" : '<div class="k" id="b">FREN</div>';
   c.innerHTML =
     L +
     '<div class="g">' +

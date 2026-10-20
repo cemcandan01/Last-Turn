@@ -29,6 +29,16 @@ export type GazModu = "btn" | "analog" | "auto";
 /** kontrol modları */
 export const CT = { steer: "btn" as DireksiyonModu, gas: "btn" as GazModu };
 
+/** HUD düzenleri (docs/HUD.md): göstergelerin yeri ve biçimi */
+export type HudDuzeni = "kose" | "kadran" | "bant" | "sade";
+export const HUDLAR: Record<HudDuzeni, { n: string; d: string }> = {
+  kose: { n: "Köşe", d: "Hız sağda, gaz tuşunun üstünde" },
+  kadran: { n: "Kadran", d: "Yuvarlak hız kadranı, yuvarlak harita" },
+  bant: { n: "Bant", d: "Hız üstte ortada, alt taraf boş" },
+  sade: { n: "Sade", d: "Panelsiz, en az gösterge" },
+};
+export const gorunum = { hud: "kose" as HudDuzeni };
+
 /** aç/kapat ayarları: [anahtar, ad, açıklama] */
 export const TOG: [keyof typeof set, string, string][] = [
   ["inv", "Direksiyon yönünü ters çevir", "Sağ ve sol tuşlarının yönünü değiştirir"],
@@ -43,6 +53,7 @@ export const TOG: [keyof typeof set, string, string][] = [
 interface AyarKaydi {
   set?: Partial<typeof set>;
   CT?: Partial<typeof CT>;
+  hud?: HudDuzeni;
   cam?: number;
   lk?: SeviyeAnahtari;
 }
@@ -52,9 +63,10 @@ export function ayarlariYukle(): AyarKaydi {
   const k = okuJson<AyarKaydi>("lt_ayar", {});
   if (k.set) Object.assign(set, k.set);
   if (k.CT) Object.assign(CT, k.CT);
+  if (k.hud && k.hud in HUDLAR) gorunum.hud = k.hud;
   return k;
 }
 
 export function ayarlariKaydet(cam: number, lk: SeviyeAnahtari) {
-  yazJson("lt_ayar", { set, CT, cam, lk });
+  yazJson("lt_ayar", { set, CT, hud: gorunum.hud, cam, lk });
 }
