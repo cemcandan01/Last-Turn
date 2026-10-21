@@ -8,7 +8,7 @@ import { scene } from "./sahne";
 import { bx, lam } from "./yardimci";
 import { buildInterior, cock } from "./kokpit";
 import { arkaKam, aynalariSifirla, aynaYuzu } from "./ayna";
-import { enineGovde, kemerliProfil, tekerYerleri, yamukCam, yariGenislik } from "./govde";
+import { enineGovde, kemerler, kemerliProfil, tekerYerleri, yamukCam, yariGenislik } from "./govde";
 
 /** araç: dış grup (konum, yön, eğim), gövde (yalpa, yatış) */
 export const car = new THREE.Group(),
@@ -84,22 +84,23 @@ function body0(d: Arac) {
   g.add(yan);
   g.add(yamukCam(d, d.ws[0], d.ws[1], glassQM), yamukCam(d, d.rw[0], d.rw[1], glassQM));
   for (const [pts, c] of d.pan || []) {
-    const q = enineGovde(pts, hw, lam(c), 0.008);
+    const q = enineGovde(pts, hw, lam(c), 0.008, kemerler(d));
     q.userData.pan = 1;
     g.add(q);
   }
-  // teker kemerlerinin içi koyu (gövdenin içi görünmesin); kemerler arasında yan etek, önde dudak, arkada difüzör
+  // teker kemerlerinin içi koyu (gövdenin içi görünmesin); kemerler arasında yan etek
   const T = tekerYerleri(d),
+    K = kemerler(d),
     ya = Math.min(d.p[0][1], d.p[d.p.length - 1][1]);
-  for (const t of T) {
-    const R = t.r + 0.07;
+  T.forEach((t, i) => {
+    const R = K[i].R;
     g.add(bx(2 * (t.x - t.wd / 2) - 0.01, t.y + R - ya, 2 * R, 0, (t.y + R + ya) / 2, t.z, dk));
-  }
-  const [on, ar] = T[0].z > T[1].z ? T : [T[1], T[0]],
-    ek = on.z - on.r - 0.07 - (ar.z + ar.r + 0.07);
+  });
+  const [on, ar] = K[0].z > K[1].z ? K : [K[1], K[0]],
+    eb = on.z - on.R - (ar.z + ar.R);
   for (const sd of [-1, 1])
     g.add(
-      bx(0.05, 0.09, ek, sd * (hw(ya + 0.05, 0) + 0.01), ya + 0.05, (on.z - on.r + ar.z + ar.r) / 2, blackM),
+      bx(0.05, 0.09, eb, sd * (hw(ya + 0.05, 0) + 0.01), ya + 0.05, (on.z - on.R + ar.z + ar.R) / 2, blackM),
     );
   const zf = Math.max(...d.p.map((p) => p[0])),
     zr = Math.min(...d.p.map((p) => p[0]));
@@ -137,8 +138,6 @@ const EK: Record<string, (g: THREE.Group, d: Arac) => void> = {
       bx(0.05, 0.32, 0.5, 0.85, 1.48, -1.76, r),
       bx(1.96, 0.05, 0.3, 0, 0.3, 2.06, r),
     );
-    for (const sd of [-1, 1])
-      for (const z of [1.28, -1.28]) g.add(bx(0.12, 0.16, 0.95, sd * (d.w / 2 + 0.05), 0.72, z, r));
     numbers(g, "71", d.w, -0.05, 0.72, 1, "#ffffff");
   },
   dr: (g, d) => {
