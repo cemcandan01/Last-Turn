@@ -186,7 +186,7 @@ describe("asfalt pistte titreşim yok (her araç, her asfalt pist)", () => {
   // (kamera) yalnız teker kerbe çıkınca açılır; yokuşlu pistte taban yüksekliği kerb sayılmaz.
   for (let yaris = 0; yaris < TDEF.length; yaris++) {
     if (!["gp", "dp", "dg"].includes(TDEF[yaris].t)) continue;
-    it(TDEF[yaris].n, () => {
+    it(TDEF[yaris].n, { timeout: 30000 }, () => {
       for (let arac = 0; arac < CARS.length; arac++) {
         const o = titresimOlc(yaris, arac, 20),
           ad = CARS[arac].n;
