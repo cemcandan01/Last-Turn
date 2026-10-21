@@ -208,7 +208,7 @@ function kapakAkisi(m: HTMLElement) {
     nok = [...m.querySelectorAll<HTMLElement>(".kfn i")],
     kf = m.querySelector<HTMLElement>(".kf")!,
     n = kartlar.length,
-    ARA = 190; // komşu kartlar arası (px): parmak bu kadar gidince bir tür döner
+    ARA = 200; // parmak bu kadar (px) gidince bir tür döner (ortadan komşu kartın yerine uzaklık)
   let konum = TUR_I;
   /** kartları kesirli konuma göre diz; sure > 0 ise o sürede yumuşakça geç */
   const yerles = (k: number, sure = 0) => {
@@ -216,9 +216,12 @@ function kapakAkisi(m: HTMLElement) {
       const o = i - k,
         a = Math.abs(o);
       e.style.transition = sure ? `transform ${sure}s cubic-bezier(.22,1,.36,1), opacity ${sure}s` : "none";
-      e.style.transform = `translateX(${o * ARA}px) translateZ(${-Math.min(a, 3) * 120}px) rotateY(${-Math.max(-1, Math.min(1, o)) * 32}deg)`;
-      e.style.opacity = String(Math.max(0, a > 2.5 ? 0 : 1 - a * 0.28));
-      e.style.zIndex = String(10 - Math.round(a));
+      // her kart kendi perspektifiyle eğilir (ortak 3B uzay yok): kartlar birbirinin içinden geçmez. Üstte olma sırası
+      // ortaya uzaklıkla sürekli değişir; yan kartlar ortadakinin arkasında, küçülerek dizilir
+      const sx = Math.sign(o) * (a < 1 ? a * 200 : 200 + (a - 1) * 110);
+      e.style.transform = `translateX(${sx}px) perspective(900px) rotateY(${-Math.max(-1, Math.min(1, o)) * 38}deg) scale(${1 - Math.min(a, 2) * 0.16})`;
+      e.style.opacity = String(a > 2.6 ? 0 : 1 - a * 0.3);
+      e.style.zIndex = String(Math.round(100 - a * 30));
       e.style.pointerEvents = a > 2.5 ? "none" : "";
       e.classList.toggle("on", a < 0.5);
     });
