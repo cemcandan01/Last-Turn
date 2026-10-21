@@ -168,15 +168,16 @@ export class PuanSayaci {
   }
 }
 
-/** drift yarışını pilotla sür (Beyaz Kurt, drift önayarı): en uzun kombo, yanma, spin */
+/** drift yarışını pilotla sür (varsayılan Beyaz Kurt; her araç kendi önayarıyla): en uzun kombo, yanma, spin */
 export function driftTuru(
   yaris: number,
   lk: SeviyeAnahtari,
   a: DriftPilotAyari = DRIFT_PILOT,
   sn = 150,
   iz = false,
+  arac = 2,
 ) {
-  const s = surucuKur({ yaris, arac: 2, lk });
+  const s = surucuKur({ yaris, arac, lk });
   const TR = s.bolge!.TR!,
     i0 = TR.N - 6,
     P = TR.P[i0];

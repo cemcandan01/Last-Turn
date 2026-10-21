@@ -4,49 +4,25 @@ import { it } from "vitest";
 import { CARS } from "../../src/arac/araclar";
 import { TDEF } from "../../src/dunya/pist-tanimlari";
 import { EVENTS_HEDEF } from "../yardimci/hedefler";
-import { surucuKur } from "../yardimci/surucu";
-import { turSur } from "./tempo.test";
+import { dragSur, enIyiTur } from "../yardimci/uyum";
 
-const DT = 1 / 60;
 /**
  * hedef süre = pilot süresi × pay (seviyeye göre). Pilot pist çizgisini izler ve zor pistte ancak düşük cesaretle
- * hatasız biter; ustalar orada pilottan çok daha hızlıdır, bu yüzden üst seviyelerde pay 1'in altında.
+ * hatasız biter; ustalar orada pilottan çok daha hızlıdır, bu yüzden üst seviyelerde pay 1'in altında. Amatör'den
+ * itibaren yanlış türün aracı (önerilenden en az ~%10 yavaş) hedefi tutturamaz.
  */
-const PAY = [1.3, 1.18, 1.08, 1, 0.95, 0.9],
+const PAY = [1.3, 1.1, 1.05, 1, 0.95, 0.9],
   DRAG_PAY = [1.25, 1.15, 1.08, 1.04, 1.02, 1];
-
-/** drag: tam gaz, bitiş süresi */
-function dragSur(yaris: number, arac: number) {
-  const s = surucuKur({ yaris, arac, lk: "norm" });
-  const TR = s.bolge!.TR!,
-    S = s.sim.S,
-    z1 = TR.P[TR.N - 1][1];
-  s.reset(TR.P[0][0], TR.P[0][1], 0);
-  for (let k = 0; k < 60 / DT; k++) {
-    s.adim({ tg: 0, g: 1, b: 0, analogDireksiyon: false, analogGaz: false });
-    if (S.z >= z1) return k * DT;
-  }
-  return Infinity;
-}
 
 it("pistler", () => {
   const satir: string[] = [];
   for (let yaris = 0; yaris < TDEF.length; yaris++) {
     const d = TDEF[yaris];
-    if (d.t == "dp") continue;
+    if (d.t == "dp" || (process.env.TUR && process.env.TUR != d.t)) continue;
     const arac = CARS.findIndex((c) => c.ty == d.t),
       h = EVENTS_HEDEF(yaris);
-    let en = Infinity,
-      enC = 0;
-    if (d.t == "dg") en = dragSur(yaris, arac);
-    else
-      for (const c of [0.45, 0.6, 0.75, 0.9, 1.05]) {
-        const r = turSur(yaris, arac, c);
-        if (r.spin == 0 && r.disari < 3 && r.t < en) {
-          en = r.t;
-          enC = c;
-        }
-      }
+    const { t: en, cesaret: enC } =
+      d.t == "dg" ? { t: dragSur(yaris, arac), cesaret: 0 } : enIyiTur(yaris, arac);
     const tur = d.t == "gp" || d.t == "rx" ? 3 : 1,
       oneri =
         d.t == "dg" ? Math.round(en * DRAG_PAY[d.lv - 1] * 10) / 10 : Math.round(en * tur * PAY[d.lv - 1]);
