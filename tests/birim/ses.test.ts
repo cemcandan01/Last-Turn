@@ -3,6 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   cakil,
   carpma,
+  cim,
+  EQ_BANTLAR,
+  lastikOtmesi,
   katmanDevirleri,
   MOTORLAR,
   motorEq,
@@ -117,6 +120,35 @@ describe("efekt örnekleri", () => {
     for (const s of [cakil(SR), patlama(SR, 1), valf(SR, 1), valf(SR, 2), carpma(SR, 1)]) {
       expect(s.every(Number.isFinite)).toBe(true);
       expect(rms(s)).toBeGreaterThan(0.02);
+      expect(tepe(s)).toBeLessThanOrEqual(0.96);
+    }
+  });
+  // hedefler gerçek kayıtların ölçüsünden (tests/yardimci/ses-analiz.ts → bantlar): çakıl ~610 Hz merkezli, 2 kHz
+  // üstü yok denecek kadar az; çim ~350 Hz; lastik ötmesi tonlu, enerjisi 300 Hz-2 kHz arasında, ağırlığı ~800 Hz
+  const merkez = (s: Float32Array) => {
+    const b = bantlar(s, 44100).map((x) => 10 ** (x / 10)),
+      t = b.reduce((a, x) => a + x, 0);
+    return {
+      merkez: b.reduce((a, x, i) => a + x * EQ_BANTLAR[i], 0) / t,
+      tiz: b.reduce((a, x, i) => a + (EQ_BANTLAR[i] >= 2000 ? x : 0), 0) / t,
+      orta: b.reduce((a, x, i) => a + (EQ_BANTLAR[i] >= 315 && EQ_BANTLAR[i] <= 2000 ? x : 0), 0) / t,
+    };
+  };
+  it("zemin ve lastik sesleri gerçek kayıtların frekans dağılımında; döngüler dikişsiz", () => {
+    const c = merkez(cakil(44100)),
+      h = merkez(cim(44100)),
+      o = merkez(lastikOtmesi(44100));
+    expect(c.merkez).toBeGreaterThan(400);
+    expect(c.merkez).toBeLessThan(900);
+    expect(c.tiz).toBeLessThan(0.06);
+    expect(h.merkez).toBeLessThan(500);
+    expect(o.orta).toBeGreaterThan(0.85);
+    expect(o.merkez).toBeGreaterThan(550);
+    expect(o.merkez).toBeLessThan(1100);
+    for (const s of [cakil(SR), cim(SR), lastikOtmesi(SR)]) {
+      let enb = 0;
+      for (let i = 1; i < s.length; i++) enb = Math.max(enb, Math.abs(s[i] - s[i - 1]));
+      expect(Math.abs(s[0] - s[s.length - 1])).toBeLessThanOrEqual(enb);
       expect(tepe(s)).toBeLessThanOrEqual(0.96);
     }
   });
