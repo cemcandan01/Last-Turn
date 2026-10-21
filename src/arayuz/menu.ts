@@ -25,8 +25,8 @@ import { kontrolleriKur } from "./kontroller";
 /** yarış türleri: anahtar, ad, açıklama, ikon, türün rengi (kapak akışı, pist listesi ve ayrıntıda tema) */
 const TYPES: [string, string, string, IkonAdi, string][] = [
   ["gp", "Asfalt", "Pist yarışları, fren tabelaları, kerbler", "pist", "#ff5a3c"],
-  ["rx", "Toprak", "Rallikros: çamur, rampa, karışık zemin", "arazi", "#d08a48"],
-  ["rl", "Ralli", "A’dan B’ye orman, kar ve çöl etapları", "rota", "#4fbf74"],
+  ["rx", "Rallycross", "Asfalt ve toprak karışık pist: çamur, su, rampa", "rallycross", "#d08a48"],
+  ["rl", "Ralli", "A’dan B’ye dağ, orman, kar ve çöl etapları", "dag", "#4fbf74"],
   ["dp", "Drift", "90 saniyede en yüksek drift puanı", "donus", "#b67cff"],
   ["dg", "Drag", "Düz çizgide milisaniyeler", "isik", "#ffd23c"],
 ];
@@ -199,62 +199,97 @@ export function showMenu(v?: string[]) {
 }
 
 /**
- * yarış türü kapak akışı: ortada seçili tür büyük, yanlarda eğilip uzaklaşan kartlar. Parmakla sağa sola kaydırılır,
- * oklarla ya da yandaki karta dokunarak döner; ortadaki karta dokununca o türün pistleri açılır.
+ * yarış türü kapak akışı: ortada seçili tür büyük, yanlarda eğilip uzaklaşan kartlar. Kartlar parmağı izler; bırakınca
+ * fırlatma hızına göre bir ya da birkaç tür ilerleyip ortaya yumuşakça oturur. Oklar ve yandaki karta dokunmak da
+ * döndürür; ortadaki karta dokununca o türün pistleri açılır.
  */
 function kapakAkisi(m: HTMLElement) {
   const kartlar = [...m.querySelectorAll<HTMLElement>(".tk")],
     nok = [...m.querySelectorAll<HTMLElement>(".kfn i")],
     kf = m.querySelector<HTMLElement>(".kf")!,
-    n = kartlar.length;
-  const yerles = () => {
-    kartlar.forEach((k, i) => {
-      const o = i - TUR_I,
+    n = kartlar.length,
+    ARA = 190; // komşu kartlar arası (px): parmak bu kadar gidince bir tür döner
+  let konum = TUR_I;
+  /** kartları kesirli konuma göre diz; sure > 0 ise o sürede yumuşakça geç */
+  const yerles = (k: number, sure = 0) => {
+    kartlar.forEach((e, i) => {
+      const o = i - k,
         a = Math.abs(o);
-      k.style.transform = `translateX(${o * 190}px) translateZ(${-a * 120}px) rotateY(${-o * 32}deg)`;
-      k.style.opacity = String(a > 2 ? 0 : 1 - a * 0.28);
-      k.style.zIndex = String(10 - a);
-      k.style.pointerEvents = a > 2 ? "none" : "";
-      k.classList.toggle("on", !o);
+      e.style.transition = sure ? `transform ${sure}s cubic-bezier(.22,1,.36,1), opacity ${sure}s` : "none";
+      e.style.transform = `translateX(${o * ARA}px) translateZ(${-Math.min(a, 3) * 120}px) rotateY(${-Math.max(-1, Math.min(1, o)) * 32}deg)`;
+      e.style.opacity = String(Math.max(0, a > 2.5 ? 0 : 1 - a * 0.28));
+      e.style.zIndex = String(10 - Math.round(a));
+      e.style.pointerEvents = a > 2.5 ? "none" : "";
+      e.classList.toggle("on", a < 0.5);
     });
-    nok.forEach((e, i) => e.classList.toggle("on", i == TUR_I));
+    const s = Math.round(k);
+    nok.forEach((e, i) => e.classList.toggle("on", i == s));
   };
-  const git = (i: number) => {
-    TUR_I = Math.max(0, Math.min(n - 1, i));
-    yerles();
+  /** ortaya oturma: süre gidilen yolla uzar, ortaya gelen kart kısa bir nabız atar */
+  const otur = (hedef: number) => {
+    hedef = Math.max(0, Math.min(n - 1, hedef));
+    const yol = Math.abs(hedef - konum);
+    if (hedef != TUR_I) {
+      const k = kartlar[hedef];
+      k.classList.remove("geldi");
+      void k.offsetWidth;
+      k.classList.add("geldi");
+    }
+    TUR_I = hedef;
+    konum = hedef;
+    yerles(hedef, Math.min(0.8, 0.38 + yol * 0.14));
   };
-  // kaydırma: parmak yatayda 40 px'ten fazla giderse bir tür döner; hemen ardından gelen tıklama sayılmaz
+  // parmakla sürükleme: kartlar parmağı izler; kenarlarda lastik gibi direnir
   let x0: number | null = null,
+    k0 = 0,
+    izler: [number, number][] = [],
     kaydi = -1e9;
-  const bas = (x: number) => (x0 = x);
+  const bas = (x: number) => {
+    x0 = x;
+    k0 = konum;
+    izler = [[x, performance.now()]];
+  };
+  const kay = (x: number) => {
+    if (x0 == null) return;
+    let k = k0 - (x - x0) / ARA;
+    if (k < 0) k *= 0.35;
+    if (k > n - 1) k = n - 1 + (k - n + 1) * 0.35;
+    konum = k;
+    izler.push([x, performance.now()]);
+    if (izler.length > 6) izler.shift();
+    if (Math.abs(x - x0) > 8) kaydi = performance.now();
+    yerles(k);
+  };
   const birak = (x: number) => {
     if (x0 == null) return;
-    const dx = x - x0;
+    kay(x);
     x0 = null;
-    if (Math.abs(dx) > 40) {
-      kaydi = performance.now();
-      git(TUR_I - Math.sign(dx));
-    }
+    // fırlatma hızı (kart/sn): son birkaç hareketten
+    const [ax, at] = izler[0],
+      dt = Math.max(16, performance.now() - at),
+      hiz = -((x - ax) / ARA) / (dt / 1000);
+    otur(Math.round(konum + Math.max(-2.5, Math.min(2.5, hiz * 0.22))));
   };
-  kf.addEventListener("touchstart", (e) => bas(toApp(e.touches[0].clientX, e.touches[0].clientY)[0]), {
-    passive: true,
-  });
-  kf.addEventListener("touchend", (e) =>
-    birak(toApp(e.changedTouches[0].clientX, e.changedTouches[0].clientY)[0]),
-  );
+  const nx = (t: Touch) => toApp(t.clientX, t.clientY)[0];
+  kf.addEventListener("touchstart", (e) => bas(nx(e.touches[0])), { passive: true });
+  kf.addEventListener("touchmove", (e) => kay(nx(e.touches[0])), { passive: true });
+  kf.addEventListener("touchend", (e) => birak(nx(e.changedTouches[0])));
+  kf.addEventListener("touchcancel", (e) => birak(nx(e.changedTouches[0])));
   kf.addEventListener("pointerdown", (e) => e.pointerType == "mouse" && bas(e.clientX));
+  kf.addEventListener("pointermove", (e) => e.pointerType == "mouse" && kay(e.clientX));
   kf.addEventListener("pointerup", (e) => e.pointerType == "mouse" && birak(e.clientX));
   kartlar.forEach(
     (k, i) =>
       (k.onclick = () => {
+        // sürüklemenin sonundaki tıklama sayılmaz
         if (performance.now() - kaydi < 400) return;
         if (i == TUR_I) showMenu([...MV, "t:" + TYPES[i][0]]);
-        else git(i);
+        else otur(i);
       }),
   );
-  m.querySelector<HTMLElement>("#kfs")!.onclick = () => git(TUR_I - 1);
-  m.querySelector<HTMLElement>("#kfg")!.onclick = () => git(TUR_I + 1);
-  yerles();
+  m.querySelector<HTMLElement>("#kfs")!.onclick = () => otur(TUR_I - 1);
+  m.querySelector<HTMLElement>("#kfg")!.onclick = () => otur(TUR_I + 1);
+  yerles(konum);
 }
 
 /** alt ekran: [başlık, üst başlık, içerik] */
