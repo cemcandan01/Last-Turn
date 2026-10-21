@@ -40,7 +40,8 @@ export default async function ({ p, ok }) {
       icinde = r.every(
         (b) => b.left >= 0 && b.right <= m.width + 1 && b.bottom <= m.height + 1 && b.top > m.height * 0.4,
       ),
-      gorsel = k.every((e) => e.querySelector("img").naturalWidth > 0),
+      // her panelde ikon (çizimi olan svg) ve başlık
+      gorsel = k.every((e) => e.querySelector("svg.ik path") && e.querySelector("b").textContent.trim()),
       adlar = k.map((e) => e.textContent.trim());
     k[0].click();
     const yarisAcildi = !!document.querySelector("#menu .tile[data-ty]");
@@ -57,7 +58,7 @@ export default async function ({ p, ok }) {
   });
   ok(
     ana.n == 5 && ana.sira && ana.icinde && ana.gorsel && ana.yarisAcildi && ana.eve,
-    "ana ekran: altta soldan sağa 5 görselli kart, Yarış kartı açılıyor, geri ana ekrana döner " +
+    "ana ekran: altta soldan sağa 5 ikonlu panel, Yarış kartı açılıyor, geri ana ekrana döner " +
       JSON.stringify(ana),
   );
   const surum = await p.evaluate(() => [
