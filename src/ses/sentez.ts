@@ -418,24 +418,129 @@ function cinla(s: Float32Array, n0: number, f: number, sonum: number, A: number,
   }
 }
 
-/** çakıl ve toprak: lastiğin altında ezilen taneler (döngü) */
+/** yinelenen gürültüyü süzgeçten iki tur geçir (döngü dikişsiz olsun), ikinci turu al */
+function dairesel(s: Float32Array, suzgecler: Biquad[]) {
+  const o = new Float32Array(s.length);
+  for (let t = 0; t < 2; t++)
+    for (let i = 0; i < s.length; i++) {
+      let y = s[i];
+      for (const f of suzgecler) y = f.adim(y);
+      if (t) o[i] = y;
+    }
+  return o;
+}
+
+/** standart normal sayı (Box-Muller) */
+const normal = (r: Rastgele) => Math.sqrt(-2 * Math.log(r() + 1e-9)) * Math.cos(2 * Math.PI * r());
+
+/**
+ * kısa gürültü taneleri ekle (döngü başa sarar): her tane üstel sönen, bant geçiren süzgeçten geçmiş bir patırtı.
+ * Süzgeç geniş (Q ~1): tanelerde çınlama yok; çınlayan (dar bantlı) taneler şişede taş sesi gibi duyulur.
+ */
+function taneler(
+  s: Float32Array,
+  r: Rastgele,
+  sr: number,
+  sayi: number,
+  frek: [number, number],
+  sure: [number, number],
+  siddet: number,
+) {
+  const L = s.length;
+  for (let k = 0; k < sayi; k++) {
+    const n0 = Math.floor(r() * L),
+      f = frek[0] * (frek[1] / frek[0]) ** r(),
+      d = (sure[0] + r() * (sure[1] - sure[0])) * sr,
+      A = siddet * Math.exp(0.6 * normal(r)),
+      bp = Biquad.bant(f, 1.1, sr);
+    for (let i = 0; i < d * 4; i++) s[(n0 + i) % L] += A * bp.adim((r() * 2 - 1) * Math.exp(-i / d));
+  }
+}
+
+/**
+ * toprak ve çakıl: lastiğin altında ezilen taneler (döngü, 2 sn). Gerçek kayıtların ölçüsüne göre: enerjinin çoğu
+ * 300-800 Hz'de, kırık kırık (saniyede 15-80 kez dalgalanan) tok bir hışırtı; ara sıra iri bir taş. Hızlanınca
+ * oyunda daha hızlı çalınır (tını tizleşir, gerçekte de öyle).
+ */
 export function cakil(sr: number, tohum = 7) {
   const r = mulberry32(tohum),
-    L = Math.round(1.2 * sr),
-    s = new Float32Array(L);
-  const tane = Math.round(1.2 * 1100);
-  for (let i = 0; i < tane; i++) {
-    const A = r() ** 2.2 * (r() < 0.04 ? 1 : 0.4);
-    cinla(s, Math.floor(r() * L), 700 + r() * 3800, 0.0006 + r() * 0.0016, A, sr);
-  }
-  // altta tok bir uğultu
-  const al = Biquad.alcak(180, 0.7, sr);
-  for (let t = 0; t < 2; t++)
+    L = Math.round(2 * sr),
+    taban = new Float32Array(L);
+  for (let i = 0; i < L; i++) taban[i] = r() * 2 - 1;
+  const s = dairesel(taban, [Biquad.yuksek(180, 0.7, sr), Biquad.alcak(750, 0.7, sr)]);
+  for (let i = 0; i < L; i++) s[i] *= 0.35;
+  taneler(s, r, sr, 1400, [280, 1000], [0.002, 0.008], 0.5);
+  // iri taşlar: seyrek, daha tok ve uzun
+  taneler(s, r, sr, 40, [180, 500], [0.012, 0.025], 1.4);
+  return normallestir(dairesel(s, [Biquad.alcak(1300, 0.7, sr)]), 0.2);
+}
+
+/** çim ve yumuşak zemin: alçak, hızlı dalgalanan hışırtı (gerçek kayıtlarda enerji 100-500 Hz'de) */
+export function cim(sr: number, tohum = 8) {
+  const r = mulberry32(tohum),
+    L = Math.round(2 * sr),
+    taban = new Float32Array(L);
+  for (let i = 0; i < L; i++) taban[i] = r() * 2 - 1;
+  const s = dairesel(taban, [Biquad.yuksek(70, 0.7, sr), Biquad.alcak(380, 0.7, sr)]);
+  for (let i = 0; i < L; i++) s[i] *= 0.6;
+  taneler(s, r, sr, 900, [100, 500], [0.004, 0.015], 0.5);
+  return normallestir(dairesel(s, [Biquad.alcak(650, 0.7, sr)]), 0.2);
+}
+
+/**
+ * lastik ötmesi (döngü, 3 sn): gerçek kayıtların ölçüsüne göre tonlu bir ses: ~560 Hz temel ve çevresinde birbirine
+ * yakın birkaç ton, ~1,1 kHz'de ikinci bir öbek; tonlar ve şiddet saniyede 1-5 kez kabarıp söner (tepe frekansı
+ * iki öbek arasında gezer). Altında az bir sürtünme hışırtısı. Oyunda kaymaya ve hıza göre tizleşir.
+ */
+export function lastikOtmesi(sr: number, tohum = 12) {
+  const r = mulberry32(tohum),
+    sure = 3,
+    L = Math.round(sure * sr),
+    s = new Float32Array(L),
+    // döngü dikişsiz olsun diye bütün oynamalar sürede tam sayıda döner
+    lfo = (enAz: number, enCok: number) =>
+      Math.max(1, Math.round((enAz + r() * (enCok - enAz)) * sure)) / sure,
+    f0 = Math.round(560 * sure) / sure,
+    sesler: [number, number][] = [
+      [1, 1],
+      [0.84, 0.55],
+      [1.08, 0.55],
+      [1.93, 0.42],
+      [2.02, 0.45],
+      [2.2, 0.3],
+    ];
+  for (const [oran, A] of sesler) {
+    const f = Math.round(f0 * oran * sure) / sure,
+      m1 = lfo(0.7, 3),
+      m2 = lfo(2, 6),
+      t1 = lfo(15, 30),
+      a1 = lfo(1, 5),
+      a2 = lfo(0.4, 1.5),
+      p = [r(), r(), r(), r(), r()].map((x) => x * 2 * Math.PI),
+      // frekans oynaması (±%5) ve titreşim: fazı dikişsiz olsun diye ortalaması sıfır sinüslerle
+      d1 = 0.035 * f,
+      d2 = 0.015 * f,
+      d3 = 0.004 * f;
     for (let i = 0; i < L; i++) {
-      const v = al.adim(r() * 2 - 1);
-      if (t) s[i] += v * 0.9;
+      const t = i / sr,
+        faz =
+          2 * Math.PI * f * t -
+          (d1 / m1) * Math.cos(2 * Math.PI * m1 * t + p[0]) -
+          (d2 / m2) * Math.cos(2 * Math.PI * m2 * t + p[1]) -
+          (d3 / t1) * Math.cos(2 * Math.PI * t1 * t + p[2]),
+        zarf =
+          (0.5 + 0.5 * Math.sin(2 * Math.PI * a1 * t + p[3])) ** 1.5 *
+          (0.6 + 0.4 * Math.sin(2 * Math.PI * a2 * t + p[4]));
+      s[i] += A * zarf * Math.sin(faz);
     }
-  return normallestir(s, 0.2);
+  }
+  // sürtünme hışırtısı
+  const n = new Float32Array(L);
+  for (let i = 0; i < L; i++) n[i] = r() * 2 - 1;
+  const h = dairesel(n, [Biquad.bant(900, 0.7, sr)]);
+  const ag = lfo(1, 4);
+  for (let i = 0; i < L; i++) s[i] += 0.35 * h[i] * (0.6 + 0.4 * Math.sin((2 * Math.PI * ag * i) / sr));
+  return normallestir(s, 0.22);
 }
 
 /**

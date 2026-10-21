@@ -15,7 +15,7 @@ export default [
   },
   {
     id: "efektler",
-    ad: "Çakıl, patlama, valf, çarpma örnekleri",
+    ad: "Çakıl, çim, lastik ötmesi (gerçek kayıt ölçüsünde), patlama, valf, çarpma örnekleri",
     p: 3,
     birim: { dosya: F, grup: "efekt örnekleri" },
   },
