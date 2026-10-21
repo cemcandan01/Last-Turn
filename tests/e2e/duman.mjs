@@ -22,6 +22,7 @@ const BOLUMLER = [
   "gecis",
   "arka-video",
   "seviyeler",
+  "kapak",
   "surus",
   "kerb",
   "ses",
