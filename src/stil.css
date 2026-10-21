@@ -780,9 +780,89 @@ details[open] > summary::after {
   margin-top: auto;
 }
 .rlist {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
   gap: 10px;
+  overflow-x: auto;
+  touch-action: pan-x;
+  padding-bottom: 4px;
+}
+.rlist .rc {
+  flex: 0 0 216px;
+  gap: 6px;
+  padding: 8px 10px;
+}
+.rlist .rc img {
+  width: 58px;
+  height: 58px;
+}
+.rlist .rci small {
+  min-height: 30px;
+}
+.rcm {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+.rcm em {
+  font-style: normal;
+  font-size: 12px;
+  color: var(--mut);
+  text-align: right;
+}
+/* pist kartı üstü: küçük harita + seviye rozeti */
+.rcu {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+/* seviye rozeti: Çaylak yeşil → Efsane mor */
+.lv {
+  --c: #4cc38a;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 3px;
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--c) 18%, #0000);
+  border: 1px solid var(--c);
+  color: var(--c);
+  font-size: 13px;
+  font-weight: 800;
+  font-style: italic;
+  white-space: nowrap;
+}
+.lv i {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--c);
+  color: #0b161b;
+  font-style: normal;
+  font-size: 12px;
+}
+.lv2 {
+  --c: #9bd14f;
+}
+.lv3 {
+  --c: #f2c94c;
+}
+.lv4 {
+  --c: #ff9f43;
+}
+.lv5 {
+  --c: #ff5d5d;
+}
+.lv6 {
+  --c: #c07cff;
+}
+.lvd {
+  color: var(--ink) !important;
+  margin: 6px 0 4px !important;
+  font-size: 14px !important;
 }
 .rc {
   display: flex;
@@ -1513,4 +1593,8 @@ details[open] > summary::after {
 }
 .hdAc {
   border-color: var(--acc);
+}
+.rlist .rcs b {
+  white-space: nowrap;
+  font-size: 13px;
 }
