@@ -21,7 +21,7 @@
 
 - **Görünüm:** Renk yönetimi kapalı, çıktı doğrusal (Three r128 görünümü). Işık şiddetleri `ISIK` (π) çarpanıyla verilir (`cizim/sahne.ts`). Yeni ışık eklerken aynı çarpanı kullan.
 - **Kokpit:** Gövde içeriden görünmez (tek yüzlü), iç mekân `cock` grubunda. `userData.pan` taşıyan parçalar (renk panelleri, yan camlar) kokpitte gizlenir. Ön cam `glassQM` kokpitte şeffaflaşır.
-- **Menü arka planı:** Menüde önceden kaydedilmiş video oynar (`arayuz/arka-video.ts`); oynarken 3B sahne çizilmez (pil, ısı). Video oynayamazsa (Düşük Güç Modu, H.264 yok, test Chromium'u) canlı sinematik çekimler (`oyun/sinematik.ts`) çalışır. Pistler ya da `SHOTS` değişince videoyu `npm run build && npm run video` ile yeniden üret ve kareye bak. Çevrimdışı oynaması için service worker videoyu parça parça (206) verir.
+- **Menü arka planı:** Menüde oyunun kendi sahnelerinden çekilmiş küçük WebP görseller akar (`arayuz/arka-gorsel.ts`, `public/img/menu/`); rastgele sıra, art arda aynı görsel yok, yavaş kayma ve çapraz geçiş (CSS). Görseller ekranı kaplarken 3B sahne çizilmez (pil, ısı). Görseller yüklenemezse canlı sinematik çekimler (`oyun/sinematik.ts`) çalışır. Pistler ya da `SHOTS` değişince `npm run build && npm run menugorsel` ile yeniden üret ve `tests/cikti/menu-gorsel/` önizlemelerine bak (araçlar düzgün mü).
 
 ## HUD
 

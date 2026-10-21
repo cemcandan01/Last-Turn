@@ -26,10 +26,10 @@ export default [
     tarayici: "gecis",
   },
   {
-    id: "arka-video",
-    ad: "Menü arka plan videosu: menüde oynuyor ve 3B çizim duruyor, sürüşte gizli",
+    id: "arka-gorsel",
+    ad: "Menü arka plan görselleri: menüde rastgele akıyor ve 3B çizim duruyor, sürüşte gizli",
     p: 2,
-    tarayici: "arka-video",
+    tarayici: "arka-gorsel",
   },
   {
     id: "seviyeler",

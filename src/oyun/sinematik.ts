@@ -361,7 +361,7 @@ export function cineCam() {
   cam.updateProjectionMatrix();
 }
 
-/** menü videosunun kaydı için (scripts/menu-video.mjs): belirli çekimi geçişsiz ve süresiz başlat (f: başka başlangıç oranı) */
+/** menü görsellerinin çekimi için (scripts/menu-gorsel.mjs): belirli çekimi geçişsiz ve süresiz başlat (f: başka başlangıç oranı) */
 export function cekimKaydi(i: number, f?: number) {
   if (!DEMO) demoStart();
   CINE = null;
