@@ -16,7 +16,7 @@ import { PROF, best, saveProf } from "../oyun/profil";
 import { demoStart, demoStop } from "../oyun/sinematik";
 import { reset } from "../oyun/surus";
 import { EVENTS, leaveEvent, TYP, type YarisTanimi } from "../oyun/yarislar";
-import { videoOynuyor } from "./arka-video";
+import { gorselOynuyor } from "./arka-gorsel";
 import { ikon, type IkonAdi } from "./ikonlar";
 import { bindSettings, chipsOf, settingsHTML } from "./ayarlar-ekrani";
 import { openGarage } from "./garaj";
@@ -118,8 +118,8 @@ export function showMenu(v?: string[]) {
   $("#big").textContent = "";
   if (v) MV = v;
   const cur = MV[MV.length - 1];
-  // arka plan videosu oynuyorsa canlı sinematik gerekmez (ayarlarda da video sürer)
-  if (videoOynuyor() || cur == "settings") demoStop();
+  // arka plan görseli akıyorsa canlı sinematik gerekmez (ayarlarda da görsel sürer)
+  if (gorselOynuyor() || cur == "settings") demoStop();
   else demoStart();
   const m = $("#menu");
   m.classList.remove("hidden");

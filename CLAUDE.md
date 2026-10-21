@@ -47,7 +47,7 @@ npm run test:goruntu  # + ekran görüntüleri tests/cikti/ (menü, garaj, yarı
 npm run typecheck     # tip denetimi
 npm run lint          # ESLint
 npm run format        # Prettier ile biçimlendir
-npm run video         # menü arka plan videosunu oyundan kaydet: public/video/menu.mp4 (önce build; ~15 dk). Pist ya da sinematik çekim değişince
+npm run menugorsel    # menü arka plan görsellerini oyundan çek: public/img/menu/*.webp (önce build; ~1 dk). Pist ya da sinematik çekim değişince
 npm run ses           # sesleri kaydet: tests/cikti/ses/ (müzik, 5 motor, sürüş efektleri; .wav ve .m4a; önce build)
 npm run olcum         # fizik ölçümleri: 0-100, azami hız, fren, tur süreleri, toprakta sınır, drift pisti, adım maliyeti
 npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
@@ -92,7 +92,7 @@ npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 - Ana menü: üstte logo ve profil, ekranın altında soldan sağa eğik yarış panelleri (Yarış, Serbest sürüş, Garaj, Profil, Ayarlar); her panelde ikon ve başlık (Yarış: dama bayrak, Serbest sürüş: harita, Garaj: yandan araba, Profil: kask, Ayarlar: dişli); Yarış öne çıkan turuncu ana düğme; dikey liste ya da aşağı kaydırma yok. Arkada her yarış türünden sinematik çekimler rastgele akar, art arda aynı çekim gelmez. Alt ekranlar (yarış türü, pistler) de yatay dizilir.
 - Yarış türü ekranı kapak akışıdır: ortada seçili tür büyük, yanlarda eğik kartlar; kaydırma, ok ya da yan karta dokunma. Her türün ikonu ve rengi var (Asfalt: pist, kırmızı; Rallycross: rampadan uçan araç, kahve; Ralli: dağ, yeşil; Drift: dönüş, mor; Drag: start ışıkları, sarı). Kartlar parmağı izler, fırlatma hızına göre ilerleyip ortaya yumuşakça oturur. "Toprak" adı kullanılmaz: rallycross pistleri asfalt ve toprak karışıktır; pist listesi ve yarış ayrıntısı o türün rengini taşır. Tür eklenince `menu.ts → TYPES`'a ikon ve renkle eklenir.
 - Görseller internetten alınmaz; oyunun kendi sahnelerinden çekilir. İstisna: arayüz ikonları açık lisanslı setlerden alınabilir (şimdilik Tabler Icons, MIT; `src/arayuz/ikonlar.ts`), lisans metni `public/lisanslar.txt`'e eklenir.
-- Menü arka planı oyunun kendi çekimlerinden kaydedilmiş, dikişsiz dönen bir videodur; çekimler arası çapraz geçiş (iki çekim de hareketli), kararma yok. Gece yağmurda kokpit çekimi kullanılmaz.
+- Menü arka planı oyunun kendi sahnelerinden çekilmiş küçük görsellerdir (WebP, toplam ~80 KB; video yok, kullanıcı isteği: performans ve boyut): rastgele sırayla, art arda aynı görsel gelmeden, yavaş kayma ve çapraz geçişle akar; kararma yok. Gece yağmurda kokpit çekimi kullanılmaz.
 - Sesler oyunun içinde üretilir (sentez). Başka oyunların ya da kaynakların ses dosyaları oyuna aktarılmaz (lisanslı da olsa); gerçek motor kayıtları yalnız incelenir, ölçülen özelliklerine göre kendi sesimiz üretilir.
 - Menüde yarış oyunlarına uygun rock tarzı müzik çalar; sürüşte müzik yok.
 - Altyapı: TypeScript + Vite + Three.js (npm), derleme ve yayın GitHub Actions'ta. Kod okunur biçimde yazılır (Prettier), eski sıkıştırılmış tek satır stili bırakıldı.
