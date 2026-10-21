@@ -9,6 +9,16 @@ import { sm, type V2 } from "../cekirdek/matematik";
 /** kabinin tavana doğru içe çekilme oranı (araç türüne göre) */
 const KABIN: Record<string, number> = { gt: 0.2, rx: 0.13, dr: 0.16, rl: 0.12, dg: 0.1 };
 
+/** teker ile kemer arasındaki boşluk: drift ve pist arabası alçak ve sıkı, diğerleri ralli için daha açık */
+const KEMER: Record<string, number> = { dr: 0.025, gt: 0.03 };
+
+/** kemer: tekerin gövdedeki daire biçimli boşluğu (z, y merkez; R yarıçap) */
+export interface Kemer {
+  z: number;
+  y: number;
+  R: number;
+}
+
 /** gövdenin y yüksekliğinde (kaldırma hariç gövde koordinatı) ve z konumunda yarı genişliği */
 export function yariGenislik(d: Arac, y: number, z: number) {
   const ys = d.p.map((p) => p[1]),
@@ -38,6 +48,9 @@ export function tekerYerleri(d: Arac) {
   });
 }
 
+export const kemerler = (d: Arac): Kemer[] =>
+  tekerYerleri(d).map((t) => ({ z: t.z, y: t.y, R: t.r + (KEMER[d.k] ?? 0.06) }));
+
 /** köşeleri hafifçe yuvarla (Chaikin), alt kenar (son nokta → ilk nokta) olduğu gibi kalır */
 function yuvarla(p: V2[], k = 0.16): V2[] {
   const o: V2[] = [p[0]];
@@ -62,8 +75,8 @@ export function kemerliProfil(d: Arac): V2[] {
     yAlt = (z: number) => a[1] + ((b[1] - a[1]) * (z - a[0])) / (b[0] - a[0]),
     out = [...p];
   // önden arkaya: z azalan sırada
-  for (const t of tekerYerleri(d).sort((m, n) => n.z - m.z)) {
-    const R = t.r + 0.07,
+  for (const t of kemerler(d).sort((m, n) => n.z - m.z)) {
+    const R = t.R,
       ya = yAlt(t.z),
       a0 = Math.asin(Math.max(-1, Math.min(1, (ya - t.y) / R)));
     for (let i = 0; i <= 12; i++) {
@@ -76,9 +89,16 @@ export function kemerliProfil(d: Arac): V2[] {
 
 /**
  * profil + enine biçim → kapalı gövde parçası. hw(y, z) yarı genişlik, ek: yüzeyden dışarı pay
- * (camlar ve renk panelleri gövdenin hemen üstüne oturur)
+ * (camlar ve renk panelleri gövdenin hemen üstüne oturur). delik: bu kemerlerin içine düşen yüzeyler atılır
+ * (renk panelleri teker kemerinin üstünden geçip lastiği örtmesin)
  */
-export function enineGovde(pts: V2[], hw: (y: number, z: number) => number, m: THREE.Material, ek = 0) {
+export function enineGovde(
+  pts: V2[],
+  hw: (y: number, z: number) => number,
+  m: THREE.Material,
+  ek = 0,
+  delik: Kemer[] = [],
+) {
   const kon = pts.map(([z, y]) => new THREE.Vector2(z, y)),
     ucg = THREE.ShapeUtils.triangulateShape(kon, []),
     poz: number[] = [],
@@ -97,20 +117,55 @@ export function enineGovde(pts: V2[], hw: (y: number, z: number) => number, m: T
     if (n[0] * dis[0] + n[1] * dis[1] + n[2] * dis[2] < 0) poz.push(...A, ...C, ...B);
     else poz.push(...A, ...B, ...C);
   };
-  for (const s of [-1, 1])
-    for (const [i, j, k] of ucg)
-      ekle(nk(pts[i][0], pts[i][1], s), nk(pts[j][0], pts[j][1], s), nk(pts[k][0], pts[k][1], s), [s, 0, 0]);
+  const icinde = (z: number, y: number) => delik.some((c) => (z - c.z) ** 2 + (y - c.y) ** 2 < c.R * c.R),
+    yakin = (q: V2[]) =>
+      delik.some(
+        (c) =>
+          Math.min(...q.map((p) => p[0])) < c.z + c.R &&
+          Math.max(...q.map((p) => p[0])) > c.z - c.R &&
+          Math.min(...q.map((p) => p[1])) < c.y + c.R &&
+          Math.max(...q.map((p) => p[1])) > c.y - c.R,
+      );
+  /** yan yüz üçgeni: kemere değiyorsa küçük parçalara bölünür, kemerin içindeki parçalar atılır */
+  const yan = (a: V2, b: V2, c: V2, derin: number) => {
+    if (icinde(...a) && icinde(...b) && icinde(...c)) return;
+    if (derin < 7 && yakin([a, b, c])) {
+      const ab: V2 = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2],
+        bc: V2 = [(b[0] + c[0]) / 2, (b[1] + c[1]) / 2],
+        ca: V2 = [(c[0] + a[0]) / 2, (c[1] + a[1]) / 2];
+      for (const q of [
+        [a, ab, ca],
+        [ab, b, bc],
+        [ca, bc, c],
+        [ab, bc, ca],
+      ] as V2[][])
+        yan(q[0], q[1], q[2], derin + 1);
+      return;
+    }
+    if (yakin([a, b, c]) && icinde((a[0] + b[0] + c[0]) / 3, (a[1] + b[1] + c[1]) / 3)) return;
+    for (const s of [-1, 1]) ekle(nk(a[0], a[1], s), nk(b[0], b[1], s), nk(c[0], c[1], s), [s, 0, 0]);
+  };
+  for (const [i, j, k] of ucg) yan(pts[i], pts[j], pts[k], delik.length ? 0 : 7);
   for (let i = 0; i < pts.length; i++) {
     const [z1, y1] = pts[i],
       [z2, y2] = pts[(i + 1) % pts.length],
-      L1 = nk(z1, y1, 1),
-      L2 = nk(z2, y2, 1),
-      R1 = nk(z1, y1, -1),
-      R2 = nk(z2, y2, -1),
       // kenarın dış normali (z, y düzleminde): saat yönünün tersine dolaşan profilde (dy, -dz)
-      dis = [0, -yon * (z2 - z1), yon * (y2 - y1)];
-    ekle(L1, L2, R2, dis);
-    ekle(L1, R2, R1, dis);
+      dis = [0, -yon * (z2 - z1), yon * (y2 - y1)],
+      // kemere yakın kenar 3 cm'lik parçalara bölünür, kemerin içindekiler atılır
+      n = yakin([pts[i], pts[(i + 1) % pts.length]]) ? Math.ceil(Math.hypot(z2 - z1, y2 - y1) / 0.03) : 1;
+    for (let k = 0; k < n; k++) {
+      const za = z1 + ((z2 - z1) * k) / n,
+        ya = y1 + ((y2 - y1) * k) / n,
+        zb = z1 + ((z2 - z1) * (k + 1)) / n,
+        yb = y1 + ((y2 - y1) * (k + 1)) / n;
+      if (n > 1 && icinde((za + zb) / 2, (ya + yb) / 2)) continue;
+      const L1 = nk(za, ya, 1),
+        L2 = nk(zb, yb, 1),
+        R1 = nk(za, ya, -1),
+        R2 = nk(zb, yb, -1);
+      ekle(L1, L2, R2, dis);
+      ekle(L1, R2, R1, dis);
+    }
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(poz, 3));
