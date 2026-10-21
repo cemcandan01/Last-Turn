@@ -2,13 +2,13 @@
 // her araca özel ek parçalar (kanat, numara, kompresör). Gece farı araca bağlı spot ışıktır.
 import * as THREE from "three";
 import type { Arac } from "../arac/araclar";
-import type { V2 } from "../cekirdek/matematik";
 import { yaziTuvali } from "./dokular";
-import { blackM, glassM, glassQM, lightM, tailM, bm } from "./malzemeler";
+import { blackM, dk, glassM, glassQM, lightM, tailM, bm } from "./malzemeler";
 import { scene } from "./sahne";
 import { bx, lam } from "./yardimci";
 import { buildInterior, cock } from "./kokpit";
 import { arkaKam, aynalariSifirla, aynaYuzu } from "./ayna";
+import { enineGovde, kemerliProfil, tekerYerleri, yamukCam, yariGenislik } from "./govde";
 
 /** araç: dış grup (konum, yön, eğim), gövde (yalpa, yatış) */
 export const car = new THREE.Group(),
@@ -24,36 +24,6 @@ headL.position.set(0, 1, 1.8);
 headL.target.position.set(0, 0, 22);
 car.add(headL, headL.target);
 
-/** yan profil (z ileri, y yukarı) → genişliği w olan gövde parçası */
-function prof(pts: V2[], w: number, m: THREE.Material, bev?: number) {
-  const sh = new THREE.Shape();
-  pts.forEach(([z, y], i) => (i ? sh.lineTo(z, y) : sh.moveTo(z, y)));
-  const b = bev ?? 0.04;
-  const g = new THREE.ExtrudeGeometry(sh, {
-    depth: w,
-    bevelEnabled: b > 0,
-    bevelThickness: b,
-    bevelSize: b,
-    bevelSegments: 1,
-    steps: 1,
-  });
-  g.rotateY(-Math.PI / 2);
-  g.translate(w / 2, 0, 0);
-  g.computeVertexNormals();
-  return new THREE.Mesh(g, m);
-}
-
-/** iki profil noktası arasında cam (ön/arka cam), dışa doğru hafifçe kaldırılmış */
-function glassQ(a: V2, b: V2, ww: number) {
-  const dz = b[0] - a[0],
-    dy = b[1] - a[1],
-    l = Math.hypot(dz, dy),
-    q = new THREE.Mesh(new THREE.PlaneGeometry(ww, l), glassQM);
-  q.rotation.x = Math.atan2(dz, dy);
-  q.position.set(0, (a[1] + b[1]) / 2 - (dz / l) * 0.05, (a[0] + b[0]) / 2 + (dy / l) * 0.05);
-  return q;
-}
-
 function decal(t: string, w: number, h: number, fg?: string) {
   return new THREE.Mesh(
     new THREE.PlaneGeometry(w, h),
@@ -65,24 +35,37 @@ function decal(t: string, w: number, h: number, fg?: string) {
 function numbers(g: THREE.Group, t: string, w: number, z: number, y: number, s: number, fg: string) {
   for (const sd of [-1, 1]) {
     const d = decal(t, 0.75 * s, 0.56 * s, fg);
-    d.position.set(sd * (w / 2 + 0.06), y, z);
+    d.position.set(sd * (w / 2 + 0.012), y, z);
     d.rotation.y = (sd * Math.PI) / 2;
     g.add(d);
   }
 }
 
+/** teker: lastik (yanakları yuvarlatılmış), beş kollu jant, göbek kapağı */
 function mkWheel(r: number, wd: number, rimC: number) {
   const g = new THREE.Group(),
-    rm = lam(rimC);
-  g.add(new THREE.Mesh(new THREE.CylinderGeometry(r, r, wd, 18).rotateZ(Math.PI / 2), blackM));
-  g.add(
-    new THREE.Mesh(new THREE.CylinderGeometry(r * 0.64, r * 0.64, wd + 0.02, 12).rotateZ(Math.PI / 2), rm),
-  );
-  const sp = bx(wd + 0.04, r * 1.2, r * 0.16, 0, 0, 0, rm);
-  g.add(sp);
-  const s2 = sp.clone();
-  s2.rotation.x = Math.PI / 2;
-  g.add(s2);
+    rm = lam(rimC),
+    dis = new THREE.CylinderGeometry(r, r, wd * 0.82, 20).rotateZ(Math.PI / 2),
+    yanak = new THREE.CylinderGeometry(r * 0.93, r * 0.93, wd, 20).rotateZ(Math.PI / 2);
+  g.add(new THREE.Mesh(dis, blackM), new THREE.Mesh(yanak, blackM));
+  const jr = r * 0.66;
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(jr, jr, wd + 0.012, 18).rotateZ(Math.PI / 2), dk));
+  for (const s of [-1, 1]) {
+    // jant yüzü: dış halka ve beş kol; iki yanda (teker hangi tarafta olursa olsun dış yüz görünür)
+    const yuz = new THREE.Group();
+    yuz.position.x = (s * (wd + 0.014)) / 2;
+    yuz.add(new THREE.Mesh(new THREE.TorusGeometry(jr * 0.94, jr * 0.07, 4, 18).rotateY(Math.PI / 2), rm));
+    for (let i = 0; i < 5; i++) {
+      const k = bx(0.012, jr * 0.9, jr * 0.2, 0, 0, 0, rm);
+      k.geometry.translate(0, jr * 0.45, 0);
+      k.rotation.x = (i * Math.PI * 2) / 5;
+      yuz.add(k);
+    }
+    yuz.add(
+      new THREE.Mesh(new THREE.CylinderGeometry(jr * 0.2, jr * 0.2, 0.02, 10).rotateZ(Math.PI / 2), rm),
+    );
+    g.add(yuz);
+  }
   return g;
 }
 
@@ -91,17 +74,33 @@ function body0(d: Arac) {
   const g = new THREE.Group(),
     m = lam(d.col),
     w = d.w;
-  g.add(prof(d.p, w, m));
-  // yan camlar içeriden görünmez; alt yüzeyleri göz hizasında kaldığı için kokpitte gizlenir
-  const yan = prof(d.gh, w + 0.1, glassM, 0);
+  const hw = (y: number, z: number) => yariGenislik(d, y, z);
+  // gövde: kabin içe çekilmiş, burun ve kuyruk yuvarlanmış, alt kenarda teker kemerleri
+  g.add(enineGovde(kemerliProfil(d), hw, m));
+  // yan camlar ve renk panelleri gövdenin hemen üstünde, onun biçimini izler.
+  // Yan camlar içeriden görünmez; alt yüzeyleri göz hizasında kaldığı için kokpitte gizlenir
+  const yan = enineGovde(d.gh, hw, glassM, 0.012);
   yan.userData.pan = 1;
   g.add(yan);
-  g.add(glassQ(d.ws[0], d.ws[1], w * 0.86), glassQ(d.rw[0], d.rw[1], w * 0.82));
+  g.add(yamukCam(d, d.ws[0], d.ws[1], glassQM), yamukCam(d, d.rw[0], d.rw[1], glassQM));
   for (const [pts, c] of d.pan || []) {
-    const q = prof(pts, w + 0.1, lam(c), 0);
+    const q = enineGovde(pts, hw, lam(c), 0.008);
     q.userData.pan = 1;
     g.add(q);
   }
+  // teker kemerlerinin içi koyu (gövdenin içi görünmesin); kemerler arasında yan etek, önde dudak, arkada difüzör
+  const T = tekerYerleri(d),
+    ya = Math.min(d.p[0][1], d.p[d.p.length - 1][1]);
+  for (const t of T) {
+    const R = t.r + 0.07;
+    g.add(bx(2 * (t.x - t.wd / 2) - 0.01, t.y + R - ya, 2 * R, 0, (t.y + R + ya) / 2, t.z, dk));
+  }
+  const [on, ar] = T[0].z > T[1].z ? T : [T[1], T[0]],
+    ek = on.z - on.r - 0.07 - (ar.z + ar.r + 0.07);
+  for (const sd of [-1, 1])
+    g.add(
+      bx(0.05, 0.09, ek, sd * (hw(ya + 0.05, 0) + 0.01), ya + 0.05, (on.z - on.r + ar.z + ar.r) / 2, blackM),
+    );
   const zf = Math.max(...d.p.map((p) => p[0])),
     zr = Math.min(...d.p.map((p) => p[0]));
   for (const sd of [-1, 1]) {
@@ -111,14 +110,14 @@ function body0(d: Arac) {
   // yan aynalar: ön camın dibinde, kapının dışında; yüzleri arka görüntünün kendi yanını gösterir
   const [az, ay] = d.ws[0];
   for (const sd of [-1, 1]) {
-    const x = sd * (w / 2 + 0.15),
-      y = ay + 0.1,
+    const y = ay + 0.1,
       z = az - 0.22,
+      x = sd * (hw(y, z) + 0.13),
       yz = aynaYuzu(0.21, 0.12, sd > 0 ? 1 : 0.5, sd > 0 ? 0.5 : 0);
     yz.position.set(x, y, z - 0.046);
     g.add(
       bx(0.24, 0.15, 0.09, x, y, z, m),
-      bx(0.14, 0.03, 0.04, sd * (w / 2 + 0.03), y - 0.03, z, blackM),
+      bx(0.14, 0.03, 0.04, sd * (hw(y, z) + 0.02), y - 0.03, z, blackM),
       yz,
     );
   }
@@ -205,13 +204,15 @@ function buildCar(d: Arac) {
   const g = body0(d);
   EK[d.k]?.(g, d);
   g.position.y = d.lift || 0;
+  // tekerler kemerlerin içinde, dış yüzleri gövde yüzeyinin hemen içinde (yalnız görünüm; fizik kendi izini kullanır)
   const W = d.wh,
+    [on, ar] = tekerYerleri(d),
     ws: TekerModeli[] = [];
   for (const [x, z, f] of [
-    [-W.x, W.zf, 1],
-    [W.x, W.zf, 1],
-    [-(W.rx || W.x), W.zr, 0],
-    [W.rx || W.x, W.zr, 0],
+    [-on.x, W.zf, 1],
+    [on.x, W.zf, 1],
+    [-ar.x, W.zr, 0],
+    [ar.x, W.zr, 0],
   ]) {
     const r = f ? W.r : W.rr || W.r,
       w = mkWheel(r, f ? W.wd : W.rwd || W.wd, W.rim),

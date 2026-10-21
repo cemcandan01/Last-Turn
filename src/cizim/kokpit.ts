@@ -5,6 +5,7 @@ import type { Arac } from "../arac/araclar";
 import { cl } from "../cekirdek/matematik";
 import { bx, lam, V3 } from "./yardimci";
 import { aynaYuzu } from "./ayna";
+import { yariGenislik } from "./govde";
 
 export const cock = new THREE.Group();
 cock.visible = false;
@@ -227,7 +228,9 @@ export function buildInterior(d: Arac) {
     [zh, yh0] = d.ws[1],
     yc = yc0 + lf,
     yh = yh0 + lf,
-    gw = w * 0.43,
+    // ön cam kenarları: gövde kabinin tavana doğru daraldığı biçimi izler (cam yarı genişliğinin %93'ü)
+    gwA = yariGenislik(d, yc0, zc) * 0.93,
+    gwT = yariGenislik(d, yh0, zh) * 0.93 - 0.02,
     zf = zc,
     zt = zh,
     fy = Math.min(...d.p.map((p) => p[1])) + lf + 0.08,
@@ -248,6 +251,8 @@ export function buildInterior(d: Arac) {
   kokpit.rmx = Math.ceil((d.dv || 7500) / 1000) + 1;
   // kapı iç panellerinin üstü göz hizasının belirgin altında: yan camdan yol ve yan ayna görünsün
   // (dış gövde içeriden görünmez, bu yüzden panelin üstü pencere eşiği olur)
+  // tavan kenarının B direğindeki yarı genişliği
+  const hwT = Math.min(hw, yariGenislik(d, yl - lf, zB) - 0.02);
   const kt = (kokpit.kt = Math.max(fy + 0.25, Math.min(yb, ey - 0.2)));
   // zemin ve kapı iç panelleri (yol ve tekerler alttan görünmesin)
   const z0 = mz - (L + 0.3) / 2;
@@ -423,15 +428,15 @@ export function buildInterior(d: Arac) {
       );
   // kabin iskeleti birbirine bağlı: A direkleri ön cam kenarında torpidodan tavana, üst çerçeve, tavan
   // kenarı A direğinden B direğine, B direği kapı eşiğinden tavana
-  const rl = new THREE.Mesh(new THREE.PlaneGeometry(2 * hw, zh - zB + 0.1), M.tv);
+  const rl = new THREE.Mesh(new THREE.PlaneGeometry(2 * hwT, zh - zB + 0.1), M.tv);
   rl.rotation.x = Math.PI / 2;
   rl.position.set(0, yl, (zh + zB) / 2 - 0.05);
-  cock.add(rl, bx(2 * gw, 0.045, 0.08, 0, yh - 0.035, zh - 0.03, M.d));
+  cock.add(rl, bx(2 * gwT + 0.06, 0.045, 0.08, 0, yh - 0.035, zh - 0.03, M.d));
   for (const sd of [-1, 1])
     cock.add(
-      beam([sd * gw, yc, zc], [sd * (gw - 0.05), yh - 0.03, zh], M.d, 0.075),
-      beam([sd * (gw - 0.05), yh - 0.04, zh], [sd * (hw - 0.03), yl, zB], M.d, 0.07),
-      beam([sd * hw, kt, zB], [sd * (hw - 0.03), yl, zB], M.d, 0.1),
+      beam([sd * gwA, yc, zc], [sd * gwT, yh - 0.03, zh], M.d, 0.075),
+      beam([sd * gwT, yh - 0.04, zh], [sd * hwT, yl, zB], M.d, 0.07),
+      beam([sd * hw, kt, zB], [sd * hwT, yl, zB], M.d, 0.1),
     );
   if (M.kf) {
     // koruma kafesi (yuvarlak borular): gövde iskeletine yaslanır, görüşü daraltmaz.
@@ -446,6 +451,7 @@ export function buildInterior(d: Arac) {
       },
       r = 0.02,
       kx = hw - 0.06,
+      kxT = hwT - 0.05,
       zk = zB - 0.05,
       ky = yl - 0.03,
       zo = zc - 0.12,
@@ -455,19 +461,19 @@ export function buildInterior(d: Arac) {
         return k;
       };
     // ana çember ve arkasındaki çapraz
-    cock.add(boru([-kx, ky, zk], [kx, ky, zk], r, kf), boru([kx, ky, zk], [-kx, fy + 0.1, zk], r, kf));
+    cock.add(boru([-kxT, ky, zk], [kxT, ky, zk], r, kf), boru([kxT, ky, zk], [-kx, fy + 0.1, zk], r, kf));
     for (const sd of [-1, 1]) {
-      const aAlt = yasla([sd * gw, yc + 0.02, zc - 0.02]),
-        aUst = yasla([sd * (gw - 0.05), yh - 0.05, zh + 0.01]),
-        cUst = [sd * kx, ky, zk],
+      const aAlt = yasla([sd * gwA, yc + 0.02, zc - 0.02]),
+        aUst = yasla([sd * gwT, yh - 0.05, zh + 0.01]),
+        cUst = [sd * kxT, ky, zk],
         ayak = [sd * kx, fy, zo];
       cock.add(
         boru([sd * kx, fy, zk], cUst, r, kf),
         // A borusu: tabandan ön cam köşesine, oradan direği izleyerek tavana; tavan borusu ana çembere
         boru(ayak, aAlt, r, kf),
         boru(aAlt, aUst, r, kf),
-        boru(aUst, yasla([sd * (hw - 0.03), yl - 0.01, zB]), r, kf),
-        boru(yasla([sd * (hw - 0.03), yl - 0.01, zB]), cUst, r, kf),
+        boru(aUst, yasla([sd * hwT, yl - 0.01, zB]), r, kf),
+        boru(yasla([sd * hwT, yl - 0.01, zB]), cUst, r, kf),
         dugum(aAlt),
         dugum(aUst),
         dugum(cUst),
@@ -488,9 +494,7 @@ export function buildInterior(d: Arac) {
         );
     }
     // ön cam üstünde iki A borusunu bağlayan üst boru
-    cock.add(
-      boru(yasla([gw - 0.05, yh - 0.05, zh + 0.01]), yasla([-(gw - 0.05), yh - 0.05, zh + 0.01]), r, kf),
-    );
+    cock.add(boru(yasla([gwT, yh - 0.05, zh + 0.01]), yasla([-gwT, yh - 0.05, zh + 0.01]), r, kf));
   }
   // iç dikiz aynası: ön camın üst ortasına sapıyla bağlı, göz hizasının biraz üstünde
   // (ortadan biraz sürücüye kaydırılmış ve ona çevrilmiş: geniş görüş açısında ekranın kenarına kaçmasın)
