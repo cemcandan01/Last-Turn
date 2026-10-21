@@ -10,6 +10,8 @@ export default async function ({ p, ok }) {
     // önceki ekranlardan hangi tür seçili kalmış olursa olsun en başa dön
     for (let i = 0; i < 6; i++) document.querySelector("#kfs").click();
     r.bes = document.querySelectorAll("#menu .tk").length == 5;
+    // kartlar ortak 3B uzayda değil (birbirinin içinden geçmesin): kapsayıcıda perspektif yok
+    r.ortak3BYok = getComputedStyle(document.querySelector("#menu .kf")).perspective == "none";
     r.basta = orta() == 0;
     document.querySelector("#kfg").click();
     r.ok = orta() == 1;
