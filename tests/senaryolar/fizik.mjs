@@ -47,8 +47,14 @@ export default [
   },
   {
     id: "kerb-tarayici",
-    ad: "Tarayıcıda kerbe değmeden sarsıntı yok (5 araç × 9 pist)",
+    ad: "Tarayıcıda kerbe değmeden sarsıntı yok (5 araç × 18 asfalt pist)",
     p: 3,
     tarayici: "kerb",
+  },
+  {
+    id: "uyum",
+    ad: "Türe uygun araç kendi yarışında avantajlı: pistte yol tutuşu (asfalt, rallikros, ralli) ve drag süresi",
+    p: 2,
+    birim: { dosya: "tests/birim/uyum.test.ts", grup: "araç ve yarış türü uyumu" },
   },
 ];

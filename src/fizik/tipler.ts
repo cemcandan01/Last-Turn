@@ -94,6 +94,8 @@ export interface DunyaSorgusu {
   havaTutusu(): number;
   /** karlı tema mı (çalıda kar tozu yerine yaprak çıkmaz) */
   karli(): boolean;
+  /** bulunulan bölgenin yarış türü (gp, rx, dp, rl, dg; pist dışında null), son surf çağrısına göre */
+  yolTuru(): string | null;
 }
 
 /** fiziğin bildirdiği olaylar: görsel ve ses katmanı dinler */

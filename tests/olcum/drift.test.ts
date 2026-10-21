@@ -4,6 +4,7 @@ import { it } from "vitest";
 import { CARS } from "../../src/arac/araclar";
 import type { SeviyeAnahtari } from "../../src/fizik/veriler";
 import { DRIFT_PILOT, driftTuru } from "../yardimci/drift-pilot";
+import { pistNo } from "../../src/dunya/pist-tanimlari";
 
 it("drift pistleri", () => {
   if (process.env.IZ) {
@@ -11,7 +12,9 @@ it("drift pistleri", () => {
     return;
   }
   const ay = process.env.AYAR ? { ...DRIFT_PILOT, ...JSON.parse(process.env.AYAR) } : DRIFT_PILOT;
-  for (const yaris of (process.env.YARIS || "6,7,8").split(",").map(Number))
+  for (const yaris of (process.env.YARIS || [3, 2, 4].map((lv) => pistNo("dp", lv)).join(","))
+    .split(",")
+    .map(Number))
     for (const lk of (process.env.LK || "real,norm,arc").split(",") as SeviyeAnahtari[]) {
       const r = driftTuru(yaris, lk, ay);
       console.log(

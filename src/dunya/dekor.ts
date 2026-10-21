@@ -212,7 +212,7 @@ export const PROPS: Record<string, (R: DekorBolgesi, TR: Pist, hb: Yukseklik) =>
     }
   },
   city: (_R, TR, hb) => {
-    for (const sd of [-1, 1]) wallRib(TR, sd * (TR.hw + 1.2), 1.1, 0x9a9a94, hb, 0, 2);
+    for (const sd of [-1, 1]) wallRib(TR, sd * (TR.hw + 1.2), 1.1, 0x9a9a94, hb, 0, 1);
     const pm = lam(0x3b3f45),
       lm = new THREE.MeshBasicMaterial({ color: 0xffe2a0 });
     for (let i = 0; i < TR.N; i += 9) {
@@ -255,7 +255,8 @@ export const PROPS: Record<string, (R: DekorBolgesi, TR: Pist, hb: Yukseklik) =>
         new THREE.MeshLambertMaterial({ color: t.water }),
       );
     w.rotation.x = -Math.PI / 2;
-    w.position.set(b[0] - 1200 + 10, 0.15, (b[2] + b[3]) / 2);
+    // deniz bölgenin batısında: düzlemin doğu kenarı bölge kenarında (pistin üstüne taşmasın)
+    w.position.set(b[0] - 2000 + 10, 0.15, (b[2] + b[3]) / 2);
     add(w);
     const CC = [0xc0392b, 0x2e86c1, 0x27ae60, 0xf39c12, 0x8e44ad, 0xd35400, 0x7f8c8d],
       cs: [number, number, number, number][] = [];
@@ -289,8 +290,10 @@ export const PROPS: Record<string, (R: DekorBolgesi, TR: Pist, hb: Yukseklik) =>
     }
     const cm = lam(0xe0a020);
     for (let k = 0; k < 4; k++) {
-      const x = b[0] + 40 + k * 90,
-        z = (b[2] + b[3]) / 2 + (k % 2 ? 120 : -120);
+      // vinçler rıhtımda, pistten uzakta
+      const x = b[0] + 40 + (k % 2) * 45,
+        z = (b[2] + b[3]) / 2 + (k - 1.5) * 140;
+      if (!clearOf(TR, x, z, TR.hw + 30)) continue;
       for (const [dx, dz] of [
         [-6, -6],
         [6, -6],
@@ -303,7 +306,7 @@ export const PROPS: Record<string, (R: DekorBolgesi, TR: Pist, hb: Yukseklik) =>
   },
   mount: (_R, TR, hb) => {
     for (const sd of [-1, 1]) {
-      wallRib(TR, sd * (TR.hw + KW + 1), 0.3, 0xb8bec4, hb, 0.45, 3);
+      wallRib(TR, sd * (TR.hw + KW + 1), 0.3, 0xb8bec4, hb, 0.45, 1);
       wallRib(TR, sd * (TR.hw + KW + 1), 0.08, 0x6a6e72, hb, 0.2);
     }
   },

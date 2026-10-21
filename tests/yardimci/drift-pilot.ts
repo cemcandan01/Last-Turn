@@ -138,21 +138,53 @@ export class KomboSayaci {
   }
 }
 
-/** drift yarışını pilotla sür (Beyaz Kurt, drift önayarı): en uzun kombo, yanma, spin */
+/** drift yarışının puanı (oyundaki evTick ile aynı): kombo × çarpan, 0,8 sn drift yoksa bankaya */
+export class PuanSayaci {
+  puan = 0;
+  private combo = 0;
+  private ct = 0;
+  private mult = 1;
+  private gap = 0;
+  adim(d: SimDurumu, si: number, v: number, dt: number) {
+    const lost = si == 2 || d.zaman - d.S.hit < 0.05 || Math.abs(d.D.beta) > 1.4;
+    if (this.combo > 0 && lost) this.sifirla();
+    else if (d.D.act && !lost) {
+      this.combo += v * Math.abs(d.D.beta) * dt * 3;
+      this.ct += dt;
+      this.gap = 0;
+      this.mult = Math.min(5, 1 + Math.floor(this.ct / 2.5));
+    } else if (this.combo > 0) {
+      this.gap += dt;
+      if (this.gap > 0.8) this.bankala();
+    }
+  }
+  bankala() {
+    this.puan += Math.round(this.combo * this.mult);
+    this.sifirla();
+  }
+  private sifirla() {
+    this.combo = this.ct = this.gap = 0;
+    this.mult = 1;
+  }
+}
+
+/** drift yarışını pilotla sür (varsayılan Beyaz Kurt; her araç kendi önayarıyla): en uzun kombo, yanma, spin */
 export function driftTuru(
   yaris: number,
   lk: SeviyeAnahtari,
   a: DriftPilotAyari = DRIFT_PILOT,
   sn = 150,
   iz = false,
+  arac = 2,
 ) {
-  const s = surucuKur({ yaris, arac: 2, lk });
+  const s = surucuKur({ yaris, arac, lk });
   const TR = s.bolge!.TR!,
     i0 = TR.N - 6,
     P = TR.P[i0];
   s.reset(P[0], P[1], Math.atan2(TR.T[i0][0], TR.T[i0][1]));
   const pl = driftPilot(TR, s.sim.d, a),
     ks = new KomboSayaci(TR),
+    ps = new PuanSayaci(),
     S = s.sim.S;
   let yol = 0,
     onceki = ipucu.ti,
@@ -161,6 +193,7 @@ export function driftTuru(
     const gi = pl(S);
     const o = s.adim(gi);
     ks.adim(s.sim.d, o.si, DT);
+    ps.adim(s.sim.d, o.si, o.v, DT);
     let ds = TR.S[ipucu.ti] - TR.S[onceki];
     if (ds < -TR.len / 2) ds += TR.len;
     yol += ds;
@@ -172,7 +205,9 @@ export function driftTuru(
       );
   }
   ks.bitir();
+  ps.bankala();
   return {
+    puan: ps.puan,
     enUzun: ks.enUzun,
     oran: ks.enUzun / TR.len,
     yanma: ks.yanma,

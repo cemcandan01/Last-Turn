@@ -325,6 +325,9 @@ export function yeniAdim(
   // ---------- lastik değerleri: her teker kendi zemininde
   const kz = Math.max(DR.k, sm(0.1, 0.3, ab) * Math.min(1, +gi.g) * as.dft),
     spn = Math.min(1, Math.abs(vl) / VMAX),
+    // uzmanlık: araç kendi yarış türünün pistinde daha iyi tutar (başka yerde değeri değişmez)
+    uzman = W.yolTuru() == CAR.ty ? (CAR.uz ?? 1) : 1,
+    uzmanG = W.yolTuru() == CAR.ty ? (CAR.uzg ?? 1) : 1,
     LP: LastikParam[] = [];
   let muOrt = 0;
   for (let i = 0; i < 4; i++) {
@@ -347,6 +350,7 @@ export function yeniAdim(
       (1 + 0.5 * S.mud);
     mu *= t.on ? CAR.fb : CAR.rb * (1 - 0.3 * as.ini * DR.k);
     if (gevsek) mu *= GEVSEK_TUTUS * (t.on ? 1 : GEVSEK_ARKA);
+    mu *= uzman;
     let B = T.B[ti] * (zi == 3 ? 0.85 : 1) * tp,
       Cc = gevsek ? Math.max(T.C[ti], GEVSEK_C) : T.C[ti];
     // asfaltta drift: arka lastik kaymaya başlayınca (drift yardımı açıkken) toprakta olduğu gibi yumuşak ve uzun kayar
@@ -431,7 +435,7 @@ export function yeniAdim(
   Y.rpm += (devir - Y.rpm) * Math.min(1, dt * 12);
   let Te = 0;
   if (Y.vitesT <= 0) {
-    Te = u < 1.02 ? F.tork * torkEgrisi(u) * gaz : 0;
+    Te = u < 1.02 ? F.tork * torkEgrisi(u) * gaz * uzmanG : 0;
     // motor freni: gaz kapalıyken
     if (devirT > F.devirMin) Te -= F.tork * 0.15 * u * (1 - gaz);
   }
@@ -466,7 +470,7 @@ export function yeniAdim(
     NT.push(normal(W.H, A.x, A.z, v3()));
   }
   // gövde noktaları: yalnız zemine yakın olanlar ara adımlarda denetlenir
-  const gn = GOVDE_NOKTALARI(CAR.w, F).filter(([bx_, by_, bz_]) => {
+  const gn = GOVDE_NOKTALARI(CAR.w, F, CAR.lift || 0).filter(([bx_, by_, bz_]) => {
     noktaDunya(Y, F, bx_, by_, bz_, A);
     return A.y - W.H(A.x, A.z) < 0.6 + Math.abs(Y.vy) * dt * 2;
   });
@@ -517,7 +521,11 @@ export function yeniAdim(
       }
       const cv = (c - tk.sik) / h;
       let f = t.k * c + (cv > 0 ? t.cb : t.cr) * cv;
-      if (c > t.tampon) f += t.k * 8 * (c - t.tampon) + t.cb * 2 * Math.max(0, cv);
+      // tampon: sertliği ve sönümü 3 cm içinde yumuşakça devreye girer (sert frende dalan önde darbe olmasın)
+      if (c > t.tampon) {
+        const p = c - t.tampon;
+        f += (t.k * 8 * p * p) / (p + 0.03) + t.cb * 2 * Math.max(0, cv) * Math.min(1, p / 0.03);
+      }
       // üst sınır: sert inişte bile durağan yükün 12 katı (sayısal patlamayı önler)
       Fs[i] = cl(f, 0, 12 * t.Fz0);
       tk.temas = true;
@@ -785,15 +793,17 @@ export function yeniAdim(
 }
 
 /** gövdenin zemine değebilecek noktaları (model koordinatı) */
-function GOVDE_NOKTALARI(w: number, F: AracFizigi): [number, number, number][] {
+function GOVDE_NOKTALARI(w: number, F: AracFizigi, lift: number): [number, number, number][] {
+  // gövde, çizimdeki gibi lift kadar yüksekte (ralli aracı): alt köşeler de o kadar yukarıda
   const x = w / 2 - 0.1,
+    y = 0.18 + lift,
     on = F.tk[0].z + 0.8,
     arka = F.tk[2].z - 0.8;
   return [
-    [x, 0.18, on],
-    [-x, 0.18, on],
-    [x, 0.18, arka],
-    [-x, 0.18, arka],
+    [x, y, on],
+    [-x, y, on],
+    [x, y, arka],
+    [-x, y, arka],
     [x * 0.8, 1.15, 0.3],
     [-x * 0.8, 1.15, 0.3],
     [0, 1.2, -0.6],

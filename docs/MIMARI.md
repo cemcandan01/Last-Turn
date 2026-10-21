@@ -85,8 +85,8 @@ mod (menü, garaj, sonuç, duraklatma)                  ─► muzik.ts ──�
 | Katman | Araç | Ne denetler |
 |---|---|---|
 | Fizik | Vitest (Node) | Kararlılık ve temel değerler; gerçekçide otomatik pilotla spin yok; toprakta tam gaz + tam direksiyon yola tutunmaz; drift dengesi (usta dengede kalır, abartan spin atar); drift yarışında turun %80'i tek kombo; asfaltta titreşim yok; belirlenimcilik |
-| Oyun | Playwright (başsız Chromium) | Derlenmiş oyun hatasız açılır; menüler, 15 yarış, açık dünyalar, garaj, sürüş, sürüm kalıbı |
-| Görüntü | Playwright | Menü, garaj, yarış, kokpit ve 15 pistin ekran görüntüleri (`tests/cikti/`) |
+| Oyun | Playwright (başsız Chromium) | Derlenmiş oyun hatasız açılır; menüler, 30 yarış, açık dünyalar, garaj, sürüş, sürüm kalıbı |
+| Görüntü | Playwright | Menü, garaj, yarış, kokpit ve 30 pistin ekran görüntüleri (`tests/cikti/`) |
 | Kod | TypeScript, ESLint, Prettier | Tip hataları, şüpheli kod, biçim |
 
 GitHub Actions her gönderimde hepsini çalıştırır; `master` ve `gelistirme` yalnız testler geçerse yayınlanır.
