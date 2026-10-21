@@ -1,5 +1,5 @@
-// Ana menü: altta soldan sağa görselli kartlar (Yarış, Serbest sürüş, Garaj, Profil, Ayarlar); arkada sinematik
-// çekimler. Kartlar oyunun kendi sahnelerinden çekilmiş görselleri gösterir (public/img/menu_*.jpg).
+// Ana menü: altta soldan sağa eğik yarış panelleri, her birinde ikon ve başlık (Yarış, Serbest sürüş, Garaj,
+// Profil, Ayarlar); Yarış öne çıkan turuncu ana düğme. Arkada menü videosu ya da canlı sinematik çekimler.
 // Yarış türü → pist listesi (şekil, uzunluk, ortalama süre, rekor) → günün saati ve hava → garajda araç seçimi.
 import { CARS } from "../arac/araclar";
 import { fmt, fmt3 } from "../cekirdek/bicim";
@@ -15,6 +15,7 @@ import { demoStart, demoStop } from "../oyun/sinematik";
 import { reset } from "../oyun/surus";
 import { EVENTS, leaveEvent, TYP, type YarisTanimi } from "../oyun/yarislar";
 import { videoOynuyor } from "./arka-video";
+import { ikon, type IkonAdi } from "./ikonlar";
 import { bindSettings, chipsOf, settingsHTML } from "./ayarlar-ekrani";
 import { openGarage } from "./garaj";
 import { kontrolleriKur } from "./kontroller";
@@ -26,13 +27,13 @@ const TYPES: [string, string, string][] = [
   ["dp", "Drift", "90 saniyede en yüksek drift puanı"],
   ["dg", "Drag", "Düz çizgide milisaniyeler"],
 ];
-/** ana menü kartları: anahtar, görsel, başlık */
-const NAV: [string, string, string][] = [
+/** ana menü panelleri: anahtar, ikon, başlık */
+const NAV: [string, IkonAdi, string][] = [
   ["race", "yaris", "Yarış"],
-  ["free", "serbest", "Serbest sürüş"],
-  ["garage", "garaj", "Garaj"],
-  ["profile", "profil", "Profil"],
-  ["settings", "ayarlar", "Ayarlar"],
+  ["free", "harita", "Serbest sürüş"],
+  ["garage", "araba", "Garaj"],
+  ["profile", "kask", "Profil"],
+  ["settings", "disli", "Ayarlar"],
 ];
 
 /** görünüm yığını: ["race", "t:gp", "e:0"] gibi */
@@ -110,7 +111,7 @@ export function showMenu(v?: string[]) {
   const logo = `<div class="logo">LAST<b>TURN</b></div>`;
   if (cur == "home")
     m.innerHTML = `<div class="mtop">${logo}<div class="mpro"><i>${PROF.name.trim().charAt(0).toUpperCase() || "S"}</i><div><b>${PROF.name}</b><small>Sürüm ${__APP_VERSION__}${import.meta.env.MODE == "gelistirme" ? " · deneme" : ""}</small></div></div></div>
-<div class="mcards">${NAV.map(([k, g, n], i) => `<button class="mk" data-nav="${k}" style="--i:${i}"><img src="img/menu_${g}.jpg" alt=""><b>${n}</b></button>`).join("")}</div>`;
+<div class="mcards">${NAV.map(([k, g, n], i) => `<button class="mk" data-nav="${k}" style="--i:${i}"><span>${ikon(g)}<b>${n.replace(" ", "<br>")}</b></span></button>`).join("")}</div>`;
   else {
     const [bas, ust, ic] = view(cur);
     m.innerHTML = `<div class="mbar"><button class="mbk" id="mbk" aria-label="Geri"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><div class="mbt">${ust ? `<small>${ust}</small>` : ""}<h2>${bas}</h2></div>${logo}</div><div class="mbody v-${cur.split(":")[0]}">${ic}</div>`;

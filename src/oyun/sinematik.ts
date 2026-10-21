@@ -38,11 +38,11 @@ interface Cekim {
   dr?: number;
 }
 
+// gece yağmurda kokpit çekimi kullanıcının isteğiyle çıkarıldı (araç titreyerek gidiyor gibi görünüyordu)
 const SHOTS: Cekim[] = [
   { ty: "gp", ev: 0, car: 0, c: { tod: "noon", wx: "sun" }, cam: "track", f: 0.62, v: 62, dur: 5 },
   { ty: "gp", ev: 1, car: 0, c: { tod: "evening", wx: "sun" }, cam: "front", f: 0.12, v: 48, dur: 5 },
   { ty: "gp", ev: 2, car: 0, c: { tod: "evening", wx: "sun" }, cam: "side", f: 0.3, v: 36, dur: 5 },
-  { ty: "rl", ev: 9, car: 3, c: { tod: "night", wx: "rain" }, cam: "cock", f: 0.33, v: 22, dur: 6 },
   { ty: "rl", ev: 10, car: 3, c: { tod: "noon", wx: "snow" }, cam: "heli", f: 0.42, v: 21, dur: 5, dr: 0.3 },
   { ty: "rx", ev: 3, car: 1, c: { tod: "noon", wx: "sun" }, cam: "chase", f: 0.04, v: 28, dur: 5, dr: 0.25 },
   { ty: "rx", ev: 4, car: 1, c: { tod: "noon", wx: "sun" }, cam: "track", f: 0.6, v: 30, dur: 5, dr: 0.35 },

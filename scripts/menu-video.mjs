@@ -19,9 +19,9 @@ const KOK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."),
   /** çapraz geçiş süresi (sn) */
   GECIS = 1,
   [W, H] = HIZLI ? [640, 296] : [1280, 592];
-// çekim sırası (oyun/sinematik.ts → SHOTS): türler karışık; gece yağmurdaki kokpit çekimi (3) kullanılmaz
-const SIRA = [0, 5, 7, 4, 1, 6, 9, 8, 2],
-  SURE = { 0: 5, 1: 5, 2: 5, 4: 5, 5: 5, 6: 5, 7: 6, 8: 5, 9: 5.5 };
+// çekim sırası (oyun/sinematik.ts → SHOTS): türler karışık
+const SIRA = [0, 4, 6, 3, 1, 5, 8, 7, 2],
+  SURE = { 0: 5, 1: 5, 2: 5, 3: 5, 4: 5, 5: 5, 6: 6, 7: 5, 8: 5.5 };
 
 const MIME = {
   ".html": "text/html",
