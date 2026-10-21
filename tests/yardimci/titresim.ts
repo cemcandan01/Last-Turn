@@ -3,6 +3,7 @@
 // duvar darbesi gerçek sarsıntıdır). Titreşim, bir adımın komşu iki adımın ortalamasından
 // sapmasıdır (s[k] − (s[k−1] + s[k+1]) / 2): düzgün hareket için ~0, adımdan adıma sıçrayan poz için büyük.
 import { nearest } from "../../src/dunya/pist";
+import { TDEF } from "../../src/dunya/pist-tanimlari";
 import { aracFizigi } from "../../src/fizik/yeni/arac-fizigi";
 import { egrilik, pilot } from "./pilot";
 import { surucuKur } from "./surucu";
@@ -24,7 +25,15 @@ export interface TitresimSonucu {
   asfalt: number;
 }
 
-export function titresimOlc(yaris: number, arac: number, sn = 25, cesaret = 0.9): TitresimSonucu {
+/** pilotun pistten çıkmadan sürebildiği cesaret, pistin seviyesine göre (zor pistte pilot yavaşlamalı) */
+export const PILOT_CESARET = [0.9, 0.9, 0.9, 0.75, 0.6, 0.45];
+
+export function titresimOlc(
+  yaris: number,
+  arac: number,
+  sn = 25,
+  cesaret = PILOT_CESARET[(TDEF[yaris].lv || 1) - 1],
+): TitresimSonucu {
   const s = surucuKur({ yaris, arac, lk: "norm" });
   const TR = s.bolge!.TR!,
     i0 = TR.open ? 2 : TR.N - 6,

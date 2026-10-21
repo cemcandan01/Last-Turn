@@ -12,4 +12,4 @@ Alanlar:
   - `tarayici: "<bölüm>"`: `tests/e2e/bolumler/<bölüm>.mjs`
   - `birim: { dosya: "tests/birim/x.test.ts", grup: "<describe adı>" }`: Vitest'te o `describe` grubu
 
-Koşum: `node tests/kosucu.mjs duman | alan <dal> | regresyon` (ayrıntı `CLAUDE.md` → "Test").
+Koşum: `node tests/kosucu.mjs duman | alan <dal> | regresyon` (ayrıntı `oyun-test` skill'i).

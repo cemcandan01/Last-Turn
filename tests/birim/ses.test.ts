@@ -1,6 +1,21 @@
 // Ses sentezi: motor katmanları dikişsiz döngü, sessiz değil, taşmıyor; araçların sesleri birbirinden farklı.
 import { describe, expect, it } from "vitest";
-import { cakil, carpma, katmanDevirleri, MOTORLAR, motorKatmani, patlama, valf } from "../../src/ses/sentez";
+import {
+  cakil,
+  carpma,
+  cim,
+  EQ_BANTLAR,
+  lastikOtmesi,
+  katmanDevirleri,
+  MOTORLAR,
+  motorEq,
+  motorKatmani,
+  motorKatmanlari,
+  motorProfili,
+  patlama,
+  valf,
+} from "../../src/ses/sentez";
+import { bantlar, harmonik } from "../yardimci/ses-analiz";
 
 const SR = 22050;
 const rms = (s: Float32Array, a = 0, b = s.length) => {
@@ -48,13 +63,43 @@ describe("motor sesi", () => {
     expect(guc(s, f)).toBeGreaterThan(3 * guc(s, f * 1.37));
   });
 
-  it("büyük kamlı V8 rölantide homurdanır (ateşleme frekansının yan bantları), düz krank V8 düzgün", () => {
+  it("büyük kamlı V8 rölantide homurdanır (ateşleme frekansının yan bantları), V6 daha düzgün", () => {
     const d = 1000,
-      f = (4 * d) / 60,
-      capraz = motorKatmani(MOTORLAR.dg, d, 1, 6800, SR),
-      duz = motorKatmani(MOTORLAR.gt, d, 1, 8200, SR);
-    const oran = (s: Float32Array) => (guc(s, f * 0.875) + guc(s, f * 1.125)) / guc(s, f);
-    expect(oran(capraz)).toBeGreaterThan(4 * oran(duz));
+      oran = (s: Float32Array, f: number) => (guc(s, f * 0.875) + guc(s, f * 1.125)) / guc(s, f);
+    // ateşleme frekansı: V8'de 4, V6'da 3 × devir/60
+    expect(oran(motorKatmani(MOTORLAR.dg, d, 1, 6800, SR), (4 * d) / 60)).toBeGreaterThan(
+      2 * oran(motorKatmani(MOTORLAR.gt, d, 1, 8000, SR), (3 * d) / 60),
+    );
+  });
+
+  it("oyundaki motorlar (gerçek motor ölçümlerine göre ayarlı): katmanlar dolu, taşmıyor, hızlı hesaplanıyor", () => {
+    for (const k of Object.keys(MOTORLAR)) {
+      const t0 = performance.now(),
+        L = motorKatmanlari(k, 7500, SR);
+      expect(performance.now() - t0, k).toBeLessThan(3000);
+      for (const x of L)
+        for (const s of [x.gaz, x.bos]) {
+          expect(s.every(Number.isFinite)).toBe(true);
+          expect(rms(s)).toBeGreaterThan(0.1);
+          expect(tepe(s)).toBeLessThanOrEqual(0.96);
+        }
+    }
+  });
+
+  it("araçların motor sesleri birbirinden belirgin farklı (frekans dağılımı ya da ateşleme düzeni)", () => {
+    const k = Object.keys(MOTORLAR),
+      o = k.map((a) => {
+        const s = motorKatmani(motorProfili(a), 4500, 1, 7500, SR, 1, motorEq(a, 3));
+        return { b: bantlar(s, SR), d: harmonik(s, SR, 4500, a == "gt" ? 6 : a == "dg" ? 8 : 4).duzensiz };
+      });
+    for (let i = 0; i < k.length; i++)
+      for (let j = i + 1; j < k.length; j++) {
+        const fark = Math.sqrt(
+          o[i].b.reduce((t, x, n) => t + Math.min(100, (x - o[j].b[n]) ** 2), 0) / o[i].b.length,
+        );
+        console.log(k[i], k[j], fark.toFixed(1) + " dB", o[i].d.toFixed(2), o[j].d.toFixed(2));
+        expect(fark > 3 || Math.abs(o[i].d - o[j].d) > 0.3, k[i] + "-" + k[j]).toBe(true);
+      }
   });
 
   it("gaz açıkken ses gaz kapalıdan daha parlak", () => {
@@ -75,6 +120,35 @@ describe("efekt örnekleri", () => {
     for (const s of [cakil(SR), patlama(SR, 1), valf(SR, 1), valf(SR, 2), carpma(SR, 1)]) {
       expect(s.every(Number.isFinite)).toBe(true);
       expect(rms(s)).toBeGreaterThan(0.02);
+      expect(tepe(s)).toBeLessThanOrEqual(0.96);
+    }
+  });
+  // hedefler gerçek kayıtların ölçüsünden (tests/yardimci/ses-analiz.ts → bantlar): çakıl ~610 Hz merkezli, 2 kHz
+  // üstü yok denecek kadar az; çim ~350 Hz; lastik ötmesi tonlu, enerjisi 300 Hz-2 kHz arasında, ağırlığı ~800 Hz
+  const merkez = (s: Float32Array) => {
+    const b = bantlar(s, 44100).map((x) => 10 ** (x / 10)),
+      t = b.reduce((a, x) => a + x, 0);
+    return {
+      merkez: b.reduce((a, x, i) => a + x * EQ_BANTLAR[i], 0) / t,
+      tiz: b.reduce((a, x, i) => a + (EQ_BANTLAR[i] >= 2000 ? x : 0), 0) / t,
+      orta: b.reduce((a, x, i) => a + (EQ_BANTLAR[i] >= 315 && EQ_BANTLAR[i] <= 2000 ? x : 0), 0) / t,
+    };
+  };
+  it("zemin ve lastik sesleri gerçek kayıtların frekans dağılımında; döngüler dikişsiz", () => {
+    const c = merkez(cakil(44100)),
+      h = merkez(cim(44100)),
+      o = merkez(lastikOtmesi(44100));
+    expect(c.merkez).toBeGreaterThan(400);
+    expect(c.merkez).toBeLessThan(900);
+    expect(c.tiz).toBeLessThan(0.06);
+    expect(h.merkez).toBeLessThan(500);
+    expect(o.orta).toBeGreaterThan(0.85);
+    expect(o.merkez).toBeGreaterThan(550);
+    expect(o.merkez).toBeLessThan(1100);
+    for (const s of [cakil(SR), cim(SR), lastikOtmesi(SR)]) {
+      let enb = 0;
+      for (let i = 1; i < s.length; i++) enb = Math.max(enb, Math.abs(s[i] - s[i - 1]));
+      expect(Math.abs(s[0] - s[s.length - 1])).toBeLessThanOrEqual(enb);
       expect(tepe(s)).toBeLessThanOrEqual(0.96);
     }
   });

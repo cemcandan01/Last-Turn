@@ -24,7 +24,10 @@ export default async function ({ p, ok }) {
     r.serbestOnayar = !!document.querySelector("#set details[data-sec='pre']");
     LT.showMenu(["home"]);
     LT.demoStop();
-    LT.startEvent(6, 2);
+    LT.startEvent(
+      LT.EVENTS.findIndex((e) => e.ty == "dp"),
+      2,
+    );
     LT.showSet();
     r.yarisOnayar = !!document.querySelector("#set details[data-sec='pre']");
     r.yarisPk = LT.kurulum.pk;

@@ -68,6 +68,9 @@ mod (menü, garaj, sonuç, duraklatma)                  ─► muzik.ts ──�
 ```
 
 - **Motor:** `sentez.ts` her araç için 5 devirde, gazda ve gaz kapalıyken 1 sn'lik kesintisiz döngüler üretir: silindirlerin ateşleme darbeleri (dizilime göre aralık ve egzoz kolu), boru yankısı (tarak süzgeci), susturucu, gövde gümbürtüsü, doygunluk. Oyunda katmanlar devire göre çapraz geçişle ve hızlandırılarak çalınır. Üstüne turbo ıslığı, üfleme valfi, kompresör, düz dişli, devir kesici, gaz kesince patlamalar.
+- **Araçlar:** her motor esinlenilen gerçek aracın diziliminde: Kızıl Ok atmosferik V6 (VTEC'te sertleşir), Kor RX ve Beyaz Kurt turbolu sıra 4, Mavi Yıldız turbolu boxer, Gece Mavisi kompresörlü çapraz krank V8. Her ateşlemenin ardından egzoz türbülansı (`govde`) ve susturucu odası sesi dolgunlaştırır.
+- **Garajda dinleme:** garaj motoru kendiliğinden çalıştırmaz. Garajdaki düğme `lt:motor-dinle` olayını (`detail.arac`) yayınlar; ses katmanı incelenen aracın motorunu 5 sn çalar (`motor.ts → dinleGaz`) ve bitince `lt:motor-dinle-bitti` yayınlar.
+- **Tık sesi:** yalnız `click` olayında (dokunup bırakınca), tıklanabilir öğede (düğme, açılır başlık, `onclick` bağlı öğe); sürüş tuşlarında yok.
 - **iOS:** bağlam ilk dokunuşta kurulur (`baglam.ts`); arka plana geçince askıya alınır.
 - **Kayıt:** `kayit.ts` aynı sesleri çevrimdışı bağlamda senaryoyla çalar; `npm run ses` dosyaya yazar (dinlemek, spektrumuna bakmak için).
 
@@ -82,8 +85,8 @@ mod (menü, garaj, sonuç, duraklatma)                  ─► muzik.ts ──�
 | Katman | Araç | Ne denetler |
 |---|---|---|
 | Fizik | Vitest (Node) | Kararlılık ve temel değerler; gerçekçide otomatik pilotla spin yok; toprakta tam gaz + tam direksiyon yola tutunmaz; drift dengesi (usta dengede kalır, abartan spin atar); drift yarışında turun %80'i tek kombo; asfaltta titreşim yok; belirlenimcilik |
-| Oyun | Playwright (başsız Chromium) | Derlenmiş oyun hatasız açılır; menüler, 15 yarış, açık dünyalar, garaj, sürüş, sürüm kalıbı |
-| Görüntü | Playwright | Menü, garaj, yarış, kokpit ve 15 pistin ekran görüntüleri (`tests/cikti/`) |
+| Oyun | Playwright (başsız Chromium) | Derlenmiş oyun hatasız açılır; menüler, 30 yarış, açık dünyalar, garaj, sürüş, sürüm kalıbı |
+| Görüntü | Playwright | Menü, garaj, yarış, kokpit ve 30 pistin ekran görüntüleri (`tests/cikti/`) |
 | Kod | TypeScript, ESLint, Prettier | Tip hataları, şüpheli kod, biçim |
 
 GitHub Actions her gönderimde hepsini çalıştırır; `master` ve `gelistirme` yalnız testler geçerse yayınlanır.
@@ -105,4 +108,4 @@ sohbet ──push──► konu dalı (hud, fizik, …) ──Actions: test
 2. `npm ci`
 3. `npm run dev -- --host` → bilgisayarda ve aynı ağdaki iPhone'da `http://<bilgisayar-ip>:5173` (anında yenileme)
 4. Editör: VS Code + ESLint + Prettier eklentileri (ayarlar depoda: `.editorconfig`, `.prettierrc.json`, `eslint.config.js`)
-5. Gönderim ve yayın aynı: konu dalında çalış, `gelistirme` / `master`'a birleştirip push (`CLAUDE.md` → Dallar ve yayın).
+5. Gönderim ve yayın aynı: konu dalında çalış, `gelistirme` / `master`'a birleştirip push (`docs/SUREC.md`).

@@ -1,11 +1,14 @@
 // Menü arka planı: kısa sinematik çekimler. Araç pist boyunca senaryoyla sürülür, kamera çekime göre konumlanır.
 // Torba boşalana kadar her çekim bir kez gelir, art arda aynı çekim gelmez. Çekim sırasında araç ve koşullar
 // geçicidir; demoStop() hepsini geri yükler.
+// Çekimden çekime geçiş, yarış oyunlarının menü ve tekrar izlemelerindeki gibi yakınlaşarak çözülme: eski çekimin
+// son karesi #gecis tuvaline alınır, yeni çekim altında oynarken hafifçe büyüyüp kaybolur (kararma yok). Yeni pistin
+// kurulması o karenin arkasında olur; çözülme yeni çekimin ilk karesi çizildikten sonra başlar, takılma görünmez.
 import * as THREE from "three";
 import { $ } from "../cekirdek/dom";
 import { ad, cl } from "../cekirdek/matematik";
 import { puff } from "../cizim/parcaciklar";
-import { cam } from "../cizim/sahne";
+import { cam, R, scene } from "../cizim/sahne";
 import { V3 } from "../cizim/yardimci";
 import { COND, type GununSaati, type Hava } from "../cizim/ortam";
 import { REG } from "../dunya/bolgeler";
@@ -18,6 +21,7 @@ import { girdiSifirla } from "./girdi";
 import { kurulumKaydet, kurulumYukle, type KurulumKaydi } from "./kurulum";
 import { sim } from "./surus";
 import { EVENTS } from "./yarislar";
+import { pistNo } from "../dunya/pist-tanimlari";
 
 type KameraTuru = "track" | "front" | "side" | "cock" | "heli" | "chase" | "orbit" | "launch";
 
@@ -35,18 +39,85 @@ interface Cekim {
   dr?: number;
 }
 
+// gece yağmurda kokpit çekimi kullanıcının isteğiyle çıkarıldı (araç titreyerek gidiyor gibi görünüyordu)
 const SHOTS: Cekim[] = [
-  { ty: "gp", ev: 0, car: 0, c: { tod: "noon", wx: "sun" }, cam: "track", f: 0.62, v: 62, dur: 5 },
-  { ty: "gp", ev: 1, car: 0, c: { tod: "evening", wx: "sun" }, cam: "front", f: 0.12, v: 48, dur: 5 },
-  { ty: "gp", ev: 2, car: 0, c: { tod: "evening", wx: "sun" }, cam: "side", f: 0.3, v: 36, dur: 5 },
-  { ty: "rl", ev: 9, car: 3, c: { tod: "night", wx: "rain" }, cam: "cock", f: 0.33, v: 22, dur: 6 },
-  { ty: "rl", ev: 10, car: 3, c: { tod: "noon", wx: "snow" }, cam: "heli", f: 0.42, v: 21, dur: 5, dr: 0.3 },
-  { ty: "rx", ev: 3, car: 1, c: { tod: "noon", wx: "sun" }, cam: "chase", f: 0.04, v: 28, dur: 5, dr: 0.25 },
-  { ty: "rx", ev: 4, car: 1, c: { tod: "noon", wx: "sun" }, cam: "track", f: 0.6, v: 30, dur: 5, dr: 0.35 },
-  { ty: "dp", ev: 6, car: 2, c: { tod: "evening", wx: "sun" }, cam: "orbit", f: 0.3, v: 22, dur: 6, dr: 0.7 },
+  {
+    ty: "gp",
+    ev: pistNo("gp", 3),
+    car: 0,
+    c: { tod: "noon", wx: "sun" },
+    cam: "side",
+    f: 0.5,
+    v: 44,
+    dur: 5,
+  },
+  {
+    ty: "gp",
+    ev: pistNo("gp", 2),
+    car: 0,
+    c: { tod: "evening", wx: "sun" },
+    cam: "front",
+    f: 0.12,
+    v: 48,
+    dur: 5,
+  },
+  {
+    ty: "gp",
+    ev: pistNo("gp", 5),
+    car: 0,
+    c: { tod: "evening", wx: "sun" },
+    cam: "side",
+    f: 0.3,
+    v: 36,
+    dur: 5,
+  },
+  {
+    ty: "rl",
+    ev: pistNo("rl", 6),
+    car: 3,
+    c: { tod: "noon", wx: "snow" },
+    cam: "heli",
+    f: 0.42,
+    v: 21,
+    dur: 5,
+    dr: 0.3,
+  },
+  {
+    ty: "rx",
+    ev: pistNo("rx", 2),
+    car: 1,
+    c: { tod: "noon", wx: "sun" },
+    cam: "chase",
+    f: 0.04,
+    v: 28,
+    dur: 5,
+    dr: 0.25,
+  },
+  {
+    ty: "rx",
+    ev: pistNo("rx", 3),
+    car: 1,
+    c: { tod: "noon", wx: "sun" },
+    cam: "heli",
+    f: 0.5,
+    v: 26,
+    dur: 5,
+    dr: 0.35,
+  },
   {
     ty: "dp",
-    ev: 8,
+    ev: pistNo("dp", 3),
+    car: 2,
+    c: { tod: "evening", wx: "sun" },
+    cam: "orbit",
+    f: 0.3,
+    v: 22,
+    dur: 6,
+    dr: 0.7,
+  },
+  {
+    ty: "dp",
+    ev: pistNo("dp", 6),
     car: 2,
     c: { tod: "evening", wx: "sun" },
     cam: "track",
@@ -55,7 +126,16 @@ const SHOTS: Cekim[] = [
     dur: 5,
     dr: 0.65,
   },
-  { ty: "dg", ev: 13, car: 4, c: { tod: "evening", wx: "sun" }, cam: "launch", f: 0, v: 0, dur: 5.5 },
+  {
+    ty: "dg",
+    ev: pistNo("dg", 3),
+    car: 4,
+    c: { tod: "evening", wx: "sun" },
+    cam: "launch",
+    f: 0,
+    v: 0,
+    dur: 5.5,
+  },
 ];
 
 interface CekimDurumu extends Cekim {
@@ -85,7 +165,51 @@ function nextShot() {
   return (LASTSHOT = BAG.shift()!);
 }
 
+/** geçiş karesi: eski çekimin son görüntüsü (yarı çözünürlük yeter, çözülürken büyür) */
+function kareYakala() {
+  const g = $<HTMLCanvasElement>("#gecis"),
+    c = R.domElement,
+    w = Math.max(1, c.width >> 1),
+    h = Math.max(1, c.height >> 1);
+  g.getAnimations().forEach((a) => a.cancel());
+  if (g.width != w || g.height != h) {
+    g.width = w;
+    g.height = h;
+  }
+  R.render(scene, cam);
+  g.getContext("2d")!.drawImage(c, 0, 0, w, h);
+  g.classList.remove("hidden");
+  return g;
+}
+
+/** yeni çekim çizildikten sonra eski kare yakınlaşarak çözülür */
+function cozul(g: HTMLCanvasElement) {
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      const a = g.animate(
+        [
+          { opacity: 1, transform: "scale(1)" },
+          { opacity: 0, transform: "scale(1.08)" },
+        ],
+        { duration: 1000, easing: "cubic-bezier(.33,0,.2,1)", fill: "forwards" },
+      );
+      a.onfinish = () => {
+        g.classList.add("hidden");
+        a.cancel();
+      };
+    }),
+  );
+}
+
+function gecisiKaldir() {
+  const g = $<HTMLCanvasElement>("#gecis");
+  g.getAnimations().forEach((a) => a.cancel());
+  g.classList.add("hidden");
+}
+
 function cineStart() {
+  // önceki çekimden geçiliyorsa son kare alınır; menüye ilk girişte kısa bir açılış (karadan)
+  const g = CINE ? kareYakala() : null;
   const sh = SHOTS[nextShot()],
     e = EVENTS[sh.ev],
     r = REG[e.reg],
@@ -107,11 +231,15 @@ function cineStart() {
   };
   oyun.camMode = sh.cam == "cock" ? 3 : 0;
   cineCar(0);
+  if (g) {
+    cozul(g);
+    return;
+  }
   const cut = $("#cut");
   cut.style.transition = "none";
   cut.style.opacity = "1";
   requestAnimationFrame(() => {
-    cut.style.transition = "opacity .45s";
+    cut.style.transition = "opacity .7s";
     cut.style.opacity = "0";
   });
 }
@@ -147,7 +275,8 @@ function cineCar(dt: number) {
   sim.pozKaydet();
   const burn = C.cam == "launch" && C.t < 2.2,
     smoke = Math.abs(dr) > 0.2 || burn || (C.vv > 8 && surfW(x, z) != 1 && Math.random() < 0.5);
-  if (smoke && dt) {
+  // takip kamerasında toz doğrudan objektifin önünden geçer ve kırık gri parçalar gibi görünür: orada toz yok
+  if (smoke && dt && C.cam != "chase") {
     const si = surfW(x, z),
       col = zeminRengi(si),
       fx = Math.sin(h),
@@ -232,6 +361,22 @@ export function cineCam() {
   cam.updateProjectionMatrix();
 }
 
+/** menü videosunun kaydı için (scripts/menu-video.mjs): belirli çekimi geçişsiz ve süresiz başlat (f: başka başlangıç oranı) */
+export function cekimKaydi(i: number, f?: number) {
+  if (!DEMO) demoStart();
+  CINE = null;
+  BAG = [i];
+  cineStart();
+  gecisiKaldir();
+  CINE!.dur = 1e9;
+  // çekim yeri denemesi: pistte başka bir başlangıç oranı
+  if (f != null) {
+    CINE!.s = CINE!.s0 = f * CINE!.TR.len;
+    CINE!.pv = null;
+  }
+  return SHOTS.length;
+}
+
 export function demoStart() {
   if (DEMO) return;
   DEMO = { sv: { ...kurulumKaydet(), car: carIndex(), cond: { ...COND }, cam: oyun.camMode } };
@@ -249,4 +394,5 @@ export function demoStop() {
   Object.assign(COND, v.cond);
   girdiSifirla();
   $("#cut").style.opacity = "0";
+  gecisiKaldir();
 }

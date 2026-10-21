@@ -32,6 +32,10 @@ self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET" || u.origin !== location.origin || !u.pathname.startsWith(KOK)) return;
   // ana sürüm deneme sürümüne karışmaz
   if (ONEK == "last-turn-" && u.pathname.startsWith(KOK + "dev/")) return;
+  if (/\/video\//.test(u.pathname)) {
+    e.respondWith(videoYaniti(e.request));
+    return;
+  }
   const sabit = /\/(assets|icons|img)\//.test(u.pathname);
   e.respondWith(
     sabit
@@ -59,3 +63,31 @@ self.addEventListener("fetch", (e) => {
           ),
   );
 });
+
+// menü videosu: önbellekten parça parça (Range) verilir. iOS videoyu parça isteyerek oynatır; önbellekteki tam
+// dosyayı (200) parça isteğine döndürmek iOS'ta videoyu oynatmaz
+async function videoYaniti(q) {
+  const c = await caches.open(CACHE);
+  let r = await c.match(q.url);
+  if (!r) {
+    r = await fetch(q.url);
+    if (r.status != 200) return r;
+    await c.put(q.url, r.clone());
+  }
+  const aralik = q.headers.get("range");
+  if (!aralik) return r;
+  const b = await r.arrayBuffer(),
+    n = b.byteLength,
+    m = /bytes=(\d*)-(\d*)/.exec(aralik),
+    bas = m && m[1] ? +m[1] : 0,
+    son = m && m[2] ? Math.min(+m[2], n - 1) : n - 1;
+  return new Response(b.slice(bas, son + 1), {
+    status: 206,
+    headers: {
+      "Content-Type": "video/mp4",
+      "Content-Range": `bytes ${bas}-${son}/${n}`,
+      "Content-Length": String(son - bas + 1),
+      "Accept-Ranges": "bytes",
+    },
+  });
+}

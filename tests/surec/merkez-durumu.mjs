@@ -18,7 +18,9 @@ const git = (...a) => {
   }
 };
 const var_ = (ref) => git("rev-parse", "--verify", "--quiet", ref) != "";
-const sayi = (aralik) => Number(git("rev-list", "--count", "--no-merges", aralik) || 0);
+const sayi = (aralik, ...yol) => Number(git("rev-list", "--count", "--no-merges", aralik, ...yol) || 0);
+// yeni iş = oyunu değiştiren commit: sürüm açma ("Sürüm 0.2 başladı"), sürüm numarası, kural ve test altyapısı sayılmaz
+const OYUN = ["--", "src", "public", "index.html", "vite.config.ts", "tsconfig.json"];
 const dosya = (ref, yol) => {
   const t = git("show", `${ref}:${yol}`);
   try {
@@ -50,7 +52,7 @@ for (const d of dallar) {
   rows.push({
     tur: "dal",
     dal: d,
-    durum: bekleyen ? "Push bekliyor" : canliyaGitmemis ? "Denemede" : "Güncel",
+    durum: bekleyen ? "Bekletiliyor" : canliyaGitmemis ? "Denemede" : "Güncel",
     bekleyen,
     denemede: Math.max(0, canliyaGitmemis - bekleyen),
     son_is,
@@ -61,7 +63,7 @@ for (const d of dallar) {
 // sürüm ve aşama
 const deneme = surumu("origin/gelistirme"),
   canli = surumu("origin/master"),
-  yeniIs = sayi("origin/master..origin/gelistirme"),
+  yeniIs = sayi("origin/master..origin/gelistirme", ...OYUN),
   rdurum = var_("origin/regresyon") ? dosya("origin/regresyon", "docs/regresyon/durum.json") : null,
   // dal silinemediyse "tamamlandi" yazılır: dondurma kalkmıştır
   regresyon = var_("origin/regresyon") && rdurum?.asama != "tamamlandi";
@@ -72,16 +74,26 @@ if (regresyon && rdurum?.asama == "onay-bekliyor") {
 } else if (regresyon) {
   asama = "Regresyon sürüyor";
   yapilacak = rdurum?.not || `${deneme} test ediliyor; sürüm donduruldu, denemeye gönderim bekler.`;
-} else if (bekleyenler.length) {
-  asama = "Geliştirme sürüyor";
-  yapilacak = `Push bekleyen: ${bekleyenler.join(", ")}. O sohbetlerde kontrol edip "push" de.`;
 } else if (yeniIs) {
-  asama = "Testlere hazır";
-  yapilacak = `${deneme} canlı geçişi öncesi testlerine hazır. Regression sohbetinde "başlat" de; yoksa 04:00'te başlar.`;
+  // İstanbul saatiyle 00:00-04:00 arası "testlere hazır" bildirimi gitmiştir
+  const saat = Number(
+    new Intl.DateTimeFormat("en-GB", {
+      hour: "numeric",
+      hourCycle: "h23",
+      timeZone: "Europe/Istanbul",
+    }).format(new Date()),
+  );
+  asama = saat < 4 ? "Testlere hazır" : "Geliştirme sürüyor";
+  yapilacak =
+    saat < 4
+      ? `${deneme} canlı geçişi öncesi testlerine hazır. Regression sohbetinde "başlat" de; yoksa 04:00'te başlar.`
+      : `${deneme} denemede; telefonda kontrol edebilirsin. Testler gece 04:00'te (00:00'da haber verilir).`;
 } else {
   asama = "Canlı güncel";
   yapilacak = "Denemede canlıda olmayan iş yok.";
 }
+if (bekleyenler.length && !regresyon)
+  yapilacak += ` Bekletilen: ${bekleyenler.join(", ")} (bu sürüme girmez; o sohbette "push" de).`;
 rows.unshift({ tur: "surum", deneme, canli, asama, yapilacak, yeni_is: yeniIs, guncellendi: simdi });
 
 // son olaylar: denemeye ve canlıya giren commit'ler (ilk ebeveyn zinciri)

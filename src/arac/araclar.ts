@@ -23,6 +23,13 @@ export interface Arac {
   pk: OnayarAnahtari;
   /** zemin tutuşu [toprak, asfalt] */
   gr: [number, number];
+  /**
+   * uzmanlık: kendi yarış türünün pistinde tutuş çarpanı (asfalt aracı yarış pistinde, rallikros aracı rallikros
+   * pistinde, ralli aracı ralli etabında). Başka pistlerde aracın değeri değişmez (yoksa 1)
+   */
+  uz?: number;
+  /** uzmanlık: kendi yarış türünün pistinde motor gücü çarpanı (o yarışa göre ayarlı motor; yoksa 1) */
+  uzg?: number;
   /** tork, güç, tepe hız çarpanları; dört çeker payı (0 arkadan itiş) */
   trq: number;
   pw: number;
@@ -86,6 +93,7 @@ export const CARS: Arac[] = [
     n: "Kızıl Ok",
     d: "Ortadan motorlu pist arabası. Asfaltta yüksek tutuş, keskin yön değişimi.",
     pk: "ar",
+    uz: 1.12,
     gr: [0.88, 1.15],
     trq: 1.0,
     pw: 1.2,
@@ -166,9 +174,10 @@ export const CARS: Arac[] = [
     ic: "⚡",
     st: "Hızlanma",
     n: "Kor RX",
-    d: "Dört çeker rallikros hatchback. Güçlü kalkış, toprakta çevik.",
+    d: "Dört çeker rallikros hatchback. Güçlü kalkış, kısa toprak pistlerde çevik.",
     pk: "tr",
     gr: [1.12, 1.0],
+    uz: 1.25,
     trq: 1.4,
     pw: 1.0,
     top: 0.86,
@@ -344,9 +353,11 @@ export const CARS: Arac[] = [
     ic: "⛰️",
     st: "Arazi",
     n: "Mavi Yıldız",
-    d: "Dört çeker ralli sedanı. Uzun süspansiyon, toprak ve çamurda sağlam.",
+    d: "Dört çeker ralli sedanı. Uzun süspansiyon: ralli etaplarında çakılda ve karda en iyi tutuş.",
     pk: "rl",
     gr: [1.18, 0.95],
+    uz: 1.15,
+    uzg: 1.4,
     trq: 1.2,
     pw: 0.98,
     top: 0.95,

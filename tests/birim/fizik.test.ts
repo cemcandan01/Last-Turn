@@ -9,7 +9,7 @@ import { duzZemin, frensiz } from "../yardimci/denemeler";
 import { DRIFT_PILOT, driftTuru } from "../yardimci/drift-pilot";
 import { surucuKur } from "../yardimci/surucu";
 import { titresimOlc } from "../yardimci/titresim";
-import { TDEF } from "../../src/dunya/pist-tanimlari";
+import { pistNo, TDEF } from "../../src/dunya/pist-tanimlari";
 
 const DT = 1 / 60;
 const gir = (g = 0, b = 0, tg = 0, analogGaz = false, analogDireksiyon = false): FizikGirdisi => ({
@@ -63,9 +63,9 @@ describe("kararlılık ve temel değerler", () => {
 
 describe("gerçekçi seviyede otomatik pilot spin atmaz", () => {
   for (const [yaris, arac, ad] of [
-    [0, 0, "Grand Prix"],
-    [9, 3, "Orman Etabı"],
-    [3, 1, "Çamur Vadisi"],
+    [pistNo("gp", 3), 0, "Grand Prix"],
+    [pistNo("rl", 2), 3, "Orman Etabı"],
+    [pistNo("rx", 2), 1, "Çamur Vadisi"],
   ] as const)
     it(ad, () => {
       const s = surucuKur({ yaris, arac, lk: "real" });
@@ -104,7 +104,7 @@ describe("gerçekçi seviyede otomatik pilot spin atmaz", () => {
 
 describe("toprakta sınır: tam gaz ve tam direksiyon yola tutunmaz", () => {
   it("frensiz tam gazla tur atılamaz (Çamur Vadisi, Kor RX, gerçekçi)", () => {
-    const r = frensiz(3, 1, "real");
+    const r = frensiz(pistNo("rx", 2), 1, "real");
     expect(r.disari + 3 * r.spin, "pist dışında geçen süre + spin").toBeGreaterThan(4);
   });
   it("gerçekçi: 80 km/sa'te tam direksiyon + tam gaz aracı kaydırır (Kor RX)", () => {
@@ -168,16 +168,16 @@ describe("drift dengesi (Boş Otopark, Beyaz Kurt, drift önayarı)", () => {
 
 describe("drift yarışı (Drift Parkı, Beyaz Kurt, drift önayarı)", () => {
   it("gerçekçi: ölçülü açıyla turun %80'i tek komboda geçer", { timeout: 30000 }, () => {
-    const r = driftTuru(6, "real", DRIFT_PILOT, 75);
+    const r = driftTuru(pistNo("dp", 3), "real", DRIFT_PILOT, 75);
     expect(r.oran, "en uzun kombo / tur").toBeGreaterThan(0.8);
     expect(r.spin, "spin").toBe(0);
   });
   it("gerçekçi: açıyı abartan komboyu yakar", { timeout: 30000 }, () => {
-    const r = driftTuru(6, "real", { ...DRIFT_PILOT, aci: 0.65 }, 75);
+    const r = driftTuru(pistNo("dp", 3), "real", { ...DRIFT_PILOT, aci: 0.65 }, 75);
     expect(r.oran, "en uzun kombo / tur").toBeLessThan(0.8);
   });
   it("dengeli: turun %80'i tek komboda geçer", { timeout: 30000 }, () => {
-    expect(driftTuru(6, "norm", DRIFT_PILOT, 75).oran).toBeGreaterThan(0.8);
+    expect(driftTuru(pistNo("dp", 3), "norm", DRIFT_PILOT, 75).oran).toBeGreaterThan(0.8);
   });
 });
 
@@ -186,7 +186,7 @@ describe("asfalt pistte titreşim yok (her araç, her asfalt pist)", () => {
   // (kamera) yalnız teker kerbe çıkınca açılır; yokuşlu pistte taban yüksekliği kerb sayılmaz.
   for (let yaris = 0; yaris < TDEF.length; yaris++) {
     if (!["gp", "dp", "dg"].includes(TDEF[yaris].t)) continue;
-    it(TDEF[yaris].n, () => {
+    it(TDEF[yaris].n, { timeout: 30000 }, () => {
       for (let arac = 0; arac < CARS.length; arac++) {
         const o = titresimOlc(yaris, arac, 20),
           ad = CARS[arac].n;
@@ -199,8 +199,26 @@ describe("asfalt pistte titreşim yok (her araç, her asfalt pist)", () => {
       }
     });
   }
+  it("sert frende öne dalan gövde yola vurmaz: darbe yok (5 araç, 148 km/sa)", () => {
+    for (let arac = 0; arac < CARS.length; arac++) {
+      const s = surucuKur({ dunya: 0, arac, lk: "norm" });
+      s.reset(210, -780, 0);
+      const S = s.sim.S;
+      for (let k = 0; k < 900 && Math.hypot(S.vx, S.vz) < 41; k++) s.adim(gir(1));
+      let vy0 = s.sim.yeni!.vy,
+        en = 0;
+      for (let k = 0; k < 300; k++) {
+        s.adim(gir(0, 1));
+        const Y = s.sim.yeni!;
+        en = Math.max(en, Math.abs((Y.vy - vy0) / DT));
+        vy0 = Y.vy;
+      }
+      expect(en, `${CARS[arac].n}: frende en büyük dikey ivme (m/s²)`).toBeLessThan(6);
+    }
+  });
+
   it("kerbe çıkan teker sarsıntıyı açar (Grand Prix)", () => {
-    const s = surucuKur({ yaris: 0, arac: 0, lk: "norm" });
+    const s = surucuKur({ yaris: pistNo("gp", 3), arac: 0, lk: "norm" });
     const TR = s.bolge!.TR!,
       i = TR.kb!.findIndex((k, j) => k && TR.kb![j + 2] && TR.kb![j - 2]),
       [tx, tz] = TR.T[i];
@@ -219,7 +237,7 @@ describe("asfalt pistte titreşim yok (her araç, her asfalt pist)", () => {
 describe("kurallar ve sağlamlık", () => {
   it("belirlenimci: aynı girişler aynı sonuç", () => {
     const sur = () => {
-      const s = surucuKur({ yaris: 0, arac: 0, lk: "real" });
+      const s = surucuKur({ yaris: pistNo("gp", 3), arac: 0, lk: "real" });
       const TR = s.bolge!.TR!,
         P = TR.P[10];
       s.reset(P[0], P[1], Math.atan2(TR.T[10][0], TR.T[10][1]));
@@ -232,7 +250,7 @@ describe("kurallar ve sağlamlık", () => {
   });
 
   it("yokuşta başlangıç: araç fırlamaz", () => {
-    const s = surucuKur({ yaris: 9, arac: 3, lk: "real" });
+    const s = surucuKur({ yaris: pistNo("rl", 2), arac: 3, lk: "real" });
     const TR = s.bolge!.TR!;
     for (const i of [4, 40, 120, 300]) {
       const P = TR.P[i];
@@ -300,10 +318,10 @@ describe("kurallar ve sağlamlık", () => {
 
   it("rastgele girişlerle uzun sürüş: değerler sonlu kalır", { timeout: 60000 }, () => {
     for (const [yaris, arac] of [
-      [0, 0],
-      [3, 1],
-      [10, 3],
-      [6, 2],
+      [pistNo("gp", 3), 0],
+      [pistNo("rx", 2), 1],
+      [pistNo("rl", 6), 3],
+      [pistNo("dp", 3), 2],
     ] as const) {
       const s = surucuKur({ yaris, arac, lk: "real" });
       const TR = s.bolge!.TR!,

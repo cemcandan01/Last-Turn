@@ -35,8 +35,8 @@ export const TYP: Record<
     pk: "tr",
     laps: 3,
     v: 28.5,
-    n: "Toprak yarışları",
-    d: "3 tur: çamur, su ve rampalar. Hedef süreyi geç.",
+    n: "Rallycross yarışları",
+    d: "3 tur, asfalt ve toprak karışık: çamur, su ve rampalar. Hedef süreyi geç.",
   },
   dp: {
     k: "drift",
@@ -64,6 +64,8 @@ export interface YarisTanimi {
   /** rekor anahtarı */
   k: string;
   ty: YarisTuru;
+  /** seviye: 1 Çaylak … 6 Efsane (SEVIYELER) */
+  lv: number;
   n: string;
   d: string;
   /** bölge sırası */
@@ -72,7 +74,7 @@ export interface YarisTanimi {
   laps?: number;
   /** drift yarışı süresi */
   time?: number;
-  /** hedef süre */
+  /** hedef süre (sn); drift yarışında hedef puan */
   limit: number;
   /** başlangıç noktası */
   g: Tele;
@@ -106,18 +108,19 @@ export interface Yaris extends YarisTanimi {
 export const EVENTS: YarisTanimi[] = REG.filter((r) => r.t != "park").map((r, i) => {
   const ty = r.t as YarisTuru,
     y = TYP[ty],
-    no = REG.filter((q, j) => j <= i && q.t == ty).length,
     TR = r.TR!;
   return {
-    k: y.k + (no > 1 ? no : ""),
+    // rekor anahtarı türe ve seviyeye bağlı (pistler 0.2'de yenilendi: eski rekorlar yeni pistlere taşınmaz)
+    k: y.k + "_" + r.lv,
     ty,
+    lv: r.lv!,
     n: r.n,
     d: r.d!,
     reg: i,
     pk: y.pk,
     laps: y.laps,
     time: y.time,
-    limit: r.tg || (y.v ? Math.round((TR.len * (y.laps || 1)) / y.v / 5) * 5 : 0),
+    limit: ty == "dp" ? r.hp || 0 : r.tg || (y.v ? Math.round((TR.len * (y.laps || 1)) / y.v / 5) * 5 : 0),
     g: tp(TR, r.n, ty == "dg" ? 1 : TR.open ? 4 : TR.N, TR.open ? 0 : 6),
   };
 });
@@ -255,7 +258,7 @@ export function endEvent() {
   EV.state = "done";
   oyun.mode = "result";
   PROF.races++;
-  if (EV.ty == "dp" ? EV.score > 0 : EV.t <= EV.limit) PROF.wins++;
+  if (EV.ty == "dp" ? EV.score > 0 && EV.score >= EV.limit : EV.t <= EV.limit) PROF.wins++;
   saveProf();
   girdiSifirla();
   gizle("#ctl");

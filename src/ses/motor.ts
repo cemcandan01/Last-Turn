@@ -5,6 +5,7 @@ import { sm } from "../cekirdek/matematik";
 import {
   gurultu,
   katmanDevirleri,
+  motorEq,
   motorKatmani,
   motorProfili,
   patlama,
@@ -22,6 +23,11 @@ export interface MotorGirdisi {
   /** araç hızı (m/s): dişli vınlaması */
   hiz: number;
 }
+
+/** garajdaki "motoru dinle" kaydının süresi (sn) */
+export const DINLE_SURE = 5;
+/** dinleme senaryosu: rölanti, kısa gaz vuruşu, devir kesiciye kadar uzun gaz, gaz kesme (patlamalar), rölanti */
+export const dinleGaz = (s: number) => ((s > 0.5 && s < 0.82) || (s > 1.7 && s < 3.1) ? 1 : 0);
 
 /** Float32Array → AudioBuffer */
 export function tampon(ctx: BaseAudioContext, s: Float32Array) {
@@ -83,6 +89,8 @@ const ONBELLEK = new Map<string, { devir: number; gaz: AudioBuffer; bos: AudioBu
 export class MotorSesi {
   /** motor katmanlarının ana kazancı (devir ve yüke göre) */
   private cikis: GainNode;
+  /** VTEC: yüksek kama geçince tizler kabarır */
+  private vtecF: BiquadFilterNode;
   /** ek parçalar (turbo, valf, patlama) */
   private ek: GainNode;
   private katman: Katman[] = [];
@@ -108,7 +116,11 @@ export class MotorSesi {
   ) {
     this.cikis = ctx.createGain();
     this.cikis.gain.value = 0;
-    this.cikis.connect(hedef);
+    this.vtecF = ctx.createBiquadFilter();
+    this.vtecF.type = "highshelf";
+    this.vtecF.frequency.value = 1400;
+    this.vtecF.gain.value = 0;
+    this.cikis.connect(this.vtecF).connect(hedef);
     this.ek = ctx.createGain();
     this.ek.gain.value = 0;
     this.ek.connect(hedef);
@@ -117,6 +129,9 @@ export class MotorSesi {
   get hazir() {
     return !!this.p;
   }
+
+  /** çalan katmanların aracı (araç türü + azami devir); yeni araç hesaplanırken eskisi çalmaya devam eder */
+  kurulu = "";
 
   /** aracın motorunu kur (k: araç türü). Katmanlar karelere bölünerek hesaplanır */
   async kur(k: string, devirMax: number) {
@@ -133,9 +148,9 @@ export class MotorSesi {
       const devirler = katmanDevirleri(devirMax);
       for (let i = 0; i < devirler.length; i++) {
         const d = devirler[i],
-          gaz = tampon(ctx, motorKatmani(p, d, 1, devirMax, sr, 11 + i));
+          gaz = tampon(ctx, motorKatmani(p, d, 1, devirMax, sr, 11 + i, motorEq(k, i)));
         if (ctx instanceof AudioContext) await bekle();
-        const bos = tampon(ctx, motorKatmani(p, d, 0, devirMax, sr, 31 + i));
+        const bos = tampon(ctx, motorKatmani(p, d, 0, devirMax, sr, 31 + i, motorEq(k, i)));
         if (ctx instanceof AudioContext) await bekle();
         if (no != this.kurNo) return;
         tamponlar.push({ devir: d, gaz, bos });
@@ -153,6 +168,7 @@ export class MotorSesi {
       bos: dongu(ctx, b.bos, this.cikis, t),
     }));
     this.p = p;
+    this.kurulu = anahtar;
     this.dMax = devirMax;
     if (!this.patlamalar.length)
       for (let i = 0; i < 4; i++) this.patlamalar.push(tampon(ctx, patlama(sr, 40 + i)));
@@ -209,6 +225,7 @@ export class MotorSesi {
     for (const x of [this.turbo, this.komp, this.disli]) if (x) x.o.stop();
     this.turbo = this.komp = this.disli = null;
     this.p = null;
+    this.kurulu = "";
   }
 
   /** her kare: t bağlam saati, seviye 0-1 (0: sessiz) */
@@ -246,7 +263,14 @@ export class MotorSesi {
       k.gaz.g.gain.setTargetAtTime(w[i] * yG, t, 0.02);
       k.bos.g.gain.setTargetAtTime(w[i] * yB * 0.75, t, 0.02);
     });
-    this.cikis.gain.setTargetAtTime(seviye * (0.42 + 0.58 * u) * (0.6 + 0.4 * yuk), t, 0.03);
+    // VTEC: eşiğin üstünde gazdayken ses birden sertleşir ve yükselir
+    const vtec = p.vtec != null && u >= p.vtec && yuk > 0.5 ? 1 : 0;
+    this.vtecF.gain.setTargetAtTime(vtec * 6, t, 0.025);
+    this.cikis.gain.setTargetAtTime(
+      seviye * (0.42 + 0.58 * u) * (0.6 + 0.4 * yuk) * (1 + 0.25 * vtec),
+      t,
+      0.03,
+    );
     this.ek.gain.setTargetAtTime(seviye, t, 0.03);
 
     const birak = this.gazOnce > 0.5 && m.gaz < 0.2,
@@ -286,13 +310,19 @@ export class MotorSesi {
     }
     // gaz kesince (ve anti-lag araçlarda vites geçişinde) egzoz patlamaları
     if (p.patlama) {
-      if (birak && u > 0.4) this.patlamaBitis = t + 0.35 + 1.1 * p.patlama * u;
-      if (vitesBasi && p.patlama > 0.7 && u > 0.5) this.patlamaBitis = Math.max(this.patlamaBitis, t + 0.12);
-      if (kesici && Math.random() < dt * 4 * p.patlama) this.pat(t, 0.5);
+      // gaz kesince birkaç tok patlama (seyrek, düzensiz aralıklarla); anti-lag araçlarda vites geçişinde de
+      if (birak && u > 0.45) {
+        this.patlamaBitis = t + 0.3 + 0.8 * p.patlama * u;
+        this.sonrakiPatlama = t + 0.04 + Math.random() * 0.08;
+      }
+      if (vitesBasi && p.patlama > 0.7 && u > 0.5) {
+        this.patlamaBitis = Math.max(this.patlamaBitis, t + 0.1);
+        this.sonrakiPatlama = Math.min(this.sonrakiPatlama, t + 0.02);
+      }
       if (t < this.patlamaBitis && m.gaz < 0.3 && t >= this.sonrakiPatlama) {
-        this.pat(t, 1);
-        this.sonrakiPatlama = t + 0.025 + (Math.random() * 0.14) / (0.4 + p.patlama);
-      } else if (m.gaz < 0.05 && u > 0.3 && Math.random() < dt * 1.5 * p.patlama * u) this.pat(t, 0.45);
+        this.pat(t, 0.7 + 0.3 * u);
+        this.sonrakiPatlama = t + 0.07 + (Math.random() * 0.25) / (0.5 + p.patlama);
+      }
     }
     this.gazOnce = m.gaz;
     this.kesikOnce = m.kesik;

@@ -8,6 +8,8 @@ description: Last Turn oyununu test eder. Değişen alanın senaryolarını ve h
 Kullanıcı her değişikliği canlıya göndermeden önce kendi eliyle de dener. Otomatik test burada **duman + değişen alan** kadardır; bütün dalların bütün senaryoları gece regresyonunda koşar (`regresyon` skill'i). Tam koşumu (`npm run kontrol:tam`) yalnız kullanıcı isterse çalıştır.
 
 1. Bağımlılıklar yoksa kur: `npm ci` (`node_modules` varsa atla).
+Uzun test çıktısını ana sohbete alma: komutları `testci` ajanına koşturup kısa sonucu kullan (birkaç saniyelik tek komutu doğrudan koşabilirsin). Göndermeden önce oynanış ya da görsel değişiklikte `denetci` ajanından gözden geçirme iste.
+
 2. Değişikliğin dokunduğu dalları bul: sohbetin konu dalı ve düzenlenen dosyaların ait olduğu alanlar (`tests/senaryolar/<dal>.mjs`; ör. `src/fizik/` → fizik, `src/arayuz/hud.ts` → hud, `src/arayuz/menu.ts` → menu, `src/dunya/` → pist, `src/arayuz/garaj.ts` → garaj).
 3. Çalıştır:
    - Kod yazarken, sık sık: `npm run alan -- <dal>[,<dal>]` (o dalların senaryoları + duman). Yalnız fizikte hızlı tur: `npx vitest run -t "<describe adı>"`.

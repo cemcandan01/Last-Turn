@@ -7,7 +7,7 @@ description: Last Turn sürüm regresyonu ve canlıya çıkış. "regression" so
 
 Bu sohbetin dalı `regresyon`. Başka bir sohbetin konu dalına yazılmaz. Düzeltmeler yalnız `regresyon` dalına yapılır, oradan `gelistirme`'ye (deneme) gider, kullanıcı onaylayınca `master`'a (canlı).
 
-Sürüm düzeni (`CLAUDE.md` → "Sürümler"): `gelistirme`'ye her gönderim yamayı artırır (0.1.1, 0.1.2, …). Regresyon sürümü dondurur, canlıya o sırada denemede olan sürüm (ör. 0.1.37) çıkar, ardından `gelistirme` 0.2.0'a geçer.
+Sürüm düzeni (`docs/SUREC.md` → "Sürümler"): `gelistirme`'ye her gönderim yamayı artırır (0.1.1, 0.1.2, …). Regresyon sürümü dondurur, canlıya o sırada denemede olan sürüm (ör. 0.1.37) çıkar, ardından `gelistirme` 0.2.0'a geçer.
 
 ## 1. Hazır mı, başlasın mı?
 
@@ -16,19 +16,22 @@ Merkez ve bildirimler: `merkez` skill'i (sayfayı tazele, sonra bildir). Durumu 
 git fetch origin --prune
 git ls-remote --exit-code --heads origin regresyon      # açık regresyon var mı
 git show origin/regresyon:docs/regresyon/durum.json     # varsa: suruyor | onay-bekliyor | tamamlandi
-git rev-list --count --no-merges origin/master..origin/gelistirme   # canlıda olmayan yeni iş
+git rev-list --count --no-merges origin/master..origin/gelistirme -- src public index.html vite.config.ts tsconfig.json   # canlıda olmayan oyun işi (sürüm açma, sürüm numarası, kural commit'leri sayılmaz)
 for b in $(git branch -r --format='%(refname:short)' | grep -vE '^origin/(HEAD|master|gelistirme|regresyon)$'); do
-  n=$(git rev-list --count --no-merges origin/gelistirme..$b); [ "$n" != 0 ] && echo "$b: $n commit push bekliyor"
+  n=$(git rev-list --count --no-merges origin/gelistirme..$b); [ "$n" != 0 ] && echo "$b: $n commit bekletiliyor (bu sürüme girmez)"
 done
 ```
 Açık regresyon: `origin/regresyon` duruyor ve `durum.json` "tamamlandi" değil.
 
-Üç giriş var:
-- **00:00 görevi (hazırlık):** merkezi tazele. Açık regresyon varsa: onay bekliyorsa bildir ("Regresyon kararını bekliyor: <sürüm> canlı onayı"), yoksa bir şey yapma. Yeni iş yoksa ya da push bekleyen dal varsa: bildirim gönderme, sohbete tek satır yaz. Yeni iş var ve bekleyen dal yoksa: **başlatma**, yalnız bildir: "<sürüm> canlı geçişi öncesi testlerine hazır. Başlatmak için regression sohbetinde "başlat" de; demezsen 04:00'te başlar." ve sohbete aynı satırı yaz.
-- **Kullanıcı "başlat" / "regresyon koş" dedi:** açık regresyon varsa yeniden başlatma, durumunu söyle. Push bekleyen dal varsa söyle ve sor ("menu 2 commit bekliyor; beklensin mi, onsuz mu başlayayım?"). Yoksa 2. adımdan başla (yeni iş yoksa bile kullanıcı istediyse koş).
-- **04:00 görevi (otomatik başlangıç):** açık regresyon varsa: yarıda kaldıysa kaldığı adımdan devam et, onay bekliyorsa bir şey yapma (00:00'da hatırlatıldı). Yeni iş yoksa ya da push bekleyen dal varsa tek satır yaz, merkezi tazele, bitir. Koşullar tamamsa 2. adımdan başla.
+Konu sohbetleri işi testler geçince kendiliğinden denemeye gönderir; dalda kalan iş, kullanıcının bilerek beklettiği iştir. **Bekletilen dal regresyonu durdurmaz**, yalnız bu sürüme girmez; bildirimde ve raporda adını say.
 
-Kullanıcı bir dal için "beklemesin" derse o dalı bu sürümde yok say.
+Üç giriş var:
+- **00:00 görevi (hazırlık):** merkezi tazele. Açık regresyon varsa: onay bekliyorsa bildir ("Regresyon kararını bekliyor: <sürüm> canlı onayı"), yoksa bir şey yapma. Yeni iş yoksa: bildirim gönderme, sohbete tek satır yaz. Yeni iş varsa: **başlatma**, yalnız bildir: "<sürüm> canlı geçişi öncesi testlerine hazır. "başlat" dersen hemen, demezsen 04:00'te başlar; "bu gece başlama" dersen beklerim." (bekletilen dal varsa: " Bekleyen: <dal> (bu sürüme girmez).") ve sohbete aynı satırı yaz.
+- **Kullanıcı "başlat" / "regresyon koş" dedi:** açık regresyon varsa yeniden başlatma, durumunu söyle. Bekletilen dal varsa adını söyle (bu sürüme girmez). 2. adımdan başla (yeni iş yoksa bile kullanıcı istediyse koş).
+- **Kullanıcı "bu gece başlama" / "bekle" dedi:** 04:00'te başlatma; sohbete not düş, merkezi tazele. Sonraki 00:00'da yeniden sorulur.
+- **04:00 görevi (otomatik başlangıç):** açık regresyon varsa: yarıda kaldıysa kaldığı adımdan devam et, onay bekliyorsa bir şey yapma (00:00'da hatırlatıldı). Kullanıcı bu gece "bu gece başlama" dediyse ya da yeni iş yoksa tek satır yaz, merkezi tazele, bitir. Yoksa 2. adımdan başla.
+
+**Bir dalı sürümden çıkarmak:** kullanıcı onay öncesi "<dal> bu sürüme girmesin" derse `regresyon` dalında o dalın bu sürümdeki birleştirme commit'lerini `git revert -m 1 <commit>` ile geri al (`git log --merges --first-parent --format='%h %s' origin/master..regresyon` ile bul), commit başlığı `[<dal>] bu sürümden çıkarıldı`; regresyonu tekrar koş, raporda belirt. Canlıya çıkıştan sonra, 0.2'yi açarken bu geri almayı `gelistirme`'de geri al (`git revert <geri alma commit'i>`), böylece iş sonraki sürümde yeniden yer alır.
 
 ## 2. Sürümü dondur
 
@@ -37,7 +40,7 @@ git checkout -B regresyon origin/gelistirme
 npm ci
 mkdir -p docs/regresyon && echo '{"surum":"0.1.37","asama":"suruyor","not":"0.1.37 test ediliyor","tarih":"<ISO>"}' > docs/regresyon/durum.json
 git add docs/regresyon && git commit -m "Regresyon 0.1.37 başladı"
-git push -u origin regresyon       # dondurma işareti: bu dal durdukça konu sohbetleri denemeye gönderemez
+git push -u --force-with-lease origin regresyon   # dondurma işareti (dal önceki regresyondan kalır, yeniden kurulur): bu dal durdukça konu sohbetleri denemeye gönderemez
 ```
 Merkezi tazele (aşama "Regresyon sürüyor"). `durum.json`'daki `not`u her aşamada güncel tut (ör. "İlk koşum: 3 hata, düzeltiliyor"); merkez bunu gösterir.
 Sürüm adı `package.json`'daki sürümdür (ör. 0.1.37); raporlarda bu adı kullan. Sürüme hangi dalların hangi işlerle girdiğini çıkar: her dal için `git log --no-merges --format='%h %s' origin/master..origin/<dal>`.
@@ -90,15 +93,14 @@ git checkout master && git pull origin master && git merge --no-ff --no-edit reg
 ```
 - `README.md` "İçerik" bölümüne bu sürümde oyuncunun göreceği özellikleri ekle.
 - Sürüm numarası değişmez (canlıya denemede denenen sürüm çıkar). `npm run kontrol`; merge commit başlığı ya da ek commit `Yayın 0.1.37: …` olsun (sürümün kalıcı kaydı budur); `git push origin master`. Sonra etiketi dene: `git tag v0.1.37 && git push origin v0.1.37`; bulut ortamı etiket gönderimini reddederse (403) bırak, kayıt "Yayın" commit'idir.
-- GitHub Actions'ta "Yayın" iş akışının `canli-duman` adımını izle (`mcp__github__actions_list`). Kalırsa açılan "Canlı duman hatası" kaydını oku, düzelt ve kullanıcıya bildir (acil düzeltme: `CLAUDE.md` → "Acil düzeltme").
+- GitHub Actions'ta "Yayın" iş akışının `canli-duman` adımını izle (`mcp__github__actions_list`). Kalırsa açılan "Canlı duman hatası" kaydını oku, düzelt ve kullanıcıya bildir (acil düzeltme: `docs/SUREC.md`).
 - Sonraki sürümü aç:
   ```
   git checkout gelistirme && git pull origin gelistirme && git merge --no-edit master
   npm version minor --no-git-tag-version          # 0.1.37 → 0.2.0
   git commit -am "Sürüm 0.2 başladı" && git push origin gelistirme
-  git push origin --delete regresyon              # dondurma kalkar
   ```
-  Dal silinemezse (ortam reddederse): `regresyon` dalında `durum.json`'u `"asama": "tamamlandi"` yapıp gönder; dondurma böyle de kalkar.
+  Dondurmayı kaldır: `regresyon` dalında `durum.json`'u `"asama": "tamamlandi"` yap, commit'le, gönder (bulut ortamı dal silmeyi reddeder; dal kalır, "tamamlandi" dondurmanın kalktığı anlamına gelir; bir sonraki regresyon dalı yeniden kurar).
 - Merkezi tazele ve bildir ("<sürüm> canlıda, canlı duman geçti. <sonraki sürüm> başladı.").
 - Kullanıcıya kısa yaz: canlıya çıkan sürüm, canlı duman sonucu, "0.2 geliştirmeleri başladı, konu sohbetlerinde 'push' diyebilirsin".
 
