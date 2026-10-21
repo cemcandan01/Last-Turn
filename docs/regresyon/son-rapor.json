@@ -3,12 +3,12 @@
   "dallar": [
     "--sure"
   ],
-  "dk": 3.9,
+  "dk": 3.8,
   "ozet": {
     "fizik": {
-      "senaryo": 9,
-      "gecti": 8,
-      "kaldi": 1,
+      "senaryo": 10,
+      "gecti": 10,
+      "kaldi": 0,
       "kosulmadi": 0
     },
     "garaj": {
@@ -18,20 +18,20 @@
       "kosulmadi": 0
     },
     "menu": {
-      "senaryo": 5,
-      "gecti": 5,
+      "senaryo": 7,
+      "gecti": 7,
       "kaldi": 0,
       "kosulmadi": 0
     },
     "pist": {
-      "senaryo": 1,
-      "gecti": 1,
+      "senaryo": 2,
+      "gecti": 2,
       "kaldi": 0,
       "kosulmadi": 0
     },
     "grafik": {
-      "senaryo": 1,
-      "gecti": 1,
+      "senaryo": 2,
+      "gecti": 2,
       "kaldi": 0,
       "kosulmadi": 0
     },
@@ -61,7 +61,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 4.218497106999999
+      "sure": 3.3620874240000003
     },
     {
       "id": "surus",
@@ -72,7 +72,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.792
+      "sure": 2.611
     },
     {
       "id": "spin",
@@ -85,7 +85,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.7087079219999994
+      "sure": 1.8188387480000001
     },
     {
       "id": "drift-denge",
@@ -98,7 +98,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.7748020840000008
+      "sure": 0.4915500999999995
     },
     {
       "id": "saglamlik",
@@ -111,7 +111,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 7.743846597
+      "sure": 6.853791440999999
     },
     {
       "id": "garaj",
@@ -122,7 +122,7 @@
       "dal": "garaj",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.84
+      "sure": 1.487
     },
     {
       "id": "acilis",
@@ -133,18 +133,18 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.497
+      "sure": 3.663
     },
     {
       "id": "yarislar",
-      "ad": "15 yarış ve açık dünyalar kuruluyor",
+      "ad": "30 yarış ve açık dünyalar kuruluyor",
       "p": 1,
       "duman": true,
       "tarayici": "yarislar",
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.791
+      "sure": 4.313
     },
     {
       "id": "toprak",
@@ -157,7 +157,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.445126609
+      "sure": 1.8779816050000002
     },
     {
       "id": "drift-yarisi",
@@ -170,7 +170,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 10.114196995999999
+      "sure": 7.953376709000001
     },
     {
       "id": "titresim",
@@ -181,22 +181,45 @@
         "grup": "asfalt pistte titreşim yok (her araç, her asfalt pist)"
       },
       "dal": "fizik",
-      "durum": "kaldı",
-      "hatalar": [
-        "Grand Prix: Error: Test timed out in 5000ms.",
-        "Kıyı Pisti: Error: Test timed out in 5000ms."
-      ],
-      "sure": 30.86251302099999
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 44.51571526699998
+    },
+    {
+      "id": "uyum",
+      "ad": "Türe uygun araç kendi yarışında avantajlı: pistte yol tutuşu (asfalt, rallikros, ralli) ve drag süresi",
+      "p": 2,
+      "birim": {
+        "dosya": "tests/birim/uyum.test.ts",
+        "grup": "araç ve yarış türü uyumu"
+      },
+      "dal": "fizik",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 8.213918352
+    },
+    {
+      "id": "govde",
+      "ad": "Araç gövdesi: tekerler kemerlerin içinde, gövdeden taşmıyor, kemerli profil düzgün",
+      "p": 2,
+      "birim": {
+        "dosya": "tests/birim/govde.test.ts",
+        "grup": "gövde ve teker kemerleri"
+      },
+      "dal": "grafik",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 0.9809995289999999
     },
     {
       "id": "kokpit",
-      "ad": "Kokpit: kapı panelleri görüşü kapatmıyor, yan aynalar ve dikiz aynası arkayı gösteriyor",
+      "ad": "Kokpit: araca özgü iç tasarım, kapı panelleri görüşü kapatmıyor, yan aynalar ve dikiz aynası arkayı gösteriyor",
       "p": 2,
       "tarayici": "kokpit",
       "dal": "grafik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 9.288
+      "sure": 7.117
     },
     {
       "id": "hud-cakisma",
@@ -206,7 +229,7 @@
       "dal": "hud",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 43.453
+      "sure": 14.442
     },
     {
       "id": "hud-duzenleyici",
@@ -216,7 +239,7 @@
       "dal": "hud",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.946
+      "sure": 0.903
     },
     {
       "id": "garaj-ses",
@@ -226,7 +249,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.314
+      "sure": 0.924
     },
     {
       "id": "dokunma",
@@ -236,7 +259,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.674
+      "sure": 3.16
     },
     {
       "id": "arka-video",
@@ -246,7 +269,40 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 17.745
+      "sure": 9.269
+    },
+    {
+      "id": "seviyeler",
+      "ad": "Pist listesi: 6 pist seviye sırasıyla, seviye rozeti ve kimin için ideal; drift hedef puanı",
+      "p": 2,
+      "tarayici": "seviyeler",
+      "dal": "menu",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 0.242
+    },
+    {
+      "id": "kapak",
+      "ad": "Yarış türü kapak akışı: ok, kaydırma, yan kart; pistler türün rengiyle",
+      "p": 2,
+      "tarayici": "kapak",
+      "dal": "menu",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 10.046
+    },
+    {
+      "id": "pist-duzeni",
+      "ad": "5 tür × 6 seviye: pistler kendini kesmez, virajlar yola sığar, bölgeler çakışmaz, hedefler ölçülü",
+      "p": 2,
+      "birim": {
+        "dosya": "tests/birim/pistler.test.ts",
+        "grup": "pist düzeni"
+      },
+      "dal": "pist",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 0.08379819300000026
     },
     {
       "id": "ses-tarayici",
@@ -256,7 +312,7 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 9.71
+      "sure": 8.373
     },
     {
       "id": "motor-sesi",
@@ -269,17 +325,17 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.8787750579999996
+      "sure": 2.212468649
     },
     {
       "id": "kerb-tarayici",
-      "ad": "Tarayıcıda kerbe değmeden sarsıntı yok (5 araç × 9 pist)",
+      "ad": "Tarayıcıda kerbe değmeden sarsıntı yok (5 araç × 18 asfalt pist)",
       "p": 3,
       "tarayici": "kerb",
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 41.048
+      "sure": 65.962
     },
     {
       "id": "gecis",
@@ -289,11 +345,11 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 4.773
+      "sure": 4.751
     },
     {
       "id": "efektler",
-      "ad": "Çakıl, patlama, valf, çarpma örnekleri",
+      "ad": "Çakıl, çim, lastik ötmesi (gerçek kayıt ölçüsünde), patlama, valf, çarpma örnekleri",
       "p": 3,
       "birim": {
         "dosya": "tests/birim/ses.test.ts",
@@ -302,7 +358,7 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.08342162600000003
+      "sure": 0.6444825529999999
     }
   ]
 }

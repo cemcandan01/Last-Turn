@@ -1,1 +1,6 @@
-{"surum":"0.2.10","asama":"suruyor","not":"İlk koşum: 1 hata (fizik/titresim zaman aşımı), düzeltildi; tekrar koşuluyor","tarih":"2026-10-21T06:45:04Z"}
+{
+  "surum": "0.2.21",
+  "asama": "onay-bekliyor",
+  "not": "İlk koşum: 27 senaryo, 0 hata. Canlıya çıkış onayı bekleniyor",
+  "tarih": "2026-10-21T21:12:18Z"
+}
