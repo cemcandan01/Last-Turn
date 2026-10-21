@@ -198,7 +198,8 @@ function cineCar(dt: number) {
   sim.pozKaydet();
   const burn = C.cam == "launch" && C.t < 2.2,
     smoke = Math.abs(dr) > 0.2 || burn || (C.vv > 8 && surfW(x, z) != 1 && Math.random() < 0.5);
-  if (smoke && dt) {
+  // takip kamerasında toz doğrudan objektifin önünden geçer ve kırık gri parçalar gibi görünür: orada toz yok
+  if (smoke && dt && C.cam != "chase") {
     const si = surfW(x, z),
       col = zeminRengi(si),
       fx = Math.sin(h),
@@ -281,6 +282,17 @@ export function cineCam() {
   cam.lookAt(L);
   cam.fov = fov;
   cam.updateProjectionMatrix();
+}
+
+/** menü videosunun kaydı için (scripts/menu-video.mjs): belirli çekimi geçişsiz ve süresiz başlat */
+export function cekimKaydi(i: number) {
+  if (!DEMO) demoStart();
+  CINE = null;
+  BAG = [i];
+  cineStart();
+  gecisiKaldir();
+  CINE!.dur = 1e9;
+  return SHOTS.length;
 }
 
 export function demoStart() {

@@ -35,6 +35,7 @@ npm run test:goruntu  # + ekran görüntüleri tests/cikti/ (menü, garaj, yarı
 npm run typecheck     # tip denetimi
 npm run lint          # ESLint
 npm run format        # Prettier ile biçimlendir
+npm run video         # menü arka plan videosunu oyundan kaydet: public/video/menu.mp4 (önce build; ~15 dk). Pist ya da sinematik çekim değişince
 npm run ses           # sesleri kaydet: tests/cikti/ses/ (müzik, 5 motor, sürüş efektleri; .wav ve .m4a; önce build)
 npm run olcum         # fizik ölçümleri: 0-100, azami hız, fren, tur süreleri, toprakta sınır, drift pisti, adım maliyeti
 npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
@@ -56,8 +57,9 @@ npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 | `src/arayuz/` | DOM: `menu` (ana menü, `startWorld`), `ayarlar-ekrani` (ayarlar, duraklatma), `garaj`, `sonuc`, `hud` (göstergeler; düzen `#app[data-hud]`), `kontroller` (dokunmatik tuşlar), `surus-tuslari`, `mini-harita`, `bildirim` |
 | `src/oyun/` | Oyun akışı: `durum` (mod, kamera, araç, `setCar`), `kurulum` (önayar, yardım, `applyPreset`), `ayarlar` (set, CT, kalıcı), `girdi` (I, eğim, klavye), `surus` (simülasyonu oyuna bağlar, `reset`, tur sayacı), `yarislar` (EVENTS, startEvent, evTick), `sinematik` (menü arka planı), `bolge` (setActive), `dongu` (ana döngü), `profil`, `api` (testler için `window.LT`) |
 | `src/ses/` | `sentez` (**saf**: motor katmanları fiziksel modelle, çakıl, patlama, valf, çarpma, süzgeçler; `MOTORLAR` araç türüne göre), `baglam` (AudioContext, iOS ilk dokunuş kilidi, kanallar), `motor` (katmanları devire göre karıştırır; turbo, valf, kompresör, patlamalar), `hedefler` (gerçek motor seslerinin ölçümüne göre uydurulmuş sentez ayarları, üretilir), `efektler` (lastik, zemin, rüzgâr, kerb, çarpma; arayüz ve yarış sesleri), `muzik` (menü rock parçası), `ses` (oyun durumunu okur, `sesTick` döngüde), `kayit` (çevrimdışı kayıt, testler için) |
+| `scripts/menu-video.mjs` | Menü arka plan videosu: sinematik çekimleri oyunun içinden kare kare kaydeder, çapraz geçişlerle dikişsiz döngü yapar |
 | `src/pwa/` | `kayit` (service worker, yeni sürüm kontrolü), `sw-sablon.js` (derlemede `dist/sw.js` olur) |
-| `public/` | Olduğu gibi kopyalanır: `icons/`, `img/` (`menu_*`: ana menü kartları, `tur_*`: yarış türü kartları) |
+| `public/` | Olduğu gibi kopyalanır: `icons/`, `img/` (`menu_*`: ana menü kartları, `tur_*`: yarış türü kartları), `video/menu.mp4` (menü arka planı) |
 | `tests/birim/` | Vitest `fizik`: kararlılık, hızlanma, fren, spin, toprakta sınır (frensiz tur yok, abartan spin), drift dengesi, drift yarışı (%80 tek kombo), asfaltta titreşim yok (5 araç × 9 asfalt pist, kerb sarsıntısı), kalkış, atlama, çarpışma, rastgele sürüş |
 | `tests/olcum/` | Ölçüm koşuları (`npm run olcum`): araç değerleri, tur süreleri (eski klasik motorla karşılaştırma), `ralli` (toprakta tam gaz + tam direksiyon), `drift` ve `drift-izgara` (drift pistlerinde tek kombo oranı), `titresim` (her araç her asfalt pistte poz sıçraması ve kerb sarsıntısı), adım maliyeti |
 | `tests/surec/merkez-durumu.mjs` | Last Turn Merkezi verisi: dallar, aşama, sürümler, son olaylar, son regresyon git'ten (`tests/cikti/merkez.json`) |
@@ -90,6 +92,7 @@ npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 - **Sürüm:** Sürüm numarası `package.json` → `version`; artırma kuralı "Sürümler" bölümünde. `index.html`'deki `window.APP_VERSION='%APP_VERSION%'` satırının tek tırnakları değişmemeli: kurulu eski uygulamalar güncellemeyi bu kalıpla bulur (Prettier bu dosyayı biçimlendirmez).
 - **Service worker:** Derlemede dosya listesiyle üretilir; elle liste tutulmaz. Ana sürüm `last-turn-…`, deneme sürümü `last-turn-dev-…` önbelleğini kullanır.
 - **Ses:** Ses dosyası yok, hepsi oyunda üretilir (`src/ses/`). Motor sesi fizikten okunur (`sim.yeni.rpm`, `vitesT`, `S.gas`), lastik sesi tekerlerin kaymasından (`tk.tanA`, `tk.kap`, `tk.zemin`). Ses ilk dokunuşta açılır (iOS). Seviyeler `set.ses`, `set.muz`. Ses değişikliğinde `npm run build && npm run ses`, sonra `tests/cikti/ses/` kayıtlarını kullanıcıya dinlet (kendin dinleyemezsin; spektrum ve seviye ölçümüne bak). Motor tınısı gerçek motor seslerinin ölçümüne uydurulur: `SES_KAYNAK=<wav klasörü> npm run olcum -- ses-uydur` (`tests/olcum/ses-uydur.test.ts`, ölçüm `tests/yardimci/ses-analiz.ts`) yalnız sayıları `src/ses/hedefler.ts`'e yazar; kayıtlar depoya ve oyuna girmez. Ölçülen kaynak: Stunt Rally 3 motor sesleri (`data/sounds/engines`, engine-sim ile kaydedilmiş).
+- **Menü arka planı:** Menüde önceden kaydedilmiş video oynar (`arayuz/arka-video.ts`); oynarken 3B sahne çizilmez (pil, ısı). Video oynayamazsa (Düşük Güç Modu, H.264 yok, test Chromium'u) canlı sinematik çekimler (`oyun/sinematik.ts`) çalışır. Pistler ya da `SHOTS` değişince videoyu `npm run build && npm run video` ile yeniden üret ve kareye bak. Çevrimdışı oynaması için service worker videoyu parça parça (206) verir.
 - **Kayıtlar:** localStorage anahtarları: `lt_prof`, `lt_car`, `lt_ayar`, `sv_<yarış>`. Yeni alan eklersen eski kayıtlarla uyumlu kalsın (`okuJson` varsayılanla birleştirir).
 
 ## Test
@@ -155,6 +158,7 @@ konu dalı ──testler geçince──► gelistirme (0.1.1, 0.1.2, … her gö
 - Ana menü: üstte logo ve profil, ekranın altında soldan sağa görselli kartlar (Yarış, Serbest sürüş, Garaj, Profil, Ayarlar), kartlarda yalnız başlık; dikey liste ya da aşağı kaydırma yok. Kart görselleri oyunun kendi sahnelerinden (`public/img/menu_*.jpg`). Arkada her yarış türünden sinematik çekimler rastgele akar, art arda aynı çekim gelmez. Alt ekranlar (yarış türü, pistler) de yatay dizilir.
 - Yarış türü kartlarındaki görseller kullanıcının seçtikleridir (`public/img/tur_*.jpg`). Değiştirmeden önce aday çekip seçtir.
 - Görseller internetten alınmaz; oyunun kendi sahnelerinden çekilir.
+- Menü arka planı oyunun kendi çekimlerinden kaydedilmiş, dikişsiz dönen bir videodur; çekimler arası çapraz geçiş (iki çekim de hareketli), kararma yok. Gece yağmurda kokpit çekimi kullanılmaz.
 - Sesler oyunun içinde üretilir (sentez). Başka oyunların ya da kaynakların ses dosyaları oyuna aktarılmaz (lisanslı da olsa); gerçek motor kayıtları yalnız incelenir, ölçülen özelliklerine göre kendi sesimiz üretilir.
 - Menüde yarış oyunlarına uygun rock tarzı müzik çalar; sürüşte müzik yok.
 - Altyapı: TypeScript + Vite + Three.js (npm), derleme ve yayın GitHub Actions'ta. Kod okunur biçimde yazılır (Prettier), eski sıkıştırılmış tek satır stili bırakıldı.

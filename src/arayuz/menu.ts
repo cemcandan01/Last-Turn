@@ -14,6 +14,7 @@ import { PROF, best, saveProf } from "../oyun/profil";
 import { demoStart, demoStop } from "../oyun/sinematik";
 import { reset } from "../oyun/surus";
 import { EVENTS, leaveEvent, TYP, type YarisTanimi } from "../oyun/yarislar";
+import { videoOynuyor } from "./arka-video";
 import { bindSettings, chipsOf, settingsHTML } from "./ayarlar-ekrani";
 import { openGarage } from "./garaj";
 import { kontrolleriKur } from "./kontroller";
@@ -100,7 +101,8 @@ export function showMenu(v?: string[]) {
   $("#big").textContent = "";
   if (v) MV = v;
   const cur = MV[MV.length - 1];
-  if (cur == "settings") demoStop();
+  // arka plan videosu oynuyorsa canlı sinematik gerekmez (ayarlarda da video sürer)
+  if (videoOynuyor() || cur == "settings") demoStop();
   else demoStart();
   const m = $("#menu");
   m.classList.remove("hidden");
