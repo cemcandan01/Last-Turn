@@ -37,4 +37,10 @@ export default [
     p: 2,
     tarayici: "seviyeler",
   },
+  {
+    id: "kapak",
+    ad: "Yarış türü kapak akışı: ok, kaydırma, yan kart; pistler türün rengiyle",
+    p: 2,
+    tarayici: "kapak",
+  },
 ];

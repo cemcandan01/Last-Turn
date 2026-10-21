@@ -1,5 +1,5 @@
-/*! Menü ikonları. Harita, araba, kask ve dişli: Tabler Icons 3.49 (https://tabler.io/icons), MIT Lisansı,
- * Telif (c) 2020-2026 Paweł Kuna. Lisans metni: public/lisanslar.txt. Yarış bayrağı oyunun kendi çizimi. */
+/*! Menü ikonları. Harita, araba, kask, dişli, arazi aracı, rota, dönüş ve start ışıkları: Tabler Icons 3.49 (https://tabler.io/icons), MIT Lisansı,
+ * Telif (c) 2020-2026 Paweł Kuna. Lisans metni: public/lisanslar.txt. Yarış bayrağı ve pist oyunun kendi çizimi. */
 // Çizgi ikonlar (24×24, stroke=currentColor); yalnız <path> içerikleri, çerçeve ikon() ile eklenir.
 
 const IKON = {
@@ -15,6 +15,19 @@ const IKON = {
   /** tabler: settings (dişli) */
   disli:
     '<path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/>',
+  // yarış türleri
+  /** asfalt: firketeli kapalı pist ve start çizgisi (oyunun çizimi) */
+  pist: '<path d="M5 7.5a2.5 2.5 0 0 1 2.5 -2.5h9a2.5 2.5 0 0 1 2.5 2.5v1a2.5 2.5 0 0 1 -2.5 2.5h-3.5a1.5 1.5 0 0 0 0 3h3.5a2.5 2.5 0 0 1 2.5 2.5v.5a2.5 2.5 0 0 1 -2.5 2.5h-9a2.5 2.5 0 0 1 -2.5 -2.5z"/><path d="M9 3.5v3"/>',
+  /** toprak (rallikros), tabler: car-off-road */
+  arazi:
+    '<path d="M9 17h6"/><path d="M9 17a2 2 0 1 1 -4 0a2 2 0 0 1 4 0"/><path d="M19 17a2 2 0 1 1 -4 0a2 2 0 0 1 4 0"/><path d="M17 10l-2 -3"/><path d="M19 17h2v-5a2 2 0 0 0 -2 -2h-5v2h-2.586a1 1 0 0 1 -.707 -.293l-1.121 -1.121a2 2 0 0 0 -1.414 -.586h-4.172a1 1 0 0 0 -1 1v6h2"/>',
+  /** ralli (A'dan B'ye), tabler: route */
+  rota: '<path d="M3 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M19 7a2 2 0 1 0 0 -4a2 2 0 0 0 0 4"/><path d="M11 19h5.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h4.5"/>',
+  /** drift, tabler: rotate-360 */
+  donus:
+    '<path d="M12 16h4v4"/><path d="M19.458 11.042c.86 -2.366 .722 -4.58 -.6 -5.9c-2.272 -2.274 -7.185 -1.045 -10.973 2.743c-3.788 3.788 -5.017 8.701 -2.744 10.974c2.227 2.226 6.987 1.093 10.74 -2.515"/>',
+  /** drag, tabler: traffic-lights */
+  isik: '<path d="M7 7a5 5 0 0 1 5 -5a5 5 0 0 1 5 5v10a5 5 0 0 1 -5 5a5 5 0 0 1 -5 -5l0 -10"/><path d="M11 7a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M11 17a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>',
 };
 export type IkonAdi = keyof typeof IKON;
 
