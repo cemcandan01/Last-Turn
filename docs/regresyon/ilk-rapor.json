@@ -1,12 +1,14 @@
 {
   "kip": "regresyon",
-  "dallar": ["--sure"],
-  "dk": 2.1,
+  "dallar": [
+    "--sure"
+  ],
+  "dk": 3.9,
   "ozet": {
     "fizik": {
       "senaryo": 9,
-      "gecti": 9,
-      "kaldi": 0,
+      "gecti": 8,
+      "kaldi": 1,
       "kosulmadi": 0
     },
     "garaj": {
@@ -16,12 +18,18 @@
       "kosulmadi": 0
     },
     "menu": {
+      "senaryo": 5,
+      "gecti": 5,
+      "kaldi": 0,
+      "kosulmadi": 0
+    },
+    "pist": {
       "senaryo": 1,
       "gecti": 1,
       "kaldi": 0,
       "kosulmadi": 0
     },
-    "pist": {
+    "grafik": {
       "senaryo": 1,
       "gecti": 1,
       "kaldi": 0,
@@ -53,7 +61,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.6860251620000004
+      "sure": 4.218497106999999
     },
     {
       "id": "surus",
@@ -64,7 +72,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.347
+      "sure": 2.792
     },
     {
       "id": "spin",
@@ -77,7 +85,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.199089911
+      "sure": 2.7087079219999994
     },
     {
       "id": "drift-denge",
@@ -90,7 +98,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.461131218999999
+      "sure": 0.7748020840000008
     },
     {
       "id": "saglamlik",
@@ -103,7 +111,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 5.689325476
+      "sure": 7.743846597
     },
     {
       "id": "garaj",
@@ -114,7 +122,7 @@
       "dal": "garaj",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.346
+      "sure": 1.84
     },
     {
       "id": "acilis",
@@ -125,7 +133,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.692
+      "sure": 3.497
     },
     {
       "id": "yarislar",
@@ -136,7 +144,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.731
+      "sure": 2.791
     },
     {
       "id": "toprak",
@@ -149,7 +157,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.903479261
+      "sure": 2.445126609
     },
     {
       "id": "drift-yarisi",
@@ -162,7 +170,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 7.765652397000002
+      "sure": 10.114196995999999
     },
     {
       "id": "titresim",
@@ -173,9 +181,22 @@
         "grup": "asfalt pistte titreşim yok (her araç, her asfalt pist)"
       },
       "dal": "fizik",
+      "durum": "kaldı",
+      "hatalar": [
+        "Grand Prix: Error: Test timed out in 5000ms.",
+        "Kıyı Pisti: Error: Test timed out in 5000ms."
+      ],
+      "sure": 30.86251302099999
+    },
+    {
+      "id": "kokpit",
+      "ad": "Kokpit: kapı panelleri görüşü kapatmıyor, yan aynalar ve dikiz aynası arkayı gösteriyor",
+      "p": 2,
+      "tarayici": "kokpit",
+      "dal": "grafik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 22.585663603999993
+      "sure": 9.288
     },
     {
       "id": "hud-cakisma",
@@ -185,7 +206,7 @@
       "dal": "hud",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 22.643
+      "sure": 43.453
     },
     {
       "id": "hud-duzenleyici",
@@ -195,21 +216,51 @@
       "dal": "hud",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.698
+      "sure": 0.946
+    },
+    {
+      "id": "garaj-ses",
+      "ad": "Garajda Motoru dinle butonu: olay, çalarken durum, bitince eski hâl",
+      "p": 2,
+      "tarayici": "garaj-ses",
+      "dal": "menu",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 0.314
+    },
+    {
+      "id": "dokunma",
+      "ad": "Dokunma: parmak düğmeden kayıp dışarıda kalkınca tıklama iptal, geri dönüp bırakınca tıklanır",
+      "p": 2,
+      "tarayici": "dokunma",
+      "dal": "menu",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 2.674
+    },
+    {
+      "id": "arka-video",
+      "ad": "Menü arka plan videosu: menüde oynuyor ve 3B çizim duruyor, sürüşte gizli",
+      "p": 2,
+      "tarayici": "arka-video",
+      "dal": "menu",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 17.745
     },
     {
       "id": "ses-tarayici",
-      "ad": "Dokununca ses açılıyor, motor sesi, menü müziği, hatasız",
+      "ad": "Dokununca ses açılıyor, motor sesi, menü müziği, garajda motoru dinle (5 sn), hatasız",
       "p": 2,
       "tarayici": "ses",
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.462
+      "sure": 9.71
     },
     {
       "id": "motor-sesi",
-      "ad": "Motor sesi katmanları dolu, taşmıyor, dikişsiz; araçlar farklı",
+      "ad": "Motor sesi katmanları dolu, taşmıyor, dikişsiz, dolgun; araçlar farklı",
       "p": 2,
       "birim": {
         "dosya": "tests/birim/ses.test.ts",
@@ -218,7 +269,7 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.5204727280000001
+      "sure": 2.8787750579999996
     },
     {
       "id": "kerb-tarayici",
@@ -228,7 +279,17 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 27.128
+      "sure": 41.048
+    },
+    {
+      "id": "gecis",
+      "ad": "Menü arka planı: çekim geçişinde kararma yok, eski kare yakınlaşarak çözülüyor",
+      "p": 3,
+      "tarayici": "gecis",
+      "dal": "menu",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 4.773
     },
     {
       "id": "efektler",
@@ -241,7 +302,7 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.04930652900000001
+      "sure": 0.08342162600000003
     }
   ]
 }
