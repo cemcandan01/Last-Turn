@@ -1,9 +1,10 @@
 // Ölçüm: bir fizik adımının işlemci süresi
 import { it } from "vitest";
+import { pistNo } from "../../src/dunya/pist-tanimlari";
 import { surucuKur } from "../yardimci/surucu";
 import { egrilik, pilot } from "../yardimci/pilot";
 it("maliyet", () => {
-  const s = surucuKur({ yaris: 0, arac: 0, lk: "norm" });
+  const s = surucuKur({ yaris: pistNo("gp", 3), arac: 0, lk: "norm" });
   const TR = s.bolge!.TR!,
     i0 = TR.N - 6,
     P = TR.P[i0];

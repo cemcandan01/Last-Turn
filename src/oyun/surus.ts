@@ -42,6 +42,7 @@ const dunyaSorgusu: DunyaSorgusu = {
   kerb: (x, z) => (dunya.cur && dunya.cur.Hk ? dunya.cur.Hk(x, z) : 0),
   havaTutusu: () => ortam.g,
   karli: () => ortam.k == "snow",
+  yolTuru: () => (dunya.cur ? dunya.cur.t : null),
 };
 
 const surusKurulumu = (): SurusKurulumu => ({

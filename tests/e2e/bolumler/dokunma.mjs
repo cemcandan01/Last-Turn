@@ -33,7 +33,7 @@ export default async function ({ p, ok }) {
     r.dismaSondu = !k.classList.contains("basili");
     te("touchend", k, x, 40, 1);
     k.click();
-    r.iptal = !!document.querySelector("#menu .mk") && !document.querySelector("#menu .tile");
+    r.iptal = !!document.querySelector("#menu .mk") && !document.querySelector("#menu .tk");
     // 2) bas, dışarı çık, geri gel, üstünde bırak: tıklanır
     k = kart();
     [x, y] = orta(k);
@@ -43,7 +43,7 @@ export default async function ({ p, ok }) {
     r.geriYandi = k.classList.contains("basili");
     te("touchend", k, x + 3, y, 2);
     k.click();
-    r.tiklandi = !!document.querySelector("#menu .tile");
+    r.tiklandi = !!document.querySelector("#menu .tk");
     // 3) iptal edilen dokunuş başka bir düğmeye hemen yapılan tıklamayı yutmaz
     LT.showMenu(["home"]);
     k = kart();

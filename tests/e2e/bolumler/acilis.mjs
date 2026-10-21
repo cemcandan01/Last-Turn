@@ -21,9 +21,12 @@ export default async function ({ p, ok }) {
   const imgs = await p.evaluate(async () => {
     LT.showMenu(["race"]);
     await new Promise((r) => setTimeout(r, 800));
-    return [...document.querySelectorAll(".tile img")].map((i) => i.naturalWidth > 0);
+    // kapak akışı: her yarış türünün kartında ikon ve ad
+    return [...document.querySelectorAll("#menu .tk")].map(
+      (k) => !!k.querySelector("svg.ik path") && !!k.querySelector("b").textContent,
+    );
   });
-  ok(imgs.length == 5 && imgs.every(Boolean), "5 yarış türü görseli yükleniyor");
+  ok(imgs.length == 5 && imgs.every(Boolean), "yarış türü kapak akışında 5 tür ikonuyla");
   const ana = await p.evaluate(async () => {
     LT.showMenu(["home"]);
     await new Promise((r) => setTimeout(r, 800));
@@ -40,10 +43,11 @@ export default async function ({ p, ok }) {
       icinde = r.every(
         (b) => b.left >= 0 && b.right <= m.width + 1 && b.bottom <= m.height + 1 && b.top > m.height * 0.4,
       ),
-      gorsel = k.every((e) => e.querySelector("img").naturalWidth > 0),
+      // her panelde ikon (çizimi olan svg) ve başlık
+      gorsel = k.every((e) => e.querySelector("svg.ik path") && e.querySelector("b").textContent.trim()),
       adlar = k.map((e) => e.textContent.trim());
     k[0].click();
-    const yarisAcildi = !!document.querySelector("#menu .tile[data-ty]");
+    const yarisAcildi = !!document.querySelector("#menu .tk");
     document.querySelector("#mbk").click();
     return {
       n: k.length,
@@ -57,7 +61,7 @@ export default async function ({ p, ok }) {
   });
   ok(
     ana.n == 5 && ana.sira && ana.icinde && ana.gorsel && ana.yarisAcildi && ana.eve,
-    "ana ekran: altta soldan sağa 5 görselli kart, Yarış kartı açılıyor, geri ana ekrana döner " +
+    "ana ekran: altta soldan sağa 5 ikonlu panel, Yarış kartı açılıyor, geri ana ekrana döner " +
       JSON.stringify(ana),
   );
   const surum = await p.evaluate(() => [

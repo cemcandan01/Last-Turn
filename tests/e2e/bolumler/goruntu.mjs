@@ -1,5 +1,5 @@
 /* global LT */
-// Ekran görüntüleri (yalnız --goruntu): menü, garaj, yarış, kokpit, 15 pist, HUD düzenleri → tests/cikti/
+// Ekran görüntüleri (yalnız --goruntu): menü, garaj, yarış, kokpit, 30 pist, HUD düzenleri → tests/cikti/
 export default async function ({ sayfa, fs, path, CIKTI }) {
   fs.mkdirSync(CIKTI, { recursive: true });
   console.log("Ekran görüntüleri → tests/cikti/");
@@ -27,7 +27,7 @@ export default async function ({ sayfa, fs, path, CIKTI }) {
   await kare("kokpit", () => {
     LT.oyun.camMode = 3;
   });
-  for (let i = 0; i < 15; i++) {
+  for (let i = 0; i < 30; i++) {
     const d = await g.evaluate(async (i) => {
       LT.oyun.camMode = 0;
       LT.startEvent(

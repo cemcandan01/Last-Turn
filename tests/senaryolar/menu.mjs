@@ -31,4 +31,16 @@ export default [
     p: 2,
     tarayici: "arka-video",
   },
+  {
+    id: "seviyeler",
+    ad: "Pist listesi: 6 pist seviye sırasıyla, seviye rozeti ve kimin için ideal; drift hedef puanı",
+    p: 2,
+    tarayici: "seviyeler",
+  },
+  {
+    id: "kapak",
+    ad: "Yarış türü kapak akışı: ok, kaydırma, yan kart; pistler türün rengiyle",
+    p: 2,
+    tarayici: "kapak",
+  },
 ];

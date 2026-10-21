@@ -44,6 +44,7 @@ export function surucuKur(a: SurusAyari) {
     kerb: (x, z) => (dunya.cur && dunya.cur.Hk ? dunya.cur.Hk(x, z) : 0),
     havaTutusu: () => havaTutusu(tema, wx),
     karli: () => tema == "snow",
+    yolTuru: () => (dunya.cur ? dunya.cur.t : null),
   };
   const sim = new Simulasyon(7);
   const olaylar = { spin: 0 };
