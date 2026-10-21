@@ -1,0 +1,32 @@
+# Alan kuralları ve tuzaklar
+
+Çalıştığın alanın bölümünü oku (genel kurallar `CLAUDE.md`'de). Bir alanın kuralını değiştirirsen ya da yeni bir tuzak bulursan burada güncelle.
+
+## Fizik, araçlar ve yarışlar
+
+- **Fizik motoru:** Tek motor (`fizik/yeni/model.ts`): katı gövde, 4 teker, süspansiyon, lastik, aktarma. Eski klasik (bisiklet) motoru 3.1'de kaldırıldı; ayarlarda motor seçimi yok. Oyun ölçeğinde: yerçekimi 24, tutuş katsayıları gerçekçi × `TUTUS`. Gevşek zeminde (toprak, çim, çamur, kar) tutuş `GEVSEK_TUTUS`, tepe kayma açısı `GEVSEK_TEPE`, eğri `GEVSEK_C`, arka `GEVSEK_ARKA`: toprakta tam gaz + tam direksiyon yola tutunmaz, fren gerekir. Çizim gövde yönelimini ve süspansiyonu `sim.yeni`'den okur. Fiziği değiştirince `npm test` ve `npm run olcum` (tur süreleri hedeflerle karşılaştırılır).
+- **Drift ve kayma:** Drift modu (`DR.on`) yalnız bilinçli driftte açılır (açı eşiği + gaz + 0,25 sn). Eşik drift önayarlarında düşük, yarışlarda yüksek. Bu ayrımı bozma.
+- **Ayar durumu:** `setCar` aracı değiştirir. `startEvent` yarıştan önceki kurulumu `EV.sv`'ye kaydeder, aracın kendi önayarını yükler (yarışta önayar seçilmez), `leaveEvent` geri yükler. Menü arka planı çalışırken (sinematik) araç ve koşullar geçicidir; testlerde yarışı başlatmadan önce `LT.demoStop()` çağır.
+- **Araç ve yarış türü uyumu:** Her araç her yarışı bitirebilir; türe uygun araç kendi yarışında daha başarılıdır ve bu yarış sonu süresinde görünür. Yanlış türdeki aracın değeri düşürülmez; avantaj yalnız uyumlu araca verilir: `uz` ve `uzg` (uzmanlık), aracın kendi yarış türünün pistinde tutuş ve motor gücü çarpanı (`DunyaSorgusu.yolTuru`). Uzmanlık değişince hedef süreleri yeniden ölç (`npm run olcum -- pistler`; `TUR=rl` ile tek tür). Drift ve drag araçları doğal olarak açık ara önde. Denetim: `tests/birim/uyum.test.ts` (hafif: pistte yol tutuşu, drag süresi), ayrıntılı tur/puan karşılaştırması `npm run olcum -- uyum`.
+
+## Pistler ve dünya
+
+- **Pistler ve seviyeler:** Her yarış türünde 6 pist, her biri bir seviyede (`SEVIYELER`: Çaylak, Amatör, Deneyimli, Usta, Uzman, Efsane; `lv` 1-6). Seviye yükseldikçe yol daralır (`hw`), virajlar sıkılaşır (firkete, şikan, daralan viraj), yükseklik artar, hedef sıkılaşır. Pistler `tarif` ile yazılır (`dunya/pist-ciz.ts`: `D120` düz, `L60/90` sola 60 m yarıçaplı 90°, `R25/180` sağa firkete, kapalı pistte sonda `K40` kapanış). En küçük yarıçap `hw + KW`'den büyük, kollar arası `2·hw + 4` m'den fazla olmalı (`tests/birim/pistler.test.ts`). Hedef süre `tg` ve drift hedef puanı `hp` ölçülerek yazılır (`npm run olcum -- pistler`, `-- drift-puan`); yeri değişince elle tahmin edilmez. Testler pistlere sırayla değil `pistNo(tür, seviye)` ile erişir. Rekor anahtarı `<tür>_<seviye>`. Dağ ve şehir pistlerinde bariyer/duvar çarpışması kesintisizdir (araç firketede alt kola düşmesin).
+- **Pist yüksekliği basamaksız:** `dunya/pist.ts → parcayaIzdusum` pist boyunca konumu teğeti sürekli dönen izdüşümle bulur; yükseklik (`bolgeler.ts`, Hb) ve kerb bundan hesaplanır. En yakın noktaya uzaklık ya da nokta teğetiyle hesaplamak milimetrik basamaklar yapar, sert yaylı araç titrer (asfaltta titreşim testi bunu yakalar). Kerb sarsıntısı (`S.kerb`, kamera) yalnız yere değen bir teker kerbin üstündeyken açılır (`DunyaSorgusu.kerb`, bölgenin `Hk`'si); toplam yükseklikle karar verilmez, yoksa yokuşlu pistte sürekli açık kalır.
+- **Drift pisti:** Drift Parkı virajları otoparktaki doğal drift yarıçapında (35-70 m). Drift pistini değiştirince `npm run olcum -- drift-izgara`: gerçekçide sürüş tarzlarının yaklaşık yarısı turun %80'ini tek komboda geçmeli (adil zorluk).
+- **Dekor tohumu:** Her bölge kendi tohumuyla kurulur (`dunya/dunya.ts → ensureBuilt`); ağaçlar her açılışta aynı yerde. `kurucu.ts`'teki `rnd()` dışında rastgele kullanma.
+- **Bölgeler:** Her pist dünyada kendi kutusunda (`box`), kutular çakışmaz. Pist yalnız seçilince kurulur (`ensureBuilt`), yalnız etkin bölge görünür. Yükseklik `Hw(x,z)`, zemin `surfW(x,z)` (`SURF` indeksi).
+
+## Görünüm, kokpit, menü
+
+- **Görünüm:** Renk yönetimi kapalı, çıktı doğrusal (Three r128 görünümü). Işık şiddetleri `ISIK` (π) çarpanıyla verilir (`cizim/sahne.ts`). Yeni ışık eklerken aynı çarpanı kullan.
+- **Kokpit:** Gövde içeriden görünmez (tek yüzlü), iç mekân `cock` grubunda. `userData.pan` taşıyan parçalar (renk panelleri, yan camlar) kokpitte gizlenir. Ön cam `glassQM` kokpitte şeffaflaşır.
+- **Menü arka planı:** Menüde önceden kaydedilmiş video oynar (`arayuz/arka-video.ts`); oynarken 3B sahne çizilmez (pil, ısı). Video oynayamazsa (Düşük Güç Modu, H.264 yok, test Chromium'u) canlı sinematik çekimler (`oyun/sinematik.ts`) çalışır. Pistler ya da `SHOTS` değişince videoyu `npm run build && npm run video` ile yeniden üret ve kareye bak. Çevrimdışı oynaması için service worker videoyu parça parça (206) verir.
+
+## HUD
+
+- **HUD:** Göstergeler ve dokunmatik tuşlarla ilgili her değişiklik `docs/HUD.md` kurallarına uyar (bölgeler, kenar boşlukları, bilgi önceliği, görünüm, düzenler). Her gösterge (hız, sayaç, tuşlar, harita) Ayarlar → Göstergeler düzenleyicisinde önizlemeyle ayrı seçilir (`arayuz/hud-duzenleyici.ts`, `oyun/ayarlar.ts → HUD_PARCALARI`, `gorunum`); hazır düzenler Köşe, Kadran, Bant, Sade (`HUDLAR`). Yerleşim yalnız `stil.css`'te; `hud.ts` içerik yazar. Yeni öğe e2e çakışma testine eklenir.
+
+## Ses
+
+- **Ses:** Ses dosyası yok, hepsi oyunda üretilir (`src/ses/`). Motor sesi fizikten okunur (`sim.yeni.rpm`, `vitesT`, `S.gas`), lastik sesi tekerlerin kaymasından (`tk.tanA`, `tk.kap`, `tk.zemin`). Ses ilk dokunuşta açılır (iOS). Seviyeler `set.ses`, `set.muz`. Ses değişikliğinde `npm run build && npm run ses`, sonra `tests/cikti/ses/` kayıtlarını kullanıcıya dinlet (kendin dinleyemezsin; spektrum ve seviye ölçümüne bak). Motor tınısı gerçek motor seslerinin ölçümüne uydurulur: `SES_KAYNAK=<wav klasörü> npm run olcum -- ses-uydur` (`tests/olcum/ses-uydur.test.ts`, ölçüm `tests/yardimci/ses-analiz.ts`) yalnız sayıları `src/ses/hedefler.ts`'e yazar; kayıtlar depoya ve oyuna girmez. Ölçülen kaynak: Stunt Rally 3 motor sesleri (`data/sounds/engines`, engine-sim ile kaydedilmiş).

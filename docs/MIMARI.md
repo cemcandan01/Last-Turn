@@ -108,4 +108,4 @@ sohbet ──push──► konu dalı (hud, fizik, …) ──Actions: test
 2. `npm ci`
 3. `npm run dev -- --host` → bilgisayarda ve aynı ağdaki iPhone'da `http://<bilgisayar-ip>:5173` (anında yenileme)
 4. Editör: VS Code + ESLint + Prettier eklentileri (ayarlar depoda: `.editorconfig`, `.prettierrc.json`, `eslint.config.js`)
-5. Gönderim ve yayın aynı: konu dalında çalış, `gelistirme` / `master`'a birleştirip push (`CLAUDE.md` → Dallar ve yayın).
+5. Gönderim ve yayın aynı: konu dalında çalış, `gelistirme` / `master`'a birleştirip push (`docs/SUREC.md`).

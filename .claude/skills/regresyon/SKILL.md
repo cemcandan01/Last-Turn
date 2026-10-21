@@ -7,7 +7,7 @@ description: Last Turn sürüm regresyonu ve canlıya çıkış. "regression" so
 
 Bu sohbetin dalı `regresyon`. Başka bir sohbetin konu dalına yazılmaz. Düzeltmeler yalnız `regresyon` dalına yapılır, oradan `gelistirme`'ye (deneme) gider, kullanıcı onaylayınca `master`'a (canlı).
 
-Sürüm düzeni (`CLAUDE.md` → "Sürümler"): `gelistirme`'ye her gönderim yamayı artırır (0.1.1, 0.1.2, …). Regresyon sürümü dondurur, canlıya o sırada denemede olan sürüm (ör. 0.1.37) çıkar, ardından `gelistirme` 0.2.0'a geçer.
+Sürüm düzeni (`docs/SUREC.md` → "Sürümler"): `gelistirme`'ye her gönderim yamayı artırır (0.1.1, 0.1.2, …). Regresyon sürümü dondurur, canlıya o sırada denemede olan sürüm (ör. 0.1.37) çıkar, ardından `gelistirme` 0.2.0'a geçer.
 
 ## 1. Hazır mı, başlasın mı?
 
@@ -93,7 +93,7 @@ git checkout master && git pull origin master && git merge --no-ff --no-edit reg
 ```
 - `README.md` "İçerik" bölümüne bu sürümde oyuncunun göreceği özellikleri ekle.
 - Sürüm numarası değişmez (canlıya denemede denenen sürüm çıkar). `npm run kontrol`; merge commit başlığı ya da ek commit `Yayın 0.1.37: …` olsun (sürümün kalıcı kaydı budur); `git push origin master`. Sonra etiketi dene: `git tag v0.1.37 && git push origin v0.1.37`; bulut ortamı etiket gönderimini reddederse (403) bırak, kayıt "Yayın" commit'idir.
-- GitHub Actions'ta "Yayın" iş akışının `canli-duman` adımını izle (`mcp__github__actions_list`). Kalırsa açılan "Canlı duman hatası" kaydını oku, düzelt ve kullanıcıya bildir (acil düzeltme: `CLAUDE.md` → "Acil düzeltme").
+- GitHub Actions'ta "Yayın" iş akışının `canli-duman` adımını izle (`mcp__github__actions_list`). Kalırsa açılan "Canlı duman hatası" kaydını oku, düzelt ve kullanıcıya bildir (acil düzeltme: `docs/SUREC.md`).
 - Sonraki sürümü aç:
   ```
   git checkout gelistirme && git pull origin gelistirme && git merge --no-edit master

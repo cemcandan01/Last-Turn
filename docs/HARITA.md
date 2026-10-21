@@ -1,0 +1,32 @@
+# Dosya haritası
+
+Kodda bir şey ararken önce buraya bak; bulamazsan `kasif` ajanına sor. Yeni klasör ya da önemli dosya eklersen buraya bir satır ekle.
+
+| Klasör / dosya | İçerik |
+|---|---|
+| `index.html` | HTML iskeleti. `window.APP_VERSION='…'` satırı derlemede doldurulur |
+| `src/main.ts` | Giriş: modülleri sırayla kurar, döngüyü başlatır |
+| `src/stil.css` | Tüm stiller: menü, HUD, garaj, alt paneller, kontrol tuşları, performans göstergesi |
+| `src/cekirdek/` | Saf yardımcılar: `matematik` (cl, sm, ad), `rastgele` (tohumlu üreteçler), `ekran` (yön kilidi, `toApp`), `dom`, `depo` (localStorage), `bicim`, `performans` (FPS paneli) |
+| `src/fizik/` | **Saf fizik** (three ve DOM yok): `veriler` (SURF, TIRES, TUNE, AST, LEVELS, PRESETS), `tipler` (arabirimler), `ortak` (drift penceresi DR, drift puanı, çamur, toz), `simulasyon` (sabit adım), `carpisma` (ızgara) |
+| `src/fizik/yeni/` | Fizik motoru (tek motor; klasör adı geçmişten): `model` (katı gövde, 4 teker, süspansiyon, örtük teker çözücüsü, yardımlar, çarpışma), `lastik` (birleşik kayma lastik modeli), `arac-fizigi` (araç verisinden kütle, atalet, yay, motor, vites, aerodinamik) |
+| `src/arac/` | `araclar` (CARS: 5 aracın fizik değerleri ve gövde profilleri), `istatistik` (garaj çubukları) |
+| `src/dunya/` | `pist` (Catmull-Rom pist, en yakın nokta, kerb, rampa), `pist-ciz` (düz/yay tarifinden pist, kapanış), `pist-tanimlari` (TDEF: 30 pist, 5 tür × 6 seviye, SEVIYELER), `bolgeler` (mkReg, drag, Boş Otopark, REG), `corak` (Çorak Topraklar), `dekor` (orman, tabela, duvar, PROPS), `kurucu` (bölge kurma, toplu çizim, çarpışma kaydı), `temalar` (TH), `dunya` (yükseklik/zemin sorgusu, WORLDS, kurulum) |
+| `src/cizim/` | three.js: `sahne` (renderer, kamera, ışık), `ortam` (saat, hava, yağış, gölge), `arac-modeli`, `kokpit`, `garaj-sahnesi`, `parcaciklar`, `kamera` (takip ve bakış durumu), `zemin`, `dokular`, `malzemeler`, `yardimci` |
+| `src/arayuz/` | DOM: `menu` (ana menü, `startWorld`), `ayarlar-ekrani` (ayarlar, duraklatma), `garaj`, `sonuc`, `hud` (göstergeler; düzen `#app[data-hud]`), `kontroller` (dokunmatik tuşlar), `surus-tuslari`, `mini-harita`, `bildirim` |
+| `src/oyun/` | Oyun akışı: `durum` (mod, kamera, araç, `setCar`), `kurulum` (önayar, yardım, `applyPreset`), `ayarlar` (set, CT, kalıcı), `girdi` (I, eğim, klavye), `surus` (simülasyonu oyuna bağlar, `reset`, tur sayacı), `yarislar` (EVENTS, startEvent, evTick), `sinematik` (menü arka planı), `bolge` (setActive), `dongu` (ana döngü), `profil`, `api` (testler için `window.LT`) |
+| `src/ses/` | `sentez` (**saf**: motor katmanları fiziksel modelle, çakıl, patlama, valf, çarpma, süzgeçler; `MOTORLAR` araç türüne göre), `baglam` (AudioContext, iOS ilk dokunuş kilidi, kanallar), `motor` (katmanları devire göre karıştırır; turbo, valf, kompresör, patlamalar), `hedefler` (gerçek motor seslerinin ölçümüne göre uydurulmuş sentez ayarları, üretilir), `efektler` (lastik, zemin, rüzgâr, kerb, çarpma; arayüz ve yarış sesleri), `muzik` (menü rock parçası), `ses` (oyun durumunu okur, `sesTick` döngüde), `kayit` (çevrimdışı kayıt, testler için) |
+| `src/arayuz/ikonlar.ts` | Arayüz çizgi ikonları (`ikon(ad)`); Tabler Icons (MIT) ve oyunun kendi çizimleri |
+| `scripts/menu-video.mjs` | Menü arka plan videosu: sinematik çekimleri oyunun içinden kare kare kaydeder, çapraz geçişlerle dikişsiz döngü yapar |
+| `src/pwa/` | `kayit` (service worker, yeni sürüm kontrolü), `sw-sablon.js` (derlemede `dist/sw.js` olur) |
+| `public/` | Olduğu gibi kopyalanır: `icons/`, `video/menu.mp4` (menü arka planı), `lisanslar.txt` (üçüncü taraf lisansları) |
+| `tests/birim/` | Vitest `uyum`: türe uygun araç kendi pistinde en iyi tutar, drag aracı en hızlı. `pistler`: 5 tür × 6 seviye, pist kendini kesmez, viraj yola sığar, bölgeler çakışmaz, hedefler ölçülü. `fizik`: kararlılık, hızlanma, fren, spin, toprakta sınır (frensiz tur yok, abartan spin), drift dengesi, drift yarışı (%80 tek kombo), asfaltta titreşim yok (5 araç × 18 asfalt pist, kerb sarsıntısı, sert frende gövde vurmaz), kalkış, atlama, çarpışma, rastgele sürüş |
+| `tests/olcum/` | Ölçüm koşuları (`npm run olcum`): araç değerleri, `pistler` (her pistte pilot süresi ve seviyeye göre hedef süre), `drift-puan` (drift pistlerinde pilot puanı ve hedef puan), `uyum` (her türde 5 aracın tur süresi, puanı ve pistte yol tutuşu), tur süreleri (eski klasik motorla karşılaştırma), `ralli` (toprakta tam gaz + tam direksiyon), `drift` ve `drift-izgara` (drift pistlerinde tek kombo oranı), `titresim` (her araç her asfalt pistte poz sıçraması ve kerb sarsıntısı), adım maliyeti |
+| `tests/surec/merkez-durumu.mjs` | Last Turn Merkezi verisi: dallar, aşama, sürümler, son olaylar, son regresyon git'ten (`tests/cikti/merkez.json`) |
+| `tests/kosucu.mjs` | Test koşucusu: `duman`, `alan <dal>`, `regresyon`, `liste`; dal dal rapor `tests/cikti/rapor.md` |
+| `tests/senaryolar/` | Her dalın senaryoları kendi dosyasında (`<dal>.mjs`): önem (P1-P3), duman, birim grubu ya da tarayıcı bölümü (`BENIOKU.md`) |
+| `tests/e2e/duman.mjs` | Playwright: derlenmiş oyunu (ya da `--adres` ile canlıyı) açar, `tests/e2e/bolumler/` bölümlerini koşar (açılış, yarışlar, garaj, sürüş, kerb, HUD); `goruntu` ekran görüntüleri |
+| `tests/veri/` | Senaryolar ve kayıtlı fizik izi |
+| `tests/yardimci/` | Node'da sürüş: test sürücüsü (`surucu`), otomatik pilot (`pilot`), araç uyumu ölçümleri (`uyum`: en iyi tur, drag, drift puanı, viraj tutuşu), drift pilotu ve drift yarışı puan kuralları (`drift-pilot`), sürüş denemeleri (`denemeler`: sanal düz zemin, frensiz tur), sahte tuval |
+| `.github/workflows/` | `denetim` (konu dalında alan testi), `yayin` (duman → master ve gelistirme → Pages → canlı duman), `deneme-tetik` |
+| `docs/` | `MIMARI.md` (katmanlar, veri akışı), `GELISTIRME.md` (sohbet başlangıç istemleri), `HUD.md` (HUD standardı) |

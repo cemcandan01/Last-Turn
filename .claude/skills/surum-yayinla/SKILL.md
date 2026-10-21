@@ -5,7 +5,7 @@ description: Last Turn konu sohbetinde yapılan işi gönderir. Alan testi ve du
 
 # Konu dalından gönder
 
-Akış (`CLAUDE.md` → "Dallar ve yayın"): konu dalı → testler geçince **kendiliğinden** `gelistirme` (deneme, https://cemcandan01.github.io/Last-Turn/dev/) → gece regresyonu → onay → `master` (canlı). Konu sohbeti yalnız kendi dalına ve `gelistirme`'ye yazar.
+Akış (`docs/SUREC.md`): konu dalı → testler geçince **kendiliğinden** `gelistirme` (deneme, https://cemcandan01.github.io/Last-Turn/dev/) → gece regresyonu → onay → `master` (canlı). Konu sohbeti yalnız kendi dalına ve `gelistirme`'ye yazar.
 
 1. `oyun-test` skill'ini uygula: tip denetimi, ESLint, biçim, `npm run alan -- <dal>` (konu dalı ve dokunulan dallar). Testler geçmeden gönderme.
 2. `git status` ile istenmeyen dosya olmadığını kontrol et (`dist/`, `tests/cikti/`, `node_modules/` yok sayılır). Türkçe commit: kısa başlık, boş satır, değişiklikler madde madde. Konu dalına gönder: `git push -u origin <konu>`.
@@ -26,5 +26,5 @@ Akış (`CLAUDE.md` → "Dallar ve yayın"): konu dalı → testler geçince **k
 5. GitHub Actions "Yayın" iş akışını izle (`mcp__github__actions_list`, ~3-5 dk): duman → deneme sürümü yayını → canlı adreslerde duman. Kalırsa "Canlı duman hatası" kaydını oku; kendi işinden geldiyse hemen düzelt ve tekrar gönder.
 6. Yayın bitince (deneme adresinde duman geçince) `merkez` skill'iyle merkezi tazele ve bildir: "<dal>: <sürüm> denemede, kontrol edebilirsin (<iş>)". Kullanıcıya kısa yaz: sürüm numarası (ör. 0.1.5), ne değişti, "telefonda deneme uygulamasından bakabilirsin; beğenmezsen söyle, düzeltip tekrar gönderirim, 'geri al' dersen geri alırım". Canlıya çıkışın gece regresyonundan sonra onayla olacağını hatırlat.
    - **"Geri al":** `gelistirme`'deki o işin birleştirme commit'ini `git revert -m 1 <commit>` ile geri al (konu dalında aynısını yap ki tekrar gönderilmesin), yama +1, kontrol, gönder.
-7. **Acil düzeltme** (yalnız kullanıcı açıkça "canlıya acil düzeltme" / "hemen canlıya" derse): `CLAUDE.md` → "Acil düzeltme" adımları. Başka hiçbir durumda konu sohbeti `master`'a yazmaz.
+7. **Acil düzeltme** (yalnız kullanıcı açıkça "canlıya acil düzeltme" / "hemen canlıya" derse): `docs/SUREC.md` → "Acil düzeltme" adımları. Başka hiçbir durumda konu sohbeti `master`'a yazmaz.
 8. Hiçbir dalda rebase ya da force-push yok; başka sohbetin konu dalına yazılmaz.
