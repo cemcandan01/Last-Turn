@@ -128,11 +128,14 @@ export function buildInterior(d: Arac) {
   // (dış gövde içeriden görünmez, bu yüzden panelin üstü pencere eşiği olur)
   const kt = (kokpit.kt = Math.max(fy + 0.25, Math.min(yb, ey - 0.2)));
   // zemin ve kapı iç panelleri (yol ve tekerler alttan görünmesin)
+  const z0 = mz - (L + 0.3) / 2;
   cock.add(bx(2 * hw, 0.04, L + 0.5, 0, fy, mz, M.d));
   for (const sd of [-1, 1])
     cock.add(
       bx(0.06, kt - fy, L + 0.3, sd * hw, (kt + fy) / 2, mz, M.p),
-      bx(0.1, 0.025, L + 0.3, sd * (hw - 0.03), kt, mz, M.d),
+      // eşik: sürücünün yanına kadar düz, oradan A direğinin dibine (ön camın alt kenarına) yükselir
+      bx(0.045, 0.045, ez - z0 + 0.02, sd * (hw - 0.03), kt, (ez + z0) / 2 + 0.01, M.d),
+      beam([sd * (hw - 0.03), kt, ez], [sd * (hw - 0.03), yc, zc + 0.05], M.d, 0.045),
       bx(0.1, 0.04, L * 0.5, sd * (hw - 0.05), kt - 0.12, mz - 0.1, M.l),
     );
   // torpido: gövdesi tabandan dt'ye, üstü göstergelerin arkasından ön camın alt kenarına yükselir
@@ -145,7 +148,13 @@ export function buildInterior(d: Arac) {
   for (const sd of [-1, 1])
     cock.add(
       tri([sd * hw, dt, zd], [sd * hw, dt, zc + 0.05], [sd * hw, yc, zc + 0.05], M.d2),
-      tri([sd * hw, kt, zc + 0.05], [sd * hw, yc, zc + 0.05], [sd * hw, kt, zc - 0.35], M.p2),
+      // kapı paneli yükselen eşiğin altını doldurur (torpidonun yanı eşiğin üstünden görünmesin)
+      tri(
+        [sd * (hw - 0.005), kt, ez],
+        [sd * (hw - 0.005), kt, zc + 0.05],
+        [sd * (hw - 0.005), yc, zc + 0.05],
+        M.p2,
+      ),
     );
   // gösterge grubu: kadranlar sürücüye dönük ve eğik; arka panel kadranların arkasında, siperlik üstünde
   // (kutu kadranların önünde kalırsa alt yarılarını kapatır). Grup Y'de π döndüğü için yerel x ters.
