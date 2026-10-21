@@ -35,8 +35,8 @@ export const TYP: Record<
     pk: "tr",
     laps: 3,
     v: 28.5,
-    n: "Toprak yarışları",
-    d: "3 tur: çamur, su ve rampalar. Hedef süreyi geç.",
+    n: "Rallycross yarışları",
+    d: "3 tur, asfalt ve toprak karışık: çamur, su ve rampalar. Hedef süreyi geç.",
   },
   dp: {
     k: "drift",

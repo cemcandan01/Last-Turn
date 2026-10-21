@@ -759,9 +759,6 @@ details[open] > summary::after {
   padding: 0 18px;
   text-align: center;
   box-shadow: 0 18px 40px #000a;
-  transition:
-    transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
-    opacity 0.4s;
 }
 .tk .ik {
   width: 84px;
@@ -793,6 +790,15 @@ details[open] > summary::after {
 .tk.on small,
 .tk.on em {
   opacity: 1;
+}
+/* ortaya oturan kartın kısa nabzı */
+.tk.geldi .ik {
+  animation: tkGeldi 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes tkGeldi {
+  40% {
+    transform: scale(1.12);
+  }
 }
 .tk.on.basili {
   filter: brightness(1.2);

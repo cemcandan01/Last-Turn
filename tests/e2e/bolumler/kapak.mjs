@@ -28,6 +28,32 @@ export default async function ({ p, ok }) {
     document.querySelectorAll("#menu .tk")[4].click();
     r.kaydirmaTiklamaYok = !document.querySelector("#menu .rlist");
     await w(450);
+    // yavaş sürükleme: kartlar parmağı izler; kısa yol geri oturur, uzun yol kadar tür döner
+    const surukle = async (yol) => {
+      kf.dispatchEvent(
+        new TouchEvent("touchstart", { bubbles: true, touches: [t(600)], changedTouches: [t(600)] }),
+      );
+      for (let i = 1; i <= 10; i++) {
+        kf.dispatchEvent(
+          new TouchEvent("touchmove", {
+            bubbles: true,
+            touches: [t(600 + (yol * i) / 10)],
+            changedTouches: [],
+          }),
+        );
+        await w(40);
+      }
+      await w(200);
+      kf.dispatchEvent(
+        new TouchEvent("touchend", { bubbles: true, touches: [], changedTouches: [t(600 + yol)] }),
+      );
+      await w(450);
+    };
+    await surukle(380); // sağa iki kart boyu: iki tür geri
+    r.uzunSurukleme = orta() == 2;
+    await surukle(60); // kısa: yerine oturur
+    r.kisaSurukleme = orta() == 2;
+    for (let i = 0; i < 6; i++) document.querySelector("#kfg").click();
     // ortadaki karta dokununca o türün pistleri, türün rengiyle
     document.querySelectorAll("#menu .tk")[4].click();
     const m = document.querySelector("#menu");
