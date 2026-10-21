@@ -6,6 +6,7 @@ iPhone'da ana ekrana kurulan (PWA) 3D yarış oyunu. **TypeScript + Vite + Three
 - `gelistirme` dalı → https://cemcandan01.github.io/Last-Turn/dev/ (deneme sürümü; ayrı ad, ayrı önbellek). Sürümün toplandığı ortak alan: içinde çalışılmaz, konu sohbetleri işi testler geçince buraya kendiliğinden birleştirir.
 - **Konu dalları:** her sohbet kendi dalında çalışır (`hud`, `fizik`, `garaj`, `menu`, `pist`, `ses`, `altyapi` gibi; sohbetin alanının kısa adı). Ayrıntı: "Dallar ve yayın".
 - **Last Turn Merkezi:** https://claude.ai/artifact/MNacFzHf5D2kibH1MEyXkq (Claude uygulamasında): aşama, push bekleyen dallar, sürümler, son olaylar, son regresyon. Sohbetler önemli her olayda tazeler ve telefon bildirimi gönderir (`merkez` skill'i).
+- **Yönetmen sohbeti:** kullanıcı isteklerini buraya yazar; yönetmen alanı (dalı) seçer, işi böler, her dal için temiz bir sohbet açar, bağımlı işleri sırayla başlatır (`yonlendir` skill'i). Konu sohbetleri işi bitirince yönetmene `send_message` (`@parent`) ile haber verir.
 - **Özel sohbetler:** `kurallar` dalı (bu dosyanın, skill'lerin ve geliştirme sürecinin yönetimi), `regresyon` dalı ("regression" sohbeti: sürüm regresyonu ve canlıya çıkış, `regresyon` skill'i).
 
 Her iki yayında da duman testi geçmezse yayın yapılmaz; yayından sonra canlı ve deneme adreslerinde duman koşar. Kullanıcı uygulamayı internet varken açınca yeni sürüm iner.
