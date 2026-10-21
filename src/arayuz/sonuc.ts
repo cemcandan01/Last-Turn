@@ -14,9 +14,11 @@ export function sonucGoster(EV: Yaris) {
     const b = best(EV.k),
       nb = EV.score > b;
     if (nb) saveBest(EV.k, EV.score);
-    h = "Drift yarışması bitti";
+    const gecti = EV.score > 0 && EV.score >= EV.limit;
+    h = gecti ? "Hedef geçildi" : "Hedefe ulaşılamadı";
     p =
       row("Toplam puan", EV.score) +
+      row("Hedef", EV.limit + " puan · " + (gecti ? "geçti" : "kaldı")) +
       row("En iyi kombo", EV.best) +
       row("Rekor", Math.max(b, EV.score) + (nb ? " · YENİ" : ""));
   } else {

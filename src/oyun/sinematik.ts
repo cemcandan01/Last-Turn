@@ -46,9 +46,9 @@ const SHOTS: Cekim[] = [
     ev: pistNo("gp", 3),
     car: 0,
     c: { tod: "noon", wx: "sun" },
-    cam: "track",
-    f: 0.62,
-    v: 62,
+    cam: "side",
+    f: 0.5,
+    v: 44,
     dur: 5,
   },
   {
@@ -98,9 +98,9 @@ const SHOTS: Cekim[] = [
     ev: pistNo("rx", 3),
     car: 1,
     c: { tod: "noon", wx: "sun" },
-    cam: "track",
-    f: 0.6,
-    v: 30,
+    cam: "heli",
+    f: 0.5,
+    v: 26,
     dur: 5,
     dr: 0.35,
   },
@@ -361,14 +361,19 @@ export function cineCam() {
   cam.updateProjectionMatrix();
 }
 
-/** menü videosunun kaydı için (scripts/menu-video.mjs): belirli çekimi geçişsiz ve süresiz başlat */
-export function cekimKaydi(i: number) {
+/** menü videosunun kaydı için (scripts/menu-video.mjs): belirli çekimi geçişsiz ve süresiz başlat (f: başka başlangıç oranı) */
+export function cekimKaydi(i: number, f?: number) {
   if (!DEMO) demoStart();
   CINE = null;
   BAG = [i];
   cineStart();
   gecisiKaldir();
   CINE!.dur = 1e9;
+  // çekim yeri denemesi: pistte başka bir başlangıç oranı
+  if (f != null) {
+    CINE!.s = CINE!.s0 = f * CINE!.TR.len;
+    CINE!.pv = null;
+  }
   return SHOTS.length;
 }
 

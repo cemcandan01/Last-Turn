@@ -6,6 +6,7 @@ import { fmt, fmt3 } from "../cekirdek/bicim";
 import { gizle, goster, $ } from "../cekirdek/dom";
 import { COND, condOf, TODS, WXS, type GununSaati, type Hava } from "../cizim/ortam";
 import { REG, type Bolge } from "../dunya/bolgeler";
+import { SEVIYELER } from "../dunya/pist-tanimlari";
 import { bbox } from "../dunya/pist";
 import { WORLDS } from "../dunya/dunya";
 import { setActive } from "../oyun/bolge";
@@ -43,6 +44,16 @@ const evLen = (e: YarisTanimi) =>
   ((REG[e.reg].TR!.len * (e.laps || 1)) / 1000).toFixed(2) + " km" + (e.laps ? " · " + e.laps + " tur" : "");
 const evAvg = (e: YarisTanimi) =>
   e.ty == "dp" ? e.time + " sn" : e.ty == "dg" ? fmt3(e.limit) : fmt(e.limit);
+/** seviye rozeti: renk seviyeye göre (Çaylak yeşil … Efsane mor) */
+const seviyeRozeti = (e: YarisTanimi) =>
+  `<span class="lv lv${e.lv}"><i>${e.lv}</i>${SEVIYELER[e.lv - 1].n}</span>`;
+/** ayrıntı ekranındaki sayılar; drift yarışında hedef puan. Kartta yalnız hedef ve rekor (uzunluk kartın altında) */
+const evSayilar = (e: YarisTanimi, kart = false) =>
+  `<div class="rcs">${kart ? "" : `<span>Uzunluk<b>${evLen(e)}</b></span>`}${
+    e.ty == "dp"
+      ? `<span>Hedef<b>${e.limit} puan</b></span>${kart ? "" : `<span>Süre<b>${e.time} sn</b></span>`}`
+      : `<span>${e.ty == "dg" ? "Hedef" : "Hedef süre"}<b>${evAvg(e)}</b></span>`
+  }<span>PR<b>${prOf(e)}</b></span></div>`;
 const prOf = (e: YarisTanimi) => {
   const b = best(e.k);
   return b ? (e.ty == "dp" ? b + " puan" : e.ty == "dg" ? fmt3(+b) : fmt(+b)) : "—";
@@ -187,17 +198,19 @@ function view(cur: string): [string, string, string] {
   if (cur.startsWith("t:")) {
     const t = cur.slice(2) as keyof typeof TYP,
       y = TYP[t];
+    // seviye sırasıyla (Çaylak → Efsane), yan yana; kartta kimin için ideal olduğu
+    const pl = EVENTS.map((e, i) => [e, i] as const)
+      .filter(([e]) => e.ty == t)
+      .sort((a, b) => a[0].lv - b[0].lv);
     return [
       TYPES.find((q) => q[0] == t)![1] + " yarışları",
       "Yarış",
-      `<p>${y.d}</p><div class="rlist">${EVENTS.map((e, i) =>
-        e.ty != t
-          ? ""
-          : `<div class="rc" data-ev="${i}"><img src="${trackThumb(REG[e.reg])}"><div class="rci"><b>${e.n}</b><small>${e.d}</small>
-<div class="rcs"><span>Uzunluk<b>${evLen(e)}</b></span><span>${e.ty == "dp" ? "Süre" : "Ort. bitiş"}<b>${evAvg(e)}</b></span><span>PR<b>${prOf(e)}</b></span><span>WR<b>—</b></span></div></div></div>`,
-      ).join(
-        "",
-      )}</div><p class="note">WR: çevrimiçi özellikler gelince dünya rekorları burada görünecek.</p>`,
+      `<p>${y.d}</p><div class="rlist">${pl
+        .map(
+          ([e, i]) =>
+            `<div class="rc" data-ev="${i}"><div class="rcu"><img src="${trackThumb(REG[e.reg])}"><div class="rcm">${seviyeRozeti(e)}<em>${evLen(e)}</em></div></div><div class="rci"><b>${e.n}</b><small>${SEVIYELER[e.lv - 1].d}</small>${evSayilar(e, true)}</div></div>`,
+        )
+        .join("")}</div>`,
     ];
   }
   if (cur.startsWith("e:")) {
@@ -207,8 +220,8 @@ function view(cur: string): [string, string, string] {
     return [
       e.n,
       TYPES.find((q) => q[0] == e.ty)![1] + " yarışları",
-      `<div><div class="evh"><img src="${trackThumb(r)}"><div><p>${e.d}</p>
-<div class="rcs"><span>Uzunluk<b>${evLen(e)}</b></span><span>${e.ty == "dp" ? "Süre" : "Ort. bitiş"}<b>${evAvg(e)}</b></span><span>PR<b>${prOf(e)}</b></span><span>WR<b>—</b></span></div></div></div><button class="btn" id="mgo" data-go="${i}">Araç seç ›</button></div>
+      `<div><div class="evh"><img src="${trackThumb(r)}"><div>${seviyeRozeti(e)}<p class="lvd">${SEVIYELER[e.lv - 1].d}</p><p>${e.d}</p>
+${evSayilar(e)}</div></div><button class="btn" id="mgo" data-go="${i}">Araç seç ›</button></div>
 <div class="evk">${condChips()}</div>`,
     ];
   }
