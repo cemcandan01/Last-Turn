@@ -35,6 +35,17 @@ const beam = (a: number[], b: number[], m: THREE.Material, t: number) => {
   return q;
 };
 
+/** iki nokta arası yuvarlak boru */
+const boru = (a: number[], b: number[], r: number, m: THREE.Material) => {
+  const A = V3(a[0], a[1], a[2]),
+    B = V3(b[0], b[1], b[2]),
+    d = B.clone().sub(A),
+    q = new THREE.Mesh(new THREE.CylinderGeometry(r, r, d.length(), 8), m);
+  q.position.copy(A).add(B).multiplyScalar(0.5);
+  q.quaternion.setFromUnitVectors(V3(0, 1, 0), d.normalize());
+  return q;
+};
+
 /** gösterge kadranı: ibre açısı φ(v) saat yönünde, sol alttan sağ alta */
 const dialA = (f: number) => Math.PI * 0.75 + cl(f, 0, 1) * Math.PI * 1.5;
 
@@ -326,7 +337,8 @@ export function buildInterior(d: Arac) {
     // drift: torpidonun ortasında üç ek gösterge (turbo, yağ basıncı, su sıcaklığı)
     const ek = new THREE.Group();
     ek.position.set(0.02, dt + 0.04, zd + 0.06);
-    ek.rotation.set(0.5, Math.PI - 0.35, 0);
+    // yüzü doğrudan sürücünün gözüne bakar (yana yatmadan)
+    ek.quaternion.setFromRotationMatrix(new THREE.Matrix4().lookAt(V3(ex, ey, ez), ek.position, V3(0, 1, 0)));
     ek.add(bx(0.2, 0.075, 0.03, 0, 0, -0.018, M.k));
     mkG(ek, -0.065, 0.027, 2, 0.5, "turbo", 0, 0.6);
     mkG(ek, 0, 0.027, 8, 2, "yağ bar", 0, 0.45);
@@ -422,20 +434,63 @@ export function buildInterior(d: Arac) {
       beam([sd * hw, kt, zB], [sd * (hw - 0.03), yl, zB], M.d, 0.1),
     );
   if (M.kf) {
-    // koruma kafesi: arka çember (sürücünün arkasında), A direklerine paralel ön borular, tavan boruları,
-    // kapı boyunca çapraz boru
+    // koruma kafesi (yuvarlak borular): gövde iskeletine yaslanır, görüşü daraltmaz.
+    // Ön ve tavan boruları direklerin sürücü gözüyle arasına, direğe 7 cm yaklaştırılır: gözden bakınca
+    // direğin üstünde ince bir boru olarak görünür. Ana çember B direğinde, sürücünün arkasında; kapı boruları
+    // pencere eşiğinin altında (sürücü tarafı iki yatay, yolcu tarafı çapraz).
     const kf = M.kf,
-      kx = hw - 0.11,
-      zk = zB - 0.06,
-      ky = yl - 0.035;
-    cock.add(bx(2 * kx, 0.04, 0.04, 0, ky, zk, kf));
-    for (const sd of [-1, 1])
+      E = [ex, ey, ez],
+      yasla = (q: number[], m = 0.07) => {
+        const d = Math.hypot(E[0] - q[0], E[1] - q[1], E[2] - q[2]);
+        return q.map((v, i) => v + ((E[i] - v) * m) / d);
+      },
+      r = 0.02,
+      kx = hw - 0.06,
+      zk = zB - 0.05,
+      ky = yl - 0.03,
+      zo = zc - 0.12,
+      dugum = (q: number[]) => {
+        const k = new THREE.Mesh(new THREE.SphereGeometry(r * 1.5, 8, 6), kf);
+        k.position.set(q[0], q[1], q[2]);
+        return k;
+      };
+    // ana çember ve arkasındaki çapraz
+    cock.add(boru([-kx, ky, zk], [kx, ky, zk], r, kf), boru([kx, ky, zk], [-kx, fy + 0.1, zk], r, kf));
+    for (const sd of [-1, 1]) {
+      const aAlt = yasla([sd * gw, yc + 0.02, zc - 0.02]),
+        aUst = yasla([sd * (gw - 0.05), yh - 0.05, zh + 0.01]),
+        cUst = [sd * kx, ky, zk],
+        ayak = [sd * kx, fy, zo];
       cock.add(
-        beam([sd * kx, fy, zk], [sd * kx, ky, zk], kf, 0.04),
-        beam([sd * (gw - 0.1), yc - 0.02, zc - 0.12], [sd * (gw - 0.13), ky, zh - 0.08], kf, 0.035),
-        beam([sd * (gw - 0.13), ky, zh - 0.08], [sd * kx, ky, zk], kf, 0.035),
-        beam([sd * (hw - 0.07), kt - 0.04, zk], [sd * (hw - 0.07), kt + 0.02, zc - 0.25], kf, 0.03),
+        boru([sd * kx, fy, zk], cUst, r, kf),
+        // A borusu: tabandan ön cam köşesine, oradan direği izleyerek tavana; tavan borusu ana çembere
+        boru(ayak, aAlt, r, kf),
+        boru(aAlt, aUst, r, kf),
+        boru(aUst, yasla([sd * (hw - 0.03), yl - 0.01, zB]), r, kf),
+        boru(yasla([sd * (hw - 0.03), yl - 0.01, zB]), cUst, r, kf),
+        dugum(aAlt),
+        dugum(aUst),
+        dugum(cUst),
       );
+      const ka = kt - 0.05,
+        kb = Math.max(fy + 0.12, kt - 0.2);
+      if (sd > 0)
+        cock.add(
+          boru([sd * kx, ka, zk], [sd * kx, ka, zo], r, kf),
+          boru([sd * kx, kb, zk], [sd * kx, kb, zo], r, kf),
+          // sürücü tarafındaki üst kapı borusunda siyah koruma süngeri
+          boru([sd * kx, ka, zk + 0.15], [sd * kx, ka, zo - 0.25], r * 1.9, M.k),
+        );
+      else
+        cock.add(
+          boru([sd * kx, ka, zk], [sd * kx, kb, zo], r, kf),
+          boru([sd * kx, kb, zk], [sd * kx, ka, zo], r, kf),
+        );
+    }
+    // ön cam üstünde iki A borusunu bağlayan üst boru
+    cock.add(
+      boru(yasla([gw - 0.05, yh - 0.05, zh + 0.01]), yasla([-(gw - 0.05), yh - 0.05, zh + 0.01]), r, kf),
+    );
   }
   // iç dikiz aynası: ön camın üst ortasına sapıyla bağlı, göz hizasının biraz üstünde
   // (ortadan biraz sürücüye kaydırılmış ve ona çevrilmiş: geniş görüş açısında ekranın kenarına kaçmasın)
