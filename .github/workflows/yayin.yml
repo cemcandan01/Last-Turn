@@ -106,7 +106,13 @@ jobs:
           done
           curl -fsS "${ADRES}dev/" | grep -q "APP_VERSION='$V'" || { echo "deneme adresinde $V görünmedi"; exit 1; }
           cp tests/cikti/rapor.md tests/cikti/rapor-ana.md 2>/dev/null || true
-          node tests/kosucu.mjs duman --adres "${ADRES}dev/"
+          # deneme sürümü kendi dalının testleriyle denetlenir (master'ın testleri eski olabilir)
+          git worktree add -q ../gel FETCH_HEAD
+          cd ../gel && npm ci --silent
+          set +e
+          node tests/kosucu.mjs duman --adres "${ADRES}dev/"; kod=$?
+          mkdir -p "$GITHUB_WORKSPACE/tests/cikti" && cp tests/cikti/rapor.md "$GITHUB_WORKSPACE/tests/cikti/rapor.md" 2>/dev/null
+          exit $kod
       - name: Hata kaydı
         if: failure()
         env:
