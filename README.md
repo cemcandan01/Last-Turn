@@ -5,14 +5,15 @@ iPhone için 3D sürüş ve yarış oyunu. Ana ekrana kurulan bir uygulama (PWA)
 ## İçerik
 
 - **Açık dünya** (serbest sürüş): *Çorak Topraklar* (oval, uzun düz yol, zıplama rampası, tırmanış yolu) ve *Boş Otopark* (AVM önünde geniş açık otopark, asfalt testleri için).
-- **15 yarış**, her pistin kendi teması var: Grand Prix (tribünler, tepeli), Kıyı Pisti (gün batımı, deniz), Şehir Pisti (gece, gökdelenler, beton duvarlar), Çamur Vadisi, Taş Ocağı (asfalt-toprak karışık), Orman Kros (sisli), Drift Parkı, Liman (konteynerler, vinçler), Dağ Yolu (büyük iniş-çıkışlar, bariyerler), Orman Etabı, Tepe Etabı (karlı), Vadi Etabı (çöl) ve 3 drag pisti.
-- **Garaj**: araçları dönen platformda incele, azami hız, hızlanma, güç, yol tutuşu, arazi, fren ve çeviklik değerlerini karşılaştır. Her yarıştan önce araç seçilir.
+- **30 pist**, 5 yarış türü (Asfalt, Rallycross, Ralli, Drift, Drag) × 6 seviye; her seviyenin hedefi var, drift pistlerinde hedef puan. Türe uygun araç kendi yarışında daha başarılıdır, ama her araç her yarışı bitirebilir.
+- **Garaj**: araçları dönen platformda incele, azami hız, hızlanma, güç, yol tutuşu, arazi, fren ve çeviklik değerlerini karşılaştır, **Motoru dinle** ile motor sesini duy. Her yarıştan önce araç seçilir.
 - **5 araç**, her yarış türü için bir tane: *Kızıl Ok* (ortadan motorlu pist arabası), *Kor RX* (dört çeker rallikros), *Beyaz Kurt* (geniş gövdeli drift arabası), *Mavi Yıldız* (dört çeker ralli sedanı), *Gece Mavisi* (kompresörlü drag arabası). Yarışa varsayılan olarak türüne uygun araçla girilir.
-- **Ana menü**: ekranın altında soldan sağa görselli kartlar (Yarış, Serbest sürüş, Garaj, Profil, Ayarlar); arkada her yarış türünden sinematik çekimler akar. Yarış türü → pist listesi (şekil, uzunluk, ortalama süre, kişisel rekor) → günün saati ve hava → araç seçimi.
+- **Ana menü**: ekranın altında soldan sağa ikonlu eğik paneller (Yarış, Serbest sürüş, Garaj, Profil, Ayarlar); arkada oyunun kendi çekimlerinden dikişsiz dönen video. Yarış türü seçimi parmağı izleyen kapak akışı, her türün kendi rengi ve ikonu → pist listesi → günün saati ve hava → araç seçimi.
+- **Araçlar ve kokpit**: teker kemerli, yuvarlak hatlı gövdeler ve yeni jantlar; her aracın kendi kokpit tasarımı, gösterge kadranları, yan aynalar ve dikiz aynası, yarış araçlarında koruma kafesi.
 - **Koşullar**: sabah, öğlen, akşam; güneşli, yağmurlu, karlı (yağışta zemin kayganlaşır). Gölgeler.
 - **Fizik motoru:** 4 teker, süspansiyon, gerçek vites ve patinaj; gövde frende öne, virajda yana yatar. Toprakta lastik sınırı aşılınca araç kayar.
 - **Göstergeler (HUD)** (Ayarlar → Göstergeler): hız, sayaç, tuşlar ve harita ayrı ayrı seçilir, önizlemede anında görünür; hazır düzenler Köşe, Kadran, Bant, Sade. Göstergeler aracı kapatmaz; gaz ve fren pedal biçiminde.
-- **Sesler**: oyunun içinde üretilir; her aracın kendi motor sesi (turbo, valf, patlamalar), lastik, zemin, rüzgâr, kerb ve çarpma sesleri, yarış ve arayüz sesleri. Menüde rock müzik çalar, sürüşte müzik yok (Ayarlar'da ses ve müzik seviyesi).
+- **Sesler**: oyunun içinde üretilir; her aracın kendi motor sesi (gerçek motor seslerinin ölçümüne göre ayarlı; turbo, valf, tok egzoz patlamaları), lastik ötmesi, toprak, çim, rüzgâr, kerb ve çarpma sesleri, yarış ve arayüz sesleri. Menüde rock müzik çalar, sürüşte müzik yok (Ayarlar'da ses ve müzik seviyesi).
 - **Performans göstergesi** (Ayarlar → Mekanikler): kare hızı, fizik ve çizim süresi.
 - Lastik ve araç ayarları, sürüş yardımı seviyeleri, üç direksiyon modu (tuşlar, ekran direksiyonu, telefonu çevirme), üç gaz modu (tuş, analog pedal, otomatik) dört kamera. Oyun yatay ekranda oynanır.
 
