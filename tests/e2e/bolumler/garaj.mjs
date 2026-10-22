@@ -74,6 +74,17 @@ export default async function ({ p, ok }) {
     );
   });
   ok(bosluk >= 12, "garaj yazıları panel kenarına yapışık değil (" + Math.round(bosluk) + " px)");
+  // garajda yağış/kar noktaları çizilmez (havada beyaz kare noktalar görünmesin)
+  const yagis = await p.evaluate(async () => {
+    const pts = [];
+    LT.scene.traverse((o) => o.isPoints && o.userData.hava !== undefined && pts.push(o));
+    if (!pts.length) return "yok";
+    pts[0].userData.hava = true;
+    const bekle = () => new Promise((r) => setTimeout(r, 300));
+    await bekle();
+    return pts[0].visible ? "görünür" : "gizli";
+  });
+  ok(yagis == "gizli", "garajda yağış/kar noktaları gizli (" + yagis + ")");
   // parmak sağa giderken aracın önü de sağa döner (doğal sürükleme: yön açısı artar)
   const ly0 = await p.evaluate(() => LT.kamera.ly);
   await p.mouse.move(120, 200);

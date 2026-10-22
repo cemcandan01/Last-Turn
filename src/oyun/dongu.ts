@@ -91,7 +91,7 @@ function kare(ts: number) {
     }
   }
   if (EV) REG[EV.reg].tick?.(EV);
-  precipTick(dt, tt);
+  precipTick(dt, tt, mode == "garage");
   shadowTick(!!set.shd, S.x, S.y, S.z);
   bildirimTick(dt);
   zeminTasi(S.x, S.z);

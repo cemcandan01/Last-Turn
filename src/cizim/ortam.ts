@@ -111,7 +111,8 @@ export function applyEnv(k: string) {
   mR.color.setHex(t.rock);
   mB.color.setHex(t.bush);
   headL.intensity = night || (c.wx == "rain" && c.tod == "evening") ? 2.4 * ISIK : 0;
-  precip.visible = c.wx != "sun";
+  precip.userData.hava = c.wx != "sun";
+  precip.visible = precip.userData.hava;
   precip.userData.snow = c.wx == "snow";
   precip.material.color.setHex(c.wx == "snow" ? 0xffffff : 0xa9b8c8);
   precip.material.size = c.wx == "snow" ? 0.22 : 0.09;
@@ -143,7 +144,9 @@ export const precip = new THREE.Points(
 }
 
 /** yağış parçacıklarını ilerlet (tt: görsel saat) */
-export function precipTick(dt: number, tt: number) {
+export function precipTick(dt: number, tt: number, gizle = false) {
+  // garaj vitrininde yağış/kar noktaları çizilmez
+  precip.visible = !!precip.userData.hava && !gizle;
   if (!precip.visible) return;
   const pa = precip.geometry.attributes.position as THREE.BufferAttribute,
     a = pa.array as Float32Array,

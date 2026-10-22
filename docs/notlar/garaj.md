@@ -9,3 +9,4 @@
 - 0.3.7: seç/geri tuşları yalnız tam ekranda dokunup bırakınca çıkar, tekrar sürüklemeye başlayınca kaybolur (`kamera.gBtn`).
 - Açık: yok.
 - 0.3.8: zoom yönü düzeldi (iki parmak açılınca yakınlaşır; `kamera.gz` = taban/parmak mesafesi; tekerlekte yukarı = yakın zaten böyleydi). Bırakma ivmesi: son 100 ms parmak hızı (`gV`, yön `gYon`) 0,8 sn'de kendi hızı 0,3 rad/sn'ye söner, ters yöne kaymaz. Durmuş dönme, sürükleyip bırakınca yeniden başlar; kısa dokunuş durdurur, seç/geri davranışı aynı.
+- Garajda yağış/kar noktaları (havada beyaz kare noktalar) çizilmez: `precipTick(dt, tt, gizle)` garaj modunda `precip`i gizler (`ortam.ts`, `dongu.ts`); sürüşteki yağış aynı. Testte doğrulanır.
