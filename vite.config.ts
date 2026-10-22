@@ -34,7 +34,7 @@ function pwa(gelistirme: boolean): Plugin {
             start_url: "./",
             scope: "./",
             display: "fullscreen",
-            orientation: "any",
+            orientation: "landscape",
             background_color: "#10252b",
             theme_color: "#10252b",
             icons: [
