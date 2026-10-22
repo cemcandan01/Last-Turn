@@ -352,9 +352,15 @@ details[open] > summary::after {
 }
 .land #gar {
   left: auto;
-  width: min(440px, 50%);
+  width: min(400px, 50%);
   top: var(--sat);
+  bottom: 0;
   max-height: none;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding-top: 8px;
+  padding-bottom: calc(8px + var(--sab, 0px));
   border-top: 0;
   border-left: 3px solid var(--acc);
 }
@@ -364,7 +370,29 @@ details[open] > summary::after {
   gap: 8px;
 }
 .gh h1 {
-  font-size: 28px !important;
+  font-size: 22px !important;
+  margin: 0 !important;
+}
+.land #gar .st {
+  margin: 4px 0;
+}
+.gozet {
+  font-size: 13px !important;
+  margin: 4px 0 0 !important;
+  color: var(--mut);
+}
+.gbt {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+.gbt .btn {
+  margin-top: 0;
+  padding: 11px;
+}
+.gbt .btn.alt {
+  width: 30%;
 }
 .ga {
   width: 48px;

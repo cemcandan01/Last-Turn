@@ -1,6 +1,10 @@
 // Parçacıklar: toz, lastik dumanı, su sıçraması. 60 kürelik havuz, sırayla yeniden kullanılır.
 import * as THREE from "three";
-import { scene } from "./sahne";
+import { cam, scene } from "./sahne";
+import { cock } from "./kokpit";
+
+/** kokpit kamerasında bu yarıçaptaki (aracın içi ve hemen çevresi) parçacıklar çizilmez */
+const KOKPIT_YARICAP2 = 5 * 5;
 
 interface Parcacik {
   m: THREE.Mesh<THREE.SphereGeometry, THREE.MeshBasicMaterial>;
@@ -40,6 +44,8 @@ export function parcacikTick(dt: number) {
       const s = 1 + (1 - p.l) * 3;
       p.m.scale.set(s, s, s);
       p.m.material.opacity = Math.max(0, p.l * 0.45);
+      if (cock.visible && p.m.position.distanceToSquared(cam.position) < KOKPIT_YARICAP2)
+        p.m.material.opacity = 0;
       if (p.l <= 0) p.m.visible = false;
     }
   }
