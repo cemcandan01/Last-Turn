@@ -42,4 +42,28 @@ export default async function ({ p, ok }) {
     sg.serbestOnayar && !sg.yarisOnayar && sg.yarisPk == "dr",
     "önayar yalnız serbest sürüşte; drift yarışında aracın drift önayarı",
   );
+  // yatay 844x390: garaj paneli kaydırmasız sığar, seç/geri butonları ekranda görünür (en uzun adlı yarış butonuyla)
+  const sig = await p.evaluate(() => {
+    const r = [];
+    for (let i = 0; i < LT.CARS.length; i++) {
+      LT.openGarage(0);
+      for (let k = 0; k < i; k++) document.querySelector("#gnx").click();
+      const g = document.querySelector("#gar"),
+        b = document.querySelector("#gok").getBoundingClientRect(),
+        a = document.querySelector("#gbk").getBoundingClientRect();
+      r.push(
+        g.scrollHeight <= g.clientHeight + 1 &&
+          b.bottom <= innerHeight &&
+          a.bottom <= innerHeight &&
+          b.top > 0,
+      );
+      LT.closeGarage();
+    }
+    return r;
+  });
+  ok(sig.length > 0 && sig.every(Boolean), "garaj paneli kaydırmasız sığıyor, butonlar görünür");
+  await p.evaluate(() => LT.openGarage(0));
+  await p.waitForTimeout(500);
+  if (process.env.GARAJ_GOR) await p.screenshot({ path: process.env.GARAJ_GOR });
+  await p.evaluate(() => LT.closeGarage());
 }
