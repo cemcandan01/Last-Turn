@@ -1,7 +1,7 @@
 # Yayın: master → https://cemcandan01.github.io/Last-Turn/ , gelistirme dalı → .../Last-Turn/dev/ (deneme sürümü).
 # GitHub'da yalnız tip denetimi, kod denetimi ve derleme yapılır; geçmezse yayın yapılmaz. Duman (tarayıcı) testi regresyonun
-# parçasıdır (regression sohbeti, onaydan önce) ve canlıya çıkış (master'a gönderim) yayınından sonra canlı adreste koşar;
-# deneme yayınlarında (workflow_dispatch) tarayıcı testi yoktur, yalnız yeni sürümün adreste göründüğü denetlenir.
+# parçasıdır (regression sohbeti, onaydan önce) ve canlıdaki sürüm değiştiğinde (yeni canlı çıkış) yayından sonra canlı adreste
+# koşar; deneme yayınlarında tarayıcı testi yoktur, yalnız yeni sürümün adreste göründüğü denetlenir.
 # Konu dalları kendi alan testlerini yerelde koşar. Duman bozulursa "Canlı duman hatası" kaydı (issue) açılır.
 # Gerekli tek ayar: Settings → Pages → Build and deployment → Source: GitHub Actions
 name: Yayın
@@ -27,6 +27,7 @@ jobs:
     outputs:
       ana_surum: ${{ steps.ana.outputs.surum }}
       dev_surum: ${{ steps.dev.outputs.surum }}
+      yeni_canli: ${{ steps.ana.outputs.yeni_canli }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -40,7 +41,11 @@ jobs:
             npm run typecheck
             npm run lint
             npm run build
-            echo "surum=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+            V=$(node -p "require('./package.json').version")
+            echo "surum=$V" >> "$GITHUB_OUTPUT"
+            # canlıda şu an başka bir sürüm varsa bu yayın yeni bir canlı çıkıştır: yayından sonra canlı duman koşar
+            C=$(curl -fsS "https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/?$(date +%s)" | grep -o "APP_VERSION='[^']*'" | head -1 || true)
+            if [ "$C" = "APP_VERSION='$V'" ]; then echo "yeni_canli=false" >> "$GITHUB_OUTPUT"; else echo "yeni_canli=true" >> "$GITHUB_OUTPUT"; fi
             mv dist site
           else
             # derleme adımı olmayan eski yapı: dosyalar olduğu gibi
@@ -99,9 +104,9 @@ jobs:
           bekle "${A}dev/" "$DEV"
 
   canli-duman:
-    # yalnız canlıya çıkış (master'a gönderim) yayınından sonra: canlı adreste tarayıcı dumanı
-    if: github.event_name == 'push'
-    needs: yayinla
+    # yalnız yeni bir canlı çıkıştan sonra (canlıdaki sürüm değişti): canlı adreste tarayıcı dumanı
+    if: needs.derle.outputs.yeni_canli == 'true'
+    needs: [derle, yayinla]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:

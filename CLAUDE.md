@@ -67,7 +67,7 @@ npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 
 ## Test (ayrıntı `oyun-test` skill'i)
 
-- Geliştirirken ve göndermeden önce: tip denetimi, ESLint, biçim ve yalnız kendi işinin kapsamındaki testler (`npm run alan -- <dal>`; hata bulursan düzeltip yeniden koş). Denemede tarayıcı dumanı yok. Bütün dalların bütün senaryoları ve ardından duman yalnız regresyonda; canlıya çıkış yayınından sonra canlı adreste duman.
+- Geliştirirken ve göndermeden önce: tip denetimi, ESLint, biçim ve yalnız kendi işinin kapsamındaki testler (`npm run alan -- <dal>`; hata bulursan düzeltip yeniden koş). Denemede tarayıcı dumanı yok. Bütün dalların bütün senaryoları ve ardından duman yalnız regresyonda; yeni bir canlı çıkıştan sonra (canlıdaki sürüm değişince) canlı adreste duman.
 - Her senaryonun sahibi bir dal ve önemi (P1-P3) vardır (`tests/senaryolar/<dal>.mjs`); yeni özellik için test ekle ve kendi dalının dosyasına kaydet. Test atlanmaz, kapatılmaz.
 - Başsız tarayıcı yavaş çizer (~14 fps): beklemeleri simülasyon saatiyle (`LT.sim.d.zaman`) yap. WebGL karesi: `LT.R.render(LT.scene, LT.cam); LT.R.domElement.toDataURL()`.
 
