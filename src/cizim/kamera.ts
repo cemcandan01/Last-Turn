@@ -21,6 +21,9 @@ export const kamera = {
   gp: 0.15,
   gz: 1,
   gOto: true,
+  /** garaj: dönme hızı (rad/sn) ve yönü (+1/-1); bırakma ivmesi bu hızdan kendi hızına söner */
+  gV: 0.3,
+  gYon: 1,
   /** garaj: vitrin tam ekran (bilgi paneli gizli) */
   gTam: false,
   /** garaj tam ekranda dokunup bırakınca seç/geri tuşları görünür; sürüklemeye başlayınca kaybolur */
@@ -33,20 +36,28 @@ const GP_MIN = 0.03,
   GZ_MIN = 0.5,
   GZ_MAX = 1.7,
   /** kendiliğinden dönme hızı (rad/sn) */
-  GARAJ_DONME = 0.3;
+  GARAJ_DONME = 0.3,
+  /** bırakma ivmesinin sönüm süresi (sn) ve parmak hızının ölçüldüğü pencere (ms) */
+  GARAJ_SONUM = 0.8,
+  HIZ_PENCERE = 100;
 
 export function garajKameraSifirla() {
   kamera.ly = 0;
   kamera.gp = 0.15;
   kamera.gz = 1;
   kamera.gOto = true;
+  kamera.gV = GARAJ_DONME;
+  kamera.gYon = 1;
   kamera.gTam = false;
   kamera.gBtn = false;
 }
 
 /** garaj: araç kendiliğinden döner (dokununca durur), yön açısı tek yerde tutulur */
 export function garajKameraTick(dt: number) {
-  if (kamera.gOto && kamera.dp === null) kamera.ly += GARAJ_DONME * dt;
+  if (!kamera.gOto || kamera.dp !== null) return;
+  // bırakma hızı, yönü değişmeden kendi dönme hızına söner
+  kamera.gV += (GARAJ_DONME * kamera.gYon - kamera.gV) * (1 - Math.exp(-dt / GARAJ_SONUM));
+  kamera.ly += kamera.gV * dt;
 }
 
 export function kameraSifirla(h: number) {
@@ -59,7 +70,8 @@ export function kameraKur(cvs: HTMLElement) {
   let lx = 0,
     ly0 = 0,
     taban = 0,
-    baslangic = { x: 0, y: 0, t: 0, yer: 0 };
+    baslangic = { x: 0, y: 0, t: 0, yer: 0 },
+    ornek: { t: number; ly: number }[] = [];
   const dokunuslar = new Map<number, { x: number; y: number }>(),
     iki = () => {
       const [a, b] = [...dokunuslar.values()];
@@ -68,11 +80,17 @@ export function kameraKur(cvs: HTMLElement) {
   cvs.addEventListener("pointerdown", (e) => {
     const [ax, ay] = toApp(e.clientX, e.clientY);
     if (oyun.mode == "garage") {
-      cvs.setPointerCapture?.(e.pointerId);
+      try {
+        cvs.setPointerCapture?.(e.pointerId);
+      } catch {
+        /* yapay olay: yakalanacak parmak yok */
+      }
       dokunuslar.set(e.pointerId, { x: ax, y: ay });
-      if (dokunuslar.size == 1) baslangic = { x: ax, y: ay, t: performance.now(), yer: 0 };
-      else {
-        taban = iki() / kamera.gz;
+      if (dokunuslar.size == 1) {
+        baslangic = { x: ax, y: ay, t: performance.now(), yer: 0 };
+        ornek = [];
+      } else {
+        taban = iki() * kamera.gz;
         baslangic.yer = 1e9;
       }
     }
@@ -93,7 +111,7 @@ export function kameraKur(cvs: HTMLElement) {
         document.dispatchEvent(new Event("lt:garaj-dokunus"));
       }
       if (dokunuslar.size >= 2) {
-        kamera.gz = cl(iki() / taban, GZ_MIN, GZ_MAX);
+        kamera.gz = cl(taban / iki(), GZ_MIN, GZ_MAX);
         return;
       }
       baslangic.yer = Math.max(
@@ -102,6 +120,9 @@ export function kameraKur(cvs: HTMLElement) {
       );
       // araç parmakla aynı yöne döner; aşağı sürükleyince kamera yükselir
       kamera.ly += (ax - lx) * 0.009;
+      const simdi = performance.now();
+      ornek.push({ t: simdi, ly: kamera.ly });
+      while (ornek.length > 1 && simdi - ornek[0].t > HIZ_PENCERE) ornek.shift();
       kamera.gp = cl(kamera.gp + (ay - ly0) * 0.005, GP_MIN, GP_MAX);
       lx = ax;
       ly0 = ay;
@@ -125,6 +146,17 @@ export function kameraKur(cvs: HTMLElement) {
           kamera.gOto = !kamera.gOto;
           kamera.gBtn = kamera.gTam && !kamera.gOto;
           document.dispatchEvent(new Event("lt:garaj-dokunus"));
+        } else if (tek && n == "pointerup" && baslangic.yer < 1e9) {
+          // sürükleyip bırakma: son ~100 ms parmak hızıyla dönmeye devam eder (durmuşsa yeniden başlar)
+          const simdi = performance.now(),
+            son = ornek.filter((o) => simdi - o.t <= HIZ_PENCERE);
+          let v = 0;
+          if (son.length > 1)
+            v = ((son[son.length - 1].ly - son[0].ly) / Math.max(son[son.length - 1].t - son[0].t, 1)) * 1000;
+          if (Math.abs(v) > 0.05) kamera.gYon = Math.sign(v);
+          kamera.gV = Math.abs(v) > 0.05 ? v : kamera.gYon * GARAJ_DONME;
+          kamera.gOto = true;
+          kamera.gBtn = false;
         }
         // iki parmaktan biri kalktıysa kalan parmak sürüklemeye devam eder (sıçrama olmasın)
         if (dokunuslar.size == 1) {

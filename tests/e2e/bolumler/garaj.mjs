@@ -125,17 +125,64 @@ export default async function ({ p, ok }) {
   await p.mouse.up();
   await p.click("#gvtam");
   ok(await gorunur("#gar"), "tam ekrandan çıkınca bilgi paneli geri gelir");
-  await p.mouse.move(100, 200);
-  await p.mouse.down();
-  await p.mouse.move(250, 200, { steps: 5 });
-  await p.mouse.up();
-  const ly2 = await p.evaluate(() => LT.kamera.ly);
-  await p.waitForTimeout(2500);
-  const ly3 = await p.evaluate(() => LT.kamera.ly);
-  ok(
-    Math.abs(ly3 - ly2) < 0.01,
-    "sürükledikten sonra açı eski yerine dönmez (" + ly2.toFixed(2) + " → " + ly3.toFixed(2) + ")",
-  );
+  // durmuş dönme: sürükleyip bırakınca bırakma hızıyla yeniden başlar, kendi hızına (0,3 rad/sn) söner, geri sıçramaz
+  await p.evaluate(() => (LT.kamera.gOto = false));
+  const surukle = (x0, x1) =>
+    p.evaluate(
+      async ([a, b]) => {
+        const c = LT.R.domElement,
+          ev = (t, x) =>
+            c.dispatchEvent(new PointerEvent(t, { pointerId: 21, clientX: x, clientY: 200, bubbles: true }));
+        ev("pointerdown", a);
+        for (let i = 1; i <= 6; i++) {
+          await new Promise((r) => setTimeout(r, 16));
+          ev("pointermove", a + ((b - a) * i) / 6);
+        }
+        ev("pointerup", b);
+      },
+      [x0, x1],
+    );
+  await surukle(100, 250);
+  ok(await p.evaluate(() => LT.kamera.gOto), "sürükleyip bırakınca dönme yeniden başlar");
+  const v0 = await p.evaluate(() => LT.kamera.gV);
+  ok(v0 > 0.3, "bırakma hızı kendi dönme hızından yüksek (" + v0.toFixed(2) + ")");
+  let geri = false,
+    onceki = await p.evaluate(() => LT.kamera.ly);
+  for (let i = 0; i < 60; i++) {
+    await p.waitForTimeout(100);
+    const l = await p.evaluate(() => LT.kamera.ly);
+    if (l < onceki - 1e-6) geri = true;
+    onceki = l;
+  }
+  const v1 = await p.evaluate(() => LT.kamera.gV);
+  ok(!geri, "bırakmadan sonra geri sıçrama ya da ters yöne kayma yok");
+  ok(Math.abs(v1 - 0.3) < 0.05 && v1 > 0, "bırakma hızı kendi dönme hızına oturur (" + v1.toFixed(2) + ")");
+  // sola sürükleyince kendi dönme yönü de sola döner
+  await surukle(250, 100);
+  await p.waitForTimeout(4000);
+  ok((await p.evaluate(() => LT.kamera.gV)) < -0.2, "sola bırakınca sabit dönme sola");
+  // iki parmak: açınca yakınlaşır, kapatınca uzaklaşır
+  const pinch = (a0, a1) =>
+    p.evaluate(
+      ([x0, x1]) => {
+        const c = LT.R.domElement,
+          ev = (t, id, x) =>
+            c.dispatchEvent(new PointerEvent(t, { pointerId: id, clientX: x, clientY: 200, bubbles: true }));
+        ev("pointerdown", 11, 300 - x0);
+        ev("pointerdown", 12, 300 + x0);
+        ev("pointermove", 11, 300 - x1);
+        ev("pointermove", 12, 300 + x1);
+        ev("pointerup", 11, 300 - x1);
+        ev("pointerup", 12, 300 + x1);
+      },
+      [a0, a1],
+    );
+  const g0 = await p.evaluate(() => LT.kamera.gz);
+  await pinch(40, 80);
+  const g1 = await p.evaluate(() => LT.kamera.gz);
+  ok(g1 < g0, "iki parmağı açınca yakınlaşır (" + g0.toFixed(2) + " → " + g1.toFixed(2) + ")");
+  await pinch(80, 40);
+  ok((await p.evaluate(() => LT.kamera.gz)) > g1, "iki parmağı kapatınca uzaklaşır");
   if (process.env.GARAJ_GOR) await p.screenshot({ path: process.env.GARAJ_GOR });
   await p.evaluate(() => LT.closeGarage());
 }
