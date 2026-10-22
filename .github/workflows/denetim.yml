@@ -26,7 +26,7 @@ jobs:
       - name: Biçim
         run: npm run format:check
       - name: Tarayıcı
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
       - name: Alan testi
         run: node tests/kosucu.mjs alan "${GITHUB_REF_NAME}"
       - name: Rapor

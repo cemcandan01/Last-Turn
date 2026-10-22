@@ -26,6 +26,8 @@ Alanların kuralları `docs/ALANLAR.md`'de. Emin değilsen ya da istek iki alana
 
 Küçük ve net isteği hemen aç (kullanıcıya sormadan). Yanıt: "menu dalına verdim (Sonnet). Bitince bildirim gelir."
 
+Kullanıcı kural, süreç, test ya da iş akışı ("kurallar" alanı) isterse bunu `kurallar` sohbetine ilet (`send_message`, kurallar sohbetinin session_id'si: `session_01FVQd7Tnn4JKaDYRyMtf6Pu`); `kurallar` ve `regresyon` sohbetlerine yeni sohbet açma.
+
 ## 3. Birden çok dallık iş (plan)
 
 1. İşi dallara böl; her dal için **görev özeti** yaz (aşağıda).
@@ -54,7 +56,9 @@ Başarı ölçütü ve sözleşme boş kalırsa konu sohbeti tahmin eder ve revi
 
 `mcp__claude-code-remote__create_session` (gerekirse ToolSearch ile yükle): `title` "<dal>: <iş kısaca>", `source_url` `https://github.com/cemcandan01/Last-Turn`, `source_revision` `gelistirme`, `model`, `prompt` görev özeti, `tags` ["last-turn","<dal>"]. Sonuçta dönen `session_id`'yi kendi notuna yaz (dal → sohbet → durum).
 
-## 6. Takip
+## 6. Takip ve bildirim
+
+- **Telefon bildirimini yalnız sen ve regression gönderirsin; konu sohbetleri göndermez.** Konu sohbeti "denemede" ya da "iş hazır, push bekliyor" diye haber verince `PushNotification` ile kullanıcıya tek satır gönder ("<dal>: <sürüm> denemede, kontrol edebilirsin (<iş>)"). Ara adımlarda bildirme.
 
 - Konu sohbeti işi bitirince sana `send_message` ile haber verir; mesaj gelince (`ReadNotifications`) bağımlı işi başlat, kullanıcıya tek satır yaz.
 - Sohbet başarısız olursa harness `<child-session-event>` gönderir; `get_session` ile bak, tek satırla kullanıcıya bildir, kendi başına yeniden başlatma.
@@ -64,5 +68,5 @@ Başarı ölçütü ve sözleşme boş kalırsa konu sohbeti tahmin eder ve revi
 ## 7. Sınırlar
 
 - Maliyet: aynı anda en fazla 3 konu sohbeti; kullanıcı onayı olmadan Opus'lu birden çok sohbet yok.
-- Güvenlik: yalnız konu sohbetleri açarsın. `master`'a, `gelistirme`'ye ya da başka dallara kendin yazmazsın; `regresyon` ve `kurallar` sohbetlerine iş vermezsin (onlar kendi yolunda).
+- Güvenlik: yalnız konu sohbetleri açarsın. `master`'a, `gelistirme`'ye ya da başka dallara kendin yazmazsın; `regresyon` sohbetine iş vermezsin; kural ve süreç istekleri yalnız `kurallar` sohbetine `send_message` ile iletilir.
 - Kapsam: kullanıcı "bekle" derse görev özetine "denemeye gönderme, bekle" ekle.
