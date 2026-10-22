@@ -100,6 +100,28 @@ export default async function ({ p, ok }) {
   await p.mouse.down();
   await p.mouse.up();
   ok(oto0 && !(await p.evaluate(() => LT.kamera.gOto)), "garajda dokununca kendiliğinden dönme durur");
+  // dokununca seç/geri tuşları çıkar, tam ekran düğmesi paneli gizler, sürükledikten sonra açı eski yerine dönmez
+  const gorunur = (sel) =>
+    p.evaluate((q) => {
+      const e = document.querySelector(q);
+      return !!e && e.getClientRects().length > 0 && getComputedStyle(e).visibility != "hidden";
+    }, sel);
+  ok((await gorunur("#gvok")) && (await gorunur("#gvbk")), "dokununca vitrinde seç ve geri tuşları çıkar");
+  await p.click("#gvtam");
+  ok(!(await gorunur("#gar")), "tam ekran: bilgi paneli gizlenir");
+  await p.click("#gvtam");
+  ok(await gorunur("#gar"), "tam ekrandan çıkınca bilgi paneli geri gelir");
+  await p.mouse.move(100, 200);
+  await p.mouse.down();
+  await p.mouse.move(250, 200, { steps: 5 });
+  await p.mouse.up();
+  const ly2 = await p.evaluate(() => LT.kamera.ly);
+  await p.waitForTimeout(2500);
+  const ly3 = await p.evaluate(() => LT.kamera.ly);
+  ok(
+    Math.abs(ly3 - ly2) < 0.01,
+    "sürükledikten sonra açı eski yerine dönmez (" + ly2.toFixed(2) + " → " + ly3.toFixed(2) + ")",
+  );
   if (process.env.GARAJ_GOR) await p.screenshot({ path: process.env.GARAJ_GOR });
   await p.evaluate(() => LT.closeGarage());
 }

@@ -9,7 +9,7 @@ import { ground } from "../cizim/zemin";
 import { REG } from "../dunya/bolgeler";
 import { dunya, WORLDS } from "../dunya/dunya";
 import { carIndex, oyun, setCar } from "../oyun/durum";
-import { garajKameraSifirla } from "../cizim/kamera";
+import { kamera, garajKameraSifirla } from "../cizim/kamera";
 import { sun } from "../cizim/sahne";
 import { applyPreset, kurulum } from "../oyun/kurulum";
 import { EVENTS, startEvent } from "../oyun/yarislar";
@@ -45,11 +45,24 @@ function sesButonu() {
 function dinleBagla() {
   if (dinleBagli) return;
   dinleBagli = true;
+  document.addEventListener("lt:garaj-dokunus", gorunum);
   document.addEventListener("lt:motor-dinle-bitti", (e) => {
     const a = (e as CustomEvent<{ arac: number }>).detail?.arac;
     if (DINLE && (a == null || a == DINLE.arac)) DINLE = null;
     sesButonu();
   });
+}
+
+/** vitrin tuşları: tam ekran düğmesi hep; dönme dokunuşla durunca seç/geri tuşları da çıkar; tam ekranda bilgi paneli gizlenir */
+function gorunum() {
+  if (!GAR) return;
+  const v = $("#gvit");
+  v.classList.toggle("tam", kamera.gTam);
+  v.classList.toggle("dur", !kamera.gOto);
+  $("#gar").style.display = kamera.gTam ? "none" : "";
+  const t = $("#gvtam");
+  t.textContent = kamera.gTam ? "✕" : "⛶";
+  t.setAttribute("aria-label", kamera.gTam ? "Tam ekrandan çık" : "Tam ekran");
 }
 
 /** garajı aç: yarıştan önce (ev), serbest sürüşten önce (w) ya da menüden (ikisi de null) */
@@ -73,7 +86,8 @@ export function closeGarage() {
   DINLE = null;
   garG.visible = false;
   sun.visible = true;
-  gizle("#gar");
+  gizle("#gar", "#gvit");
+  $("#gar").style.display = "";
   GAR = null;
 }
 
@@ -94,6 +108,16 @@ ${stat
   .join("")}
 <p class="gozet">${c.hp} hp · ${c.kg} kg · ${c.awd ? "Dört çeker" : "Arkadan itiş"}</p>
 <div class="gbt"><button class="btn alt" id="gbk">Geri</button><button class="btn" id="gok">${G.ev != null ? "Yarış: " + EVENTS[G.ev].n : G.w != null ? "Sür: " + WORLDS[G.w].n : "Bu aracı kullan"}</button></div>`;
+  const v = $("#gvit");
+  v.classList.remove("hidden");
+  v.innerHTML = `<button class="btn" id="gvok">${$("#gok").textContent}</button><button class="btn alt" id="gvbk">Geri</button><button class="gvtam" id="gvtam"></button>`;
+  $("#gvok").onclick = () => $("#gok").click();
+  $("#gvbk").onclick = () => $("#gbk").click();
+  $("#gvtam").onclick = () => {
+    kamera.gTam = !kamera.gTam;
+    gorunum();
+  };
+  gorunum();
   const go = (k: number) => {
     G.i = (k + CARS.length) % CARS.length;
     showGar();
