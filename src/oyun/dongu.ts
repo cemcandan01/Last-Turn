@@ -12,7 +12,7 @@ import { duzenleyici } from "../arayuz/hud-duzenleyici";
 import { miniHaritaCiz } from "../arayuz/mini-harita";
 import { body, car, model } from "../cizim/arac-modeli";
 import { GX, GZ } from "../cizim/garaj-sahnesi";
-import { kamera } from "../cizim/kamera";
+import { kamera, garajKameraTick } from "../cizim/kamera";
 import { aynaCiz } from "../cizim/ayna";
 import { cock, gauges, kokpit } from "../cizim/kokpit";
 import { glassQM } from "../cizim/malzemeler";
@@ -99,7 +99,8 @@ function kare(ts: number) {
     S.x = GX;
     S.z = GZ;
     S.y = 0.12;
-    S.h = tt * 0.3 + kamera.ly;
+    garajKameraTick(dt);
+    S.h = kamera.ly;
     S.vx = S.vz = S.w = 0;
     S.axs = 0;
     sim.d.delta = 0;
@@ -242,11 +243,17 @@ function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h
   if (mode == "garage") {
     const a = 0.55,
       lnd = ekran.aw > ekran.ah,
-      dd = lnd ? 8.2 : 8.8,
-      pay = lnd ? Math.min(400, ekran.aw / 2) / 2 : 0;
-    cam.position.set(GX + Math.sin(a) * dd, lnd ? 1.9 : 3.2, GZ + Math.cos(a) * dd);
+      dd = (lnd ? 8.2 : 8.8) * kamera.gz,
+      pay = lnd ? Math.min(GARAJ_PANEL, ekran.aw * 0.58) / 2 : 0,
+      ty = lnd ? 0.7 : -0.2,
+      gp = lnd ? kamera.gp : kamera.gp + 0.25;
+    cam.position.set(
+      GX + Math.sin(a) * dd * Math.cos(gp),
+      ty + dd * Math.sin(gp),
+      GZ + Math.cos(a) * dd * Math.cos(gp),
+    );
     cam.up.set(0, 1, 0);
-    cam.lookAt(GX, lnd ? 0.7 : -0.2, GZ);
+    cam.lookAt(GX, ty, GZ);
     cam.setViewOffset(ekran.aw, ekran.ah, pay, 0, ekran.aw, ekran.ah);
     garajGorus = true;
   } else if (garajGorus) {
@@ -262,6 +269,9 @@ function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h
     cam.updateProjectionMatrix();
   }
 }
+
+/** garaj bilgi panelinin yatay genişliği (px; stil.css → .land #gar ile aynı) */
+const GARAJ_PANEL = 470;
 
 /** garaj görüntü penceresi kaydırması açık mı */
 let garajGorus = false;

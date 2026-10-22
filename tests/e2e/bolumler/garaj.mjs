@@ -82,6 +82,24 @@ export default async function ({ p, ok }) {
   await p.mouse.up();
   const ly1 = await p.evaluate(() => LT.kamera.ly);
   ok(ly1 > ly0, "garajda sağa sürükleme aracı parmakla aynı yöne döndürür");
+  // aşağı sürükleme kamerayı yükseltir ama 90°'ye varmaz; tekerlek yakınlaştırır; kısa dokunuş dönmeyi durdurur
+  await p.mouse.move(120, 100);
+  await p.mouse.down();
+  await p.mouse.move(120, 390, { steps: 8 });
+  await p.mouse.up();
+  const gp = await p.evaluate(() => LT.kamera.gp);
+  ok(
+    gp > 0.15 && gp < Math.PI / 2,
+    "garajda aşağı sürükleme kamerayı yükseltir, 90° olmaz (" + gp.toFixed(2) + ")",
+  );
+  await p.mouse.move(120, 200);
+  await p.mouse.wheel(0, -300);
+  await p.waitForTimeout(100);
+  ok((await p.evaluate(() => LT.kamera.gz)) < 1, "garajda tekerlekle yakınlaşılır");
+  const oto0 = await p.evaluate(() => LT.kamera.gOto);
+  await p.mouse.down();
+  await p.mouse.up();
+  ok(oto0 && !(await p.evaluate(() => LT.kamera.gOto)), "garajda dokununca kendiliğinden dönme durur");
   if (process.env.GARAJ_GOR) await p.screenshot({ path: process.env.GARAJ_GOR });
   await p.evaluate(() => LT.closeGarage());
 }
