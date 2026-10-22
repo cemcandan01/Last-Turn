@@ -20,7 +20,10 @@ export { oyun, setCar } from "./durum";
 export { I } from "./girdi";
 export { kurulum, applyPreset } from "./kurulum";
 export { demoStop, CINE, cekimKaydi } from "./sinematik";
-export { sim, reset } from "./surus";
+export { sim, reset, yerel } from "./surus";
+export { uzak, hayalet, uzakAracEkle, uzakAracSil, uzakAnlikEkle } from "./uzak";
+export { aracAnligi } from "../fizik/arac-ornegi";
+export { kaydiSerilestir, kaydiCoz, kaydiOynat } from "../fizik/girdi-kaydi";
 export { EVENTS, startEvent, yaris } from "./yarislar";
 import { tt } from "./dongu";
 

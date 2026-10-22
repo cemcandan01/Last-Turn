@@ -199,7 +199,8 @@ interface TekerModeli {
 
 export type { TekerModeli };
 
-function buildCar(d: Arac) {
+/** gövde ve tekerler (iç mekân yok): yerel aracın modeli ve uzak araçlar bununla kurulur */
+export function buildCar(d: Arac) {
   const g = body0(d);
   EK[d.k]?.(g, d);
   g.position.y = d.lift || 0;

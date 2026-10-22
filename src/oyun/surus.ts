@@ -7,9 +7,9 @@ import { mB } from "../dunya/kurucu";
 import { dunya, Hw, surfW } from "../dunya/dunya";
 import { REG, regAt, type Bolge } from "../dunya/bolgeler";
 import { ipucu, nearest } from "../dunya/pist";
-import { ADIM, Simulasyon } from "../fizik/simulasyon";
-import type { AdimSonucu, DunyaSorgusu, FizikBaglami, SurusKurulumu } from "../fizik/tipler";
-import { SURF, TIRES } from "../fizik/veriler";
+import { aracAdimi, aracOrnegiYap, aracSifirla } from "../fizik/arac-ornegi";
+import { ADIM } from "../fizik/simulasyon";
+import type { DunyaSorgusu, SurusKurulumu } from "../fizik/tipler";
 import { kameraSifirla } from "../cizim/kamera";
 import { set } from "./ayarlar";
 import { oyun } from "./durum";
@@ -17,11 +17,7 @@ import { fizikGirdisi } from "./girdi";
 import { kurulum } from "./kurulum";
 import { PROF, saveProf } from "./profil";
 import { yaris, evTick } from "./yarislar";
-
-export const sim = new Simulasyon(1);
-
-/** son fizik adımının sonucu (HUD zemin ve lastik adı) */
-export let son: AdimSonucu = { Sf: SURF[0], T: TIRES[1], v: 0, si: 0 };
+import { uzakAdimi, uzakSifirla } from "./uzak";
 
 /** serbest sürüşte tur sayacı (kapalı pistlerde) */
 export const LAP = {
@@ -34,16 +30,27 @@ export const LAP = {
   reg: null as Bolge | null,
 };
 
-const dunyaSorgusu: DunyaSorgusu = {
-  H: Hw,
-  surf: surfW,
-  yakin: (x, z) => dunya.cols.yakin(x, z),
-  kutu: () => (yaris.EV ? REG[yaris.EV.reg].box : oyun.CURW.box),
-  kerb: (x, z) => (dunya.cur && dunya.cur.Hk ? dunya.cur.Hk(x, z) : 0),
-  havaTutusu: () => ortam.g,
-  karli: () => ortam.k == "snow",
-  yolTuru: () => (dunya.cur ? dunya.cur.t : null),
-};
+/**
+ * bir aracın dünya sorgusu. b: aracın bulunduğu bölgeyi tutan nesne (zemin sorgusunda güncellenir; kerb ve yol
+ * türü ona göre). Yerel araçta bu dunya'nın kendisidir (HUD ve tur sayacı dunya.cur'u okur), diğer araçlarda kendi
+ * nesneleri: araçlar birbirinin bölgesini bozmaz
+ */
+export function dunyaSorgusuYap(b: { cur: Bolge | null }): DunyaSorgusu {
+  return {
+    H: Hw,
+    surf: (x, z) => {
+      const r = surfW(x, z);
+      b.cur = dunya.cur;
+      return r;
+    },
+    yakin: (x, z) => dunya.cols.yakin(x, z),
+    kutu: () => (yaris.EV ? REG[yaris.EV.reg].box : oyun.CURW.box),
+    kerb: (x, z) => (b.cur && b.cur.Hk ? b.cur.Hk(x, z) : 0),
+    havaTutusu: () => ortam.g,
+    karli: () => ortam.k == "snow",
+    yolTuru: () => (b.cur ? b.cur.t : null),
+  };
+}
 
 const surusKurulumu = (): SurusKurulumu => ({
   car: oyun.CAR,
@@ -55,13 +62,17 @@ const surusKurulumu = (): SurusKurulumu => ({
   sm: set.sm,
 });
 
-const baglam: FizikBaglami = {
-  dunya: dunyaSorgusu,
-  kurulum: surusKurulumu(),
-  olay: { spin: () => note("SPİN", 40), puf: puff, caliRengi: () => mB.color.getHex() },
-  rng: sim.rng,
-  gorselRng: Math.random,
-};
+/** yerel oyuncunun aracı: kamera, ses, HUD ve yarış buna bakar */
+export const yerel = aracOrnegiYap(
+  {
+    dunya: dunyaSorgusuYap(dunya),
+    kurulum: surusKurulumu(),
+    olay: { spin: () => note("SPİN", 40), puf: puff, caliRengi: () => mB.color.getHex() },
+    gorselRng: Math.random,
+  },
+  1,
+);
+export const sim = yerel.sim;
 
 /** aracı (x, z) noktasına koy; verilmezse açık dünyanın ilk ışınlanma noktası */
 export function reset(x?: number, z?: number, h?: number) {
@@ -69,7 +80,8 @@ export function reset(x?: number, z?: number, h?: number) {
   x = x ?? sp[1];
   z = z ?? sp[2];
   h = h ?? sp[3];
-  sim.sifirla(x, z, h, Hw(x, z));
+  aracSifirla(yerel, x, z, h, Hw(x, z));
+  uzakSifirla();
   kameraSifirla(h);
   LAP.run = 0;
   LAP.t = 0;
@@ -87,12 +99,12 @@ export function reset(x?: number, z?: number, h?: number) {
 export function surusAdimi() {
   const S = sim.S;
   PROF.km += (Math.hypot(S.vx, S.vz) * ADIM) / 1000;
-  baglam.kurulum = surusKurulumu();
-  baglam.rng = sim.rng;
-  son = sim.adim(fizikGirdisi(), baglam);
+  yerel.cx.kurulum = surusKurulumu();
+  const son = aracAdimi(yerel, fizikGirdisi());
   if (sim.d.zaman % 20 < ADIM) saveProf();
   turSayaci(ADIM);
   if (yaris.EV) evTick(ADIM, son);
+  uzakAdimi();
 }
 
 /** serbest sürüşte kapalı pistlerde tur zamanı */

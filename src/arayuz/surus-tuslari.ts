@@ -5,7 +5,7 @@ import { REG } from "../dunya/bolgeler";
 import { dunya, Hw } from "../dunya/dunya";
 import { ipucu } from "../dunya/pist";
 import { CAMS, oyun } from "../oyun/durum";
-import { reset, sim } from "../oyun/surus";
+import { reset, sim, yerel } from "../oyun/surus";
 import { yaris } from "../oyun/yarislar";
 import { lastikDegistir, showSet } from "./ayarlar-ekrani";
 import { note } from "./bildirim";
@@ -47,6 +47,8 @@ function yenidenDog() {
     S.y = Hw(S.x, S.z) + 0.5;
     S.air = true;
     sim.pozKaydet();
+    // durum girdi dışından değişti: kayıt yeniden oynatılamaz
+    yerel.kayit.kesik = true;
   }
 }
 
