@@ -141,11 +141,13 @@ export function kameraKur(cvs: HTMLElement) {
       if (oyun.mode == "garage" && dokunuslar.has(pe.pointerId)) {
         const tek = dokunuslar.size == 1;
         dokunuslar.delete(pe.pointerId);
-        // kısa, yerinde dokunuş: kendiliğinden dönmeyi aç/kapat
+        // kısa, yerinde dokunuş: yalnız tam ekranda kendiliğinden dönmeyi aç/kapat
         if (tek && n == "pointerup" && baslangic.yer < 10 && performance.now() - baslangic.t < 400) {
-          kamera.gOto = !kamera.gOto;
-          kamera.gBtn = kamera.gTam && !kamera.gOto;
-          document.dispatchEvent(new Event("lt:garaj-dokunus"));
+          if (kamera.gTam) {
+            kamera.gOto = !kamera.gOto;
+            kamera.gBtn = !kamera.gOto;
+            document.dispatchEvent(new Event("lt:garaj-dokunus"));
+          }
         } else if (tek && n == "pointerup" && baslangic.yer < 1e9) {
           // sürükleyip bırakma: son ~100 ms parmak hızıyla dönmeye devam eder (durmuşsa yeniden başlar)
           const simdi = performance.now(),
