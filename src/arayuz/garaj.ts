@@ -9,7 +9,7 @@ import { ground } from "../cizim/zemin";
 import { REG } from "../dunya/bolgeler";
 import { dunya, WORLDS } from "../dunya/dunya";
 import { carIndex, oyun, setCar } from "../oyun/durum";
-import { kamera } from "../cizim/kamera";
+import { garajKameraSifirla } from "../cizim/kamera";
 import { sun } from "../cizim/sahne";
 import { applyPreset, kurulum } from "../oyun/kurulum";
 import { EVENTS, startEvent } from "../oyun/yarislar";
@@ -59,7 +59,7 @@ export function openGarage(ev: number | null, w: number | null = null) {
   GAR = { ev, w, prev, rec, i: rec >= 0 ? rec : prev };
   dinleBagla();
   oyun.mode = "garage";
-  kamera.ly = 0;
+  garajKameraSifirla();
   gizle("#menu", "#hud", "#mm", "#ctl", "#set", "#res");
   if (dunya.g) dunya.g.visible = false;
   for (const q of REG) if (q.g) q.g.visible = false;

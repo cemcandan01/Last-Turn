@@ -352,7 +352,7 @@ details[open] > summary::after {
 }
 .land #gar {
   left: auto;
-  width: min(400px, 50%);
+  width: min(470px, 58%);
   top: var(--sat);
   bottom: 0;
   max-height: none;
@@ -361,7 +361,7 @@ details[open] > summary::after {
   flex-direction: column;
   padding-top: 8px;
   padding-bottom: calc(8px + var(--sab, 0px));
-  padding-right: calc(22px + var(--sar, 0px));
+  padding-right: max(12px, var(--sar, 0px));
   border-top: 0;
   border-left: 3px solid var(--acc);
 }
@@ -470,18 +470,20 @@ details[open] > summary::after {
 }
 .gl {
   display: flex;
-  gap: 6px;
-  overflow-x: auto;
+  gap: 5px;
+  overflow: hidden;
   margin: 10px 0 4px;
   padding-bottom: 4px;
 }
 .gc {
-  flex: 0 0 auto;
-  padding: 6px 10px;
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  padding: 6px 6px;
   border-radius: 12px;
   background: var(--card);
   border: 2px solid var(--line);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   text-align: center;
 }
