@@ -8,3 +8,4 @@
 - 0.3.6: panel 410 px (vitrin büyüdü). Sürükleyince açı eski yerine dönüyordu: dongu.ts takip kamerasının "bir süre sonra arkaya dön" sönümü garajda da çalışıyordu, garajda kapatıldı. Vitrin sağ altında tam ekran düğmesi; dokununca dönme durur ve seç/geri tuşları çıkar (garaj.ts `#gvit`), aynı yapı yarış, serbest sürüş ve menü garajında.
 - 0.3.7: seç/geri tuşları yalnız tam ekranda dokunup bırakınca çıkar, tekrar sürüklemeye başlayınca kaybolur (`kamera.gBtn`).
 - Açık: yok.
+- 0.3.8: zoom yönü düzeldi (iki parmak açılınca yakınlaşır; `kamera.gz` = taban/parmak mesafesi; tekerlekte yukarı = yakın zaten böyleydi). Bırakma ivmesi: son 100 ms parmak hızı (`gV`, yön `gYon`) 0,8 sn'de kendi hızı 0,3 rad/sn'ye söner, ters yöne kaymaz. Durmuş dönme, sürükleyip bırakınca yeniden başlar; kısa dokunuş durdurur, seç/geri davranışı aynı.
