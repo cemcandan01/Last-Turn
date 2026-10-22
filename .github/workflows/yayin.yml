@@ -2,6 +2,8 @@
 # Yayından önce duman testi (tip denetimi, kod denetimi, hızlı tarayıcı turu); geçmezse yayın yapılmaz, telefondaki sürüm
 # değişmez. Deneme sürümü derlenemezse yalnız ana sürüm yayınlanır. Yayından sonra canlı adreste duman koşar; bozulma
 # varsa "Canlı duman hatası" kaydı (issue) açılır.
+# Playwright tarayıcısı --with-deps olmadan kurulur: runner'da sistem kütüphaneleri hazır; --with-deps font paketlerini apt ile
+# indiriyordu ve yavaş yansıda 9 dk sürüyordu (bu sırada concurrency yüzünden sonraki yayınlar bekliyordu).
 # Gerekli tek ayar: Settings → Pages → Build and deployment → Source: GitHub Actions
 name: Yayın
 
@@ -32,7 +34,7 @@ jobs:
         run: |
           if [ -f package.json ]; then
             npm ci
-            npx playwright install --with-deps chromium
+            npx playwright install chromium
             npm run typecheck
             npm run lint
             node tests/kosucu.mjs duman
@@ -48,7 +50,7 @@ jobs:
             git fetch --depth 1 origin gelistirme
             git worktree add ../gel FETCH_HEAD
             cd ../gel
-            if npm ci && npx playwright install --with-deps chromium && npx vite build --mode gelistirme && node tests/kosucu.mjs duman --derlemeden; then
+            if npm ci && npx playwright install chromium && npx vite build --mode gelistirme && node tests/kosucu.mjs duman --derlemeden; then
               mv dist "$GITHUB_WORKSPACE/site/dev"
             else
               mkdir -p "$GITHUB_WORKSPACE/site/dev"
@@ -82,7 +84,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci && npx playwright install --with-deps chromium
+      - run: npm ci && npx playwright install chromium
       - name: Yeni sürüm canlıda mı
         run: |
           V=$(node -p "require('./package.json').version")
