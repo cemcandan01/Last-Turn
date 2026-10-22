@@ -38,8 +38,43 @@ garG.visible = false;
     st.rotation.y = a;
     garG.add(st);
   }
-  // eski sürümdeki noktasal ışığın (uzaklıkla doğrusal sönümlenen) karşılığı
-  const pl = new THREE.PointLight(0xfff4e0, 1.1 * Math.PI * 0.8, 45, 0);
-  pl.position.set(GX + 5, 9, GZ + 6);
-  garG.add(pl);
+  fl.receiveShadow = true;
+  tb.receiveShadow = true;
+  // anahtar ışık: tek gölge atan ışık (küçük gölge haritası); sol önden, yüksekten
+  const key = new THREE.DirectionalLight(0xfff0dc, 1.5);
+  key.position.set(GX - 5, 9, GZ + 6);
+  key.target.position.set(GX, 0, GZ);
+  key.castShadow = true;
+  key.shadow.mapSize.set(512, 512);
+  const sc = key.shadow.camera;
+  sc.left = sc.bottom = -5;
+  sc.right = sc.top = 5;
+  sc.near = 2;
+  sc.far = 24;
+  key.shadow.bias = -0.0008;
+  key.shadow.radius = 4;
+  // dolgu (sağ ön, soğuk, gölgesiz) ve arka kenar ışığı (turuncu)
+  const fill = new THREE.DirectionalLight(0x9fc4ff, 0.45);
+  fill.position.set(GX + 7, 3, GZ + 5);
+  fill.target.position.set(GX, 0.5, GZ);
+  const rim = new THREE.DirectionalLight(0xff9a5c, 0.9);
+  rim.position.set(GX + 2, 4, GZ - 8);
+  rim.target.position.set(GX, 0.5, GZ);
+  garG.add(key, key.target, fill, fill.target, rim, rim.target);
+  // zemin diski üstünde yumuşak, koyu gölge lekesi (gölge haritası kapalı ya da zayıf olsa da kök oturur)
+  const lc = document.createElement("canvas");
+  lc.width = lc.height = 128;
+  const cx = lc.getContext("2d")!,
+    gr = cx.createRadialGradient(64, 64, 6, 64, 64, 64);
+  gr.addColorStop(0, "rgba(0,0,0,.55)");
+  gr.addColorStop(1, "rgba(0,0,0,0)");
+  cx.fillStyle = gr;
+  cx.fillRect(0, 0, 128, 128);
+  const blob = new THREE.Mesh(
+    new THREE.PlaneGeometry(6.4, 3.4),
+    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(lc), transparent: true, depthWrite: false }),
+  );
+  blob.rotation.x = -Math.PI / 2;
+  blob.position.set(GX, 0.125, GZ);
+  garG.add(blob);
 }
