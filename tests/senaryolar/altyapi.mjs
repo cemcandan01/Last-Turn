@@ -25,4 +25,10 @@ export default [
     p: 2,
     tarayici: "cok-arac",
   },
+  {
+    id: "ekran-yon",
+    ad: "Yatay ve dikey açılışta #app ekranı tam kaplar; yön değişiminde düzen bozulmaz",
+    p: 1,
+    tarayici: "ekran-yon",
+  },
 ];

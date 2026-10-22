@@ -30,6 +30,7 @@ const BOLUMLER = [
   "hud-duzenleyici",
   "kokpit",
   "cok-arac",
+  "ekran-yon",
 ];
 
 const KOK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.."),
