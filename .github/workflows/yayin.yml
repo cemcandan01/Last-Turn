@@ -1,9 +1,8 @@
 # Yayın: master → https://cemcandan01.github.io/Last-Turn/ , gelistirme dalı → .../Last-Turn/dev/ (deneme sürümü).
-# Yayından önce duman testi (tip denetimi, kod denetimi, hızlı tarayıcı turu); geçmezse yayın yapılmaz, telefondaki sürüm
-# değişmez. Deneme sürümü derlenemezse yalnız ana sürüm yayınlanır. Yayından sonra canlı adreste duman koşar; bozulma
-# varsa "Canlı duman hatası" kaydı (issue) açılır.
-# Playwright tarayıcısı --with-deps olmadan kurulur: runner'da sistem kütüphaneleri hazır; --with-deps font paketlerini apt ile
-# indiriyordu ve yavaş yansıda 9 dk sürüyordu (bu sırada concurrency yüzünden sonraki yayınlar bekliyordu).
+# GitHub'da yalnız tip denetimi, kod denetimi ve derleme yapılır; geçmezse yayın yapılmaz. Duman (tarayıcı) testi regresyonun
+# parçasıdır (regression sohbeti, onaydan önce) ve canlıya çıkış (master'a gönderim) yayınından sonra canlı adreste koşar;
+# deneme yayınlarında (workflow_dispatch) tarayıcı testi yoktur, yalnız yeni sürümün adreste göründüğü denetlenir.
+# Konu dalları kendi alan testlerini yerelde koşar. Duman bozulursa "Canlı duman hatası" kaydı (issue) açılır.
 # Gerekli tek ayar: Settings → Pages → Build and deployment → Source: GitHub Actions
 name: Yayın
 
@@ -25,19 +24,23 @@ jobs:
   derle:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    outputs:
+      ana_surum: ${{ steps.ana.outputs.surum }}
+      dev_surum: ${{ steps.dev.outputs.surum }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - name: Ana sürüm (master)
+        id: ana
         run: |
           if [ -f package.json ]; then
             npm ci
-            npx playwright install chromium
             npm run typecheck
             npm run lint
-            node tests/kosucu.mjs duman
+            npm run build
+            echo "surum=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
             mv dist site
           else
             # derleme adımı olmayan eski yapı: dosyalar olduğu gibi
@@ -45,16 +48,18 @@ jobs:
             rsync -a --exclude='.git*' --exclude=site --exclude=tools --exclude=docs --exclude=.claude --exclude='*.md' ./ site/
           fi
       - name: Deneme sürümü (gelistirme dalı → /dev/)
+        id: dev
         run: |
           if git ls-remote --exit-code --heads origin gelistirme > /dev/null; then
             git fetch --depth 1 origin gelistirme
             git worktree add ../gel FETCH_HEAD
             cd ../gel
-            if npm ci && npx playwright install chromium && npx vite build --mode gelistirme && node tests/kosucu.mjs duman --derlemeden; then
+            if npm ci && npm run typecheck && npm run lint && npx vite build --mode gelistirme; then
               mv dist "$GITHUB_WORKSPACE/site/dev"
+              echo "surum=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
             else
               mkdir -p "$GITHUB_WORKSPACE/site/dev"
-              echo '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Deneme</title><p style="font:18px sans-serif;padding:24px">Deneme sürümü derlenemedi ya da testleri geçmedi. Ana sürüm etkilenmedi.</p>' > "$GITHUB_WORKSPACE/site/dev/index.html"
+              echo '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Deneme</title><p style="font:18px sans-serif;padding:24px">Deneme sürümü derlenemedi ya da denetimleri geçmedi. Ana sürüm etkilenmedi.</p>' > "$GITHUB_WORKSPACE/site/dev/index.html"
             fi
           fi
       - uses: actions/upload-pages-artifact@v3
@@ -71,7 +76,31 @@ jobs:
       - id: dep
         uses: actions/deploy-pages@v4
 
+  kontrol:
+    needs: [derle, yayinla]
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Yeni sürümler adreste göründü mü
+        env:
+          ANA: ${{ needs.derle.outputs.ana_surum }}
+          DEV: ${{ needs.derle.outputs.dev_surum }}
+        run: |
+          A="https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/"
+          bekle() {
+            [ -z "$2" ] && return 0
+            for i in $(seq 1 40); do
+              curl -fsS "$1?$(date +%s)" | grep -q "APP_VERSION='$2'" && { echo "$1 → $2"; return 0; }
+              sleep 15
+            done
+            echo "$1 adresinde $2 görünmedi"; return 1
+          }
+          bekle "$A" "$ANA"
+          bekle "${A}dev/" "$DEV"
+
   canli-duman:
+    # yalnız canlıya çıkış (master'a gönderim) yayınından sonra: canlı adreste tarayıcı dumanı
+    if: github.event_name == 'push'
     needs: yayinla
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -97,29 +126,11 @@ jobs:
           echo "canlı adreste $V görünmedi"; exit 1
       - name: Canlı duman (ana sürüm)
         run: node tests/kosucu.mjs duman --adres "$ADRES"
-      - name: Canlı duman (deneme sürümü)
-        if: always()
-        run: |
-          git fetch -q --depth 1 origin gelistirme || { echo "deneme dalı yok"; exit 0; }
-          V=$(git show FETCH_HEAD:package.json | node -p "JSON.parse(require('fs').readFileSync(0)).version")
-          for i in $(seq 1 40); do
-            curl -fsS "${ADRES}dev/?$(date +%s)" | grep -q "APP_VERSION='$V'" && break
-            sleep 15
-          done
-          curl -fsS "${ADRES}dev/" | grep -q "APP_VERSION='$V'" || { echo "deneme adresinde $V görünmedi"; exit 1; }
-          cp tests/cikti/rapor.md tests/cikti/rapor-ana.md 2>/dev/null || true
-          # deneme sürümü kendi dalının testleriyle denetlenir (master'ın testleri eski olabilir)
-          git worktree add -q ../gel FETCH_HEAD
-          cd ../gel && npm ci --silent
-          set +e
-          node tests/kosucu.mjs duman --adres "${ADRES}dev/"; kod=$?
-          mkdir -p "$GITHUB_WORKSPACE/tests/cikti" && cp tests/cikti/rapor.md "$GITHUB_WORKSPACE/tests/cikti/rapor.md" 2>/dev/null
-          exit $kod
       - name: Hata kaydı
         if: failure()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           { echo "Yayından sonra canlı adreste duman testi kaldı: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"; echo;
-            cat tests/cikti/rapor-ana.md tests/cikti/rapor.md 2>/dev/null; } > govde.md
+            cat tests/cikti/rapor.md 2>/dev/null; } > govde.md
           gh issue create --title "Canlı duman hatası: $(node -p "require('./package.json').version")" --body-file govde.md

@@ -9,7 +9,7 @@ iPhone'da ana ekrana kurulan (PWA) 3D yarış oyunu. **TypeScript + Vite + Three
 - **Yönetmen sohbeti:** kullanıcı isteklerini buraya yazar (kurallar sohbetine giden istekler de dahil); yönetmen alanı (dalı) seçer, işi böler, her dal için temiz bir sohbet açar, bağımlı işleri sırayla başlatır (`yonlendir` skill'i). Konu sohbetleri işi bitirince yönetmene `send_message` (`@parent`) ile haber verir.
 - **Özel sohbetler:** `kurallar` dalı (bu dosyanın, skill'lerin ve geliştirme sürecinin yönetimi), `regresyon` dalı ("regression" sohbeti: sürüm regresyonu ve canlıya çıkış, `regresyon` skill'i).
 
-Her iki yayında da duman testi geçmezse yayın yapılmaz; yayından sonra canlı ve deneme adreslerinde duman koşar. Kullanıcı uygulamayı internet varken açınca yeni sürüm iner.
+Yayında GitHub yalnız tip denetimi, kod denetimi ve derleme yapar (geçmezse yayın yapılmaz) ve yeni sürümün adreste göründüğünü denetler. Duman (tarayıcı) testi regresyonun son adımıdır; canlıya çıkıştan sonra da canlı adreste koşar. Kullanıcı uygulamayı internet varken açınca yeni sürüm iner.
 
 Kullanıcı Türkçe konuşur, iPhone 13'te yatay oynar, kod okumaz. Arayüz metinleri, kod yorumları, commit mesajları ve kullanıcıya yazılan özetler Türkçe. Kod tanımlayıcıları İngilizce ya da Türkçe olabilir; çevredeki kodla aynı olsun.
 
@@ -35,9 +35,9 @@ Maliyet kullanıcı için önemlidir; kaliteyi düşürmeden az token harca.
 ## Komutlar
 
 ```
-npm run kontrol       # yayın öncesi: tip denetimi, ESLint, biçim, duman (~30 sn)
-npm run alan -- fizik # duman + bir dalın (ya da fizik,hud gibi birkaçının) bütün senaryoları
-npm run duman         # hızlı tur: derleme, temel birim testleri, tarayıcıda açılış/yarışlar/garaj/sürüş (~15 sn)
+npm run kontrol       # göndermeden önce: tip denetimi, ESLint, biçim (~15 sn)
+npm run alan -- fizik # yalnız bir dalın (ya da fizik,hud gibi birkaçının) bütün senaryoları; konu sohbetinin testi
+npm run duman         # duman: derleme, temel birim testleri, tarayıcıda açılış/yarışlar/garaj/sürüş (~15 sn); regresyonun son adımı
 npm run regresyon     # bütün dalların bütün senaryoları önem sırasıyla (en fazla 55 dk); gece koşumu
 npm run kontrol:tam   # eskisi gibi her şey: bütün birim testleri + bütün tarayıcı bölümleri (~2 dk)
 npm test              # bütün birim ve fizik testleri (Node, ~40 sn)
@@ -67,14 +67,14 @@ npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 
 ## Test (ayrıntı `oyun-test` skill'i)
 
-- Geliştirirken ve göndermeden önce: tip denetimi, ESLint, biçim, `npm run alan -- <dal>` (değişen dallar + duman). Yayında GitHub dumanı; yayından sonra canlı ve deneme adreslerinde duman. Bütün dalların bütün senaryoları yalnız regresyonda.
+- Geliştirirken ve göndermeden önce: tip denetimi, ESLint, biçim ve yalnız kendi işinin kapsamındaki testler (`npm run alan -- <dal>`; hata bulursan düzeltip yeniden koş). Denemede tarayıcı dumanı yok. Bütün dalların bütün senaryoları ve ardından duman yalnız regresyonda; canlıya çıkış yayınından sonra canlı adreste duman.
 - Her senaryonun sahibi bir dal ve önemi (P1-P3) vardır (`tests/senaryolar/<dal>.mjs`); yeni özellik için test ekle ve kendi dalının dosyasına kaydet. Test atlanmaz, kapatılmaz.
 - Başsız tarayıcı yavaş çizer (~14 fps): beklemeleri simülasyon saatiyle (`LT.sim.d.zaman`) yap. WebGL karesi: `LT.R.render(LT.scene, LT.cam); LT.R.domElement.toDataURL()`.
 
 ## Dallar ve yayın (özet; ayrıntı `docs/SUREC.md`)
 
 - Konu dalı `gelistirme`'den açılır; iş bitip testler geçince **kendiliğinden** `gelistirme`'ye (deneme, `/dev/`) gider, yama +1 (`surum-yayinla`). Kullanıcı "bekle" derse dalda kalır, "push" ile gider.
-- Her gece 00:00 "regression" sohbeti denetler; denemede yeni oyun işi varsa "testlere hazır" bildirimi, "başlat" ya da 04:00'te regresyon (`regresyon`). Hatalar sahibi dalın adıyla düzeltilir; rapor + kullanıcı "push" → `master` (canlı), sonraki sürüm başlar.
+- Her gece 00:00 "regression" sohbeti denetler; denemede yeni oyun işi varsa "testlere hazır" bildirimi, "başlat" ya da 04:00'te regresyon: senaryolar, 0 hata olunca duman, sonra onay (`regresyon`). Hatalar sahibi dalın adıyla düzeltilir; rapor + kullanıcı "push" → `master` (canlı), sonraki sürüm başlar.
 - Konu sohbetleri `master`'a yazmaz (tek istisna kullanıcının açıkça istediği acil düzeltme, `docs/SUREC.md`). Rebase ve force-push yok; başka sohbetin dalına yazılmaz. Çakışmayı sonra birleştiren iki işi koruyarak çözer.
 - Sürüm `0.SÜRÜM.YAMA`; numarayı yalnız `gelistirme`'ye birleştiren değiştirir.
 
@@ -100,7 +100,7 @@ npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 - Konu sohbeti işi bitirip testler geçince denemeye (`gelistirme`) kendiliğinden gönderir, işin boyutu ne olursa olsun; kullanıcı ayrıca "push" demez (maliyet: tek istek yeter). Kullanıcı "bekle" derse iş dalda kalır, "push" deyince gider. Her gönderim yama numarasını artırır. Canlıya (`master`) yalnız regression sohbeti, regresyon bittikten ve kullanıcı rapora bakıp onay verdikten sonra gönderir. Tek istisna kullanıcının açıkça istediği acil düzeltme.
 - `kurallar` sohbeti yalnız süreç ve kural değişikliklerini (CLAUDE.md, `docs/`, `.claude/`, `tests/` altyapısı, `.github/workflows/`) gönderir; oyun kodu (`src/`, `public/`, `index.html`) bu yetkinin dışındadır. Kurallar yalnız denemeye (`gelistirme`) gider: konu dalları oradan alır, canlıya bir sonraki sürümle kendiliğinden çıkar; sürüm numarası değişmez ve tek başına regresyon başlatmaz (regresyon için "yeni iş" yalnız oyun dosyalarındaki değişikliktir: `src/`, `public/`, `index.html`, derleme ayarları). Bu dosya da öyle: oturum `master`'dan açılsa da dala geçince daldaki güncel hâli okunur. Tek istisna `master`'dan çalışan dosyalar: GitHub iş akışları (`.github/workflows/`; yayın `master`'daki iş akışıyla yapılır) ve oturum başı betiği (`.claude/oturum-basi.sh`, `.claude/settings.json`); bunlara dokunan değişiklik `master`'a da hemen gönderilir.
 - Sürümler: 0.1.0 bu sürecin kurulduğu kilometre taşı. Denemeye her gönderim 0.1.1, 0.1.2, …; regresyon + onaylı canlı çıkıştan sonra 0.2.0 başlar.
-- Test kapsamı: canlıdan önce yalnız değişen alanın senaryoları + duman (kullanıcı ayrıca elle dener). Canlıdan sonra canlı adreste duman. Bütün dalların bütün senaryoları yalnız gece regresyonunda.
+- Test kapsamı: denemeye göndermeden önce yalnız kendi işinin kapsamındaki hata yakalayıcı testler (tip, ESLint, biçim, `alan`); hata bulan dal sahibi düzeltip yeniden test eder (kullanıcı ayrıca elle dener). Duman testi yalnız regresyonda: bütün dalların senaryoları 0 hata olunca koşar, sonra kullanıcıdan canlıya geçiş onayı istenir; canlıya çıkış yayınından sonra canlı adreste de koşar. Denemede (GitHub ve konu sohbetlerinde) duman yok.
 - Regresyon her gece 00:00'da (İstanbul saati) "regression" sohbetinde denetlenir: denemede canlıda olmayan oyun işi varsa "<sürüm> canlı geçişi öncesi testlerine hazır" bildirimi gelir; kullanıcı "başlat" derse hemen, demezse 04:00'te başlar, "bu gece başlama" derse beklenir. Bekletilen dallar regresyonu durdurmaz. En fazla ~1 saat, önem sırasıyla. Hatalar sahibi dalın adıyla o sohbette çözülür, 0 hata kalana kadar denemede tekrar koşulur. Onay istemeden önce dal dal rapor: her dalda neler oldu, hangi hatalar çıktı, nasıl çözüldü, düzeltme sonrası test sonucu. Regresyon süresince sürüm dondurulur.
 - Bildirimler ve merkez: telefon bildirimi (`PushNotification`) yalnız iki sohbetten gelir: yönetmen ("<dal>: <sürüm> denemede, kontrol edebilirsin" ya da "iş hazır, senin push'unu bekliyor", konu sohbeti ona haber verince) ve regression (testlere hazır, canlıya hazır, kullanıcı kararı gereken her durum). Konu sohbetleri bildirim göndermez: Merkez'i tazeler ve yönetmene `send_message` (`@parent`) ile haber verir; yönetmen açmadıysa yalnız kullanıcıya kısa yazar. Hepsi Last Turn Merkezi'nde de görünür.
 - Her sohbet kendi konu dalında çalışır; deneme sürümü (`gelistirme`) konu dallarının birleştiği tek ortak deneme alanıdır (telefonda tek deneme uygulaması).

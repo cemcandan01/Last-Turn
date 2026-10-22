@@ -61,7 +61,7 @@ Her hata, onu yakalayan senaryonun dalına aittir (raporda `dal / senaryo`). P1'
 1. Sebebi bul: kod mu bozuk, test mi eskimiş? Hatayı getiren commit'i `git log -p` / `git bisect` ile bul; hangi dalın işi olduğunu not al.
 2. Kodu düzelt. Test yalnız kullanıcı kararıyla değişmiş bir davranışı denetliyorsa güncellenir; bunu raporda açıkça yaz. Test atlanmaz, kapatılmaz.
 3. Commit başlığı sahibi dalla başlar: `[fizik] Drift yarışında kombo sayacı sıfırlanmıyordu`.
-4. O dalın senaryolarını ve dumanı koş: `node tests/kosucu.mjs alan <dal>`. Düzeltme başka bir dalın dosyalarına dokunduysa o dalı da ekle (`alan fizik,hud`).
+4. O dalın senaryolarını koş: `node tests/kosucu.mjs alan <dal>`. Düzeltme başka bir dalın dosyalarına dokunduysa o dalı da ekle (`alan fizik,hud`).
 
 ## 5. Denemeye gönder, tekrar koş
 
@@ -77,7 +77,7 @@ Her koşumdan sonra `cp tests/cikti/rapor.json docs/regresyon/son-rapor.json`, c
 
 ## 6. Rapor ve onay isteği
 
-0 hata olunca `durum.json`'u `"asama": "onay-bekliyor"` yap, commit'le, gönder ve merkezi tazele. Sohbete Türkçe rapor yaz, bildir ("<sürüm> canlıya hazır: <n> dal, <m> hata çözüldü. Rapor regression sohbetinde; onay için "push" de.") ve **canlıya çıkış için onay iste**. Onay gelmeden `master`'a hiçbir şey gönderme.
+0 hata olunca **duman** koş: `node tests/kosucu.mjs duman` (yerelde ~15 sn). Duman kalırsa hata say, sahibi dalı bul (`dal / senaryo`), düzelt ve 5'ten tekrarla (duman ve senaryolar birlikte 0 hata olana kadar). Duman da geçince `durum.json`'u `"asama": "onay-bekliyor"` yap, commit'le, gönder ve merkezi tazele. Sohbete Türkçe rapor yaz (son satır: "Duman: geçti"), bildir ("<sürüm> canlıya hazır: <n> dal, <m> hata çözüldü. Rapor regression sohbetinde; onay için "push" de.") ve **canlıya çıkış için onay iste**. Onay gelmeden `master`'a hiçbir şey gönderme.
 
 1. **Sürüm:** ad (ör. 0.1.37), deneme adresi https://cemcandan01.github.io/Last-Turn/dev/ ("telefonda deneyebilirsin").
 2. **Her dalda neler oldu:** dal dal, oyuncunun göreceği dille 1-3 madde (2. adımdaki commit listesinden).
@@ -93,7 +93,7 @@ git checkout master && git pull origin master && git merge --no-ff --no-edit reg
 ```
 - `README.md` "İçerik" bölümüne bu sürümde oyuncunun göreceği özellikleri ekle.
 - Sürüm numarası değişmez (canlıya denemede denenen sürüm çıkar). `npm run kontrol`; merge commit başlığı ya da ek commit `Yayın 0.1.37: …` olsun (sürümün kalıcı kaydı budur); `git push origin master`. Sonra etiketi dene: `git tag v0.1.37 && git push origin v0.1.37`; bulut ortamı etiket gönderimini reddederse (403) bırak, kayıt "Yayın" commit'idir.
-- GitHub Actions'ta "Yayın" iş akışının `canli-duman` adımını izle (`mcp__github__actions_list`). Kalırsa açılan "Canlı duman hatası" kaydını oku, düzelt ve kullanıcıya bildir (acil düzeltme: `docs/SUREC.md`).
+- GitHub Actions'ta "Yayın" iş akışının `kontrol` ve `canli-duman` işlerini izle (canlıya çıkış yayınından sonra canlı adreste duman burada koşar) (`mcp__github__actions_list`). Kalırsa açılan "Canlı duman hatası" kaydını oku, düzelt ve kullanıcıya bildir (acil düzeltme: `docs/SUREC.md`).
 - Sonraki sürümü aç:
   ```
   git checkout gelistirme && git pull origin gelistirme && git merge --no-edit master

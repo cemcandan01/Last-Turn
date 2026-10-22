@@ -8,7 +8,7 @@ Her alan için yeni bir sohbet aç ve aşağıdaki istemi yapıştır. Altına o
 - Görmen gerekmeyen işlerde "ekran görüntüsü kontrolü yapma, sadece testleri çalıştır" de.
 - İş bitince sohbet testlerini koşup değişikliği kendiliğinden deneme sürümüne gönderir (https://cemcandan01.github.io/Last-Turn/dev/), sürüm numarası bir artar (0.1.4 → 0.1.5) ve telefona "denemede, kontrol edebilirsin" bildirimi gelir. Beğenmezsen aynı sohbette söyle; "geri al" dersen geri alır. Denemeye gitmesini istemediğin bir iş için isteğine "bekle" ekle; "push" deyince gider.
 - Canlıya (telefondaki asıl oyun) konu sohbetlerinden gönderilmez. Denemede yeni iş varsa gece 00:00'da "testlere hazır" bildirimi gelir; "regression" sohbetinde "başlat" dersen hemen, demezsen 04:00'te bütün testler koşar, hatalar düzeltilir, sana dal dal rapor verilip onay istenir. Orada "push" deyince sürüm (ör. 0.1.37) canlıya çıkar, sonraki sürüm 0.2 başlar. Bir dalın işini istemezsen onaydan önce "<dal> bu sürüme girmesin" de.
-- Testler hızlıdır: sohbet yalnız kendi alanının senaryolarını ve kısa bir duman turunu koşar; bütün testler regresyonda koşar.
+- Testler hızlıdır: sohbet yalnız kendi işinin kapsamındaki testleri koşar (hata bulursa kendisi düzeltir); bütün senaryolar ve duman testi regresyonda koşar.
 - Her sohbet kendi dalında çalışır (HUD sohbeti `hud`, fizik sohbeti `fizik` gibi). "Push" dediğinde iş ortak deneme sürümüne eklenir; orada başka sohbetlerin işleri de görünür. Aynı anda birkaç sohbet çalışabilir; çakışma olursa sohbet iki işi de koruyarak birleştirir, karar gerekirse sana sorar.
 
 ---

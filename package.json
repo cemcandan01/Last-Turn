@@ -16,7 +16,7 @@
     "test:izle": "vitest",
     "test:e2e": "node tests/e2e/duman.mjs",
     "test:goruntu": "node tests/e2e/duman.mjs --goruntu",
-    "kontrol": "npm run typecheck && npm run lint && npm run format:check && npm run duman",
+    "kontrol": "npm run typecheck && npm run lint && npm run format:check",
     "kontrol:tam": "npm run typecheck && npm run lint && npm run format:check && npm run test && npm run build && npm run test:e2e",
     "duman": "node tests/kosucu.mjs duman",
     "alan": "node tests/kosucu.mjs alan",
