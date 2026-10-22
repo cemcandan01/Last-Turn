@@ -61,8 +61,7 @@ function gorunum() {
   v.classList.toggle("dur", kamera.gBtn);
   $("#gar").style.display = kamera.gTam ? "none" : "";
   const t = $("#gvtam");
-  t.textContent = kamera.gTam ? "✕" : "⛶";
-  t.setAttribute("aria-label", kamera.gTam ? "Tam ekrandan çık" : "Tam ekran");
+  t.style.display = kamera.gTam ? "none" : "";
 }
 
 /** garajı aç: yarıştan önce (ev), serbest sürüşten önce (w) ya da menüden (ikisi de null) */
@@ -97,9 +96,10 @@ function showGar() {
   if (oyun.CAR !== c) setCar(G.i);
   const g = $("#gar");
   g.classList.remove("hidden");
+  // ana menüden açılan garajda araç seçilmez (yalnız bakılır)
+  const sec = G.ev != null ? "Yarış: " + EVENTS[G.ev].n : G.w != null ? "Sür: " + WORLDS[G.w].n : "";
   const stat = STAT(c).filter(([n]) => ["Azami hız", "Hızlanma", "Yol tutuşu", "Arazi"].includes(n));
   g.innerHTML = `<div class="gh"><button class="ga" id="gpv">◀</button><div style="flex:1;text-align:center"><h1>${c.n}</h1><span class="bdg">${c.ic} ${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}<button class="gses" id="gses"></button></div><button class="ga" id="gnx">▶</button></div>
-<div class="gl">${CARS.map((q, k) => `<div class="gc ${k == G.i ? "sel" : ""}" data-gi="${k}"><b>${q.ic}</b>${q.n}</div>`).join("")}</div>
 ${stat
   .map(
     ([n, f, t]) =>
@@ -107,12 +107,19 @@ ${stat
   )
   .join("")}
 <p class="gozet">${c.hp} hp · ${c.kg} kg · ${c.awd ? "Dört çeker" : "Arkadan itiş"}</p>
-<div class="gbt"><button class="btn alt" id="gbk">Geri</button><button class="btn" id="gok">${G.ev != null ? "Yarış: " + EVENTS[G.ev].n : G.w != null ? "Sür: " + WORLDS[G.w].n : "Bu aracı kullan"}</button></div>`;
+<div class="gbt"><button class="btn alt" id="gbk">Geri</button>${sec ? `<button class="btn" id="gok">${sec}</button>` : ""}</div>`;
   const v = $("#gvit");
   v.classList.remove("hidden");
-  v.innerHTML = `<button class="btn" id="gvok">${$("#gok").textContent}</button><button class="btn alt" id="gvbk">Geri</button><button class="gvtam" id="gvtam"></button>`;
-  $("#gvok").onclick = () => $("#gok").click();
-  $("#gvbk").onclick = () => $("#gbk").click();
+  v.innerHTML = `<button class="gvar" id="gvpv">◀</button><button class="gvar sag" id="gvnx">▶</button>${sec ? `<button class="btn" id="gvok">${sec}</button>` : ""}<button class="btn alt" id="gvbk">Geri</button><button class="gvtam" id="gvtam">⛶</button>`;
+  if (sec) $("#gvok").onclick = () => $("#gok").click();
+  // tam ekranda Geri: tam ekrandan çıkıp bilgi paneline döner
+  $("#gvbk").onclick = () => {
+    kamera.gTam = false;
+    kamera.gBtn = false;
+    gorunum();
+  };
+  $("#gvpv").onclick = () => go(G.i - 1);
+  $("#gvnx").onclick = () => go(G.i + 1);
   $("#gvtam").onclick = () => {
     kamera.gTam = !kamera.gTam;
     kamera.gBtn = false;
@@ -137,24 +144,24 @@ ${stat
   };
   $("#gpv").onclick = () => go(G.i - 1);
   $("#gnx").onclick = () => go(G.i + 1);
-  g.querySelectorAll<HTMLElement>(".gc").forEach((e) => (e.onclick = () => go(+e.dataset.gi!)));
   $("#gbk").onclick = () => {
     setCar(G.prev);
     closeGarage();
     showMenu(G.w != null ? ["free"] : undefined);
   };
-  $("#gok").onclick = () => {
-    const { ev, w, i, prev } = G;
-    closeGarage();
-    if (ev != null) {
-      setCar(prev);
-      startEvent(ev, i);
-      return;
-    }
-    // serbest sürüş: aracın önayarıyla başlar (önayar sonra duraklatma menüsünden değiştirilebilir)
-    kurulum.pk = oyun.CAR.pk;
-    applyPreset();
-    if (w != null) startWorld(w);
-    else showMenu();
-  };
+  if (sec)
+    $("#gok").onclick = () => {
+      const { ev, w, i, prev } = G;
+      closeGarage();
+      if (ev != null) {
+        setCar(prev);
+        startEvent(ev, i);
+        return;
+      }
+      // serbest sürüş: aracın önayarıyla başlar (önayar sonra duraklatma menüsünden değiştirilebilir)
+      kurulum.pk = oyun.CAR.pk;
+      applyPreset();
+      if (w != null) startWorld(w);
+      else showMenu();
+    };
 }

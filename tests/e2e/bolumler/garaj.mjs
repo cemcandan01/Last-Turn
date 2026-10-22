@@ -110,7 +110,8 @@ export default async function ({ p, ok }) {
   const oto0 = await p.evaluate(() => LT.kamera.gOto);
   await p.mouse.down();
   await p.mouse.up();
-  ok(oto0 && !(await p.evaluate(() => LT.kamera.gOto)), "garajda dokununca kendiliğinden dönme durur");
+  ok(oto0 && (await p.evaluate(() => LT.kamera.gOto)), "vitrin küçükken dokunmak dönmeyi durdurmaz");
+  ok(!(await p.evaluate(() => !!document.querySelector(".gc, .gl"))), "bilgi panelinde araç şeridi yok");
   // dokununca seç/geri tuşları çıkar, tam ekran düğmesi paneli gizler, sürükledikten sonra açı eski yerine dönmez
   const gorunur = (sel) =>
     p.evaluate((q) => {
@@ -120,9 +121,13 @@ export default async function ({ p, ok }) {
   ok(!(await gorunur("#gvok")), "tam ekran dışında seç ve geri tuşları görünmez");
   await p.click("#gvtam");
   ok(!(await gorunur("#gar")), "tam ekran: bilgi paneli gizlenir");
+  ok(!(await gorunur("#gvtam")), "tam ekranda X (çık) düğmesi yok");
+  ok((await gorunur("#gvpv")) && (await gorunur("#gvnx")), "tam ekranda ◀ ▶ görünür");
+  const ad0 = await p.evaluate(() => LT.oyun.CAR.n);
+  await p.click("#gvnx");
+  ok((await p.evaluate(() => LT.oyun.CAR.n)) != ad0, "tam ekranda ▶ aracı değiştirir");
+  await p.click("#gvpv");
   await p.mouse.move(200, 200);
-  await p.mouse.down();
-  await p.mouse.up();
   await p.mouse.down();
   await p.mouse.up();
   ok(
@@ -134,8 +139,11 @@ export default async function ({ p, ok }) {
   await p.mouse.move(180, 200, { steps: 4 });
   ok(!(await gorunur("#gvok")), "tekrar sürükleyince seç ve geri tuşları kaybolur");
   await p.mouse.up();
-  await p.click("#gvtam");
-  ok(await gorunur("#gar"), "tam ekrandan çıkınca bilgi paneli geri gelir");
+  await p.mouse.down();
+  await p.mouse.up();
+  await p.click("#gvbk");
+  ok(await gorunur("#gar"), "tam ekranda Geri: tam ekrandan çıkıp bilgi paneline döner");
+  ok(await gorunur("#gvtam"), "panel görünürken tam ekran düğmesi kalır");
   // durmuş dönme: sürükleyip bırakınca bırakma hızıyla yeniden başlar, kendi hızına (0,3 rad/sn) söner, geri sıçramaz
   await p.evaluate(() => (LT.kamera.gOto = false));
   const surukle = (x0, x1) =>
@@ -195,5 +203,12 @@ export default async function ({ p, ok }) {
   await pinch(80, 40);
   ok((await p.evaluate(() => LT.kamera.gz)) > g1, "iki parmağı kapatınca uzaklaşır");
   if (process.env.GARAJ_GOR) await p.screenshot({ path: process.env.GARAJ_GOR });
+  await p.evaluate(() => LT.closeGarage());
+  // ana menüden açılan garajda araç seçilmez
+  await p.evaluate(() => LT.openGarage(null));
+  ok(
+    !(await p.evaluate(() => !!document.querySelector("#gok, #gvok"))) && (await gorunur("#gbk")),
+    "menü garajında seçme yok, yalnız Geri",
+  );
   await p.evaluate(() => LT.closeGarage());
 }
