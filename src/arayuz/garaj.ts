@@ -53,12 +53,12 @@ function dinleBagla() {
   });
 }
 
-/** vitrin tuşları: tam ekran düğmesi hep; dönme dokunuşla durunca seç/geri tuşları da çıkar; tam ekranda bilgi paneli gizlenir */
+/** vitrin tuşları: tam ekran düğmesi hep; tam ekranda dokunup bırakınca seç/geri tuşları çıkar, sürükleyince kaybolur; tam ekranda bilgi paneli gizlenir */
 function gorunum() {
   if (!GAR) return;
   const v = $("#gvit");
   v.classList.toggle("tam", kamera.gTam);
-  v.classList.toggle("dur", !kamera.gOto);
+  v.classList.toggle("dur", kamera.gBtn);
   $("#gar").style.display = kamera.gTam ? "none" : "";
   const t = $("#gvtam");
   t.textContent = kamera.gTam ? "✕" : "⛶";
@@ -115,6 +115,7 @@ ${stat
   $("#gvbk").onclick = () => $("#gbk").click();
   $("#gvtam").onclick = () => {
     kamera.gTam = !kamera.gTam;
+    kamera.gBtn = false;
     gorunum();
   };
   gorunum();

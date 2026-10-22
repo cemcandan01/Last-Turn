@@ -23,6 +23,8 @@ export const kamera = {
   gOto: true,
   /** garaj: vitrin tam ekran (bilgi paneli gizli) */
   gTam: false,
+  /** garaj tam ekranda dokunup bırakınca seç/geri tuşları görünür; sürüklemeye başlayınca kaybolur */
+  gBtn: false,
 };
 
 /** garajda dikey açı sınırı: yerin altına inmez, tam tepeden (90°) bakmaz */
@@ -39,6 +41,7 @@ export function garajKameraSifirla() {
   kamera.gz = 1;
   kamera.gOto = true;
   kamera.gTam = false;
+  kamera.gBtn = false;
 }
 
 /** garaj: araç kendiliğinden döner (dokununca durur), yön açısı tek yerde tutulur */
@@ -85,6 +88,10 @@ export function kameraKur(cvs: HTMLElement) {
       if (!d) return;
       d.x = ax;
       d.y = ay;
+      if (kamera.gBtn && Math.hypot(ax - baslangic.x, ay - baslangic.y) > 10) {
+        kamera.gBtn = false;
+        document.dispatchEvent(new Event("lt:garaj-dokunus"));
+      }
       if (dokunuslar.size >= 2) {
         kamera.gz = cl(iki() / taban, GZ_MIN, GZ_MAX);
         return;
@@ -116,6 +123,7 @@ export function kameraKur(cvs: HTMLElement) {
         // kısa, yerinde dokunuş: kendiliğinden dönmeyi aç/kapat
         if (tek && n == "pointerup" && baslangic.yer < 10 && performance.now() - baslangic.t < 400) {
           kamera.gOto = !kamera.gOto;
+          kamera.gBtn = kamera.gTam && !kamera.gOto;
           document.dispatchEvent(new Event("lt:garaj-dokunus"));
         }
         // iki parmaktan biri kalktıysa kalan parmak sürüklemeye devam eder (sıçrama olmasın)

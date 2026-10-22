@@ -106,9 +106,23 @@ export default async function ({ p, ok }) {
       const e = document.querySelector(q);
       return !!e && e.getClientRects().length > 0 && getComputedStyle(e).visibility != "hidden";
     }, sel);
-  ok((await gorunur("#gvok")) && (await gorunur("#gvbk")), "dokununca vitrinde seç ve geri tuşları çıkar");
+  ok(!(await gorunur("#gvok")), "tam ekran dışında seç ve geri tuşları görünmez");
   await p.click("#gvtam");
   ok(!(await gorunur("#gar")), "tam ekran: bilgi paneli gizlenir");
+  await p.mouse.move(200, 200);
+  await p.mouse.down();
+  await p.mouse.up();
+  await p.mouse.down();
+  await p.mouse.up();
+  ok(
+    (await gorunur("#gvok")) && (await gorunur("#gvbk")),
+    "tam ekranda dokunup bırakınca seç ve geri tuşları çıkar",
+  );
+  await p.mouse.move(100, 200);
+  await p.mouse.down();
+  await p.mouse.move(180, 200, { steps: 4 });
+  ok(!(await gorunur("#gvok")), "tekrar sürükleyince seç ve geri tuşları kaybolur");
+  await p.mouse.up();
   await p.click("#gvtam");
   ok(await gorunur("#gar"), "tam ekrandan çıkınca bilgi paneli geri gelir");
   await p.mouse.move(100, 200);
