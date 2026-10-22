@@ -1,6 +1,7 @@
 // Araç gövdesi: tekerler kemerlerin içinde ve gövde yüzeyinin hemen içinde; kemerli profil kendini kesmez;
 // renk panelleri kemerin içine girmez
 import { describe, expect, it } from "vitest";
+import "../yardimci/sahte-tuval";
 import { CARS } from "../../src/arac/araclar";
 import * as THREE from "three";
 import { enineGovde, kemerler, kemerliProfil, tekerYerleri, yariGenislik } from "../../src/cizim/govde";
@@ -50,5 +51,29 @@ describe("gövde ve teker kemerleri", () => {
           if (i == 0 && j == n - 1) continue;
           expect(kesisir(p[i], p[(i + 1) % n], p[j], p[(j + 1) % n])).toBe(false);
         }
+    });
+});
+
+describe("ek parçalar gövdeye oturur (tampon, far, kanat)", () => {
+  for (const d of CARS)
+    it(d.n, async () => {
+      const { buildCar } = await import("../../src/cizim/arac-modeli");
+      const { g } = buildCar(d),
+        z0 = Math.min(...d.p.map((p) => p[0])),
+        z1 = Math.max(...d.p.map((p) => p[0])),
+        kutu = new THREE.Box3();
+      g.updateMatrixWorld(true);
+      g.traverse((o) => {
+        const m = o as THREE.Mesh;
+        if (!m.isMesh || m.userData.pan) return;
+        const b = new THREE.Box3().setFromObject(m);
+        // hiçbir parça burun/kuyruğun 15 cm, yan yüzeyin (aynalar hariç) 35 cm ötesine çıkmaz (düz tampon levhaları gövdeden taşmaz)
+        expect(b.max.z).toBeLessThan(z1 + 0.15);
+        expect(b.min.z).toBeGreaterThan(z0 - 0.15);
+        expect(b.max.x).toBeLessThan(d.w / 2 + 0.35);
+        expect(b.min.x).toBeGreaterThan(-d.w / 2 - 0.35);
+        kutu.union(b);
+      });
+      expect(kutu.max.y).toBeLessThan(Math.max(...d.p.map((p) => p[1])) + (d.lift || 0) + 0.45);
     });
 });
