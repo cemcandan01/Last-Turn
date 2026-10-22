@@ -10,6 +10,7 @@ export { aynaDurumu } from "../cizim/ayna";
 export { kokpit } from "../cizim/kokpit";
 export { COND } from "../cizim/ortam";
 export { perf } from "../cekirdek/performans";
+export { ekran } from "../cekirdek/ekran";
 export { REG } from "../dunya/bolgeler";
 export { WORLDS, dunya } from "../dunya/dunya";
 export { ipucu } from "../dunya/pist";

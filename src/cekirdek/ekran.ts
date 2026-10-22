@@ -8,6 +8,9 @@ export const ekran = {
   /** içeriğin dönme açısı: 0, 90, -90 */
   rot: 0,
   lastLand: 90,
+  /** görünür alanın (ekranın) genişliği ve yüksekliği; dönmeden önceki ölçü */
+  w: typeof innerWidth == "number" ? innerWidth : 844,
+  h: typeof innerHeight == "number" ? innerHeight : 390,
   aw: typeof innerWidth == "number" ? innerWidth : 844,
   ah: typeof innerHeight == "number" ? innerHeight : 390,
 };
@@ -32,12 +35,21 @@ export function ekranKur() {
   layout();
 }
 
+/** görünür alanın gerçek ölçüsü: iOS ana ekran uygulamasında açılışta innerWidth/Height gecikmeli oturabilir */
+export function gorunurOlcu(): [number, number] {
+  const v = window.visualViewport;
+  const W = Math.round(v && v.width > 0 ? v.width : innerWidth),
+    H = Math.round(v && v.height > 0 ? v.height : innerHeight);
+  return [W, H];
+}
+
 export function layout() {
-  const W = innerWidth,
-    H = innerHeight,
+  const [W, H] = gorunurOlcu(),
     land = W > H,
     o = devO();
   if (land) ekran.lastLand = o == 270 ? 270 : 90;
+  ekran.w = W;
+  ekran.h = H;
   ekran.rot =
     ekran.olock == "land" && !land
       ? ekran.lastLand == 270
@@ -68,4 +80,4 @@ export function layout() {
 
 /** ekran koordinatını içerik koordinatına çevirir */
 export const toApp = (x: number, y: number): [number, number] =>
-  ekran.rot == 90 ? [y, innerWidth - x] : ekran.rot == -90 ? [innerHeight - y, x] : [x, y];
+  ekran.rot == 90 ? [y, ekran.w - x] : ekran.rot == -90 ? [ekran.h - y, x] : [x, y];
