@@ -10,6 +10,7 @@ import { REG } from "../dunya/bolgeler";
 import { dunya, WORLDS } from "../dunya/dunya";
 import { carIndex, oyun, setCar } from "../oyun/durum";
 import { kamera } from "../cizim/kamera";
+import { sun } from "../cizim/sahne";
 import { applyPreset, kurulum } from "../oyun/kurulum";
 import { EVENTS, startEvent } from "../oyun/yarislar";
 import { showMenu, startWorld } from "./menu";
@@ -64,12 +65,14 @@ export function openGarage(ev: number | null, w: number | null = null) {
   for (const q of REG) if (q.g) q.g.visible = false;
   ground.visible = false;
   garG.visible = true;
+  sun.visible = false;
   showGar();
 }
 
 export function closeGarage() {
   DINLE = null;
   garG.visible = false;
+  sun.visible = true;
   gizle("#gar");
   GAR = null;
 }

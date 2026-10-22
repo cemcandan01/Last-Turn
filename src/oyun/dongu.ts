@@ -238,14 +238,20 @@ function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h
     cam.up.set(0, 1, 0);
     cam.lookAt(x + fxm * 3, y + 1.2, z + fzm * 3);
   }
-  // garaj kamerası: araç dikeyde üst yarıda, yatayda solda (panel sağda)
+  // garaj kamerası: araç, panel ve şerit dışında kalan boşluğun ortasında (görüntü penceresi panel payı kadar kaydırılır)
   if (mode == "garage") {
     const a = 0.55,
       lnd = ekran.aw > ekran.ah,
-      dd = lnd ? 8.2 : 8.8;
-    cam.position.set(GX + Math.sin(a) * dd, lnd ? 2.3 : 3.2, GZ + Math.cos(a) * dd);
+      dd = lnd ? 8.2 : 8.8,
+      pay = lnd ? Math.min(400, ekran.aw / 2) / 2 : 0;
+    cam.position.set(GX + Math.sin(a) * dd, lnd ? 1.9 : 3.2, GZ + Math.cos(a) * dd);
     cam.up.set(0, 1, 0);
-    cam.lookAt(GX + (lnd ? Math.cos(a) * 3.4 : 0), lnd ? 0.6 : -1.5, GZ - (lnd ? Math.sin(a) * 3.4 : 0));
+    cam.lookAt(GX, lnd ? 0.7 : -0.2, GZ);
+    cam.setViewOffset(ekran.aw, ekran.ah, pay, 0, ekran.aw, ekran.ah);
+    garajGorus = true;
+  } else if (garajGorus) {
+    cam.clearViewOffset();
+    garajGorus = false;
   }
   const port = ekran.aw < ekran.ah,
     bf = camMode == 3 && inCar ? (port ? 64 : 54) : (port ? 78 : 62) + (inCar ? 6 : 0),
@@ -256,6 +262,9 @@ function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h
     cam.updateProjectionMatrix();
   }
 }
+
+/** garaj görüntü penceresi kaydırması açık mı */
+let garajGorus = false;
 
 export function donguBaslat() {
   requestAnimationFrame(kare);

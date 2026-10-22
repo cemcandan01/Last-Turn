@@ -1,5 +1,6 @@
 // Kamera durumu: takip açısı, parmakla bakış (sürükleme), görüş açısı ve eğim yumuşatması
 import { cl } from "../cekirdek/matematik";
+import { oyun } from "../oyun/durum";
 import { toApp } from "../cekirdek/ekran";
 
 export const kamera = {
@@ -36,7 +37,8 @@ export function kameraKur(cvs: HTMLElement) {
   cvs.addEventListener("pointermove", (e) => {
     if (e.pointerId !== kamera.dp) return;
     const [ax, ay] = toApp(e.clientX, e.clientY);
-    kamera.ly -= (ax - lx) * 0.009;
+    // garajda araç parmakla aynı yöne döner (yarışta bakış yönü ters)
+    kamera.ly += (ax - lx) * 0.009 * (oyun.mode == "garage" ? 1 : -1);
     kamera.lp = cl(kamera.lp + (ay - ly0) * 0.006, -0.25, 1);
     lx = ax;
     ly0 = ay;

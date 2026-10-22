@@ -64,6 +64,24 @@ export default async function ({ p, ok }) {
   ok(sig.length > 0 && sig.every(Boolean), "garaj paneli kaydırmasız sığıyor, butonlar görünür");
   await p.evaluate(() => LT.openGarage(0));
   await p.waitForTimeout(500);
+  // yazılar panel kenarına yapışmaz (sağ kenara en az 12 px)
+  const bosluk = await p.evaluate(() => {
+    const k = document.querySelector("#gar").getBoundingClientRect().right;
+    return Math.min(
+      ...[...document.querySelectorAll("#gar .st em, #gar .bdg")].map(
+        (e) => k - e.getBoundingClientRect().right,
+      ),
+    );
+  });
+  ok(bosluk >= 12, "garaj yazıları panel kenarına yapışık değil (" + Math.round(bosluk) + " px)");
+  // parmak sağa giderken aracın önü de sağa döner (doğal sürükleme: yön açısı artar)
+  const ly0 = await p.evaluate(() => LT.kamera.ly);
+  await p.mouse.move(120, 200);
+  await p.mouse.down();
+  await p.mouse.move(220, 200, { steps: 5 });
+  await p.mouse.up();
+  const ly1 = await p.evaluate(() => LT.kamera.ly);
+  ok(ly1 > ly0, "garajda sağa sürükleme aracı parmakla aynı yöne döndürür");
   if (process.env.GARAJ_GOR) await p.screenshot({ path: process.env.GARAJ_GOR });
   await p.evaluate(() => LT.closeGarage());
 }
