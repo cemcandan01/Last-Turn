@@ -80,6 +80,7 @@ npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 
 ## Kullanıcının kararları (bozma, değiştirmeden önce sor)
 
+- Yönetmen sohbeti yönlendirdiği işleri kullanıcıya önceden anlatmaz (maliyet); yalnız işler bitince kısa özet ve görsel kanıtla yazar.
 - Oyun yalnız yatay ekranda; dikey düzen için emek harcanmaz.
 - Direksiyon tuşu hassasiyeti varsayılan 0,5 (tüm önayarlarda `sens:.5`).
 - Gerçek marka adı ve logo yok; araçlar gerçek araçlardan esinlenir, kendi adları vardır (Kızıl Ok, Kor RX, Beyaz Kurt, Mavi Yıldız, Gece Mavisi).
