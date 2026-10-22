@@ -46,8 +46,9 @@ Senin payın: <bu dalın yapacağı iş, tek paragraf>
 Kapsam dışı: <başka dalların işi; bu dosyalara dokunma: …>
 Sözleşme: <başka dalla ortak arayüz: alan adı, fonksiyon imzası, değer aralığı; yoksa "yok">
 Önceki adımın çıktısı: <bağımlı işse: sürüm, ne eklendi, dosya adları; yoksa "yok">
-Bitince: testler geçince denemeye gönder (surum-yayinla), dal notunu güncelle, sonra yönetmene tek mesajla haber ver: send_message ile session_id "@parent": "<dal> bitti: <sürüm>, <bir cümle özet>, <açık kalan>".
-Başarı ölçütü: <ne görülürse iş doğru sayılır>. Görsel ya da oynanış değişikliğinde bitince bir ekran görüntüsünü kullanıcıya kendin gönder (SendUserFile) ve yönetmene mesajında "kanıt gönderildi" de.
+Bitince: testler geçince denemeye gönder (surum-yayinla), dal notunu güncelle, sonra yönetmene tek mesajla haber ver: mcp__claude-code-remote__send_message ile (yerel SendMessage ulaşmaz) session_id "@parent": "<dal>: <sürüm> denemede, <bir cümle özet>, <açık kalan>, kanıt tarifi".
+Başarı ölçütü: <ne görülürse iş doğru sayılır>.
+Kullanıcıya hiçbir şey gönderme (SendUserFile dahil); görsel ya da oynanış işinde yönetmene mesajında kanıt tarifini ekle: hangi ekran, hangi LT.* ifadesi (ör. --js "LT.startWorld(1)" --bekle 1500), varsa ikinci durum. Yönetmen görüntüyü kendisi alır.
 ```
 
 Başarı ölçütü ve sözleşme boş kalırsa konu sohbeti tahmin eder ve revize gerekir; özenle yaz. Modeli iş zorluğuna göre seç: `fizik` ve zor mimari/tasarım işleri `claude-opus-5-5`, geri kalanı `claude-sonnet-5-5` (Haiku kod yazmaz).
@@ -58,7 +59,8 @@ Başarı ölçütü ve sözleşme boş kalırsa konu sohbeti tahmin eder ve revi
 
 ## 6. Takip, bildirim ve özet
 
-- **Kullanıcıya yazma sıklığı:** iş başlarken yazma. İşler bittiğinde tek kısa özet yaz: ne değişti, sürüm, nasıl denenir, görsel kanıt (konu sohbetlerinin gönderdiği ekran görüntüsü). Çok dallı işte tüm dallar bitince tek özet.
+- **Kullanıcıya yazma sıklığı:** iş başlarken yazma. İşler bittiğinde tek kısa özet yaz: ne değişti, sürüm, nasıl denenir, görsel kanıt. Çok dallı işte tüm dallar bitince tek özet. Konu sohbetleri kullanıcıya hiçbir şey göndermez; **kanıtı sen alırsın**.
+- **Görsel kanıt:** konu sohbeti "<dal>: <sürüm> denemede" + kanıt tarifi gönderince: `git pull -q origin gelistirme && npm ci --silent && npm run build && node tests/surec/kanit.mjs --js "<tarif>" --bekle 1500 --cikti tests/cikti/<dal>.png` (birden çok durum için --js/--cikti çiftlerini art arda ver). Görüntüye bir kez bak (Read), doğruysa `SendUserFile` ile bu sohbette göster. Tarif eksik ya da görüntü yanlışsa konu sohbetine bir satırla düzeltme iste (yeni sohbet açma). Dosyaları commit etme.
 
 - **Telefon bildirimini yalnız sen ve regression gönderirsin; konu sohbetleri göndermez.** Konu sohbeti "denemede" ya da "iş hazır, push bekliyor" diye haber verince `PushNotification` ile kullanıcıya tek satır gönder ("<dal>: <sürüm> denemede, kontrol edebilirsin (<iş>)"). Ara adımlarda bildirme.
 

@@ -25,7 +25,7 @@ Kullanıcı Türkçe konuşur, iPhone 13'te yatay oynar, kod okumaz. Arayüz met
 
 Maliyet kullanıcı için önemlidir; kaliteyi düşürmeden az token harca.
 - **Kısa yanıt:** kullanıcıya en fazla 5 satır: ne değişti, sürüm, nasıl denenir, varsa tek soru. Ara adım anlatımı, tablo, kod yok (istenmedikçe). Ayrıntıyı commit mesajına yaz.
-- **Tek seferde doğru:** istek belirsizse işe başlamadan tek soru sor (seçenekli, `AskUserQuestion`); küçük bir varsayım yapacaksan yanıtta tek satırla söyle. Görsel ya da oynanış değişikliğinde kanıt göster: bir ekran görüntüsü (`SendUserFile`) ya da ölçülen sayı; kullanıcı aynı şeyi yeniden istemek zorunda kalmasın.
+- **Tek seferde doğru:** istek belirsizse işe başlamadan tek soru sor (seçenekli, `AskUserQuestion`); küçük bir varsayım yapacaksan yanıtta tek satırla söyle. Görsel ya da oynanış değişikliğinde kanıt hazırla: ölçülen sayı ve kanıt tarifi (hangi ekran, hangi `LT.*` ifadesi); kullanıcıyla doğrudan yazışan sohbette ekran görüntüsü de (`SendUserFile`). Yönetmenin açtığı sohbet kullanıcıya hiçbir şey göndermez: tarifi yönetmene `send_message` ile verir, görüntüyü yönetmen çeker (`tests/surec/kanit.mjs`). Kullanıcı aynı şeyi yeniden istemek zorunda kalmasın.
 - **Yardımcı ajanlar** (`.claude/agents/`, ucuz modeller): kod bulmak için `kasif` (haiku), test koşup kısa sonuç almak için `testci` (haiku), göndermeden önce gözden geçirme ve görsel denetim için `denetci` (sonnet). Büyük dosyaları ve uzun test çıktılarını ana sohbete alma; ajana yaptır, özetini kullan. Küçük işte (birkaç satır) ajan açma, doğrudan yap.
 - **Bağlam:** dosyayı baştan sona okuma; `grep` ile ilgili yeri bul, o kısmı oku. Yalnız çalıştığın alanın kurallarını oku (`docs/ALANLAR.md`). Yalnız değişen alanın testini koş.
 - **Dal notu:** işi denemeye gönderirken `docs/notlar/<dal>.md`'yi güncelle (en fazla 15 satır, Türkçe): son yapılanlar, alınan kararlar ve nedeni, denenip bırakılanlar, kullanıcının bu dal için söylediği tercihler, açık işler. Sohbet kapansa ya da temizlense bile bir sonraki sohbet işi sıfırdan kurmasın; kullanıcı revize isterse yeni sohbet açabilir.
@@ -80,7 +80,7 @@ npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 
 ## Kullanıcının kararları (bozma, değiştirmeden önce sor)
 
-- Yönetmen sohbeti yönlendirdiği işleri kullanıcıya önceden anlatmaz (maliyet); yalnız işler bitince kısa özet ve görsel kanıtla yazar.
+- Yönetmen sohbeti yönlendirdiği işleri kullanıcıya önceden anlatmaz (maliyet); yalnız işler bitince kısa özet ve görsel kanıtla yazar. Yönetmenin açtığı konu sohbetleri kullanıcıya hiçbir şey göndermez (`SendUserFile` dahil): işi bitirince yönetmene `mcp__claude-code-remote__send_message` (`@parent`) ile "<dal>: <sürüm> denemede" ve kanıt tarifini yazar; görsel kanıtı yönetmen alır ve kendi sohbetinde gösterir.
 - Oyun yalnız yatay ekranda; dikey düzen için emek harcanmaz.
 - Direksiyon tuşu hassasiyeti varsayılan 0,5 (tüm önayarlarda `sens:.5`).
 - Gerçek marka adı ve logo yok; araçlar gerçek araçlardan esinlenir, kendi adları vardır (Kızıl Ok, Kor RX, Beyaz Kurt, Mavi Yıldız, Gece Mavisi).
