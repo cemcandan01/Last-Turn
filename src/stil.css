@@ -352,7 +352,7 @@ details[open] > summary::after {
 }
 .land #gar {
   left: auto;
-  width: min(470px, 58%);
+  width: min(410px, 58%);
   top: var(--sat);
   bottom: 0;
   max-height: none;
@@ -1750,4 +1750,38 @@ details[open] > summary::after {
 .rlist .rcs b {
   white-space: nowrap;
   font-size: 13px;
+}
+
+/* garaj vitrini: sağ altta tam ekran düğmesi; dönme dokunuşla durunca üstünde seç/geri */
+#gvit {
+  position: fixed;
+  bottom: calc(10px + var(--sab, 0px));
+  right: calc(min(410px, 58%) + 12px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  z-index: 5;
+}
+#gvit.tam {
+  right: max(14px, var(--sar, 0px));
+}
+#gvit .btn {
+  display: none;
+  margin: 0;
+  width: auto;
+  min-width: 150px;
+  padding: 10px 18px;
+}
+#gvit.dur .btn {
+  display: block;
+}
+.gvtam {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  border: 2px solid var(--line);
+  background: #000a;
+  color: var(--ink);
+  font-size: 22px;
 }

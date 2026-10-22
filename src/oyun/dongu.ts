@@ -219,7 +219,7 @@ function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h
       K.lp = 0.1 + Math.sin(tt * 0.07) * 0.1;
     } else {
       K.camYaw += ad(h - K.camYaw) * Math.min(1, dt * (sim.d.D.act ? 2.2 : 4.5));
-      if (K.dp === null && performance.now() - K.lastDrag > 1500) {
+      if (mode != "garage" && K.dp === null && performance.now() - K.lastDrag > 1500) {
         const d = Math.exp(-dt * 3);
         K.ly *= d;
         K.lp *= d;
@@ -244,7 +244,7 @@ function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h
     const a = 0.55,
       lnd = ekran.aw > ekran.ah,
       dd = (lnd ? 8.2 : 8.8) * kamera.gz,
-      pay = lnd ? Math.min(GARAJ_PANEL, ekran.aw * 0.58) / 2 : 0,
+      pay = lnd && !kamera.gTam ? Math.min(GARAJ_PANEL, ekran.aw * 0.58) / 2 : 0,
       ty = lnd ? 0.7 : -0.2,
       gp = lnd ? kamera.gp : kamera.gp + 0.25;
     cam.position.set(
@@ -271,7 +271,7 @@ function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h
 }
 
 /** garaj bilgi panelinin yatay genişliği (px; stil.css → .land #gar ile aynı) */
-const GARAJ_PANEL = 470;
+const GARAJ_PANEL = 410;
 
 /** garaj görüntü penceresi kaydırması açık mı */
 let garajGorus = false;
