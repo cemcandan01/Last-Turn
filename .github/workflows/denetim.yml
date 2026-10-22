@@ -1,5 +1,5 @@
 # Denetim: konu dalına her gönderimde tip denetimi, kod denetimi, biçim ve alan testi
-# (dalın kendi senaryoları + duman; dal adı tests/senaryolar/<dal>.mjs ile eşleşir, eşleşmezse yalnız duman).
+# (yalnız dalın kendi senaryoları; dal adı tests/senaryolar/<dal>.mjs ile eşleşir, eşleşmezse koşacak senaryo yoktur).
 name: Denetim
 
 on:
