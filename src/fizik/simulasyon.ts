@@ -54,26 +54,34 @@ export class Simulasyon {
   onceki: Poz = { x: 0, y: 0, z: 0, h: 0, qx: 0, qy: 0, qz: 0, qw: 1 };
   /** gövde, tekerler ve motorun durumu; sıfırlamadan sonra ilk adımda aracın durumundan kurulur */
   yeni: YeniDurum | null = null;
-  /** fizik içi rastgelelik: tohumlu */
-  rng: Rastgele;
+  /** fizik içi rastgelelik tohumu: her sıfırlamada üreteç bu tohumla yeniden başlar (tekrar oynatma) */
+  tohum: number;
+  private ic: Rastgele;
+  /** fizik içi rastgelelik (tohumlu); işlev aynı kalır, bağlam bir kez alabilir */
+  readonly rng: Rastgele = () => this.ic();
 
   constructor(tohum = 1) {
-    this.rng = mulberry32(tohum);
+    this.tohum = tohum;
+    this.ic = mulberry32(tohum);
   }
 
   get S() {
     return this.d.S;
   }
 
-  /** aracı (x, z) noktasına h yönüyle koy; hız ve drift durumu sıfırlanır */
+  /**
+   * aracı (x, z) noktasına h yönüyle koy; hız, drift durumu ve rastgelelik sıfırlanır. Sıfırlamadan sonraki
+   * durum yalnız (x, z, h, y) ve tohuma bağlıdır: aynı girdilerle aynı sonuç (girdi kaydı)
+   */
   sifirla(x: number, z: number, h: number, y: number) {
     const d = this.d;
     Object.assign(d.S, yeniAracDurumu(x, z, h, y));
     delete d.S.pv;
     d.st = 0;
-    d.D.act = d.D.t = d.D.score = 0;
-    d.DR.on = d.DR.k = 0;
-    d.DR.cool = 0;
+    d.delta = 0;
+    Object.assign(d.D, { act: 0, t: 0, score: 0, gap: 0, beta: 0 });
+    Object.assign(d.DR, { on: 0, dir: 1, hold: 0, bt: 0, t: 0, k: 0, cool: 0, nc: 0 });
+    this.ic = mulberry32(this.tohum);
     this.yeni = null;
     this.pozKaydet();
   }

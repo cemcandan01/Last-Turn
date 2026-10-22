@@ -31,6 +31,8 @@ import { oyun } from "./durum";
 import { I } from "./girdi";
 import { CINE, cineCam, cineTick } from "./sinematik";
 import { sim, surusAdimi } from "./surus";
+import { HAYALET, uzak, uzakTick } from "./uzak";
+import { uzakAraclariCiz } from "../cizim/uzak-arac-modeli";
 import { yaris } from "./yarislar";
 
 /** görsel saat (menü, garaj, yağış) */
@@ -108,6 +110,9 @@ function kare(ts: number) {
     gz = mode == "garage" ? S.z : pz,
     gh = mode == "garage" ? S.h : ph;
   sahneGuncelle(dt, v, gx, gy, gz, gh, al);
+  const yarista = mode == "drive" || mode == "pause" || mode == "result";
+  if (yarista) uzakTick(dt);
+  if (uzak.araclar.length || yarista) uzakAraclariCiz(uzak.araclar, yarista, (u) => u.id == HAYALET);
   if (mode == "menu" && CINE) cineCam();
   parcacikTick(dt);
   if (mode != "menu" && mode != "garage" && !duzenleyici.acik) {

@@ -21,6 +21,7 @@
 
 - **Saf katmanlar** (`cekirdek`, `fizik`): three.js, DOM ve oyun durumu bilmez. Node'da milisaniyeler içinde test edilir.
 - **Fizik** dünyayı yalnız `DunyaSorgusu` (yükseklik, zemin, yakın çarpışma nesneleri, sınır, hava tutuşu) üzerinden görür, olayları `FizikOlaylari` ile bildirir (spin, toz). Böylece aynı fizik oyunda, testte ve ileride rakip araçlarda/hayalet araçta çalışır.
+- **Araçlar:** her araç bir `AracOrnegi` (`fizik/arac-ornegi.ts`): kendi `Simulasyon`'u, tohumlu rng'si, bağlamı (dünya sorgusu, kurulum, olaylar) ve girdi kaydı. Oyunda bir **yerel araç** vardır (`oyun/surus.ts → yerel`, `sim = yerel.sim`); kamera, ses, HUD ve yarış ona bakar. **Uzak araçlar** (`oyun/uzak.ts`) fizik çalıştırmaz: `AracAnlik` görüntüleri (düz sayı alanları, `fizik/anlik.ts`) bir tampona girer, araç biraz geriden ara değerle (görüntü gecikirse sınırlı ileri tahminle) çizilir (`cizim/uzak-arac-modeli.ts`). Ağ katmanı ileride `uzakAracEkle` + `uzakAnlikEkle` ile bağlanır. Araçlar arası çarpışma yok. Geliştirici hayaleti (deneme sürümünde Ayarlar → Mekanikler): yerel aracın görüntüleri 15 Hz ve 2 sn gecikmeyle bir uzak araca verilir.
 - **dunya** hem saf fonksiyonlar (pist geometrisi, `H`, `surf`) hem de görsel kurulum (`build`) içerir; kurulum three.js nesnelerini ve çarpışma nesnelerini birlikte üretir.
 
 ## Döngü (oyun/dongu.ts)
@@ -79,6 +80,7 @@ mod (menü, garaj, sonuç, duraklatma)                  ─► muzik.ts ──�
 - Fizik `Math.random` kullanmaz: savrulma gibi rastgelelik `Simulasyon.rng` (tohumlu). Toz gibi yalnız görsel rastgelelik ayrı (`gorselRng`).
 - Dünya dekoru her bölgede kendi tohumuyla kurulur: ağaçlar ve kayalar (ve çarpışma nesneleri) her açılışta aynı yerde.
 - Sonuç: aynı başlangıç + aynı girişler = aynı sürüş. Tekrar izleme ve hayalet araç için yalnız girişleri kaydetmek yeter.
+- **Girdi kaydı** (`fizik/girdi-kaydi.ts`): her araç her sıfırlamadan sonra adım başına girdisini 8 baytla kaydeder (16 bit nicemlenmiş; fiziğe de nicemlenmiş girdi gider, böylece oynatma birebir). `sifirla` rng'yi ve drift durumunu da sıfırlar: kayıt = tohum + başlangıç durumu + girdiler. `kaydiOynat` aynı son durumu verir (`tests/birim/cok-arac.test.ts`); `kaydiSerilestir`/`kaydiCoz` metne çevirir. Araç dışarıdan kaldırılınca (açık dünyada "yeniden doğ") kayıt `kesik` işaretlenir. Kurulum (önayar) kayıt boyunca değişmemelidir.
 
 ## Testler
 
