@@ -13,11 +13,12 @@ import type { OnayarAnahtari } from "../fizik/veriler";
 import { setActive } from "./bolge";
 import { carIndex, oyun, setCar } from "./durum";
 import { girdiSifirla } from "./girdi";
+import { aracAcikMi, pistAcikMi, yarisBitti } from "./ilerleme";
 import { applyPreset, kurulum, kurulumKaydet, kurulumYukle, type KurulumKaydi } from "./kurulum";
 import { PROF, saveProf } from "./profil";
 import { reset, sim } from "./surus";
 import { driftAdimi, driftBankala, tersAdimi } from "./yaris-kurallari";
-import { DRIFT_TUR, TUR_ANAHTARI, yildizEsikleri, yildizKaydet, yildizSay } from "./yildiz";
+import { DRIFT_TUR, TUR_ANAHTARI, yildizEsikleri, yildizSay } from "./yildiz";
 
 /** yarış türleri: hedef süre, pist uzunluğundan ve ilk pistlerin ayarlı hızından (v, m/s) hesaplanır */
 export const TYP: Record<
@@ -109,6 +110,8 @@ export interface Yaris extends YarisTanimi {
   tersT: number;
   /** bitişte alınan yıldız (0-3) */
   yildiz: number;
+  /** bitişte kazanılan XP (oyun/ilerleme.ts) */
+  xp: number;
   /** drag bitiş hızı */
   trap?: number;
 }
@@ -135,10 +138,14 @@ export const EVENTS: YarisTanimi[] = REG.filter((r) => r.t != "park").map((r, i)
 
 export const yaris = { EV: null as Yaris | null };
 
-/** yarışı başlat (ci: seçilen araç) */
+/** yarışı başlat (ci: seçilen araç); pist ya da araç kilitliyse başlamaz (false) */
 export function startEvent(i: number, ci?: number) {
-  const e = EVENTS[i],
-    EV = yaris.EV,
+  const e = EVENTS[i];
+  if (!pistAcikMi(e.ty, e.lv) || !aracAcikMi(ci ?? carIndex())) {
+    note("Kilitli", 40);
+    return false;
+  }
+  const EV = yaris.EV,
     sv = EV && EV.sv ? EV.sv : { ...kurulumKaydet(), car: carIndex() };
   // yarışta önayar seçilmez: aracın kendi önayarı ve oyuncunun yardım seviyesi yüklenir (önayar yalnız serbest
   // sürüşte). Böylece drift yarışı, otoparkta aynı araçla drift önayarında sürmekle birebir aynıdır.
@@ -177,8 +184,10 @@ export function startEvent(i: number, ci?: number) {
     ters: false,
     tersT: 0,
     yildiz: 0,
+    xp: 0,
     limit: e.limit || 0,
   };
+  return true;
 }
 
 /** yarıştan çık: önceki araç ve kurulum geri gelir */
@@ -246,7 +255,7 @@ export function endEvent() {
   oyun.mode = "result";
   PROF.races++;
   EV.yildiz = yildizSay(EV.ty, EV.ty == "dp" ? EV.score : EV.t, EV.ys);
-  yildizKaydet(EV.ty, EV.lv, EV.yildiz);
+  EV.xp = yarisBitti(EV.ty, EV.lv, EV.yildiz);
   if (EV.ty == "dp" ? EV.score > 0 && EV.score >= EV.limit : EV.t <= EV.limit) PROF.wins++;
   saveProf();
   girdiSifirla();

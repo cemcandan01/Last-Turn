@@ -16,7 +16,9 @@ export function sonucGoster(EV: Yaris) {
       ? row(
           "Yıldız",
           "★".repeat(EV.yildiz) + "☆".repeat(3 - EV.yildiz) + " · en iyi " + enIyiYildiz(EV.ty, EV.lv) + "/3",
-        ) + row("Yıldız eşikleri", EV.ys.map((v, i) => i + 1 + "★ " + bicim(v)).join(" · "))
+        ) +
+        row("XP", "+" + EV.xp) +
+        row("Yıldız eşikleri", EV.ys.map((v, i) => i + 1 + "★ " + bicim(v)).join(" · "))
       : "";
   if (EV.ty == "dp") {
     const b = best(EV.k),

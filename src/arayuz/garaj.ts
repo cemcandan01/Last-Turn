@@ -12,7 +12,9 @@ import { vitrinBosalt, vitrinHazirla, vitrinHazirMi, vitrinIsit, aracIcKur } fro
 import { carIndex, oyun, setCar } from "../oyun/durum";
 import { kamera, garajKameraSifirla } from "../cizim/kamera";
 import { applyPreset, kurulum } from "../oyun/kurulum";
+import { acilmaSeviyesi, aracAcikMi, pistAcikMi } from "../oyun/ilerleme";
 import { EVENTS, startEvent } from "../oyun/yarislar";
+import { note } from "./bildirim";
 import { showMenu, startWorld } from "./menu";
 
 interface GarajDurumu {
@@ -87,9 +89,25 @@ function onHazirla() {
 
 /** garajı aç: yarıştan önce (ev), serbest sürüşten önce (w) ya da menüden (ikisi de null) */
 export function openGarage(ev: number | null, w: number | null = null) {
+  // kilitli pistin garajı açılmaz (kilit görselleri menu dalında)
+  if (ev != null && !pistAcikMi(EVENTS[ev].ty, EVENTS[ev].lv)) {
+    note("Kilitli: seviye " + acilmaSeviyesi(EVENTS[ev]), 40);
+    return;
+  }
   const prev = carIndex(),
-    rec = ev != null ? CARS.findIndex((c) => c.ty == EVENTS[ev].ty) : -1;
-  GAR = { ev, w, prev, rec, i: rec >= 0 ? rec : prev };
+    rec = ev != null ? CARS.findIndex((c) => c.ty == EVENTS[ev].ty) : -1,
+    acik = (k: number) => k >= 0 && aracAcikMi(k);
+  GAR = {
+    ev,
+    w,
+    prev,
+    rec,
+    i: acik(rec)
+      ? rec
+      : acik(prev) || (ev == null && w == null)
+        ? prev
+        : CARS.findIndex((_, k) => aracAcikMi(k)),
+  };
   dinleBagla();
   oyun.mode = "garage";
   garajKameraSifirla();
@@ -188,6 +206,10 @@ function showGar() {
   if (sec)
     $("#gok").onclick = () => {
       const { ev, w, i, prev } = G;
+      if (!aracAcikMi(i)) {
+        note("Kilitli: seviye " + acilmaSeviyesi({ arac: i }), 40);
+        return;
+      }
       closeGarage();
       if (ev != null) {
         setCar(prev);

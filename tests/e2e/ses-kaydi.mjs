@@ -9,6 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { TUM_ACIK } from "../yardimci/ilerleme-acik.mjs";
 
 const KOK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.."),
   KLASOR = path.join(KOK, "dist"),
@@ -30,6 +31,7 @@ const br = await chromium.launch({
   args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader"],
 });
 const p = await br.newPage({ viewport: { width: 844, height: 390 } });
+await p.addInitScript(TUM_ACIK);
 p.on("pageerror", (e) => console.error("  sayfa hatası: " + e.message));
 await p.goto(`http://127.0.0.1:${srv.address().port}/`);
 await p.waitForFunction(() => window.LT, null, { timeout: 15000 });
