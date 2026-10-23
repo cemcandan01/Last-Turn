@@ -28,7 +28,6 @@ function firebaseYardimci(): Plugin {
     "__/auth/experiments.js",
     "__/auth/iframe",
     "__/auth/iframe.js",
-    "__/firebase/init.json",
   ];
   return {
     name: "last-turn-firebase-yardimci",
