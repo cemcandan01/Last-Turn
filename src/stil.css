@@ -1987,3 +1987,32 @@ details[open] > summary::after {
     height: 48px;
   }
 }
+/* pist ayrıntısı bilgi kutuları: 3 kutuda Uzunluk tam satır (tek satıra sığar), altında Hedef süre ve PR; boş yarım kutu kalmaz */
+.evh .rcs span:nth-child(1):nth-last-child(3) {
+  grid-column: 1 / -1;
+}
+/* yüksek ekran (Fold açık, tablet): ayrıntı ekranları dikeyde ortalanır */
+@media (min-height: 560px) {
+  .v-e,
+  .v-free,
+  .v-profile {
+    align-items: center;
+  }
+  .v-t,
+  .v-settings {
+    display: flex;
+    flex-direction: column;
+    justify-content: safe center;
+  }
+}
+/* tablet ve geniş ekran: alt ekran içeriği ekrana oranla büyür (kapak akışı kendi ölçüsünü hesaplar, hariç) */
+@media (min-width: 1000px) and (min-height: 600px) {
+  #menu.sub .mbody:not(.v-race) {
+    zoom: 1.35;
+  }
+}
+@media (min-width: 1200px) and (min-height: 700px) {
+  #menu.sub .mbody:not(.v-race) {
+    zoom: 1.5;
+  }
+}
