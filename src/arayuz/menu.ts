@@ -19,8 +19,8 @@ import { EVENTS, leaveEvent, TYP, type YarisTanimi } from "../oyun/yarislar";
 import { gorselOynuyor } from "./arka-gorsel";
 import { enIyiYildiz, yildizEsikleri } from "../oyun/yildiz";
 import { ikon, yildizSerit, type IkonAdi } from "./ikonlar";
-import { acilmaSeviyesi, pistAcikMi } from "../oyun/ilerleme";
-import { kilitNotu, kutlamaGoster, seviyeRozetiHtml, xpCubuguHtml } from "./seviye-ui";
+import { acilmaSeviyesi, pistAcikMi, yarisSonuPara } from "../oyun/ilerleme";
+import { kilitNotu, bakiyeHtml, kutlamaGoster, seviyeRozetiHtml, xpCubuguHtml } from "./seviye-ui";
 import { seviye } from "../oyun/ilerleme";
 import { bindSettings, chipsOf, settingsHTML } from "./ayarlar-ekrani";
 import { openGarage } from "./garaj";
@@ -63,6 +63,9 @@ const evSayilar = (e: YarisTanimi, kart = false) =>
       ? `<span>Hedef<b>${e.limit} puan</b></span>${kart ? "" : `<span>Tur<b>${e.laps}</b></span>`}`
       : `<span>${e.ty == "dg" ? "Hedef" : "Hedef süre"}<b>${evAvg(e)}</b></span>`
   }<span>PR<b>${prOf(e)}</b></span></div>`;
+/** pist ayrıntısında para ödülü: ilk kez (1★-3★) ve tekrar */
+const paraOdulu = (e: YarisTanimi) =>
+  `<div class="pod">${ikon("para")}<span>İlk kez <b>${yarisSonuPara(e.ty, e.sev, 1, 0)}–${yarisSonuPara(e.ty, e.sev, 3, 0)}</b></span><span>Tekrar <b>~${yarisSonuPara(e.ty, e.sev, 0, 0)}</b></span></div>`;
 /** yarış ayrıntısında 1★/2★/3★ eşikleri (alınanlar dolu) */
 const yildizEsikSatiri = (e: YarisTanimi) => {
   const es = yildizEsikleri(e.ty, e.lv),
@@ -144,7 +147,7 @@ export function showMenu(v?: string[]) {
   m.classList.remove("tema");
   const logo = `<div class="logo">LAST<b>TURN</b></div>`;
   if (cur == "home")
-    m.innerHTML = `<div class="mtop">${logo}<div class="mpro">${seviyeRozetiHtml(seviye().lv)}<div><b>${PROF.name}</b>${xpCubuguHtml("m")}<small>Sürüm ${__APP_VERSION__}${import.meta.env.MODE == "gelistirme" ? " · deneme" : ""}</small></div></div></div>
+    m.innerHTML = `<div class="mtop">${logo}<div class="mpro">${seviyeRozetiHtml(seviye().lv)}<div><b>${PROF.name}</b>${xpCubuguHtml("m")}${bakiyeHtml("m")}<small>Sürüm ${__APP_VERSION__}${import.meta.env.MODE == "gelistirme" ? " · deneme" : ""}</small></div></div></div>
 <div class="mcards">${NAV.map(([k, g, n], i) => `<button class="mk" data-nav="${k}" style="--i:${i}"><span>${ikon(g)}<b>${n.replace(" ", "<br>")}</b></span></button>`).join("")}</div>`;
   else {
     const [bas, ust, ic] = view(cur),
@@ -357,7 +360,7 @@ function view(cur: string): [string, string, string] {
       e.n,
       turOf(e.ty)[1] + " yarışları",
       `<div><div class="evh"><img src="${trackThumb(r)}"><div>${seviyeRozeti(e)}<p class="lvd">${SEVIYELER[e.sev - 1].d}</p><p>${e.d}</p>
-${evSayilar(e)}${yildizEsikSatiri(e)}</div></div><button class="btn" id="mgo" data-go="${i}">Araç seç ›</button></div>
+${evSayilar(e)}${yildizEsikSatiri(e)}${paraOdulu(e)}</div></div><button class="btn" id="mgo" data-go="${i}">Araç seç ›</button></div>
 <div class="evk">${condChips()}</div>`,
     ];
   }
@@ -372,7 +375,7 @@ ${evSayilar(e)}${yildizEsikSatiri(e)}</div></div><button class="btn" id="mgo" da
     return [
       "Profil",
       "Sürücü",
-      `<div class="pcol"><div class="pseviye">${seviyeRozetiHtml(seviye().lv, "b")}<div><b>Seviye ${seviye().lv}</b>${xpCubuguHtml("b")}<small>Toplam ${seviye().toplamXp} XP</small></div></div><div class="lbl">Sürücü adı</div><input id="pname" class="inp" value="${PROF.name.replace(/"/g, "")}" maxlength="20">
+      `<div class="pcol"><div class="pseviye">${seviyeRozetiHtml(seviye().lv, "b")}<div><b>Seviye ${seviye().lv}</b>${xpCubuguHtml("b")}<small>Toplam ${seviye().toplamXp} XP</small>${bakiyeHtml("b")}</div></div><div class="lbl">Sürücü adı</div><input id="pname" class="inp" value="${PROF.name.replace(/"/g, "")}" maxlength="20">
 <div class="pst"><span>Yarış<b>${PROF.races}</b></span><span>Hedef geçildi<b>${PROF.wins}</b></span><span>Toplam yol<b>${PROF.km.toFixed(1)} km</b></span><span>En çok kullanılan<b>${fav ? CARS[+fav[0]].n : "—"}</b></span></div></div>
 <div class="pcol"><div class="lbl">Kişisel rekorlar</div>${EVENTS.map((e) => `<div class="rk"><span>${e.n}</span><span>${prOf(e)}</span></div>`).join("")}</div>`,
     ];

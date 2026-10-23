@@ -9,7 +9,13 @@ import { adimXp, seviye, seviyeTabani, xpSeviyesi } from "../oyun/ilerleme";
 import { enIyiYildiz } from "../oyun/yildiz";
 import { yildizSerit } from "./ikonlar";
 import { showMenu, startWorld } from "./menu";
-import { kutlamaGoster, xpSonucAnimasyonu, xpSonucHtml } from "./seviye-ui";
+import {
+  kutlamaGoster,
+  paraSonucAnimasyonu,
+  paraSonucHtml,
+  xpSonucAnimasyonu,
+  xpSonucHtml,
+} from "./seviye-ui";
 
 /** yarış öncesi seviye ve çubuk oranı, toplam XP'den geriye hesaplanır */
 function xpBlok(kazanilan: number) {
@@ -27,7 +33,7 @@ export function sonucGoster(EV: Yaris) {
           .map((v, i) => `<span class="${i < EV.yildiz ? "dolu" : ""}">${i + 1}★ ${bicim(v)}</span>`)
           .join("")}</small><small class="eniyi">En iyi: ${enIyiYildiz(EV.ty, EV.lv)} / 3</small></div>` +
         xpBlok(EV.xp) +
-        row("Para", "+" + EV.para)
+        paraSonucHtml(EV.para)
       : "";
   if (EV.ty == "dp") {
     const b = best(EV.k),
@@ -71,6 +77,7 @@ export function sonucGoster(EV: Yaris) {
   r.classList.remove("hidden");
   r.innerHTML = `<h1>${h}</h1>${p}<button class="btn" id="again">Tekrar</button><button class="btn alt" id="free">Açık dünyaya dön</button><button class="btn alt" id="rm">Ana menü</button>`;
   xpSonucAnimasyonu(r);
+  paraSonucAnimasyonu(r);
   // seviye atladıysa kutlama, çubuk dolduktan sonra sonuç ekranının üstünde
   if (seviye().toplamXp) setTimeout(kutlamaGoster, 2300);
   $("#again").onclick = () => startEvent(k);

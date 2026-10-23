@@ -2737,3 +2737,87 @@ details[open] > summary::after {
     opacity: 0;
   }
 }
+/* para: bakiye, yarış sonu kazancı, pist ödülü, kutlamada fiyat */
+.bky {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #ffd166;
+  font-size: 12px;
+}
+.bky .ik {
+  width: 14px;
+  height: 14px;
+}
+.mpro .bky b {
+  display: inline;
+  font-size: 12px;
+}
+.bky.b {
+  font-size: 14px;
+  margin-top: 3px;
+}
+.bky.b .ik {
+  width: 18px;
+  height: 18px;
+}
+.bky.b b {
+  font-size: 15px;
+}
+.prs {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  margin: 6px 0;
+}
+.prt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffd166;
+}
+.prt .ik {
+  width: 22px;
+  height: 22px;
+}
+.prt u {
+  text-decoration: none;
+}
+.prs em {
+  font-style: normal;
+  color: var(--mut);
+}
+.pod {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--mut);
+}
+.pod .ik {
+  width: 16px;
+  height: 16px;
+  color: #ffd166;
+}
+.pod b {
+  color: #ffd166;
+}
+#lvup .lva .fy {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-style: normal;
+  font-size: 11px;
+  color: #ffd166;
+}
+#lvup .lva .fy .ik {
+  width: 12px;
+  height: 12px;
+}
+@media (max-height: 420px) {
+  .pod {
+    margin-top: 3px;
+  }
+}

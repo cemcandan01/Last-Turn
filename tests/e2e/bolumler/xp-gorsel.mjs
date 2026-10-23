@@ -21,6 +21,14 @@ export default async function ({ p, ok }) {
     rozet: !!document.querySelector(".mpro .lvr"),
     cubuk: !!document.querySelector(".mpro .xpb i"),
   }));
+  ok(
+    await q.evaluate(
+      () =>
+        !!document.querySelector(".mpro .bky .ik") &&
+        document.querySelector(".mpro .bky b").textContent == String(LT.para()),
+    ),
+    "ana menüde bakiye (para ikonu + sayı)",
+  );
   ok(ana.rozet && ana.cubuk, "ana menü profil alanında seviye rozeti ve XP çubuğu " + JSON.stringify(ana));
   await foto("ana");
   await q.evaluate(() => LT.showMenu(["race"]));
@@ -50,7 +58,13 @@ export default async function ({ p, ok }) {
     ),
     "profil ekranında seviye rozeti ve XP çubuğu",
   );
+  ok(await q.evaluate(() => !!document.querySelector(".pseviye .bky.b")), "profil ekranında bakiye");
   await foto("profil");
+  await q.evaluate(() => LT.showMenu(["race", "t:gp", "e:0"]));
+  ok(
+    await q.evaluate(() => /İlk kez/.test(document.querySelector(".pod")?.textContent || "")),
+    "pist ayrıntısında para ödülü",
+  );
   // yarış sonu: seviye 2'ye 5 XP kala başla, yarışı hedef içinde bitir
   const son = await q.evaluate(() => {
     LT.xpEkle(30, "test");
@@ -62,6 +76,7 @@ export default async function ({ p, ok }) {
     LT.endEvent();
     return { xp: E.xp, lvSonra: LT.seviye().lv, blok: !!document.querySelector("#res .xps") };
   });
+  ok(await q.evaluate(() => !!document.querySelector("#res .prs .ik")), "yarış sonunda para bloğu");
   ok(son.blok && son.xp > 0, "yarış sonunda XP bloğu: " + JSON.stringify(son));
   await bekle(1800);
   await bekle(2400);
@@ -71,6 +86,10 @@ export default async function ({ p, ok }) {
   }));
   ok(son.lvSonra >= 2 && kut.acik && /Seviye \d+!/.test(kut.metin), "seviye atlama kutlaması: " + kut.metin);
   await foto("kutlama");
+  ok(
+    await q.evaluate(() => document.querySelector("#res .prk")?.textContent == String(LT.yaris.EV.para)),
+    "para sayacı kazanıma ulaştı",
+  );
   await q.evaluate(() => document.getElementById("lvup").click());
   ok(
     await q.evaluate(() => !document.getElementById("lvup").classList.contains("acik")),
