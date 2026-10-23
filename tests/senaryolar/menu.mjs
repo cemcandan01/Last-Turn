@@ -43,4 +43,10 @@ export default [
     p: 2,
     tarayici: "kapak",
   },
+  {
+    id: "cihaz-uyum",
+    ad: "Ekran uyumu: menü, yarış, pist, profil, ayarlar, duraklatma ve yarış sonu ekranları sanal cihazlarda taşmıyor, kesilmiyor, üst üste binmiyor (hızlı alt küme; regresyonda 25 cihaz)",
+    p: 2,
+    tarayici: "cihaz-menu",
+  },
 ];

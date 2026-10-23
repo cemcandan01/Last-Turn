@@ -75,6 +75,9 @@ if (kip == "alan")
     if (!SENARYOLAR.some((s) => s.dal == d))
       console.log(`(${d} dalının kayıtlı senaryosu yok: koşacak bir şey yok)`);
 
+// sanal cihaz denetimi: regresyonda bütün cihazlar, öbür koşumlarda hızlı alt küme (tests/yardimci/cihaz-bolum.mjs)
+process.env.LT_CIHAZ_KAPSAM = kip == "regresyon" ? "tam" : "hizli";
+
 const kos = (komut, argv) => {
   const r = spawnSync(komut, argv, { cwd: KOK, stdio: "inherit", shell: process.platform == "win32" });
   return r.status === 0;

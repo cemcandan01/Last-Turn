@@ -23,6 +23,7 @@
     "regresyon": "node tests/kosucu.mjs regresyon",
     "olcum": "vitest run --config vitest.olcum.config.ts",
     "ses": "node tests/e2e/ses-kaydi.mjs",
+    "cihaz": "node tests/cihaz.mjs",
     "menugorsel": "node scripts/menu-gorsel.mjs"
   },
   "engines": {
