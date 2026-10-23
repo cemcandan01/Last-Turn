@@ -21,7 +21,7 @@ export interface DriftSayaci {
 }
 
 export interface DriftOlay {
-  ad: "UZUN DRIFT" | "DİREKSİYONSUZ" | "TEK YÖN";
+  ad: "UZUN DRIFT" | "DİREKSİYONSUZ" | "TEK YÖN" | "ÇARPAN x6";
   puan: number;
   /** sim zamanı (sn) */
   t: number;
@@ -94,9 +94,18 @@ export const DRIFT_AZAMI_ACI = (60 * Math.PI) / 180,
   DRIFT_HIZ_ALT = 4,
   DRIFT_HIZ_TAM = 12;
 
-/** anlık drift puan hızı (puan/sn, kombo çarpanından önce): min(açı, 60°) (rad) × hız (m/s); düşük hızda küçülür */
+/** drift sürerken puan açısı tabanı (10°): yön değiştirirken açı sıfıra yaklaşsa da puan düşmez */
+export const DRIFT_ASGARI_ACI = (10 * Math.PI) / 180,
+  /** kombo açıkken drift kesilse de kayma sürüyorsa taban açıyla puan akan süre (sn) ve kayma sayılan en az açı (rad) */
+  GECIS_SURE = 0.6,
+  GECIS_KAYMA = 0.05,
+  /** 1. turda bu orandan fazlası drift hâlinde geçilirse 2. turda çarpan x6 */
+  X6_ORAN = 0.9,
+  X6_CARPAN = 6;
+
+/** anlık drift puan hızı (puan/sn, kombo çarpanından önce): clamp(açı, 10°, 60°) (rad) × hız (m/s); düşük hızda küçülür. Yalnız drift sürerken çağrılır */
 export function driftPuanHizi(beta: number, v: number) {
-  const aci = Math.min(Math.abs(beta), DRIFT_AZAMI_ACI),
+  const aci = Math.min(Math.max(Math.abs(beta), DRIFT_ASGARI_ACI), DRIFT_AZAMI_ACI),
     t = Math.min(1, Math.max(0, (v - DRIFT_HIZ_ALT) / (DRIFT_HIZ_TAM - DRIFT_HIZ_ALT)));
   return 3 * v * aci * t * t * (3 - 2 * t);
 }
@@ -136,6 +145,8 @@ export function driftAdimi(
   /** direksiyon girişi (-1..1) ve sim zamanı (bonuslar için) */
   tg = 0.5,
   zaman = 0,
+  /** 2. turda x6 kazanıldı: çarpan en az 6 */
+  x6 = false,
 ): { olay: "yandi" | "carpan" | "bank" | null; p: number } {
   const surer = act && !lost && !ters;
   bonusAdimi(E, surer, beta, tg, dt, zaman);
@@ -147,13 +158,16 @@ export function driftAdimi(
     E.combo += driftPuanHizi(beta, v) * dt;
     E.ct += dt;
     E.gap = 0;
-    const m = Math.min(5, 1 + Math.floor(E.ct / 2.5)),
+    const m = x6 ? X6_CARPAN : Math.min(5, 1 + Math.floor(E.ct / 2.5)),
       artti = m > E.mult;
     E.mult = m;
     return { olay: artti ? "carpan" : null, p: 0 };
   }
   if (E.combo > 0) {
     E.gap += dt;
+    // yön değiştirme: drift bayrağı kısa süre düşse de kayma sürüyorsa kombo taban açıyla akar
+    if (!lost && !ters && E.gap <= GECIS_SURE && Math.abs(beta) > GECIS_KAYMA)
+      E.combo += driftPuanHizi(DRIFT_ASGARI_ACI, v) * dt;
     if (E.gap > 0.8) return { olay: "bank", p: driftBankala(E) };
   }
   return { olay: null, p: 0 };

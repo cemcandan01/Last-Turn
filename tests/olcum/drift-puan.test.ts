@@ -36,10 +36,21 @@ it("drift puanı", () => {
         ad,
         ...driftTuru(i, "norm", a, 400, false, 2, DRIFT_TUR),
       })),
+      kosu0 = Object.entries(TARZ).map(([ad, a]) => ({
+        ad,
+        ...driftTuru(i, "norm", a, 400, false, 2, DRIFT_TUR, false),
+      })),
       P = Math.max(...kosu.map((k) => k.puan)),
+      P0 = Math.max(...kosu0.map((k) => k.puan)),
       oneri = DRIFT_PAY[(d.sev ?? d.lv) - 1].map((p) => Math.round((P * p) / 50) * 50);
     console.log(
-      `${d.lv} ${d.n.padEnd(14)} ${DRIFT_TUR} tur ~${kosu[1].sure.toFixed(0)} sn (pist ${kosu[1].len.toFixed(0)} m) en iyi ${P} | eşik ${e.join("/") || "—"} | önerilen ${oneri.join("/")} | ` +
+      `${d.lv} ${d.n.padEnd(14)} x6'sız en iyi ${P0} (x6 ile ${P}; x6 kazanan: ${
+        kosu
+          .filter((k) => k.x6)
+          .map((k) => k.ad + " %" + (k.driftOran * 100).toFixed(0))
+          .join(",") || "yok"
+      }; oranlar ${kosu.map((k) => (k.driftOran * 100).toFixed(0)).join("/")}) |
+      ${d.lv} ${d.n.padEnd(14)} ${DRIFT_TUR} tur ~${kosu[1].sure.toFixed(0)} sn (pist ${kosu[1].len.toFixed(0)} m) en iyi ${P} | eşik ${e.join("/") || "—"} | önerilen ${oneri.join("/")} | ` +
         kosu
           .map((k) => `${k.ad} ${k.puan}(${yildizSay("dp", k.puan, e)}★ ${k.tur}t y${k.yanma} s${k.spin})`)
           .join(" "),
