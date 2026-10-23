@@ -2,7 +2,7 @@
 //   npm run cihaz                                   iPhone 13 (referans), bütün ekranlar
 //   npm run cihaz -- --ekran garaj-panel            tek ekran (virgülle çoğul; "menu" gibi dal adı da olur)
 //   npm run cihaz -- --cihaz iphone-se,ipad-mini    belirli cihazlar
-//   npm run cihaz -- --hizli                        hızlı alt küme (7 cihaz) · --hepsi: bütün cihazlar
+//   npm run cihaz -- --hizli                        alan kümesi (iPhone SE, 13, Galaxy S8) · --hepsi: bütün cihazlar
 //   --adres https://…/   canlı adres · --derlemeden  dist/ hazır · --paralel 2 · --resimsiz · --liste
 // Çıktı: tests/cikti/cihaz/<cihaz>/<ekran>.png, ozet.html, ozet.md, hatalar.txt (sahip dal | cihaz | ekran | öğe | sorun)
 import { chromium } from "playwright";
@@ -22,7 +22,7 @@ const KOK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."),
 
 if (arg("--liste")) {
   for (const c of CIHAZLAR)
-    console.log(`${c.id.padEnd(22)} ${c.w}×${c.h} @${c.dpr}x ${c.hizli ? "hızlı" : ""} ${c.ad}`);
+    console.log(`${c.id.padEnd(22)} ${c.w}×${c.h} @${c.dpr}x ${c.temsilci ? "temsilci" : ""} ${c.ad}`);
   console.log("\nekranlar: " + EKRANLAR.map((e) => `${e.id} (${e.dal})`).join(", "));
   process.exit(0);
 }

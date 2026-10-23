@@ -75,8 +75,10 @@ if (kip == "alan")
     if (!SENARYOLAR.some((s) => s.dal == d))
       console.log(`(${d} dalının kayıtlı senaryosu yok: koşacak bir şey yok)`);
 
-// sanal cihaz denetimi: regresyonda bütün cihazlar, öbür koşumlarda hızlı alt küme (tests/yardimci/cihaz-bolum.mjs)
-process.env.LT_CIHAZ_KAPSAM = kip == "regresyon" ? "tam" : "hizli";
+// sanal cihaz denetimi: regresyonda iPhone 13 tam + temsilci cihazlar 4 ekran, alanda dalın ekranları 3 cihazda
+// (tests/yardimci/cihaz-bolum.mjs)
+process.env.LT_CIHAZ_KAPSAM = kip == "regresyon" ? "tam" : "alan";
+process.env.LT_CIHAZ_DALLAR = kip == "alan" ? dallar.join(",") : "";
 
 const kos = (komut, argv) => {
   const r = spawnSync(komut, argv, { cwd: KOK, stdio: "inherit", shell: process.platform == "win32" });
