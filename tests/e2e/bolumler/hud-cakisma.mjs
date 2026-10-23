@@ -31,6 +31,12 @@ export default async function ({ p, ok }) {
       EV.mult = 3;
       // pist dalının ters yön bayrağı: GERİ DÖN diğer göstergelerle çakışmamalı
       EV.ters = true;
+      // drift bonus bildirimleri (pist dalının sözleşmesi): üç farklı bonus
+      EV.driftOlay = [
+        { ad: "UZUN DRIFT", puan: 100, t: 0 },
+        { ad: "DİREKSİYONSUZ", puan: 100, t: 0 },
+        { ad: "TEK YÖN", puan: 250, t: 0 },
+      ];
       // geri sayımda kalsın: kombo bankaya geçmesin
       EV.cd = 1e9;
       LT.sim.S.vx = 30;
@@ -46,7 +52,7 @@ export default async function ({ p, ok }) {
             const W = innerWidth,
               H = innerHeight,
               ad = [hiz, harita, sayac, c.steer + "+" + c.gas].join("/");
-            const kutular = [".hTL", ".hBt", "#dr", ".hSP", "#mm", "#ters", "#ctl > *"]
+            const kutular = [".hTL", ".hBt", "#dr", ".hSP", "#mm", "#ters", "#bon", "#ctl > *"]
               .flatMap((q) => [...document.querySelectorAll(q)].map((e) => [q, e.getBoundingClientRect()]))
               .filter(([, r]) => r.width > 0 && r.height > 0);
             for (const [q, r] of kutular)
