@@ -122,7 +122,8 @@ export function kameraKur(cvs: HTMLElement) {
       kamera.ly += (ax - lx) * 0.009;
       const simdi = performance.now();
       ornek.push({ t: simdi, ly: kamera.ly });
-      while (ornek.length > 1 && simdi - ornek[0].t > HIZ_PENCERE) ornek.shift();
+      // en az iki örnek kalır: seyrek gelen hareketlerde de (yavaş cihaz) bırakma hızı ölçülür
+      while (ornek.length > 2 && simdi - ornek[1].t > HIZ_PENCERE) ornek.shift();
       kamera.gp = cl(kamera.gp + (ay - ly0) * 0.005, GP_MIN, GP_MAX);
       lx = ax;
       ly0 = ay;
@@ -151,7 +152,7 @@ export function kameraKur(cvs: HTMLElement) {
         } else if (tek && n == "pointerup" && baslangic.yer < 1e9) {
           // sürükleyip bırakma: son ~100 ms parmak hızıyla dönmeye devam eder (durmuşsa yeniden başlar)
           const simdi = performance.now(),
-            son = ornek.filter((o) => simdi - o.t <= HIZ_PENCERE);
+            son = simdi - ornek[ornek.length - 1]?.t <= HIZ_PENCERE ? ornek : [];
           let v = 0;
           if (son.length > 1)
             v = ((son[son.length - 1].ly - son[0].ly) / Math.max(son[son.length - 1].t - son[0].t, 1)) * 1000;
