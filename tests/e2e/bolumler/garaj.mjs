@@ -211,4 +211,101 @@ export default async function ({ p, ok }) {
     "menü garajında seçme yok, yalnız Geri",
   );
   await p.evaluate(() => LT.closeGarage());
+  // panel: kartlar dolu, altta boşluk yok (içerik panel yüksekliğini doldurur), genişlik sabit, kaydırma yok
+  const pn = await p.evaluate(() => {
+    const r = [];
+    for (let i = 0; i < LT.CARS.length; i++) {
+      LT.openGarage(0);
+      for (let k = 0; k < i; k++) document.querySelector("#gnx").click();
+      const g = document.querySelector("#gar"),
+        gb = g.getBoundingClientRect(),
+        cip = document.querySelector("#gar .gcip").getBoundingClientRect(),
+        bt = document.querySelector("#gar .gbt").getBoundingClientRect(),
+        kt = document.querySelectorAll("#gar .gk");
+      r.push({
+        kay: g.scrollHeight <= g.clientHeight + 1,
+        w: Math.round(gb.width),
+        kart: kt.length,
+        bosluk: Math.round(bt.top - cip.bottom),
+        alt: Math.round(innerHeight - bt.bottom),
+        tasma: [...kt].some((e) => e.scrollHeight > e.clientHeight + 1),
+      });
+      LT.closeGarage();
+    }
+    return r;
+  });
+  ok(
+    pn.every((x) => x.kay && !x.tasma && x.kart >= 6 && x.bosluk <= 12 && x.alt <= 16) &&
+      new Set(pn.map((x) => x.w)).size == 1,
+    "bilgi paneli kaydırmasız, kartlar taşmıyor, boşluk yok, genişlik sabit " + JSON.stringify(pn[0]),
+  );
+  // araç geçişinde kare süresi: modeller önceden kurulur, geçiş takılmaz (başsız tarayıcıda boşta kare ~90 ms)
+  const gec = await p.evaluate(async () => {
+    LT.openGarage(0);
+    const kare = () => new Promise((r) => requestAnimationFrame(r));
+    await new Promise((r) => setTimeout(r, 2500));
+    document.querySelector("#gnx").click(); // ilk dokunuş sesi uyandırır (garajla ilgisiz tek seferlik iş)
+    for (let i = 0; i < 6; i++) await kare();
+    const bos = [];
+    let son = performance.now();
+    for (let i = 0; i < 10; i++) {
+      await kare();
+      const t = performance.now();
+      bos.push(t - son);
+      son = t;
+    }
+    const taban = Math.max(...bos);
+    let en = 0,
+      sync = 0;
+    for (let k = 0; k < LT.CARS.length; k++) {
+      const t0 = performance.now();
+      document.querySelector(k % 2 ? "#gpv" : "#gnx").click();
+      sync = Math.max(sync, performance.now() - t0);
+      son = performance.now();
+      for (let i = 0; i < 6; i++) {
+        await kare();
+        const t = performance.now();
+        en = Math.max(en, t - son);
+        son = t;
+      }
+    }
+    LT.closeGarage();
+    return { taban: Math.round(taban), en: Math.round(en), sync: Math.round(sync) };
+  });
+  ok(
+    gec.sync < 25 && gec.en < gec.taban * 1.6 + 40,
+    "araç geçişi takılmıyor: tıklama " +
+      gec.sync +
+      " ms, en uzun kare " +
+      gec.en +
+      " ms (boşta " +
+      gec.taban +
+      ")",
+  );
+  // garaj ışığı: dünya saati/havası ne olursa olsun aynı; kapanınca dünya ortamı geri gelir
+  const isik = await p.evaluate(() => {
+    const oku = () => LT.scene.background.getHex();
+    const sonuc = [];
+    for (const [tod, wx] of [
+      ["noon", "sun"],
+      ["night", "rain"],
+    ]) {
+      LT.COND.tod = tod;
+      LT.COND.wx = wx;
+      LT.applyEnv(LT.ortam.k);
+      const dunya = oku();
+      LT.openGarage(0);
+      sonuc.push([dunya, oku(), LT.scene.fog.near > 1e4]);
+      LT.closeGarage();
+      sonuc.push(oku() == dunya);
+    }
+    LT.COND.tod = "noon";
+    LT.COND.wx = "sun";
+    LT.applyEnv(LT.ortam.k);
+    return sonuc;
+  });
+  ok(
+    isik[0][1] == isik[2][1] && isik[0][2] && isik[1] && isik[3] && isik[0][0] != isik[2][0],
+    "garaj ışığı dünyanın saatinden/havasından bağımsız, kapanınca ortam geri gelir",
+  );
 }

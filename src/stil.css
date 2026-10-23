@@ -374,8 +374,85 @@ details[open] > summary::after {
   font-size: 22px !important;
   margin: 0 !important;
 }
-.land #gar .st {
-  margin: 4px 0;
+.grozet {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 6px;
+}
+.gkart {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: 1fr;
+  gap: 6px;
+}
+.gk {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 0;
+  padding: 4px 10px 6px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #ffffff12;
+  border: 1px solid #ffffff14;
+}
+.gkb {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--mut);
+}
+.gkb i {
+  font-style: normal;
+  font-size: 13px;
+}
+.gk b {
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 800;
+}
+.gk b small {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--mut);
+  margin-left: 4px;
+}
+.gk u {
+  display: block;
+  flex: none;
+  height: 4px;
+  border-radius: 3px;
+  background: #0006;
+  overflow: hidden;
+}
+.gk s {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #ff7a3c, #ffc070);
+}
+.gcip {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.gcip span {
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+  padding: 5px 4px;
+  border-radius: 999px;
+  background: #ffffff12;
+  border: 1px solid #ffffff14;
+  font-size: 12px;
+  font-weight: 700;
 }
 .gozet {
   font-size: 13px !important;
@@ -385,8 +462,7 @@ details[open] > summary::after {
 .gbt {
   display: flex;
   gap: 8px;
-  margin-top: auto;
-  padding-top: 8px;
+  margin-top: 8px;
 }
 .gbt .btn {
   margin-top: 0;
