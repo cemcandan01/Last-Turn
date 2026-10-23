@@ -8,6 +8,7 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { TUM_ACIK } from "../yardimci/ilerleme-acik.mjs";
 
 const KOK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.."),
   a = process.argv.slice(2),
@@ -62,6 +63,7 @@ const br = await chromium.launch({
   args: ["--use-gl=swiftshader", "--enable-unsafe-swiftshader"],
 });
 const p = await br.newPage({ viewport: { width: W, height: H } });
+await p.addInitScript(TUM_ACIK);
 const hatalar = [];
 p.on("pageerror", (e) => hatalar.push(e.message));
 await p.goto(`http://127.0.0.1:${srv.address().port}/?${Date.now()}`);

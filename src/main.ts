@@ -19,6 +19,7 @@ import { loadWorld } from "./dunya/dunya";
 import { ayarlariYukle, set } from "./oyun/ayarlar";
 import { donguBaslat } from "./oyun/dongu";
 import { oyun, setCar } from "./oyun/durum";
+import { aracAcikMi } from "./oyun/ilerleme";
 import { girdiKur } from "./oyun/girdi";
 import { applyPreset, kurulum } from "./oyun/kurulum";
 import { reset } from "./oyun/surus";
@@ -47,7 +48,7 @@ surusTuslariKur();
   if (k.lk) kurulum.lk = k.lk;
   let ci = 1;
   const v = oku("lt_car");
-  if (v != null && CARS[+v]) ci = +v;
+  if (v != null && CARS[+v] && aracAcikMi(+v)) ci = +v;
   setCar(ci);
   kurulum.pk = oyun.CAR.pk;
 }

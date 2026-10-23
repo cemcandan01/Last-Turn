@@ -16,7 +16,8 @@ export function sonucGoster(EV: Yaris) {
     yildiz = EV.ys.length
       ? `<div class="yres">${yildizSerit(EV.yildiz, "buyuk", true)}<small>${EV.ys
           .map((v, i) => `<span class="${i < EV.yildiz ? "dolu" : ""}">${i + 1}★ ${bicim(v)}</span>`)
-          .join("")}</small><small class="eniyi">En iyi: ${enIyiYildiz(EV.ty, EV.lv)} / 3</small></div>`
+          .join("")}</small><small class="eniyi">En iyi: ${enIyiYildiz(EV.ty, EV.lv)} / 3</small></div>` +
+        row("XP", "+" + EV.xp)
       : "";
   if (EV.ty == "dp") {
     const b = best(EV.k),

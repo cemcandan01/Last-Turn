@@ -12,6 +12,7 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { TUM_ACIK } from "../yardimci/ilerleme-acik.mjs";
 
 const BOLUMLER = [
   "acilis",
@@ -32,6 +33,7 @@ const BOLUMLER = [
   "hud-minimap",
   "kokpit",
   "cok-arac",
+  "ilerleme",
   "ekran-yon",
   "cihaz-dogrulama",
   "cihaz-menu",
@@ -105,6 +107,7 @@ const ok = (c, m) => {
 };
 async function sayfa(w = 844, h = 390) {
   const p = await br.newPage({ viewport: { width: w, height: h } });
+  await p.addInitScript(TUM_ACIK);
   p.errs = [];
   p.on("pageerror", (e) => p.errs.push(e.message));
   p.on("console", (m) => m.type() == "error" && p.errs.push(m.text()));
