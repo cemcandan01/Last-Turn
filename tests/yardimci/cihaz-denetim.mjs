@@ -129,6 +129,7 @@ export async function cihazlariDenetle({
   cikti,
   resim = true,
   paralel = 2,
+  ekranSec = null, // (cihaz) => o cihazda koşacak ekranlar; yoksa hepsi `ekranlar`
   log = () => {},
 }) {
   const tum = [];
@@ -137,7 +138,14 @@ export async function cihazlariDenetle({
     while (sira < cihazlar.length) {
       const c = cihazlar[sira++],
         t0 = Date.now();
-      const r = await cihazDenetle({ br, adres, cihaz: c, ekranlar, cikti, resim });
+      const r = await cihazDenetle({
+        br,
+        adres,
+        cihaz: c,
+        ekranlar: ekranSec ? ekranSec(c) : ekranlar,
+        cikti,
+        resim,
+      });
       tum.push(...r);
       log(
         `  ${c.id.padEnd(22)} ${((Date.now() - t0) / 1000).toFixed(0)} sn · ${r.filter((x) => x.hatalar.length).length}/${r.length} ekranda hata`,

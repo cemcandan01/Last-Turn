@@ -14,7 +14,7 @@ export default [
   },
   {
     id: "cihaz-uyum",
-    ad: "Ekran uyumu: HUD düzenleyici ve yarış HUD'ları (asfalt, drift, drag) sanal cihazlarda taşmıyor, kesilmiyor, üst üste binmiyor (hızlı alt küme; regresyonda 25 cihaz)",
+    ad: "Ekran uyumu: HUD düzenleyici ve yarış HUD'ları (asfalt, drift, drag) sanal cihazlarda taşmıyor, kesilmiyor, üst üste binmiyor (alanda 3 cihaz; regresyonda iPhone 13 tam + 11 temsilci cihaz 4 ekran)",
     p: 2,
     tarayici: "cihaz-hud",
   },

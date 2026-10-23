@@ -5,7 +5,7 @@
 //            İki yatay yönde (sol ve sağ kenar) da sayılır, çünkü telefon iki yöne de çevrilebilir. null = çentik yok.
 //   kose:    ekran köşesinin yuvarlaklık yarıçapı (CSS px); bilinmiyorsa 0.
 //   tarayici: true ise ana ekran uygulaması değil, tarayıcı sekmesi (adres çubuğu görünür alanı kısaltır).
-//   hizli:   hızlı alt kümede (npm run alan, 7 cihaz); tam liste regresyonda.
+//   temsilci: regresyonda yalnız TEMSILCI_EKRANLAR ile koşan cihaz (her üreticiden biri; ~12 cihaz). Tam liste: npm run cihaz -- --hepsi.
 //   kesin:   false ise ölçü Chrome DevTools / üretici belgesi değerinden yaklaşıktır (aşağıdaki kaynak notuna bak).
 // Kaynaklar: Apple iPhone/iPad ekran ölçüleri (developer.apple.com Human Interface Guidelines → Layout, "Screen sizes"),
 // yatay güvenli alan payları ve ada/çentik ölçüleri (WWDC güvenli alan belgeleri, ioscodesnippet / useyourloaf.com "iPhone
@@ -24,6 +24,7 @@ export const CIHAZLAR = [
   // --- Apple telefon
   {
     id: "iphone-se",
+    temsilci: true,
     ad: "iPhone SE (2./3. nesil)",
     marka: "Apple",
     w: 667,
@@ -32,7 +33,6 @@ export const CIHAZLAR = [
     guvenli: yok,
     centik: null,
     kose: 0,
-    hizli: true,
   },
   {
     id: "iphone-13-mini",
@@ -55,7 +55,6 @@ export const CIHAZLAR = [
     guvenli: guvenli(0, 47, 21, 47),
     centik: IP_CENTIK,
     kose: 47,
-    hizli: true,
   },
   {
     id: "iphone-13-safari",
@@ -68,7 +67,6 @@ export const CIHAZLAR = [
     centik: IP_CENTIK,
     kose: 47,
     tarayici: true,
-    hizli: true,
     kesin: false,
   },
   {
@@ -95,6 +93,7 @@ export const CIHAZLAR = [
   },
   {
     id: "iphone-15-pro-max",
+    temsilci: true,
     ad: "iPhone 15 Pro Max",
     marka: "Apple",
     w: 932,
@@ -103,11 +102,11 @@ export const CIHAZLAR = [
     guvenli: guvenli(0, 59, 21, 59),
     centik: ADA,
     kose: 55,
-    hizli: true,
   },
   // --- Samsung
   {
     id: "galaxy-s8",
+    temsilci: true,
     ad: "Samsung Galaxy S8",
     marka: "Samsung",
     w: 740,
@@ -116,10 +115,10 @@ export const CIHAZLAR = [
     guvenli: yok,
     centik: null,
     kose: 0,
-    hizli: true,
   },
   {
     id: "galaxy-a14",
+    temsilci: true,
     ad: "Samsung Galaxy A14 / A15",
     marka: "Samsung",
     w: 800,
@@ -156,6 +155,7 @@ export const CIHAZLAR = [
   },
   {
     id: "galaxy-s24-ultra",
+    temsilci: true,
     ad: "Samsung Galaxy S24 Ultra",
     marka: "Samsung",
     w: 915,
@@ -176,11 +176,11 @@ export const CIHAZLAR = [
     guvenli: guvenli(0, 0, 0, 30),
     centik: DELIK,
     kose: 0,
-    hizli: true,
     kesin: false,
   },
   {
     id: "galaxy-z-fold-acik",
+    temsilci: true,
     ad: "Samsung Galaxy Z Fold5, açık (iç ekran)",
     marka: "Samsung",
     w: 841,
@@ -206,6 +206,7 @@ export const CIHAZLAR = [
   },
   {
     id: "redmi-note-12",
+    temsilci: true,
     ad: "Xiaomi Redmi Note 12",
     marka: "Xiaomi",
     w: 851,
@@ -231,6 +232,7 @@ export const CIHAZLAR = [
   // --- Huawei
   {
     id: "huawei-p30",
+    temsilci: true,
     ad: "Huawei P30",
     marka: "Huawei",
     w: 780,
@@ -256,6 +258,7 @@ export const CIHAZLAR = [
   // --- Google Pixel
   {
     id: "pixel-7",
+    temsilci: true,
     ad: "Google Pixel 7",
     marka: "Google",
     w: 915,
@@ -302,10 +305,10 @@ export const CIHAZLAR = [
     guvenli: guvenli(0, 0, 20, 0),
     centik: null,
     kose: 21,
-    hizli: true,
   },
   {
     id: "ipad",
+    temsilci: true,
     ad: "iPad (10. nesil)",
     marka: "Apple",
     w: 1180,
@@ -317,6 +320,7 @@ export const CIHAZLAR = [
   },
   {
     id: "galaxy-tab-a8",
+    temsilci: true,
     ad: "Samsung Galaxy Tab A8 (Android tablet)",
     marka: "Samsung",
     w: 1280,
@@ -329,5 +333,10 @@ export const CIHAZLAR = [
   },
 ];
 
-export const HIZLI = CIHAZLAR.filter((c) => c.hizli).map((c) => c.id);
+// npm run alan: dalın kendi ekranları yalnız bu 3 cihazda
+export const ALAN_CIHAZLARI = ["iphone-se", "iphone-13", "galaxy-s8"];
+// regresyon: iPhone 13 (kullanıcının telefonu) bütün ekranlar; temsilci cihazlar yalnız bu 4 ekran
+export const REFERANS_CIHAZ = "iphone-13";
+export const TEMSILCI_EKRANLAR = ["menu-ana", "pist-ayrinti", "garaj-yaris", "yaris-asfalt"];
+export const HIZLI = ALAN_CIHAZLARI;
 export const cihazBul = (ad) => CIHAZLAR.find((c) => c.id == ad);

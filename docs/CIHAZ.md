@@ -1,6 +1,6 @@
 # Ekran uyum denetimi (sanal cihazlar)
 
-Gerçek telefon yok: oyunun bütün ekranları ~25 sanal cihazda (yatay) otomatik ölçülür. Amaç: yazı kesilmesin, öğe ekran/çentik/güvenli alan dışına taşmasın, düğmeler üst üste binmesin, dokunma hedefi ≥ 40 px olsun, istenmeyen kaydırma çıkmasın, 3B tuval ekranı tam kaplasın.
+Gerçek telefon yok: oyunun ekranları sanal cihazlarda (yatay) otomatik ölçülür (listede 25 cihaz; koşumlar kapsamı küçültür, aşağıda). Amaç: yazı kesilmesin, öğe ekran/çentik/güvenli alan dışına taşmasın, düğmeler üst üste binmesin, dokunma hedefi ≥ 40 px olsun, istenmeyen kaydırma çıkmasın, 3B tuval ekranı tam kaplasın.
 
 ## Komut
 
@@ -8,7 +8,7 @@ Gerçek telefon yok: oyunun bütün ekranları ~25 sanal cihazda (yatay) otomati
 npm run cihaz                                     iPhone 13 (referans), bütün ekranlar
 npm run cihaz -- --ekran garaj-panel              tek ekran (virgülle çoğul; dal adı da olur: --ekran garaj)
 npm run cihaz -- --cihaz iphone-se,ipad-mini      belirli cihazlar
-npm run cihaz -- --hizli                          hızlı alt küme (7 cihaz)  ·  --hepsi: bütün cihazlar
+npm run cihaz -- --hizli                          alan kümesi (iPhone SE, 13, Galaxy S8)  ·  --hepsi: 25 cihazın hepsi, elle
 npm run cihaz -- --liste                          cihaz ve ekran listesi
 ```
 
@@ -43,7 +43,15 @@ Hata satırı: `<sahip dal> | <cihaz> | <ekran> | <öğe seçici> | <sorun>`. Ha
 
 ## Senaryolar ve süre
 
-`menu/cihaz-uyum`, `garaj/cihaz-uyum`, `hud/cihaz-uyum` (P2): `npm run alan -- menu` hızlı alt kümeyi (7 cihaz), `npm run regresyon` bütün cihazları koşar (`LT_CIHAZ_KAPSAM=tam`). Hepsi tek koşumu paylaşır; bölümler yalnız kendi dalının hatalarını raporlar. Cihaz-bölümleri `npm run test:e2e`'nin varsayılan listesinde yok (pahalı); `--bolum cihaz-menu` ile koşar. Süre ölçümü `docs/notlar/altyapi.md`'de.
+`menu/cihaz-uyum`, `garaj/cihaz-uyum`, `hud/cihaz-uyum` (P2). Kapsam (maliyet için bilerek dar; gerilemeyi yakalar, her telefonu tek tek denemez):
+
+| Koşum | Cihaz | Ekran | Süre (hücre) |
+| --- | --- | --- | --- |
+| `npm run alan -- <dal>` | iPhone SE, iPhone 13, Galaxy S8 | yalnız o dalın ekranları | cihaz payı ~40 sn (menu: 3 × 9) |
+| `npm run regresyon` | iPhone 13 + 11 temsilci (SE, 15 Pro Max, S8, A14, S24 Ultra, Fold açık, Redmi Note 12, P30, Pixel 7, iPad, Tab A8) | iPhone 13 bütün 17; temsilciler yalnız `menu-ana`, `pist-ayrinti`, `garaj-yaris`, `yaris-asfalt` | ~2,5 dk (61 hücre) |
+| `npm run cihaz -- --hepsi` (elle) | 25 cihazın hepsi | bütün ekranlar | ~8-12 dk |
+
+Önceki kapsam: alan 7 cihaz × 17 ekran, regresyon 25 × 17 = 425 hücre. Temsilci cihazlar `tests/cihazlar.mjs`'te `temsilci: true`, ekran listesi `TEMSILCI_EKRANLAR`; `alan` kümesi `ALAN_CIHAZLARI`. Hepsi tek koşumu paylaşır; bölümler yalnız kendi dalının hatalarını raporlar. Cihaz-bölümleri `npm run test:e2e`'nin varsayılan listesinde yok (pahalı); `--bolum cihaz-menu` ile koşar (regresyon kapsamı için `LT_CIHAZ_KAPSAM=tam`). Süre ölçümü `docs/notlar/altyapi.md`'de.
 
 ## Hata çıkınca
 
