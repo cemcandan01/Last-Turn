@@ -564,7 +564,7 @@ CARS.push(
     dv: 7600,
     tb: 0.55,
     tbs: 0.7,
-    tbu: 0.6,
+    tbu: 0.68,
     ...GORUNUM.t16,
   },
   {
