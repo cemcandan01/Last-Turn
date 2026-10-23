@@ -2672,8 +2672,8 @@ details[open] > summary::after {
   }
 }
 
-/* alçak ekranda pist ayrıntısı: seviye açıklaması listede zaten var, "Araç seç" kesilmesin */
-@media (max-height: 420px) {
+/* alçak ekranda pist ayrıntısı: seviye açıklaması listede zaten var, "Araç seç" kesilmesin (iPhone Pro Max: 430 px dahil) */
+@media (max-height: 440px) {
   .v-e .evh p.lvd {
     display: none;
   }
