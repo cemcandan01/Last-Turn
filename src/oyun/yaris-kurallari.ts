@@ -49,6 +49,19 @@ export function tersAdimi(E: TersSayaci, vx: number, vz: number, tx: number, tz:
   return c < 0;
 }
 
+/** puan açısı en çok 44° (rad): ötesi puan artırmaz (risk-ödül: ~45°'den sonra araç fiziği spin atar) */
+export const DRIFT_AZAMI_ACI = (44 * Math.PI) / 180,
+  /** puan hızı her zaman m/s'dir (gösterim birimi km/sa ya da mph olsa da aynı sürüş aynı puanı verir); bunun altında puan azalır */
+  DRIFT_HIZ_ALT = 4,
+  DRIFT_HIZ_TAM = 12;
+
+/** anlık drift puan hızı (puan/sn, kombo çarpanından önce): min(açı, 44°) (rad) × hız (m/s); düşük hızda küçülür */
+export function driftPuanHizi(beta: number, v: number) {
+  const aci = Math.min(Math.abs(beta), DRIFT_AZAMI_ACI),
+    t = Math.min(1, Math.max(0, (v - DRIFT_HIZ_ALT) / (DRIFT_HIZ_TAM - DRIFT_HIZ_ALT)));
+  return 3 * v * aci * t * t * (3 - 2 * t);
+}
+
 /** komboyu puana çevir; kazanılan puan */
 export function driftBankala(E: DriftSayaci) {
   const p = Math.round(E.combo * E.mult);
@@ -64,7 +77,7 @@ export function driftBankala(E: DriftSayaci) {
 }
 
 /**
- * drift puanı adımı: lost (çim, çarpma, spin) komboyu yakar; drift sürdükçe kombo hız × açıyla büyür, çarpan 2,5 sn'de
+ * drift puanı adımı: lost (çim, çarpma, spin) komboyu yakar; drift sürdükçe kombo anlık açı × hızla büyür (driftPuanHizi), çarpan 2,5 sn'de
  * bir artar (en çok x5); 0,8 sn drift yoksa kombo bankaya geçer. Ters giderken kombo birikmez.
  * Dönen olay: "yandi", "carpan" (çarpan arttı), "bank" (p puan bankaya geçti) ya da null.
  */
@@ -85,7 +98,7 @@ export function driftAdimi(
     return { olay: "yandi", p: 0 };
   }
   if (act && !lost && !ters) {
-    E.combo += v * Math.abs(beta) * dt * 3;
+    E.combo += driftPuanHizi(beta, v) * dt;
     E.ct += dt;
     E.gap = 0;
     const m = Math.min(5, 1 + Math.floor(E.ct / 2.5)),

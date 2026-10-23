@@ -11,4 +11,5 @@
 - Açık: "Geri dön" gösterimi hud dalında; pist listesi/sonuçta yıldız görseli menu dalında.
 - Pist sayısı (0.4.23): her türde 8 pist, toplam 40. `lv` artık pist numarası (türde benzersiz; rekor/yıldız anahtarı `<tür>_<lv>` eskisi gibi), `sev` zorluk seviyesi 1-6 (`pistSev`; arayüz sıralaması sev, sonra lv). Yeni pist: sona eklenir (lv 9…), `sev` verilir, `ACILMA.pist[tür]` sonuna açılma seviyesi, eşikler `LV=9 npm run olcum -- pistler | drift-puan`.
 - Yeni pistler (lv 7 sev 2 / lv 8 sev 4): gp Çöl Otoyolu, Kar Dağı; rx Plaj Kros, Kar Kros; dp Çöl Drifti, Taş Ocağı Drifti; rl Kıyı Etabı, Dağ Etabı; dg Çeyrek Kilometre 250 m (sev 1), Bir Kilometre 1000 m (sev 5). Açılma: 3/9 (gp, rx), 4/11 (dp, rl), 2/16 (dg).
-- Açık: Çöl Drifti 2 tur ~137 sn (diğerlerinden uzun); menü arka plan görselleri yeni pistler için yeniden çekilmedi.
+- Açık: menü arka plan görselleri yeni pistler için yeniden çekilmedi.
+- Drift puanı (0.4.25+): `driftPuanHizi` = 3 × hız (m/s, birimden bağımsız) × min(açı, 44°) × düşük hız yumuşatması (4-12 m/s); 44° kullanıcı kararı (ötesinde spin riski fizikten). Tüm drift eşikleri yeniden ölçüldü (`drift-puan`, önerilen = pay uygulanmış). Çöl Drifti tarifi kısaltıldı (137 → ~93 sn, tur sayısı 2).
