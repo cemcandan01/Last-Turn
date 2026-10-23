@@ -100,4 +100,10 @@ export default [
     p: 1,
     birim: { dosya: BU, grup: "sahte Firebase ile eşitleme" },
   },
+  {
+    id: "hesap-formu",
+    ad: "E-posta formu iPhone yatayda klavye açıkken (170 px görünür) şeride sığar, alanlar tek tek, İleri ile geçer, uyarı görünür",
+    p: 1,
+    tarayici: "hesap-formu",
+  },
 ];
