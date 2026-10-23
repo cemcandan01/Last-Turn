@@ -32,6 +32,9 @@ export function engine(kmh: number, dt: number) {
 let E: Record<string, HTMLElement>;
 let kadranF = -1;
 const durum = { dr: "", ters: false };
+/** drift bonus bildirimleri: okunan olay sayısı, hangi yarışa ait olduğu, son nabız puanı */
+const bonus = { ev: null as unknown, n: 0, nabiz: 0 };
+const BONUS_SATIR = 3;
 
 export function hudKur() {
   E = {};
@@ -42,6 +45,7 @@ export function hudKur() {
     "sf",
     "dr",
     "ters",
+    "bon",
     "drA",
     "drP",
     "drX",
@@ -127,12 +131,72 @@ function driftGostergesi() {
     durum.dr = k;
     E.dr.className = k || "hidden";
   }
+  bonusAdimi();
+  // ana sayı +30 puanda bir hafif nabız atar
+  if (k == "kombo" && EV) {
+    if (EV.combo < bonus.nabiz) bonus.nabiz = EV.combo;
+    else if (EV.combo - bonus.nabiz >= 30) {
+      bonus.nabiz = EV.combo;
+      E.drP.classList.remove("nb");
+      void E.drP.offsetWidth;
+      E.drP.classList.add("nb");
+    }
+  }
   // pist dalı EV.ters'i ekler; yoksa (undefined) gösterilmez
   const ters = !!EV && (EV as { ters?: boolean }).ters === true;
   if (ters != durum.ters) {
     durum.ters = ters;
     E.ters.className = ters ? "" : "hidden";
   }
+}
+
+/** bonus satırını göster; üstteki satır aynı bonussa puanı toplayıp yeniden "pop"lar, en fazla 3 satır */
+export function bonusGoster(ad: string, puan: number) {
+  const kap = E.bon;
+  let sat = kap.firstElementChild as HTMLElement | null;
+  if (sat && sat.dataset.ad == ad && !sat.classList.contains("son")) {
+    const top = Number(sat.dataset.puan) + puan;
+    sat.dataset.puan = String(top);
+    (sat.lastElementChild as HTMLElement).textContent = "+" + top;
+    sat.classList.remove("pop");
+    void sat.offsetWidth;
+    sat.classList.add("pop");
+    clearTimeout(Number(sat.dataset.zt));
+  } else {
+    sat = document.createElement("div");
+    sat.dataset.ad = ad;
+    sat.dataset.puan = String(puan);
+    sat.className = "pop";
+    const a = document.createElement("span"),
+      p = document.createElement("b");
+    a.textContent = ad;
+    p.textContent = "+" + puan;
+    sat.append(a, p);
+    kap.prepend(sat);
+    while (kap.children.length > BONUS_SATIR) kap.lastElementChild!.remove();
+  }
+  const el = sat;
+  el.dataset.zt = String(
+    window.setTimeout(() => {
+      el.classList.add("son");
+      window.setTimeout(() => el.remove(), 450);
+    }, 1500),
+  );
+}
+
+/** pist dalının EV.driftOlay dizisindeki yeni olayları göster (yoksa hiçbir şey) */
+function bonusAdimi() {
+  const EV = yaris.EV as { driftOlay?: { ad: string; puan: number }[] } | null;
+  if (bonus.ev !== EV) {
+    bonus.ev = EV;
+    bonus.n = 0;
+    bonus.nabiz = 0;
+    E.bon.textContent = "";
+  }
+  const dz = EV?.driftOlay;
+  if (!dz) return;
+  if (dz.length < bonus.n) bonus.n = 0;
+  for (; bonus.n < dz.length; bonus.n++) bonusGoster(dz[bonus.n].ad, dz[bonus.n].puan);
 }
 
 /** HUD düzenleyicide örnek değerler (oyun döngüsü bu sırada HUD'a yazmaz) */
