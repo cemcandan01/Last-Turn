@@ -31,4 +31,10 @@ export default [
     p: 1,
     tarayici: "ekran-yon",
   },
+  {
+    id: "cihaz-denetim",
+    ad: "Ekran uyum denetimi bilerek bozulmuş sayfalarda her hata türünü yakalıyor, temiz sayfada yanlış alarm vermiyor",
+    p: 2,
+    tarayici: "cihaz-dogrulama",
+  },
 ];

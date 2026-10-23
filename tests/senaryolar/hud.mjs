@@ -12,4 +12,10 @@ export default [
     p: 2,
     tarayici: "hud-duzenleyici",
   },
+  {
+    id: "cihaz-uyum",
+    ad: "Ekran uyumu: HUD düzenleyici ve yarış HUD'ları (asfalt, drift, drag) sanal cihazlarda taşmıyor, kesilmiyor, üst üste binmiyor (hızlı alt küme; regresyonda 25 cihaz)",
+    p: 2,
+    tarayici: "cihaz-hud",
+  },
 ];

@@ -31,7 +31,13 @@ const BOLUMLER = [
   "kokpit",
   "cok-arac",
   "ekran-yon",
+  "cihaz-dogrulama",
+  "cihaz-menu",
+  "cihaz-garaj",
+  "cihaz-hud",
 ];
+// cihaz-menu/garaj/hud pahalıdır (sanal cihazlar): yalnız adıyla istenince koşar (npm run cihaz, senaryolar)
+const PAHALI = ["cihaz-menu", "cihaz-garaj", "cihaz-hud"];
 
 const KOK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.."),
   arg = (a) => process.argv.includes(a),
@@ -39,7 +45,9 @@ const KOK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.."),
   KLASOR = path.join(KOK, deger("--klasor") || "dist"),
   CIKTI = path.join(KOK, "tests", "cikti"),
   GOR = arg("--goruntu"),
-  SECILI = deger("--bolum") ? deger("--bolum").split(",").filter(Boolean) : BOLUMLER;
+  SECILI = deger("--bolum")
+    ? deger("--bolum").split(",").filter(Boolean)
+    : BOLUMLER.filter((b) => !PAHALI.includes(b));
 
 for (const b of SECILI)
   if (!BOLUMLER.includes(b)) {
