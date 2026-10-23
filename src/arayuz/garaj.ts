@@ -20,7 +20,17 @@ import { carIndex, oyun, setCar } from "../oyun/durum";
 import * as THREE from "three";
 import { kamera, garajKameraSifirla } from "../cizim/kamera";
 import { applyPreset, kurulum } from "../oyun/kurulum";
-import { acilmaSeviyesi, aracAcikMi, pistAcikMi } from "../oyun/ilerleme";
+import {
+  acilmaSeviyesi,
+  aracAcikMi,
+  aracFiyati,
+  aracSatinAl,
+  aracSatinAlinabilirMi,
+  para,
+  paraDinle,
+  pistAcikMi,
+} from "../oyun/ilerleme";
+import { ikon } from "./ikonlar";
 import { EVENTS, startEvent } from "../oyun/yarislar";
 import { note } from "./bildirim";
 import { showMenu, startWorld } from "./menu";
@@ -36,6 +46,33 @@ interface GarajDurumu {
   i: number;
 }
 let GAR: GarajDurumu | null = null;
+
+const sayi = (n: number) => n.toLocaleString("tr-TR");
+const paraYazi = (n: number) => `${ikon("para")}<b>${sayi(n)}</b>`;
+let PARA_BIRAK: (() => void) | null = null,
+  ONAY: { arac: number; zaman: number } | null = null,
+  ONAY_ZAMANLA: ReturnType<typeof setTimeout> | undefined;
+
+/** köşedeki bakiye (garaj açıkken); yoksa kurar */
+function bakiyeGoster(goster: boolean) {
+  let b = document.getElementById("gpara");
+  if (!b) {
+    b = document.createElement("div");
+    b.id = "gpara";
+    document.body.appendChild(b);
+  }
+  b.style.display = goster ? "" : "none";
+  if (goster) b.innerHTML = paraYazi(para());
+}
+
+/** satın alma kutlaması: parıltı ve "Satın alındı" */
+function kutla(ad: string) {
+  const k = document.createElement("div");
+  k.className = "gkutla";
+  k.innerHTML = `<div class="gkr"></div><b>Satın alındı</b><small>${ad}</small>${[0, 1, 2, 3, 4, 5, 6, 7].map((i) => `<i style="--a:${i * 45}deg"></i>`).join("")}`;
+  document.body.appendChild(k);
+  setTimeout(() => k.remove(), 1700);
+}
 
 /** motor dinleme: hangi aracın sesi çalıyor, ne zaman bitecek (ses tarafından "bitti" gelmezse 6 sn sonra kendiliğinden) */
 let DINLE: { arac: number; zaman: number } | null = null,
@@ -170,6 +207,11 @@ export function openGarage(ev: number | null, w: number | null = null) {
         : CARS.findIndex((_, k) => aracAcikMi(k)),
   };
   dinleBagla();
+  PARA_BIRAK?.();
+  PARA_BIRAK = paraDinle(() => {
+    if (GAR) showGar();
+  });
+  ONAY = null;
   oyun.mode = "garage";
   garajKameraSifirla();
   gizle("#menu", "#hud", "#mm", "#ctl", "#set", "#res");
@@ -184,6 +226,10 @@ export function openGarage(ev: number | null, w: number | null = null) {
 
 export function closeGarage() {
   DINLE = null;
+  PARA_BIRAK?.();
+  PARA_BIRAK = null;
+  ONAY = null;
+  bakiyeGoster(false);
   garG.visible = false;
   garajIsigi(false);
   vitrinBosalt();
@@ -198,14 +244,33 @@ function showGar() {
   const G = GAR!,
     c = CARS[G.i];
   if (oyun.CAR !== c) setCar(G.i, true);
+  // ana menüden açılan garajda araç seçilmez (yalnız bakılır)
+  const sec = G.ev != null ? "Yarış: " + EVENTS[G.ev].n : G.w != null ? "Sür: " + WORLDS[G.w].n : "";
   const g = $("#gar"),
-    kilitli = !aracAcikMi(G.i),
-    kilitYazi = "Seviye " + acilmaSeviyesi({ arac: G.i }) + "'de açılır";
+    acik = aracAcikMi(G.i),
+    sa = aracSatinAlinabilirMi(G.i),
+    // seviyesi gelmeyen araç karartılır; seviyesi yeten ama alınmamış araç (satilik) açık renkte kalır
+    kilitli = !acik && sa.neden == "seviye",
+    satilik = !acik && !kilitli,
+    fiyat = aracFiyati(G.i),
+    eksik = fiyat.para - para(),
+    onayda = satilik && ONAY?.arac == G.i && ONAY.zaman > performance.now(),
+    kilitYazi = "Seviye " + fiyat.seviye + "'de açılır",
+    // seç düğmesinin yerine geçen yazı: kilit, satın al, onay ya da eksik para
+    okYazi = kilitli
+      ? "🔒 " + kilitYazi
+      : satilik
+        ? eksik > 0
+          ? `${ikon("para")} ${sayi(eksik)} daha gerekli`
+          : onayda
+            ? `Emin misin? ${ikon("para")} ${sayi(fiyat.para)}`
+            : `Satın al ${ikon("para")} ${sayi(fiyat.para)}`
+        : sec;
   kilitGorunumu(kilitli);
   g.classList.remove("hidden");
   g.classList.toggle("kilitli", kilitli);
-  // ana menüden açılan garajda araç seçilmez (yalnız bakılır)
-  const sec = G.ev != null ? "Yarış: " + EVENTS[G.ev].n : G.w != null ? "Sür: " + WORLDS[G.w].n : "";
+  g.classList.toggle("satilik", satilik);
+  bakiyeGoster(true);
   const sv = Object.fromEntries(STAT(c).map(([n, f]) => [n, f])),
     pct = (f: number) => Math.round(cl(f, 0.05, 1) * 100),
     gucAgirlik = (c.hp / c.kg) * 1000,
@@ -218,7 +283,7 @@ function showGar() {
       ["🔋", "Güç / ağırlık", String(Math.round(gucAgirlik)), "hp/ton", gucAgirlik / 600],
     ];
   g.innerHTML = `<div class="gh"><button class="ga" id="gpv">◀</button><div style="flex:1;text-align:center"><h1>${kilitli ? "🔒 " : ""}${c.n}</h1></div><button class="ga" id="gnx">▶</button></div>
-<div class="grozet${G.i == G.rec || kilitli ? " sik" : ""}"><span class="bdg">${c.ic} ${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}${kilitli ? `<span class="bdg kilit" title="${kilitYazi}">🔒 Seviye ${acilmaSeviyesi({ arac: G.i })}</span>` : ""}<button class="gses" id="gses"></button></div>
+<div class="grozet${G.i == G.rec || kilitli || satilik ? " sik" : ""}"><span class="bdg">${c.ic} ${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}${kilitli ? `<span class="bdg kilit" title="${kilitYazi}">🔒 Seviye ${fiyat.seviye} · <span class="fy">${ikon("para")}${sayi(fiyat.para)}</span></span>` : ""}${satilik ? `<span class="bdg fiyat">${ikon("para")}<b>${sayi(fiyat.para)}</b></span>` : ""}<button class="gses" id="gses"></button></div>
 <div class="gkart">${kartlar
     .map(
       ([ic, n, d, b, f]) =>
@@ -226,11 +291,11 @@ function showGar() {
     )
     .join("")}</div>
 <div class="gcip"><span>⚙️ ${c.hp} hp</span><span>⚖️ ${c.kg} kg</span><span>🔩 ${c.awd ? "Dört çeker" : "Arkadan itiş"}</span></div>
-<div class="gbt"><button class="btn alt" id="gbk">Geri</button>${sec ? `<button class="btn" id="gok"${kilitli ? " disabled" : ""}>${kilitli ? "🔒 " + kilitYazi : sec}</button>` : ""}</div>`;
+<div class="gbt"><button class="btn alt" id="gbk">Geri</button>${sec || satilik ? `<button class="btn${satilik ? " al" : ""}" id="gok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}</div>`;
   const v = $("#gvit");
   v.classList.remove("hidden");
-  v.innerHTML = `<button class="gvar" id="gvpv">◀</button><button class="gvar sag" id="gvnx">▶</button>${sec ? `<button class="btn" id="gvok"${kilitli ? " disabled" : ""}>${kilitli ? "🔒 " + kilitYazi : sec}</button>` : ""}<button class="btn alt" id="gvbk">Geri</button><button class="gvtam" id="gvtam">⛶</button>`;
-  if (sec) $("#gvok").onclick = () => $("#gok").click();
+  v.innerHTML = `<button class="gvar" id="gvpv">◀</button><button class="gvar sag" id="gvnx">▶</button>${sec || satilik ? `<button class="btn${satilik ? " al" : ""}" id="gvok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}<button class="btn alt" id="gvbk">Geri</button><button class="gvtam" id="gvtam">⛶</button>`;
+  if (sec || satilik) $("#gvok").onclick = () => $("#gok").click();
   // tam ekranda Geri: tam ekrandan çıkıp bilgi paneline döner
   $("#gvbk").onclick = () => {
     kamera.gTam = false;
@@ -268,10 +333,30 @@ function showGar() {
     closeGarage();
     showMenu(G.w != null ? ["free"] : undefined);
   };
-  if (sec)
+  if (sec || satilik)
     $("#gok").onclick = () => {
       const { ev, w, i, prev } = G;
       if (!aracAcikMi(i)) {
+        // satın alma: ilk dokunuş onay ister (3 sn), ikincisi satın alır
+        if (aracSatinAlinabilirMi(i).ok) {
+          if (!(ONAY && ONAY.arac == i && ONAY.zaman > performance.now())) {
+            ONAY = { arac: i, zaman: performance.now() + 3000 };
+            clearTimeout(ONAY_ZAMANLA);
+            ONAY_ZAMANLA = setTimeout(() => {
+              ONAY = null;
+              if (GAR && GAR.i == i) showGar();
+            }, 3050);
+            showGar();
+            return;
+          }
+          ONAY = null;
+          clearTimeout(ONAY_ZAMANLA);
+          if (aracSatinAl(i)) {
+            showGar();
+            kutla(CARS[i].n);
+          }
+          return;
+        }
         note("Kilitli: seviye " + acilmaSeviyesi({ arac: i }), 40);
         return;
       }
