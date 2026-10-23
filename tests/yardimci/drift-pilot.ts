@@ -6,7 +6,7 @@ import { ad, cl } from "../../src/cekirdek/matematik";
 import { ipucu, type Pist } from "../../src/dunya/pist";
 import type { AracDurumu, FizikGirdisi, SimDurumu } from "../../src/fizik/tipler";
 import type { SeviyeAnahtari } from "../../src/fizik/veriler";
-import { driftAdimi, driftBankala, type DriftSayaci } from "../../src/oyun/yaris-kurallari";
+import { bosDriftSayaci, driftAdimi, driftBankala, type DriftSayaci } from "../../src/oyun/yaris-kurallari";
 import { surucuKur } from "./surucu";
 
 const DT = 1 / 60;
@@ -141,13 +141,13 @@ export class KomboSayaci {
 
 /** drift yarışının puanı (oyundaki evTick ile aynı kural: oyun/yaris-kurallari.ts) */
 export class PuanSayaci {
-  private E: DriftSayaci = { score: 0, combo: 0, ct: 0, mult: 1, gap: 0, best: 0 };
+  private E: DriftSayaci = bosDriftSayaci();
   get puan() {
     return this.E.score;
   }
-  adim(d: SimDurumu, si: number, v: number, dt: number, ters = false) {
+  adim(d: SimDurumu, si: number, v: number, dt: number, ters = false, tg = 0.5) {
     const lost = si == 2 || d.zaman - d.S.hit < 0.05 || Math.abs(d.D.beta) > 1.4;
-    driftAdimi(this.E, !!d.D.act, d.D.beta, lost, v, ters, dt);
+    driftAdimi(this.E, !!d.D.act, d.D.beta, lost, v, ters, dt, tg, d.zaman);
   }
   bankala() {
     driftBankala(this.E);
@@ -186,7 +186,7 @@ export function driftTuru(
     const gi = pl(S);
     const o = s.adim(gi);
     ks.adim(s.sim.d, o.si, DT);
-    ps.adim(s.sim.d, o.si, o.v, DT);
+    ps.adim(s.sim.d, o.si, o.v, DT, false, gi.tg);
     let ds = TR.S[ipucu.ti] - TR.S[onceki];
     if (ds < -TR.len / 2) ds += TR.len;
     yol += ds;
