@@ -379,7 +379,7 @@ details[open] > summary::after {
   align-items: center;
   justify-content: center;
   flex-wrap: nowrap;
-  gap: calc(6px * var(--gs, 1) * var(--gw, 1));
+  gap: calc(6px * var(--gs, 1) * var(--gw, 1) * var(--rz, 1));
   margin: calc(4px * var(--gs, 1) * var(--gw, 1)) 0 calc(6px * var(--gs, 1) * var(--gw, 1));
 }
 .gkart {
@@ -441,16 +441,16 @@ details[open] > summary::after {
   background: linear-gradient(90deg, #ff7a3c, #ffc070);
 }
 .grozet.sik {
-  gap: 4px;
+  gap: calc(4px * var(--rz, 1));
 }
 .grozet.sik .bdg {
-  padding: 4px calc(8px * var(--gs, 1) * var(--gw, 1));
-  font-size: calc(13px * var(--gs, 1) * var(--gw, 1));
+  padding: 4px calc(8px * var(--gs, 1) * var(--gw, 1) * var(--rz, 1));
+  font-size: calc(13px * var(--gs, 1) * var(--gw, 1) * var(--rz, 1));
 }
 .grozet.sik .gses {
-  gap: 5px;
-  padding: 6px calc(9px * var(--gs, 1) * var(--gw, 1));
-  font-size: calc(13px * var(--gs, 1) * var(--gw, 1));
+  gap: calc(5px * var(--rz, 1));
+  padding: 6px calc(9px * var(--gs, 1) * var(--gw, 1) * var(--rz, 1));
+  font-size: calc(13px * var(--gs, 1) * var(--gw, 1) * var(--rz, 1));
 }
 .gcip {
   display: flex;
@@ -498,12 +498,12 @@ details[open] > summary::after {
 .bdg {
   display: inline-block;
   margin: 0;
-  padding: calc(4px * var(--gs, 1)) calc(10px * var(--gs, 1));
+  padding: calc(4px * var(--gs, 1)) calc(10px * var(--gs, 1) * var(--rz, 1));
   border-radius: 20px;
   background: var(--card);
   border: 1px solid var(--line);
   white-space: nowrap;
-  font-size: calc(14px * var(--gs, 1));
+  font-size: calc(14px * var(--gs, 1) * var(--rz, 1));
   font-weight: 700;
 }
 .gses {
@@ -512,14 +512,14 @@ details[open] > summary::after {
   align-items: center;
   white-space: nowrap;
   min-height: 40px;
-  gap: 7px;
-  padding: 6px calc(14px * var(--gs, 1));
+  gap: calc(7px * var(--rz, 1));
+  padding: 6px calc(14px * var(--gs, 1) * var(--rz, 1));
   border-radius: 20px;
   border: 1px solid var(--line);
   background: #0006;
   color: var(--ink);
   font-family: inherit;
-  font-size: calc(15px * var(--gs, 1));
+  font-size: calc(15px * var(--gs, 1) * var(--rz, 1));
   font-weight: 800;
 }
 .gses i {
