@@ -7,10 +7,21 @@ import type { Arac } from "../arac/araclar";
 import { sm, type V2 } from "../cekirdek/matematik";
 
 /** kabinin tavana doğru içe çekilme oranı (araç türüne göre) */
-const KABIN: Record<string, number> = { gt: 0.2, rx: 0.13, dr: 0.16, rl: 0.12, dg: 0.1 };
+const KABIN: Record<string, number> = {
+  gt: 0.2,
+  rx: 0.13,
+  dr: 0.16,
+  rl: 0.12,
+  dg: 0.1,
+  gt3: 0.2,
+  t16: 0.13,
+  int: 0.1,
+  ae86: 0.11,
+  supra: 0.14,
+};
 
 /** teker ile kemer arasındaki boşluk: drift ve pist arabası alçak ve sıkı, diğerleri ralli için daha açık */
-const KEMER: Record<string, number> = { dr: 0.025, gt: 0.03 };
+const KEMER: Record<string, number> = { dr: 0.025, gt: 0.03, gt3: 0.03, ae86: 0.03, supra: 0.03 };
 
 /** kemer: tekerin gövdedeki daire biçimli boşluğu (z, y merkez; R yarıçap) */
 export interface Kemer {

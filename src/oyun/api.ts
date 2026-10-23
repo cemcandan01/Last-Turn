@@ -1,6 +1,7 @@
 // Test ve hata ayıklama arabirimi: tarayıcı testleri oyunun içine window.LT üzerinden erişir.
 // Oyun kodu bu dosyayı kullanmaz.
 export { CARS } from "../arac/araclar";
+export { gorunumUygula } from "../arac/gorunumler";
 export { showMenu, startWorld } from "../arayuz/menu";
 export { openGarage, closeGarage } from "../arayuz/garaj";
 export { showSet } from "../arayuz/ayarlar-ekrani";

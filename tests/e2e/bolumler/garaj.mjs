@@ -334,4 +334,30 @@ export default async function ({ p, ok }) {
     isik[0][1] == isik[2][1] && isik[0][2] && isik[1] && isik[3] && isik[0][0] != isik[2][0],
     "garaj ışığı dünyanın saatinden/havasından bağımsız, kapanınca ortam geri gelir",
   );
+  // yeni araç modelleri (k anahtarına göre): fizik dalı araçları ekleyene kadar geçici kopyalarla denenir
+  const modeller = await p.evaluate(() => {
+    const k = { gt3: "gp", t16: "rx", int: "rl", ae86: "dr", supra: "dg" };
+    for (const a in k) if (!LT.CARS.find((c) => c.k == a)) LT.CARS.push({ ...LT.CARS[0], k: a, ty: k[a] });
+    LT.gorunumUygula(LT.CARS);
+    const out = {};
+    for (const a in k) {
+      const i = LT.CARS.findIndex((c) => c.k == a);
+      LT.setCar(i, true);
+      const cm = LT.oyun.CAR;
+      let mesh = 0,
+        nan = 0;
+      LT.scene.traverse((o) => {
+        if (!o.isMesh || !o.geometry.attributes.position) return;
+        mesh++;
+        for (const v of o.geometry.attributes.position.array) if (!Number.isFinite(v)) nan++;
+      });
+      out[a] = { ad: cm.k == a, mesh, nan };
+    }
+    return out;
+  });
+  for (const a in modeller)
+    ok(
+      modeller[a].ad && modeller[a].mesh > 20 && modeller[a].nan == 0,
+      "yeni araç modeli kurulur (vitrin önbelleğiyle): " + a,
+    );
 }
