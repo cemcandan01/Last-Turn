@@ -37,6 +37,10 @@ export default async function ({ p, ok }) {
         { ad: "DİREKSİYONSUZ", puan: 100, t: 0 },
         { ad: "TEK YÖN", puan: 250, t: 0 },
       ];
+      // x6 sözleşmesi: 1. turda drift oranı (çubuk + %), anlık çarpan
+      EV.driftOran = 0.87;
+      EV.driftCarpan = 3;
+      EV.x6 = false;
       // geri sayımda kalsın: kombo bankaya geçmesin
       EV.cd = 1e9;
       LT.sim.S.vx = 30;
@@ -82,6 +86,49 @@ export default async function ({ p, ok }) {
             )
               sorun.push(ad + ": üst ortada kombo görünmüyor");
           }
+    }
+    // x6 kazanıldı: animasyon tetiklenir, bonus satırı çıkmaz, 2. turda rozet; sonra animasyon biter
+    for (const hiz of ["kose", "bant"]) {
+      Object.assign(LT.CT, { steer: "btn", gas: "btn" });
+      LT.startEvent(dp, 2);
+      const EV = LT.yaris.EV;
+      Object.assign(LT.gorunum, {
+        hiz,
+        harita: "kapali" in P.harita.s ? "kapali" : Object.keys(P.harita.s)[0],
+      });
+      LT.hudDuzeniUygula();
+      EV.cd = 1e9;
+      EV.combo = 1240;
+      EV.mult = 3;
+      EV.ters = true;
+      EV.driftOran = 0.95;
+      await new Promise((r) => setTimeout(r, 120));
+      const drO = document.querySelector("#drO");
+      if (!drO.className.includes("hazir")) sorun.push(hiz + ": oran %95 iken x6 HAZIR yok");
+      EV.lap = 1;
+      EV.x6 = true;
+      EV.driftCarpan = 6;
+      EV.driftOlay = [{ ad: "ÇARPAN x6", puan: 0, t: 0 }];
+      await new Promise((r) => setTimeout(r, 300));
+      if (!document.querySelector("#x6a").classList.contains("ac"))
+        sorun.push(hiz + ": x6 animasyonu başlamadı");
+      if (document.querySelector("#bon").textContent.includes("ÇARPAN"))
+        sorun.push(hiz + ": x6 olayı bonus satırı olarak çıktı");
+      if (!drO.className.includes("rozet") || !drO.textContent.includes("x6"))
+        sorun.push(hiz + ": 2. turda x6 rozeti yok");
+      const kut = ["#dr", "#bon", "#ters", ".hTL", ".hBt", "#mm"]
+        .flatMap((q) => [...document.querySelectorAll(q)].map((e) => [q, e.getBoundingClientRect()]))
+        .filter(([, r]) => r.width > 0 && r.height > 0);
+      for (let i = 0; i < kut.length; i++)
+        for (let j = i + 1; j < kut.length; j++) {
+          const [qa, ra] = kut[i],
+            [qb, rb] = kut[j];
+          if (ra.left < rb.right && rb.left < ra.right && ra.top < rb.bottom && rb.top < ra.bottom)
+            sorun.push(hiz + ": x6 rozetiyle " + qa + "/" + qb + " çakışıyor");
+        }
+      await new Promise((r) => setTimeout(r, 2000));
+      if (document.querySelector("#x6a").classList.contains("ac"))
+        sorun.push(hiz + ": x6 animasyonu kapanmadı");
     }
     // yarışta patinaj/havada uyarısı yok, GERİ DÖN yalnız EV.ters iken; serbest sürüşte patinaj var
     const asf = LT.EVENTS.findIndex((e) => e.ty != "dp" && e.ty != "dg");

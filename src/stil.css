@@ -1511,7 +1511,7 @@ details[open] > summary::after {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  top: calc(var(--hy) + 80px);
+  top: calc(var(--hy) + 80px + var(--oR, 0px));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1519,7 +1519,7 @@ details[open] > summary::after {
   pointer-events: none;
 }
 #app:has(#ters:not(.hidden)) #bon {
-  top: calc(var(--hy) + 120px);
+  top: calc(var(--hy) + 120px + var(--oR, 0px));
 }
 #bon div {
   display: flex;
@@ -1574,7 +1574,7 @@ details[open] > summary::after {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  top: calc(var(--hy) + 86px);
+  top: calc(var(--hy) + 86px + var(--oR, 0px));
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1736,18 +1736,19 @@ details[open] > summary::after {
   top: calc(var(--hy) + 56px);
 }
 #app[data-hiz="bant"] #ters {
-  top: calc(var(--hy) + 142px);
+  top: calc(var(--hy) + 142px + var(--oR, 0px));
 }
 #app[data-hiz="bant"] #bon {
-  top: calc(var(--hy) + 136px);
+  top: calc(var(--hy) + 136px + var(--oR, 0px));
 }
 #app[data-hiz="bant"]:has(#ters:not(.hidden)) #bon {
-  top: calc(var(--hy) + 176px);
+  top: calc(var(--hy) + 176px + var(--oR, 0px));
 }
 
 /* --- Yazı (sayaç) ve Yazı (hız): panel yok, yalnız güçlü gölgeli yazı --- */
 #app[data-sayac="yazi"] .hTL,
 #app[data-sayac="yazi"] #dr.kombo,
+#app[data-sayac="yazi"] #dr.oran,
 #app[data-hiz="sade"] .hSP {
   background: none;
   border-color: transparent;
@@ -2549,5 +2550,190 @@ details[open] > summary::after {
 @media (max-height: 420px) {
   .v-e .evh p.lvd {
     display: none;
+  }
+}
+
+/* drift çarpanı x6: 1. turda drift oranı (%90 işaretli ince çubuk), 2. turda kalıcı rozet */
+#app:has(#dr.oranli) {
+  --oR: 17px;
+}
+#dr.oran {
+  min-width: 120px;
+  padding-top: 5px;
+}
+#drO {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 4px;
+  height: 13px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+}
+#drO.hidden {
+  display: none;
+}
+#drOb {
+  position: relative;
+  width: 72px;
+  height: 4px;
+  border-radius: 2px;
+  background: #ffffff26;
+  overflow: visible;
+}
+#drOb::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: var(--oran, 0%);
+  border-radius: 2px;
+  background: #ffc070;
+  transition: width 0.3s;
+}
+#drOk {
+  position: absolute;
+  left: 90%;
+  top: -3px;
+  width: 2px;
+  height: 10px;
+  background: #fff;
+  border-radius: 1px;
+}
+#drO.hazir #drOb::before {
+  background: #5ee08a;
+}
+#drO.kacti {
+  opacity: 0.6;
+}
+#drO.kacti #drOb::before {
+  background: #ff5a5a;
+}
+#drO.rozet #drOb {
+  display: none;
+}
+#drO.rozet #drOt {
+  color: #1b0d05;
+  background: linear-gradient(90deg, #ffd27a, #ff9a3c);
+  border-radius: 8px;
+  padding: 0 8px;
+  text-shadow: none;
+  animation: x6Rozet 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+@keyframes x6Rozet {
+  from {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+#drX.nb {
+  animation: drNabiz 0.22s ease-out;
+}
+/* x6 kazanıldı: büyük "x6" gelir, halka dalgası ve kenar parlaması ~1,8 sn; yarı saydam, sonra rozete iner */
+#x6a,
+#x6f {
+  display: none;
+}
+#x6a.ac {
+  display: block;
+  position: fixed;
+  left: 50%;
+  top: 37vh;
+  width: 0;
+  height: 0;
+  animation: x6Ak 1.8s ease-out forwards;
+}
+#x6a small {
+  position: absolute;
+  left: 0;
+  top: -52px;
+  transform: translateX(-50%);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 6px;
+  color: #ffd27a;
+  white-space: nowrap;
+}
+#x6a b {
+  position: absolute;
+  left: 0;
+  top: -34px;
+  transform: translateX(-50%);
+  font-size: 68px;
+  line-height: 68px;
+  font-weight: 900;
+  font-style: italic;
+  color: #fff;
+  text-shadow:
+    0 0 14px #ff9a3c,
+    0 0 34px #ff5a1c,
+    0 2px 4px #000;
+}
+#x6a i {
+  position: absolute;
+  left: -60px;
+  top: -60px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px solid #ffc070;
+  opacity: 0;
+}
+#x6a.ac i {
+  animation: x6Halka 1.1s ease-out forwards;
+}
+#x6a.ac i + i {
+  animation-delay: 0.25s;
+}
+@keyframes x6Ak {
+  0% {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+  18% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  28% {
+    transform: scale(1.12);
+  }
+  38% {
+    transform: scale(1);
+  }
+  75% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.6);
+  }
+}
+@keyframes x6Halka {
+  from {
+    opacity: 0.9;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 0;
+    transform: scale(3);
+  }
+}
+#x6f.ac {
+  display: block;
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 70px 14px #ff7a3c;
+  animation: x6Kenar 1.1s ease-out forwards;
+}
+@keyframes x6Kenar {
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.75;
+  }
+  100% {
+    opacity: 0;
   }
 }

@@ -1,7 +1,7 @@
 // HUD: hız ve vites, yarış/tur bilgisi (sol üst), drift ve kombo göstergesi (üst orta), uyarılar.
 // Her gösterge ayrı seçilir (#app[data-hiz|sayac|tus|harita]; düzenleyici hud-duzenleyici.ts); yerleşim
 // stil.css'te. Kurallar: docs/HUD.md.
-// Yazılar yalnız değişince DOM'a yazılır.
+// Yazılar yalnız değişince DOM'a metinlır.
 import { fmt } from "../cekirdek/bicim";
 import { cl } from "../cekirdek/matematik";
 import { $, yazi } from "../cekirdek/dom";
@@ -33,8 +33,11 @@ let E: Record<string, HTMLElement>;
 let kadranF = -1;
 const durum = { dr: "", ters: false };
 /** drift bonus bildirimleri: okunan olay sayısı, hangi yarışa ait olduğu, son nabız puanı */
-const bonus = { ev: null as unknown, n: 0, nabiz: 0 };
+const bonus = { ev: null as unknown, n: 0, nabiz: 0, carpan: 0 };
+/** pist dalının drift çarpanı alanları (yoksa hiçbiri gösterilmez) */
+type X6Alan = { driftOran?: number; driftCarpan?: number; x6?: boolean };
 const BONUS_SATIR = 3;
+let x6Zt = 0;
 
 export function hudKur() {
   E = {};
@@ -50,6 +53,10 @@ export function hudKur() {
     "drP",
     "drX",
     "drB",
+    "drO",
+    "drOt",
+    "x6a",
+    "x6f",
     "lap",
     "ev",
     "kdV",
@@ -119,13 +126,28 @@ function driftGostergesi() {
     k = "kombo";
     yazi(E.drA, D.t > 0 ? "DRIFT" : "KOMBO");
     yazi(E.drP, String(Math.round(EV.combo)));
-    yazi(E.drX, "x" + EV.mult);
+    const car = (EV as X6Alan).driftCarpan ?? EV.mult;
+    yazi(E.drX, "x" + car);
+    if (car != bonus.carpan) {
+      if (bonus.carpan) {
+        E.drX.classList.remove("nb");
+        void E.drX.offsetWidth;
+        E.drX.classList.add("nb");
+      }
+      bonus.carpan = car;
+    }
     E.drB.style.width = (EV.mult >= 5 ? 100 : Math.round(((EV.ct % 2.5) / 2.5) * 100)) + "%";
   } else if (!EV && (S.spin || S.air)) {
     k = "durum";
     yazi(E.drA, S.spin ? "PATİNAJ" : "HAVADA");
     yazi(E.drP, "");
     yazi(E.drX, "");
+  }
+  // x6: 1. turda drift oranı çubuğu, 2. turda rozet (kombo yoksa panel yalnız bunu gösterir)
+  const oran = EV && EV.ty == "dp" ? oranGostergesi(EV as typeof EV & X6Alan) : false;
+  if (oran) {
+    if (!k) k = "oran";
+    k += " oranli";
   }
   if (k != durum.dr) {
     durum.dr = k;
@@ -150,6 +172,41 @@ function driftGostergesi() {
   }
 }
 
+/** panelin altındaki x6 satırı: 1. turda %oran + %90 işareti (hazır/kaçtı), x6 kazanıldıysa rozet; gösterilecek bir şey yoksa false */
+function oranGostergesi(EV: NonNullable<typeof yaris.EV> & X6Alan): boolean {
+  let sinif = "hidden",
+    metin = "";
+  if (EV.x6) {
+    sinif = "rozet";
+    metin = "x6 ÇARPAN";
+  } else if (typeof EV.driftOran == "number" && EV.lap == 0 && (EV.laps || 0) > 1) {
+    const o = cl(EV.driftOran, 0, 1),
+      kalan = 1 - cl(ipucu.ti / EV.TR.N, 0, 1);
+    sinif = o >= 0.9 ? "hazir" : o + kalan < 0.9 ? "kacti" : "";
+    metin = o >= 0.9 ? "x6 HAZIR" : sinif == "kacti" ? "x6 KAÇTI" : "%" + Math.round(o * 100);
+    E.drO.style.setProperty("--oran", Math.round(o * 100) + "%");
+  }
+  if (E.drO.dataset.s != sinif) {
+    E.drO.dataset.s = sinif;
+    E.drO.className = sinif;
+  }
+  yazi(E.drOt, metin);
+  return sinif != "hidden";
+}
+
+/** x6 kazanıldığında (EV.driftOlay'da "ÇARPAN x6"): büyük "x6", halka dalgası ve kenar parlaması; sonra rozete iner */
+function x6Animasyon() {
+  for (const e of [E.x6a, E.x6f]) {
+    e.classList.remove("ac");
+    void e.offsetWidth;
+    e.classList.add("ac");
+  }
+  clearTimeout(x6Zt);
+  x6Zt = window.setTimeout(() => {
+    E.x6a.classList.remove("ac");
+    E.x6f.classList.remove("ac");
+  }, 1900);
+}
 /** bonus satırını göster; üstteki satır aynı bonussa puanı toplayıp yeniden "pop"lar, en fazla 3 satır */
 export function bonusGoster(ad: string, puan: number) {
   const kap = E.bon;
@@ -191,12 +248,19 @@ function bonusAdimi() {
     bonus.ev = EV;
     bonus.n = 0;
     bonus.nabiz = 0;
+    bonus.carpan = 0;
     E.bon.textContent = "";
+    E.x6a.classList.remove("ac");
+    E.x6f.classList.remove("ac");
   }
   const dz = EV?.driftOlay;
   if (!dz) return;
   if (dz.length < bonus.n) bonus.n = 0;
-  for (; bonus.n < dz.length; bonus.n++) bonusGoster(dz[bonus.n].ad, dz[bonus.n].puan);
+  for (; bonus.n < dz.length; bonus.n++) {
+    // x6 olayı bonus satırı değil, kendi animasyonunu tetikler
+    if (/^ÇARPAN/.test(dz[bonus.n].ad)) x6Animasyon();
+    else bonusGoster(dz[bonus.n].ad, dz[bonus.n].puan);
+  }
 }
 
 /** HUD düzenleyicide örnek değerler (oyun döngüsü bu sırada HUD'a yazmaz) */
