@@ -169,10 +169,22 @@ function veri(): IlerlemeVerisi {
   return V;
 }
 
+const degisimDinleyiciler: (() => void)[] = [];
+
 function kaydet() {
   const v = veri();
   v.updatedAt = Date.now();
   yazJson(ANAHTAR, v);
+  for (const fn of degisimDinleyiciler.slice()) fn();
+}
+
+/** ilerleme kaydı her değişince (XP, yıldız, para, alım, bulut) çağrılır; bulut eşitlemesi için. Bırakan fonksiyon döner */
+export function degisimDinle(fn: () => void) {
+  degisimDinleyiciler.push(fn);
+  return () => {
+    const i = degisimDinleyiciler.indexOf(fn);
+    if (i >= 0) degisimDinleyiciler.splice(i, 1);
+  };
 }
 
 /**

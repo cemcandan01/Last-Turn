@@ -30,6 +30,7 @@
     "node": ">=22.12"
   },
   "dependencies": {
+    "firebase": "^13.1.0",
     "three": "^0.186.1"
   },
   "devDependencies": {
