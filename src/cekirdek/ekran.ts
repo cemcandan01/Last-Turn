@@ -15,6 +15,10 @@ export const ekran = {
   ah: typeof innerHeight == "number" ? innerHeight : 390,
 };
 
+/** garaj bilgi panelinin ölçeği (stil.css → --gs) */
+export const garajOlcek = (): number =>
+  Math.round(Math.min(1.45, Math.max(0.8, Math.min(ekran.ah / 390, ekran.aw / 844))) * 100) / 100;
+
 let app: HTMLElement;
 let probe: HTMLElement;
 
@@ -87,6 +91,8 @@ export function layout() {
   ["--sat", "--sar", "--sab", "--sal"].forEach((k, i) => st.setProperty(k, e[m[i]] + "px"));
   st.setProperty("--aw", ekran.aw + "px");
   st.setProperty("--ah", ekran.ah + "px");
+  // garaj paneli ölçeği: iPhone 13 (844x390) = 1; küçük ekranda 0,8'e kadar, büyükte 1,45'e kadar
+  st.setProperty("--gs", String(garajOlcek()));
 }
 
 /** ekran koordinatını içerik koordinatına çevirir */
