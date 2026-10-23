@@ -16,14 +16,16 @@ import { girdiSifirla } from "./girdi";
 import { applyPreset, kurulum, kurulumKaydet, kurulumYukle, type KurulumKaydi } from "./kurulum";
 import { PROF, saveProf } from "./profil";
 import { reset, sim } from "./surus";
+import { driftAdimi, driftBankala, tersAdimi } from "./yaris-kurallari";
+import { DRIFT_TUR, TUR_ANAHTARI, yildizEsikleri, yildizKaydet, yildizSay } from "./yildiz";
 
 /** yarış türleri: hedef süre, pist uzunluğundan ve ilk pistlerin ayarlı hızından (v, m/s) hesaplanır */
 export const TYP: Record<
   YarisTuru,
-  { k: string; pk: OnayarAnahtari; laps?: number; time?: number; v?: number; n: string; d: string }
+  { k: string; pk: OnayarAnahtari; laps?: number; v?: number; n: string; d: string }
 > = {
   gp: {
-    k: "asphalt",
+    k: TUR_ANAHTARI.gp,
     pk: "ar",
     laps: 3,
     v: 35.3,
@@ -31,7 +33,7 @@ export const TYP: Record<
     d: "3 tur. Fren tabelalarını kullan, hedef süreyi geç.",
   },
   rx: {
-    k: "dirt",
+    k: TUR_ANAHTARI.rx,
     pk: "tr",
     laps: 3,
     v: 28.5,
@@ -39,21 +41,23 @@ export const TYP: Record<
     d: "3 tur, asfalt ve toprak karışık: çamur, su ve rampalar. Hedef süreyi geç.",
   },
   dp: {
-    k: "drift",
+    k: TUR_ANAHTARI.dp,
     pk: "dr",
-    time: 90,
+    laps: DRIFT_TUR,
     n: "Drift yarışmaları",
-    d: "90 saniye puan topla. Drift uzadıkça çarpan x5’e çıkar; çime çıkmak, çarpmak ya da spin komboyu yakar. Drift ayarları otomatik gelir.",
+    d:
+      DRIFT_TUR +
+      " turda hedef puanları topla. Drift uzadıkça çarpan x5’e çıkar; çime çıkmak, çarpmak ya da spin komboyu yakar. Drift ayarları otomatik gelir.",
   },
   rl: {
-    k: "rally",
+    k: TUR_ANAHTARI.rl,
     pk: "rl",
     v: 12.2,
     n: "Ralli etapları",
     d: "Orman yolunda A’dan B’ye. Hedef süreyi geç.",
   },
   dg: {
-    k: "drag",
+    k: TUR_ANAHTARI.dg,
     pk: "dg",
     n: "Drag yarışları",
     d: "Düz çizgide en kısa süre. Işıklar yeşile dönünce gaz. Kalkışta patinajı iyi ayarla.",
@@ -72,10 +76,10 @@ export interface YarisTanimi {
   reg: number;
   pk: OnayarAnahtari;
   laps?: number;
-  /** drift yarışı süresi */
-  time?: number;
-  /** hedef süre (sn); drift yarışında hedef puan */
+  /** hedef süre (sn); drift yarışında hedef puan (1★) */
   limit: number;
+  /** yıldız eşikleri [1★, 2★, 3★]: süre ya da drift puanı */
+  ys: number[];
   /** başlangıç noktası */
   g: Tele;
 }
@@ -100,7 +104,11 @@ export interface Yaris extends YarisTanimi {
   lapStart: number;
   bestLap: number | null;
   prev: number;
-  time: number;
+  /** ters sürüş (hud "Geri dön" gösterir) ve histerezis sayacı */
+  ters: boolean;
+  tersT: number;
+  /** bitişte alınan yıldız (0-3) */
+  yildiz: number;
   /** drag bitiş hızı */
   trap?: number;
 }
@@ -119,7 +127,7 @@ export const EVENTS: YarisTanimi[] = REG.filter((r) => r.t != "park").map((r, i)
     reg: i,
     pk: y.pk,
     laps: y.laps,
-    time: y.time,
+    ys: yildizEsikleri(ty, r.lv!),
     limit: ty == "dp" ? r.hp || 0 : r.tg || (y.v ? Math.round((TR.len * (y.laps || 1)) / y.v / 5) * 5 : 0),
     g: tp(TR, r.n, ty == "dg" ? 1 : TR.open ? 4 : TR.N, TR.open ? 0 : 6),
   };
@@ -166,7 +174,9 @@ export function startEvent(i: number, ci?: number) {
     lapStart: 0,
     bestLap: null,
     prev: ipucu.ti,
-    time: e.time || 0,
+    ters: false,
+    tersT: 0,
+    yildiz: 0,
     limit: e.limit || 0,
   };
 }
@@ -184,16 +194,8 @@ export function leaveEvent() {
 
 /** drift komboyu puana çevir */
 function bank(EV: Yaris) {
-  const p = Math.round(EV.combo * EV.mult);
-  if (p > 0) {
-    EV.score += p;
-    EV.best = Math.max(EV.best, p);
-    note("+" + p, 40);
-  }
-  EV.combo = 0;
-  EV.ct = 0;
-  EV.mult = 1;
-  EV.gap = 0;
+  const p = driftBankala(EV);
+  if (p > 0) note("+" + p, 40);
 }
 
 /** yarış mantığı: her fizik adımından sonra */
@@ -204,30 +206,14 @@ export function evTick(dt: number, o: AdimSonucu) {
     D = sim.d.D,
     ti = ipucu.ti;
   EV.t += dt;
+  const T = EV.TR.T[ti],
+    geri = tersAdimi(EV, S.vx, S.vz, T[0], T[1], dt);
   if (EV.ty == "dp") {
-    EV.time -= dt;
-    const lost = o.si == 2 || sim.d.zaman - S.hit < 0.05 || Math.abs(D.beta) > 1.4;
-    if (EV.combo > 0 && lost) {
-      EV.combo = 0;
-      EV.ct = 0;
-      EV.mult = 1;
-      note("KOMBO YANDI", 30);
-    } else if (D.act && !lost) {
-      EV.combo += o.v * Math.abs(D.beta) * dt * 3;
-      EV.ct += dt;
-      EV.gap = 0;
-      const m = Math.min(5, 1 + Math.floor(EV.ct / 2.5));
-      if (m > EV.mult) note("x" + m, 44);
-      EV.mult = m;
-    } else if (EV.combo > 0) {
-      EV.gap += dt;
-      if (EV.gap > 0.8) bank(EV);
-    }
-    if (EV.time <= 0) {
-      bank(EV);
-      endEvent();
-    }
-    return;
+    const lost = o.si == 2 || sim.d.zaman - S.hit < 0.05 || Math.abs(D.beta) > 1.4,
+      r = driftAdimi(EV, !!D.act, D.beta, lost, o.v, EV.ters || geri, dt);
+    if (r.olay == "yandi") note("KOMBO YANDI", 30);
+    else if (r.olay == "carpan") note("x" + EV.mult, 44);
+    else if (r.olay == "bank" && r.p > 0) note("+" + r.p, 40);
   }
   const N = EV.TR.N;
   if (EV.laps) {
@@ -238,8 +224,10 @@ export function evTick(dt: number, o: AdimSonucu) {
       const lt = EV.t - EV.lapStart;
       EV.lapStart = EV.t;
       EV.bestLap = EV.bestLap == null ? lt : Math.min(EV.bestLap, lt);
-      if (EV.lap >= EV.laps) endEvent();
-      else note("Tur " + (EV.lap + 1) + "/" + EV.laps + " · " + fmt(lt), 30);
+      if (EV.lap >= EV.laps) {
+        if (EV.ty == "dp") bank(EV);
+        endEvent();
+      } else note("Tur " + (EV.lap + 1) + "/" + EV.laps + " · " + fmt(lt), 30);
     }
     EV.prev = ti;
   } else {
@@ -251,13 +239,14 @@ export function evTick(dt: number, o: AdimSonucu) {
   }
 }
 
-/** HUD'daki yarış satırı */
-/** yarış bitti: profil, rekor, sonuç ekranı */
+/** yarış bitti: profil, yıldız, rekor, sonuç ekranı */
 export function endEvent() {
   const EV = yaris.EV!;
   EV.state = "done";
   oyun.mode = "result";
   PROF.races++;
+  EV.yildiz = yildizSay(EV.ty, EV.ty == "dp" ? EV.score : EV.t, EV.ys);
+  yildizKaydet(EV.ty, EV.lv, EV.yildiz);
   if (EV.ty == "dp" ? EV.score > 0 && EV.score >= EV.limit : EV.t <= EV.limit) PROF.wins++;
   saveProf();
   girdiSifirla();

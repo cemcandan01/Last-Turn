@@ -6,6 +6,7 @@ import { ad, cl } from "../../src/cekirdek/matematik";
 import { ipucu, type Pist } from "../../src/dunya/pist";
 import type { AracDurumu, FizikGirdisi, SimDurumu } from "../../src/fizik/tipler";
 import type { SeviyeAnahtari } from "../../src/fizik/veriler";
+import { driftAdimi, driftBankala, type DriftSayaci } from "../../src/oyun/yaris-kurallari";
 import { surucuKur } from "./surucu";
 
 const DT = 1 / 60;
@@ -138,37 +139,25 @@ export class KomboSayaci {
   }
 }
 
-/** drift yarışının puanı (oyundaki evTick ile aynı): kombo × çarpan, 0,8 sn drift yoksa bankaya */
+/** drift yarışının puanı (oyundaki evTick ile aynı kural: oyun/yaris-kurallari.ts) */
 export class PuanSayaci {
-  puan = 0;
-  private combo = 0;
-  private ct = 0;
-  private mult = 1;
-  private gap = 0;
-  adim(d: SimDurumu, si: number, v: number, dt: number) {
+  private E: DriftSayaci = { score: 0, combo: 0, ct: 0, mult: 1, gap: 0, best: 0 };
+  get puan() {
+    return this.E.score;
+  }
+  adim(d: SimDurumu, si: number, v: number, dt: number, ters = false) {
     const lost = si == 2 || d.zaman - d.S.hit < 0.05 || Math.abs(d.D.beta) > 1.4;
-    if (this.combo > 0 && lost) this.sifirla();
-    else if (d.D.act && !lost) {
-      this.combo += v * Math.abs(d.D.beta) * dt * 3;
-      this.ct += dt;
-      this.gap = 0;
-      this.mult = Math.min(5, 1 + Math.floor(this.ct / 2.5));
-    } else if (this.combo > 0) {
-      this.gap += dt;
-      if (this.gap > 0.8) this.bankala();
-    }
+    driftAdimi(this.E, !!d.D.act, d.D.beta, lost, v, ters, dt);
   }
   bankala() {
-    this.puan += Math.round(this.combo * this.mult);
-    this.sifirla();
-  }
-  private sifirla() {
-    this.combo = this.ct = this.gap = 0;
-    this.mult = 1;
+    driftBankala(this.E);
   }
 }
 
-/** drift yarışını pilotla sür (varsayılan Beyaz Kurt; her araç kendi önayarıyla): en uzun kombo, yanma, spin */
+/**
+ * drift yarışını pilotla sür (varsayılan Beyaz Kurt; her araç kendi önayarıyla): en uzun kombo, yanma, spin.
+ * tur verilirse oyundaki gibi o kadar tur bitince durur (sn üst sınır olur); tur süresi `sure`
+ */
 export function driftTuru(
   yaris: number,
   lk: SeviyeAnahtari,
@@ -176,6 +165,7 @@ export function driftTuru(
   sn = 150,
   iz = false,
   arac = 2,
+  tur = 0,
 ) {
   const s = surucuKur({ yaris, arac, lk });
   const TR = s.bolge!.TR!,
@@ -188,7 +178,10 @@ export function driftTuru(
     S = s.sim.S;
   let yol = 0,
     onceki = ipucu.ti,
-    cim = 0;
+    cim = 0,
+    armed = 0,
+    biten = 0,
+    sure = sn;
   for (let k = 0; k < sn / DT; k++) {
     const gi = pl(S);
     const o = s.adim(gi);
@@ -197,8 +190,20 @@ export function driftTuru(
     let ds = TR.S[ipucu.ti] - TR.S[onceki];
     if (ds < -TR.len / 2) ds += TR.len;
     yol += ds;
-    onceki = ipucu.ti;
     if (o.si == 2) cim += DT;
+    if (tur) {
+      const N = TR.N,
+        ti = ipucu.ti;
+      if (ti > N * 0.4 && ti < N * 0.6) armed = 1;
+      if (armed && onceki > N * 0.8 && ti < N * 0.2) {
+        armed = 0;
+        if (++biten >= tur) {
+          sure = (k + 1) * DT;
+          break;
+        }
+      }
+    }
+    onceki = ipucu.ti;
     if (iz && k % 30 == 0)
       console.log(
         `t ${(k * DT).toFixed(1)} s ${TR.S[ipucu.ti].toFixed(0)} v ${(o.v * 3.6).toFixed(0)} beta ${(s.sim.d.D.beta * 57.3).toFixed(0)} DR ${s.sim.d.DR.on} act ${s.sim.d.D.act} tg ${gi.tg.toFixed(2)} g ${gi.g.toFixed(2)} kombo ${ks.yol.toFixed(0)} si ${o.si}`,
@@ -215,5 +220,7 @@ export function driftTuru(
     yol,
     cim,
     len: TR.len,
+    sure,
+    tur: biten,
   };
 }

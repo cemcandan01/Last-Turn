@@ -5,6 +5,7 @@ import { REG } from "../../src/dunya/bolgeler";
 import { pistParcalari } from "../../src/dunya/pist-ciz";
 import { KW } from "../../src/dunya/pist";
 import { SEVIYELER, TDEF } from "../../src/dunya/pist-tanimlari";
+import { yildizEsikleri } from "../../src/oyun/yildiz";
 import { EVENTS_HEDEF } from "../yardimci/hedefler";
 
 const TURLER = ["gp", "rx", "dp", "rl", "dg"] as const;
@@ -74,5 +75,15 @@ describe("pist düzeni", () => {
         expect(d.tg, `${d.n}: hedef süre`).toBeGreaterThan(0);
         expect(h.limit, d.n).toBe(d.tg);
       }
+  });
+
+  it("her yarışın ölçülmüş yıldız eşikleri var ve sıralı (npm run olcum -- pistler, -- drift-puan)", () => {
+    for (const d of TDEF) {
+      const e = yildizEsikleri(d.t, d.lv);
+      expect(e.length, `${d.n}: 3 eşik`).toBe(3);
+      // zamanlı yarışta 1★ > 2★ > 3★ süre, driftte 1★ < 2★ < 3★ puan
+      if (d.t == "dp") expect(e[0] < e[1] && e[1] < e[2], `${d.n}: ${e}`).toBe(true);
+      else expect(e[0] > e[1] && e[1] > e[2], `${d.n}: ${e}`).toBe(true);
+    }
   });
 });
