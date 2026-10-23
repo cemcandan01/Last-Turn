@@ -20,7 +20,7 @@ const BOLUMLER = [
   "garaj-ses",
   "dokunma",
   "gecis",
-  "arka-video",
+  "arka-gorsel",
   "seviyeler",
   "kapak",
   "surus",
@@ -29,6 +29,8 @@ const BOLUMLER = [
   "hud-cakisma",
   "hud-duzenleyici",
   "kokpit",
+  "cok-arac",
+  "ekran-yon",
 ];
 
 const KOK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.."),

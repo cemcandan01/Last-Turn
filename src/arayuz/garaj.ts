@@ -8,9 +8,9 @@ import { garG } from "../cizim/garaj-sahnesi";
 import { ground } from "../cizim/zemin";
 import { REG } from "../dunya/bolgeler";
 import { dunya, WORLDS } from "../dunya/dunya";
-import { PRESETS } from "../fizik/veriler";
 import { carIndex, oyun, setCar } from "../oyun/durum";
-import { kamera } from "../cizim/kamera";
+import { kamera, garajKameraSifirla } from "../cizim/kamera";
+import { sun } from "../cizim/sahne";
 import { applyPreset, kurulum } from "../oyun/kurulum";
 import { EVENTS, startEvent } from "../oyun/yarislar";
 import { showMenu, startWorld } from "./menu";
@@ -45,11 +45,23 @@ function sesButonu() {
 function dinleBagla() {
   if (dinleBagli) return;
   dinleBagli = true;
+  document.addEventListener("lt:garaj-dokunus", gorunum);
   document.addEventListener("lt:motor-dinle-bitti", (e) => {
     const a = (e as CustomEvent<{ arac: number }>).detail?.arac;
     if (DINLE && (a == null || a == DINLE.arac)) DINLE = null;
     sesButonu();
   });
+}
+
+/** vitrin tuşları: tam ekran düğmesi hep; tam ekranda dokunup bırakınca seç/geri tuşları çıkar, sürükleyince kaybolur; tam ekranda bilgi paneli gizlenir */
+function gorunum() {
+  if (!GAR) return;
+  const v = $("#gvit");
+  v.classList.toggle("tam", kamera.gTam);
+  v.classList.toggle("dur", kamera.gBtn);
+  $("#gar").style.display = kamera.gTam ? "none" : "";
+  const t = $("#gvtam");
+  t.style.display = kamera.gTam ? "none" : "";
 }
 
 /** garajı aç: yarıştan önce (ev), serbest sürüşten önce (w) ya da menüden (ikisi de null) */
@@ -59,19 +71,22 @@ export function openGarage(ev: number | null, w: number | null = null) {
   GAR = { ev, w, prev, rec, i: rec >= 0 ? rec : prev };
   dinleBagla();
   oyun.mode = "garage";
-  kamera.ly = 0;
+  garajKameraSifirla();
   gizle("#menu", "#hud", "#mm", "#ctl", "#set", "#res");
   if (dunya.g) dunya.g.visible = false;
   for (const q of REG) if (q.g) q.g.visible = false;
   ground.visible = false;
   garG.visible = true;
+  sun.visible = false;
   showGar();
 }
 
 export function closeGarage() {
   DINLE = null;
   garG.visible = false;
-  gizle("#gar");
+  sun.visible = true;
+  gizle("#gar", "#gvit");
+  $("#gar").style.display = "";
   GAR = null;
 }
 
@@ -81,16 +96,36 @@ function showGar() {
   if (oyun.CAR !== c) setCar(G.i);
   const g = $("#gar");
   g.classList.remove("hidden");
-  g.innerHTML = `<div class="gh"><button class="ga" id="gpv">◀</button><div style="flex:1;text-align:center"><h1>${c.n}</h1><span class="bdg">${c.ic} ${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}<br><button class="gses" id="gses"></button></div><button class="ga" id="gnx">▶</button></div>
-<div class="gl">${CARS.map((q, k) => `<div class="gc ${k == G.i ? "sel" : ""}" data-gi="${k}"><b>${q.ic}</b>${q.n}</div>`).join("")}</div>
-<p>${c.d}</p>${STAT(c)
-    .map(
-      ([n, f, t]) =>
-        `<div class="st"><span>${n}</span><i><u style="width:${Math.round(cl(f, 0.05, 1) * 100)}%"></u></i><em>${t}</em></div>`,
-    )
-    .join("")}
-<p style="font-size:14px;margin-top:8px">${c.hp} hp · ${c.kg} kg · ${c.awd ? "Dört çeker" : "Arkadan itiş"} · Önayar: ${PRESETS[c.pk].n}</p>
-<button class="btn" id="gok">${G.ev != null ? "Bu araçla yarış: " + EVENTS[G.ev].n : G.w != null ? "Bu araçla sür: " + WORLDS[G.w].n : "Bu aracı kullan"}</button><button class="btn alt" id="gbk">Geri</button>`;
+  // ana menüden açılan garajda araç seçilmez (yalnız bakılır)
+  const sec = G.ev != null ? "Yarış: " + EVENTS[G.ev].n : G.w != null ? "Sür: " + WORLDS[G.w].n : "";
+  const stat = STAT(c).filter(([n]) => ["Azami hız", "Hızlanma", "Yol tutuşu", "Arazi"].includes(n));
+  g.innerHTML = `<div class="gh"><button class="ga" id="gpv">◀</button><div style="flex:1;text-align:center"><h1>${c.n}</h1><span class="bdg">${c.ic} ${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}<button class="gses" id="gses"></button></div><button class="ga" id="gnx">▶</button></div>
+${stat
+  .map(
+    ([n, f, t]) =>
+      `<div class="st"><span>${n}</span><i><u style="width:${Math.round(cl(f, 0.05, 1) * 100)}%"></u></i><em>${t}</em></div>`,
+  )
+  .join("")}
+<p class="gozet">${c.hp} hp · ${c.kg} kg · ${c.awd ? "Dört çeker" : "Arkadan itiş"}</p>
+<div class="gbt"><button class="btn alt" id="gbk">Geri</button>${sec ? `<button class="btn" id="gok">${sec}</button>` : ""}</div>`;
+  const v = $("#gvit");
+  v.classList.remove("hidden");
+  v.innerHTML = `<button class="gvar" id="gvpv">◀</button><button class="gvar sag" id="gvnx">▶</button>${sec ? `<button class="btn" id="gvok">${sec}</button>` : ""}<button class="btn alt" id="gvbk">Geri</button><button class="gvtam" id="gvtam">⛶</button>`;
+  if (sec) $("#gvok").onclick = () => $("#gok").click();
+  // tam ekranda Geri: tam ekrandan çıkıp bilgi paneline döner
+  $("#gvbk").onclick = () => {
+    kamera.gTam = false;
+    kamera.gBtn = false;
+    gorunum();
+  };
+  $("#gvpv").onclick = () => go(G.i - 1);
+  $("#gvnx").onclick = () => go(G.i + 1);
+  $("#gvtam").onclick = () => {
+    kamera.gTam = !kamera.gTam;
+    kamera.gBtn = false;
+    gorunum();
+  };
+  gorunum();
   const go = (k: number) => {
     G.i = (k + CARS.length) % CARS.length;
     showGar();
@@ -109,24 +144,24 @@ function showGar() {
   };
   $("#gpv").onclick = () => go(G.i - 1);
   $("#gnx").onclick = () => go(G.i + 1);
-  g.querySelectorAll<HTMLElement>(".gc").forEach((e) => (e.onclick = () => go(+e.dataset.gi!)));
   $("#gbk").onclick = () => {
     setCar(G.prev);
     closeGarage();
     showMenu(G.w != null ? ["free"] : undefined);
   };
-  $("#gok").onclick = () => {
-    const { ev, w, i, prev } = G;
-    closeGarage();
-    if (ev != null) {
-      setCar(prev);
-      startEvent(ev, i);
-      return;
-    }
-    // serbest sürüş: aracın önayarıyla başlar (önayar sonra duraklatma menüsünden değiştirilebilir)
-    kurulum.pk = oyun.CAR.pk;
-    applyPreset();
-    if (w != null) startWorld(w);
-    else showMenu();
-  };
+  if (sec)
+    $("#gok").onclick = () => {
+      const { ev, w, i, prev } = G;
+      closeGarage();
+      if (ev != null) {
+        setCar(prev);
+        startEvent(ev, i);
+        return;
+      }
+      // serbest sürüş: aracın önayarıyla başlar (önayar sonra duraklatma menüsünden değiştirilebilir)
+      kurulum.pk = oyun.CAR.pk;
+      applyPreset();
+      if (w != null) startWorld(w);
+      else showMenu();
+    };
 }

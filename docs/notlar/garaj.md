@@ -1,0 +1,13 @@
+# garaj dalı notu
+- Garaj paneli (yatay 844x390) kaydırmasız: ad/tür/önerilen, araç şeridi, 4 temel değer (azami hız, hızlanma, yol tutuşu, arazi), hp·kg·çeker satırı, altta sabit Geri + Seç butonları. Fren/çeviklik/güç çubukları ve önayar kaldırıldı (gereksiz).
+- Kokpit kamerası: kameraya 5 m içindeki parçacıklar kokpitte çizilmez (`cizim/parcaciklar.ts`); dış kamera aynı.
+- Test: `tests/e2e/bolumler/garaj.mjs` bütün araçlarda kaydırma yok + butonlar ekranda.
+- 0.3.4: showcase panel dışındaki boşluğa ortalı (kameraya setViewOffset, `dongu.ts`); anahtar ışık gölgeli (512 harita) + soğuk dolgu + turuncu arka ışık + zemin gölge lekesi (`garaj-sahnesi.ts`); garajda güneş kapalı. Panel sağ boşluğu 22 px.
+- Sürükleme: garajda araç parmakla aynı yöne döner (`kamera.ts`, yarışta bakış yönü eskisi gibi). Testte doğrulanır.
+- 0.3.5: panel 470 px (araç adları sıkışmaz, kaydırma yok), sağ boşluk 12 px. Garaj kamerası: sürükle = döndür + dikey eğim (0.03–1.3 rad, 90° olmaz), iki parmak/tekerlek = zoom, kısa dokunuş = kendiliğinden dönmeyi durdur/başlat. Dönme açısı tek yerde (`kamera.ly`, `garajKameraTick`): eski `tt*0.3 + ly` kaynaklı geri sıçrama bitti.
+- 0.3.6: panel 410 px (vitrin büyüdü). Sürükleyince açı eski yerine dönüyordu: dongu.ts takip kamerasının "bir süre sonra arkaya dön" sönümü garajda da çalışıyordu, garajda kapatıldı. Vitrin sağ altında tam ekran düğmesi; dokununca dönme durur ve seç/geri tuşları çıkar (garaj.ts `#gvit`), aynı yapı yarış, serbest sürüş ve menü garajında.
+- 0.3.7: seç/geri tuşları yalnız tam ekranda dokunup bırakınca çıkar, tekrar sürüklemeye başlayınca kaybolur (`kamera.gBtn`).
+- Açık: yok.
+- 0.3.8: zoom yönü düzeldi (iki parmak açılınca yakınlaşır; `kamera.gz` = taban/parmak mesafesi; tekerlekte yukarı = yakın zaten böyleydi). Bırakma ivmesi: son 100 ms parmak hızı (`gV`, yön `gYon`) 0,8 sn'de kendi hızı 0,3 rad/sn'ye söner, ters yöne kaymaz. Durmuş dönme, sürükleyip bırakınca yeniden başlar; kısa dokunuş durdurur, seç/geri davranışı aynı.
+- Garajda yağış/kar noktaları (havada beyaz kare noktalar) çizilmez: `precipTick(dt, tt, gizle)` garaj modunda `precip`i gizler (`ortam.ts`, `dongu.ts`); sürüşteki yağış aynı. Testte doğrulanır.
+- 0.3.11: vitrin küçükken dokunmak dönmeyi durdurmaz (dokun-durdur yalnız tam ekranda). Bilgi panelindeki araç şeridi kalktı. Tam ekranda kenarlarda ◀ ▶ (`#gvpv/#gvnx`); tam ekranda X yok, "Geri" tam ekrandan çıkıp panele döner; ⛶ panel görünürken kalır. Menü garajında (ev, w null) seçme düğmeleri yok, yalnız Geri.

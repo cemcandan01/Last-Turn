@@ -2,6 +2,9 @@
 import { okuJson, yazJson } from "../cekirdek/depo";
 import type { SeviyeAnahtari } from "../fizik/veriler";
 
+/** deneme sürümü ya da geliştirme sunucusu: geliştirici ayarları görünür */
+export const GELISTIRICI = import.meta.env.MODE == "gelistirme" || import.meta.env.DEV;
+
 export const set = {
   /** hıza duyarlı direksiyon */
   ss: 1,
@@ -24,6 +27,8 @@ export const set = {
   /** ses seviyeleri (0-100): oyun sesleri ve menü müziği */
   ses: 85,
   muz: 70,
+  /** geliştirici: yerel aracı gecikmeli izleyen hayalet uzak araç (yalnız deneme sürümünde) */
+  hayalet: 0,
 };
 
 export type DireksiyonModu = "btn" | "wheel" | "tilt";
@@ -87,6 +92,9 @@ export const TOG: [keyof typeof set, string, string][] = [
   ["shd", "Gölgeler", "Kapatmak eski telefonlarda akıcılığı artırır"],
   ["shk", "Hız sarsıntısı", "Yüksek hızda kamera hafif titrer"],
   ["perf", "Performans göstergesi", "Ekranın üstünde kare hızı, kare süresi ve çizim sayısı"],
+  ...((GELISTIRICI
+    ? [["hayalet", "Hayalet araç (geliştirici)", "Uzak araç denemesi: aracın 2 sn geriden izler"]]
+    : []) as [keyof typeof set, string, string][]),
 ];
 
 interface AyarKaydi {

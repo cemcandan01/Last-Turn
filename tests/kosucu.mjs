@@ -1,6 +1,6 @@
 // Test koşucusu: tests/senaryolar/<dal>.mjs dosyalarındaki senaryoları önem sırasıyla koşar ve dal dal raporlar.
 //   node tests/kosucu.mjs duman                 hızlı tur: duman: true senaryolar (~30 sn)
-//   node tests/kosucu.mjs alan fizik[,hud]      duman + bu dalların bütün senaryoları (yayın öncesi)
+//   node tests/kosucu.mjs alan fizik[,hud]      yalnız bu dalların bütün senaryoları (konu sohbeti, denemeye göndermeden önce)
 //   node tests/kosucu.mjs regresyon [--sure 55] bütün dallar, P1 → P2 → P3, süre (dk) dolunca durur
 //   node tests/kosucu.mjs liste                 senaryo listesi, kayıtsız testler
 // Ek seçenekler: --adres https://…/ (tarayıcı senaryoları canlı adreste, derlemesiz), --derlemeden (dist/ hazır),
@@ -68,12 +68,12 @@ if (kip == "alan" && !dallar.length) {
   process.exit(2);
 }
 const secili = SENARYOLAR.filter((s) =>
-  kip == "duman" ? s.duman : kip == "alan" ? s.duman || dallar.includes(s.dal) : true,
+  kip == "duman" ? s.duman : kip == "alan" ? dallar.includes(s.dal) : true,
 ).sort((a, b) => a.p - b.p);
 if (kip == "alan")
   for (const d of dallar)
     if (!SENARYOLAR.some((s) => s.dal == d))
-      console.log(`(${d} dalının kayıtlı senaryosu yok: yalnız duman koşar)`);
+      console.log(`(${d} dalının kayıtlı senaryosu yok: koşacak bir şey yok)`);
 
 const kos = (komut, argv) => {
   const r = spawnSync(komut, argv, { cwd: KOK, stdio: "inherit", shell: process.platform == "win32" });

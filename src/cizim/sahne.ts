@@ -36,9 +36,21 @@ export function rendererKur(canvas: HTMLCanvasElement) {
   R.shadowMap.enabled = true;
   R.shadowMap.type = THREE.PCFShadowMap;
   R.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  // iOS ana ekran uygulaması ölçüyü gecikmeli oturtur (açılışta sağda/altta boşluk, dönmede titreme):
+  // her olayda hemen ve birkaç kare/ms sonra yeniden ölçülür
+  const olc = () => {
+    rs();
+    requestAnimationFrame(() => requestAnimationFrame(rs));
+    [100, 300, 700, 1500].forEach((ms) => setTimeout(rs, ms));
+  };
   addEventListener("resize", rs);
-  addEventListener("orientationchange", () => setTimeout(rs, 250));
-  rs();
+  addEventListener("orientationchange", olc);
+  addEventListener("pageshow", olc);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) olc();
+  });
+  window.visualViewport?.addEventListener("resize", rs);
+  olc();
 }
 
 /** ekran boyutu değişince (dönme dahil) */

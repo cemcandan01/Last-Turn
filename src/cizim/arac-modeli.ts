@@ -31,6 +31,70 @@ function decal(t: string, w: number, h: number, fg?: string) {
   );
 }
 
+/** profilin y yüksekliğinde en öndeki (on) ya da en arkadaki noktası: z ve yüzeyin eğimi (dz/dy) */
+function uc(d: Arac, y: number, on: boolean) {
+  let z = on ? -Infinity : Infinity,
+    s = 0;
+  for (let i = 0; i < d.p.length; i++) {
+    const a = d.p[i],
+      b = d.p[(i + 1) % d.p.length];
+    if ((a[1] - y) * (b[1] - y) > 0 || a[1] === b[1]) continue;
+    const t = (y - a[1]) / (b[1] - a[1]),
+      q = a[0] + (b[0] - a[0]) * t;
+    if (on ? q > z : q < z) {
+      z = q;
+      s = (b[0] - a[0]) / (b[1] - a[1]);
+    }
+  }
+  return { z, s };
+}
+
+/** profilin z konumundaki üst yüzeyi (en yüksek y) */
+function ust(d: Arac, z: number) {
+  let y = -Infinity;
+  for (let i = 0; i < d.p.length; i++) {
+    const a = d.p[i],
+      b = d.p[(i + 1) % d.p.length];
+    if ((a[0] - z) * (b[0] - z) > 0 || a[0] === b[0]) continue;
+    y = Math.max(y, a[1] + ((b[1] - a[1]) * (z - a[0])) / (b[0] - a[0]));
+  }
+  return y;
+}
+
+/** gövde yüzeyine yaslı ön ya da arka şerit/tampon: genişliği o yükseklikteki gövdeyle uyumlu, en fazla taş kadar çıkık */
+function tampon(
+  g: THREE.Group,
+  d: Arac,
+  y: number,
+  on: boolean,
+  h: number,
+  dep: number,
+  tas: number,
+  ek: number,
+  m: THREE.Material,
+) {
+  const { z, s } = uc(d, y, on),
+    w = 2 * yariGenislik(d, y, z) + ek;
+  const q = bx(w, h, dep, 0, y, z + (on ? 1 : -1) * (tas - dep / 2), m);
+  q.rotation.x = Math.atan(s) * 0.5;
+  g.add(q);
+}
+
+/** kaputa/çatıya yatan şerit: profilin üst yüzeyini izler (havada kalmaz) */
+function serit(g: THREE.Group, d: Arac, x: number, w: number, z0: number, z1: number, m: THREE.Material) {
+  const n = Math.max(2, Math.ceil(Math.abs(z1 - z0) / 0.12));
+  for (let i = 0; i < n; i++) {
+    const za = z0 + ((z1 - z0) * i) / n,
+      zb = z0 + ((z1 - z0) * (i + 1)) / n,
+      ya = ust(d, za),
+      yb = ust(d, zb),
+      l = Math.hypot(zb - za, yb - ya) + 0.01,
+      q = bx(w, 0.02, l, x, (ya + yb) / 2 + 0.004, (za + zb) / 2, m);
+    q.rotation.x = -Math.atan2(yb - ya, zb - za);
+    g.add(q);
+  }
+}
+
 /** iki yanda yarış numarası */
 function numbers(g: THREE.Group, t: string, w: number, z: number, y: number, s: number, fg: string) {
   for (const sd of [-1, 1]) {
@@ -102,11 +166,19 @@ function body0(d: Arac) {
     g.add(
       bx(0.05, 0.09, eb, sd * (hw(ya + 0.05, 0) + 0.01), ya + 0.05, (on.z - on.R + ar.z + ar.R) / 2, blackM),
     );
-  const zf = Math.max(...d.p.map((p) => p[0])),
-    zr = Math.min(...d.p.map((p) => p[0]));
+  // farlar ve stoplar: gövdenin o yükseklikteki yüzeyine gömülü, yüzeyin eğimiyle aynı yatık (küp gibi çıkık durmaz)
   for (const sd of [-1, 1]) {
-    if (!d.rhl) g.add(bx(0.36, 0.12, 0.06, sd * (w / 2 - 0.28), d.hl, zf + 0.02, lightM));
-    g.add(bx(0.34, 0.12, 0.06, sd * (w / 2 - 0.26), d.tl, zr - 0.02, tailM));
+    for (const [y, on, bw, c] of [
+      [d.hl, true, 0.36, lightM],
+      [d.tl, false, 0.34, tailM],
+    ] as [number, boolean, number, THREE.Material][]) {
+      if (on && d.rhl) continue;
+      const { z, s } = uc(d, y, on),
+        x = Math.min(w / 2 - 0.28, yariGenislik(d, y, z) - bw / 2 - 0.06),
+        q = bx(bw, 0.12, 0.08, sd * x, y, z + (on ? -0.025 : 0.025), c);
+      q.rotation.x = Math.atan(s);
+      g.add(q);
+    }
   }
   // yan aynalar: ön camın dibinde, kapının dışında; yüzleri arka görüntünün kendi yanını gösterir
   const [az, ay] = d.ws[0];
@@ -127,8 +199,12 @@ function body0(d: Arac) {
 
 /** araca özel ek parçalar */
 const EK: Record<string, (g: THREE.Group, d: Arac) => void> = {
-  gt: (g) => {
-    g.add(bx(1.72, 0.05, 0.2, 0, 0.98, -2.04, blackM, -0.15), bx(1.86, 0.06, 0.22, 0, 0.3, 2.12, blackM));
+  gt: (g, d) => {
+    // arka dudak kuyruğun üstüne yatar, ön ayırıcı burun altında gövde genişliğinde
+    const zr = -2.1,
+      yr = ust(d, zr) + 0.03;
+    g.add(bx(2 * yariGenislik(d, yr, zr) - 0.06, 0.05, 0.2, 0, yr, zr, blackM, -0.15));
+    tampon(g, d, 0.3, true, 0.06, 0.22, 0.05, -0.04, blackM);
   },
   rx: (g, d) => {
     const r = lam(0x15171a);
@@ -136,8 +212,11 @@ const EK: Record<string, (g: THREE.Group, d: Arac) => void> = {
       bx(1.74, 0.06, 0.46, 0, 1.58, -1.78, r, 0.2),
       bx(0.05, 0.32, 0.5, -0.85, 1.48, -1.76, r),
       bx(0.05, 0.32, 0.5, 0.85, 1.48, -1.76, r),
-      bx(1.96, 0.05, 0.3, 0, 0.3, 2.06, r),
     );
+    // kanat gövdeye iki ayakla bağlanır
+    const yz = ust(d, -1.78) - 0.05;
+    for (const sd of [-1, 1]) g.add(bx(0.06, 1.55 - yz, 0.16, sd * 0.45, (1.55 + yz) / 2, -1.78, r));
+    tampon(g, d, 0.3, true, 0.05, 0.3, 0.1, 0.1, r);
     numbers(g, "71", d.w, -0.05, 0.72, 1, "#ffffff");
   },
   dr: (g, d) => {
@@ -149,7 +228,7 @@ const EK: Record<string, (g: THREE.Group, d: Arac) => void> = {
       bx(0.06, 0.24, 0.5, -0.99, 1.52, -1.98, k),
       bx(0.06, 0.24, 0.5, 0.99, 1.52, -1.98, k),
     );
-    g.add(bx(2.04, 0.04, 0.4, 0, 0.2, 2.32, k));
+    tampon(g, d, 0.2, true, 0.04, 0.4, 0.12, 0.1, k);
     numbers(g, "23", d.w, 0.35, 0.6, 1.1, "#15171a");
   },
   rl: (g, d) => {
@@ -159,33 +238,38 @@ const EK: Record<string, (g: THREE.Group, d: Arac) => void> = {
       bx(1.62, 0.06, 0.36, 0, 1.34, -1.98, bmm, 0.1),
       bx(0.06, 0.34, 0.14, -0.6, 1.16, -1.98, k),
       bx(0.06, 0.34, 0.14, 0.6, 1.16, -1.98, k),
-      bx(0.5, 0.1, 0.5, 0, 0.95, 1.45, k),
     );
+    // kaput hava girişi kaputa gömülü
+    g.add(bx(0.5, 0.12, 0.5, 0, ust(d, 1.45) - 0.01, 1.45, k));
     for (const sd of [-1, 1])
-      for (const z of [1.36, -1.32]) g.add(bx(0.3, 0.36, 0.03, sd * 0.82, 0.42, z - 0.42, k));
+      for (const z of [1.36, -1.32])
+        g.add(bx(0.3, 0.36, 0.03, sd * (yariGenislik(d, 0.42, z - 0.42) + 0.005), 0.42, z - 0.42, k));
     numbers(g, "5", d.w, -0.4, 0.8, 1, "#ffffff");
   },
-  dg: (g) => {
+  dg: (g, d) => {
     const s = lam(0xc9ccd1),
       rd = lam(0xd8232a),
-      wt = lam(0xf2f2f2);
-    g.add(bx(0.56, 0.28, 0.72, 0, 1.07, 1.2, s));
+      wt = lam(0xf2f2f2),
+      yk = ust(d, 1.2) - 0.05;
+    // kompresör kaputa gömülü oturur, huniler üstünde
+    g.add(bx(0.56, 1.21 - yk, 0.72, 0, (1.21 + yk) / 2, 1.2, s));
     for (const x of [-0.19, 0, 0.19]) {
       const c = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.2, 14).rotateX(Math.PI / 2), rd);
       c.position.set(x, 1.3, 1.42);
       g.add(c);
     }
+    // beyaz şeritler kaput, tavan ve bagaj boyunca yüzeyi izler
     for (const x of [-0.16, 0.16]) {
-      g.add(
-        bx(0.18, 0.02, 1.42, x, 0.975, 1.5, wt, -0.05),
-        bx(0.18, 0.02, 1.16, x, 1.33, -0.48, wt),
-        bx(0.18, 0.02, 0.7, x, 1.01, -1.85, wt),
-      );
+      serit(g, d, x, 0.18, 0.8, 2.15, wt);
+      serit(g, d, x, 0.18, -1.0, 0.08, wt);
+      serit(g, d, x, 0.18, -2.15, -1.55, wt);
     }
-    g.add(bx(1.9, 0.14, 0.12, 0, 0.5, 2.4, s), bx(1.9, 0.14, 0.12, 0, 0.46, -2.38, s));
+    tampon(g, d, 0.5, true, 0.14, 0.12, 0.05, 0.04, s);
+    tampon(g, d, 0.46, false, 0.14, 0.12, 0.05, 0.04, s);
     for (const sd of [-1, 1]) {
-      const h = new THREE.Mesh(new THREE.CircleGeometry(0.12, 14), lightM);
-      h.position.set(sd * 0.68, 0.72, 2.39);
+      const h = new THREE.Mesh(new THREE.CircleGeometry(0.12, 14), lightM),
+        { z } = uc(d, 0.72, true);
+      h.position.set(sd * 0.62, 0.72, z + 0.008);
       g.add(h);
     }
   },
@@ -199,7 +283,8 @@ interface TekerModeli {
 
 export type { TekerModeli };
 
-function buildCar(d: Arac) {
+/** gövde ve tekerler (iç mekân yok): yerel aracın modeli ve uzak araçlar bununla kurulur */
+export function buildCar(d: Arac) {
   const g = body0(d);
   EK[d.k]?.(g, d);
   g.position.y = d.lift || 0;

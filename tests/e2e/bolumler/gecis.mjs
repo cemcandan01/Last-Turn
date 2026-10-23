@@ -1,7 +1,16 @@
 /* global LT */
-// Menü arka planı: çekimden çekime geçişte kararma yok; eski çekimin son karesi yakınlaşarak çözülür, sonra kalkar
+// Menü arka planı (görseller yüklenemezse çalışan canlı sinematik): çekimden çekime geçişte kararma yok; eski çekimin
+// son karesi yakınlaşarak çözülür, sonra kalkar
 export default async function ({ p, ok }) {
-  const r = await p.evaluate(async () => {
+  const kx = await p
+      .context()
+      .browser()
+      .newContext({ viewport: { width: 844, height: 390 } }),
+    q = await kx.newPage();
+  await q.route("**/img/menu/adet.json", (r) => r.abort());
+  await q.goto(p.url().split("?")[0] + "?" + Date.now());
+  await q.waitForFunction(() => window.LT, null, { timeout: 15000 });
+  const r = await q.evaluate(async () => {
     const w = (ms) => new Promise((ok) => setTimeout(ok, ms));
     LT.showMenu(["home"]);
     await w(1500);
@@ -33,6 +42,7 @@ export default async function ({ p, ok }) {
     LT.showMenu(["home"]);
     return r;
   });
+  await kx.close();
   ok(
     Object.values(r).every(Boolean),
     "menü arka planı: çekim geçişinde kararma yok, eski kare yakınlaşarak çözülüyor ve kalkıyor " +

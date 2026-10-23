@@ -7,12 +7,12 @@ import { ekran } from "../cekirdek/ekran";
 import { kareKaydet } from "../cekirdek/performans";
 import { bildirimTick, note } from "../arayuz/bildirim";
 import { engine, hudGuncelle, motor } from "../arayuz/hud";
-import { arkaVideoTick } from "../arayuz/arka-video";
+import { arkaGorselTick } from "../arayuz/arka-gorsel";
 import { duzenleyici } from "../arayuz/hud-duzenleyici";
 import { miniHaritaCiz } from "../arayuz/mini-harita";
 import { body, car, model } from "../cizim/arac-modeli";
 import { GX, GZ } from "../cizim/garaj-sahnesi";
-import { kamera } from "../cizim/kamera";
+import { kamera, garajKameraTick } from "../cizim/kamera";
 import { aynaCiz } from "../cizim/ayna";
 import { cock, gauges, kokpit } from "../cizim/kokpit";
 import { glassQM } from "../cizim/malzemeler";
@@ -31,6 +31,8 @@ import { oyun } from "./durum";
 import { I } from "./girdi";
 import { CINE, cineCam, cineTick } from "./sinematik";
 import { sim, surusAdimi } from "./surus";
+import { HAYALET, uzak, uzakTick } from "./uzak";
+import { uzakAraclariCiz } from "../cizim/uzak-arac-modeli";
 import { yaris } from "./yarislar";
 
 /** görsel saat (menü, garaj, yağış) */
@@ -47,8 +49,8 @@ function kare(ts: number) {
   const dt = Math.min(0.1, (ts - last) / 1000 || 0);
   last = ts;
   tt += dt;
-  // menüde arka plan videosu ekranı kaplıyorsa 3B sahne hiç çizilmez (pil ve ısı); ses ve bildirimler sürer
-  if (arkaVideoTick()) {
+  // menüde arka plan görseli ekranı kaplıyorsa 3B sahne hiç çizilmez (pil ve ısı); ses ve bildirimler sürer
+  if (arkaGorselTick()) {
     bildirimTick(dt);
     sesTick(dt);
     requestAnimationFrame(kare);
@@ -89,7 +91,7 @@ function kare(ts: number) {
     }
   }
   if (EV) REG[EV.reg].tick?.(EV);
-  precipTick(dt, tt);
+  precipTick(dt, tt, mode == "garage");
   shadowTick(!!set.shd, S.x, S.y, S.z);
   bildirimTick(dt);
   zeminTasi(S.x, S.z);
@@ -97,7 +99,8 @@ function kare(ts: number) {
     S.x = GX;
     S.z = GZ;
     S.y = 0.12;
-    S.h = tt * 0.3 + kamera.ly;
+    garajKameraTick(dt);
+    S.h = kamera.ly;
     S.vx = S.vz = S.w = 0;
     S.axs = 0;
     sim.d.delta = 0;
@@ -108,6 +111,9 @@ function kare(ts: number) {
     gz = mode == "garage" ? S.z : pz,
     gh = mode == "garage" ? S.h : ph;
   sahneGuncelle(dt, v, gx, gy, gz, gh, al);
+  const yarista = mode == "drive" || mode == "pause" || mode == "result";
+  if (yarista) uzakTick(dt);
+  if (uzak.araclar.length || yarista) uzakAraclariCiz(uzak.araclar, yarista, (u) => u.id == HAYALET);
   if (mode == "menu" && CINE) cineCam();
   parcacikTick(dt);
   if (mode != "menu" && mode != "garage" && !duzenleyici.acik) {
@@ -213,7 +219,7 @@ function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h
       K.lp = 0.1 + Math.sin(tt * 0.07) * 0.1;
     } else {
       K.camYaw += ad(h - K.camYaw) * Math.min(1, dt * (sim.d.D.act ? 2.2 : 4.5));
-      if (K.dp === null && performance.now() - K.lastDrag > 1500) {
+      if (mode != "garage" && K.dp === null && performance.now() - K.lastDrag > 1500) {
         const d = Math.exp(-dt * 3);
         K.ly *= d;
         K.lp *= d;
@@ -233,14 +239,26 @@ function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h
     cam.up.set(0, 1, 0);
     cam.lookAt(x + fxm * 3, y + 1.2, z + fzm * 3);
   }
-  // garaj kamerası: araç dikeyde üst yarıda, yatayda solda (panel sağda)
+  // garaj kamerası: araç, panel ve şerit dışında kalan boşluğun ortasında (görüntü penceresi panel payı kadar kaydırılır)
   if (mode == "garage") {
     const a = 0.55,
       lnd = ekran.aw > ekran.ah,
-      dd = lnd ? 8.2 : 8.8;
-    cam.position.set(GX + Math.sin(a) * dd, lnd ? 2.3 : 3.2, GZ + Math.cos(a) * dd);
+      dd = (lnd ? 8.2 : 8.8) * kamera.gz,
+      pay = lnd && !kamera.gTam ? Math.min(GARAJ_PANEL, ekran.aw * 0.58) / 2 : 0,
+      ty = lnd ? 0.7 : -0.2,
+      gp = lnd ? kamera.gp : kamera.gp + 0.25;
+    cam.position.set(
+      GX + Math.sin(a) * dd * Math.cos(gp),
+      ty + dd * Math.sin(gp),
+      GZ + Math.cos(a) * dd * Math.cos(gp),
+    );
     cam.up.set(0, 1, 0);
-    cam.lookAt(GX + (lnd ? Math.cos(a) * 3.4 : 0), lnd ? 0.6 : -1.5, GZ - (lnd ? Math.sin(a) * 3.4 : 0));
+    cam.lookAt(GX, ty, GZ);
+    cam.setViewOffset(ekran.aw, ekran.ah, pay, 0, ekran.aw, ekran.ah);
+    garajGorus = true;
+  } else if (garajGorus) {
+    cam.clearViewOffset();
+    garajGorus = false;
   }
   const port = ekran.aw < ekran.ah,
     bf = camMode == 3 && inCar ? (port ? 64 : 54) : (port ? 78 : 62) + (inCar ? 6 : 0),
@@ -251,6 +269,12 @@ function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h
     cam.updateProjectionMatrix();
   }
 }
+
+/** garaj bilgi panelinin yatay genişliği (px; stil.css → .land #gar ile aynı) */
+const GARAJ_PANEL = 410;
+
+/** garaj görüntü penceresi kaydırması açık mı */
+let garajGorus = false;
 
 export function donguBaslat() {
   requestAnimationFrame(kare);
