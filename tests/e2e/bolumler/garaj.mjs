@@ -239,44 +239,70 @@ export default async function ({ p, ok }) {
       new Set(pn.map((x) => x.w)).size == 1,
     "bilgi paneli kaydırmasız, kartlar taşmıyor, boşluk yok, genişlik sabit " + JSON.stringify(pn[0]),
   );
-  // araç geçişinde kare süresi: modeller önceden kurulur, geçiş takılmaz (başsız tarayıcıda boşta kare ~90 ms)
-  const gec = await p.evaluate(async () => {
+  // araç geçişi takılmıyor (iPhone'a yakın: işlemci 4 kat yavaşlatılır). Modeller garaj açılırken kurulup GPU'ya
+  // yüklenir (geçişte yeni shader programı ve geometri yok); motor sesi işçide hesaplanır (eskiden her geçişte
+  // ~10 kare boyunca ana iş parçacığında sentezleniyordu: ortalama kare boşta karenin ~3 katı)
+  await p.evaluate(async () => {
     LT.openGarage(0);
-    const kare = () => new Promise((r) => requestAnimationFrame(r));
     await new Promise((r) => setTimeout(r, 2500));
     document.querySelector("#gnx").click(); // ilk dokunuş sesi uyandırır (garajla ilgisiz tek seferlik iş)
-    for (let i = 0; i < 6; i++) await kare();
+  });
+  const cdp = await p.context().newCDPSession(p);
+  await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+  const gec = await p.evaluate(async () => {
+    const R = LT.R,
+      kare = () => new Promise((r) => requestAnimationFrame(r)),
+      bilgi = () => [R.info.programs.length, R.info.memory.geometries];
+    for (let i = 0; i < 8; i++) await kare();
     const bos = [];
     let son = performance.now();
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 12; i++) {
       await kare();
       const t = performance.now();
       bos.push(t - son);
       son = t;
     }
-    const taban = Math.max(...bos);
-    let en = 0,
-      sync = 0;
+    const once = bilgi(),
+      kareler = [];
+    let sync = 0;
     for (let k = 0; k < LT.CARS.length; k++) {
       const t0 = performance.now();
-      document.querySelector(k % 2 ? "#gpv" : "#gnx").click();
+      document.querySelector("#gnx").click();
       sync = Math.max(sync, performance.now() - t0);
       son = performance.now();
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 10; i++) {
         await kare();
         const t = performance.now();
-        en = Math.max(en, t - son);
+        kareler.push(t - son);
         son = t;
       }
     }
+    const sonra = bilgi();
     LT.closeGarage();
-    return { taban: Math.round(taban), en: Math.round(en), sync: Math.round(sync) };
+    bos.sort((a, b) => a - b);
+    return {
+      taban: Math.round(bos[6]),
+      ort: Math.round(kareler.reduce((a, b) => a + b) / kareler.length),
+      en: Math.round(Math.max(...kareler)),
+      sync: Math.round(sync),
+      program: once[0] + "→" + sonra[0],
+      geometri: once[1] + "→" + sonra[1],
+      yeni: sonra[0] - once[0] + sonra[1] - once[1],
+    };
   });
+  await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+  await cdp.detach();
   ok(
-    gec.sync < 25 && gec.en < gec.taban * 1.6 + 40,
-    "araç geçişi takılmıyor: tıklama " +
+    gec.yeni == 0 && gec.sync < 60 && gec.ort < gec.taban * 1.6 + 20 && gec.en < gec.taban * 3.5 + 60,
+    "araç geçişi takılmıyor (4x yavaş): program " +
+      gec.program +
+      ", geometri " +
+      gec.geometri +
+      ", tıklama " +
       gec.sync +
-      " ms, en uzun kare " +
+      " ms, geçiş sonrası ort/en uzun kare " +
+      gec.ort +
+      "/" +
       gec.en +
       " ms (boşta " +
       gec.taban +

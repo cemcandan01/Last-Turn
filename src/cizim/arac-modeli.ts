@@ -4,7 +4,7 @@ import * as THREE from "three";
 import type { Arac } from "../arac/araclar";
 import { yaziTuvali } from "./dokular";
 import { blackM, dk, glassM, glassQM, lightM, tailM, bm } from "./malzemeler";
-import { scene } from "./sahne";
+import { cam, R, scene } from "./sahne";
 import { bx, lam } from "./yardimci";
 import { buildInterior, cock } from "./kokpit";
 import { arkaKam, aynalariSifirla, aynaYuzu } from "./ayna";
@@ -329,6 +329,31 @@ export function vitrinHazirla(d: Arac) {
   if (!vitrinOnbellek.has(d)) vitrinOnbellek.set(d, buildCar(d));
 }
 export const vitrinHazirMi = (d: Arac) => vitrinOnbellek.has(d);
+let isitHedef: THREE.WebGLRenderTarget | null = null;
+/**
+ * önceden kurulan modeli sahnede, gösterilen aracın yerinde bir kez görünmeden (1x1 hedefe) çiz: geometri ve
+ * dokular GPU'ya şimdi yüklenir, araç değişince ilk karede değil. Işık ve gölge düzeni aynı: yeni program derlenmez.
+ */
+export function vitrinIsit(d: Arac) {
+  const cm = vitrinOnbellek.get(d);
+  if (!cm || cm === model.carM || !R) return;
+  const g = new THREE.Group();
+  car.updateMatrixWorld();
+  g.matrixAutoUpdate = false;
+  g.matrix.copy(car.matrixWorld);
+  g.add(cm.g, ...cm.ws.map((w) => w.pv));
+  g.traverse((o) => {
+    if ((o as THREE.Mesh).isMesh) o.castShadow = true;
+  });
+  scene.add(g);
+  isitHedef ??= new THREE.WebGLRenderTarget(1, 1);
+  const once = R.getRenderTarget();
+  R.setRenderTarget(isitHedef);
+  R.render(scene, cam);
+  R.setRenderTarget(once);
+  scene.remove(g);
+  g.remove(cm.g, ...cm.ws.map((w) => w.pv));
+}
 export function vitrinBosalt() {
   vitrinOnbellek.clear();
 }
