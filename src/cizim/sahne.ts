@@ -1,7 +1,7 @@
 // Sahne: renderer, kamera, ışıklar. Sahne nesneleri modül yüklenirken (Node testlerinde de) kurulur;
 // renderer yalnız tarayıcıda, rendererKur() ile.
 import * as THREE from "three";
-import { ekran, layout } from "../cekirdek/ekran";
+import { ekran, layout, olcuIzle } from "../cekirdek/ekran";
 
 // Three.js r128'deki görünüm korunur: renk yönetimi kapalı, çıktı doğrusal (eski oyunun renkleri birebir).
 // Işık şiddetleri eski sürümle aynı aydınlığı versin diye ISIK çarpanıyla verilir (r155'ten beri fiziksel birimler).
@@ -36,15 +36,18 @@ export function rendererKur(canvas: HTMLCanvasElement) {
   R.shadowMap.enabled = true;
   R.shadowMap.type = THREE.PCFShadowMap;
   R.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
-  // iOS ana ekran uygulaması ölçüyü gecikmeli oturtur (açılışta sağda/altta boşluk, dönmede titreme):
-  // her olayda hemen ve birkaç kare/ms sonra yeniden ölçülür
+  // iOS ana ekran uygulaması ölçüyü gecikmeli oturtur (açılışta/dönmede sağda ya da altta boşluk):
+  // ölçü sayfa düzeninden alınır ve düzen her değiştiğinde (ResizeObserver) yenilenir; ayrıca her olayda
+  // hemen ve 1,5 sn boyunca birkaç kare/ms sonra yeniden ölçülür. Dönmeden kalan kaydırma sıfırlanır.
   const olc = () => {
     rs();
     requestAnimationFrame(() => requestAnimationFrame(rs));
-    [100, 300, 700, 1500].forEach((ms) => setTimeout(rs, ms));
+    [100, 300, 700, 1000, 1500].forEach((ms) => setTimeout(rs, ms));
   };
-  addEventListener("resize", rs);
+  olcuIzle(rs);
+  addEventListener("resize", olc);
   addEventListener("orientationchange", olc);
+  screen.orientation?.addEventListener?.("change", olc);
   addEventListener("pageshow", olc);
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden) olc();
@@ -55,6 +58,7 @@ export function rendererKur(canvas: HTMLCanvasElement) {
 
 /** ekran boyutu değişince (dönme dahil) */
 export function rs() {
+  if (scrollX || scrollY) scrollTo(0, 0);
   layout();
   R.setSize(ekran.aw, ekran.ah, false);
   cam.aspect = ekran.aw / ekran.ah;
