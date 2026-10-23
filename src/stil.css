@@ -1797,6 +1797,27 @@ details[open] > summary::after {
 .hdAc {
   border-color: var(--acc);
 }
+/* kısa ekranlarda (iPhone 13 yüksekliğinden, 390 px, alçak) panel sıkılaşır: kaydırma çıkmasın */
+@media (max-height: 380px) {
+  #hdP {
+    padding: 4px 10px 5px;
+  }
+  .hdT {
+    margin-bottom: 0;
+  }
+  .hdT b {
+    font-size: 16px;
+  }
+  .hdT .btn {
+    padding: 4px 14px;
+  }
+  .hdR {
+    margin: 2px 0;
+  }
+  .hdC .chip {
+    padding: 4px 2px;
+  }
+}
 .rlist .rcs b {
   white-space: nowrap;
   font-size: 13px;
