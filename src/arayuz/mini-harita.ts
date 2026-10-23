@@ -147,44 +147,33 @@ export function miniHaritaCiz(
       ileriMax = gen * 1.6,
       geriMin = -gen * 0.45;
     mmc.lineJoin = mmc.lineCap = "round";
-    // uzaklaştıkça daralan yol: derinliğe göre 4 kuşakta, kuşak başına tek çizim
-    const KUSAK = 4,
-      yollar = Array.from({ length: KUSAK }, () => new Path2D());
-    let onceki = -1,
-      oncekiPr: V2 | null = null,
-      kes = true;
+    // uzaklaştıkça sürekli daralan yol: her parça kendi derinliğinin ölçeğiyle çizilir (basamak yok);
+    // imlecin arkası imleçten kalın olmaz (ölçek f=0'da sabitlenir)
+    const olcekAt = (f: number) => (M.s * D0) / (CH * SE + (Math.max(f, 0) + CB) * CE);
+    const parcalar: { a: V2; b: V2; o: number }[] = [];
+    let oncekiPr: V2 | null = null,
+      oncekiF = 0;
     for (const q of yol.pts) {
       const dx = q[0] - x,
         dz = q[1] - z,
         f = fxm * dx + fzm * dz;
       const pr = f < geriMin || f > ileriMax ? null : yerProj(fxm * dz - fzm * dx, f);
-      if (!pr) {
-        kes = true;
-        continue;
-      }
-      const k = Math.min(KUSAK - 1, Math.max(0, Math.floor(((f - geriMin) / (ileriMax - geriMin)) * KUSAK)));
-      // kuşak değişiminde yol kopmasın: önceki kuşağa da bu nokta eklenir
-      if (kes) yollar[k].moveTo(pr[0], pr[1]);
-      else {
-        if (k != onceki) yollar[k].moveTo(oncekiPr![0], oncekiPr![1]);
-        yollar[k].lineTo(pr[0], pr[1]);
-      }
-      kes = false;
-      onceki = k;
+      if (pr && oncekiPr) parcalar.push({ a: oncekiPr, b: pr, o: olcekAt((f + oncekiF) / 2) });
       oncekiPr = pr;
+      oncekiF = f;
     }
-    for (let k = 0; k < KUSAK; k++) {
-      // kuşağın orta derinliğindeki ölçek: yol genişliği o kadar daralır
-      const fo = geriMin + ((k + 0.5) / KUSAK) * (ileriMax - geriMin),
-        yo = yerProj(1, fo),
-        yb = yerProj(0, fo),
-        olcek = yo && yb ? Math.max(0.15, yo[0] - yb[0]) : 0.2;
-      mmc.strokeStyle = "rgba(0,0,0,.55)";
-      mmc.lineWidth = Math.max(2.2, 12 * olcek);
-      mmc.stroke(yollar[k]);
-      mmc.strokeStyle = yol.renk;
-      mmc.lineWidth = Math.max(1.2, 7 * olcek);
-      mmc.stroke(yollar[k]);
+    for (const [renk, tab, min] of [
+      ["rgba(0,0,0,.55)", 12, 2.2],
+      [yol.renk, 7, 1.2],
+    ] as const) {
+      mmc.strokeStyle = renk;
+      for (const p of parcalar) {
+        mmc.lineWidth = Math.max(min, tab * p.o);
+        mmc.beginPath();
+        mmc.moveTo(p.a[0], p.a[1]);
+        mmc.lineTo(p.b[0], p.b[1]);
+        mmc.stroke();
+      }
     }
     // başlangıç/bitiş çizgisi: yola dik beyaz çubuk; açık pistte bitiş turuncu
     const cizgi = (i: number, renk: string, dik: boolean) => {
