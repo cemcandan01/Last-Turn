@@ -2987,3 +2987,7 @@ details[open] > summary::after {
 .hdg:disabled {
   opacity: 0.5;
 }
+.hesap .hdugmeler:not(:empty) + .hdugmeler,
+.hesap .hform + .note + .hdugmeler {
+  margin-top: 8px;
+}

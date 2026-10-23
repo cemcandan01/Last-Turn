@@ -71,6 +71,10 @@ her zaman çalışır.
   İki cihazın ilerlemesi birleşir: XP, yıldız ve kazanılan paranın büyüğü, satın alınanların hepsi; rekorların iyisi.
 - İnternet yokken oyun normal çalışır; değişiklik internet gelince gönderilir.
 - Çıkış: bu cihazdaki ilerleme kalır, oyun yeni bir misafir hesapla sürer.
+- **Yeni oyuncu olarak başla** (Profil, iki dokunuşla onaylı): bu cihazda her şey sıfırlanır (XP, yıldız, para, araçlar,
+  rekorlar, profil sayaçları; ayarlar kalır), oyun yeniden açılır ve yeni misafir hesapla sıfırdan başlar. Google ya da
+  e-postaya bağlı hesabın ilerlemesi bulutta kalır (sonra yeniden bağlanınca gelir); misafir hesabınki kaybolur.
+  Sıfırdan başladıktan sonra **başka bir Google hesabıyla** bağlanırsan o hesap da sıfırdan açılır.
 
 ## Geliştirici notu
 

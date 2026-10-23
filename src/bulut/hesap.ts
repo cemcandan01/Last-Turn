@@ -2,9 +2,13 @@
 // yapılandırma girilmişse ve oyun açıldıktan sonra tembel yüklenir; girilmemişse bu modül hiçbir şey yapmaz.
 // İlk açılışta sessizce anonim hesap açılır; Profil'den Google ya da e-posta ile bağlanınca aynı ilerleme başka
 // cihazda da açılır. Eşitleme kuralları bulut/esitleme.ts'te.
+import { yaz, yazJson } from "../cekirdek/depo";
+import { ilerlemeyiSifirla } from "../oyun/ilerleme";
+import { PROF, saveProf } from "../oyun/profil";
 import { FIREBASE_AYAR, bulutAcik } from "./ayar";
 import {
   esitleyiciKur,
+  rekorlariSil,
   type EsitlemeDurumu,
   type Esitleyici,
   type Kullanici,
@@ -136,6 +140,30 @@ export const cikis = () =>
     await s.cikis();
     await s.anonimGir();
   });
+
+/**
+ * yeni oyuncu olarak başla: bekleyen kayıt gönderilir, hesaptan çıkılır, bu cihazdaki ilerleme, rekorlar ve profil
+ * sayaçları silinir (ayarlar kalır), oyun yeniden açılır ve yeni bir misafir hesapla sıfırdan başlar. Google/e-posta
+ * hesabındaki ilerleme bulutta kalır; misafir hesabınki kaybolur. Sonra başka bir Google hesabıyla da bağlanılabilir.
+ */
+export async function yeniOyuncu(yenidenAc = () => location.reload()) {
+  if (D.mesgul) return;
+  D.mesgul = true;
+  bildir();
+  try {
+    await E?.simdiGonder();
+    await E?.oturum(null);
+    await S?.cikis();
+  } catch {}
+  ilerlemeyiSifirla();
+  rekorlariSil();
+  Object.assign(PROF, { name: "Sürücü", races: 0, wins: 0, km: 0, use: {} });
+  saveProf();
+  yaz("lt_car", 1);
+  yazJson("lt_bulut", { bekleyen: false });
+  D.mesgul = false;
+  yenidenAc();
+}
 
 /** hesap satırı metni: "Google ile bağlı · ad@… · Eşitlendi" gibi */
 export function hesapOzeti(d: Readonly<HesapDurumu> = D) {

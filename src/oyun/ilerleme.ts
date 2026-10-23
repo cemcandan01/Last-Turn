@@ -381,6 +381,13 @@ export function ilerlemeYukle(d: Partial<IlerlemeVerisi>) {
   }
 }
 
+/** ilerlemeyi sıfırla (yeni oyuncu): XP, yıldız, para, alım ve açık öğeler; rekorlar profil.ts'te ayrı */
+export function ilerlemeyiSifirla() {
+  yazJson("lt_yildiz", {});
+  V = bos();
+  kaydet();
+}
+
 /** testler için: bellekteki kaydı unut (yeniden localStorage'dan okunur) */
 export const ilerlemeSifirla = () => {
   V = null;
