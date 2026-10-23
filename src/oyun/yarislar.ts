@@ -17,7 +17,7 @@ import { aracAcikMi, pistAcikMi, yarisBitti } from "./ilerleme";
 import { applyPreset, kurulum, kurulumKaydet, kurulumYukle, type KurulumKaydi } from "./kurulum";
 import { PROF, saveProf } from "./profil";
 import { reset, sim } from "./surus";
-import { driftAdimi, driftBankala, tersAdimi, type DriftOlay } from "./yaris-kurallari";
+import { X6_CARPAN, X6_ORAN, driftAdimi, driftBankala, tersAdimi, type DriftOlay } from "./yaris-kurallari";
 import { DRIFT_TUR, TUR_ANAHTARI, yildizEsikleri, yildizSay } from "./yildiz";
 
 /** yarış türleri: hedef süre, pist uzunluğundan ve ilk pistlerin ayarlı hızından (v, m/s) hesaplanır */
@@ -110,6 +110,12 @@ export interface Yaris extends YarisTanimi {
   yan: number;
   /** verilen drift bonusları: hud okur ve kendi indeksini tutar */
   driftOlay: DriftOlay[];
+  /** 1. turda drift hâlinde geçilen mesafe oranı (0-1, canlı); 1. tur bitince ≥ 0,9 ise x6 */
+  driftOran: number;
+  driftMesafe: number;
+  x6: boolean;
+  /** anlık çarpan (hud) */
+  driftCarpan: number;
   armed: number;
   lap: number;
   lapStart: number;
@@ -193,6 +199,10 @@ export function startEvent(i: number, ci?: number) {
     yanT: 0,
     yan: 0,
     driftOlay: [],
+    driftOran: 0,
+    driftMesafe: 0,
+    x6: false,
+    driftCarpan: 1,
     armed: 0,
     lap: 0,
     lapStart: 0,
@@ -236,7 +246,15 @@ export function evTick(dt: number, o: AdimSonucu, tg = 0.5) {
     geri = tersAdimi(EV, S.vx, S.vz, T[0], T[1], dt);
   if (EV.ty == "dp") {
     const lost = o.si == 2 || sim.d.zaman - S.hit < 0.05 || Math.abs(D.beta) > 1.4,
-      r = driftAdimi(EV, !!D.act, D.beta, lost, o.v, EV.ters || geri, dt, tg, sim.d.zaman);
+      r = driftAdimi(EV, !!D.act, D.beta, lost, o.v, EV.ters || geri, dt, tg, sim.d.zaman, EV.x6);
+    if (EV.lap == 0 && D.act && !lost && !EV.ters && !geri) {
+      // orta çizgi ilerlemesi (pist uzunluğuyla aynı ölçü; dış çizgiden giden fazla yol sayılmaz)
+      let ds = EV.TR.S[ti] - EV.TR.S[EV.prev];
+      if (ds < -EV.TR.len / 2) ds += EV.TR.len;
+      if (ds > 0) EV.driftMesafe += ds;
+      EV.driftOran = Math.min(1, EV.driftMesafe / EV.TR.len);
+    }
+    EV.driftCarpan = EV.mult;
     if (r.olay == "yandi") note("KOMBO YANDI", 30);
     else if (r.olay == "carpan") note("x" + EV.mult, 44);
     else if (r.olay == "bank" && r.p > 0) note("+" + r.p, 40);
@@ -247,6 +265,12 @@ export function evTick(dt: number, o: AdimSonucu, tg = 0.5) {
     if (EV.prev > N * 0.8 && ti < N * 0.2 && EV.armed) {
       EV.armed = 0;
       EV.lap++;
+      if (EV.ty == "dp" && EV.lap == 1 && EV.driftOran >= X6_ORAN) {
+        EV.x6 = true;
+        EV.driftCarpan = X6_CARPAN;
+        EV.driftOlay.push({ ad: "ÇARPAN x6", puan: 0, t: sim.d.zaman });
+        note("ÇARPAN x6", 44);
+      }
       const lt = EV.t - EV.lapStart;
       EV.lapStart = EV.t;
       EV.bestLap = EV.bestLap == null ? lt : Math.min(EV.bestLap, lt);

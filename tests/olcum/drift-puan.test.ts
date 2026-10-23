@@ -5,17 +5,17 @@ import { DRIFT_TUR, yildizEsikleri, yildizSay } from "../../src/oyun/yildiz";
 import { DRIFT_PILOT, driftTuru } from "../yardimci/drift-pilot";
 
 /**
- * Eşik = pilotun en iyi sürüşünün puanı (P: aşağıdaki sürüş tarzlarının en iyisi, drift aracıyla) × pay: 1★ rahat
- * (turları drift ederek bitiren), 2★ iyi sürüş, 3★ en iyiye yakın (küçük kayba pay). Üst seviyede pay sıkılaşır.
- * Eşikler hp (1★) ve ys'e (2★, 3★) yazılır.
+ * Eşik = pilotun x6'sız en iyi sürüşünün puanı (P0: aşağıdaki sürüş tarzlarının en iyisi, drift aracıyla, 2. tur x6 kapalı) × pay:
+ * 3★ P0'ın biraz altı (x6'sız iyi sürüş 2★-3★ sınırında; x6 kazanan ~%7 fazla puanla rahat 3★), 2★ iyi sürüş, 1★ rahat.
+ * Üst seviyede pay sıkılaşır. Eşikler hp (1★) ve ys'e (2★, 3★) yazılır.
  */
 export const DRIFT_PAY = [
-  [0.35, 0.65, 0.86],
-  [0.38, 0.67, 0.87],
-  [0.4, 0.69, 0.88],
-  [0.42, 0.71, 0.89],
-  [0.44, 0.73, 0.9],
-  [0.46, 0.75, 0.91],
+  [0.35, 0.65, 0.9],
+  [0.38, 0.67, 0.91],
+  [0.4, 0.69, 0.92],
+  [0.42, 0.71, 0.93],
+  [0.44, 0.73, 0.94],
+  [0.46, 0.75, 0.95],
 ];
 
 /** pilotun sürüş tarzları: çekingen (az açı), olağan, açılı, abartan (çok açı), gazı az */
@@ -36,10 +36,21 @@ it("drift puanı", () => {
         ad,
         ...driftTuru(i, "norm", a, 400, false, 2, DRIFT_TUR),
       })),
+      kosu0 = Object.entries(TARZ).map(([ad, a]) => ({
+        ad,
+        ...driftTuru(i, "norm", a, 400, false, 2, DRIFT_TUR, false),
+      })),
       P = Math.max(...kosu.map((k) => k.puan)),
-      oneri = DRIFT_PAY[(d.sev ?? d.lv) - 1].map((p) => Math.round((P * p) / 50) * 50);
+      P0 = Math.max(...kosu0.map((k) => k.puan)),
+      oneri = DRIFT_PAY[(d.sev ?? d.lv) - 1].map((p) => Math.round((P0 * p) / 50) * 50);
     console.log(
-      `${d.lv} ${d.n.padEnd(14)} ${DRIFT_TUR} tur ~${kosu[1].sure.toFixed(0)} sn (pist ${kosu[1].len.toFixed(0)} m) en iyi ${P} | eşik ${e.join("/") || "—"} | önerilen ${oneri.join("/")} | ` +
+      `${d.lv} ${d.n.padEnd(14)} x6'sız en iyi ${P0} (x6 ile ${P}; x6 kazanan: ${
+        kosu
+          .filter((k) => k.x6)
+          .map((k) => k.ad + " %" + (k.driftOran * 100).toFixed(0))
+          .join(",") || "yok"
+      }; oranlar ${kosu.map((k) => (k.driftOran * 100).toFixed(0)).join("/")}) |
+      ${d.lv} ${d.n.padEnd(14)} ${DRIFT_TUR} tur ~${kosu[1].sure.toFixed(0)} sn (pist ${kosu[1].len.toFixed(0)} m) en iyi ${P} | eşik ${e.join("/") || "—"} | önerilen ${oneri.join("/")} | ` +
         kosu
           .map((k) => `${k.ad} ${k.puan}(${yildizSay("dp", k.puan, e)}★ ${k.tur}t y${k.yanma} s${k.spin})`)
           .join(" "),
