@@ -106,11 +106,12 @@ describe("kilit tablosu", () => {
     // her pist her seviyede açılır, seviyeler pistte artan; her türün aracı o türün 3. pistinden önce açılır
     for (const t of TURLER) {
       const s = ACILMA.pist[t];
-      expect(s.length).toBe(6);
+      expect(s.length).toBe(8);
       for (let l = 1; l < 6; l++) expect(s[l]).toBeGreaterThan(s[l - 1]);
+      for (let l = 6; l < 8; l++) expect(s[l]).toBeGreaterThan(1);
       expect(ACILMA.arac[CARS.findIndex((c) => c.ty == t)]).toBeLessThanOrEqual(s[2]);
     }
-    expect(kilitTablosu().length).toBe(35);
+    expect(kilitTablosu().length).toBe(45);
   });
 
   it("seviye atlayınca dinleyici açılanları alır", () => {

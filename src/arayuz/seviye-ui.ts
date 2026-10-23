@@ -1,7 +1,7 @@
 // XP ve seviye görselleri: seviye rozeti + XP çubuğu (ana menü, profil, yarış sonu), kilit notu ve seviye atlama kutlaması.
 // Mantık oyun/ilerleme.ts'te; burada yalnız gösterim.
 import { CARS } from "../arac/araclar";
-import { SEVIYELER } from "../dunya/pist-tanimlari";
+import { SEVIYELER, pistSev } from "../dunya/pist-tanimlari";
 import { acilmaSeviyesi, ilerlemeDinle, seviye, type AcilanOge, type SeviyeOlayi } from "../oyun/ilerleme";
 import { ikon } from "./ikonlar";
 
@@ -24,7 +24,9 @@ export const xpCubuguHtml = (sinif = "") => {
 
 /** açılan öğenin adı: "Asfalt · Usta pisti" ya da "Beyaz Kurt (araç)" */
 export const ogeAdi = (o: AcilanOge) =>
-  o.tur == "pist" ? `${TUR_AD[o.ty]} · ${SEVIYELER[o.lv - 1].n} pisti` : `${CARS[o.no].n} (araç)`;
+  o.tur == "pist"
+    ? `${TUR_AD[o.ty]} · ${SEVIYELER[pistSev(o.ty, o.lv) - 1].n} pisti`
+    : `${CARS[o.no].n} (araç)`;
 
 /** kilitli pist kartına dokununca kısa açıklama */
 export function kilitNotu(ty: string, lv: number) {
@@ -34,7 +36,7 @@ export function kilitNotu(ty: string, lv: number) {
     n.id = "kilitnot";
     document.body.appendChild(n);
   }
-  n.innerHTML = `${ikon("kilit")} <b>${TUR_AD[ty]} · ${SEVIYELER[lv - 1].n}</b> pisti Seviye ${acilmaSeviyesi({ ty: ty as never, lv })}'de açılır. Yarış kazandıkça XP toplayıp seviye atlarsın.`;
+  n.innerHTML = `${ikon("kilit")} <b>${TUR_AD[ty]} · ${SEVIYELER[pistSev(ty as never, lv) - 1].n}</b> pisti Seviye ${acilmaSeviyesi({ ty: ty as never, lv })}'de açılır. Yarış kazandıkça XP toplayıp seviye atlarsın.`;
   n.classList.remove("goster");
   void n.offsetWidth;
   n.classList.add("goster");

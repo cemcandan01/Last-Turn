@@ -79,17 +79,18 @@ export function xpSeviyesi(xp: number) {
 // --- kilit tablosu ---
 
 /**
- * açılma seviyesi: pistler [tür][Çaylak … Efsane], araçlar CARS sırasıyla
+ * açılma seviyesi: pistler [tür][pist numarası - 1] (1-6 Çaylak … Efsane sırası, 7+ sonradan eklenen pistler; yeni pist
+ * sona eklenir ve zorluk seviyesindeki komşusunun yakınında açılır), araçlar CARS sırasıyla
  * (Kızıl Ok asfalt, Kor RX rallycross, Beyaz Kurt drift, Mavi Yıldız ralli, Gece Mavisi drag).
  * Araç uyumu: her araç her yarışı bitirebilir; başta asfalt ve rallycross aracı açık, drift/ralli/drag araçları sonra.
  */
 export const ACILMA = {
   pist: {
-    gp: [1, 2, 5, 8, 12, 16],
-    rx: [1, 2, 5, 8, 12, 16],
-    dp: [1, 3, 6, 10, 14, 18],
-    rl: [1, 3, 7, 10, 14, 18],
-    dg: [1, 4, 7, 11, 15, 17],
+    gp: [1, 2, 5, 8, 12, 16, 3, 9],
+    rx: [1, 2, 5, 8, 12, 16, 3, 9],
+    dp: [1, 3, 6, 10, 14, 18, 4, 11],
+    rl: [1, 3, 7, 10, 14, 18, 4, 11],
+    dg: [1, 4, 7, 11, 15, 17, 2, 16],
   } as Record<YarisTuru, number[]>,
   arac: [1, 1, 4, 6, 7],
 };
@@ -143,7 +144,7 @@ function eskiKayittanGecis(): IlerlemeVerisi {
   const v = bos(),
     prof = okuJson("lt_prof", { use: {} as Record<string, number> });
   for (const ty of TURLER)
-    for (let lv = 1; lv <= 6; lv++) {
+    for (let lv = 1; lv <= ACILMA.pist[ty].length; lv++) {
       const esik = yildizEsikleri(ty, lv),
         r = best(TUR_ANAHTARI[ty] + "_" + lv),
         y = Math.max(enIyiYildiz(ty, lv), r > 0 && esik.length ? yildizSay(ty, r, esik) : 0);
@@ -226,7 +227,7 @@ export function ilerlemeYukle(d: Partial<IlerlemeVerisi>) {
   v.xp = Math.max(v.xp, +(d.xp ?? 0) || 0);
   for (const a of d.ekAcik || []) if (!v.ekAcik.includes(a)) v.ekAcik.push(a);
   for (const ty of TURLER)
-    for (let lv = 1; lv <= 6; lv++) {
+    for (let lv = 1; lv <= ACILMA.pist[ty].length; lv++) {
       const y = +(d.yildiz?.[yildizAnahtari(ty, lv)] ?? 0) || 0;
       if (y) yildizKaydet(ty, lv, y);
     }
