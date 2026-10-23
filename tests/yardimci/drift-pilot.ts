@@ -6,7 +6,13 @@ import { ad, cl } from "../../src/cekirdek/matematik";
 import { ipucu, type Pist } from "../../src/dunya/pist";
 import type { AracDurumu, FizikGirdisi, SimDurumu } from "../../src/fizik/tipler";
 import type { SeviyeAnahtari } from "../../src/fizik/veriler";
-import { bosDriftSayaci, driftAdimi, driftBankala, type DriftSayaci } from "../../src/oyun/yaris-kurallari";
+import {
+  X6_ORAN,
+  bosDriftSayaci,
+  driftAdimi,
+  driftBankala,
+  type DriftSayaci,
+} from "../../src/oyun/yaris-kurallari";
 import { surucuKur } from "./surucu";
 
 const DT = 1 / 60;
@@ -142,12 +148,14 @@ export class KomboSayaci {
 /** drift yarışının puanı (oyundaki evTick ile aynı kural: oyun/yaris-kurallari.ts) */
 export class PuanSayaci {
   private E: DriftSayaci = bosDriftSayaci();
+  /** 2. turda çarpan x6 (1. turun ≥%90'ı driftle geçildi) */
+  x6 = false;
   get puan() {
     return this.E.score;
   }
   adim(d: SimDurumu, si: number, v: number, dt: number, ters = false, tg = 0.5) {
     const lost = si == 2 || d.zaman - d.S.hit < 0.05 || Math.abs(d.D.beta) > 1.4;
-    driftAdimi(this.E, !!d.D.act, d.D.beta, lost, v, ters, dt, tg, d.zaman);
+    driftAdimi(this.E, !!d.D.act, d.D.beta, lost, v, ters, dt, tg, d.zaman, this.x6);
   }
   bankala() {
     driftBankala(this.E);
@@ -166,6 +174,7 @@ export function driftTuru(
   iz = false,
   arac = 2,
   tur = 0,
+  x6Izin = true,
 ) {
   const s = surucuKur({ yaris, arac, lk });
   const TR = s.bolge!.TR!,
@@ -181,6 +190,7 @@ export function driftTuru(
     cim = 0,
     armed = 0,
     biten = 0,
+    driftYol = 0,
     sure = sn;
   for (let k = 0; k < sn / DT; k++) {
     const gi = pl(S);
@@ -191,12 +201,14 @@ export function driftTuru(
     if (ds < -TR.len / 2) ds += TR.len;
     yol += ds;
     if (o.si == 2) cim += DT;
+    if (biten == 0 && s.sim.d.D.act && o.si != 2 && ds > 0) driftYol += ds;
     if (tur) {
       const N = TR.N,
         ti = ipucu.ti;
       if (ti > N * 0.4 && ti < N * 0.6) armed = 1;
       if (armed && onceki > N * 0.8 && ti < N * 0.2) {
         armed = 0;
+        if (biten == 0 && x6Izin && driftYol / TR.len >= X6_ORAN) ps.x6 = true;
         if (++biten >= tur) {
           sure = (k + 1) * DT;
           break;
@@ -222,5 +234,7 @@ export function driftTuru(
     len: TR.len,
     sure,
     tur: biten,
+    x6: ps.x6,
+    driftOran: driftYol / TR.len,
   };
 }

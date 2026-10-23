@@ -5,6 +5,7 @@ import { ipucu } from "../../src/dunya/pist";
 import { pistNo } from "../../src/dunya/pist-tanimlari";
 import {
   bosDriftSayaci,
+  X6_ORAN,
   driftAdimi,
   driftBankala,
   tersAdimi,
@@ -40,6 +41,42 @@ describe("yıldız ve ters sürüş", () => {
     expect(enIyiYildiz("rx", 2)).toBe(2);
     expect(enIyiYildiz("gp", 2)).toBe(0);
     delete (globalThis as { localStorage?: unknown }).localStorage;
+  });
+
+  it("drift sürerken puan açısı en az 10° (yön değiştirirken kayıp az)", () => {
+    const a = bosDriftSayaci(),
+      b = bosDriftSayaci();
+    for (let k = 0; k < 30; k++) {
+      driftAdimi(a, true, 0.01, false, 20, false, DT);
+      driftAdimi(b, true, (10 * Math.PI) / 180, false, 20, false, DT);
+    }
+    expect(a.combo).toBeCloseTo(b.combo, 5);
+    expect(a.combo).toBeGreaterThan(0);
+  });
+
+  it("geçişte drift bayrağı kısa düşse de kayma sürerken kombo akar, 0,6 sn sonra durur", () => {
+    const E = bosDriftSayaci();
+    for (let k = 0; k < 30; k++) driftAdimi(E, true, 0.4, false, 20, false, DT);
+    const c0 = E.combo;
+    for (let k = 0; k < 30; k++) driftAdimi(E, false, 0.2, false, 20, false, DT);
+    const c05 = E.combo;
+    expect(c05).toBeGreaterThan(c0);
+    for (let k = 0; k < 10; k++) driftAdimi(E, false, 0.2, false, 20, false, DT);
+    const c1 = E.combo;
+    driftAdimi(E, false, 0.2, false, 20, false, DT);
+    expect(E.combo).toBe(c1);
+  });
+
+  it("x6: 1. turun %89'u driftle kazandırmaz, %91'i kazandırır; x6'da çarpan 6", () => {
+    const x6 = (oran: number) => oran >= X6_ORAN;
+    expect(x6(0.89)).toBe(false);
+    expect(x6(0.91)).toBe(true);
+    const E = bosDriftSayaci();
+    driftAdimi(E, true, 0.5, false, 20, false, DT, 0.5, 0, true);
+    expect(E.mult).toBe(6);
+    const F = bosDriftSayaci();
+    driftAdimi(F, true, 0.5, false, 20, false, DT);
+    expect(F.mult).toBe(1);
   });
 
   it("ters giderken drift kombosu birikmez", () => {
