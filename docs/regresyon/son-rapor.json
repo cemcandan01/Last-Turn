@@ -3,8 +3,14 @@
   "dallar": [
     "--sure"
   ],
-  "dk": 3.8,
+  "dk": 4.4,
   "ozet": {
+    "altyapi": {
+      "senaryo": 5,
+      "gecti": 5,
+      "kaldi": 0,
+      "kosulmadi": 0
+    },
     "fizik": {
       "senaryo": 10,
       "gecti": 10,
@@ -13,8 +19,8 @@
     },
     "garaj": {
       "senaryo": 1,
-      "gecti": 1,
-      "kaldi": 0,
+      "gecti": 0,
+      "kaldi": 1,
       "kosulmadi": 0
     },
     "menu": {
@@ -30,8 +36,8 @@
       "kosulmadi": 0
     },
     "grafik": {
-      "senaryo": 2,
-      "gecti": 2,
+      "senaryo": 3,
+      "gecti": 3,
       "kaldi": 0,
       "kosulmadi": 0
     },
@@ -50,6 +56,29 @@
   },
   "senaryolar": [
     {
+      "id": "girdi-kaydi",
+      "ad": "Girdi kaydı iki kez oynatılınca aynı son durum (belirlenimcilik)",
+      "p": 1,
+      "birim": {
+        "dosya": "tests/birim/cok-arac.test.ts",
+        "grup": "girdi kaydı ve yeniden oynatma"
+      },
+      "dal": "altyapi",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 3.5977662489999997
+    },
+    {
+      "id": "ekran-yon",
+      "ad": "Yatay ve dikey açılışta #app ekranı tam kaplar; yön değişiminde düzen bozulmaz",
+      "p": 1,
+      "tarayici": "ekran-yon",
+      "dal": "altyapi",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 12.715
+    },
+    {
       "id": "kararlilik",
       "ad": "5 araç: kararlılık ve temel değerler",
       "p": 1,
@@ -61,7 +90,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.3620874240000003
+      "sure": 3.361269737
     },
     {
       "id": "surus",
@@ -72,7 +101,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.611
+      "sure": 2.722
     },
     {
       "id": "spin",
@@ -85,7 +114,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.8188387480000001
+      "sure": 1.7703873319999994
     },
     {
       "id": "drift-denge",
@@ -98,7 +127,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.4915500999999995
+      "sure": 0.5343207829999992
     },
     {
       "id": "saglamlik",
@@ -111,7 +140,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 6.853791440999999
+      "sure": 6.735306940999999
     },
     {
       "id": "garaj",
@@ -120,9 +149,12 @@
       "duman": true,
       "tarayici": "garaj",
       "dal": "garaj",
-      "durum": "geçti",
-      "hatalar": [],
-      "sure": 1.487
+      "durum": "kaldı",
+      "hatalar": [
+        "bırakma hızı kendi dönme hızından yüksek (0.30)",
+        "sola bırakınca sabit dönme sola"
+      ],
+      "sure": 27.163
     },
     {
       "id": "acilis",
@@ -133,7 +165,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.663
+      "sure": 1.675
     },
     {
       "id": "yarislar",
@@ -144,7 +176,43 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 4.313
+      "sure": 4.431
+    },
+    {
+      "id": "arac-bagimsiz",
+      "ad": "Araç örnekleri birbirinin fiziğini etkilemez",
+      "p": 2,
+      "birim": {
+        "dosya": "tests/birim/cok-arac.test.ts",
+        "grup": "araç örnekleri birbirinden bağımsız"
+      },
+      "dal": "altyapi",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 3.8439685719999996
+    },
+    {
+      "id": "uzak-arac",
+      "ad": "Anlık görüntü düz sayı; uzak araç yumuşak ilerler",
+      "p": 2,
+      "birim": {
+        "dosya": "tests/birim/cok-arac.test.ts",
+        "grup": "anlık görüntü ve uzak araç"
+      },
+      "dal": "altyapi",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 0.3879325630000003
+    },
+    {
+      "id": "hayalet",
+      "ad": "Yarışta hayalet uzak araç çiziliyor, girdi kaydı tutuluyor",
+      "p": 2,
+      "tarayici": "cok-arac",
+      "dal": "altyapi",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 17.893
     },
     {
       "id": "toprak",
@@ -157,7 +225,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.8779816050000002
+      "sure": 2.031570879
     },
     {
       "id": "drift-yarisi",
@@ -170,7 +238,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 7.953376709000001
+      "sure": 7.620692150000001
     },
     {
       "id": "titresim",
@@ -183,7 +251,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 44.51571526699998
+      "sure": 44.353401872999996
     },
     {
       "id": "uyum",
@@ -196,7 +264,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 8.213918352
+      "sure": 8.277601529
     },
     {
       "id": "govde",
@@ -209,7 +277,20 @@
       "dal": "grafik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.9809995289999999
+      "sure": 0.97463805
+    },
+    {
+      "id": "ek-parcalar",
+      "ad": "Ek parçalar (tampon, far, kanat, şerit) gövdeye oturur: gövdeden taşmaz, havada kalmaz",
+      "p": 2,
+      "birim": {
+        "dosya": "tests/birim/govde.test.ts",
+        "grup": "ek parçalar gövdeye oturur (tampon, far, kanat)"
+      },
+      "dal": "grafik",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 0.48367002800000025
     },
     {
       "id": "kokpit",
@@ -219,7 +300,7 @@
       "dal": "grafik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 7.117
+      "sure": 6.022
     },
     {
       "id": "hud-cakisma",
@@ -229,7 +310,7 @@
       "dal": "hud",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 14.442
+      "sure": 13.293
     },
     {
       "id": "hud-duzenleyici",
@@ -239,7 +320,7 @@
       "dal": "hud",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.903
+      "sure": 0.764
     },
     {
       "id": "garaj-ses",
@@ -249,7 +330,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.924
+      "sure": 0.347
     },
     {
       "id": "dokunma",
@@ -259,17 +340,17 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.16
+      "sure": 2.021
     },
     {
-      "id": "arka-video",
-      "ad": "Menü arka plan videosu: menüde oynuyor ve 3B çizim duruyor, sürüşte gizli",
+      "id": "arka-gorsel",
+      "ad": "Menü arka plan görselleri: menüde rastgele akıyor ve 3B çizim duruyor, sürüşte gizli",
       "p": 2,
-      "tarayici": "arka-video",
+      "tarayici": "arka-gorsel",
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 9.269
+      "sure": 1.774
     },
     {
       "id": "seviyeler",
@@ -279,7 +360,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.242
+      "sure": 0.105
     },
     {
       "id": "kapak",
@@ -289,7 +370,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 10.046
+      "sure": 2.638
     },
     {
       "id": "pist-duzeni",
@@ -302,7 +383,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.08379819300000026
+      "sure": 0.06335413000000005
     },
     {
       "id": "ses-tarayici",
@@ -312,7 +393,7 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 8.373
+      "sure": 7.981
     },
     {
       "id": "motor-sesi",
@@ -325,7 +406,7 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.212468649
+      "sure": 2.248729423
     },
     {
       "id": "kerb-tarayici",
@@ -335,7 +416,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 65.962
+      "sure": 66.062
     },
     {
       "id": "gecis",
@@ -345,7 +426,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 4.751
+      "sure": 9.763
     },
     {
       "id": "efektler",
@@ -358,7 +439,7 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.6444825529999999
+      "sure": 0.7041779699999999
     }
   ]
 }
