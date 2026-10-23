@@ -118,7 +118,7 @@ function kare(ts: number) {
   parcacikTick(dt);
   if (mode != "menu" && mode != "garage" && !duzenleyici.acik) {
     hudGuncelle(v);
-    miniHaritaCiz(gx, gz, Math.sin(gh), Math.cos(gh));
+    miniHaritaCiz(gx, gz, Math.sin(gh), Math.cos(gh), v, yarista ? uzak.araclar : [], HAYALET);
   }
   sesTick(dt);
   const t2 = performance.now();
