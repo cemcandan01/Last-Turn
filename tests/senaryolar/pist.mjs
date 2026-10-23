@@ -22,7 +22,7 @@ export default [
   },
   {
     id: "drift-puan-formulu",
-    ad: "drift puanı açı × hız (iç birim m/s, birimden bağımsız), puan açısı en çok 44°, düşük hızda küçük",
+    ad: "drift puanı açı × hız (iç birim m/s, birimden bağımsız), puan açısı en çok 60°, düşük hızda küçük",
     p: 2,
     birim: { dosya: "tests/birim/yildiz.test.ts", grup: "drift puan hızı (açı × hız)" },
   },
