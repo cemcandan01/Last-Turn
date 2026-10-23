@@ -39,11 +39,12 @@ function sesButonu() {
   const on = !!DINLE && DINLE.arac == GAR.i && performance.now() < DINLE.zaman;
   b.classList.toggle("on", on);
   b.innerHTML = on ? '<i class="dalga"><u></u><u></u><u></u><u></u></i>Dinleniyor…' : "<i>🔊</i>Motoru dinle";
-  // yazı tipi daha geniş olan cihazda rozet satırı sığmazsa bir bütün olarak küçülür (sığdığında görünüm aynı)
+  // yazı tipi daha geniş olan cihazda rozet satırı sığmazsa yazı ve yan boşluklar küçülür (--rz; düğme yüksekliği
+  // aynı kalır, sığdığında görünüm değişmez)
   const rz = b.parentElement!,
     tasar = () => b.getBoundingClientRect().right > rz.getBoundingClientRect().right + 1;
-  rz.style.zoom = "";
-  for (let k = 0.95; k > 0.7 && tasar(); k -= 0.05) rz.style.zoom = String(k);
+  rz.style.removeProperty("--rz");
+  for (let k = 0.95; k > 0.65 && tasar(); k -= 0.05) rz.style.setProperty("--rz", k.toFixed(2));
 }
 
 /** ses tarafının "bitti" olayını bir kez bağla (yükleme anında değil, garaj ilk açılınca) */
