@@ -557,6 +557,21 @@ details[open] > summary::after {
     transform: scaleY(0.25);
   }
 }
+.bdg.kilit {
+  background: #2a2f3a;
+  color: #cfd6e4;
+  border-color: #5b6578;
+}
+#gar.kilitli .gkart,
+#gar.kilitli .gcip {
+  opacity: 0.55;
+}
+.gbt .btn:disabled,
+#gvit .btn:disabled {
+  opacity: 0.55;
+  filter: grayscale(0.6);
+  pointer-events: none;
+}
 .bdg.rec {
   background: var(--acc);
   color: #1b0d05;

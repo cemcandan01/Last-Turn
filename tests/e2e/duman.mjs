@@ -34,6 +34,7 @@ const BOLUMLER = [
   "kokpit",
   "cok-arac",
   "ilerleme",
+  "garaj-kilit",
   "ekran-yon",
   "cihaz-dogrulama",
   "cihaz-menu",
