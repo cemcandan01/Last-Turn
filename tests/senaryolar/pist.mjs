@@ -1,10 +1,10 @@
 // Pist dalının senaryoları (tests/senaryolar/BENIOKU.md)
 const P = "tests/birim/pistler.test.ts";
 export default [
-  { id: "yarislar", ad: "30 yarış ve açık dünyalar kuruluyor", p: 1, duman: true, tarayici: "yarislar" },
+  { id: "yarislar", ad: "40 yarış ve açık dünyalar kuruluyor", p: 1, duman: true, tarayici: "yarislar" },
   {
     id: "pist-duzeni",
-    ad: "5 tür × 6 seviye: pistler kendini kesmez, virajlar yola sığar, bölgeler çakışmaz, hedefler ve yıldız eşikleri ölçülü",
+    ad: "5 tür × 8 pist (6 seviye): pistler kendini kesmez, virajlar yola sığar, bölgeler çakışmaz, hedefler ve yıldız eşikleri ölçülü",
     p: 2,
     birim: { dosya: P, grup: "pist düzeni" },
   },
@@ -19,5 +19,11 @@ export default [
     ad: "oyunda ters sürüşte EV.ters kalkar; drift yarışı tur sayısıyla biter, sonuçta yıldız ve eşikler",
     p: 2,
     tarayici: "yildiz",
+  },
+  {
+    id: "drift-puan-formulu",
+    ad: "drift puanı açı × hız (iç birim m/s, birimden bağımsız), puan açısı en çok 60°, düşük hızda küçük",
+    p: 2,
+    birim: { dosya: "tests/birim/yildiz.test.ts", grup: "drift puan hızı (açı × hız)" },
   },
 ];

@@ -25,7 +25,7 @@ export default async function ({ p, ok }) {
   await foto("ana");
   await q.evaluate(() => LT.showMenu(["race"]));
   const kapak = await q.evaluate(() => document.querySelector(".tk em").textContent);
-  ok(/1\/6 pist açık/.test(kapak), "tür kartında açık pist sayısı: " + kapak);
+  ok(/1\/8 pist açık/.test(kapak), "tür kartında açık pist sayısı: " + kapak);
   await q.evaluate(() => LT.showMenu(["race", "t:gp"]));
   const liste = await q.evaluate(() => {
     const k = [...document.querySelectorAll("#menu .rc")];
@@ -38,7 +38,7 @@ export default async function ({ p, ok }) {
       not: document.getElementById("kilitnot")?.classList.contains("goster"),
     };
   });
-  ok(liste.kilitli == 5 && liste.toplam == 6, "temiz profilde 5 pist kilitli: " + JSON.stringify(liste));
+  ok(liste.kilitli == 7 && liste.toplam == 8, "temiz profilde 7 pist kilitli: " + JSON.stringify(liste));
   ok(/Seviye 2'de açılır/.test(liste.metin), "kilit yazısı: " + liste.metin);
   ok(liste.acikAyrintiyaGitmedi && liste.not, "kilitli pist açılmaz, kısa açıklama çıkar");
   await bekle(400);

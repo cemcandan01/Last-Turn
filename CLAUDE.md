@@ -81,6 +81,7 @@ npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 ## Kullanıcının kararları (bozma, değiştirmeden önce sor)
 
 - Yönetmen sohbeti yönlendirdiği işleri kullanıcıya önceden anlatmaz (maliyet); yalnız işler bitince kısa özet ve görsel kanıtla yazar. Yönetmenin açtığı konu sohbetleri kullanıcıya hiçbir şey göndermez (`SendUserFile` dahil): işi bitirince yönetmene `mcp__claude-code-remote__send_message` (`@parent`) ile "<dal>: <sürüm> denemede" ve kanıt tarifini yazar; görsel kanıtı yönetmen alır ve kendi sohbetinde gösterir.
+- Drift puanı açı × hız (birimden bağımsız iç hız); puan açısı en fazla 60°; bonuslar (uzun drift +100/sn, direksiyonsuz +100/sn, tek yön +250/sn; koşul 1 sn sürünce başlar).
 - Oyun yalnız yatay ekranda; dikey düzen için emek harcanmaz.
 - Direksiyon tuşu hassasiyeti varsayılan 0,5 (tüm önayarlarda `sens:.5`).
 - Gerçek marka adı ve logo yok; araçlar gerçek araçlardan esinlenir, kendi adları vardır (Kızıl Ok, Kor RX, Beyaz Kurt, Mavi Yıldız, Gece Mavisi).

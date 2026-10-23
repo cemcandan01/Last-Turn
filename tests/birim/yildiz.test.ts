@@ -3,7 +3,14 @@ import { describe, expect, it } from "vitest";
 import "../yardimci/sahte-tuval";
 import { ipucu } from "../../src/dunya/pist";
 import { pistNo } from "../../src/dunya/pist-tanimlari";
-import { driftAdimi, tersAdimi, type DriftSayaci, type TersSayaci } from "../../src/oyun/yaris-kurallari";
+import {
+  bosDriftSayaci,
+  driftAdimi,
+  driftBankala,
+  tersAdimi,
+  type DriftSayaci,
+  type TersSayaci,
+} from "../../src/oyun/yaris-kurallari";
 import { enIyiYildiz, yildizEsikleri, yildizKaydet, yildizSay } from "../../src/oyun/yildiz";
 import { surucuKur } from "../yardimci/surucu";
 
@@ -36,7 +43,7 @@ describe("yıldız ve ters sürüş", () => {
   });
 
   it("ters giderken drift kombosu birikmez", () => {
-    const E: DriftSayaci = { score: 0, combo: 0, ct: 0, mult: 1, gap: 0, best: 0 };
+    const E: DriftSayaci = bosDriftSayaci();
     for (let k = 0; k < 120; k++) driftAdimi(E, true, 0.5, false, 15, true, DT);
     expect(E.combo).toBe(0);
     for (let k = 0; k < 120; k++) driftAdimi(E, true, 0.5, false, 15, false, DT);
@@ -73,5 +80,89 @@ describe("yıldız ve ters sürüş", () => {
     let degisim = 0;
     for (let n = 1; n < ileri.length; n++) if (ileri[n] != ileri[n - 1]) degisim++;
     expect(degisim).toBeLessThanOrEqual(1);
+  });
+});
+
+describe("drift puan hızı (açı × hız)", () => {
+  const sn = (beta: number, v: number) => {
+    const E: DriftSayaci = bosDriftSayaci();
+    for (let k = 0; k < 60; k++) driftAdimi(E, true, beta, false, v, false, DT);
+    return E.combo;
+  };
+  it("hız ve açı arttıkça puan artar; düşük hız/açı belirgin az", () => {
+    expect(sn(0.65, 30)).toBeGreaterThan(sn(0.65, 20));
+    expect(sn(0.65, 20)).toBeGreaterThan(sn(0.3, 20));
+    expect(sn(0.65, 30)).toBeGreaterThan(2 * sn(0.2, 12));
+    expect(sn(0.65, 3)).toBeLessThan(sn(0.65, 30) / 20);
+  });
+  it("puan açısı 60°'de kesilir: daha büyük açı fazla puan vermez", () => {
+    expect(sn(0.9, 25)).toBeGreaterThan(sn(0.5, 25));
+    expect(sn(Math.PI / 3, 25)).toBeCloseTo(sn(1.3, 25), 5);
+    expect(sn(1.4, 25)).toBe(sn(1.1, 25));
+  });
+  it("puan iç birim m/s ile hesaplanır: birim ayarı puanı değiştirmez", () => {
+    // oyun hep m/s verir (AdimSonucu.v); km/sa ya da mph yalnız HUD'da çarpılır, puana girmez
+    expect(sn(0.6, 25)).toBe(sn(0.6, 25));
+    expect(sn(0.6, 25)).toBeCloseTo(3 * 25 * 0.6 * 1, 5);
+  });
+});
+
+describe("drift bonusları", () => {
+  const kos = (sn: number, beta: (t: number) => number, tg: (t: number) => number) => {
+    const E = bosDriftSayaci();
+    for (let k = 0; k < sn * 60; k++)
+      driftAdimi(E, true, beta(k * DT), false, 25, false, DT, tg(k * DT), k * DT);
+    return E;
+  };
+  const adlar = (E: DriftSayaci) => E.driftOlay.map((o) => o.ad + o.puan);
+  it("koşul 1 sn sürünce başlar, sonra her tam saniye için verilir", () => {
+    const E = kos(
+      3.5,
+      () => 0.5,
+      () => 0.8,
+    );
+    expect(adlar(E).sort()).toEqual([...Array(3).fill("TEK YÖN250"), ...Array(3).fill("UZUN DRIFT100")]);
+    expect(E.bonus).toBe(3 * 350);
+    expect(
+      kos(
+        0.9,
+        () => 0.5,
+        () => 0.8,
+      ).bonus,
+    ).toBe(0);
+  });
+  it("direksiyonsuz drift saniyede +100 daha verir; taraf değişince tek yön sıfırlanır", () => {
+    expect(
+      kos(
+        2.5,
+        () => 0.5,
+        () => 0,
+      ).bonus,
+    ).toBe(2 * 450);
+    const E = kos(
+      2.5,
+      (t) => (t < 1.5 ? 0.5 : -0.5),
+      () => 0.8,
+    );
+    expect(E.driftOlay.filter((o) => o.ad == "TEK YÖN").length).toBe(1);
+  });
+  it("bonus bankalanır; kombo yanınca bonus da yanar; ters sürüşte bonus yok", () => {
+    const E = kos(
+      2.2,
+      () => 0.5,
+      () => 0.8,
+    );
+    const kombo = Math.round(E.combo * E.mult);
+    expect(driftBankala(E)).toBe(kombo + 700);
+    const Y = kos(
+      2.2,
+      () => 0.5,
+      () => 0.8,
+    );
+    driftAdimi(Y, true, 0.5, true, 25, false, DT, 0.8, 3);
+    expect(Y.bonus).toBe(0);
+    const T = bosDriftSayaci();
+    for (let k = 0; k < 180; k++) driftAdimi(T, true, 0.5, false, 25, true, DT, 0, k * DT);
+    expect(T.driftOlay.length).toBe(0);
   });
 });

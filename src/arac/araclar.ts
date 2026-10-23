@@ -2,6 +2,7 @@
 // Gövdeye özel ek parçalar (kanat, numara, kompresör) cizim/arac-modeli.ts'te.
 import type { V2 } from "../cekirdek/matematik";
 import type { OnayarAnahtari } from "../fizik/veriler";
+import { GORUNUM } from "./gorunumler";
 
 export type YarisTuru = "gp" | "rx" | "dp" | "rl" | "dg";
 
@@ -497,30 +498,7 @@ export const CARS: Arac[] = [
   },
 ];
 
-// ---------- yeni araçlar (5-9): gövde profili benzer bir aracınkinden boyca ölçeklenir (tekerler aynı boyda);
-// kendi 3B modelleri k anahtarına göre çizilir
-
-type Govde = Pick<Arac, "p" | "gh" | "ws" | "rw" | "pan" | "wh" | "w" | "hl" | "tl" | "rhl">;
-
-/** taban aracın gövdesi boyca s ile ölçeklenmiş; paneller verilen renklerle (sırayla) */
-function govde(t: Arac, s: number, panRenk: number[] = [], rim?: number): Govde {
-  const z = (v: V2): V2 => [+(v[0] * s).toFixed(3), v[1]];
-  return {
-    p: t.p.map(z),
-    gh: t.gh.map(z),
-    ws: [z(t.ws[0]), z(t.ws[1])],
-    rw: [z(t.rw[0]), z(t.rw[1])],
-    pan: (t.pan || []).map(([p], i) => [p.map(z), panRenk[i] ?? t.pan![i][1]] as [V2[], number]),
-    wh: { ...t.wh, zf: +(t.wh.zf * s).toFixed(3), zr: +(t.wh.zr * s).toFixed(3), rim: rim ?? t.wh.rim },
-    w: t.w,
-    hl: t.hl,
-    tl: t.tl,
-    rhl: t.rhl,
-  };
-}
-
-const [KIZIL, KOR, KURT, YILDIZ] = CARS;
-
+// ---------- yeni araçlar (5-9): görünüm (gövde profili, tekerler, renk) gorunumler.ts'te, k anahtarına göre
 CARS.push(
   {
     k: "gt3",
@@ -552,8 +530,7 @@ CARS.push(
     ff: 0.4,
     hcg: 0.44,
     dv: 9000,
-    col: 0x8b9199,
-    ...govde(KIZIL, 0.98, [0x1a1c20, 0x1a1c20], 0x2a2c30),
+    ...GORUNUM.gt3,
   },
   {
     k: "t16",
@@ -588,8 +565,7 @@ CARS.push(
     tb: 0.55,
     tbs: 0.7,
     tbu: 0.68,
-    col: 0xefeee8,
-    ...govde(KOR, 0.95, [0x1d3f9a, 0xd42a2a, 0x1d3f9a], 0xe8e8e8),
+    ...GORUNUM.t16,
   },
   {
     k: "int",
@@ -620,14 +596,12 @@ CARS.push(
     hp: 345,
     kg: 1180,
     ff: 0.6,
-    hcg: 0.5,
+    hcg: 0.47,
     dv: 7200,
     tb: 0.15,
     tbs: 0.35,
     tbu: 0.45,
-    lift: 0.07,
-    col: 0xf4c20d,
-    ...govde(YILDIZ, 0.96, [0x15171a], 0xe8e8e8),
+    ...GORUNUM.int,
   },
   {
     k: "ae86",
@@ -658,8 +632,7 @@ CARS.push(
     ff: 0.53,
     hcg: 0.46,
     dv: 8000,
-    col: 0xf2f2ee,
-    ...govde(KURT, 0.93, [0x111214, 0x111214], 0x18181a),
+    ...GORUNUM.ae86,
   },
   {
     k: "supra",
@@ -693,7 +666,6 @@ CARS.push(
     tb: 0.58,
     tbs: 1.0,
     tbu: 0.72,
-    col: 0xf2650f,
-    ...govde(KURT, 1.0, [0x15171a, 0x15171a], 0xc8ccd2),
+    ...GORUNUM.supra,
   },
 );

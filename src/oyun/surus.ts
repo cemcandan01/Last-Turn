@@ -100,10 +100,11 @@ export function surusAdimi() {
   const S = sim.S;
   PROF.km += (Math.hypot(S.vx, S.vz) * ADIM) / 1000;
   yerel.cx.kurulum = surusKurulumu();
-  const son = aracAdimi(yerel, fizikGirdisi());
+  const gi = fizikGirdisi(),
+    son = aracAdimi(yerel, gi);
   if (sim.d.zaman % 20 < ADIM) saveProf();
   turSayaci(ADIM);
-  if (yaris.EV) evTick(ADIM, son);
+  if (yaris.EV) evTick(ADIM, son, gi.tg);
   uzakAdimi();
 }
 

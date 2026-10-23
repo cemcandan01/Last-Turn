@@ -5,28 +5,61 @@ import { REG } from "../../src/dunya/bolgeler";
 import { pistParcalari } from "../../src/dunya/pist-ciz";
 import { KW } from "../../src/dunya/pist";
 import { SEVIYELER, TDEF } from "../../src/dunya/pist-tanimlari";
-import { yildizEsikleri } from "../../src/oyun/yildiz";
+import {
+  TUR_ANAHTARI,
+  enIyiYildiz,
+  yildizAnahtari,
+  yildizEsikleri,
+  yildizKaydet,
+} from "../../src/oyun/yildiz";
 import { EVENTS_HEDEF } from "../yardimci/hedefler";
 
 const TURLER = ["gp", "rx", "dp", "rl", "dg"] as const;
 
 describe("pist düzeni", () => {
-  it("her türde 6 seviye, her seviyede bir pist", () => {
+  it("her türde 8 pist: numaralar 1-8 benzersiz, her seviyede en az bir pist, 1-6 eski seviyesinde", () => {
     expect(SEVIYELER.length).toBe(6);
-    expect(TDEF.length).toBe(30);
-    for (const t of TURLER)
-      expect(
-        TDEF.filter((d) => d.t == t)
-          .map((d) => d.lv)
-          .sort(),
-        t,
-      ).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(TDEF.length).toBe(40);
+    for (const t of TURLER) {
+      const pl = TDEF.filter((d) => d.t == t);
+      expect(pl.map((d) => d.lv).sort(), t).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+      for (const d of pl) if (d.lv <= 6) expect(d.sev ?? d.lv, `${d.n}: eski pist seviyesi`).toBe(d.lv);
+      for (let sv = 1; sv <= 6; sv++)
+        expect(
+          pl.some((d) => (d.sev ?? d.lv) == sv),
+          `${t} seviye ${sv}`,
+        ).toBe(true);
+    }
+  });
+
+  it("rekor ve yıldız anahtarları: eski pistlerde değişmez, yeni pistlerde çakışmaz", () => {
+    for (const t of TURLER) {
+      const an = TDEF.filter((d) => d.t == t).map((d) => yildizAnahtari(t, d.lv));
+      expect(new Set(an).size).toBe(an.length);
+      expect(an.slice(0, 6)).toEqual([1, 2, 3, 4, 5, 6].map((l) => TUR_ANAHTARI[t] + "_" + l));
+    }
+  });
+
+  it("eski yıldız kaydı yerinde kalır, yeni pistler boş başlar", () => {
+    const depo: Record<string, string> = { lt_yildiz: JSON.stringify({ asphalt_3: 2, drift_6: 3 }) };
+    (globalThis as { localStorage?: unknown }).localStorage = {
+      getItem: (k: string) => depo[k] ?? null,
+      setItem: (k: string, v: string) => (depo[k] = v),
+    };
+    expect(enIyiYildiz("gp", 3)).toBe(2);
+    expect(enIyiYildiz("dp", 6)).toBe(3);
+    expect(enIyiYildiz("gp", 7)).toBe(0);
+    expect(yildizKaydet("gp", 7, 1)).toBe(true);
+    expect(enIyiYildiz("gp", 3)).toBe(2);
   });
 
   it("seviye yükseldikçe yol daralır ya da aynı kalır", () => {
     for (const t of TURLER) {
-      const hw = [1, 2, 3, 4, 5, 6].map((lv) => TDEF.find((d) => d.t == t && d.lv == lv)!.hw);
-      for (let k = 1; k < 6; k++) expect(hw[k], `${t} seviye ${k + 1}`).toBeLessThanOrEqual(hw[k - 1]);
+      const pl = TDEF.filter((d) => d.t == t).sort(
+        (a, b) => (a.sev ?? a.lv) - (b.sev ?? b.lv) || a.lv - b.lv,
+      );
+      for (let k = 1; k < pl.length; k++)
+        expect(pl[k].hw, `${t} ${pl[k].n}`).toBeLessThanOrEqual(pl[k - 1].hw);
     }
   });
 

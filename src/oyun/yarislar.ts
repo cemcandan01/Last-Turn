@@ -17,7 +17,7 @@ import { aracAcikMi, pistAcikMi, yarisBitti } from "./ilerleme";
 import { applyPreset, kurulum, kurulumKaydet, kurulumYukle, type KurulumKaydi } from "./kurulum";
 import { PROF, saveProf } from "./profil";
 import { reset, sim } from "./surus";
-import { driftAdimi, driftBankala, tersAdimi } from "./yaris-kurallari";
+import { driftAdimi, driftBankala, tersAdimi, type DriftOlay } from "./yaris-kurallari";
 import { DRIFT_TUR, TUR_ANAHTARI, yildizEsikleri, yildizSay } from "./yildiz";
 
 /** yarış türleri: hedef süre, pist uzunluğundan ve ilk pistlerin ayarlı hızından (v, m/s) hesaplanır */
@@ -69,8 +69,10 @@ export interface YarisTanimi {
   /** rekor anahtarı */
   k: string;
   ty: YarisTuru;
-  /** seviye: 1 Çaylak … 6 Efsane (SEVIYELER) */
+  /** pist numarası (türde benzersiz; rekor anahtarı `k`) */
   lv: number;
+  /** zorluk seviyesi: 1 Çaylak … 6 Efsane (SEVIYELER) */
+  sev: number;
   n: string;
   d: string;
   /** bölge sırası */
@@ -100,6 +102,14 @@ export interface Yaris extends YarisTanimi {
   mult: number;
   gap: number;
   best: number;
+  /** drift bonusu ve sayaçları (yaris-kurallari.ts) */
+  bonus: number;
+  uzunT: number;
+  dirT: number;
+  yanT: number;
+  yan: number;
+  /** verilen drift bonusları: hud okur ve kendi indeksini tutar */
+  driftOlay: DriftOlay[];
   armed: number;
   lap: number;
   lapStart: number;
@@ -125,6 +135,7 @@ export const EVENTS: YarisTanimi[] = REG.filter((r) => r.t != "park").map((r, i)
     k: y.k + "_" + r.lv,
     ty,
     lv: r.lv!,
+    sev: r.sev ?? r.lv!,
     n: r.n,
     d: r.d!,
     reg: i,
@@ -176,6 +187,12 @@ export function startEvent(i: number, ci?: number) {
     mult: 1,
     gap: 0,
     best: 0,
+    bonus: 0,
+    uzunT: 0,
+    dirT: 0,
+    yanT: 0,
+    yan: 0,
+    driftOlay: [],
     armed: 0,
     lap: 0,
     lapStart: 0,
@@ -208,7 +225,7 @@ function bank(EV: Yaris) {
 }
 
 /** yarış mantığı: her fizik adımından sonra */
-export function evTick(dt: number, o: AdimSonucu) {
+export function evTick(dt: number, o: AdimSonucu, tg = 0.5) {
   const EV = yaris.EV!;
   if (EV.state != "run") return;
   const S = sim.S,
@@ -219,7 +236,7 @@ export function evTick(dt: number, o: AdimSonucu) {
     geri = tersAdimi(EV, S.vx, S.vz, T[0], T[1], dt);
   if (EV.ty == "dp") {
     const lost = o.si == 2 || sim.d.zaman - S.hit < 0.05 || Math.abs(D.beta) > 1.4,
-      r = driftAdimi(EV, !!D.act, D.beta, lost, o.v, EV.ters || geri, dt);
+      r = driftAdimi(EV, !!D.act, D.beta, lost, o.v, EV.ters || geri, dt, tg, sim.d.zaman);
     if (r.olay == "yandi") note("KOMBO YANDI", 30);
     else if (r.olay == "carpan") note("x" + EV.mult, 44);
     else if (r.olay == "bank" && r.p > 0) note("+" + r.p, 40);

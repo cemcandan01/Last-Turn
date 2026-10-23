@@ -1506,6 +1506,69 @@ details[open] > summary::after {
   font-size: 14px;
 }
 
+/* drift bonus bildirimleri: kombonun altında, en fazla 3 satır; GERİ DÖN varsa onun altına iner */
+#bon {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: calc(var(--hy) + 80px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+}
+#app:has(#ters:not(.hidden)) #bon {
+  top: calc(var(--hy) + 120px);
+}
+#bon div {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #fff;
+  text-shadow: 0 1px 3px #000c;
+  white-space: nowrap;
+  transition:
+    opacity 0.45s,
+    transform 0.45s;
+}
+#bon b {
+  font-size: 16px;
+  color: #ffc070;
+  letter-spacing: 0;
+}
+#bon div.pop {
+  animation: bonPop 0.22s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+#bon div.son {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+@keyframes bonPop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1);
+  }
+}
+#drP.nb {
+  animation: drNabiz 0.18s ease-out;
+}
+@keyframes drNabiz {
+  50% {
+    transform: scale(1.1);
+  }
+}
+
 /* yarışta ters yön uyarısı: üst orta, kombo panelinin altında; yol ve araç boş kalır */
 #ters {
   position: absolute;
@@ -1674,6 +1737,12 @@ details[open] > summary::after {
 }
 #app[data-hiz="bant"] #ters {
   top: calc(var(--hy) + 142px);
+}
+#app[data-hiz="bant"] #bon {
+  top: calc(var(--hy) + 136px);
+}
+#app[data-hiz="bant"]:has(#ters:not(.hidden)) #bon {
+  top: calc(var(--hy) + 176px);
 }
 
 /* --- Yazı (sayaç) ve Yazı (hız): panel yok, yalnız güçlü gölgeli yazı --- */

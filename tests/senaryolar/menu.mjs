@@ -33,7 +33,7 @@ export default [
   },
   {
     id: "seviyeler",
-    ad: "Pist listesi: 6 pist seviye sırasıyla, seviye rozeti ve kimin için ideal; drift hedef puanı",
+    ad: "Pist listesi: 8 pist seviye sırasıyla, seviye rozeti ve kimin için ideal; drift hedef puanı",
     p: 2,
     tarayici: "seviyeler",
   },

@@ -1,6 +1,7 @@
 // Last Turn: giriş noktası. Modüller burada, belirli bir sırayla kurulur.
 import "./stil.css";
 import { CARS } from "./arac/araclar";
+import { gorunumUygula } from "./arac/gorunumler";
 import { oku } from "./cekirdek/depo";
 import { $ } from "./cekirdek/dom";
 import { ekranKur } from "./cekirdek/ekran";
@@ -30,6 +31,8 @@ import { sesKur } from "./ses/ses";
 // eski testler ve hata ayıklama için oyunun iç durumuna erişim
 import * as oyunApi from "./oyun/api";
 
+// yeni araçların gövde verisi (fizik alanlarına dokunmaz)
+gorunumUygula(CARS);
 ekranKur();
 // ilk kurulan: iptal edilen dokunuşların tıklamasını öteki dinleyicilerden (tık sesi) önce yutar
 dokunmaKur();
