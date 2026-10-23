@@ -248,7 +248,10 @@ export function evTick(dt: number, o: AdimSonucu, tg = 0.5) {
     const lost = o.si == 2 || sim.d.zaman - S.hit < 0.05 || Math.abs(D.beta) > 1.4,
       r = driftAdimi(EV, !!D.act, D.beta, lost, o.v, EV.ters || geri, dt, tg, sim.d.zaman, EV.x6);
     if (EV.lap == 0 && D.act && !lost && !EV.ters && !geri) {
-      EV.driftMesafe += o.v * dt;
+      // orta çizgi ilerlemesi (pist uzunluğuyla aynı ölçü; dış çizgiden giden fazla yol sayılmaz)
+      let ds = EV.TR.S[ti] - EV.TR.S[EV.prev];
+      if (ds < -EV.TR.len / 2) ds += EV.TR.len;
+      if (ds > 0) EV.driftMesafe += ds;
       EV.driftOran = Math.min(1, EV.driftMesafe / EV.TR.len);
     }
     EV.driftCarpan = EV.mult;

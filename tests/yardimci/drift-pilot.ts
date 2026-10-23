@@ -201,7 +201,7 @@ export function driftTuru(
     if (ds < -TR.len / 2) ds += TR.len;
     yol += ds;
     if (o.si == 2) cim += DT;
-    if (biten == 0 && s.sim.d.D.act && o.si != 2) driftYol += o.v * DT;
+    if (biten == 0 && s.sim.d.D.act && o.si != 2 && ds > 0) driftYol += ds;
     if (tur) {
       const N = TR.N,
         ti = ipucu.ti;
