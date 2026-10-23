@@ -22,6 +22,13 @@ export const garajOlcek = (): number =>
 export const garajDikey = (): number =>
   Math.round(Math.min(1.6, Math.max(1, ekran.ah / 390 / garajOlcek())) * 100) / 100;
 
+/** garaj panelinin genişlik katsayısı (kart yüksekliğiyle büyür ama panel ekranın %58'ini geçmez): 1–gv */
+export const garajGenislik = (): number =>
+  Math.round(Math.max(1, Math.min(garajDikey(), (ekran.aw * 0.58) / 410 / garajOlcek())) * 100) / 100;
+
+/** garaj panelinin genişliği (px) */
+export const garajPanel = (): number => Math.min(410 * garajOlcek() * garajGenislik(), ekran.aw * 0.58);
+
 let app: HTMLElement;
 let probe: HTMLElement;
 
@@ -98,6 +105,7 @@ export function layout() {
   st.setProperty("--gs", String(garajOlcek()));
   // dikey boşluk fazlaysa (kareye yakın / yüksek ekran) kart içeriği yükseklikle de büyür: 1–1,6
   st.setProperty("--gv", String(garajDikey()));
+  st.setProperty("--gw", String(garajGenislik()));
 }
 
 /** ekran koordinatını içerik koordinatına çevirir */
