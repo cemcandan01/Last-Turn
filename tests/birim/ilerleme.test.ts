@@ -110,7 +110,7 @@ describe("kilit tablosu", () => {
       for (let l = 1; l < 6; l++) expect(s[l]).toBeGreaterThan(s[l - 1]);
       expect(ACILMA.arac[CARS.findIndex((c) => c.ty == t)]).toBeLessThanOrEqual(s[2]);
     }
-    expect(kilitTablosu().length).toBe(35);
+    expect(kilitTablosu().length).toBe(30 + CARS.length);
   });
 
   it("seviye atlayınca dinleyici açılanları alır", () => {

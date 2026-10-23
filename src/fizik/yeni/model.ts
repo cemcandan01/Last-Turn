@@ -70,6 +70,8 @@ export interface YeniDurum {
   rpm: number;
   vites: number;
   vitesT: number;
+  /** turbo basıncı (0 boş, 1 dolu; turbosuz araçta kullanılmaz) */
+  turbo: number;
   /** önceki adımın boylamsal hızı (ivme için) */
   vlOnce: number;
 }
@@ -250,6 +252,7 @@ export function yeniBaslat(d: SimDurumu, cx: FizikBaglami): YeniDurum {
     rpm: 900,
     vites: 1,
     vitesT: 0,
+    turbo: 0,
     vlOnce: 0,
   };
   rot(Y, 0, F.cgY, F.cgZ, T1);
@@ -433,9 +436,18 @@ export function yeniAdim(
     devir = Math.max(devirT, gaz > 0.05 ? kalkis : F.devirMin),
     u = devir / F.devirMax;
   Y.rpm += (devir - Y.rpm) * Math.min(1, dt * 12);
+  // turbo: torkun tb payı basınçtan gelir. Basınç gaz açık ve devir tbu'yu geçmişken tbs sürede dolar,
+  // gaz kesilince çabuk boşalır (kalkışta ve virajdan çıkışta gecikme, sonra sert güç)
+  let turbo = 1;
+  if (CAR.tb) {
+    const hedef = gaz * sm((CAR.tbu ?? 0.6) - 0.2, CAR.tbu ?? 0.6, u),
+      tbs = CAR.tbs ?? 1;
+    Y.turbo += (hedef - Y.turbo) * Math.min(1, dt / (hedef > Y.turbo ? tbs : tbs * 0.3));
+    turbo = 1 - CAR.tb * (1 - Y.turbo);
+  }
   let Te = 0;
   if (Y.vitesT <= 0) {
-    Te = u < 1.02 ? F.tork * torkEgrisi(u) * gaz * uzmanG : 0;
+    Te = u < 1.02 ? F.tork * torkEgrisi(u) * gaz * uzmanG * turbo : 0;
     // motor freni: gaz kapalıyken
     if (devirT > F.devirMin) Te -= F.tork * 0.15 * u * (1 - gaz);
   }

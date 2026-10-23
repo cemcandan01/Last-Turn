@@ -80,7 +80,8 @@ export function xpSeviyesi(xp: number) {
 
 /**
  * açılma seviyesi: pistler [tür][Çaylak … Efsane], araçlar CARS sırasıyla
- * (Kızıl Ok asfalt, Kor RX rallycross, Beyaz Kurt drift, Mavi Yıldız ralli, Gece Mavisi drag).
+ * (Kızıl Ok asfalt, Kor RX rallycross, Beyaz Kurt drift, Mavi Yıldız ralli, Gece Mavisi drag; sonra Gri Atmaca,
+ * Kum Fırtınası, Sarı Arı, Panda, Turuncu Ejder: geçici olarak ileri seviyede, ileride parayla alınacak).
  * Araç uyumu: her araç her yarışı bitirebilir; başta asfalt ve rallycross aracı açık, drift/ralli/drag araçları sonra.
  */
 export const ACILMA = {
@@ -91,7 +92,7 @@ export const ACILMA = {
     rl: [1, 3, 7, 10, 14, 18],
     dg: [1, 4, 7, 11, 15, 17],
   } as Record<YarisTuru, number[]>,
-  arac: [1, 1, 4, 6, 7],
+  arac: [1, 1, 4, 6, 7, 10, 11, 13, 9, 15],
 };
 
 export function acilmaSeviyesi(o: { ty: YarisTuru; lv: number } | { arac: number }) {

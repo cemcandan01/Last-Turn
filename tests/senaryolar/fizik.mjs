@@ -3,7 +3,7 @@ const F = "tests/birim/fizik.test.ts";
 export default [
   {
     id: "kararlilik",
-    ad: "5 araç: kararlılık ve temel değerler",
+    ad: "Bütün araçlar: kararlılık ve temel değerler",
     p: 1,
     duman: true,
     birim: { dosya: F, grup: "kararlılık ve temel değerler" },
@@ -47,7 +47,7 @@ export default [
   },
   {
     id: "kerb-tarayici",
-    ad: "Tarayıcıda kerbe değmeden sarsıntı yok (5 araç × 18 asfalt pist)",
+    ad: "Tarayıcıda kerbe değmeden sarsıntı yok (10 araç × 18 asfalt pist)",
     p: 3,
     tarayici: "kerb",
   },
