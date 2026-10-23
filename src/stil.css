@@ -1994,9 +1994,8 @@ details[open] > summary::after {
 /* yüksek ekran (Fold açık, tablet): ayrıntı ekranları dikeyde ortalanır */
 @media (min-height: 560px) {
   .v-e,
-  .v-free,
-  .v-profile {
-    align-items: center;
+  .v-free {
+    align-items: safe center;
   }
   .v-t,
   .v-settings {
@@ -2006,13 +2005,13 @@ details[open] > summary::after {
   }
 }
 /* tablet ve geniş ekran: alt ekran içeriği ekrana oranla büyür (kapak akışı kendi ölçüsünü hesaplar, hariç) */
-@media (min-width: 1000px) and (min-height: 600px) {
-  #menu.sub .mbody:not(.v-race) {
-    zoom: 1.35;
-  }
-}
-@media (min-width: 1200px) and (min-height: 700px) {
+@media (min-width: 1000px) and (min-height: 700px) {
   #menu.sub .mbody:not(.v-race) {
     zoom: 1.5;
+  }
+}
+@media (min-width: 1250px) and (min-height: 700px) {
+  #menu.sub .mbody:not(.v-race) {
+    zoom: 1.6;
   }
 }
