@@ -6,9 +6,9 @@ iPhone için 3D sürüş ve yarış oyunu. Ana ekrana kurulan bir uygulama (PWA)
 
 - **Açık dünya** (serbest sürüş): *Çorak Topraklar* (oval, uzun düz yol, zıplama rampası, tırmanış yolu) ve *Boş Otopark* (AVM önünde geniş açık otopark, asfalt testleri için).
 - **30 pist**, 5 yarış türü (Asfalt, Rallycross, Ralli, Drift, Drag) × 6 seviye; her seviyenin hedefi var, drift pistlerinde hedef puan. Türe uygun araç kendi yarışında daha başarılıdır, ama her araç her yarışı bitirebilir.
-- **Garaj**: araçları dönen platformda incele, azami hız, hızlanma, güç, yol tutuşu, arazi, fren ve çeviklik değerlerini karşılaştır, **Motoru dinle** ile motor sesini duy. Her yarıştan önce araç seçilir.
+- **Garaj**: araçları ışıklı vitrinde incele (sürükleyerek döndür, iki parmakla yakınlaştır, tam ekranda ◀ ▶ ile araç değiştir), azami hız, hızlanma, güç, yol tutuşu, arazi, fren ve çeviklik değerlerini karşılaştır, **Motoru dinle** ile motor sesini duy. Her yarıştan önce araç seçilir.
 - **5 araç**, her yarış türü için bir tane: *Kızıl Ok* (ortadan motorlu pist arabası), *Kor RX* (dört çeker rallikros), *Beyaz Kurt* (geniş gövdeli drift arabası), *Mavi Yıldız* (dört çeker ralli sedanı), *Gece Mavisi* (kompresörlü drag arabası). Yarışa varsayılan olarak türüne uygun araçla girilir.
-- **Ana menü**: ekranın altında soldan sağa ikonlu eğik paneller (Yarış, Serbest sürüş, Garaj, Profil, Ayarlar); arkada oyunun kendi çekimlerinden dikişsiz dönen video. Yarış türü seçimi parmağı izleyen kapak akışı, her türün kendi rengi ve ikonu → pist listesi → günün saati ve hava → araç seçimi.
+- **Ana menü**: ekranın altında soldan sağa ikonlu eğik paneller (Yarış, Serbest sürüş, Garaj, Profil, Ayarlar); arkada oyunun kendi sahnelerinden hafif görseller yavaş kayarak akar. Yarış türü seçimi parmağı izleyen kapak akışı, her türün kendi rengi ve ikonu → pist listesi → günün saati ve hava → araç seçimi.
 - **Araçlar ve kokpit**: teker kemerli, yuvarlak hatlı gövdeler ve yeni jantlar; her aracın kendi kokpit tasarımı, gösterge kadranları, yan aynalar ve dikiz aynası, yarış araçlarında koruma kafesi.
 - **Koşullar**: sabah, öğlen, akşam; güneşli, yağmurlu, karlı (yağışta zemin kayganlaşır). Gölgeler.
 - **Fizik motoru:** 4 teker, süspansiyon, gerçek vites ve patinaj; gövde frende öne, virajda yana yatar. Toprakta lastik sınırı aşılınca araç kayar.
