@@ -8,8 +8,16 @@ import { garG, garajIsigi } from "../cizim/garaj-sahnesi";
 import { ground } from "../cizim/zemin";
 import { REG } from "../dunya/bolgeler";
 import { dunya, WORLDS } from "../dunya/dunya";
-import { vitrinBosalt, vitrinHazirla, vitrinHazirMi, vitrinIsit, aracIcKur } from "../cizim/arac-modeli";
+import {
+  model,
+  vitrinBosalt,
+  vitrinHazirla,
+  vitrinHazirMi,
+  vitrinIsit,
+  aracIcKur,
+} from "../cizim/arac-modeli";
 import { carIndex, oyun, setCar } from "../oyun/durum";
+import * as THREE from "three";
 import { kamera, garajKameraSifirla } from "../cizim/kamera";
 import { applyPreset, kurulum } from "../oyun/kurulum";
 import { acilmaSeviyesi, aracAcikMi, pistAcikMi } from "../oyun/ilerleme";
@@ -87,6 +95,59 @@ function onHazirla() {
   ONHAZIR = setTimeout(adim, 300);
 }
 
+/** türe en uygun açık araç: türün kendi aracı açıksa o, değilse türün ağırlıklı özelliklerinde (STAT) en yüksek açık araç */
+const TUR_AGIRLIK: Record<string, Record<string, number>> = {
+  gp: { "Azami hız": 1, "Yol tutuşu": 1, Hızlanma: 0.5, Fren: 0.5 },
+  rx: { Arazi: 1, "Yol tutuşu": 1, Hızlanma: 0.7 },
+  rl: { Arazi: 1.2, "Yol tutuşu": 1, Fren: 0.5 },
+  dp: { Hızlanma: 1, "Yol tutuşu": 0.6, "Azami hız": 0.4 },
+  dg: { Hızlanma: 1.2, "Azami hız": 0.8 },
+};
+export function onerilenArac(ty: string) {
+  const own = CARS.findIndex((c) => c.ty == ty);
+  if (own >= 0 && aracAcikMi(own)) return own;
+  const w = TUR_AGIRLIK[ty] ?? {};
+  let best = -1,
+    bs = -1;
+  CARS.forEach((c, k) => {
+    if (!aracAcikMi(k)) return;
+    const sc = STAT(c).reduce((a, [n, f]) => a + (w[n] ?? 0) * f, 0);
+    if (sc > bs) {
+      bs = sc;
+      best = k;
+    }
+  });
+  return best;
+}
+
+/** kilitli aracı vitrinde karart (siluet); açık araçta özgün malzemeler geri gelir. Malzemeler kopyalanır: ortak malzeme bozulmaz */
+function kilitGorunumu(kilitli: boolean) {
+  const cm = model.carM;
+  if (!cm) return;
+  const isle = (o: THREE.Object3D) => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh) return;
+    const u = m.userData as {
+      orj?: THREE.Material | THREE.Material[];
+      kar?: THREE.Material | THREE.Material[];
+    };
+    if (kilitli) {
+      u.orj ??= m.material;
+      u.kar ??= (Array.isArray(u.orj) ? u.orj : [u.orj]).map((x) => {
+        const k = x.clone() as THREE.MeshStandardMaterial;
+        k.color?.multiplyScalar(0.1);
+        if (k.emissive) k.emissive.setHex(0);
+        k.map = null;
+        k.envMapIntensity = 0.2;
+        return k;
+      });
+      m.material = Array.isArray(u.orj) ? (u.kar as THREE.Material[]) : (u.kar as THREE.Material[])[0];
+    } else if (u.orj) m.material = u.orj;
+  };
+  cm.g.traverse(isle);
+  for (const w of cm.ws) w.w.traverse(isle);
+}
+
 /** garajı aç: yarıştan önce (ev), serbest sürüşten önce (w) ya da menüden (ikisi de null) */
 export function openGarage(ev: number | null, w: number | null = null) {
   // kilitli pistin garajı açılmaz (kilit görselleri menu dalında)
@@ -95,7 +156,7 @@ export function openGarage(ev: number | null, w: number | null = null) {
     return;
   }
   const prev = carIndex(),
-    rec = ev != null ? CARS.findIndex((c) => c.ty == EVENTS[ev].ty) : -1,
+    rec = ev != null ? onerilenArac(EVENTS[ev].ty) : -1,
     acik = (k: number) => k >= 0 && aracAcikMi(k);
   GAR = {
     ev,
@@ -137,8 +198,12 @@ function showGar() {
   const G = GAR!,
     c = CARS[G.i];
   if (oyun.CAR !== c) setCar(G.i, true);
-  const g = $("#gar");
+  const g = $("#gar"),
+    kilitli = !aracAcikMi(G.i),
+    kilitYazi = "Seviye " + acilmaSeviyesi({ arac: G.i }) + "'de açılır";
+  kilitGorunumu(kilitli);
   g.classList.remove("hidden");
+  g.classList.toggle("kilitli", kilitli);
   // ana menüden açılan garajda araç seçilmez (yalnız bakılır)
   const sec = G.ev != null ? "Yarış: " + EVENTS[G.ev].n : G.w != null ? "Sür: " + WORLDS[G.w].n : "";
   const sv = Object.fromEntries(STAT(c).map(([n, f]) => [n, f])),
@@ -152,8 +217,8 @@ function showGar() {
       ["🛑", "Fren 100-0", String(c.b100), "m", sv["Fren"]],
       ["🔋", "Güç / ağırlık", String(Math.round(gucAgirlik)), "hp/ton", gucAgirlik / 600],
     ];
-  g.innerHTML = `<div class="gh"><button class="ga" id="gpv">◀</button><div style="flex:1;text-align:center"><h1>${c.n}</h1></div><button class="ga" id="gnx">▶</button></div>
-<div class="grozet${G.i == G.rec ? " sik" : ""}"><span class="bdg">${c.ic} ${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}<button class="gses" id="gses"></button></div>
+  g.innerHTML = `<div class="gh"><button class="ga" id="gpv">◀</button><div style="flex:1;text-align:center"><h1>${kilitli ? "🔒 " : ""}${c.n}</h1></div><button class="ga" id="gnx">▶</button></div>
+<div class="grozet${G.i == G.rec || kilitli ? " sik" : ""}"><span class="bdg">${c.ic} ${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}${kilitli ? `<span class="bdg kilit" title="${kilitYazi}">🔒 Seviye ${acilmaSeviyesi({ arac: G.i })}</span>` : ""}<button class="gses" id="gses"></button></div>
 <div class="gkart">${kartlar
     .map(
       ([ic, n, d, b, f]) =>
@@ -161,10 +226,10 @@ function showGar() {
     )
     .join("")}</div>
 <div class="gcip"><span>⚙️ ${c.hp} hp</span><span>⚖️ ${c.kg} kg</span><span>🔩 ${c.awd ? "Dört çeker" : "Arkadan itiş"}</span></div>
-<div class="gbt"><button class="btn alt" id="gbk">Geri</button>${sec ? `<button class="btn" id="gok">${sec}</button>` : ""}</div>`;
+<div class="gbt"><button class="btn alt" id="gbk">Geri</button>${sec ? `<button class="btn" id="gok"${kilitli ? " disabled" : ""}>${kilitli ? "🔒 " + kilitYazi : sec}</button>` : ""}</div>`;
   const v = $("#gvit");
   v.classList.remove("hidden");
-  v.innerHTML = `<button class="gvar" id="gvpv">◀</button><button class="gvar sag" id="gvnx">▶</button>${sec ? `<button class="btn" id="gvok">${sec}</button>` : ""}<button class="btn alt" id="gvbk">Geri</button><button class="gvtam" id="gvtam">⛶</button>`;
+  v.innerHTML = `<button class="gvar" id="gvpv">◀</button><button class="gvar sag" id="gvnx">▶</button>${sec ? `<button class="btn" id="gvok"${kilitli ? " disabled" : ""}>${kilitli ? "🔒 " + kilitYazi : sec}</button>` : ""}<button class="btn alt" id="gvbk">Geri</button><button class="gvtam" id="gvtam">⛶</button>`;
   if (sec) $("#gvok").onclick = () => $("#gok").click();
   // tam ekranda Geri: tam ekrandan çıkıp bilgi paneline döner
   $("#gvbk").onclick = () => {
