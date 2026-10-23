@@ -5,7 +5,7 @@ import { surucuKur } from "../yardimci/surucu";
 
 const DT = 1 / 60;
 it("duruş, hızlanma, azami hız, fren", () => {
-  for (let ci = 0; ci < 5; ci++) {
+  for (let ci = 0; ci < CARS.length; ci++) {
     const s = surucuKur({ dunya: 0, arac: ci, lk: "norm" });
     // Çorak Topraklar uzun düz yol (asfalt), güneye bakarak başla
     s.reset(210, -780, 0);

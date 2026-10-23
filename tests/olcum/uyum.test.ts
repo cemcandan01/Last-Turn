@@ -1,5 +1,5 @@
-// Ölçüm: her yarış türünde 5 araç (her biri kendi önayarıyla). Türün önerilen aracı açık ara en iyi olmalı;
-// yanlış türün aracı da bitirebilir ama daha yavaş. npm run olcum -- uyum
+// Ölçüm: her yarış türünde bütün araçlar (her biri kendi önayarıyla). Türün araçları (★ ilk araç, ☆ sonradan
+// gelenler; fark ilk araca göre) açık ara en iyi olmalı; yanlış türün aracı da bitirebilir ama daha yavaş. npm run olcum -- uyum
 import { it } from "vitest";
 import { CARS } from "../../src/arac/araclar";
 import { pistNo, TDEF } from "../../src/dunya/pist-tanimlari";
@@ -18,7 +18,7 @@ it("yol tutuşu (her yarış türünün pistinde)", () => {
     );
 });
 
-it("araç-tür uyumu", () => {
+it("araç-tür uyumu", { timeout: 3600000 }, () => {
   const PISTLER = [
     ["gp", 2],
     ["gp", 4],
@@ -47,7 +47,7 @@ it("araç-tür uyumu", () => {
             o = sonuc[oner],
             fark = t == "dp" ? (100 * (v - o)) / o : (100 * (v - o)) / o,
             hedef = t == "dp" ? v >= d.hp! : v <= d.tg!;
-          return `  ${a == oner ? "★" : " "} ${c.n.padEnd(12)} ${(t == "dp" ? v.toFixed(0) : v.toFixed(2)).padStart(8)}  ${a == oner ? "      " : (fark > 0 ? "+" : "") + fark.toFixed(1) + "%"}  hedef ${hedef ? "geçti" : "kaldı"}${a != oner && iyi(v, o) ? "  ← ÖNERİLENDEN İYİ" : ""}`;
+          return `  ${a == oner ? "★" : c.ty == t ? "☆" : " "} ${c.n.padEnd(12)} ${(t == "dp" ? v.toFixed(0) : v.toFixed(2)).padStart(8)}  ${a == oner ? "      " : (fark > 0 ? "+" : "") + fark.toFixed(1) + "%"}  hedef ${hedef ? "geçti" : "kaldı"}${a != oner && c.ty != t && iyi(v, o) ? "  ← ÖNERİLENDEN İYİ" : ""}`;
         }).join("\n"),
     );
   }

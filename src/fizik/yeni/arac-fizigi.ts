@@ -65,7 +65,18 @@ export interface AracFizigi {
 /** tork eğrisi: u = devir / azami devir. Tepe tork ~%55'te, tepe güç ~%88'de */
 export const torkEgrisi = (u: number) => Math.max(0.45, 1 - 1.4 * (u - 0.55) * (u - 0.55));
 
-const FREKANS: Record<string, number> = { gt: 2.4, rx: 1.9, dr: 2.1, rl: 1.6, dg: 1.8 };
+const FREKANS: Record<string, number> = {
+  gt: 2.4,
+  rx: 1.9,
+  dr: 2.1,
+  rl: 1.6,
+  dg: 1.8,
+  gt3: 2.3,
+  t16: 2.05,
+  int: 1.85,
+  ae86: 2.0,
+  supra: 2.05,
+};
 
 export function aracFizigi(c: Arac, K: SurusKurulumu): AracFizigi {
   const tu = K.tu,

@@ -111,7 +111,7 @@ describe("kilit tablosu", () => {
       for (let l = 6; l < 8; l++) expect(s[l]).toBeGreaterThan(1);
       expect(ACILMA.arac[CARS.findIndex((c) => c.ty == t)]).toBeLessThanOrEqual(s[2]);
     }
-    expect(kilitTablosu().length).toBe(45);
+    expect(kilitTablosu().length).toBe(40 + CARS.length);
   });
 
   it("seviye atlayınca dinleyici açılanları alır", () => {

@@ -32,7 +32,7 @@ export function titresimOlc(
   yaris: number,
   arac: number,
   sn = 25,
-  cesaret = PILOT_CESARET[(TDEF[yaris].lv || 1) - 1],
+  cesaret = PILOT_CESARET[(TDEF[yaris].sev ?? TDEF[yaris].lv) - 1],
 ): TitresimSonucu {
   const s = surucuKur({ yaris, arac, lk: "norm" });
   const TR = s.bolge!.TR!,
