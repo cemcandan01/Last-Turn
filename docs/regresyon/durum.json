@@ -1,6 +1,6 @@
 {
-  "surum": "0.3.12",
-  "asama": "suruyor",
-  "not": "İlk koşum: 1 hata (garaj/garaj bırakma hızı), düzeltildi; tekrar koşuluyor",
-  "tarih": "2026-10-23T01:20:35Z"
+  "surum": "0.3.13",
+  "asama": "onay-bekliyor",
+  "not": "0 hata (ilk koşumda 1: garaj bırakma hızı, düzeltildi). Canlıya çıkış onayı bekleniyor",
+  "tarih": "2026-10-23T01:26:01Z"
 }

@@ -19,8 +19,8 @@
     },
     "garaj": {
       "senaryo": 1,
-      "gecti": 0,
-      "kaldi": 1,
+      "gecti": 1,
+      "kaldi": 0,
       "kosulmadi": 0
     },
     "menu": {
@@ -66,7 +66,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.5977662489999997
+      "sure": 3.3566687749999997
     },
     {
       "id": "ekran-yon",
@@ -76,7 +76,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 12.715
+      "sure": 11.14
     },
     {
       "id": "kararlilik",
@@ -90,7 +90,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.361269737
+      "sure": 3.20274595
     },
     {
       "id": "surus",
@@ -101,7 +101,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.722
+      "sure": 2.695
     },
     {
       "id": "spin",
@@ -114,7 +114,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.7703873319999994
+      "sure": 1.901899112000001
     },
     {
       "id": "drift-denge",
@@ -127,7 +127,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.5343207829999992
+      "sure": 0.5017900050000007
     },
     {
       "id": "saglamlik",
@@ -140,7 +140,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 6.735306940999999
+      "sure": 6.843985965
     },
     {
       "id": "garaj",
@@ -149,12 +149,9 @@
       "duman": true,
       "tarayici": "garaj",
       "dal": "garaj",
-      "durum": "kaldı",
-      "hatalar": [
-        "bırakma hızı kendi dönme hızından yüksek (0.30)",
-        "sola bırakınca sabit dönme sola"
-      ],
-      "sure": 27.163
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 29.721
     },
     {
       "id": "acilis",
@@ -165,7 +162,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.675
+      "sure": 1.676
     },
     {
       "id": "yarislar",
@@ -176,7 +173,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 4.431
+      "sure": 4.134
     },
     {
       "id": "arac-bagimsiz",
@@ -189,7 +186,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.8439685719999996
+      "sure": 4.623989545000001
     },
     {
       "id": "uzak-arac",
@@ -202,7 +199,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.3879325630000003
+      "sure": 0.36737564699999986
     },
     {
       "id": "hayalet",
@@ -212,7 +209,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 17.893
+      "sure": 18.387
     },
     {
       "id": "toprak",
@@ -225,7 +222,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.031570879
+      "sure": 2.234109117
     },
     {
       "id": "drift-yarisi",
@@ -238,7 +235,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 7.620692150000001
+      "sure": 8.180056506000001
     },
     {
       "id": "titresim",
@@ -251,7 +248,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 44.353401872999996
+      "sure": 44.964041075
     },
     {
       "id": "uyum",
@@ -264,7 +261,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 8.277601529
+      "sure": 9.178542042999998
     },
     {
       "id": "govde",
@@ -277,7 +274,7 @@
       "dal": "grafik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.97463805
+      "sure": 0.986007501
     },
     {
       "id": "ek-parcalar",
@@ -290,7 +287,7 @@
       "dal": "grafik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.48367002800000025
+      "sure": 0.3541443199999997
     },
     {
       "id": "kokpit",
@@ -300,7 +297,7 @@
       "dal": "grafik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 6.022
+      "sure": 5.781
     },
     {
       "id": "hud-cakisma",
@@ -310,7 +307,7 @@
       "dal": "hud",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 13.293
+      "sure": 13.474
     },
     {
       "id": "hud-duzenleyici",
@@ -320,7 +317,7 @@
       "dal": "hud",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.764
+      "sure": 0.766
     },
     {
       "id": "garaj-ses",
@@ -330,7 +327,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.347
+      "sure": 0.299
     },
     {
       "id": "dokunma",
@@ -340,7 +337,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.021
+      "sure": 2.019
     },
     {
       "id": "arka-gorsel",
@@ -350,7 +347,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.774
+      "sure": 1.931
     },
     {
       "id": "seviyeler",
@@ -360,7 +357,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.105
+      "sure": 0.1
     },
     {
       "id": "kapak",
@@ -370,7 +367,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.638
+      "sure": 2.643
     },
     {
       "id": "pist-duzeni",
@@ -383,7 +380,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.06335413000000005
+      "sure": 0.06994935800000007
     },
     {
       "id": "ses-tarayici",
@@ -393,7 +390,7 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 7.981
+      "sure": 7.909
     },
     {
       "id": "motor-sesi",
@@ -406,7 +403,7 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.248729423
+      "sure": 2.148235439
     },
     {
       "id": "kerb-tarayici",
@@ -416,7 +413,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 66.062
+      "sure": 65.298
     },
     {
       "id": "gecis",
@@ -426,7 +423,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 9.763
+      "sure": 8.799
     },
     {
       "id": "efektler",
@@ -439,7 +436,7 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.7041779699999999
+      "sure": 0.6424793030000001
     }
   ]
 }
