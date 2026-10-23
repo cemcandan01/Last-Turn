@@ -67,6 +67,9 @@ export function belgeOlustur(): BulutBelgesi {
   return { ...ilerlemeVerisi(), rekor, oyunSurum: surum() };
 }
 
+/** bu cihazdaki kişisel rekorları sil (yeni oyuncu) */
+export const rekorlariSil = () => rekorAnahtarlari().forEach((k) => saveBest(k, ""));
+
 /** buluttaki rekorları yerele kat: drift puanında büyüğü, sürede küçüğü (bilinmeyen anahtar alınmaz) */
 export function rekorBirlestir(r: Record<string, unknown> | undefined) {
   if (!r) return;

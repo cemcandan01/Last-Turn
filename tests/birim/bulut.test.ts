@@ -12,7 +12,14 @@ import {
   type Kullanici,
   type Saglayici,
 } from "../../src/bulut/esitleme";
-import { bulutKur, googleBagla, hesapBaslat, hesapDurumu, hesapOzeti } from "../../src/bulut/hesap";
+import {
+  bulutKur,
+  googleBagla,
+  hesapBaslat,
+  hesapDurumu,
+  hesapOzeti,
+  yeniOyuncu,
+} from "../../src/bulut/hesap";
 import { hesapHtml } from "../../src/arayuz/hesap-ui";
 import {
   aracAcikMi,
@@ -25,7 +32,7 @@ import {
   xpEkle,
   yarisBitti,
 } from "../../src/oyun/ilerleme";
-import { best, saveBest } from "../../src/oyun/profil";
+import { PROF, best, saveBest } from "../../src/oyun/profil";
 import { enIyiYildiz } from "../../src/oyun/yildiz";
 
 let depo: Record<string, string>;
@@ -270,6 +277,24 @@ describe("sahte Firebase ile eşitleme", () => {
     expect(hesapOzeti()).toContain("oyuncu@ornek.com");
     expect(hesapOzeti()).toContain("Bulutta");
     expect(hesapHtml()).toContain("Çıkış");
+    // yeni oyuncu: bulutta kalır, bu cihaz sıfırdan; oyun yeniden açılınca yeni misafir hesap
+    const uid = hesapDurumu().kullanici!.uid;
+    yarisBitti("gp", 1, 3);
+    saveBest("asphalt_1", "60");
+    PROF.races = 5;
+    let acildi = 0;
+    await yeniOyuncu(() => acildi++);
+    expect(acildi).toBe(1);
+    expect(hesapDurumu().kullanici).toBeNull();
+    expect(bulut.db.get(uid)!.yildiz["asphalt_1"]).toBe(3);
+    ilerlemeSifirla();
+    expect(seviye().toplamXp).toBe(0);
+    expect(para()).toBe(0);
+    expect(enIyiYildiz("gp", 1)).toBe(0);
+    expect(best("asphalt_1")).toBe(0);
+    expect(JSON.parse(depo["lt_prof"]).races).toBe(0);
+    expect(depo["lt_car"]).toBe("1");
+    expect(bekleyenVar()).toBe(false);
     e.kapat();
   });
 });
