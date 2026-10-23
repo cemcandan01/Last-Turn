@@ -20,13 +20,22 @@ export interface HesapDurumu {
   etkin: boolean;
   kullanici: Kullanici | null;
   esitleme: EsitlemeDurumu;
-  /** son işlemin hatası (kullanıcıya gösterilecek Türkçe metin) */
+  /** son işlemin hatası (kullanıcıya gösterilecek Türkçe metin, sonda kod) */
   hata: string | null;
+  /** son işlemin başarı bildirimi ("Bağlandı: …") */
+  bilgi: string | null;
   /** bağlama ya da çıkış sürüyor */
   mesgul: boolean;
 }
 
-const D: HesapDurumu = { etkin: false, kullanici: null, esitleme: "yok", hata: null, mesgul: false };
+const D: HesapDurumu = {
+  etkin: false,
+  kullanici: null,
+  esitleme: "yok",
+  hata: null,
+  bilgi: null,
+  mesgul: false,
+};
 let S: Saglayici | null = null,
   E: Esitleyici | null = null,
   hazir: Promise<Saglayici | null> | null = null;
@@ -104,8 +113,12 @@ function hataMetni(e: unknown) {
   if (k.includes("network")) return "İnternet yok; bağlanınca yeniden dene" + kod;
   if (k.includes("popup-blocked")) return "Pencere açılamadı; yeniden dene" + kod;
   if (k.includes("wrong-password") || k.includes("invalid-credential") || k.includes("invalid-login"))
-    return "E-posta ya da şifre yanlış" + kod;
+    return "E-posta ya da şifre yanlış (hesabın yoksa yeni hesap oluştur)" + kod;
   if (k.includes("invalid-email")) return "E-posta geçersiz" + kod;
+  if (k.includes("email-already-in-use") || k.includes("credential-already-in-use"))
+    return "Bu e-postayla zaten hesap var; şifrenle giriş yap" + kod;
+  if (k.includes("user-not-found")) return "Bu e-postayla hesap yok; yeni hesap oluştur" + kod;
+  if (k.includes("missing-password")) return "Şifre yaz" + kod;
   if (k.includes("weak-password")) return "Şifre en az 6 karakter olmalı" + kod;
   if (k.includes("operation-not-allowed")) return "Bu giriş yolu henüz açılmadı (Firebase ayarı)" + kod;
   if (k.includes("unauthorized-domain")) return "Bu adres Firebase'de yetkili değil" + kod;
@@ -113,16 +126,21 @@ function hataMetni(e: unknown) {
   return "Bağlanılamadı" + kod;
 }
 
-async function islem(f: (s: Saglayici) => Promise<void>) {
+/** işlemi yürütür; başarılıysa true (bilgi: başarı bildirimi) */
+async function islem(f: (s: Saglayici) => Promise<void>, bilgi?: () => string) {
   const s = S || (hazir && (await hazir));
-  if (!s || D.mesgul) return;
+  if (!s || D.mesgul) return false;
   D.mesgul = true;
   D.hata = null;
+  D.bilgi = null;
   bildir();
   try {
     await f(s);
+    D.bilgi = bilgi ? bilgi() : null;
+    return true;
   } catch (e) {
     D.hata = hataMetni(e);
+    return false;
   } finally {
     D.mesgul = false;
     bildir();
@@ -130,11 +148,28 @@ async function islem(f: (s: Saglayici) => Promise<void>) {
 }
 
 /** anonim hesabı Google'a bağla (o Google hesabı başka cihazda varsa ona geç; ilerlemeler birleşir) */
-export const googleBagla = () => islem((s) => s.googleBagla());
+export const googleBagla = () =>
+  islem(
+    (s) => s.googleBagla(),
+    () => (D.kullanici && !D.kullanici.anonim ? "Bağlandı: " + (D.kullanici.eposta || "Google") : ""),
+  );
 
-/** e-posta + şifre ile bağlan ya da giriş yap */
-export const epostaBagla = (eposta: string, sifre: string) =>
-  islem((s) => s.epostaBagla(eposta.trim(), sifre));
+const baglandi = () => "Bağlandı: " + (D.kullanici?.eposta || "") + " · İlerlemen bulutta";
+
+/** e-posta + şifreyle yeni hesap aç (bu cihazın ilerlemesi o hesaba geçer) */
+export const epostaOlustur = (eposta: string, sifre: string) =>
+  islem((s) => s.epostaOlustur(eposta.trim(), sifre), baglandi);
+
+/** var olan e-posta hesabına giriş yap (ilerlemeler birleşir) */
+export const epostaGiris = (eposta: string, sifre: string) =>
+  islem((s) => s.epostaGiris(eposta.trim(), sifre), baglandi);
+
+/** şifre sıfırlama e-postası gönder */
+export const sifreSifirla = (eposta: string) =>
+  islem(
+    (s) => s.sifreSifirla(eposta.trim()),
+    () => "Şifre sıfırlama e-postası gönderildi: " + eposta.trim() + " (gelmezse gereksiz klasörüne bak)",
+  );
 
 /** hesaptan çık: bu cihazdaki ilerleme kalır, yeni anonim hesapla sürer */
 export const cikis = () =>

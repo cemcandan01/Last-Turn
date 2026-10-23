@@ -35,8 +35,12 @@ export interface Saglayici {
   anonimGir(): Promise<void>;
   /** anonim hesabı Google'a bağlar; Google hesabı başka cihazda zaten varsa ona geçer. Yönlendirmede sayfa değişebilir */
   googleBagla(): Promise<void>;
-  /** e-posta + şifre: yeni ise anonim hesaba bağlar, varsa o hesaba girer */
-  epostaBagla(eposta: string, sifre: string): Promise<void>;
+  /** e-posta + şifreyle yeni hesap: anonim hesaba bağlanır (ilerleme kalır); e-posta kullanılıyorsa email-already-in-use */
+  epostaOlustur(eposta: string, sifre: string): Promise<void>;
+  /** var olan e-posta hesabına giriş (bu cihazın ilerlemesi o hesapla birleşir) */
+  epostaGiris(eposta: string, sifre: string): Promise<void>;
+  /** şifre sıfırlama e-postası gönderir */
+  sifreSifirla(eposta: string): Promise<void>;
   cikis(): Promise<void>;
   /** açılışta Google yönlendirmesinden dönülürken oluşan hata (varsa kullanıcıya gösterilir) */
   baslangicHatasi?: unknown;

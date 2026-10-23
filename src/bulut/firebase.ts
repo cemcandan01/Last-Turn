@@ -10,6 +10,7 @@ import {
   EmailAuthProvider,
   GoogleAuthProvider,
   browserLocalPersistence,
+  createUserWithEmailAndPassword,
   browserPopupRedirectResolver,
   getRedirectResult,
   indexedDBLocalPersistence,
@@ -17,6 +18,7 @@ import {
   linkWithCredential,
   linkWithPopup,
   linkWithRedirect,
+  sendPasswordResetEmail,
   onAuthStateChanged,
   signInAnonymously,
   signInWithCredential,
@@ -115,18 +117,14 @@ export async function firebaseSaglayici(a: FirebaseAyari): Promise<Saglayici> {
         await linkWithPopup(u, google, browserPopupRedirectResolver).catch((e) => varsaGec(auth, e));
       else await signInWithPopup(auth, google, browserPopupRedirectResolver);
     },
-    async epostaBagla(eposta, sifre) {
-      const u = auth.currentUser;
-      if (u?.isAnonymous)
-        try {
-          await linkWithCredential(u, EmailAuthProvider.credential(eposta, sifre));
-          return;
-        } catch (e) {
-          const k = kod(e);
-          if (k != "auth/email-already-in-use" && k != "auth/credential-already-in-use") throw e;
-        }
-      await signInWithEmailAndPassword(auth, eposta, sifre);
+    async epostaOlustur(eposta, sifre) {
+      const u = auth.currentUser,
+        c = EmailAuthProvider.credential(eposta, sifre);
+      if (u?.isAnonymous) await linkWithCredential(u, c);
+      else await createUserWithEmailAndPassword(auth, eposta, sifre);
     },
+    epostaGiris: async (eposta, sifre) => void (await signInWithEmailAndPassword(auth, eposta, sifre)),
+    sifreSifirla: (eposta) => sendPasswordResetEmail(auth, eposta),
     cikis: () => signOut(auth),
     async oku(uid) {
       const s = await getDoc(doc(db, "users", uid));
