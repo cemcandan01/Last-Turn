@@ -38,6 +38,12 @@ export default [
     tarayici: "seviyeler",
   },
   {
+    id: "yildiz",
+    ad: "Yıldız görselleri: pist kartında en iyi yıldız, ayrıntıda 1★/2★/3★ eşikleri, yarış sonunda alınan yıldızlar",
+    p: 2,
+    tarayici: "yildiz",
+  },
+  {
     id: "kapak",
     ad: "Yarış türü kapak akışı: ok, kaydırma, yan kart; pistler türün rengiyle",
     p: 2,
