@@ -17,7 +17,8 @@ import { demoStart, demoStop } from "../oyun/sinematik";
 import { reset } from "../oyun/surus";
 import { EVENTS, leaveEvent, TYP, type YarisTanimi } from "../oyun/yarislar";
 import { gorselOynuyor } from "./arka-gorsel";
-import { ikon, type IkonAdi } from "./ikonlar";
+import { enIyiYildiz, yildizEsikleri } from "../oyun/yildiz";
+import { ikon, yildizSerit, type IkonAdi } from "./ikonlar";
 import { bindSettings, chipsOf, settingsHTML } from "./ayarlar-ekrani";
 import { openGarage } from "./garaj";
 import { kontrolleriKur } from "./kontroller";
@@ -27,7 +28,7 @@ const TYPES: [string, string, string, IkonAdi, string][] = [
   ["gp", "Asfalt", "Pist yarışları, fren tabelaları, kerbler", "pist", "#ff5a3c"],
   ["rx", "Rallycross", "Asfalt ve toprak karışık pist: çamur, su, rampa", "rallycross", "#d08a48"],
   ["rl", "Ralli", "A’dan B’ye dağ, orman, kar ve çöl etapları", "dag", "#4fbf74"],
-  ["dp", "Drift", "90 saniyede en yüksek drift puanı", "donus", "#b67cff"],
+  ["dp", "Drift", "Turlar bitmeden hedef drift puanı", "donus", "#b67cff"],
   ["dg", "Drag", "Düz çizgide milisaniyeler", "isik", "#ffd23c"],
 ];
 const turOf = (t: string) => TYPES.find((q) => q[0] == t)!;
@@ -48,7 +49,7 @@ let MV = ["home"];
 const evLen = (e: YarisTanimi) =>
   ((REG[e.reg].TR!.len * (e.laps || 1)) / 1000).toFixed(2) + " km" + (e.laps ? " · " + e.laps + " tur" : "");
 const evAvg = (e: YarisTanimi) =>
-  e.ty == "dp" ? e.time + " sn" : e.ty == "dg" ? fmt3(e.limit) : fmt(e.limit);
+  e.ty == "dp" ? e.limit + " puan" : e.ty == "dg" ? fmt3(e.limit) : fmt(e.limit);
 /** seviye rozeti: renk seviyeye göre (Çaylak yeşil … Efsane mor) */
 const seviyeRozeti = (e: YarisTanimi) =>
   `<span class="lv lv${e.lv}"><i>${e.lv}</i>${SEVIYELER[e.lv - 1].n}</span>`;
@@ -56,9 +57,21 @@ const seviyeRozeti = (e: YarisTanimi) =>
 const evSayilar = (e: YarisTanimi, kart = false) =>
   `<div class="rcs">${kart ? "" : `<span>Uzunluk<b>${evLen(e)}</b></span>`}${
     e.ty == "dp"
-      ? `<span>Hedef<b>${e.limit} puan</b></span>${kart ? "" : `<span>Süre<b>${e.time} sn</b></span>`}`
+      ? `<span>Hedef<b>${e.limit} puan</b></span>${kart ? "" : `<span>Tur<b>${e.laps}</b></span>`}`
       : `<span>${e.ty == "dg" ? "Hedef" : "Hedef süre"}<b>${evAvg(e)}</b></span>`
   }<span>PR<b>${prOf(e)}</b></span></div>`;
+/** yarış ayrıntısında 1★/2★/3★ eşikleri (alınanlar dolu) */
+const yildizEsikSatiri = (e: YarisTanimi) => {
+  const es = yildizEsikleri(e.ty, e.lv),
+    al = enIyiYildiz(e.ty, e.lv);
+  if (!es.length) return "";
+  return `<div class="yes">${es
+    .map(
+      (v, i) =>
+        `<span class="${i < al ? "dolu" : ""}">${yildizSerit(i + 1, "mini")}<b>${e.ty == "dp" ? v + " puan" : e.ty == "dg" ? fmt3(v) : fmt(v)}</b></span>`,
+    )
+    .join("")}</div>`;
+};
 const prOf = (e: YarisTanimi) => {
   const b = best(e.k);
   return b ? (e.ty == "dp" ? b + " puan" : e.ty == "dg" ? fmt3(+b) : fmt(+b)) : "—";
@@ -322,7 +335,7 @@ function view(cur: string): [string, string, string] {
       `<p>${y.d}</p><div class="rlist">${pl
         .map(
           ([e, i]) =>
-            `<div class="rc" data-ev="${i}"><div class="rcu"><img src="${trackThumb(REG[e.reg])}"><div class="rcm">${seviyeRozeti(e)}<em>${evLen(e)}</em></div></div><div class="rci"><b>${e.n}</b><small>${SEVIYELER[e.lv - 1].d}</small>${evSayilar(e, true)}</div></div>`,
+            `<div class="rc" data-ev="${i}"><div class="rcu"><img src="${trackThumb(REG[e.reg])}"><div class="rcm">${seviyeRozeti(e)}<em>${evLen(e)}</em>${yildizSerit(enIyiYildiz(e.ty, e.lv), "kucuk")}</div></div><div class="rci"><b>${e.n}</b><small>${SEVIYELER[e.lv - 1].d}</small>${evSayilar(e, true)}</div></div>`,
         )
         .join("")}</div>`,
     ];
@@ -335,7 +348,7 @@ function view(cur: string): [string, string, string] {
       e.n,
       turOf(e.ty)[1] + " yarışları",
       `<div><div class="evh"><img src="${trackThumb(r)}"><div>${seviyeRozeti(e)}<p class="lvd">${SEVIYELER[e.lv - 1].d}</p><p>${e.d}</p>
-${evSayilar(e)}</div></div><button class="btn" id="mgo" data-go="${i}">Araç seç ›</button></div>
+${evSayilar(e)}${yildizEsikSatiri(e)}</div></div><button class="btn" id="mgo" data-go="${i}">Araç seç ›</button></div>
 <div class="evk">${condChips()}</div>`,
     ];
   }

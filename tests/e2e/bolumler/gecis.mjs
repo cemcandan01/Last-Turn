@@ -1,4 +1,5 @@
 /* global LT */
+import { TUM_ACIK } from "../../yardimci/ilerleme-acik.mjs";
 // Menü arka planı (görseller yüklenemezse çalışan canlı sinematik): çekimden çekime geçişte kararma yok; eski çekimin
 // son karesi yakınlaşarak çözülür, sonra kalkar
 export default async function ({ p, ok }) {
@@ -7,6 +8,7 @@ export default async function ({ p, ok }) {
       .browser()
       .newContext({ viewport: { width: 844, height: 390 } }),
     q = await kx.newPage();
+  await q.addInitScript(TUM_ACIK);
   await q.route("**/img/menu/adet.json", (r) => r.abort());
   await q.goto(p.url().split("?")[0] + "?" + Date.now());
   await q.waitForFunction(() => window.LT, null, { timeout: 15000 });

@@ -1,0 +1,56 @@
+/* global LT */
+// İlerleme kilitleri (oyun/ilerleme.ts): temiz kayıtlı yeni oyuncu yalnız Çaylak pistlerini ve açık araçları başlatabilir;
+// eski rekoru olan oyuncu o pisti açık bulur. Diğer bölümler her şey açık başlar (yardimci/ilerleme-acik.mjs).
+export default async function ({ p, ok }) {
+  const url = p.url().split("?")[0] + "?" + Date.now(),
+    ac = async (init) => {
+      const kx = await p
+        .context()
+        .browser()
+        .newContext({ viewport: { width: 844, height: 390 } });
+      if (init) await kx.addInitScript(init);
+      const q = await kx.newPage();
+      await q.goto(url);
+      await q.waitForFunction(() => window.LT, null, { timeout: 15000 });
+      return { kx, q };
+    };
+  const yeni = await ac();
+  const r = await yeni.q.evaluate(() => {
+    LT.demoStop();
+    const ev = (ty, lv) => LT.EVENTS.findIndex((e) => e.ty == ty && e.lv == lv),
+      s = {};
+    s.lv = LT.seviye().lv;
+    s.kilitliPist = LT.startEvent(ev("gp", 2), 0) === false && !LT.yaris.EV;
+    LT.openGarage(ev("rl", 3));
+    s.kilitliGarajAcilmaz = LT.oyun.mode != "garage";
+    s.kilitliArac = LT.startEvent(ev("dg", 1), 4) === false && !LT.yaris.EV;
+    s.caylak = ["gp", "rx", "dp", "rl", "dg"].every((t) => {
+      const b = LT.startEvent(ev(t, 1), t == "rx" ? 1 : 0) !== false && !!LT.yaris.EV;
+      LT.yaris.EV = null;
+      return b;
+    });
+    s.acikArac = LT.CARS.map((_, i) => i).filter((i) => LT.aracAcikMi(i)).length;
+    return s;
+  });
+  ok(r.lv == 1, "yeni oyuncu seviye 1");
+  ok(r.kilitliPist, "kilitli pist başlamaz");
+  ok(r.kilitliGarajAcilmaz, "kilitli pistin garajı açılmaz");
+  ok(r.kilitliArac, "kilitli araçla yarış başlamaz");
+  ok(r.caylak, "her türün Çaylak pisti açık araçla başlar");
+  ok(r.acikArac == 2, "başta 2 araç açık: " + r.acikArac);
+  await yeni.kx.close();
+  const eski = await ac(
+    `localStorage.setItem("sv_asphalt_5", "100"); localStorage.setItem("lt_prof", '{"use":{"3":2}}')`,
+  );
+  const e = await eski.q.evaluate(() => ({
+    xp: LT.seviye().toplamXp,
+    gp5: LT.pistAcikMi("gp", 5),
+    arac3: LT.aracAcikMi(3),
+    kayit: !!localStorage.getItem("lt_ilerleme"),
+  }));
+  ok(
+    e.xp > 0 && e.gp5 && e.arac3 && e.kayit,
+    "eski kayıt: rekordan XP, oynanmış pist ve araç açık " + JSON.stringify(e),
+  );
+  await eski.kx.close();
+}

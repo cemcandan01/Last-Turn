@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { DINLEYICI_ISARETI, olc } from "./cihaz-olcum.mjs";
 import { EKRANLAR, gec, temizle } from "./cihaz-ekranlari.mjs";
+import { TUM_ACIK } from "./ilerleme-acik.mjs";
 
 /** cihaz ölçüsünde, güvenli alan payı uygulanmış, dinleyici işaretli yeni bağlam ve sayfa */
 export async function cihazSayfasi(br, cihaz) {
@@ -14,6 +15,7 @@ export async function cihazSayfasi(br, cihaz) {
     hasTouch: true,
   });
   await ctx.addInitScript(DINLEYICI_ISARETI);
+  await ctx.addInitScript(TUM_ACIK);
   const p = await ctx.newPage();
   p.hatalar = [];
   p.on("pageerror", (e) => p.hatalar.push(e.message));

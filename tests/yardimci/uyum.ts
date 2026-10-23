@@ -8,8 +8,14 @@ import { surucuKur } from "./surucu";
 
 const DT = 1 / 60;
 
-/** bir tur (açık pistte A'dan B'ye): süre, pist dışında geçen süre, spin sayısı */
-export function turSur(yaris: number, arac: number, cesaret: number, lk: "real" | "norm" | "arc" = "norm") {
+/** bir tur (açık pistte A'dan B'ye; kapalı pistte istenirse tur turlar): süre, pist dışında geçen süre, spin sayısı */
+export function turSur(
+  yaris: number,
+  arac: number,
+  cesaret: number,
+  lk: "real" | "norm" | "arc" = "norm",
+  tur = 1,
+) {
   const s = surucuKur({ yaris, arac, lk });
   const TR = s.bolge!.TR!,
     i0 = TR.open ? 4 : TR.N - 6,
@@ -23,8 +29,9 @@ export function turSur(yaris: number, arac: number, cesaret: number, lk: "real" 
     prev = ipucu.ti,
     disari = 0,
     spin = 0,
-    sp = false;
-  const sinir = TR.open ? 200 : 300;
+    sp = false,
+    biten = 0;
+  const sinir = TR.open ? 200 : 300 * tur;
   while (t < sinir) {
     s.adim(pl(S));
     t += DT;
@@ -45,7 +52,10 @@ export function turSur(yaris: number, arac: number, cesaret: number, lk: "real" 
       if (armed && ti >= N - 4) return { t, disari, spin };
     } else {
       if (ti > N * 0.4 && ti < N * 0.6) armed = 1;
-      if (prev > N * 0.8 && ti < N * 0.2 && armed) return { t, disari, spin };
+      if (prev > N * 0.8 && ti < N * 0.2 && armed) {
+        armed = 0;
+        if (++biten >= tur) return { t, disari, spin };
+      }
     }
     prev = ti;
   }
@@ -72,15 +82,15 @@ export function enIyiTur(yaris: number, arac: number, cesaretler = CESARETLER) {
   return { t: en, cesaret: enC };
 }
 
-/** drag: ışıkta tam gaz, bitiş süresi (sn) */
-export function dragSur(yaris: number, arac: number) {
+/** drag: ışıkta tam gaz (gecikme: geç kalkış, sn), bitiş süresi (sn) */
+export function dragSur(yaris: number, arac: number, gecikme = 0) {
   const s = surucuKur({ yaris, arac, lk: "norm" });
   const TR = s.bolge!.TR!,
     S = s.sim.S,
     z1 = TR.P[TR.N - 1][1];
   s.reset(TR.P[0][0], TR.P[0][1], 0);
   for (let k = 0; k < 60 / DT; k++) {
-    s.adim({ tg: 0, g: 1, b: 0, analogDireksiyon: false, analogGaz: false });
+    s.adim({ tg: 0, g: k * DT < gecikme ? 0 : 1, b: 0, analogDireksiyon: false, analogGaz: false });
     if (S.z >= z1) return k * DT;
   }
   return Infinity;
