@@ -18,6 +18,9 @@ const IKON = {
   /** tabler: star (yıldız; dolu hâli CSS ile) */
   yildiz:
     '<path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"/>',
+  /** tabler: lock */
+  kilit:
+    '<path d="M5 11a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2l0 -6"/><path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"/><path d="M8 9v-4a4 4 0 0 1 8 0v4"/>',
   // yarış türleri
   /** asfalt: firketeli kapalı pist ve start çizgisi (oyunun çizimi) */
   pist: '<path d="M5 7.5a2.5 2.5 0 0 1 2.5 -2.5h9a2.5 2.5 0 0 1 2.5 2.5v1a2.5 2.5 0 0 1 -2.5 2.5h-3.5a1.5 1.5 0 0 0 0 3h3.5a2.5 2.5 0 0 1 2.5 2.5v.5a2.5 2.5 0 0 1 -2.5 2.5h-9a2.5 2.5 0 0 1 -2.5 -2.5z"/><path d="M9 3.5v3"/>',
