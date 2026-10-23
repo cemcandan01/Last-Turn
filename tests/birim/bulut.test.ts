@@ -14,6 +14,8 @@ import {
 } from "../../src/bulut/esitleme";
 import {
   bulutKur,
+  epostaGiris,
+  epostaOlustur,
   googleBagla,
   hesapBaslat,
   hesapDurumu,
@@ -92,7 +94,16 @@ function sahteBulut() {
           s.ayarla({ ...s.k!, anonim: false, yol: "google", eposta: g });
         }
       },
-      async epostaBagla() {},
+      async epostaOlustur(e: string) {
+        if (googleHesap.has(e)) throw { code: "auth/email-already-in-use" };
+        googleHesap.set(e, s.k!.uid);
+        s.ayarla({ ...s.k!, anonim: false, yol: "eposta", eposta: e });
+      },
+      async epostaGiris(e: string, sf: string) {
+        if (!googleHesap.has(e) || sf != "dogru1") throw { code: "auth/invalid-credential" };
+        s.ayarla({ uid: googleHesap.get(e)!, anonim: false, yol: "eposta", eposta: e, ad: null });
+      },
+      async sifreSifirla() {},
       async cikis() {
         s.ayarla(null);
       },
@@ -295,6 +306,21 @@ describe("sahte Firebase ile eşitleme", () => {
     expect(JSON.parse(depo["lt_prof"]).races).toBe(0);
     expect(depo["lt_car"]).toBe("1");
     expect(bekleyenVar()).toBe(false);
+    // e-posta: yeni hesap, aynı e-postayla tekrar oluşturma → "giriş yap" uyarısı, yanlış ve doğru şifre
+    await A.anonimGir();
+    await bekle();
+    expect(await epostaOlustur("yeni@ornek.com", "dogru1")).toBe(true);
+    expect(hesapDurumu().bilgi).toBe("Bağlandı: yeni@ornek.com · İlerlemen bulutta");
+    expect(hesapOzeti()).toContain("E-posta · yeni@ornek.com");
+    await A.cikis();
+    await A.anonimGir();
+    expect(await epostaOlustur("yeni@ornek.com", "baska1")).toBe(false);
+    expect(hesapDurumu().hata).toContain("zaten hesap var; şifrenle giriş yap (email-already-in-use)");
+    expect(await epostaGiris("yeni@ornek.com", "yanlis")).toBe(false);
+    expect(hesapDurumu().hata).toContain("şifre yanlış");
+    expect(await epostaGiris("yeni@ornek.com", "dogru1")).toBe(true);
+    expect(hesapDurumu().hata).toBeNull();
+    expect(hesapDurumu().bilgi).toContain("Bağlandı: yeni@ornek.com");
     e.kapat();
   });
 });

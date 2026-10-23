@@ -2991,3 +2991,22 @@ details[open] > summary::after {
 .hesap .hform + .note + .hdugmeler {
   margin-top: 8px;
 }
+.hbilgi {
+  margin: 0 0 6px;
+  font-size: 12px;
+  color: #8fe39a;
+}
+.hbas {
+  flex: 1 1 100%;
+  font-size: 14px;
+}
+.hdg.ana {
+  background: var(--acc);
+  color: #1b0d05;
+  border-color: var(--acc);
+}
+.hdg.kucuk {
+  min-height: 36px;
+  padding: 4px 10px;
+  font-size: 12px;
+}

@@ -67,6 +67,9 @@ her zaman çalışır.
 - İlk açılışta hesap sessizce açılır (Misafir). İlerleme buluta yazılır.
 - **Profil** ekranında "Hesap" satırı: durum (Misafir / Google / E-posta · Bulutta / Eşitleniyor / İnternet gelince
   gönderilecek) ve düğmeler: **Google ile bağlan**, **E-posta ile**, bağlıysa **Çıkış**.
+- **E-posta ile:** ilk kez bağlanırken **Yeni hesap oluştur** (e-posta, şifre, şifre tekrar; en az 6 karakter). Başka
+  cihazda ya da çıkıştan sonra **Zaten hesabım var → Giriş yap**; şifre unutulursa **Şifremi unuttum** sıfırlama
+  e-postası gönderir. Sonuç hesap satırının altında yazar ("Bağlandı: … · İlerlemen bulutta" ya da hata ve kodu).
 - Başka cihazda: oyunu aç → Profil → aynı Google hesabıyla (ya da aynı e-posta ve şifreyle) bağlan → ilerleme gelir.
   İki cihazın ilerlemesi birleşir: XP, yıldız ve kazanılan paranın büyüğü, satın alınanların hepsi; rekorların iyisi.
 - İnternet yokken oyun normal çalışır; değişiklik internet gelince gönderilir.
