@@ -88,10 +88,10 @@ describe("drift puan hızı (açı × hız)", () => {
     expect(sn(0.65, 30)).toBeGreaterThan(2 * sn(0.2, 12));
     expect(sn(0.65, 3)).toBeLessThan(sn(0.65, 30) / 20);
   });
-  it("aşırı açı ödüllendirilmez: 37° en verimli, 70°+ sıfır", () => {
-    expect(sn(0.65, 25)).toBeGreaterThan(sn(1.0, 25));
-    expect(sn(1.0, 25)).toBeGreaterThan(sn(1.2, 25));
-    expect(sn(1.3, 25)).toBe(0);
+  it("puan açısı 44°'de kesilir: daha büyük açı fazla puan vermez", () => {
+    expect(sn(0.7, 25)).toBeGreaterThan(sn(0.5, 25));
+    expect(sn(0.768, 25)).toBeCloseTo(sn(1.2, 25), 5);
+    expect(sn(1.3, 25)).toBe(sn(0.9, 25));
   });
   it("puan iç birim m/s ile hesaplanır: birim ayarı puanı değiştirmez", () => {
     // oyun hep m/s verir (AdimSonucu.v); km/sa ya da mph yalnız HUD'da çarpılır, puana girmez

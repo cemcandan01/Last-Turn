@@ -49,20 +49,15 @@ export function tersAdimi(E: TersSayaci, vx: number, vz: number, tx: number, tz:
   return c < 0;
 }
 
-/** drift puanında en verimli açı (rad, ~37°); bunun üstünde puan azalır, SIFIR_ACI'da (~72°, spin/yan yan kayma) sıfırlanır */
-export const DRIFT_TEPE_ACI = 0.65,
-  DRIFT_SIFIR_ACI = 1.25,
+/** puan açısı en çok 44° (rad): ötesi puan artırmaz (risk-ödül: ~45°'den sonra araç fiziği spin atar) */
+export const DRIFT_AZAMI_ACI = (44 * Math.PI) / 180,
   /** puan hızı her zaman m/s'dir (gösterim birimi km/sa ya da mph olsa da aynı sürüş aynı puanı verir); bunun altında puan azalır */
   DRIFT_HIZ_ALT = 4,
   DRIFT_HIZ_TAM = 12;
 
-/** anlık drift puan hızı (puan/sn, kombo çarpanından önce): açı (rad) × hız (m/s); tepe açıdan sonra azalır, düşük hızda küçülür */
+/** anlık drift puan hızı (puan/sn, kombo çarpanından önce): min(açı, 44°) (rad) × hız (m/s); düşük hızda küçülür */
 export function driftPuanHizi(beta: number, v: number) {
-  const b = Math.abs(beta),
-    aci =
-      b <= DRIFT_TEPE_ACI
-        ? b
-        : Math.max(0, DRIFT_TEPE_ACI * (1 - (b - DRIFT_TEPE_ACI) / (DRIFT_SIFIR_ACI - DRIFT_TEPE_ACI))),
+  const aci = Math.min(Math.abs(beta), DRIFT_AZAMI_ACI),
     t = Math.min(1, Math.max(0, (v - DRIFT_HIZ_ALT) / (DRIFT_HIZ_TAM - DRIFT_HIZ_ALT)));
   return 3 * v * aci * t * t * (3 - 2 * t);
 }
