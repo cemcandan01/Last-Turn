@@ -1,5 +1,6 @@
 // Ölçüm: her zamanlı pistte türün aracıyla otomatik pilotun bütün cesaretlerdeki süreleri ve yıldız eşikleri.
 // Yeni pist ya da yıldız eşiği ayarlarken: npm run olcum -- pistler (yalnız bir tür: TUR=gp npm run olcum -- pistler)
+// Yalnız bir pist numarası: LV=7 (ör. LV=7 TUR=gp npm run olcum -- pistler)
 import { it } from "vitest";
 import { CARS } from "../../src/arac/araclar";
 import { TDEF } from "../../src/dunya/pist-tanimlari";
@@ -42,7 +43,12 @@ it("pistler", () => {
   const satir: string[] = [];
   for (let yaris = 0; yaris < TDEF.length; yaris++) {
     const d = TDEF[yaris];
-    if (d.t == "dp" || (process.env.TUR && process.env.TUR != d.t)) continue;
+    if (
+      d.t == "dp" ||
+      (process.env.TUR && process.env.TUR != d.t) ||
+      (process.env.LV && +process.env.LV != d.lv)
+    )
+      continue;
     const arac = CARS.findIndex((c) => c.ty == d.t),
       dg = d.t == "dg",
       tur = d.t == "gp" || d.t == "rx" ? 3 : 1;
@@ -55,7 +61,7 @@ it("pistler", () => {
         });
     const temiz = kosular.filter((k) => k.temiz),
       E = Math.min(...temiz.map((k) => k.t)),
-      pay = (dg ? YILDIZ_PAY.drag : YILDIZ_PAY.zaman)[d.lv - 1],
+      pay = (dg ? YILDIZ_PAY.drag : YILDIZ_PAY.zaman)[(d.sev ?? d.lv) - 1],
       oneri = pay.map((p) => yuvarla(E * p, d.t)),
       esik = [d.tg ?? 0, ...(d.ys ?? [])];
     const dagilim = temiz

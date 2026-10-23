@@ -55,7 +55,7 @@ const evAvg = (e: YarisTanimi) =>
   e.ty == "dp" ? e.limit + " puan" : e.ty == "dg" ? fmt3(e.limit) : fmt(e.limit);
 /** seviye rozeti: renk seviyeye göre (Çaylak yeşil … Efsane mor) */
 const seviyeRozeti = (e: YarisTanimi) =>
-  `<span class="lv lv${e.lv}"><i>${e.lv}</i>${SEVIYELER[e.lv - 1].n}</span>`;
+  `<span class="lv lv${e.sev}"><i>${e.sev}</i>${SEVIYELER[e.sev - 1].n}</span>`;
 /** ayrıntı ekranındaki sayılar; drift yarışında hedef puan. Kartta yalnız hedef ve rekor (uzunluk kartın altında) */
 const evSayilar = (e: YarisTanimi, kart = false) =>
   `<div class="rcs">${kart ? "" : `<span>Uzunluk<b>${evLen(e)}</b></span>`}${
@@ -337,14 +337,14 @@ function view(cur: string): [string, string, string] {
     // seviye sırasıyla (Çaylak → Efsane), yan yana; kartta kimin için ideal olduğu
     const pl = EVENTS.map((e, i) => [e, i] as const)
       .filter(([e]) => e.ty == t)
-      .sort((a, b) => a[0].lv - b[0].lv);
+      .sort((a, b) => a[0].sev - b[0].sev || a[0].lv - b[0].lv);
     return [
       turOf(t)[1] + " yarışları",
       "Yarış",
       `<p>${y.d}</p><div class="rlist">${pl
         .map(
           ([e, i]) =>
-            `<div class="rc${pistAcikMi(e.ty, e.lv) ? "" : " kilitli"}" data-ev="${i}"><div class="rcu"><img src="${trackThumb(REG[e.reg])}"><div class="rcm">${seviyeRozeti(e)}<em>${evLen(e)}</em>${pistAcikMi(e.ty, e.lv) ? yildizSerit(enIyiYildiz(e.ty, e.lv), "kucuk") : ""}</div>${pistAcikMi(e.ty, e.lv) ? "" : `<div class="kilit">${ikon("kilit")}<b>Seviye ${acilmaSeviyesi({ ty: e.ty, lv: e.lv })}'de açılır</b></div>`}</div><div class="rci"><b>${e.n}</b><small>${SEVIYELER[e.lv - 1].d}</small>${evSayilar(e, true)}</div></div>`,
+            `<div class="rc${pistAcikMi(e.ty, e.lv) ? "" : " kilitli"}" data-ev="${i}"><div class="rcu"><img src="${trackThumb(REG[e.reg])}"><div class="rcm">${seviyeRozeti(e)}<em>${evLen(e)}</em>${pistAcikMi(e.ty, e.lv) ? yildizSerit(enIyiYildiz(e.ty, e.lv), "kucuk") : ""}</div>${pistAcikMi(e.ty, e.lv) ? "" : `<div class="kilit">${ikon("kilit")}<b>Seviye ${acilmaSeviyesi({ ty: e.ty, lv: e.lv })}'de açılır</b></div>`}</div><div class="rci"><b>${e.n}</b><small>${SEVIYELER[e.sev - 1].d}</small>${evSayilar(e, true)}</div></div>`,
         )
         .join("")}</div>`,
     ];
@@ -356,7 +356,7 @@ function view(cur: string): [string, string, string] {
     return [
       e.n,
       turOf(e.ty)[1] + " yarışları",
-      `<div><div class="evh"><img src="${trackThumb(r)}"><div>${seviyeRozeti(e)}<p class="lvd">${SEVIYELER[e.lv - 1].d}</p><p>${e.d}</p>
+      `<div><div class="evh"><img src="${trackThumb(r)}"><div>${seviyeRozeti(e)}<p class="lvd">${SEVIYELER[e.sev - 1].d}</p><p>${e.d}</p>
 ${evSayilar(e)}${yildizEsikSatiri(e)}</div></div><button class="btn" id="mgo" data-go="${i}">Araç seç ›</button></div>
 <div class="evk">${condChips()}</div>`,
     ];

@@ -1,6 +1,8 @@
-// Yarış pistleri: her yarış türü için 6 seviyede 6 pist (30 pist). Seviye, pistin hangi deneyimdeki oyuncu için ideal
-// olduğunu söyler (SEVIYELER). Her pist dünyada kendi bölgesinde durur ve menüden seçilince kurulur.
-// Alanlar: t tür, lv seviye (1-6), n ad, th tema, el/ep/ek yükseklik genliği, evresi ve ek tepe sayısı, pr tema dekoru,
+// Yarış pistleri: her yarış türünde pist sayısı serbesttir (şimdi 8: 6 ana + 2 ek). Zorluk seviyesi (sev, 1-6) pistin
+// hangi deneyimdeki oyuncu için ideal olduğunu söyler (SEVIYELER); bir seviyede birden çok pist olabilir.
+// Her pist dünyada kendi bölgesinde durur ve menüden seçilince kurulur.
+// Alanlar: t tür, lv pist numarası (türde benzersiz, 1'den artar; rekor/yıldız anahtarı `<tür>_<lv>`, bir kez verilen
+// numara değişmez, yeni pist sona eklenir), sev zorluk seviyesi (1-6; yoksa lv), n ad, th tema, el/ep/ek yükseklik genliği, evresi ve ek tepe sayısı, pr tema dekoru,
 // nf orman yok, d açıklama, hw yarı genişlik, tarif düz/yay parçaları (pist-ciz.ts) ya da p kontrol noktaları,
 // j rampalar [tür, pist oranı], m çamur, w su birikintisi (pist oranları), as asfalt aralıkları, fd orman yoğunluğu,
 // s ralli tepe evresi, hs ralli tepe yüksekliği çarpanı, snow karlı, rocks kayalık, tg hedef süre (sn) = 1★, hp drift hedef puanı = 1★,
@@ -21,8 +23,10 @@ export const SEVIYELER = [
 
 export interface PistTanimi {
   t: YarisTuru;
-  /** seviye: 1 Çaylak … 6 Efsane */
+  /** pist numarası: türde benzersiz; rekor ve yıldız anahtarı (`<tür>_<lv>`), eski kayıtlar bunun üstünde */
   lv: number;
+  /** zorluk seviyesi: 1 Çaylak … 6 Efsane (yoksa lv); arayüzde sıralama ve seviye adı */
+  sev?: number;
   n: string;
   d: string;
   hw: number;
@@ -55,6 +59,12 @@ export const pistNoktalari = (d: PistTanimi): V2[] => d.p || cizPist(d.tarif!, d
 
 /** türün ve seviyenin pist sırası (testler, sinematik) */
 export const pistNo = (t: YarisTuru, lv: number) => TDEF.findIndex((d) => d.t == t && d.lv == lv);
+
+/** pistin zorluk seviyesi (1-6); tanımda yoksa pist numarası */
+export const pistSev = (t: YarisTuru, lv: number) => {
+  const d = TDEF.find((q) => q.t == t && q.lv == lv);
+  return d?.sev ?? d?.lv ?? lv;
+};
 
 export const TDEF: PistTanimi[] = [
   {
@@ -596,5 +606,169 @@ export const TDEF: PistTanimi[] = [
     ],
     tg: 27.2,
     ys: [24, 23.3],
+  },
+  // --- sonradan eklenen pistler (lv 7-8; sev zorluk seviyesi). Eşikler ölçümle yazılır (npm run olcum -- pistler) ---
+  {
+    t: "gp",
+    lv: 7,
+    sev: 2,
+    n: "Çöl Otoyolu",
+    th: "desert",
+    pr: "desert",
+    rocks: 1,
+    d: "Kızıl kayalar arasında uzun hızlı virajlar: gazı ne zaman bırakacağını öğren.",
+    hw: 10.5,
+    tarif: "D320 L90/60 D200 R70/50 L70/50 D180 L60/120 D150 R80/70 D240 L70/90 K60",
+    tg: 197,
+    ys: [161, 151],
+  },
+  {
+    t: "gp",
+    lv: 8,
+    sev: 4,
+    n: "Kar Dağı Pisti",
+    th: "snow",
+    snow: 1,
+    el: 18,
+    ep: 1.6,
+    ek: 3,
+    fd: 1.2,
+    d: "Karlı dağ yolu: kaygan zemin, firketeler ve tepeler. Fren erken, gaz yumuşak.",
+    hw: 9,
+    tarif: "D260 L45/90 D120 R35/60 L35/60 D140 L40/90 D260 L40/90 D100 R35/70 L35/70 D100 K40",
+    tg: 129,
+    ys: [110, 103],
+  },
+  {
+    t: "rx",
+    lv: 7,
+    sev: 2,
+    n: "Plaj Kros",
+    th: "coast",
+    pr: "coast",
+    d: "Kumlu kıyı yolu: akıcı virajlar, iki rampa ve su birikintileri.",
+    hw: 11.5,
+    tarif: "D140 L50/90 D100 R40/60 L40/60 D180 L45/120 D90 R50/90 D120 L40/90 K40",
+    j: [
+      ["table", 0.25],
+      ["bump", 0.6],
+    ],
+    m: [0.4],
+    w: [0.15, 0.55, 0.85],
+    tg: 179,
+    ys: [146, 136],
+  },
+  {
+    t: "rx",
+    lv: 8,
+    sev: 4,
+    n: "Kar Kros",
+    th: "snow",
+    snow: 1,
+    d: "Karla kaplı toprak pist: kaygan firketeler, tümsekler ve donmuş su.",
+    hw: 10,
+    tarif: "D120 R40/90 D70 L30/120 D90 R30/90 L30/90 D110 L35/150 D80 R40/60 D130 L45/90 K40",
+    j: [
+      ["kick", 0.3],
+      ["table", 0.68],
+    ],
+    m: [0.5],
+    w: [0.2, 0.8],
+    tg: 153,
+    ys: [131, 123],
+  },
+  {
+    t: "dp",
+    lv: 7,
+    sev: 2,
+    n: "Çöl Drifti",
+    th: "desert",
+    pr: "desert",
+    rocks: 1,
+    d: "Geniş çöl platosunda uzun yaylar: açıyı koru, komboyu bozma.",
+    hp: 10050,
+    ys: [17700, 23000],
+    hw: 16,
+    tarif: "D150 L60/90 D100 R55/70 L55/70 D100 L60/90 D150 L60/90 D100 R55/70 L55/70 D100 K50",
+  },
+  {
+    t: "dp",
+    lv: 8,
+    sev: 4,
+    n: "Taş Ocağı Drifti",
+    th: "quarry",
+    pr: "quarry",
+    d: "Taş ocağı tabanında art arda dönüşler: kayaları kollayarak ritim tut.",
+    hp: 8350,
+    ys: [14150, 17750],
+    hw: 13,
+    tarif: "D120 L45/90 D60 R40/70 L40/70 D90 L45/90 D120 L45/90 D60 R40/70 L40/70 D90 K45",
+  },
+  {
+    t: "rl",
+    lv: 7,
+    sev: 2,
+    n: "Kıyı Etabı",
+    th: "coast",
+    pr: "coast",
+    d: "Deniz kenarında dar asfalt-toprak yol: tepeler ve akıcı virajlar.",
+    hw: 6,
+    s: 1,
+    hs: 0.7,
+    tarif: "D90 L60/70 R70/60 D140 L50/90 D110 R60/70 L50/60 D130 R55/80 D100 L80/40 D80",
+    j: [["bump", 0.45]],
+    m: [0.35],
+    w: [0.6],
+    tg: 38.5,
+    ys: [31.5, 29.5],
+  },
+  {
+    t: "rl",
+    lv: 8,
+    sev: 4,
+    n: "Dağ Etabı",
+    th: "mount",
+    pr: "mount",
+    d: "Gün batımında dağ yolu: sert firketeler ve uçurum kenarında uzun düzlükler.",
+    hw: 5.5,
+    s: 2,
+    hs: 0.9,
+    tarif: "D70 L30/80 R20/160 D90 L35/70 R30/90 D110 L16/165 D70 R40/60 L40/80 D120 R18/150 D80 L30/90 D90",
+    j: [
+      ["table", 0.3],
+      ["kick", 0.7],
+    ],
+    m: [0.25, 0.6],
+    w: [0.45],
+    tg: 55.5,
+    ys: [47, 44.5],
+  },
+  {
+    t: "dg",
+    lv: 7,
+    sev: 1,
+    n: "Çeyrek Kilometre",
+    d: "250 metre. Kısa mesafede her yüzde bir saniye ister.",
+    hw: 6,
+    p: [
+      [0, 0],
+      [0, 250],
+    ],
+    tg: 8.7,
+    ys: [7.3, 6.9],
+  },
+  {
+    t: "dg",
+    lv: 8,
+    sev: 5,
+    n: "Bir Kilometre",
+    d: "1000 metre: uzun hızlanma, son viteste azami hız.",
+    hw: 6,
+    p: [
+      [0, 0],
+      [0, 1000],
+    ],
+    tg: 19.6,
+    ys: [17.1, 16.5],
   },
 ];

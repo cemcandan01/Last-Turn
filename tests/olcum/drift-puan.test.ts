@@ -30,14 +30,14 @@ const TARZ = {
 it("drift puanı", () => {
   for (let i = 0; i < TDEF.length; i++) {
     const d = TDEF[i];
-    if (d.t != "dp") continue;
+    if (d.t != "dp" || (process.env.LV && +process.env.LV != d.lv)) continue;
     const e = yildizEsikleri("dp", d.lv),
       kosu = Object.entries(TARZ).map(([ad, a]) => ({
         ad,
         ...driftTuru(i, "norm", a, 400, false, 2, DRIFT_TUR),
       })),
       P = Math.max(...kosu.map((k) => k.puan)),
-      oneri = DRIFT_PAY[d.lv - 1].map((p) => Math.round((P * p) / 50) * 50);
+      oneri = DRIFT_PAY[(d.sev ?? d.lv) - 1].map((p) => Math.round((P * p) / 50) * 50);
     console.log(
       `${d.lv} ${d.n.padEnd(14)} ${DRIFT_TUR} tur ~${kosu[1].sure.toFixed(0)} sn (pist ${kosu[1].len.toFixed(0)} m) en iyi ${P} | eşik ${e.join("/") || "—"} | önerilen ${oneri.join("/")} | ` +
         kosu

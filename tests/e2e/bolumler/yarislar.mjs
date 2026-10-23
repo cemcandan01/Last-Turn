@@ -1,5 +1,5 @@
 /* global LT */
-// 30 yarış ve açık dünyalar kuruluyor
+// 40 yarış ve açık dünyalar kuruluyor
 export default async function ({ p, ok }) {
   const ev = await p.evaluate(() => {
     LT.demoStop();
@@ -17,7 +17,7 @@ export default async function ({ p, ok }) {
     });
   });
   ok(
-    ev.length == 30 && ev.every((x) => x === true),
+    ev.length == 40 && ev.every((x) => x === true),
     `${ev.length} yarışın hepsi kuruluyor` +
       (ev.find((x) => x !== true) ? " — " + ev.find((x) => x !== true) : ""),
   );

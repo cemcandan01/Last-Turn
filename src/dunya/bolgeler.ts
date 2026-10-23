@@ -521,7 +521,7 @@ function mkPark(idx: number): Bolge {
   return R;
 }
 
-/** tüm bölgeler: 30 pist + Boş Otopark (sonda) */
+/** tüm bölgeler: 40 pist + Boş Otopark (sonda) */
 export const REG: Bolge[] = TDEF.map(mkReg);
 export const PARK = mkPark(REG.length);
 REG.push(PARK);

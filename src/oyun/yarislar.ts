@@ -69,8 +69,10 @@ export interface YarisTanimi {
   /** rekor anahtarı */
   k: string;
   ty: YarisTuru;
-  /** seviye: 1 Çaylak … 6 Efsane (SEVIYELER) */
+  /** pist numarası (türde benzersiz; rekor anahtarı `k`) */
   lv: number;
+  /** zorluk seviyesi: 1 Çaylak … 6 Efsane (SEVIYELER) */
+  sev: number;
   n: string;
   d: string;
   /** bölge sırası */
@@ -125,6 +127,7 @@ export const EVENTS: YarisTanimi[] = REG.filter((r) => r.t != "park").map((r, i)
     k: y.k + "_" + r.lv,
     ty,
     lv: r.lv!,
+    sev: r.sev ?? r.lv!,
     n: r.n,
     d: r.d!,
     reg: i,
