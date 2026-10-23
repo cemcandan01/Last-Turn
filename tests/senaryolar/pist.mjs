@@ -26,4 +26,10 @@ export default [
     p: 2,
     birim: { dosya: "tests/birim/yildiz.test.ts", grup: "drift puan hızı (açı × hız)" },
   },
+  {
+    id: "drift-bonuslari",
+    ad: "drift bonusları: uzun drift, direksiyonsuz, tek yön; koşul 1 sn sürünce başlar",
+    p: 2,
+    birim: { dosya: "tests/birim/yildiz.test.ts", grup: "drift bonusları" },
+  },
 ];
