@@ -8,7 +8,7 @@ import { garG, garajIsigi } from "../cizim/garaj-sahnesi";
 import { ground } from "../cizim/zemin";
 import { REG } from "../dunya/bolgeler";
 import { dunya, WORLDS } from "../dunya/dunya";
-import { vitrinBosalt, vitrinHazirla, vitrinHazirMi, aracIcKur } from "../cizim/arac-modeli";
+import { vitrinBosalt, vitrinHazirla, vitrinHazirMi, vitrinIsit, aracIcKur } from "../cizim/arac-modeli";
 import { carIndex, oyun, setCar } from "../oyun/durum";
 import { kamera, garajKameraSifirla } from "../cizim/kamera";
 import { applyPreset, kurulum } from "../oyun/kurulum";
@@ -64,7 +64,7 @@ function gorunum() {
   t.style.display = kamera.gTam ? "none" : "";
 }
 
-/** diğer araçların modellerini kareler arasına yayarak önceden kur (araç değişince kurma takılması olmasın) */
+/** diğer araçların modellerini kareler arasına yayarak önceden kur ve GPU'ya yükle (araç değişince takılma olmasın) */
 let ONHAZIR: ReturnType<typeof setTimeout> | undefined;
 function onHazirla() {
   clearTimeout(ONHAZIR);
@@ -73,6 +73,7 @@ function onHazirla() {
     const c = sira.shift();
     if (!c || !GAR) return;
     vitrinHazirla(c);
+    vitrinIsit(c);
     ONHAZIR = setTimeout(adim, 150);
   };
   ONHAZIR = setTimeout(adim, 300);

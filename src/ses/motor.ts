@@ -12,6 +12,7 @@ import {
   valf,
   type MotorProfili,
 } from "./sentez";
+import type { MotorIstegi, MotorYaniti } from "./motor-isci";
 
 export interface MotorGirdisi {
   /** motor devri (d/dk) */
@@ -76,6 +77,35 @@ export function cal(
 
 /** kısa bekleme: uzun hesabı karelere böl (oyun takılmasın) */
 const bekle = () => new Promise<void>((ok) => setTimeout(ok, 0));
+
+/** motor katmanlarını hesaplayan işçi (ilk kurulumda açılır; açılamazsa null: hesap karelere bölünerek burada yapılır) */
+let isci: Worker | null | undefined;
+let isciNo = 0;
+const isciBekleyen = new Map<number, (k: MotorYaniti["katmanlar"] | null) => void>();
+function isciyleHesapla(k: string, devirMax: number, sr: number) {
+  if (isci === undefined)
+    try {
+      isci = new Worker(new URL("./motor-isci.ts", import.meta.url), { type: "module" });
+      isci.onmessage = (e: MessageEvent<MotorYaniti>) => {
+        isciBekleyen.get(e.data.no)?.(e.data.katmanlar);
+        isciBekleyen.delete(e.data.no);
+      };
+      isci.onerror = () => {
+        isci = null;
+        for (const f of isciBekleyen.values()) f(null);
+        isciBekleyen.clear();
+      };
+    } catch {
+      isci = null;
+    }
+  const w = isci;
+  if (!w) return Promise.resolve(null);
+  const istek: MotorIstegi = { no: ++isciNo, k, devirMax, sr };
+  return new Promise<MotorYaniti["katmanlar"] | null>((ok) => {
+    isciBekleyen.set(istek.no, ok);
+    w.postMessage(istek);
+  });
+}
 
 interface Katman {
   devir: number;
@@ -144,8 +174,11 @@ export class MotorSesi {
       p = motorProfili(k);
     let tamponlar = ONBELLEK.get(anahtar + ":" + sr);
     if (!tamponlar) {
-      tamponlar = [];
-      const devirler = katmanDevirleri(devirMax);
+      // oyunda işçide hesaplanır (ana iş parçacığı takılmaz); kayıt (OfflineAudioContext) ve işçisiz durumda burada
+      const ham = ctx instanceof AudioContext ? await isciyleHesapla(k, devirMax, sr) : null;
+      tamponlar =
+        ham?.map((x) => ({ devir: x.devir, gaz: tampon(ctx, x.gaz), bos: tampon(ctx, x.bos) })) ?? [];
+      const devirler = ham ? [] : katmanDevirleri(devirMax);
       for (let i = 0; i < devirler.length; i++) {
         const d = devirler[i],
           gaz = tampon(ctx, motorKatmani(p, d, 1, devirMax, sr, 11 + i, motorEq(k, i)));
