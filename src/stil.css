@@ -2947,3 +2947,43 @@ details[open] > summary::after {
     margin-top: 3px;
   }
 }
+/* profil: hesap bloğu (arayuz/hesap-ui.ts; Firebase yapılandırması yoksa görünmez) */
+.hesap .lbl {
+  margin-top: 4px;
+}
+.hsat {
+  margin: 2px 0 6px;
+  font-size: 13px;
+}
+.hhata {
+  margin: 0 0 6px;
+  font-size: 12px;
+  color: #ff8a7a;
+}
+.hdugmeler,
+.hform {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.hform {
+  margin-top: 8px;
+}
+.hform .inp {
+  flex: 1 1 140px;
+  font-size: 15px;
+  padding: 8px;
+}
+.hdg {
+  min-height: 44px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 2px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  font: 700 14px inherit;
+  font-family: inherit;
+}
+.hdg:disabled {
+  opacity: 0.5;
+}

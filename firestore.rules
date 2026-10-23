@@ -1,0 +1,36 @@
+rules_version = '2';
+// Last Turn: Firestore güvenlik kuralları (docs/FIREBASE.md: konsolda Firestore → Kurallar'a yapıştırılır).
+// Her oyuncu yalnız kendi belgesini (users/{uid}) okur ve yazar. Belge oyunun yerel kaydının kopyasıdır
+// (src/bulut/esitleme.ts → BulutBelgesi). Bozma koruması: alan adları ve tipleri sabit, sayılar makul sınırda;
+// XP ve kazanılan para azalmaz, yapılmış alım silinmez (para iki kez harcanmasın). Silmek yok.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null && request.auth.uid == uid && gecerli(request.resource.data);
+      allow update: if request.auth != null && request.auth.uid == uid && gecerli(request.resource.data)
+        && request.resource.data.xp >= resource.data.xp
+        && request.resource.data.kazanilan >= resource.data.kazanilan
+        && request.resource.data.alimlar.keys().hasAll(resource.data.alimlar.keys());
+      allow delete: if false;
+    }
+    // başka her şey kapalı
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+
+  function gecerli(d) {
+    return d.keys().hasOnly(['surum', 'xp', 'updatedAt', 'yildiz', 'ekAcik', 'kazanilan', 'alimlar', 'rekor', 'oyunSurum'])
+      && d.keys().hasAll(['surum', 'xp', 'updatedAt', 'yildiz', 'ekAcik', 'kazanilan', 'alimlar'])
+      && d.surum is int && d.surum >= 0 && d.surum <= 100
+      && d.xp is int && d.xp >= 0 && d.xp <= 10000000
+      && d.updatedAt is int && d.updatedAt >= 0
+      && d.kazanilan is int && d.kazanilan >= 0 && d.kazanilan <= 1000000000
+      && d.yildiz is map && d.yildiz.size() <= 1000
+      && d.ekAcik is list && d.ekAcik.size() <= 1000
+      && d.alimlar is map && d.alimlar.size() <= 1000
+      && (!('rekor' in d) || (d.rekor is map && d.rekor.size() <= 1000))
+      && (!('oyunSurum' in d) || (d.oyunSurum is string && d.oyunSurum.size() <= 20));
+  }
+}

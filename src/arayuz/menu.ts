@@ -24,6 +24,7 @@ import { kilitNotu, bakiyeHtml, kutlamaGoster, seviyeRozetiHtml, xpCubuguHtml } 
 import { seviye } from "../oyun/ilerleme";
 import { bindSettings, chipsOf, settingsHTML } from "./ayarlar-ekrani";
 import { openGarage } from "./garaj";
+import { hesapBagla, hesapHtml } from "./hesap-ui";
 import { kontrolleriKur } from "./kontroller";
 
 /** yarış türleri: anahtar, ad, açıklama, ikon, türün rengi (kapak akışı, pist listesi ve ayrıntıda tema) */
@@ -217,6 +218,7 @@ export function showMenu(v?: string[]) {
       saveProf();
       showMenu();
     };
+  if (cur == "profile") hesapBagla(m);
   if (cur == "settings") bindSettings(m.querySelector<HTMLElement>(".mbody")!, () => showMenu());
   kutlamaGoster();
 }
@@ -375,7 +377,7 @@ ${evSayilar(e)}${yildizEsikSatiri(e)}${paraOdulu(e)}</div></div><button class="b
     return [
       "Profil",
       "Sürücü",
-      `<div class="pcol"><div class="pseviye">${seviyeRozetiHtml(seviye().lv, "b")}<div><b>Seviye ${seviye().lv}</b>${xpCubuguHtml("b")}<small>Toplam ${seviye().toplamXp} XP</small>${bakiyeHtml("b")}</div></div><div class="lbl">Sürücü adı</div><input id="pname" class="inp" value="${PROF.name.replace(/"/g, "")}" maxlength="20">
+      `<div class="pcol"><div class="pseviye">${seviyeRozetiHtml(seviye().lv, "b")}<div><b>Seviye ${seviye().lv}</b>${xpCubuguHtml("b")}<small>Toplam ${seviye().toplamXp} XP</small>${bakiyeHtml("b")}</div></div>${hesapHtml()}<div class="lbl">Sürücü adı</div><input id="pname" class="inp" value="${PROF.name.replace(/"/g, "")}" maxlength="20">
 <div class="pst"><span>Yarış<b>${PROF.races}</b></span><span>Hedef geçildi<b>${PROF.wins}</b></span><span>Toplam yol<b>${PROF.km.toFixed(1)} km</b></span><span>En çok kullanılan<b>${fav ? CARS[+fav[0]].n : "—"}</b></span></div></div>
 <div class="pcol"><div class="lbl">Kişisel rekorlar</div>${EVENTS.map((e) => `<div class="rk"><span>${e.n}</span><span>${prOf(e)}</span></div>`).join("")}</div>`,
     ];

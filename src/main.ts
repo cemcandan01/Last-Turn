@@ -26,6 +26,7 @@ import { girdiKur } from "./oyun/girdi";
 import { applyPreset, kurulum } from "./oyun/kurulum";
 import { reset } from "./oyun/surus";
 import { pwaKur } from "./pwa/kayit";
+import { bulutKur } from "./bulut/hesap";
 import { sesKur } from "./ses/ses";
 
 // eski testler ve hata ayıklama için oyunun iç durumuna erişim
@@ -66,6 +67,7 @@ seviyeKutlamaKur();
 showMenu();
 performansGoster(!!set.perf || location.search.includes("perf"));
 pwaKur();
+bulutKur();
 sesKur();
 donguBaslat();
 

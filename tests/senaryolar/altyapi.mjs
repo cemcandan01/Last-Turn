@@ -1,7 +1,8 @@
 // Altyapı dalının senaryoları (tests/senaryolar/BENIOKU.md): çok araç, girdi kaydı, uzak araç, ilerleme (XP, kilitler)
 const C = "tests/birim/cok-arac.test.ts",
   IL = "tests/birim/ilerleme.test.ts",
-  EK = "tests/birim/ekonomi.test.ts";
+  EK = "tests/birim/ekonomi.test.ts",
+  BU = "tests/birim/bulut.test.ts";
 export default [
   {
     id: "girdi-kaydi",
@@ -80,5 +81,23 @@ export default [
     ad: "Yeni oyuncu kilitli pist/araçla yarış başlatamaz; alınmamış/parası yetmeyen araç seçilmez; eski kaydı olan pistini açık bulur",
     p: 1,
     tarayici: "ilerleme",
+  },
+  {
+    id: "bulut-kapali",
+    ad: "Firebase yapılandırması yokken bulut kapalı: Firebase yüklenmez, hesap satırı çizilmez, kayıt değişmez",
+    p: 1,
+    birim: { dosya: BU, grup: "yapılandırma yokken" },
+  },
+  {
+    id: "bulut-rekor",
+    ad: "Bulut belgesi ilerleme + rekorlar; rekor birleşmesinde drift puanının büyüğü, sürenin küçüğü",
+    p: 2,
+    birim: { dosya: BU, grup: "rekor ve belge" },
+  },
+  {
+    id: "bulut-esitleme",
+    ad: "Sahte Firebase: ilerleme bir cihazda yazılıp başka cihazda aynı hesapla okunur, birleşir; çevrimdışı kuyruk; reddedilen yazma yeniden çekilir",
+    p: 1,
+    birim: { dosya: BU, grup: "sahte Firebase ile eşitleme" },
   },
 ];

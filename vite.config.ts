@@ -8,6 +8,48 @@ import { defineConfig, type Plugin } from "vite";
 
 const pkg = JSON.parse(fs.readFileSync("package.json", "utf8")) as { version: string };
 
+/** Firebase yapılandırması (src/bulut/ayar.ts); boşsa Firebase parçası önbelleğe alınmaz, hiç indirilmez */
+const firebaseAyar = (() => {
+  const t = fs.readFileSync("src/bulut/ayar.ts", "utf8"),
+    al = (k: string) => t.match(new RegExp(k + ':\\s*"([^"]*)"'))?.[1] || "";
+  return { acik: !!(al("apiKey") && al("projectId") && al("appId")), authDomain: al("authDomain") };
+})();
+
+/**
+ * Firebase giriş yardımcısı (Google girişi sayfaları) oyunun kendi adresine: iPhone ana ekran uygulamasında Safari
+ * üçüncü taraf depolamayı engellediği için Google yönlendirmesi ancak böyle döner (bulut/firebase.ts). Dosyalar
+ * derlemede projenin firebaseapp.com adresinden indirilir (GitHub Actions'ta internet var); inemezse uyarı verilir,
+ * oyun açılır pencereyle dener.
+ */
+function firebaseYardimci(): Plugin {
+  const dosyalar = [
+    "__/auth/handler",
+    "__/auth/handler.js",
+    "__/auth/experiments.js",
+    "__/auth/iframe",
+    "__/auth/iframe.js",
+    "__/firebase/init.json",
+  ];
+  return {
+    name: "last-turn-firebase-yardimci",
+    apply: "build",
+    async generateBundle() {
+      if (!firebaseAyar.acik || !firebaseAyar.authDomain) return;
+      for (const f of dosyalar)
+        try {
+          const r = await fetch(`https://${firebaseAyar.authDomain}/${f}`, {
+            signal: AbortSignal.timeout(10000),
+          });
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          this.emitFile({ type: "asset", fileName: f, source: new Uint8Array(await r.arrayBuffer()) });
+        } catch (e) {
+          this.warn(`Firebase giriş yardımcısı indirilemedi (${f}): ${(e as Error).message}`);
+          return;
+        }
+    },
+  };
+}
+
 /** index.html'e sürüm ve ad, derlemede manifest ve service worker */
 function pwa(gelistirme: boolean): Plugin {
   const ad = gelistirme ? "Last Turn Deneme" : "Last Turn";
@@ -61,7 +103,14 @@ function pwa(gelistirme: boolean): Plugin {
         }
       };
       gez(kok);
-      const liste = ["./", ...dosyalar.filter((f) => f != "sw.js" && !f.startsWith(".")).sort()];
+      // Firebase parçası yalnız yapılandırma varken önbelleğe alınır; giriş yardımcısı hiç (her zaman ağdan)
+      const liste = [
+        "./",
+        ...dosyalar
+          .filter((f) => f != "sw.js" && !f.startsWith(".") && !f.startsWith("__/"))
+          .filter((f) => firebaseAyar.acik || !f.startsWith("assets/firebase-"))
+          .sort(),
+      ];
       const ozet = createHash("sha1");
       for (const f of liste.slice(1)) ozet.update(f).update(fs.readFileSync(path.join(kok, f)));
       const sw = fs
@@ -78,12 +127,20 @@ function pwa(gelistirme: boolean): Plugin {
 export default defineConfig(({ mode }) => ({
   base: "./",
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
-  plugins: [pwa(mode == "gelistirme")],
+  plugins: [pwa(mode == "gelistirme"), firebaseYardimci()],
   build: {
     target: "es2022",
     // three.js tek parça: oyun kodu ile ayrı önbelleklensin
     rollupOptions: {
-      output: { manualChunks: (id) => (id.includes("node_modules/three") ? "three" : undefined) },
+      // Firebase (bulut/firebase.ts ve SDK) ayrı parça: yalnız yapılandırma varsa açılıştan sonra yüklenir
+      output: {
+        manualChunks: (id) =>
+          id.includes("node_modules/three")
+            ? "three"
+            : /node_modules\/(@?firebase)\/|src\/bulut\/firebase\.ts/.test(id)
+              ? "firebase"
+              : undefined,
+      },
     },
     chunkSizeWarningLimit: 900,
   },
