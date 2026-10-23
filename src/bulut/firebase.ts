@@ -70,14 +70,19 @@ export async function firebaseSaglayici(a: FirebaseAyari): Promise<Saglayici> {
   const yardimci = await yardimciVar(),
     authDomain = yardimci ? location.host + location.pathname.replace(/\/[^/]*$/, "") : a.authDomain,
     app = initializeApp({ ...a, authDomain }),
-    auth = initializeAuth(app, { persistence: [indexedDBLocalPersistence, browserLocalPersistence] }),
+    // çözücü başlangıçta verilmeli: linkWithRedirect kullanıcıya yönlendirme işareti koyar, dönüşte çözücü yoksa
+    // Auth "argument-error" ile başlayamaz (iPhone ana ekran uygulamasında Google ile bağlanınca görülen hata)
+    auth = initializeAuth(app, {
+      persistence: [indexedDBLocalPersistence, browserLocalPersistence],
+      popupRedirectResolver: browserPopupRedirectResolver,
+    }),
     db = getFirestore(app),
     google = new GoogleAuthProvider(),
     yonlendir = yardimci && standalone();
   auth.languageCode = "tr";
   google.setCustomParameters({ prompt: "select_account" });
 
-  // yönlendirmeden dönülüyorsa sonucu işle (yalnız biz yönlendirdiysek: gereksiz iframe yüklenmesin)
+  // yönlendirmeden dönülüyorsa sonucu al: hata ya da Google hesabı başka cihazda varsa ona geçiş
   let yonlendirmeHatasi: unknown = null;
   if (localStorage.getItem(YONLENDIRME)) {
     localStorage.removeItem(YONLENDIRME);

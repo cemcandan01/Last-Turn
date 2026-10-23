@@ -97,18 +97,20 @@ export function bulutKur(a: FirebaseAyari = FIREBASE_AYAR) {
 
 /** Firebase hata kodunu Türkçe metne çevirir */
 function hataMetni(e: unknown) {
-  const k = String((e as { code?: string })?.code || (e as Error)?.message || e);
+  const k = String((e as { code?: string })?.code || (e as Error)?.message || e),
+    // kod her zaman görünür: kullanıcı bildirirken neden anlaşılsın
+    kod = " (" + k.replace(/^auth\//, "") + ")";
   if (k.includes("popup-closed") || k.includes("cancelled-popup")) return null;
-  if (k.includes("network")) return "İnternet yok; bağlanınca yeniden dene";
-  if (k.includes("popup-blocked")) return "Pencere açılamadı; yeniden dene";
+  if (k.includes("network")) return "İnternet yok; bağlanınca yeniden dene" + kod;
+  if (k.includes("popup-blocked")) return "Pencere açılamadı; yeniden dene" + kod;
   if (k.includes("wrong-password") || k.includes("invalid-credential") || k.includes("invalid-login"))
-    return "E-posta ya da şifre yanlış";
-  if (k.includes("invalid-email")) return "E-posta geçersiz";
-  if (k.includes("weak-password")) return "Şifre en az 6 karakter olmalı";
-  if (k.includes("operation-not-allowed")) return "Bu giriş yolu henüz açılmadı (Firebase ayarı)";
-  if (k.includes("unauthorized-domain")) return "Bu adres Firebase'de yetkili değil";
-  if (k.includes("too-many-requests")) return "Çok deneme yapıldı; biraz sonra yeniden dene";
-  return "Bağlanılamadı (" + k.replace(/^auth\//, "") + ")";
+    return "E-posta ya da şifre yanlış" + kod;
+  if (k.includes("invalid-email")) return "E-posta geçersiz" + kod;
+  if (k.includes("weak-password")) return "Şifre en az 6 karakter olmalı" + kod;
+  if (k.includes("operation-not-allowed")) return "Bu giriş yolu henüz açılmadı (Firebase ayarı)" + kod;
+  if (k.includes("unauthorized-domain")) return "Bu adres Firebase'de yetkili değil" + kod;
+  if (k.includes("too-many-requests")) return "Çok deneme yapıldı; biraz sonra yeniden dene" + kod;
+  return "Bağlanılamadı" + kod;
 }
 
 async function islem(f: (s: Saglayici) => Promise<void>) {
