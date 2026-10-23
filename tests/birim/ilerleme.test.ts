@@ -126,17 +126,18 @@ describe("kilit tablosu", () => {
     expect(o.acilanlar).toContainEqual({ tur: "arac", no: 2 });
     expect(olaylar.length).toBe(1);
     expect(pistAcikMi("dp", 2)).toBe(true);
-    expect(aracAcikMi(2)).toBe(true);
+    // araç seviye gelince satın alınabilir olur (açık değil; ekonomi.test.ts)
+    expect(aracAcikMi(2)).toBe(false);
     bırak();
     xpEkle(10000, "test");
     expect(olaylar.length).toBe(1);
   });
 
   it("yarış bitişi yıldızı kaydeder, yalnız yeni yıldız tam XP verir", () => {
-    expect(yarisBitti("gp", 1, 2)).toBe(45);
+    expect(yarisBitti("gp", 1, 2).xp).toBe(45);
     expect(enIyiYildiz("gp", 1)).toBe(2);
-    expect(yarisBitti("gp", 1, 2)).toBe(3);
-    expect(yarisBitti("gp", 1, 3)).toBe(25);
+    expect(yarisBitti("gp", 1, 2).xp).toBe(3);
+    expect(yarisBitti("gp", 1, 3).xp).toBe(25);
     expect(seviye().toplamXp).toBe(73);
     expect(seviye().lv).toBe(2);
   });
@@ -167,7 +168,7 @@ describe("eski kayıttan geçiş ve bulut verisi", () => {
     expect(seviye().toplamXp).toBe(0);
     yarisBitti("rx", 1, 1);
     const v = ilerlemeVerisi();
-    expect(v.surum).toBe(1);
+    expect(v.surum).toBe(2);
     expect(v.updatedAt).toBeGreaterThan(0);
     expect(JSON.parse(JSON.stringify(v))).toEqual(v);
     expect(v.yildiz).toEqual({ dirt_1: 1 });

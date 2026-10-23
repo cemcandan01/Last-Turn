@@ -1,6 +1,7 @@
 // Altyapı dalının senaryoları (tests/senaryolar/BENIOKU.md): çok araç, girdi kaydı, uzak araç, ilerleme (XP, kilitler)
 const C = "tests/birim/cok-arac.test.ts",
-  IL = "tests/birim/ilerleme.test.ts";
+  IL = "tests/birim/ilerleme.test.ts",
+  EK = "tests/birim/ekonomi.test.ts";
 export default [
   {
     id: "girdi-kaydi",
@@ -57,8 +58,26 @@ export default [
     birim: { dosya: IL, grup: "eski kayıttan geçiş ve bulut verisi" },
   },
   {
+    id: "yaris-parasi",
+    ad: "Yarış parası pist zorluğuyla ve yeni yıldızla artar; tekrar az verir ama sıfır değil; belirlenimci",
+    p: 1,
+    birim: { dosya: EK, grup: "yarış parası" },
+  },
+  {
+    id: "arac-satin-alma",
+    ad: "Araçlar seviye + para ile açılır: seviyesi gelmeyen ya da parası yetmeyen araç alınamaz; benzetimde ilk alım ~7-12 yarış",
+    p: 1,
+    birim: { dosya: EK, grup: "araç fiyatları ve satın alma" },
+  },
+  {
+    id: "para-gecisi",
+    ad: "Eski kayıttan başlangıç parası, o sürümde açık araçlar sahip; bulutta kazanılanın büyüğü ve alımların birleşimi",
+    p: 1,
+    birim: { dosya: EK, grup: "eski kayıttan para geçişi ve bulut" },
+  },
+  {
     id: "ilerleme-kilit",
-    ad: "Yeni oyuncu kilitli pist/araçla yarış başlatamaz; eski kaydı olan pistini açık bulur",
+    ad: "Yeni oyuncu kilitli pist/araçla yarış başlatamaz; alınmamış/parası yetmeyen araç seçilmez; eski kaydı olan pistini açık bulur",
     p: 1,
     tarayici: "ilerleme",
   },

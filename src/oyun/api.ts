@@ -43,4 +43,9 @@ export {
   ilerlemeVerisi,
   ilerlemeYukle,
   kilitTablosu,
+  para,
+  paraEkle,
+  aracFiyati,
+  aracSatinAlinabilirMi,
+  aracSatinAl,
 } from "./ilerleme";

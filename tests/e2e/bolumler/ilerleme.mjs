@@ -30,6 +30,16 @@ export default async function ({ p, ok }) {
       return b;
     });
     s.acikArac = LT.CARS.map((_, i) => i).filter((i) => LT.aracAcikMi(i)).length;
+    // seviye + para: seviyesi gelmiş ama alınmamış araçla yarış başlamaz; parası yetmezse alınamaz; alınca başlar
+    const panda = LT.CARS.findIndex((c) => c.n == "Panda"),
+      f = LT.aracFiyati(panda);
+    LT.xpEkle(99999, "test");
+    s.paraYok = LT.aracSatinAlinabilirMi(panda).neden == "para" && !LT.aracSatinAl(panda);
+    s.alinmamis = LT.startEvent(ev("dp", 1), panda) === false && !LT.yaris.EV;
+    LT.paraEkle(f.para, "test");
+    s.alindi = LT.aracSatinAl(panda) && LT.para() == 0;
+    s.alinanla = LT.startEvent(ev("dp", 1), panda) !== false && !!LT.yaris.EV;
+    LT.yaris.EV = null;
     return s;
   });
   ok(r.lv == 1, "yeni oyuncu seviye 1");
@@ -38,6 +48,9 @@ export default async function ({ p, ok }) {
   ok(r.kilitliArac, "kilitli araçla yarış başlamaz");
   ok(r.caylak, "her türün Çaylak pisti açık araçla başlar");
   ok(r.acikArac == 2, "başta 2 araç açık: " + r.acikArac);
+  ok(r.paraYok, "parası yetmeyen araç alınamaz");
+  ok(r.alinmamis, "seviyesi gelmiş ama satın alınmamış araçla yarış başlamaz");
+  ok(r.alindi && r.alinanla, "satın alınan araçla yarış başlar");
   await yeni.kx.close();
   const eski = await ac(
     `localStorage.setItem("sv_asphalt_5", "100"); localStorage.setItem("lt_prof", '{"use":{"3":2}}')`,
