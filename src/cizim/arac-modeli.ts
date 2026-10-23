@@ -319,15 +319,35 @@ export const model = {
   wheels: [] as THREE.Group[],
 };
 
-/** aracın görsel modelini kur (iç mekân dahil) */
-export function aracModeliKur(d: Arac) {
+/** garaj vitrini için önceden kurulmuş modeller (garaj kapanınca boşaltılır) */
+const vitrinOnbellek = new Map<Arac, ReturnType<typeof buildCar>>();
+/** vitrinde iç mekân kurulmadı: sürüşe geçerken aracIcKur() tamamlar */
+let icBekliyor: Arac | null = null;
+
+/** bir aracın modelini garaj önbelleğine kur (zaten varsa dokunmaz) */
+export function vitrinHazirla(d: Arac) {
+  if (!vitrinOnbellek.has(d)) vitrinOnbellek.set(d, buildCar(d));
+}
+export const vitrinHazirMi = (d: Arac) => vitrinOnbellek.has(d);
+export function vitrinBosalt() {
+  vitrinOnbellek.clear();
+}
+/** vitrinde atlanan iç mekânı kur (garajdan sürüşe geçerken) */
+export function aracIcKur() {
+  if (icBekliyor) buildInterior(icBekliyor);
+  icBekliyor = null;
+}
+
+/** aracın görsel modelini kur (iç mekân dahil); vitrin: garaj önbelleğinden alır, iç mekânı sonraya bırakır */
+export function aracModeliKur(d: Arac, vitrin = false) {
   const M = model;
   aynalariSifirla();
   if (M.carM) {
     body.remove(M.carM.g);
     for (const w of M.carM.ws) car.remove(w.pv);
   }
-  const cm = (M.carM = buildCar(d));
+  if (vitrin) vitrinHazirla(d);
+  const cm = (M.carM = vitrin ? vitrinOnbellek.get(d)! : buildCar(d));
   body.add(cm.g);
   for (const w of cm.ws) car.add(w.pv);
   cm.g.traverse((o) => {
@@ -340,7 +360,11 @@ export function aracModeliKur(d: Arac) {
   M.steerP = cm.ws.filter((w) => w.f).map((w) => w.pv);
   M.wheels = cm.ws.map((w) => w.w);
   bm.color.setHex(d.col);
-  buildInterior(d);
+  if (vitrin) icBekliyor = d;
+  else {
+    icBekliyor = null;
+    buildInterior(d);
+  }
   // aynaların kamerası: aracın arka üstünde, arkaya (gövdenin -z yönüne) bakar
   arkaKam.position.set(
     0,

@@ -1,16 +1,16 @@
 // Garaj ekranı: araçları dönen platformda incele, özellikleri karşılaştır, seç. Yarıştan ve serbest sürüşten önce de
 // buradan seçilir; yarışta türe uygun araç "Önerilen" olarak gelir.
 import { CARS } from "../arac/araclar";
-import { STAT } from "../arac/istatistik";
+import { STAT, estTop } from "../arac/istatistik";
 import { cl } from "../cekirdek/matematik";
 import { gizle, $ } from "../cekirdek/dom";
-import { garG } from "../cizim/garaj-sahnesi";
+import { garG, garajIsigi } from "../cizim/garaj-sahnesi";
 import { ground } from "../cizim/zemin";
 import { REG } from "../dunya/bolgeler";
 import { dunya, WORLDS } from "../dunya/dunya";
+import { vitrinBosalt, vitrinHazirla, vitrinHazirMi, aracIcKur } from "../cizim/arac-modeli";
 import { carIndex, oyun, setCar } from "../oyun/durum";
 import { kamera, garajKameraSifirla } from "../cizim/kamera";
-import { sun } from "../cizim/sahne";
 import { applyPreset, kurulum } from "../oyun/kurulum";
 import { EVENTS, startEvent } from "../oyun/yarislar";
 import { showMenu, startWorld } from "./menu";
@@ -64,6 +64,20 @@ function gorunum() {
   t.style.display = kamera.gTam ? "none" : "";
 }
 
+/** diğer araçların modellerini kareler arasına yayarak önceden kur (araç değişince kurma takılması olmasın) */
+let ONHAZIR: ReturnType<typeof setTimeout> | undefined;
+function onHazirla() {
+  clearTimeout(ONHAZIR);
+  const sira = CARS.filter((c) => !vitrinHazirMi(c));
+  const adim = () => {
+    const c = sira.shift();
+    if (!c || !GAR) return;
+    vitrinHazirla(c);
+    ONHAZIR = setTimeout(adim, 150);
+  };
+  ONHAZIR = setTimeout(adim, 300);
+}
+
 /** garajı aç: yarıştan önce (ev), serbest sürüşten önce (w) ya da menüden (ikisi de null) */
 export function openGarage(ev: number | null, w: number | null = null) {
   const prev = carIndex(),
@@ -77,14 +91,18 @@ export function openGarage(ev: number | null, w: number | null = null) {
   for (const q of REG) if (q.g) q.g.visible = false;
   ground.visible = false;
   garG.visible = true;
-  sun.visible = false;
+  garajIsigi(true);
   showGar();
+  onHazirla();
 }
 
 export function closeGarage() {
   DINLE = null;
   garG.visible = false;
-  sun.visible = true;
+  garajIsigi(false);
+  vitrinBosalt();
+  clearTimeout(ONHAZIR);
+  aracIcKur();
   gizle("#gar", "#gvit");
   $("#gar").style.display = "";
   GAR = null;
@@ -93,20 +111,31 @@ export function closeGarage() {
 function showGar() {
   const G = GAR!,
     c = CARS[G.i];
-  if (oyun.CAR !== c) setCar(G.i);
+  if (oyun.CAR !== c) setCar(G.i, true);
   const g = $("#gar");
   g.classList.remove("hidden");
   // ana menüden açılan garajda araç seçilmez (yalnız bakılır)
   const sec = G.ev != null ? "Yarış: " + EVENTS[G.ev].n : G.w != null ? "Sür: " + WORLDS[G.w].n : "";
-  const stat = STAT(c).filter(([n]) => ["Azami hız", "Hızlanma", "Yol tutuşu", "Arazi"].includes(n));
-  g.innerHTML = `<div class="gh"><button class="ga" id="gpv">◀</button><div style="flex:1;text-align:center"><h1>${c.n}</h1><span class="bdg">${c.ic} ${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}<button class="gses" id="gses"></button></div><button class="ga" id="gnx">▶</button></div>
-${stat
-  .map(
-    ([n, f, t]) =>
-      `<div class="st"><span>${n}</span><i><u style="width:${Math.round(cl(f, 0.05, 1) * 100)}%"></u></i><em>${t}</em></div>`,
-  )
-  .join("")}
-<p class="gozet">${c.hp} hp · ${c.kg} kg · ${c.awd ? "Dört çeker" : "Arkadan itiş"}</p>
+  const sv = Object.fromEntries(STAT(c).map(([n, f]) => [n, f])),
+    pct = (f: number) => Math.round(cl(f, 0.05, 1) * 100),
+    gucAgirlik = (c.hp / c.kg) * 1000,
+    kartlar: [string, string, string, string, number][] = [
+      ["⚡", "Azami hız", String(Math.round(estTop(c))), "km/sa", sv["Azami hız"]],
+      ["🚀", "0-100 km/sa", c.a100.toFixed(1), "sn", sv["Hızlanma"]],
+      ["🛞", "Yol tutuşu", String(pct(sv["Yol tutuşu"])), "%", sv["Yol tutuşu"]],
+      ["⛰️", "Arazi", String(pct(sv["Arazi"])), "%", sv["Arazi"]],
+      ["🛑", "Fren 100-0", String(c.b100), "m", sv["Fren"]],
+      ["🔋", "Güç / ağırlık", String(Math.round(gucAgirlik)), "hp/ton", gucAgirlik / 600],
+    ];
+  g.innerHTML = `<div class="gh"><button class="ga" id="gpv">◀</button><div style="flex:1;text-align:center"><h1>${c.n}</h1></div><button class="ga" id="gnx">▶</button></div>
+<div class="grozet"><span class="bdg">${c.ic} ${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}<button class="gses" id="gses"></button></div>
+<div class="gkart">${kartlar
+    .map(
+      ([ic, n, d, b, f]) =>
+        `<div class="gk"><span class="gkb"><i>${ic}</i>${n}</span><b>${d}<small>${b}</small></b><u><s style="width:${Math.round(cl(f, 0.05, 1) * 100)}%"></s></u></div>`,
+    )
+    .join("")}</div>
+<div class="gcip"><span>⚙️ ${c.hp} hp</span><span>⚖️ ${c.kg} kg</span><span>🔩 ${c.awd ? "Dört çeker" : "Arkadan itiş"}</span></div>
 <div class="gbt"><button class="btn alt" id="gbk">Geri</button>${sec ? `<button class="btn" id="gok">${sec}</button>` : ""}</div>`;
   const v = $("#gvit");
   v.classList.remove("hidden");

@@ -8,7 +8,7 @@ export { R, scene, cam } from "../cizim/sahne";
 export { kamera } from "../cizim/kamera";
 export { aynaDurumu } from "../cizim/ayna";
 export { kokpit } from "../cizim/kokpit";
-export { COND } from "../cizim/ortam";
+export { COND, applyEnv, ortam } from "../cizim/ortam";
 export { perf } from "../cekirdek/performans";
 export { ekran } from "../cekirdek/ekran";
 export { REG } from "../dunya/bolgeler";
