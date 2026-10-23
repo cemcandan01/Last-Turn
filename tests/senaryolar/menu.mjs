@@ -44,6 +44,12 @@ export default [
     tarayici: "yildiz",
   },
   {
+    id: "xp-gorsel",
+    ad: "XP görselleri (temiz profil): pist kilitleri, türde açık pist sayısı, profil seviye çubuğu, yarış sonu XP çubuğu, seviye atlama kutlaması",
+    p: 2,
+    tarayici: "xp-gorsel",
+  },
+  {
     id: "kapak",
     ad: "Yarış türü kapak akışı: ok, kaydırma, yan kart; pistler türün rengiyle",
     p: 2,

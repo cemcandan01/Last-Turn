@@ -19,6 +19,9 @@ import { EVENTS, leaveEvent, TYP, type YarisTanimi } from "../oyun/yarislar";
 import { gorselOynuyor } from "./arka-gorsel";
 import { enIyiYildiz, yildizEsikleri } from "../oyun/yildiz";
 import { ikon, yildizSerit, type IkonAdi } from "./ikonlar";
+import { acilmaSeviyesi, pistAcikMi } from "../oyun/ilerleme";
+import { kilitNotu, kutlamaGoster, seviyeRozetiHtml, xpCubuguHtml } from "./seviye-ui";
+import { seviye } from "../oyun/ilerleme";
 import { bindSettings, chipsOf, settingsHTML } from "./ayarlar-ekrani";
 import { openGarage } from "./garaj";
 import { kontrolleriKur } from "./kontroller";
@@ -130,6 +133,7 @@ export function showMenu(v?: string[]) {
   gizle("#hud", "#mm", "#ctl", "#set", "#res", "#gar");
   $("#big").textContent = "";
   if (v) MV = v;
+  document.getElementById("kilitnot")?.classList.remove("goster");
   const cur = MV[MV.length - 1];
   // arka plan görseli akıyorsa canlı sinematik gerekmez (ayarlarda da görsel sürer)
   if (gorselOynuyor() || cur == "settings") demoStop();
@@ -140,7 +144,7 @@ export function showMenu(v?: string[]) {
   m.classList.remove("tema");
   const logo = `<div class="logo">LAST<b>TURN</b></div>`;
   if (cur == "home")
-    m.innerHTML = `<div class="mtop">${logo}<div class="mpro"><i>${PROF.name.trim().charAt(0).toUpperCase() || "S"}</i><div><b>${PROF.name}</b><small>Sürüm ${__APP_VERSION__}${import.meta.env.MODE == "gelistirme" ? " · deneme" : ""}</small></div></div></div>
+    m.innerHTML = `<div class="mtop">${logo}<div class="mpro">${seviyeRozetiHtml(seviye().lv)}<div><b>${PROF.name}</b>${xpCubuguHtml("m")}<small>Sürüm ${__APP_VERSION__}${import.meta.env.MODE == "gelistirme" ? " · deneme" : ""}</small></div></div></div>
 <div class="mcards">${NAV.map(([k, g, n], i) => `<button class="mk" data-nav="${k}" style="--i:${i}"><span>${ikon(g)}<b>${n.replace(" ", "<br>")}</b></span></button>`).join("")}</div>`;
   else {
     const [bas, ust, ic] = view(cur),
@@ -174,6 +178,8 @@ export function showMenu(v?: string[]) {
   tikla("[data-ty]", (e) => showMenu([...MV, "t:" + e.dataset.ty]));
   if (cur == "race") kapakAkisi(m);
   tikla("[data-ev]", (e) => {
+    const ev = EVENTS[+e.dataset.ev!];
+    if (!pistAcikMi(ev.ty, ev.lv)) return kilitNotu(ev.ty, ev.lv);
     Object.assign(COND, condOf(REG[EVENTS[+e.dataset.ev!].reg].th));
     showMenu([...MV, "e:" + e.dataset.ev]);
   });
@@ -209,6 +215,7 @@ export function showMenu(v?: string[]) {
       showMenu();
     };
   if (cur == "settings") bindSettings(m.querySelector<HTMLElement>(".mbody")!, () => showMenu());
+  kutlamaGoster();
 }
 
 /**
@@ -315,8 +322,10 @@ function view(cur: string): [string, string, string] {
       "Yarış türü",
       "Yarış",
       `<div class="kf">${TYPES.map(([t, n, d, g, c], i) => {
-        const cnt = EVENTS.filter((e) => e.ty == t).length;
-        return `<div class="tk" data-tk="${i}" style="--c:${c}">${ikon(g)}<b>${n}</b><small>${d}</small><em>${cnt} pist · Çaylak → Efsane</em></div>`;
+        const tum = EVENTS.filter((e) => e.ty == t),
+          cnt = tum.length,
+          acik = tum.filter((e) => pistAcikMi(e.ty, e.lv)).length;
+        return `<div class="tk" data-tk="${i}" style="--c:${c}">${ikon(g)}<b>${n}</b><small>${d}</small><em>${acik}/${cnt} pist açık · Çaylak → Efsane</em></div>`;
       }).join(
         "",
       )}</div><button class="kfo sol" id="kfs" aria-label="Önceki"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button class="kfo sag" id="kfg" aria-label="Sonraki"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button><div class="kfn">${TYPES.map((q) => `<i style="--c:${q[4]}"></i>`).join("")}</div>`,
@@ -335,7 +344,7 @@ function view(cur: string): [string, string, string] {
       `<p>${y.d}</p><div class="rlist">${pl
         .map(
           ([e, i]) =>
-            `<div class="rc" data-ev="${i}"><div class="rcu"><img src="${trackThumb(REG[e.reg])}"><div class="rcm">${seviyeRozeti(e)}<em>${evLen(e)}</em>${yildizSerit(enIyiYildiz(e.ty, e.lv), "kucuk")}</div></div><div class="rci"><b>${e.n}</b><small>${SEVIYELER[e.lv - 1].d}</small>${evSayilar(e, true)}</div></div>`,
+            `<div class="rc${pistAcikMi(e.ty, e.lv) ? "" : " kilitli"}" data-ev="${i}"><div class="rcu"><img src="${trackThumb(REG[e.reg])}"><div class="rcm">${seviyeRozeti(e)}<em>${evLen(e)}</em>${pistAcikMi(e.ty, e.lv) ? yildizSerit(enIyiYildiz(e.ty, e.lv), "kucuk") : ""}</div>${pistAcikMi(e.ty, e.lv) ? "" : `<div class="kilit">${ikon("kilit")}<b>Seviye ${acilmaSeviyesi({ ty: e.ty, lv: e.lv })}'de açılır</b></div>`}</div><div class="rci"><b>${e.n}</b><small>${SEVIYELER[e.lv - 1].d}</small>${evSayilar(e, true)}</div></div>`,
         )
         .join("")}</div>`,
     ];
@@ -363,7 +372,7 @@ ${evSayilar(e)}${yildizEsikSatiri(e)}</div></div><button class="btn" id="mgo" da
     return [
       "Profil",
       "Sürücü",
-      `<div class="pcol"><div class="lbl">Sürücü adı</div><input id="pname" class="inp" value="${PROF.name.replace(/"/g, "")}" maxlength="20">
+      `<div class="pcol"><div class="pseviye">${seviyeRozetiHtml(seviye().lv, "b")}<div><b>Seviye ${seviye().lv}</b>${xpCubuguHtml("b")}<small>Toplam ${seviye().toplamXp} XP</small></div></div><div class="lbl">Sürücü adı</div><input id="pname" class="inp" value="${PROF.name.replace(/"/g, "")}" maxlength="20">
 <div class="pst"><span>Yarış<b>${PROF.races}</b></span><span>Hedef geçildi<b>${PROF.wins}</b></span><span>Toplam yol<b>${PROF.km.toFixed(1)} km</b></span><span>En çok kullanılan<b>${fav ? CARS[+fav[0]].n : "—"}</b></span></div></div>
 <div class="pcol"><div class="lbl">Kişisel rekorlar</div>${EVENTS.map((e) => `<div class="rk"><span>${e.n}</span><span>${prOf(e)}</span></div>`).join("")}</div>`,
     ];

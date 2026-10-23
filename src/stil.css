@@ -2230,3 +2230,255 @@ details[open] > summary::after {
     gap: 4px;
   }
 }
+
+/* XP ve seviye: rozet, çubuk, kilitli pist, kutlama */
+.lvr {
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffb070, var(--acc));
+  box-shadow: 0 0 0 2px #05090b99;
+}
+.lvr i {
+  font: 900 17px inherit;
+  font-family: inherit;
+  font-style: normal;
+  color: #1b0d05;
+}
+.lvr.k {
+  width: 24px;
+  height: 24px;
+}
+.lvr.k i {
+  font-size: 13px;
+}
+.lvr.b {
+  width: 56px;
+  height: 56px;
+}
+.lvr.b i {
+  font-size: 28px;
+}
+.xpc {
+  display: block;
+  margin: 3px 0 2px;
+}
+.xpb {
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: #ffffff26;
+  overflow: hidden;
+}
+.xpb i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #ffb070, var(--acc));
+}
+.xpc em {
+  font-style: normal;
+  font-size: 10px;
+  color: var(--mut);
+}
+.xpc.m {
+  min-width: 96px;
+}
+.xpc.b .xpb {
+  height: 9px;
+}
+.xpc.b em {
+  font-size: 12px;
+}
+.pseviye {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.pseviye > div {
+  flex: 1;
+}
+.pseviye b {
+  font-size: 18px;
+}
+.pseviye small {
+  color: var(--mut);
+  font-size: 11px;
+}
+/* yarış sonu XP bloğu */
+.xps {
+  margin: 6px 0;
+}
+.xpt {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+.xpt > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.xpt u {
+  text-decoration: none;
+  color: var(--acc);
+}
+.xpt em {
+  font-style: normal;
+  color: var(--mut);
+}
+.xps .xpb {
+  height: 10px;
+}
+.xps small {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  color: var(--mut);
+  text-align: right;
+}
+.xps.atladi .xpl {
+  color: var(--acc);
+  font-weight: 800;
+}
+/* kilitli pist kartı */
+.rc.kilitli {
+  filter: grayscale(0.6);
+}
+.rc.kilitli img,
+.rc.kilitli .rcm {
+  opacity: 0.3;
+}
+.rc.kilitli .rci {
+  opacity: 0.12;
+}
+.rc.kilitli .kilit {
+  position: absolute;
+  inset: 0;
+  text-shadow: 0 1px 4px #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-radius: 12px;
+  font-size: 13px;
+  text-align: center;
+}
+.rc.kilitli .kilit .ik {
+  width: 30px;
+  height: 30px;
+}
+.rc.kilitli {
+  position: relative;
+}
+#kilitnot {
+  position: fixed;
+  left: 50%;
+  bottom: 14px;
+  z-index: 60;
+  max-width: 80vw;
+  transform: translate(-50%, 20px);
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: #05090bee;
+  border: 1px solid #ffffff2e;
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+}
+#kilitnot .ik {
+  width: 16px;
+  height: 16px;
+  vertical-align: -3px;
+}
+#kilitnot.goster {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  transition:
+    opacity 0.25s,
+    transform 0.25s;
+}
+/* seviye atlama kutlaması */
+#lvup {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: none;
+  place-items: center;
+  background: #05090bd9;
+}
+#lvup.acik {
+  display: grid;
+}
+#lvup .lvk {
+  text-align: center;
+  animation: lvpop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+#lvup h2 {
+  margin: 2px 0 8px;
+  font-size: 44px;
+  color: var(--acc);
+}
+#lvup small {
+  letter-spacing: 3px;
+  color: var(--mut);
+  font-size: 12px;
+}
+#lvup .lva {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  max-width: 560px;
+  margin: 0 auto 10px;
+}
+#lvup .lva small {
+  width: 100%;
+}
+#lvup .lva span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 14px;
+  background: #ffffff1a;
+  font-size: 13px;
+}
+#lvup .lva .ik {
+  width: 16px;
+  height: 16px;
+}
+#lvup p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--mut);
+}
+@keyframes lvpop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+}
+@media (max-height: 400px) {
+  #lvup h2 {
+    font-size: 32px;
+    margin-bottom: 4px;
+  }
+  .xps .xpt {
+    margin-bottom: 2px;
+  }
+}
+
+/* alçak ekranda pist ayrıntısı: seviye açıklaması listede zaten var, "Araç seç" kesilmesin */
+@media (max-height: 420px) {
+  .v-e .evh p.lvd {
+    display: none;
+  }
+}
