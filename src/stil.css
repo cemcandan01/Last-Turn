@@ -905,11 +905,12 @@ details[open] > summary::after {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+/* delik kamera payı (Android yatayda her iki kenarda 30 px): güvenli alan bildirilmeyen kenarda oklar delikten uzak durur */
 .kfo.sol {
-  left: 0;
+  left: max(0px, calc(30px - var(--sal) - 18px));
 }
 .kfo.sag {
-  right: 0;
+  right: max(0px, calc(30px - var(--sar) - 18px));
 }
 .kfn {
   position: absolute;
@@ -1858,4 +1859,105 @@ details[open] > summary::after {
   background: #000a;
   color: var(--ink);
   font-size: 22px;
+}
+/* ===== Ekran uyumu (menü): kısa ve dar ekranlarda sıkılaştırma; iPhone 13 üstü bozulmaz ===== */
+@media (max-height: 400px) {
+  .v-e .btn {
+    padding: 10px;
+    margin-top: 6px;
+    font-size: 18px;
+  }
+  .v-e .evh p {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  .v-e .lvd {
+    margin: 4px 0 2px !important;
+    font-size: 13px !important;
+  }
+  .v-e .rcs {
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .v-e .rcs span {
+    padding: 3px 6px;
+  }
+  .v-e .evk .chip {
+    padding: 6px 4px;
+  }
+}
+@media (max-height: 365px) {
+  #menu.sub {
+    gap: 6px;
+  }
+  .v-e .evh img {
+    width: 96px;
+    height: 96px;
+  }
+  .v-e .evh p {
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .v-e .lvd {
+    margin: 2px 0 !important;
+  }
+  .v-e .btn {
+    padding: 8px;
+    font-size: 17px;
+  }
+  .v-e .rcs b {
+    font-size: 13px;
+  }
+}
+@media (max-width: 720px) {
+  .mcards {
+    gap: 12px;
+    padding: 0 6px;
+  }
+  .mk > span {
+    gap: 6px;
+  }
+  .mk .ik {
+    width: 20px;
+    height: 20px;
+  }
+  .mk b {
+    font-size: 12px;
+    letter-spacing: 0;
+  }
+  .mk:first-child .ik {
+    width: 28px;
+    height: 28px;
+  }
+  .mk:first-child b {
+    font-size: 20px;
+  }
+}
+/* tablet ve geniş ekran: ana menü öğeleri küçük kalıp kaybolmasın */
+@media (min-height: 600px) {
+  .logo {
+    font-size: 56px;
+  }
+  .mpro {
+    transform: scale(1.25);
+    transform-origin: top right;
+  }
+  .mcards {
+    height: 112px;
+    gap: 12px;
+  }
+  .mk b {
+    font-size: 21px;
+  }
+  .mk .ik {
+    width: 36px;
+    height: 36px;
+  }
+  .mk:first-child b {
+    font-size: 32px;
+  }
+  .mk:first-child .ik {
+    width: 48px;
+    height: 48px;
+  }
 }

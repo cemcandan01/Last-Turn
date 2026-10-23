@@ -5,3 +5,4 @@
 - Silindi: menu.mp4, scripts/menu-video.mjs, SW video (206) kodu, test webm'i.
 - Pist ya da SHOTS değişince görselleri yeniden üret, önizlemede araçlara bak.
 - Açık iş: yok.
+- **Ekran uyumu (0.4.x):** `stil.css` sonuna menü uyum kuralları: `max-height:400/365` pist ayrıntısını sıkıştırır (iPhone 13'te "Araç seç" altta kesiliyordu, artık sığar), `max-width:720` ana menü panellerini küçültür (SE), `min-height:600` tablette büyütür, `.kfo` okları Android delik kamerasından (30 px) uzak tutar. Kaydırma/yön koduna dokunulmadı. `npm run cihaz -- --ekran menu --hepsi`: 0 hata, 0 uyarı.
