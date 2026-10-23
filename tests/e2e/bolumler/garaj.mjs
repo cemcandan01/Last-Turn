@@ -211,4 +211,153 @@ export default async function ({ p, ok }) {
     "menü garajında seçme yok, yalnız Geri",
   );
   await p.evaluate(() => LT.closeGarage());
+  // panel: kartlar dolu, altta boşluk yok (içerik panel yüksekliğini doldurur), genişlik sabit, kaydırma yok
+  const pn = await p.evaluate(() => {
+    const r = [];
+    for (let i = 0; i < LT.CARS.length; i++) {
+      LT.openGarage(0);
+      for (let k = 0; k < i; k++) document.querySelector("#gnx").click();
+      const g = document.querySelector("#gar"),
+        gb = g.getBoundingClientRect(),
+        cip = document.querySelector("#gar .gcip").getBoundingClientRect(),
+        bt = document.querySelector("#gar .gbt").getBoundingClientRect(),
+        kt = document.querySelectorAll("#gar .gk");
+      r.push({
+        kay: g.scrollHeight <= g.clientHeight + 1,
+        w: Math.round(gb.width),
+        kart: kt.length,
+        bosluk: Math.round(bt.top - cip.bottom),
+        alt: Math.round(innerHeight - bt.bottom),
+        tasma: [...kt].some((e) => e.scrollHeight > e.clientHeight + 1),
+      });
+      LT.closeGarage();
+    }
+    return r;
+  });
+  ok(
+    pn.every((x) => x.kay && !x.tasma && x.kart >= 6 && x.bosluk <= 12 && x.alt <= 16) &&
+      new Set(pn.map((x) => x.w)).size == 1,
+    "bilgi paneli kaydırmasız, kartlar taşmıyor, boşluk yok, genişlik sabit " + JSON.stringify(pn[0]),
+  );
+  // araç geçişi takılmıyor (iPhone'a yakın: işlemci 4 kat yavaşlatılır). Modeller garaj açılırken kurulup GPU'ya
+  // yüklenir (geçişte yeni shader programı ve geometri yok); motor sesi işçide hesaplanır (eskiden her geçişte
+  // ~10 kare boyunca ana iş parçacığında sentezleniyordu: ortalama kare boşta karenin ~3 katı)
+  await p.evaluate(async () => {
+    LT.openGarage(0);
+    await new Promise((r) => setTimeout(r, 2500));
+    document.querySelector("#gnx").click(); // ilk dokunuş sesi uyandırır (garajla ilgisiz tek seferlik iş)
+  });
+  const cdp = await p.context().newCDPSession(p);
+  await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+  const gec = await p.evaluate(async () => {
+    const R = LT.R,
+      kare = () => new Promise((r) => requestAnimationFrame(r)),
+      bilgi = () => [R.info.programs.length, R.info.memory.geometries];
+    for (let i = 0; i < 8; i++) await kare();
+    const bos = [];
+    let son = performance.now();
+    for (let i = 0; i < 12; i++) {
+      await kare();
+      const t = performance.now();
+      bos.push(t - son);
+      son = t;
+    }
+    const once = bilgi(),
+      kareler = [];
+    let sync = 0;
+    for (let k = 0; k < LT.CARS.length; k++) {
+      const t0 = performance.now();
+      document.querySelector("#gnx").click();
+      sync = Math.max(sync, performance.now() - t0);
+      son = performance.now();
+      for (let i = 0; i < 10; i++) {
+        await kare();
+        const t = performance.now();
+        kareler.push(t - son);
+        son = t;
+      }
+    }
+    const sonra = bilgi();
+    LT.closeGarage();
+    bos.sort((a, b) => a - b);
+    return {
+      taban: Math.round(bos[6]),
+      ort: Math.round(kareler.reduce((a, b) => a + b) / kareler.length),
+      en: Math.round(Math.max(...kareler)),
+      sync: Math.round(sync),
+      program: once[0] + "→" + sonra[0],
+      geometri: once[1] + "→" + sonra[1],
+      yeni: sonra[0] - once[0] + sonra[1] - once[1],
+    };
+  });
+  await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+  await cdp.detach();
+  ok(
+    gec.yeni == 0 && gec.sync < 60 && gec.ort < gec.taban * 1.6 + 20 && gec.en < gec.taban * 3.5 + 60,
+    "araç geçişi takılmıyor (4x yavaş): program " +
+      gec.program +
+      ", geometri " +
+      gec.geometri +
+      ", tıklama " +
+      gec.sync +
+      " ms, geçiş sonrası ort/en uzun kare " +
+      gec.ort +
+      "/" +
+      gec.en +
+      " ms (boşta " +
+      gec.taban +
+      ")",
+  );
+  // garaj ışığı: dünya saati/havası ne olursa olsun aynı; kapanınca dünya ortamı geri gelir
+  const isik = await p.evaluate(() => {
+    const oku = () => LT.scene.background.getHex();
+    const sonuc = [];
+    for (const [tod, wx] of [
+      ["noon", "sun"],
+      ["night", "rain"],
+    ]) {
+      LT.COND.tod = tod;
+      LT.COND.wx = wx;
+      LT.applyEnv(LT.ortam.k);
+      const dunya = oku();
+      LT.openGarage(0);
+      sonuc.push([dunya, oku(), LT.scene.fog.near > 1e4]);
+      LT.closeGarage();
+      sonuc.push(oku() == dunya);
+    }
+    LT.COND.tod = "noon";
+    LT.COND.wx = "sun";
+    LT.applyEnv(LT.ortam.k);
+    return sonuc;
+  });
+  ok(
+    isik[0][1] == isik[2][1] && isik[0][2] && isik[1] && isik[3] && isik[0][0] != isik[2][0],
+    "garaj ışığı dünyanın saatinden/havasından bağımsız, kapanınca ortam geri gelir",
+  );
+  // yeni araç modelleri (k anahtarına göre): fizik dalı araçları ekleyene kadar geçici kopyalarla denenir
+  const modeller = await p.evaluate(() => {
+    const k = { gt3: "gp", t16: "rx", int: "rl", ae86: "dr", supra: "dg" };
+    for (const a in k) if (!LT.CARS.find((c) => c.k == a)) LT.CARS.push({ ...LT.CARS[0], k: a, ty: k[a] });
+    LT.gorunumUygula(LT.CARS);
+    const out = {};
+    for (const a in k) {
+      const i = LT.CARS.findIndex((c) => c.k == a);
+      LT.setCar(i, true);
+      const cm = LT.oyun.CAR;
+      let mesh = 0,
+        nan = 0;
+      LT.scene.traverse((o) => {
+        if (!o.isMesh || !o.geometry.attributes.position) return;
+        mesh++;
+        for (const v of o.geometry.attributes.position.array) if (!Number.isFinite(v)) nan++;
+      });
+      out[a] = { ad: cm.k == a, mesh, nan };
+    }
+    return out;
+  });
+  for (const a in modeller)
+    ok(
+      modeller[a].ad && modeller[a].mesh > 20 && modeller[a].nan == 0,
+      "yeni araç modeli kurulur (vitrin önbelleğiyle): " + a,
+    );
 }

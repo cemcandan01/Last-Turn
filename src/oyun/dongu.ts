@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import { ad, cl, lerp, lerpAci } from "../cekirdek/matematik";
 import { $ } from "../cekirdek/dom";
-import { ekran } from "../cekirdek/ekran";
+import { ekran, garajPanel } from "../cekirdek/ekran";
 import { kareKaydet } from "../cekirdek/performans";
 import { bildirimTick, note } from "../arayuz/bildirim";
 import { engine, hudGuncelle, motor } from "../arayuz/hud";
@@ -118,7 +118,7 @@ function kare(ts: number) {
   parcacikTick(dt);
   if (mode != "menu" && mode != "garage" && !duzenleyici.acik) {
     hudGuncelle(v);
-    miniHaritaCiz(gx, gz, Math.sin(gh), Math.cos(gh));
+    miniHaritaCiz(gx, gz, Math.sin(gh), Math.cos(gh), v, yarista ? uzak.araclar : [], HAYALET);
   }
   sesTick(dt);
   const t2 = performance.now();
@@ -244,7 +244,7 @@ function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h
     const a = 0.55,
       lnd = ekran.aw > ekran.ah,
       dd = (lnd ? 8.2 : 8.8) * kamera.gz,
-      pay = lnd && !kamera.gTam ? Math.min(GARAJ_PANEL, ekran.aw * 0.58) / 2 : 0,
+      pay = lnd && !kamera.gTam ? garajPanel() / 2 : 0,
       ty = lnd ? 0.7 : -0.2,
       gp = lnd ? kamera.gp : kamera.gp + 0.25;
     cam.position.set(
@@ -269,9 +269,6 @@ function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h
     cam.updateProjectionMatrix();
   }
 }
-
-/** garaj bilgi panelinin yatay genişliği (px; stil.css → .land #gar ile aynı) */
-const GARAJ_PANEL = 410;
 
 /** garaj görüntü penceresi kaydırması açık mı */
 let garajGorus = false;

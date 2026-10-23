@@ -33,14 +33,32 @@ export default [
   },
   {
     id: "seviyeler",
-    ad: "Pist listesi: 6 pist seviye sırasıyla, seviye rozeti ve kimin için ideal; drift hedef puanı",
+    ad: "Pist listesi: 8 pist seviye sırasıyla, seviye rozeti ve kimin için ideal; drift hedef puanı",
     p: 2,
     tarayici: "seviyeler",
+  },
+  {
+    id: "yildiz",
+    ad: "Yıldız görselleri: pist kartında en iyi yıldız, ayrıntıda 1★/2★/3★ eşikleri, yarış sonunda alınan yıldızlar",
+    p: 2,
+    tarayici: "yildiz",
+  },
+  {
+    id: "xp-gorsel",
+    ad: "XP görselleri (temiz profil): pist kilitleri, türde açık pist sayısı, profil seviye çubuğu, yarış sonu XP çubuğu, seviye atlama kutlaması",
+    p: 2,
+    tarayici: "xp-gorsel",
   },
   {
     id: "kapak",
     ad: "Yarış türü kapak akışı: ok, kaydırma, yan kart; pistler türün rengiyle",
     p: 2,
     tarayici: "kapak",
+  },
+  {
+    id: "cihaz-uyum",
+    ad: "Ekran uyumu: menü, yarış, pist, profil, ayarlar, duraklatma ve yarış sonu ekranları sanal cihazlarda taşmıyor, kesilmiyor, üst üste binmiyor (alanda 3 cihaz; regresyonda iPhone 13 tam + 11 temsilci cihaz 4 ekran)",
+    p: 2,
+    tarayici: "cihaz-menu",
   },
 ];

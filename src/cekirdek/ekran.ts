@@ -15,6 +15,20 @@ export const ekran = {
   ah: typeof innerHeight == "number" ? innerHeight : 390,
 };
 
+/** garaj bilgi panelinin ölçeği (stil.css → --gs) */
+export const garajOlcek = (): number =>
+  Math.round(Math.min(1.45, Math.max(0.8, Math.min(ekran.ah / 390, ekran.aw / 844))) * 100) / 100;
+
+export const garajDikey = (): number =>
+  Math.round(Math.min(1.6, Math.max(1, ekran.ah / 390 / garajOlcek())) * 100) / 100;
+
+/** garaj panelinin genişlik katsayısı (kart yüksekliğiyle büyür ama panel ekranın %58'ini geçmez): 1–gv */
+export const garajGenislik = (): number =>
+  Math.round(Math.max(1, Math.min(garajDikey(), (ekran.aw * 0.58) / 410 / garajOlcek())) * 100) / 100;
+
+/** garaj panelinin genişliği (px) */
+export const garajPanel = (): number => Math.min(410 * garajOlcek() * garajGenislik(), ekran.aw * 0.58);
+
 let app: HTMLElement;
 let probe: HTMLElement;
 
@@ -30,17 +44,27 @@ export function ekranKur() {
   app = document.getElementById("app")!;
   probe = document.createElement("div");
   probe.style.cssText =
-    "position:fixed;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)";
+    "position:fixed;inset:0;visibility:hidden;pointer-events:none;z-index:-1;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)";
   document.body.appendChild(probe);
   layout();
 }
 
-/** görünür alanın gerçek ölçüsü: iOS ana ekran uygulamasında açılışta innerWidth/Height gecikmeli oturabilir */
+/** görünür alanın gerçek ölçüsü. iOS ana ekran uygulamasında innerWidth/Height ve visualViewport yön
+ * değişiminden sonra eski (dikey) değerde kalabiliyor; bu yüzden ölçü, ekranı CSS ile (fixed, inset:0)
+ * kaplayan ölçüm kutusundan alınır: sayfa düzeni neyse ölçü de odur. */
 export function gorunurOlcu(): [number, number] {
+  const r = probe ? probe.getBoundingClientRect() : null;
+  if (r && r.width > 0 && r.height > 0) return [Math.round(r.width), Math.round(r.height)];
   const v = window.visualViewport;
-  const W = Math.round(v && v.width > 0 ? v.width : innerWidth),
-    H = Math.round(v && v.height > 0 ? v.height : innerHeight);
-  return [W, H];
+  return [
+    Math.round(v && v.width > 0 ? v.width : innerWidth),
+    Math.round(v && v.height > 0 ? v.height : innerHeight),
+  ];
+}
+
+/** ölçüm kutusunun boyutu her değiştiğinde (dönme, açılışta geç oturma) f çağrılır */
+export function olcuIzle(f: () => void) {
+  if (typeof ResizeObserver == "function") new ResizeObserver(() => f()).observe(probe);
 }
 
 export function layout() {
@@ -69,13 +93,19 @@ export function layout() {
   ekran.ah = ROT ? W : H;
   app.classList.toggle("land", ekran.aw > ekran.ah);
   const st = app.style;
-  st.width = ekran.aw + "px";
-  st.height = ekran.ah + "px";
+  // dönme yokken boyut tamamen CSS'ten (inset:0): JS ölçüsü geç kalsa bile boşluk kalmaz
+  st.width = ROT ? ekran.aw + "px" : "";
+  st.height = ROT ? ekran.ah + "px" : "";
   st.transform =
     ROT == 90 ? `translate(${W}px,0) rotate(90deg)` : ROT == -90 ? `translate(0,${H}px) rotate(-90deg)` : "";
   ["--sat", "--sar", "--sab", "--sal"].forEach((k, i) => st.setProperty(k, e[m[i]] + "px"));
   st.setProperty("--aw", ekran.aw + "px");
   st.setProperty("--ah", ekran.ah + "px");
+  // garaj paneli ölçeği: iPhone 13 (844x390) = 1; küçük ekranda 0,8'e kadar, büyükte 1,45'e kadar
+  st.setProperty("--gs", String(garajOlcek()));
+  // dikey boşluk fazlaysa (kareye yakın / yüksek ekran) kart içeriği yükseklikle de büyür: 1–1,6
+  st.setProperty("--gv", String(garajDikey()));
+  st.setProperty("--gw", String(garajGenislik()));
 }
 
 /** ekran koordinatını içerik koordinatına çevirir */

@@ -199,7 +199,7 @@ describe("asfalt pistte titreşim yok (her araç, her asfalt pist)", () => {
       }
     });
   }
-  it("sert frende öne dalan gövde yola vurmaz: darbe yok (5 araç, 148 km/sa)", () => {
+  it("sert frende öne dalan gövde yola vurmaz: darbe yok (her araç, 148 km/sa)", () => {
     for (let arac = 0; arac < CARS.length; arac++) {
       const s = surucuKur({ dunya: 0, arac, lk: "norm" });
       s.reset(210, -780, 0);
@@ -215,6 +215,17 @@ describe("asfalt pistte titreşim yok (her araç, her asfalt pist)", () => {
       }
       expect(en, `${CARS[arac].n}: frende en büyük dikey ivme (m/s²)`).toBeLessThan(6);
     }
+  });
+
+  it("turbo gecikmesi: kalkışta basınç boş, tam gazda dolar, gaz kesince boşalır (Turuncu Ejder)", () => {
+    const s = surucuKur({ dunya: 0, arac: CARS.findIndex((c) => c.k == "supra"), lk: "norm" });
+    s.reset(210, -780, 0);
+    for (let k = 0; k < 18; k++) s.adim(gir(1));
+    expect(s.sim.yeni!.turbo, "0,3 sn tam gaz").toBeLessThan(0.3);
+    for (let k = 0; k < 300; k++) s.adim(gir(1));
+    expect(s.sim.yeni!.turbo, "5 sn tam gaz").toBeGreaterThan(0.85);
+    for (let k = 0; k < 60; k++) s.adim(gir(0));
+    expect(s.sim.yeni!.turbo, "1 sn gazsız").toBeLessThan(0.1);
   });
 
   it("kerbe çıkan teker sarsıntıyı açar (Grand Prix)", () => {

@@ -4,7 +4,7 @@ import * as THREE from "three";
 import type { Arac } from "../arac/araclar";
 import { yaziTuvali } from "./dokular";
 import { blackM, dk, glassM, glassQM, lightM, tailM, bm } from "./malzemeler";
-import { scene } from "./sahne";
+import { cam, R, scene } from "./sahne";
 import { bx, lam } from "./yardimci";
 import { buildInterior, cock } from "./kokpit";
 import { arkaKam, aynalariSifirla, aynaYuzu } from "./ayna";
@@ -197,6 +197,75 @@ function body0(d: Arac) {
   return g;
 }
 
+/** yuvarlak far: gövde yüzeyine yarı gömülü küre, siyah çerçeveli; yüzeyin eğimine yatık */
+function yuvarlakFar(g: THREE.Group, d: Arac, y: number, x: number, r: number, m: THREE.Material = lightM) {
+  const { z, s } = uc(d, y, true),
+    f = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 6), m),
+    c = new THREE.Mesh(new THREE.TorusGeometry(r * 1.04, r * 0.16, 4, 12), blackM);
+  for (const q of [f, c]) {
+    q.position.set(x, y, z - r * 0.15);
+    q.rotation.x = Math.atan(s);
+    g.add(q);
+  }
+  f.scale.z = 0.5;
+}
+
+/** her teker kemerinin üstüne gövde renginde şişkin çamurluk dudağı */
+function camurluk(g: THREE.Group, d: Arac, m: THREE.Material, t = 0.1) {
+  for (const k of kemerler(d))
+    for (const sd of [-1, 1])
+      g.add(
+        bx(
+          t,
+          0.07,
+          2 * k.R + 0.12,
+          sd * (yariGenislik(d, k.y + k.R, k.z) + t / 2 - 0.02),
+          k.y + k.R - 0.02,
+          k.z,
+          m,
+        ),
+      );
+}
+
+/** aracın yanlarına yatay yazı (numara kadar kalın değil) */
+function yazi(
+  g: THREE.Group,
+  t: string,
+  w: number,
+  h: number,
+  bx0: number,
+  z: number,
+  y: number,
+  fg: string,
+) {
+  for (const sd of [-1, 1]) {
+    const q = decal(t, w, h, fg);
+    q.position.set(sd * (bx0 / 2 + 0.012), y, z);
+    q.rotation.y = (sd * Math.PI) / 2;
+    g.add(q);
+  }
+}
+
+/** kanat: iki ayak, ana plaka ve iki yan plaka */
+function kanat(
+  g: THREE.Group,
+  d: Arac,
+  m: THREE.Material,
+  z: number,
+  y: number,
+  genis: number,
+  derin: number,
+  ayak: number,
+  egim = 0.12,
+) {
+  const yz = ust(d, z) - 0.05;
+  g.add(bx(genis, 0.05, derin, 0, y, z, m, egim));
+  for (const sd of [-1, 1]) {
+    g.add(bx(0.05, 0.2, derin + 0.06, (sd * genis) / 2, y - 0.03, z, m));
+    g.add(bx(0.06, y - yz, 0.15, sd * ayak, (y + yz) / 2, z + 0.04, m));
+  }
+}
+
 /** araca özel ek parçalar */
 const EK: Record<string, (g: THREE.Group, d: Arac) => void> = {
   gt: (g, d) => {
@@ -273,6 +342,92 @@ const EK: Record<string, (g: THREE.Group, d: Arac) => void> = {
       g.add(h);
     }
   },
+  gt3: (g, d) => {
+    const k = blackM,
+      tu = lam(0xe6a21a);
+    // sabit büyük kanat, arka kapağın üstünde
+    kanat(g, d, k, -2.06, 1.46, 1.8, 0.38, 0.58);
+    tampon(g, d, 0.3, true, 0.06, 0.26, 0.07, -0.02, k);
+    // turuncu şeritler kaput, tavan ve arka kapak boyunca
+    for (const x of [-0.12, 0.12]) {
+      serit(g, d, x, 0.1, 1.2, 2.1, tu);
+      serit(g, d, x, 0.1, -0.85, 0.4, tu);
+      serit(g, d, x, 0.1, -2.0, -1.55, tu);
+    }
+    for (const sd of [-1, 1]) yuvarlakFar(g, d, 0.76, sd * 0.62, 0.13);
+    // arka tampon siyah, hava çıkışı
+    tampon(g, d, 0.5, false, 0.2, 0.12, 0.05, -0.1, k);
+    numbers(g, "3", d.w, 0.2, 0.66, 0.9, "#15171a");
+  },
+  t16: (g, d) => {
+    const k = blackM,
+      m = lam(d.col);
+    camurluk(g, d, m, 0.12);
+    // büyük arka kanat ve motor kapağı kanalları
+    kanat(g, d, k, -1.8, 1.56, 1.5, 0.36, 0.5, 0.15);
+    for (const z of [-1.2, -1.32, -1.44, -1.56, -1.68])
+      g.add(
+        bx(
+          1.16,
+          0.02,
+          0.05,
+          0,
+          ust(d, z) + 0.01,
+          z,
+          k,
+          -Math.atan2(ust(d, z + 0.02) - ust(d, z - 0.02), 0.04),
+        ),
+      );
+    // kapı arkasındaki yan hava girişi
+    for (const sd of [-1, 1])
+      g.add(bx(0.3, 0.34, 0.03, sd * (yariGenislik(d, 0.82, -0.92) + 0.005), 0.82, -0.92, k));
+    // ön tampon ve sis farları
+    tampon(g, d, 0.5, true, 0.18, 0.1, 0.05, 0.04, k);
+    for (const sd of [-1, 1]) yuvarlakFar(g, d, 0.74, sd * 0.5, 0.1);
+    numbers(g, "6", d.w, 0.15, 0.78, 0.9, "#15171a");
+  },
+  int: (g, d) => {
+    const k = blackM,
+      m = lam(d.col);
+    camurluk(g, d, m, 0.12);
+    // kaputta şişkinlik, tavan arkasında kanat
+    g.add(bx(0.8, 0.07, 0.9, 0, ust(d, 1.3) + 0.01, 1.3, m));
+    kanat(g, d, k, -1.32, 1.5, 1.44, 0.24, 0.5, 0.05);
+    // ön tampon ve dört ek sis farı
+    tampon(g, d, 0.5, true, 0.2, 0.1, 0.05, 0.04, k);
+    for (const x of [-0.62, -0.38, 0.38, 0.62]) yuvarlakFar(g, d, 0.62, x, 0.08, lam(0xfff4d6));
+    // ralli çıkartmaları
+    yazi(g, "ARI", 0.7, 0.3, d.w, -0.9, 0.82, "#15171a");
+    numbers(g, "1", d.w, 0.35, 0.8, 1, "#15171a");
+  },
+  ae86: (g, d) => {
+    const k = blackM;
+    // siyah kaput, ön ve arka tampon
+    serit(g, d, 0, 1.2, 0.95, 1.98, k);
+    tampon(g, d, 0.5, true, 0.18, 0.1, 0.05, 0.02, k);
+    tampon(g, d, 0.55, false, 0.2, 0.1, 0.05, 0.02, k);
+    // açılmış far kutuları: kaputun ucunda yukarı çıkık
+    const yh = ust(d, 1.8) + 0.07;
+    for (const sd of [-1, 1]) {
+      g.add(bx(0.32, 0.16, 0.14, sd * 0.5, yh, 1.78, k), bx(0.24, 0.1, 0.02, sd * 0.5, yh, 1.86, lightM));
+    }
+    // küçük arka kanat
+    g.add(bx(1.26, 0.04, 0.2, 0, ust(d, -1.98) + 0.07, -1.98, k, -0.1));
+  },
+  supra: (g, d) => {
+    const k = blackM,
+      m = lam(d.col);
+    // büyük kavisli kanat: gövde renginde, yüksek ayaklı
+    kanat(g, d, m, -2.1, 1.62, 1.8, 0.5, 0.62, 0.1);
+    g.add(bx(1.5, 0.05, 0.3, 0, 1.69, -2.18, m, 0.22));
+    tampon(g, d, 0.32, true, 0.06, 0.26, 0.07, 0.02, k);
+    // kaput havalandırmaları
+    for (const sd of [-1, 1]) serit(g, d, sd * 0.38, 0.3, 1.1, 1.6, k);
+    // geniş stop çubuğu
+    const { z } = uc(d, 0.9, false);
+    g.add(bx(1.3, 0.1, 0.04, 0, 0.9, z - 0.015, tailM));
+    numbers(g, "7", d.w, -0.15, 0.62, 0.9, "#15171a");
+  },
 };
 
 interface TekerModeli {
@@ -319,15 +474,60 @@ export const model = {
   wheels: [] as THREE.Group[],
 };
 
-/** aracın görsel modelini kur (iç mekân dahil) */
-export function aracModeliKur(d: Arac) {
+/** garaj vitrini için önceden kurulmuş modeller (garaj kapanınca boşaltılır) */
+const vitrinOnbellek = new Map<Arac, ReturnType<typeof buildCar>>();
+/** vitrinde iç mekân kurulmadı: sürüşe geçerken aracIcKur() tamamlar */
+let icBekliyor: Arac | null = null;
+
+/** bir aracın modelini garaj önbelleğine kur (zaten varsa dokunmaz) */
+export function vitrinHazirla(d: Arac) {
+  if (!vitrinOnbellek.has(d)) vitrinOnbellek.set(d, buildCar(d));
+}
+export const vitrinHazirMi = (d: Arac) => vitrinOnbellek.has(d);
+let isitHedef: THREE.WebGLRenderTarget | null = null;
+/**
+ * önceden kurulan modeli sahnede, gösterilen aracın yerinde bir kez görünmeden (1x1 hedefe) çiz: geometri ve
+ * dokular GPU'ya şimdi yüklenir, araç değişince ilk karede değil. Işık ve gölge düzeni aynı: yeni program derlenmez.
+ */
+export function vitrinIsit(d: Arac) {
+  const cm = vitrinOnbellek.get(d);
+  if (!cm || cm === model.carM || !R) return;
+  const g = new THREE.Group();
+  car.updateMatrixWorld();
+  g.matrixAutoUpdate = false;
+  g.matrix.copy(car.matrixWorld);
+  g.add(cm.g, ...cm.ws.map((w) => w.pv));
+  g.traverse((o) => {
+    if ((o as THREE.Mesh).isMesh) o.castShadow = true;
+  });
+  scene.add(g);
+  isitHedef ??= new THREE.WebGLRenderTarget(1, 1);
+  const once = R.getRenderTarget();
+  R.setRenderTarget(isitHedef);
+  R.render(scene, cam);
+  R.setRenderTarget(once);
+  scene.remove(g);
+  g.remove(cm.g, ...cm.ws.map((w) => w.pv));
+}
+export function vitrinBosalt() {
+  vitrinOnbellek.clear();
+}
+/** vitrinde atlanan iç mekânı kur (garajdan sürüşe geçerken) */
+export function aracIcKur() {
+  if (icBekliyor) buildInterior(icBekliyor);
+  icBekliyor = null;
+}
+
+/** aracın görsel modelini kur (iç mekân dahil); vitrin: garaj önbelleğinden alır, iç mekânı sonraya bırakır */
+export function aracModeliKur(d: Arac, vitrin = false) {
   const M = model;
   aynalariSifirla();
   if (M.carM) {
     body.remove(M.carM.g);
     for (const w of M.carM.ws) car.remove(w.pv);
   }
-  const cm = (M.carM = buildCar(d));
+  if (vitrin) vitrinHazirla(d);
+  const cm = (M.carM = vitrin ? vitrinOnbellek.get(d)! : buildCar(d));
   body.add(cm.g);
   for (const w of cm.ws) car.add(w.pv);
   cm.g.traverse((o) => {
@@ -340,7 +540,11 @@ export function aracModeliKur(d: Arac) {
   M.steerP = cm.ws.filter((w) => w.f).map((w) => w.pv);
   M.wheels = cm.ws.map((w) => w.w);
   bm.color.setHex(d.col);
-  buildInterior(d);
+  if (vitrin) icBekliyor = d;
+  else {
+    icBekliyor = null;
+    buildInterior(d);
+  }
   // aynaların kamerası: aracın arka üstünde, arkaya (gövdenin -z yönüne) bakar
   arkaKam.position.set(
     0,

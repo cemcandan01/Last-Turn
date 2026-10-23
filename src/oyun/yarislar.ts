@@ -13,17 +13,20 @@ import type { OnayarAnahtari } from "../fizik/veriler";
 import { setActive } from "./bolge";
 import { carIndex, oyun, setCar } from "./durum";
 import { girdiSifirla } from "./girdi";
+import { aracAcikMi, pistAcikMi, yarisBitti } from "./ilerleme";
 import { applyPreset, kurulum, kurulumKaydet, kurulumYukle, type KurulumKaydi } from "./kurulum";
 import { PROF, saveProf } from "./profil";
 import { reset, sim } from "./surus";
+import { X6_CARPAN, X6_ORAN, driftAdimi, driftBankala, tersAdimi, type DriftOlay } from "./yaris-kurallari";
+import { DRIFT_TUR, TUR_ANAHTARI, yildizEsikleri, yildizSay } from "./yildiz";
 
 /** yarış türleri: hedef süre, pist uzunluğundan ve ilk pistlerin ayarlı hızından (v, m/s) hesaplanır */
 export const TYP: Record<
   YarisTuru,
-  { k: string; pk: OnayarAnahtari; laps?: number; time?: number; v?: number; n: string; d: string }
+  { k: string; pk: OnayarAnahtari; laps?: number; v?: number; n: string; d: string }
 > = {
   gp: {
-    k: "asphalt",
+    k: TUR_ANAHTARI.gp,
     pk: "ar",
     laps: 3,
     v: 35.3,
@@ -31,7 +34,7 @@ export const TYP: Record<
     d: "3 tur. Fren tabelalarını kullan, hedef süreyi geç.",
   },
   rx: {
-    k: "dirt",
+    k: TUR_ANAHTARI.rx,
     pk: "tr",
     laps: 3,
     v: 28.5,
@@ -39,21 +42,23 @@ export const TYP: Record<
     d: "3 tur, asfalt ve toprak karışık: çamur, su ve rampalar. Hedef süreyi geç.",
   },
   dp: {
-    k: "drift",
+    k: TUR_ANAHTARI.dp,
     pk: "dr",
-    time: 90,
+    laps: DRIFT_TUR,
     n: "Drift yarışmaları",
-    d: "90 saniye puan topla. Drift uzadıkça çarpan x5’e çıkar; çime çıkmak, çarpmak ya da spin komboyu yakar. Drift ayarları otomatik gelir.",
+    d:
+      DRIFT_TUR +
+      " turda hedef puanları topla. Drift uzadıkça çarpan x5’e çıkar; çime çıkmak, çarpmak ya da spin komboyu yakar. Drift ayarları otomatik gelir.",
   },
   rl: {
-    k: "rally",
+    k: TUR_ANAHTARI.rl,
     pk: "rl",
     v: 12.2,
     n: "Ralli etapları",
     d: "Orman yolunda A’dan B’ye. Hedef süreyi geç.",
   },
   dg: {
-    k: "drag",
+    k: TUR_ANAHTARI.dg,
     pk: "dg",
     n: "Drag yarışları",
     d: "Düz çizgide en kısa süre. Işıklar yeşile dönünce gaz. Kalkışta patinajı iyi ayarla.",
@@ -64,18 +69,20 @@ export interface YarisTanimi {
   /** rekor anahtarı */
   k: string;
   ty: YarisTuru;
-  /** seviye: 1 Çaylak … 6 Efsane (SEVIYELER) */
+  /** pist numarası (türde benzersiz; rekor anahtarı `k`) */
   lv: number;
+  /** zorluk seviyesi: 1 Çaylak … 6 Efsane (SEVIYELER) */
+  sev: number;
   n: string;
   d: string;
   /** bölge sırası */
   reg: number;
   pk: OnayarAnahtari;
   laps?: number;
-  /** drift yarışı süresi */
-  time?: number;
-  /** hedef süre (sn); drift yarışında hedef puan */
+  /** hedef süre (sn); drift yarışında hedef puan (1★) */
   limit: number;
+  /** yıldız eşikleri [1★, 2★, 3★]: süre ya da drift puanı */
+  ys: number[];
   /** başlangıç noktası */
   g: Tele;
 }
@@ -95,12 +102,33 @@ export interface Yaris extends YarisTanimi {
   mult: number;
   gap: number;
   best: number;
+  /** drift bonusu ve sayaçları (yaris-kurallari.ts) */
+  bonus: number;
+  uzunT: number;
+  dirT: number;
+  yanT: number;
+  yan: number;
+  /** verilen drift bonusları: hud okur ve kendi indeksini tutar */
+  driftOlay: DriftOlay[];
+  /** 1. turda drift hâlinde geçilen mesafe oranı (0-1, canlı); 1. tur bitince ≥ 0,9 ise x6 */
+  driftOran: number;
+  driftMesafe: number;
+  x6: boolean;
+  /** anlık çarpan (hud) */
+  driftCarpan: number;
   armed: number;
   lap: number;
   lapStart: number;
   bestLap: number | null;
   prev: number;
-  time: number;
+  /** ters sürüş (hud "Geri dön" gösterir) ve histerezis sayacı */
+  ters: boolean;
+  tersT: number;
+  /** bitişte alınan yıldız (0-3) */
+  yildiz: number;
+  /** bitişte kazanılan XP ve para (oyun/ilerleme.ts) */
+  xp: number;
+  para: number;
   /** drag bitiş hızı */
   trap?: number;
 }
@@ -114,12 +142,13 @@ export const EVENTS: YarisTanimi[] = REG.filter((r) => r.t != "park").map((r, i)
     k: y.k + "_" + r.lv,
     ty,
     lv: r.lv!,
+    sev: r.sev ?? r.lv!,
     n: r.n,
     d: r.d!,
     reg: i,
     pk: y.pk,
     laps: y.laps,
-    time: y.time,
+    ys: yildizEsikleri(ty, r.lv!),
     limit: ty == "dp" ? r.hp || 0 : r.tg || (y.v ? Math.round((TR.len * (y.laps || 1)) / y.v / 5) * 5 : 0),
     g: tp(TR, r.n, ty == "dg" ? 1 : TR.open ? 4 : TR.N, TR.open ? 0 : 6),
   };
@@ -127,10 +156,14 @@ export const EVENTS: YarisTanimi[] = REG.filter((r) => r.t != "park").map((r, i)
 
 export const yaris = { EV: null as Yaris | null };
 
-/** yarışı başlat (ci: seçilen araç) */
+/** yarışı başlat (ci: seçilen araç); pist ya da araç kilitliyse başlamaz (false) */
 export function startEvent(i: number, ci?: number) {
-  const e = EVENTS[i],
-    EV = yaris.EV,
+  const e = EVENTS[i];
+  if (!pistAcikMi(e.ty, e.lv) || !aracAcikMi(ci ?? carIndex())) {
+    note("Kilitli", 40);
+    return false;
+  }
+  const EV = yaris.EV,
     sv = EV && EV.sv ? EV.sv : { ...kurulumKaydet(), car: carIndex() };
   // yarışta önayar seçilmez: aracın kendi önayarı ve oyuncunun yardım seviyesi yüklenir (önayar yalnız serbest
   // sürüşte). Böylece drift yarışı, otoparkta aynı araçla drift önayarında sürmekle birebir aynıdır.
@@ -161,14 +194,29 @@ export function startEvent(i: number, ci?: number) {
     mult: 1,
     gap: 0,
     best: 0,
+    bonus: 0,
+    uzunT: 0,
+    dirT: 0,
+    yanT: 0,
+    yan: 0,
+    driftOlay: [],
+    driftOran: 0,
+    driftMesafe: 0,
+    x6: false,
+    driftCarpan: 1,
     armed: 0,
     lap: 0,
     lapStart: 0,
     bestLap: null,
     prev: ipucu.ti,
-    time: e.time || 0,
+    ters: false,
+    tersT: 0,
+    yildiz: 0,
+    xp: 0,
+    para: 0,
     limit: e.limit || 0,
   };
+  return true;
 }
 
 /** yarıştan çık: önceki araç ve kurulum geri gelir */
@@ -184,50 +232,34 @@ export function leaveEvent() {
 
 /** drift komboyu puana çevir */
 function bank(EV: Yaris) {
-  const p = Math.round(EV.combo * EV.mult);
-  if (p > 0) {
-    EV.score += p;
-    EV.best = Math.max(EV.best, p);
-    note("+" + p, 40);
-  }
-  EV.combo = 0;
-  EV.ct = 0;
-  EV.mult = 1;
-  EV.gap = 0;
+  const p = driftBankala(EV);
+  if (p > 0) note("+" + p, 40);
 }
 
 /** yarış mantığı: her fizik adımından sonra */
-export function evTick(dt: number, o: AdimSonucu) {
+export function evTick(dt: number, o: AdimSonucu, tg = 0.5) {
   const EV = yaris.EV!;
   if (EV.state != "run") return;
   const S = sim.S,
     D = sim.d.D,
     ti = ipucu.ti;
   EV.t += dt;
+  const T = EV.TR.T[ti],
+    geri = tersAdimi(EV, S.vx, S.vz, T[0], T[1], dt);
   if (EV.ty == "dp") {
-    EV.time -= dt;
-    const lost = o.si == 2 || sim.d.zaman - S.hit < 0.05 || Math.abs(D.beta) > 1.4;
-    if (EV.combo > 0 && lost) {
-      EV.combo = 0;
-      EV.ct = 0;
-      EV.mult = 1;
-      note("KOMBO YANDI", 30);
-    } else if (D.act && !lost) {
-      EV.combo += o.v * Math.abs(D.beta) * dt * 3;
-      EV.ct += dt;
-      EV.gap = 0;
-      const m = Math.min(5, 1 + Math.floor(EV.ct / 2.5));
-      if (m > EV.mult) note("x" + m, 44);
-      EV.mult = m;
-    } else if (EV.combo > 0) {
-      EV.gap += dt;
-      if (EV.gap > 0.8) bank(EV);
+    const lost = o.si == 2 || sim.d.zaman - S.hit < 0.05 || Math.abs(D.beta) > 1.4,
+      r = driftAdimi(EV, !!D.act, D.beta, lost, o.v, EV.ters || geri, dt, tg, sim.d.zaman, EV.x6);
+    if (EV.lap == 0 && D.act && !lost && !EV.ters && !geri) {
+      // orta çizgi ilerlemesi (pist uzunluğuyla aynı ölçü; dış çizgiden giden fazla yol sayılmaz)
+      let ds = EV.TR.S[ti] - EV.TR.S[EV.prev];
+      if (ds < -EV.TR.len / 2) ds += EV.TR.len;
+      if (ds > 0) EV.driftMesafe += ds;
+      EV.driftOran = Math.min(1, EV.driftMesafe / EV.TR.len);
     }
-    if (EV.time <= 0) {
-      bank(EV);
-      endEvent();
-    }
-    return;
+    EV.driftCarpan = EV.mult;
+    if (r.olay == "yandi") note("KOMBO YANDI", 30);
+    else if (r.olay == "carpan") note("x" + EV.mult, 44);
+    else if (r.olay == "bank" && r.p > 0) note("+" + r.p, 40);
   }
   const N = EV.TR.N;
   if (EV.laps) {
@@ -235,11 +267,19 @@ export function evTick(dt: number, o: AdimSonucu) {
     if (EV.prev > N * 0.8 && ti < N * 0.2 && EV.armed) {
       EV.armed = 0;
       EV.lap++;
+      if (EV.ty == "dp" && EV.lap == 1 && EV.driftOran >= X6_ORAN) {
+        EV.x6 = true;
+        EV.driftCarpan = X6_CARPAN;
+        EV.driftOlay.push({ ad: "ÇARPAN x6", puan: 0, t: sim.d.zaman });
+        note("ÇARPAN x6", 44);
+      }
       const lt = EV.t - EV.lapStart;
       EV.lapStart = EV.t;
       EV.bestLap = EV.bestLap == null ? lt : Math.min(EV.bestLap, lt);
-      if (EV.lap >= EV.laps) endEvent();
-      else note("Tur " + (EV.lap + 1) + "/" + EV.laps + " · " + fmt(lt), 30);
+      if (EV.lap >= EV.laps) {
+        if (EV.ty == "dp") bank(EV);
+        endEvent();
+      } else note("Tur " + (EV.lap + 1) + "/" + EV.laps + " · " + fmt(lt), 30);
     }
     EV.prev = ti;
   } else {
@@ -251,13 +291,16 @@ export function evTick(dt: number, o: AdimSonucu) {
   }
 }
 
-/** HUD'daki yarış satırı */
-/** yarış bitti: profil, rekor, sonuç ekranı */
+/** yarış bitti: profil, yıldız, rekor, sonuç ekranı */
 export function endEvent() {
   const EV = yaris.EV!;
   EV.state = "done";
   oyun.mode = "result";
   PROF.races++;
+  EV.yildiz = yildizSay(EV.ty, EV.ty == "dp" ? EV.score : EV.t, EV.ys);
+  const odul = yarisBitti(EV.ty, EV.lv, EV.yildiz);
+  EV.xp = odul.xp;
+  EV.para = odul.para;
   if (EV.ty == "dp" ? EV.score > 0 && EV.score >= EV.limit : EV.t <= EV.limit) PROF.wins++;
   saveProf();
   girdiSifirla();

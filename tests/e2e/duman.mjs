@@ -12,6 +12,7 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { TUM_ACIK } from "../yardimci/ilerleme-acik.mjs";
 
 const BOLUMLER = [
   "acilis",
@@ -25,13 +26,26 @@ const BOLUMLER = [
   "kapak",
   "surus",
   "kerb",
+  "yildiz",
+  "xp-gorsel",
   "ses",
   "hud-cakisma",
   "hud-duzenleyici",
+  "hud-minimap",
   "kokpit",
   "cok-arac",
+  "ilerleme",
+  "garaj-kilit",
+  "garaj-satin",
   "ekran-yon",
+  "hesap-formu",
+  "cihaz-dogrulama",
+  "cihaz-menu",
+  "cihaz-garaj",
+  "cihaz-hud",
 ];
+// cihaz-menu/garaj/hud pahalıdır (sanal cihazlar): yalnız adıyla istenince koşar (npm run cihaz, senaryolar)
+const PAHALI = ["cihaz-menu", "cihaz-garaj", "cihaz-hud"];
 
 const KOK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.."),
   arg = (a) => process.argv.includes(a),
@@ -39,7 +53,9 @@ const KOK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.."),
   KLASOR = path.join(KOK, deger("--klasor") || "dist"),
   CIKTI = path.join(KOK, "tests", "cikti"),
   GOR = arg("--goruntu"),
-  SECILI = deger("--bolum") ? deger("--bolum").split(",").filter(Boolean) : BOLUMLER;
+  SECILI = deger("--bolum")
+    ? deger("--bolum").split(",").filter(Boolean)
+    : BOLUMLER.filter((b) => !PAHALI.includes(b));
 
 for (const b of SECILI)
   if (!BOLUMLER.includes(b)) {
@@ -95,6 +111,7 @@ const ok = (c, m) => {
 };
 async function sayfa(w = 844, h = 390) {
   const p = await br.newPage({ viewport: { width: w, height: h } });
+  await p.addInitScript(TUM_ACIK);
   p.errs = [];
   p.on("pageerror", (e) => p.errs.push(e.message));
   p.on("console", (m) => m.type() == "error" && p.errs.push(m.text()));

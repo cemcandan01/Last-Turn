@@ -7,4 +7,22 @@ export default [
     duman: true,
     tarayici: "garaj",
   },
+  {
+    id: "garaj-kilit",
+    ad: "Garaj araç kilitleri: kilitli araç karartılmış gezilir, Seç devre dışı, öneri açık araca düşer",
+    p: 1,
+    tarayici: "garaj-kilit",
+  },
+  {
+    id: "garaj-satin",
+    ad: "Garajda satın alma: sahip / seviye yok / para yok / satın alınabilir kartları, iki dokunuşla onay, başarıda araç açılır",
+    p: 1,
+    tarayici: "garaj-satin",
+  },
+  {
+    id: "cihaz-uyum",
+    ad: "Ekran uyumu: garaj paneli, yarış öncesi garaj ve vitrin ekranları sanal cihazlarda taşmıyor, kesilmiyor, üst üste binmiyor (alanda 3 cihaz; regresyonda iPhone 13 tam + 11 temsilci cihaz 4 ekran)",
+    p: 2,
+    tarayici: "cihaz-garaj",
+  },
 ];

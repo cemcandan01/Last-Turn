@@ -19,9 +19,10 @@ export const oyun = {
 export const CAMS = ["Takip", "Uzak takip", "Kaput", "Kokpit"];
 
 /** aracı değiştir: model, iç mekân, kayıt */
-export function setCar(i: number) {
+/** vitrin: garajda önbellekli, iç mekânsız kurulum */
+export function setCar(i: number, vitrin = false) {
   oyun.CAR = CARS[i];
-  aracModeliKur(oyun.CAR);
+  aracModeliKur(oyun.CAR, vitrin);
   yaz("lt_car", i);
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "last-turn",
-  "version": "0.3.13",
+  "version": "0.4.42",
   "private": true,
   "type": "module",
   "description": "iPhone için 3D sürüş ve yarış oyunu (PWA)",
@@ -23,12 +23,14 @@
     "regresyon": "node tests/kosucu.mjs regresyon",
     "olcum": "vitest run --config vitest.olcum.config.ts",
     "ses": "node tests/e2e/ses-kaydi.mjs",
+    "cihaz": "node tests/cihaz.mjs",
     "menugorsel": "node scripts/menu-gorsel.mjs"
   },
   "engines": {
     "node": ">=22.12"
   },
   "dependencies": {
+    "firebase": "^13.1.0",
     "three": "^0.186.1"
   },
   "devDependencies": {

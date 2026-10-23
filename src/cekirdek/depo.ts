@@ -1,5 +1,5 @@
 // Kalıcı kayıt (localStorage). Gizli sekmede ya da dolu depoda sessizce vazgeçer.
-// Anahtarlar eski sürümle aynıdır: lt_prof, lt_car, lt_olock, lt_ayar, sv_<yarış>
+// Anahtarlar eski sürümle aynıdır: lt_prof, lt_car, lt_olock, lt_ayar, sv_<yarış>; yeni: lt_yildiz (pist başına en iyi yıldız), lt_ilerleme (XP ve kilitler), lt_bulut (bulut eşitlemesi bekliyor mu), lt_yonlendirme (Google yönlendirmesi sürüyor)
 
 export function oku(k: string): string | null {
   try {
