@@ -31,11 +31,25 @@ export function engine(kmh: number, dt: number) {
 
 let E: Record<string, HTMLElement>;
 let kadranF = -1;
-const durum = { dr: "" };
+const durum = { dr: "", ters: false };
 
 export function hudKur() {
   E = {};
-  for (const k of ["spd", "gear", "hName", "sf", "dr", "drA", "drP", "drX", "drB", "lap", "ev", "kdV"])
+  for (const k of [
+    "spd",
+    "gear",
+    "hName",
+    "sf",
+    "dr",
+    "ters",
+    "drA",
+    "drP",
+    "drX",
+    "drB",
+    "lap",
+    "ev",
+    "kdV",
+  ])
     E[k] = $("#" + k);
   E.hSP = $(".hSP");
   hudDuzeniUygula();
@@ -87,7 +101,7 @@ function olayPaneli(): [string, string] {
 }
 
 /** üst orta: drift yarışında kombo (puan, çarpan, sonraki çarpana kalan); patinaj ve havada durumu.
- *  Drift açısı gösterilmez (kullanıcı kararı); ileride driftte kazanılan anlık XP buraya gelir. */
+ *  Patinaj/havada yalnız serbest sürüşte (yarışta EV var). Drift açısı gösterilmez (kullanıcı kararı); ileride driftte kazanılan anlık XP buraya gelir. */
 function driftGostergesi() {
   const S = sim.S,
     D = sim.d.D,
@@ -99,7 +113,7 @@ function driftGostergesi() {
     yazi(E.drP, String(Math.round(EV.combo)));
     yazi(E.drX, "x" + EV.mult);
     E.drB.style.width = (EV.mult >= 5 ? 100 : Math.round(((EV.ct % 2.5) / 2.5) * 100)) + "%";
-  } else if (S.spin || S.air) {
+  } else if (!EV && (S.spin || S.air)) {
     k = "durum";
     yazi(E.drA, S.spin ? "PATİNAJ" : "HAVADA");
     yazi(E.drP, "");
@@ -108,6 +122,12 @@ function driftGostergesi() {
   if (k != durum.dr) {
     durum.dr = k;
     E.dr.className = k || "hidden";
+  }
+  // pist dalı EV.ters'i ekler; yoksa (undefined) gösterilmez
+  const ters = !!EV && (EV as { ters?: boolean }).ters === true;
+  if (ters != durum.ters) {
+    durum.ters = ters;
+    E.ters.className = ters ? "" : "hidden";
   }
 }
 

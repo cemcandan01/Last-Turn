@@ -29,6 +29,8 @@ export default async function ({ p, ok }) {
       EV.score = 2844;
       EV.combo = 1240;
       EV.mult = 3;
+      // pist dalının ters yön bayrağı: GERİ DÖN diğer göstergelerle çakışmamalı
+      EV.ters = true;
       // geri sayımda kalsın: kombo bankaya geçmesin
       EV.cd = 1e9;
       LT.sim.S.vx = 30;
@@ -44,7 +46,7 @@ export default async function ({ p, ok }) {
             const W = innerWidth,
               H = innerHeight,
               ad = [hiz, harita, sayac, c.steer + "+" + c.gas].join("/");
-            const kutular = [".hTL", ".hBt", "#dr", ".hSP", "#mm", "#ctl > *"]
+            const kutular = [".hTL", ".hBt", "#dr", ".hSP", "#mm", "#ters", "#ctl > *"]
               .flatMap((q) => [...document.querySelectorAll(q)].map((e) => [q, e.getBoundingClientRect()]))
               .filter(([, r]) => r.width > 0 && r.height > 0);
             for (const [q, r] of kutular)
@@ -75,6 +77,24 @@ export default async function ({ p, ok }) {
               sorun.push(ad + ": üst ortada kombo görünmüyor");
           }
     }
+    // yarışta patinaj/havada uyarısı yok, GERİ DÖN yalnız EV.ters iken; serbest sürüşte patinaj var
+    const asf = LT.EVENTS.findIndex((e) => e.ty != "dp" && e.ty != "dg");
+    LT.startEvent(asf, 2);
+    LT.yaris.EV.cd = 1e9;
+    LT.sim.S.spin = true;
+    LT.sim.S.air = true;
+    LT.yaris.EV.ters = false;
+    await new Promise((r) => setTimeout(r, 300));
+    const dr0 = document.querySelector("#dr"),
+      ters0 = document.querySelector("#ters");
+    if (!dr0.classList.contains("hidden")) sorun.push("yarışta patinaj/havada uyarısı çıkıyor");
+    if (!ters0.classList.contains("hidden")) sorun.push("EV.ters false iken GERİ DÖN görünüyor");
+    LT.yaris.EV.ters = true;
+    await new Promise((r) => setTimeout(r, 300));
+    if (ters0.classList.contains("hidden") || !ters0.textContent.includes("GERİ DÖN"))
+      sorun.push("EV.ters true iken GERİ DÖN görünmüyor");
+    LT.sim.S.spin = false;
+    LT.sim.S.air = false;
     // serbest sürüşte drift açısı gösterilmez
     LT.startWorld(1);
     LT.oyun.mode = "pause";
@@ -86,6 +106,11 @@ export default async function ({ p, ok }) {
       /°/.test(document.querySelector("#hud").textContent)
     )
       sorun.push("serbest sürüşte drift açısı görünüyor");
+    LT.sim.S.spin = true;
+    await new Promise((r) => setTimeout(r, 300));
+    if (document.querySelector("#dr").classList.contains("hidden"))
+      sorun.push("serbest sürüşte patinaj uyarısı çıkmıyor");
+    LT.sim.S.spin = false;
     Object.assign(LT.CT, { steer: "btn", gas: "btn" });
     Object.assign(LT.gorunum, LT.HUDLAR.kose.p);
     LT.hudDuzeniUygula();

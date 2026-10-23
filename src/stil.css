@@ -1497,6 +1497,43 @@ details[open] > summary::after {
   font-size: 14px;
 }
 
+/* yarışta ters yön uyarısı: üst orta, kombo panelinin altında; yol ve araç boş kalır */
+#ters {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: calc(var(--hy) + 86px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 16px;
+  border-radius: 14px;
+  background: #d8262ee0;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  animation: tersYan 0.7s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+#ters svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+#ters.hidden {
+  display: none;
+}
+@keyframes tersYan {
+  to {
+    background: #ff7a3ce0;
+  }
+}
+
 /* hız: büyük rakam, vites, birim; altında yalnız uyarılar (çamur, ıslak, hava) */
 .hSP {
   position: absolute;
@@ -1625,6 +1662,9 @@ details[open] > summary::after {
 }
 #app[data-hiz="bant"] #dr {
   top: calc(var(--hy) + 56px);
+}
+#app[data-hiz="bant"] #ters {
+  top: calc(var(--hy) + 142px);
 }
 
 /* --- Yazı (sayaç) ve Yazı (hız): panel yok, yalnız güçlü gölgeli yazı --- */
