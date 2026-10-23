@@ -1,15 +1,23 @@
-// Sonuç ekranı: süre, hedef, rekor; tekrar, açık dünya, ana menü
+// Sonuç ekranı: süre, yıldız ve eşikleri, hedef, rekor; tekrar, açık dünya, ana menü
 import { fmt, fmt3 } from "../cekirdek/bicim";
 import { $ } from "../cekirdek/dom";
 import { WORLDS } from "../dunya/dunya";
 import { oyun } from "../oyun/durum";
 import { best, saveBest } from "../oyun/profil";
 import { leaveEvent, startEvent, type Yaris } from "../oyun/yarislar";
+import { enIyiYildiz } from "../oyun/yildiz";
 import { showMenu, startWorld } from "./menu";
 
 export function sonucGoster(EV: Yaris) {
   let h: string, p: string;
-  const row = (a: string, b: string | number) => `<div class="rk"><span>${a}</span><span>${b}</span></div>`;
+  const row = (a: string, b: string | number) => `<div class="rk"><span>${a}</span><span>${b}</span></div>`,
+    bicim = (v: number) => (EV.ty == "dp" ? v + " puan" : EV.ty == "dg" ? fmt3(v) : fmt(v)),
+    yildiz = EV.ys.length
+      ? row(
+          "Yıldız",
+          "★".repeat(EV.yildiz) + "☆".repeat(3 - EV.yildiz) + " · en iyi " + enIyiYildiz(EV.ty, EV.lv) + "/3",
+        ) + row("Yıldız eşikleri", EV.ys.map((v, i) => i + 1 + "★ " + bicim(v)).join(" · "))
+      : "";
   if (EV.ty == "dp") {
     const b = best(EV.k),
       nb = EV.score > b;
@@ -18,6 +26,7 @@ export function sonucGoster(EV: Yaris) {
     h = gecti ? "Hedef geçildi" : "Hedefe ulaşılamadı";
     p =
       row("Toplam puan", EV.score) +
+      yildiz +
       row("Hedef", EV.limit + " puan · " + (gecti ? "geçti" : "kaldı")) +
       row("En iyi kombo", EV.best) +
       row("Rekor", Math.max(b, EV.score) + (nb ? " · YENİ" : ""));
@@ -36,10 +45,12 @@ export function sonucGoster(EV: Yaris) {
     p =
       EV.ty == "dg"
         ? row("Süren", fmt3(EV.t)) +
+          yildiz +
           row("Hedef", fmt3(EV.limit)) +
           row("Bitiş hızı", Math.round(EV.trap || 0) + " km/sa") +
           row("Rekor", nb ? fmt3(EV.t) + " · YENİ" : b ? fmt3(+b) : "—")
         : row("Süren", fmt(EV.t)) +
+          yildiz +
           row("Hedef", fmt(EV.limit)) +
           (EV.laps ? row("En iyi tur", fmt(EV.bestLap)) : "") +
           row("Rekor", nb ? fmt(EV.t) + " · YENİ" : b ? fmt(b) : "—");

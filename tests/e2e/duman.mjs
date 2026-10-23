@@ -25,6 +25,7 @@ const BOLUMLER = [
   "kapak",
   "surus",
   "kerb",
+  "yildiz",
   "ses",
   "hud-cakisma",
   "hud-duzenleyici",

@@ -62,7 +62,11 @@ function olayPaneli(): [string, string] {
   const EV = yaris.EV,
     TR = dunya.TR;
   if (EV) {
-    if (EV.ty == "dp") return [EV.score + " puan", "⏱ " + Math.max(0, EV.time).toFixed(1) + " sn kaldı"];
+    if (EV.ty == "dp")
+      return [
+        EV.score + " puan",
+        "Tur " + Math.min(EV.lap + 1, EV.laps || 1) + "/" + EV.laps + " · Hedef " + EV.limit,
+      ];
     const asim = EV.t > EV.limit ? " · SÜRE AŞILDI" : "";
     if (EV.ty == "dg")
       return [

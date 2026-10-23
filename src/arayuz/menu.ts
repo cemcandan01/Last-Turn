@@ -27,7 +27,7 @@ const TYPES: [string, string, string, IkonAdi, string][] = [
   ["gp", "Asfalt", "Pist yarışları, fren tabelaları, kerbler", "pist", "#ff5a3c"],
   ["rx", "Rallycross", "Asfalt ve toprak karışık pist: çamur, su, rampa", "rallycross", "#d08a48"],
   ["rl", "Ralli", "A’dan B’ye dağ, orman, kar ve çöl etapları", "dag", "#4fbf74"],
-  ["dp", "Drift", "90 saniyede en yüksek drift puanı", "donus", "#b67cff"],
+  ["dp", "Drift", "Turlar bitmeden hedef drift puanı", "donus", "#b67cff"],
   ["dg", "Drag", "Düz çizgide milisaniyeler", "isik", "#ffd23c"],
 ];
 const turOf = (t: string) => TYPES.find((q) => q[0] == t)!;
@@ -48,7 +48,7 @@ let MV = ["home"];
 const evLen = (e: YarisTanimi) =>
   ((REG[e.reg].TR!.len * (e.laps || 1)) / 1000).toFixed(2) + " km" + (e.laps ? " · " + e.laps + " tur" : "");
 const evAvg = (e: YarisTanimi) =>
-  e.ty == "dp" ? e.time + " sn" : e.ty == "dg" ? fmt3(e.limit) : fmt(e.limit);
+  e.ty == "dp" ? e.limit + " puan" : e.ty == "dg" ? fmt3(e.limit) : fmt(e.limit);
 /** seviye rozeti: renk seviyeye göre (Çaylak yeşil … Efsane mor) */
 const seviyeRozeti = (e: YarisTanimi) =>
   `<span class="lv lv${e.lv}"><i>${e.lv}</i>${SEVIYELER[e.lv - 1].n}</span>`;
@@ -56,7 +56,7 @@ const seviyeRozeti = (e: YarisTanimi) =>
 const evSayilar = (e: YarisTanimi, kart = false) =>
   `<div class="rcs">${kart ? "" : `<span>Uzunluk<b>${evLen(e)}</b></span>`}${
     e.ty == "dp"
-      ? `<span>Hedef<b>${e.limit} puan</b></span>${kart ? "" : `<span>Süre<b>${e.time} sn</b></span>`}`
+      ? `<span>Hedef<b>${e.limit} puan</b></span>${kart ? "" : `<span>Tur<b>${e.laps}</b></span>`}`
       : `<span>${e.ty == "dg" ? "Hedef" : "Hedef süre"}<b>${evAvg(e)}</b></span>`
   }<span>PR<b>${prOf(e)}</b></span></div>`;
 const prOf = (e: YarisTanimi) => {
