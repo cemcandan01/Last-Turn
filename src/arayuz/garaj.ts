@@ -128,7 +128,7 @@ function showGar() {
       ["🔋", "Güç / ağırlık", String(Math.round(gucAgirlik)), "hp/ton", gucAgirlik / 600],
     ];
   g.innerHTML = `<div class="gh"><button class="ga" id="gpv">◀</button><div style="flex:1;text-align:center"><h1>${c.n}</h1></div><button class="ga" id="gnx">▶</button></div>
-<div class="grozet"><span class="bdg">${c.ic} ${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}<button class="gses" id="gses"></button></div>
+<div class="grozet${G.i == G.rec ? " sik" : ""}"><span class="bdg">${c.ic} ${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}<button class="gses" id="gses"></button></div>
 <div class="gkart">${kartlar
     .map(
       ([ic, n, d, b, f]) =>
