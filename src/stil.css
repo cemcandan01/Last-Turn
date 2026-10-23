@@ -572,6 +572,132 @@ details[open] > summary::after {
   filter: grayscale(0.6);
   pointer-events: none;
 }
+.bdg.kilit .fy {
+  opacity: 0.6;
+}
+.bdg.fiyat,
+#gpara {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.bdg.fiyat {
+  background: #3a2b0a;
+  color: #ffd45e;
+  border-color: #c9962b;
+}
+.bdg.kilit .ik,
+.bdg.fiyat .ik,
+#gpara .ik,
+.gbt .btn .ik {
+  width: 1.05em;
+  height: 1.05em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  vertical-align: -0.15em;
+}
+.gbt .btn.al:not(:disabled),
+#gvit .btn.al:not(:disabled) {
+  background: #e8b230;
+  color: #231600;
+  box-shadow: 0 0 14px #e8b23088;
+}
+#gar.satilik .gkart,
+#gar.satilik .gcip {
+  opacity: 0.8;
+}
+/* garaj bakiyesi: vitrinin sol üst köşesi */
+#gpara {
+  position: fixed;
+  top: calc(10px + var(--sat, 0px));
+  left: max(14px, var(--sal, 0px));
+  z-index: 6;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: #1b1e27cc;
+  border: 1px solid #c9962b;
+  color: #ffd45e;
+  font-size: 18px;
+}
+/* satın alma kutlaması */
+.gkutla {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ffd45e;
+  animation: gkutla 1.7s ease-out forwards;
+}
+.gkutla b {
+  font-size: 34px;
+  text-shadow: 0 2px 12px #000;
+}
+.gkutla small {
+  font-size: 18px;
+  color: #fff;
+  text-shadow: 0 2px 8px #000;
+}
+.gkutla i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffd45e;
+  box-shadow: 0 0 10px #ffd45e;
+  animation: gparilti 1.2s ease-out forwards;
+}
+.gkr {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border-radius: 50%;
+  border: 3px solid #ffd45e;
+  animation: gkr 1s ease-out forwards;
+}
+@keyframes gkutla {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  15% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  25% {
+    transform: scale(1);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes gparilti {
+  to {
+    transform: rotate(var(--a)) translateX(150px) scale(0.2);
+    opacity: 0;
+  }
+}
+@keyframes gkr {
+  to {
+    transform: scale(7);
+    opacity: 0;
+  }
+}
 .bdg.rec {
   background: var(--acc);
   color: #1b0d05;

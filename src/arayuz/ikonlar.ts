@@ -18,8 +18,13 @@ const IKON = {
   /** tabler: star (yıldız; dolu hâli CSS ile) */
   yildiz:
     '<path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"/>',
+<<<<<<< HEAD
   /** tabler: coin (madeni para) */
   para: '<path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1"/><path d="M12 7v10"/>',
+=======
+  /** madeni para (oyunun çizimi; gerçek para birimi simgesi yok) */
+  para: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.5"/><path d="M12 9.5v5"/>',
+>>>>>>> garaj
   /** tabler: lock */
   kilit:
     '<path d="M5 11a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2l0 -6"/><path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"/><path d="M8 9v-4a4 4 0 0 1 8 0v4"/>',
