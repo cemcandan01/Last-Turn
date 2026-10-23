@@ -7,26 +7,43 @@ import type { Pist } from "../dunya/pist";
 import { EA, EB, SX } from "../dunya/corak";
 
 const W = 240;
-/** imlecin yeri: ortada, biraz altta (önü daha çok görünsün) */
+/** imlecin yeri: ortada, yüksekliğin ~%68'i (önü daha çok görünsün) */
 const OX = W / 2,
-  OY = 160;
+  OY = 164;
 /** çizgisiz bölgelerin görüntü boyu */
 const BM = 1536;
 /** görünen genişlik (m): duruşta ~180, hızlandıkça ~260 */
 const GEN_MIN = 180,
   GEN_MAX = 260,
   GEN_HIZ = 60;
+/** eğik bakış: kamera araçtan CB m geride, H yükseklikte, EGIM derece aşağı bakar; G dikey kazanç (ileriyi açar) */
+const EGIM = (55 * Math.PI) / 180,
+  CH = 100,
+  CB = 10,
+  GK = 1.3,
+  SE = Math.sin(EGIM),
+  CE = Math.cos(EGIM),
+  D0 = CH * SE + CB * CE,
+  YN0 = (CH * CE - CB * SE) / D0;
 
 let mmBase: HTMLCanvasElement;
 let mmc: CanvasRenderingContext2D | null = null;
 let MMV = { cx: 0, cz: 0, r: 900 };
 /** pist çizgisi bölgesi: dünya koordinatında yol, başlangıç noktası ve yönü */
-let yol: { yol: Path2D; pist: Pist; renk: string } | null = null;
+let yol: { pts: V2[]; pist: Pist; renk: string } | null = null;
 /** yumuşatılmış görünen genişlik (m); null: sonraki karede doğrudan al */
 let gen: number | null = null;
 let sonZaman = 0;
-/** son çizilen karenin dönüşümü (testler ve dış çizimler için) */
-const M = { a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 };
+/** son çizilen karenin çerçevesi: araç konumu, yönü ve piksel/metre ölçeği (testler ve dış çizimler için) */
+const M = { x: 0, z: 0, fx: 0, fz: 1, s: 1 };
+
+/** araç çerçevesindeki (sağ r, ileri f) yer noktası → mini harita pikseli; derinlik <= 0.2 ise null */
+const yerProj = (r: number, f: number): V2 | null => {
+  const d = CH * SE + (f + CB) * CE;
+  if (d < 0.2) return null;
+  const yn = (CH * CE - (f + CB) * SE) / d;
+  return [OX + (M.s * D0 * r) / d, OY + GK * M.s * D0 * (yn - YN0)];
+};
 
 /** çizgisiz bölge görüntüsünde dünya koordinatından görüntü koordinatına */
 export const mmP = (a: number, c: number): V2 => [
@@ -34,11 +51,12 @@ export const mmP = (a: number, c: number): V2 => [
   BM / 2 + ((c - MMV.cz) / MMV.r) * (BM / 2),
 ];
 
-/** dünya noktasının son çizilen kareye göre mini harita (240×240) koordinatı */
-export const mmDonustur = (wx: number, wz: number): V2 => [
-  M.a * wx + M.c * wz + M.e,
-  M.b * wx + M.d * wz + M.f,
-];
+/** dünya noktasının son çizilen kareye göre mini harita (240×240) koordinatı; kameranın arkasındaysa dışarıda */
+export const mmDonustur = (wx: number, wz: number): V2 => {
+  const dx = wx - M.x,
+    dz = wz - M.z;
+  return yerProj(M.fx * dz - M.fz * dx, M.fx * dx + M.fz * dz) ?? [-999, -999];
+};
 
 export function miniHaritaKur(canvas: HTMLCanvasElement) {
   mmBase = document.createElement("canvas");
@@ -65,17 +83,15 @@ export function mmDraw(r?: Bolge | null, gecici = false) {
     r.mm(x, mmP);
   } else if (r && r.TR) {
     const TR = r.TR,
-      p = new Path2D();
-    let son: V2 | null = null;
-    // 3 m'den sık noktalar atlanır: kare başına çizilen parça sayısı düşer
+      pts: V2[] = [];
+    // 3 m'den sık noktalar atlanır: kare başına işlenen nokta sayısı düşer
     TR.P.forEach((q, i) => {
+      const son = pts[pts.length - 1];
       if (son && i < TR.N - 1 && Math.hypot(q[0] - son[0], q[1] - son[1]) < 3) return;
-      if (son) p.lineTo(q[0], q[1]);
-      else p.moveTo(q[0], q[1]);
-      son = q;
+      pts.push(q);
     });
-    if (!TR.open) p.closePath();
-    yol = { yol: p, pist: TR, renk: r.col };
+    if (!TR.open) pts.push(TR.P[0]);
+    yol = { pts, pist: TR, renk: r.col };
   } else {
     MMV = { cx: 0, cz: 0, r: 900 };
     const k = BM / 1800;
@@ -123,66 +139,114 @@ export function miniHaritaCiz(
   // yakınlık hıza göre yavaşça açılır (saniyede ~%60); ilk karede doğrudan
   gen = gen === null ? hedef : gen + (hedef - gen) * Math.min(1, ((t - sonZaman) / 1000) * 2);
   sonZaman = t;
-  const s = W / gen,
-    // dünya (x, z) → ekran: araç yönü yukarı. Dönüş açısı h - π (y aşağı, x sağ; ayna yok)
-    a = -s * fzm,
-    b = -s * fxm,
-    c = s * fxm,
-    d = -s * fzm;
-  M.a = a;
-  M.b = b;
-  M.c = c;
-  M.d = d;
-  M.e = OX - (a * x + c * z);
-  M.f = OY - (b * x + d * z);
+  Object.assign(M, { x, z, fx: fxm, fz: fzm, s: W / gen });
   mmc.setTransform(1, 0, 0, 1, 0, 0);
   mmc.clearRect(0, 0, W, W);
   if (yol) {
-    const TR = yol.pist;
-    mmc.setTransform(a, b, c, d, M.e, M.f);
+    const TR = yol.pist,
+      ileriMax = gen * 1.6,
+      geriMin = -gen * 0.45;
     mmc.lineJoin = mmc.lineCap = "round";
-    mmc.strokeStyle = "rgba(0,0,0,.55)";
-    mmc.lineWidth = 11 / s;
-    mmc.stroke(yol.yol);
-    mmc.strokeStyle = yol.renk;
-    mmc.lineWidth = 6.5 / s;
-    mmc.stroke(yol.yol);
-    mmc.setTransform(1, 0, 0, 1, 0, 0);
+    // uzaklaştıkça daralan yol: derinliğe göre 4 kuşakta, kuşak başına tek çizim
+    const KUSAK = 4,
+      yollar = Array.from({ length: KUSAK }, () => new Path2D());
+    let onceki = -1,
+      oncekiPr: V2 | null = null,
+      kes = true;
+    for (const q of yol.pts) {
+      const dx = q[0] - x,
+        dz = q[1] - z,
+        f = fxm * dx + fzm * dz;
+      const pr = f < geriMin || f > ileriMax ? null : yerProj(fxm * dz - fzm * dx, f);
+      if (!pr) {
+        kes = true;
+        continue;
+      }
+      const k = Math.min(KUSAK - 1, Math.max(0, Math.floor(((f - geriMin) / (ileriMax - geriMin)) * KUSAK)));
+      // kuşak değişiminde yol kopmasın: önceki kuşağa da bu nokta eklenir
+      if (kes) yollar[k].moveTo(pr[0], pr[1]);
+      else {
+        if (k != onceki) yollar[k].moveTo(oncekiPr![0], oncekiPr![1]);
+        yollar[k].lineTo(pr[0], pr[1]);
+      }
+      kes = false;
+      onceki = k;
+      oncekiPr = pr;
+    }
+    for (let k = 0; k < KUSAK; k++) {
+      // kuşağın orta derinliğindeki ölçek: yol genişliği o kadar daralır
+      const fo = geriMin + ((k + 0.5) / KUSAK) * (ileriMax - geriMin),
+        yo = yerProj(1, fo),
+        yb = yerProj(0, fo),
+        olcek = yo && yb ? Math.max(0.15, yo[0] - yb[0]) : 0.2;
+      mmc.strokeStyle = "rgba(0,0,0,.55)";
+      mmc.lineWidth = Math.max(2.2, 12 * olcek);
+      mmc.stroke(yollar[k]);
+      mmc.strokeStyle = yol.renk;
+      mmc.lineWidth = Math.max(1.2, 7 * olcek);
+      mmc.stroke(yollar[k]);
+    }
     // başlangıç/bitiş çizgisi: yola dik beyaz çubuk; açık pistte bitiş turuncu
     const cizgi = (i: number, renk: string, dik: boolean) => {
-      const q = mmDonustur(TR.P[i][0], TR.P[i][1]),
-        tx = M.a * TR.T[i][0] + M.c * TR.T[i][1],
-        tz = M.b * TR.T[i][0] + M.d * TR.T[i][1],
-        n = Math.hypot(tx, tz) || 1,
-        ux = tx / n,
-        uy = tz / n;
+      const a = mmDonustur(TR.P[i][0] + TR.T[i][1] * 6, TR.P[i][1] - TR.T[i][0] * 6),
+        b = mmDonustur(TR.P[i][0] - TR.T[i][1] * 6, TR.P[i][1] + TR.T[i][0] * 6);
+      if (a[0] < -900 || b[0] < -900) return;
       mmc!.strokeStyle = renk;
       mmc!.lineWidth = dik ? 4 : 5;
       mmc!.beginPath();
-      mmc!.moveTo(q[0] + uy * 9, q[1] - ux * 9);
-      mmc!.lineTo(q[0] - uy * 9, q[1] + ux * 9);
+      mmc!.moveTo(a[0], a[1]);
+      mmc!.lineTo(b[0], b[1]);
       mmc!.stroke();
     };
     cizgi(0, "#fff", true);
     if (TR.open) cizgi(TR.N - 1, "#ff7a3c", false);
   } else {
-    mmc.setTransform(a, b, c, d, M.e, M.f);
-    const k = BM / 2 / MMV.r;
-    mmc.translate(MMV.cx - BM / 2 / k, MMV.cz - BM / 2 / k);
-    mmc.scale(1 / k, 1 / k);
-    mmc.imageSmoothingQuality = "high";
-    mmc.drawImage(mmBase, 0, 0);
+    // görüntü, derinlik şeritlerine bölünüp her şeride o derinliğin ölçeğiyle çizilir
+    const k = BM / 2 / MMV.r,
+      SERIT = 28,
+      fA = -gen * 0.45,
+      fB = gen * 1.6;
+    mmc.imageSmoothingQuality = "low";
+    for (let i = 0; i < SERIT; i++) {
+      const f0 = fA + ((i + 0.5) / SERIT) * (fB - fA),
+        p0 = yerProj(0, f0),
+        px = yerProj(1, f0),
+        py = yerProj(0, f0 + 1),
+        ua = yerProj(0, fA + (i / SERIT) * (fB - fA)),
+        ub = yerProj(0, fA + ((i + 1) / SERIT) * (fB - fA));
+      if (!p0 || !px || !py || !ua || !ub) continue;
+      const kx = px[0] - p0[0],
+        ky = py[1] - p0[1];
+      // dünya → ekran: r = fx·dz − fz·dx, f = fx·dx + fz·dz; şerit içinde ölçek sabit
+      const a = -kx * fzm,
+        c = kx * fxm,
+        b = ky * fxm,
+        d = ky * fzm,
+        e = p0[0] - (a * x + c * z),
+        f = p0[1] - ky * f0 - (b * x + d * z);
+      mmc.save();
+      mmc.beginPath();
+      mmc.rect(0, Math.min(ua[1], ub[1]) - 0.5, W, Math.abs(ub[1] - ua[1]) + 1);
+      mmc.clip();
+      mmc.setTransform(a, b, c, d, e, f);
+      mmc.translate(MMV.cx - BM / 2 / k, MMV.cz - BM / 2 / k);
+      mmc.scale(1 / k, 1 / k);
+      mmc.drawImage(mmBase, 0, 0);
+      mmc.restore();
+    }
     mmc.setTransform(1, 0, 0, 1, 0, 0);
   }
   // öteki araçlar: aynı dönüşümle; hayalet açık renk
   for (const u of oteki) {
     const q = mmDonustur(u.goster.x, u.goster.z);
+    // yakın olan büyük, uzak olan küçük çizilir
+    const yr = Math.max(2.5, Math.min(4.5, 4.5 - Math.max(0, OY - q[1]) / 40));
     if (q[0] < -6 || q[0] > W + 6 || q[1] < -6 || q[1] > W + 6) continue;
     mmc.fillStyle = u.id == hayalet ? "rgba(255,255,255,.7)" : "#ff4d4d";
     mmc.strokeStyle = "#000a";
     mmc.lineWidth = 1.5;
     mmc.beginPath();
-    mmc.arc(q[0], q[1], 4.5, 0, 7);
+    mmc.arc(q[0], q[1], yr, 0, 7);
     mmc.fill();
     mmc.stroke();
   }
