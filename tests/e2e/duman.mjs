@@ -28,6 +28,7 @@ const BOLUMLER = [
   "ses",
   "hud-cakisma",
   "hud-duzenleyici",
+  "hud-minimap",
   "kokpit",
   "cok-arac",
   "ekran-yon",

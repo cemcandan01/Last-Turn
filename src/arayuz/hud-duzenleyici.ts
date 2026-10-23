@@ -29,7 +29,7 @@ function ornekHarita() {
   mmDraw(r, true);
   const TR = r.TR,
     k = Math.floor(TR.N / 3);
-  miniHaritaCiz(TR.P[k][0], TR.P[k][1], TR.T[k][0], TR.T[k][1]);
+  miniHaritaCiz(TR.P[k][0], TR.P[k][1], TR.T[k][0], TR.T[k][1], 30);
 }
 
 const cip = (sec: boolean, veri: string, ad: string) =>

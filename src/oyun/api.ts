@@ -6,6 +6,7 @@ export { openGarage, closeGarage } from "../arayuz/garaj";
 export { showSet } from "../arayuz/ayarlar-ekrani";
 export { R, scene, cam } from "../cizim/sahne";
 export { kamera } from "../cizim/kamera";
+export { mmDonustur, miniHaritaCiz } from "../arayuz/mini-harita";
 export { aynaDurumu } from "../cizim/ayna";
 export { kokpit } from "../cizim/kokpit";
 export { COND, applyEnv, ortam } from "../cizim/ortam";
