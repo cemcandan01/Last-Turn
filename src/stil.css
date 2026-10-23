@@ -447,6 +447,12 @@ details[open] > summary::after {
   padding: 4px calc(8px * var(--gs, 1) * var(--gw, 1));
   font-size: calc(13px * var(--gs, 1) * var(--gw, 1));
 }
+/* yazı tipi daha geniş olan cihazda satır sığmazsa tür rozeti "…" ile kısalır, düğme ekrandan taşmaz */
+.grozet .bdg:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .grozet.sik .gses {
   gap: 5px;
   padding: 6px calc(9px * var(--gs, 1) * var(--gw, 1));
