@@ -126,8 +126,9 @@ export interface Yaris extends YarisTanimi {
   tersT: number;
   /** bitişte alınan yıldız (0-3) */
   yildiz: number;
-  /** bitişte kazanılan XP (oyun/ilerleme.ts) */
+  /** bitişte kazanılan XP ve para (oyun/ilerleme.ts) */
   xp: number;
+  para: number;
   /** drag bitiş hızı */
   trap?: number;
 }
@@ -212,6 +213,7 @@ export function startEvent(i: number, ci?: number) {
     tersT: 0,
     yildiz: 0,
     xp: 0,
+    para: 0,
     limit: e.limit || 0,
   };
   return true;
@@ -296,7 +298,9 @@ export function endEvent() {
   oyun.mode = "result";
   PROF.races++;
   EV.yildiz = yildizSay(EV.ty, EV.ty == "dp" ? EV.score : EV.t, EV.ys);
-  EV.xp = yarisBitti(EV.ty, EV.lv, EV.yildiz);
+  const odul = yarisBitti(EV.ty, EV.lv, EV.yildiz);
+  EV.xp = odul.xp;
+  EV.para = odul.para;
   if (EV.ty == "dp" ? EV.score > 0 && EV.score >= EV.limit : EV.t <= EV.limit) PROF.wins++;
   saveProf();
   girdiSifirla();

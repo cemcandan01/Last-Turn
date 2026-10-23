@@ -112,4 +112,5 @@ npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 - Drift pistinde turun ~%80'i tek komboda geçilebilmeli; zorluk adil olmalı (gerçekçide ölçülü açı başarır, abartan yakar).
 - Serbest sürüşe girmeden önce garajda araç seçilir. Önayar yalnız serbest sürüşte (duraklatma menüsünde) seçilir; yarışta aracın kendi önayarı kullanılır.
 - Kokpit iç mekânı sıcak kahve/taba tonlarında: asfalttan kolayca ayrılmalı.
+- Araçlar seviye + para ile açılır; yarışlar XP ve para verir (seviye gelince araç satın alınabilir olur, parayla alınır; ileride mağaza ve modifiye).
 - HUD: aracı ve önündeki yolu hiçbir gösterge kapatmaz; hız ile devir göstergesi aynı anda olmaz (devir çubuğu yok). Drift yarışında kombo yalnız üst ortada, sol üstte toplam puan. Drift açısı gösterilmez (ileride yerine anlık XP). Göstergeler kenarlara yakın. HUD ayarı ayrı bir düzenleyicide, yarış başlatmadan önizlemeyle yapılır.
