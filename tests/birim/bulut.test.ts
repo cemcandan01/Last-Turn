@@ -122,13 +122,13 @@ const bekle = () => new Promise((r) => setTimeout(r, 5));
 
 describe("yapılandırma yokken", () => {
   it("bulut kapalı: Firebase yüklenmez, hesap satırı çizilmez, kayıt değişmez", () => {
-    expect(FIREBASE_AYAR.apiKey).toBe("");
-    expect(bulutAcik()).toBe(false);
-    bulutKur(); // window.requestIdleCallback yok: çağrılsaydı setTimeout kurulurdu; hiçbir şey olmamalı
+    const bos = { ...FIREBASE_AYAR, apiKey: "", projectId: "", appId: "" };
+    expect(bulutAcik(bos)).toBe(false);
+    bulutKur(bos); // window.requestIdleCallback yok: çağrılsaydı setTimeout kurulurdu; hiçbir şey olmamalı
     expect(hesapDurumu().etkin).toBe(false);
     expect(hesapHtml()).toBe("");
     expect(Object.keys(depo)).toEqual([]);
-    expect(bulutAcik({ apiKey: "a", authDomain: "", projectId: "p", appId: "x" })).toBe(true);
+    expect(bulutAcik({ apiKey: "a", projectId: "p", appId: "x" })).toBe(true);
   });
 });
 

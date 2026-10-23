@@ -5,7 +5,7 @@
 import { yaz, yazJson } from "../cekirdek/depo";
 import { ilerlemeyiSifirla } from "../oyun/ilerleme";
 import { PROF, saveProf } from "../oyun/profil";
-import { FIREBASE_AYAR, bulutAcik } from "./ayar";
+import { FIREBASE_AYAR, bulutAcik, type FirebaseAyari } from "./ayar";
 import {
   esitleyiciKur,
   rekorlariSil,
@@ -68,16 +68,17 @@ export function hesapBaslat(s: Saglayici, o: { gecikme?: number } = {}) {
 }
 
 /**
- * oyun açılışında çağrılır: yapılandırma yoksa hiçbir şey yapmaz. Varsa Firebase'i ilk kareyi bekletmeden (boşta)
+ * oyun açılışında çağrılır: yapılandırma yoksa (ya da otomatik testte) hiçbir şey yapmaz. Varsa Firebase'i ilk kareyi bekletmeden (boşta)
  * yükler.
  */
-export function bulutKur() {
-  if (!bulutAcik() || hazir) return;
+export function bulutKur(a: FirebaseAyari = FIREBASE_AYAR) {
+  // otomatik tarayıcı testleri (Playwright: navigator.webdriver) gerçek buluta bağlanmaz
+  if (!bulutAcik(a) || hazir || (typeof navigator != "undefined" && navigator.webdriver)) return;
   D.etkin = true;
   hazir = new Promise((coz) => {
     const yukle = () =>
       import("./firebase")
-        .then((m) => m.firebaseSaglayici(FIREBASE_AYAR))
+        .then((m) => m.firebaseSaglayici(a))
         .then((s) => {
           hesapBaslat(s);
           coz(s);

@@ -78,7 +78,8 @@ her zaman çalışır.
 
 ## Geliştirici notu
 
-- Yapılandırma: `src/bulut/ayar.ts` (`FIREBASE_AYAR`). Boşken Firebase kodu derlemede ayrı parçadır ve önbelleğe
+- Yapılandırma: `src/bulut/ayar.ts` (`FIREBASE_AYAR`; proje `last-turn-35ca0`). Otomatik tarayıcı testlerinde
+  (`navigator.webdriver`) bulut bağlanmaz. Boşken Firebase kodu derlemede ayrı parçadır ve önbelleğe
   alınmaz, hiç indirilmez; ağ isteği yok, hesap satırı görünmez.
 - Kod: `src/bulut/hesap.ts` (arayüz API'si, tembel yükleme), `esitleme.ts` (birleştirme, gecikmeli yazma, kuyruk),
   `firebase.ts` (Auth + Firestore Lite), arayüz `src/arayuz/hesap-ui.ts`. Belge: `users/{uid}`.
