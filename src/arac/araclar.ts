@@ -31,6 +31,17 @@ export interface Arac {
   uz?: number;
   /** uzmanlık: kendi yarış türünün pistinde motor gücü çarpanı (o yarışa göre ayarlı motor; yoksa 1) */
   uzg?: number;
+  /**
+   * modifiyeli araçta tür uyumu: yarış türü → [tutuş, güç] çarpanı (aracKur doldurur; varsa uz/uzg yerine bu
+   * okunur). Stok araçta yok
+   */
+  uzT?: Partial<Record<YarisTuru, [number, number]>>;
+  /** süspansiyonun doğal frekansı (Hz, ayar yumuşaklığından önce; yoksa aracın kendi değeri). Süspansiyon parçası */
+  fq?: number;
+  /** arka diferansiyelin kenetleme katsayısı (1/s, yoksa 220): diferansiyel parçası belirler */
+  dk?: number;
+  /** ön teker açısı sınırı (rad; yoksa 0,8). Açı kiti büyütür */
+  dmax?: number;
   /** tork, güç, tepe hız çarpanları; dört çeker payı (0 arkadan itiş) */
   trq: number;
   pw: number;
