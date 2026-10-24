@@ -238,6 +238,8 @@ for (const s of satirlar) {
 const dk = ((Date.now() - basla) / 60000).toFixed(1);
 const kalan = satirlar.filter((s) => s.durum == "kaldı");
 let md = `# ${kip == "regresyon" ? "Regresyon" : kip == "alan" ? "Alan testi (" + dallar.join(", ") + ")" : "Duman"} raporu\n\n`;
+if (process.argv.includes("--senaryo"))
+  md += `Daraltılmış geliştirme kapsamı (tam alan/regresyon değildir): ${secili.map((s) => s.dal + "/" + s.id).join(", ")}\n\n`;
 md += `${new Date().toISOString().slice(0, 16).replace("T", " ")} UTC · ${dk} dk${ADRES ? " · " + ADRES : ""}\n\n`;
 const ILK = deger("--ilk") && JSON.parse(fs.readFileSync(deger("--ilk"), "utf8"));
 md += ILK
@@ -255,7 +257,18 @@ if (atlanan.length)
 fs.writeFileSync(path.join(CIKTI, "rapor.md"), md);
 fs.writeFileSync(
   path.join(CIKTI, "rapor.json"),
-  JSON.stringify({ kip, dallar, dk: Number(dk), ozet, senaryolar: satirlar }, null, 2),
+  JSON.stringify(
+    {
+      kip,
+      dallar,
+      daraltilmis: process.argv.includes("--senaryo"),
+      dk: Number(dk),
+      ozet,
+      senaryolar: satirlar,
+    },
+    null,
+    2,
+  ),
 );
 
 console.log("\n" + md.replace(/\*\*/g, ""));
