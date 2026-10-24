@@ -49,7 +49,7 @@ export default async function ({ p, ok }) {
     document.querySelector("#gmg").click();
     const s = {
       mod: LT.oyun.mode,
-      serit: getComputedStyle(document.querySelector("#gmf")).display != "none",
+      serit: !!document.querySelector("#gar .galt #gmf"),
     };
     s.sahipDegil = !LT.aracAcikMi(LT.CARS.indexOf(LT.oyun.CAR));
     document.querySelector("#gbk").click();

@@ -38,6 +38,11 @@ const IKON = {
   sag: '<path d="M9 6l6 6l-6 6"/>',
   /** tabler: x (kapat) */
   kapat: '<path d="M18 6l-12 12"/><path d="M6 6l12 12"/>',
+  /** tabler: info-circle */
+  bilgi: '<path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/>',
+  /** tabler: filter */
+  suzgec:
+    '<path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z"/>',
   /** tabler: chevron-down */
   asagi: '<path d="M6 9l6 6l6 -6"/>',
   /** tabler: chevron-up */
