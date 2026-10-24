@@ -51,3 +51,7 @@ Oyun tamamlandığında aynı kod Capacitor ile native iOS uygulamasına sarıla
 - Bilgisayarda: `npm ci`, `npm run dev` (anında yenilenen geliştirme sunucusu), `npm run kontrol` (tüm denetimler).
 - Testler: `npm test` (fizik, ~2 sn), `npm run test:e2e` (başsız tarayıcı), `npm run test:goruntu` (ekran görüntüleri).
 - Her geliştirme alanı için yeni sohbete yapıştırılacak istemler: `docs/GELISTIRME.md`.
+
+## Claude ve Codex ile devam
+
+Kota durumuna göre iki araç aynı görev kartıyla dönüşümlü çalışır. Başlangıç: `CLAUDE.md` ve `docs/DEVIR.md`; ayrıntı: `docs/ORTAK-CALISMA.md`. Kısa bağlam: `npm run calisma -- baglam hud`. Kart açma: `npm run calisma -- yeni hud-gaz hud "Gaz düğmesi yolu kapatmasın"`. Kullanıcı teknik komut yazmak zorunda değildir; bu adımları ajan yapar.
