@@ -80,8 +80,10 @@ const secili = SENARYOLAR.filter((s) =>
 ).sort((a, b) => a.p - b.p);
 if (kip == "alan")
   for (const d of dallar)
-    if (!SENARYOLAR.some((s) => s.dal == d))
-      console.log(`(${d} dalının kayıtlı senaryosu yok: koşacak bir şey yok)`);
+    if (!SENARYOLAR.some((s) => s.dal == d)) {
+      console.error(`${d} alanının kayıtlı senaryosu yok; boş koşum başarılı sayılamaz.`);
+      process.exit(2);
+    }
 
 // sanal cihaz denetimi: regresyonda iPhone 13 tam + temsilci cihazlar 4 ekran, alanda dalın ekranları 3 cihazda
 // (tests/yardimci/cihaz-bolum.mjs)
