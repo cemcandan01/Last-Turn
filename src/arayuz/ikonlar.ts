@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-/*! Menü ikonları. Harita, araba, mağaza, kask, dişli, dağ, dönüş ve start ışıkları: Tabler Icons 3.49 (https://tabler.io/icons), MIT Lisansı,
-=======
-/*! Menü ikonları. Harita, araba, kask, dişli, dağ, dönüş, start ışıkları, Google ve zarf: Tabler Icons 3.49 (https://tabler.io/icons), MIT Lisansı,
->>>>>>> altyapi
+/*! Menü ikonları. Harita, araba, mağaza, kask, dişli, dağ, dönüş, start ışıkları, Google ve zarf: Tabler Icons 3.49 (https://tabler.io/icons), MIT Lisansı,
  * Telif (c) 2020-2026 Paweł Kuna. Lisans metni: public/lisanslar.txt. Yarış bayrağı ve pist oyunun kendi çizimi. */
 // Çizgi ikonlar (24×24, stroke=currentColor); yalnız <path> içerikleri, çerçeve ikon() ile eklenir.
 

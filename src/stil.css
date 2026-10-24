@@ -3120,7 +3120,6 @@ details[open] > summary::after {
 .hadmin #hasv {
   flex: 0 0 70px;
 }
-<<<<<<< HEAD
 
 /* mağaza (garaj ekranının mağaza kipi): sekme + tür süzgeci vitrinin üstünde, açıklama satırı, garaja git çubuğu */
 #gmf {
@@ -3226,7 +3225,7 @@ details[open] > summary::after {
 #gmal .ik {
   width: 18px;
   height: 18px;
-=======
+}
 /* hesap değiştir listesi (arayuz/hesap-ui.ts → listeHtml) */
 .hliste {
   margin-top: 8px;
@@ -3282,5 +3281,4 @@ details[open] > summary::after {
 }
 .hkaldir {
   min-width: 44px;
->>>>>>> altyapi
 }
