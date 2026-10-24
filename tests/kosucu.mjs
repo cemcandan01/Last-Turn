@@ -75,7 +75,7 @@ if (kip == "alan" && !dallar.length) {
   console.error("alan için dal adı gerekli: node tests/kosucu.mjs alan fizik");
   process.exit(2);
 }
-const secili = SENARYOLAR.filter((s) =>
+let secili = SENARYOLAR.filter((s) =>
   kip == "duman" ? s.duman : kip == "alan" ? dallar.includes(s.dal) : true,
 ).sort((a, b) => a.p - b.p);
 if (kip == "alan")
@@ -84,6 +84,28 @@ if (kip == "alan")
       console.error(`${d} alanının kayıtlı senaryosu yok; boş koşum başarılı sayılamaz.`);
       process.exit(2);
     }
+
+// Dar geri bildirim turu: yalnız açıkça seçilen mevcut senaryolar. Canlı regresyonu daraltılamaz.
+if (process.argv.includes("--senaryo")) {
+  const deger_ = deger("--senaryo");
+  const istenen = [...new Set((deger_ || "").split(",").filter(Boolean))];
+  if (kip != "alan" || !istenen.length || deger_?.startsWith("--")) {
+    console.error("--senaryo yalnız alan kipinde, boş olmayan senaryo listesiyle kullanılır.");
+    process.exit(2);
+  }
+  const eslesir = (s, id) => id == s.id || id == s.dal + "/" + s.id;
+  const eksik = istenen.filter((id) => !secili.some((s) => eslesir(s, id)));
+  if (eksik.length) {
+    console.error("Bu alanlarda bulunamayan senaryo: " + eksik.join(", "));
+    process.exit(2);
+  }
+  secili = secili.filter((s) => istenen.some((id) => eslesir(s, id)));
+}
+if (process.argv.includes("--liste")) {
+  for (const s of secili) console.log(`${s.dal}/${s.id} · P${s.p} · ${s.tarayici ? "tarayıcı" : "birim"}`);
+  console.log("Bu yalnız kapsam listesidir; test çalıştırılmadı.");
+  process.exit(0);
+}
 
 // sanal cihaz denetimi: regresyonda iPhone 13 tam + temsilci cihazlar 4 ekran, alanda dalın ekranları 3 cihazda
 // (tests/yardimci/cihaz-bolum.mjs)

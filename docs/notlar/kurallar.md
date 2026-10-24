@@ -6,3 +6,4 @@
 - scripts/calisma.mjs: baglam <alan> kısa bağlam; yeni <kimlik> <alan> [istek] mevcut kartı ezmeden kart açar.
 - Oyun sürümü/oynanış değişmedi; Context7 ChatGPT'de bağlı ve sorguyla doğrulandı; Claude'da kurulmuş sayılmaz.
 - Canlıya çıkış hâlâ regresyon + kullanıcı onayı ister. Gece görevi gerçekten kurulmadıkça otomatik vaat edilmez.
+- 2026-10-25: test erken, dar ve risk bazlı; `alan --senaryo <id,...> [--liste]` eklendi. Regresyon/duman daraltılamaz. Model politikası öneri/gerçek seçim ayrımını korur; ana model otomatik değiştirilmez.

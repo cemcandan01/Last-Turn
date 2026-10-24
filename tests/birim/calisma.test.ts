@@ -22,6 +22,28 @@ afterEach(() => {
 });
 
 describe("ortak çalışma araçları", () => {
+  it("dar test kapsamı listesi yalnız istenen senaryoyu gösterir ve test çalıştırmaz", () => {
+    const kok = fileURLToPath(new URL("../../", import.meta.url));
+    const r = spawnSync(
+      process.execPath,
+      ["tests/kosucu.mjs", "alan", "altyapi", "--senaryo", "firebase-giris-yardimcisi", "--liste"],
+      { cwd: kok, encoding: "utf8" },
+    );
+    expect(r.status).toBe(0);
+    expect(r.stdout).toContain("altyapi/firebase-giris-yardimcisi");
+    expect(r.stdout).not.toContain("altyapi/hayalet");
+    expect(r.stdout).toContain("test çalıştırılmadı");
+  });
+  it.each([
+    ["alan", "altyapi", "--senaryo", "yok", "--liste"],
+    ["alan", "altyapi", "--senaryo", "--liste"],
+    ["regresyon", "--senaryo", "firebase-giris-yardimcisi", "--liste"],
+  ])("geçersiz daraltma veya daraltılmış regresyon başarı sayılmaz: %j", (...args) => {
+    const kok = fileURLToPath(new URL("../../", import.meta.url));
+    const r = spawnSync(process.execPath, ["tests/kosucu.mjs", ...args], { cwd: kok, encoding: "utf8" });
+    expect(r.status).toBe(2);
+  });
+
   it.each(["araclar", "regresyon"])("senaryosu olmayan %s için çalışmayan test komutu önermez", (alan) => {
     const sonuc = baglam(kur(), alan);
     expect(sonuc).not.toContain("npm run alan -- " + alan);
