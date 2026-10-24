@@ -93,11 +93,11 @@ function magazaSeridi(G: GarajDurumu | null) {
   const say = (suz: string) =>
     CARS.filter((c, k) => !aracAcikMi(k) && (suz == "hepsi" || c.ty == suz)).length;
   b.innerHTML =
-    `<span class="gsek">Araçlar</span>` +
-    [["hepsi", "Tümü", "", ""] as const, ...TYPES.map((t) => [t[0], t[1], t[3], t[4]] as const)]
+    `<span class="gsek">Araçlar${G.suz == "hepsi" ? "" : " · " + (TYPES.find((t) => t[0] == G.suz)?.[1] ?? "")}</span>` +
+    [["hepsi", "Tümü", "izgara", ""] as const, ...TYPES.map((t) => [t[0], t[1], t[3], t[4]] as const)]
       .map(
         ([k, ad, ik, renk]) =>
-          `<button data-suz="${k}" class="${G.suz == k ? "on" : ""}" style="--c:${renk || "#ff7a1a"}"${say(k) ? "" : ' data-bos="1"'}>${ik ? ikon(ik) : ""}${ad}</button>`,
+          `<button data-suz="${k}" class="${G.suz == k ? "on" : ""}" style="--c:${renk || "#ff7a1a"}" title="${ad}" aria-label="${ad}"${say(k) ? "" : ' data-bos="1"'}>${ikon(ik)}</button>`,
       )
       .join("");
   b.querySelectorAll<HTMLElement>("button").forEach((e) => {
@@ -131,13 +131,9 @@ function sesButonu() {
   if (!b || !GAR) return;
   const on = !!DINLE && DINLE.arac == GAR.i && performance.now() < DINLE.zaman;
   b.classList.toggle("on", on);
-  b.innerHTML = on ? '<i class="dalga"><u></u><u></u><u></u><u></u></i>Dinleniyor…' : "<i>🔊</i>Motoru dinle";
-  // yazı tipi daha geniş olan cihazda rozet satırı sığmazsa yazı ve yan boşluklar küçülür (--rz; düğme yüksekliği
-  // aynı kalır, sığdığında görünüm değişmez)
-  const rz = b.parentElement!,
-    tasar = () => b.getBoundingClientRect().right > rz.getBoundingClientRect().right + 1;
-  rz.style.removeProperty("--rz");
-  for (let k = 0.95; k > 0.65 && tasar(); k -= 0.05) rz.style.setProperty("--rz", k.toFixed(2));
+  b.innerHTML = on
+    ? '<i class="dalga"><u></u><u></u><u></u><u></u></i>Dinleniyor…'
+    : ikon("ses") + "Motoru dinle";
 }
 
 /** ses tarafının "bitti" olayını bir kez bağla (yükleme anında değil, garaj ilk açılınca) */
@@ -353,7 +349,7 @@ function showGar() {
     kilitYazi = "Seviye " + fiyat.seviye + "'de açılır",
     // seç düğmesinin yerine geçen yazı: kilit, satın al, onay ya da eksik para
     okYazi = kilitli
-      ? "🔒 " + kilitYazi
+      ? ikon("kilit") + " " + kilitYazi
       : satilik
         ? eksik > 0
           ? `${ikon("para")} ${sayi(eksik)} daha gerekli`
@@ -402,21 +398,21 @@ function showGar() {
     bilgi = G.mg
       ? satir("Fiyat", paraYazi(fiyat.para), "fy") +
         satir("Bakiye", paraYazi(para()), eksik > 0 ? "az" : "") +
-        (kilitli ? satir("Kilit", "🔒 Seviye " + fiyat.seviye, "kl") : "")
+        (kilitli ? satir("Kilit", ikon("kilit") + " Seviye " + fiyat.seviye, "kl") : "")
       : satir("Durum", "Sahip") +
         satir(sec ? "Seçim" : "Çekiş", sec || (c.awd ? "Dört çeker" : "Arkadan itiş"));
-  g.innerHTML = `<div class="gust"><div class="gbas"><button class="ga" id="gpv" aria-label="Önceki">‹</button><div class="gad">${tur ? `<div class="gtur" style="--c:${tur[4]}">${ikon(tur[3])}${tur[1]}</div>` : ""}<h1>${kilitli ? "🔒 " : ""}${c.n}</h1></div><button class="ga" id="gnx" aria-label="Sonraki">›</button><span class="gsay">${sira}/${L.length}</span></div>
-<div class="grozet"><span class="bdg">${c.ic} ${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}${kilitli ? `<span class="bdg kilit" title="${kilitYazi}">🔒 Seviye ${fiyat.seviye}</span>` : ""}<button class="gses" id="gses"></button></div></div>
+  g.innerHTML = `<div class="gust"><div class="gbas"><button class="ga" id="gpv" aria-label="Önceki">${ikon("sol")}</button><div class="gad">${tur ? `<div class="gtur" style="--c:${tur[4]}">${ikon(tur[3])}${tur[1]}</div>` : ""}<h1>${kilitli ? ikon("kilit") : ""}${c.n}</h1></div><button class="ga" id="gnx" aria-label="Sonraki">${ikon("sag")}</button><span class="gsay">${sira}/${L.length}</span></div>
+<div class="grozet"><span class="bdg">${tur ? ikon(tur[3]) : ""}${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}${kilitli ? `<span class="bdg kilit" title="${kilitYazi}">${ikon("kilit")}Seviye ${fiyat.seviye}</span>` : ""}</div></div>
 <div class="gbar">${cubuk
     .map(
       ([n, d, b, f]) =>
         `<div class="gk"><span class="gkb">${n}</span><u><s style="width:${Math.round(cl(f, 0.05, 1) * 100)}%"></s></u><b>${d}<small>${b}</small></b></div>`,
     )
     .join("")}<p>${c.hp} HP · ${c.kg} KG</p></div>
-<div class="galt"><div id="gpara">${bilgi}</div><div class="gbt"><button class="btn alt" id="gbk">Geri</button>${dugme ? `<button class="btn${satilik ? " al" : ""}" id="gok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}<button class="btn alt gvtam" id="gvtam">Vitrin</button></div></div>`;
+<div class="galt">${kilitli ? "" : '<button class="gses" id="gses"></button>'}<div id="gpara">${bilgi}</div><div class="gbt"><button class="btn alt" id="gbk">Geri</button>${dugme ? `<button class="btn${satilik ? " al" : ""}" id="gok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}<button class="btn alt gvtam" id="gvtam">Vitrin</button></div></div>`;
   const v = $("#gvit");
   v.classList.remove("hidden");
-  v.innerHTML = `<button class="gvar" id="gvpv">◀</button><button class="gvar sag" id="gvnx">▶</button>${dugme ? `<button class="btn${satilik ? " al" : ""}" id="gvok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}<button class="btn alt" id="gvbk">Geri</button>`;
+  v.innerHTML = `<button class="gvar" id="gvpv" aria-label="Önceki">${ikon("sol")}</button><button class="gvar sag" id="gvnx" aria-label="Sonraki">${ikon("sag")}</button>${dugme ? `<button class="btn${satilik ? " al" : ""}" id="gvok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}<button class="btn alt" id="gvbk">Geri</button>`;
   if (dugme) $("#gvok").onclick = () => $("#gok").click();
   // tam ekranda Geri: tam ekrandan çıkıp bilgi paneline döner
   $("#gvbk").onclick = () => {
@@ -446,16 +442,18 @@ function showGar() {
   };
   sesButonu();
   // motoru dinle: sesi ses modülü çalar (olay sözleşmesi: lt:motor-dinle → lt:motor-dinle-bitti); tekrar basınca baştan
-  $("#gses").onclick = () => {
-    const arac = G.i;
-    DINLE = { arac, zaman: performance.now() + DINLE_SURE };
-    document.dispatchEvent(new CustomEvent("lt:motor-dinle", { detail: { arac } }));
-    sesButonu();
-    setTimeout(() => {
-      if (DINLE && DINLE.arac == arac && performance.now() >= DINLE.zaman) DINLE = null;
+  const ses = document.getElementById("gses");
+  if (ses)
+    ses.onclick = () => {
+      const arac = G.i;
+      DINLE = { arac, zaman: performance.now() + DINLE_SURE };
+      document.dispatchEvent(new CustomEvent("lt:motor-dinle", { detail: { arac } }));
       sesButonu();
-    }, DINLE_SURE + 50);
-  };
+      setTimeout(() => {
+        if (DINLE && DINLE.arac == arac && performance.now() >= DINLE.zaman) DINLE = null;
+        sesButonu();
+      }, DINLE_SURE + 50);
+    };
   $("#gpv").onclick = () => go(-1);
   $("#gnx").onclick = () => go(+1);
   $("#gbk").onclick = geriDon;

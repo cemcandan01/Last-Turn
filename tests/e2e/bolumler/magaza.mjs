@@ -24,6 +24,7 @@ export default async function ({ p, ok }) {
         disabled: b ? b.disabled : null,
         al: b ? b.classList.contains("al") : false,
         kilitli: document.querySelector("#gar").classList.contains("kilitli"),
+        ses: !!document.querySelector("#gses"),
         satilik: document.querySelector("#gar").classList.contains("satilik"),
         bakiye: document.querySelector("#gpara")?.textContent.trim(),
         tur: document.querySelector(".gtur")?.textContent.trim(),
@@ -64,7 +65,13 @@ export default async function ({ p, ok }) {
   // seviye yok: Beyaz Kurt (4 / 3000)
   const sv = await git(2);
   ok(
-    sv.kilitli && sv.disabled && /Seviye 4/.test(sv.yazi) && !sv.satilik && sv.tur == "Drift" && sv.aciklama,
+    sv.kilitli &&
+      !sv.ses &&
+      sv.disabled &&
+      /Seviye 4/.test(sv.yazi) &&
+      !sv.satilik &&
+      sv.tur == "Drift" &&
+      sv.aciklama,
     "seviye yok: kilitli, düğme kapalı, tür ve açıklama: " + JSON.stringify(sv),
   );
   ok(!sv.tasma, "mağaza ekranı taşmıyor");
@@ -74,7 +81,7 @@ export default async function ({ p, ok }) {
   await git(1);
   const py = await git(2);
   ok(
-    py.satilik && !py.kilitli && py.disabled && /daha gerekli/.test(py.yazi),
+    py.satilik && !py.kilitli && py.ses && py.disabled && /daha gerekli/.test(py.yazi),
     "para yok: açık renk, düğme kapalı, eksik yazar: " + JSON.stringify(py),
   );
   const eksik = await q.evaluate(() => LT.aracFiyati(2).para - LT.para());

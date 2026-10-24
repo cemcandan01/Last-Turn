@@ -1,4 +1,4 @@
-/*! Menü ikonları. Harita, araba, mağaza, kask, dişli, dağ, dönüş, start ışıkları, Google ve zarf: Tabler Icons 3.49 (https://tabler.io/icons), MIT Lisansı,
+/*! Menü ikonları. Harita, araba, mağaza, kask, dişli, dağ, dönüş, start ışıkları, Google, zarf, kilit, para, yıldız, ok, ses ve ızgara: Tabler Icons 3.49 (https://tabler.io/icons), MIT Lisansı,
  * Telif (c) 2020-2026 Paweł Kuna. Lisans metni: public/lisanslar.txt. Yarış bayrağı ve pist oyunun kendi çizimi. */
 // Çizgi ikonlar (24×24, stroke=currentColor); yalnız <path> içerikleri, çerçeve ikon() ile eklenir.
 
@@ -32,6 +32,15 @@ const IKON = {
   /** tabler: lock */
   kilit:
     '<path d="M5 11a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2l0 -6"/><path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"/><path d="M8 9v-4a4 4 0 0 1 8 0v4"/>',
+  /** tabler: chevron-left */
+  sol: '<path d="M15 6l-6 6l6 6"/>',
+  /** tabler: chevron-right */
+  sag: '<path d="M9 6l6 6l-6 6"/>',
+  /** tabler: volume (motoru dinle) */
+  ses: '<path d="M15 8a5 5 0 0 1 0 8"/><path d="M17.7 5a9 9 0 0 1 0 14"/><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5"/>',
+  /** tabler: layout-grid (tümü) */
+  izgara:
+    '<path d="M4 4h6v6h-6z"/><path d="M14 4h6v6h-6z"/><path d="M4 14h6v6h-6z"/><path d="M14 14h6v6h-6z"/>',
   // yarış türleri
   /** asfalt: firketeli kapalı pist ve start çizgisi (oyunun çizimi) */
   pist: '<path d="M5 7.5a2.5 2.5 0 0 1 2.5 -2.5h9a2.5 2.5 0 0 1 2.5 2.5v1a2.5 2.5 0 0 1 -2.5 2.5h-3.5a1.5 1.5 0 0 0 0 3h3.5a2.5 2.5 0 0 1 2.5 2.5v.5a2.5 2.5 0 0 1 -2.5 2.5h-9a2.5 2.5 0 0 1 -2.5 -2.5z"/><path d="M9 3.5v3"/>',
