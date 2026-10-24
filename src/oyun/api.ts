@@ -50,4 +50,18 @@ export {
   aracFiyati,
   aracSatinAlinabilirMi,
   aracSatinAl,
+  parcaFiyati,
+  parcaSahipMi,
+  parcaSatinAl,
 } from "./ilerleme";
+export {
+  takiliParcalar,
+  parcaTak,
+  parcaSok,
+  paketiTak,
+  stokaDon,
+  modifiyeUygula,
+  modifiyeSifirla,
+} from "./modifiye";
+export { performansPuani, SINIFLAR } from "../arac/performans";
+export { aracKur, PARCALAR, PAKETLER } from "../arac/parcalar";

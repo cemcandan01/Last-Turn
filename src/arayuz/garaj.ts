@@ -1,6 +1,6 @@
 // Garaj ekranı: araçları dönen platformda incele, özellikleri karşılaştır, seç. Yarıştan ve serbest sürüşten önce de
 // buradan seçilir; yarışta türe uygun araç "Önerilen" olarak gelir.
-import { CARS } from "../arac/araclar";
+import { CARS, type YarisTuru } from "../arac/araclar";
 import { STAT, estTop } from "../arac/istatistik";
 import { cl } from "../cekirdek/matematik";
 import { gizle, $ } from "../cekirdek/dom";
@@ -19,7 +19,6 @@ import {
 import { carIndex, oyun, setCar } from "../oyun/durum";
 import * as THREE from "three";
 import { kamera, garajKameraSifirla } from "../cizim/kamera";
-import { applyPreset, kurulum } from "../oyun/kurulum";
 import {
   acilmaSeviyesi,
   aracAcikMi,
@@ -28,8 +27,22 @@ import {
   aracSatinAlinabilirMi,
   para,
   paraDinle,
+  parcaFiyati,
+  parcaSahipMi,
+  parcaSatinAl,
   pistAcikMi,
 } from "../oyun/ilerleme";
+import {
+  kategoriParcasi,
+  modifiyeUygula,
+  paketiTak,
+  parcaSok,
+  parcaTak,
+  stokaDon,
+  takiliParcalar,
+} from "../oyun/modifiye";
+import { KATEGORILER, PAKETLER, PARCALAR, paketTak, parcaBul, type ParcaKategori } from "../arac/parcalar";
+import { performansPuani, SINIFLAR, type PerformansDegerleri, type PuanTuru } from "../arac/performans";
 import { ikon } from "./ikonlar";
 import { EVENTS, startEvent } from "../oyun/yarislar";
 import { note } from "./bildirim";
@@ -49,6 +62,10 @@ interface GarajDurumu {
   suz: string;
   geri?: () => void;
   alinan: number | null;
+  /** modifiye ekranı açık mı, seçili kategori ("paket": paketler) ve önizlenen parça / paket ("": stok, null: yok) */
+  mod?: boolean;
+  mk?: ParcaKategori | "paket";
+  ms?: string | null;
 }
 let GAR: GarajDurumu | null = null;
 
@@ -135,6 +152,240 @@ function magazaSeridi(G: GarajDurumu | null) {
   });
 }
 
+// ---- modifiye ----
+
+/** puan önbelleği (performansPuani ~2-5 ms): araç | tür | parçalar */
+const PUAN = new Map<string, PerformansDegerleri>();
+function puan(aracNo: number, parcalar: readonly string[], tur?: YarisTuru) {
+  const k = aracNo + "|" + (tur ?? "") + "|" + [...parcalar].sort().join(",");
+  let v = PUAN.get(k);
+  if (!v) {
+    v = performansPuani(aracNo, parcalar, tur);
+    PUAN.set(k, v);
+  }
+  return v;
+}
+/** puanın türü: yarış öncesi garajda o yarışın türü, yoksa genel puan */
+const puanTuru = (G: GarajDurumu): YarisTuru | undefined => (G.ev != null ? EVENTS[G.ev].ty : undefined);
+/** puan zemininin yarış türü (etkiler aynı zeminde karşılaştırılsın) */
+const ZEMIN_TURU: Record<PuanTuru, YarisTuru> = { asfalt: "gp", rallikros: "rx", ralli: "rl", drag: "dg" };
+const sinifRengi = (h: string) => SINIFLAR.find((x) => x.h == h)?.renk ?? "#fff";
+/** sınıf harfi ve puan rozeti (SINIFLAR rengiyle) */
+function sinifRozeti(aracNo: number, parcalar: readonly string[], tur?: YarisTuru) {
+  const p = puan(aracNo, parcalar, tur);
+  return `<span class="bdg gsnf" id="gsnf" style="--c:${sinifRengi(p.sinif)}" title="Performans sınıfı ve puanı"><b>${p.sinif}</b>${p.puan}</span>`;
+}
+
+/** parça satın alma onayı (iki dokunuş, 3 sn) */
+let PONAY: { anahtar: string; zaman: number } | null = null,
+  PONAY_ZAMANLA: ReturnType<typeof setTimeout> | undefined;
+
+/** seviye çizgileri (0 zayıf … 3 yarış) */
+const pip = (sv: number) => `<i class="gpip" data-sv="${sv}"><u></u><u></u><u></u></i>`;
+const kisaAd = (ad: string) => ad.split(" /")[0];
+const fark = (d: number) =>
+  `<span class="gmd ${d > 0 ? "art" : d < 0 ? "eks" : ""}">${d > 0 ? "+" : ""}${d}</span>`;
+
+/**
+ * modifiye ekranı: solda kategoriler (Paketler + 12 kategori), sağda seçili kategorinin parçaları (seviye, ad, puan farkı,
+ * fiyat / takılı), altında seçili parçanın etkisi ve eylem (Satın al → Emin misin? → takılır; Tak; Sök). Araç ortada serbest
+ */
+function modifiyeGoster(G: GarajDurumu) {
+  const g = $("#gar"),
+    no = G.i,
+    c = CARS[no],
+    tur = puanTuru(G),
+    takili = takiliParcalar(no),
+    taban = puan(no, takili, tur),
+    mk = G.mk ?? "paket",
+    tb = turBilgi(c.ty);
+  g.classList.add("modifiye");
+  $("#gvit").classList.add("hidden");
+  // satırlar: [anahtar, ad, açıklama, seviye, yeni parça listesi, alınacaklar, takılı mı]
+  type Satir = {
+    k: string;
+    ad: string;
+    d: string;
+    sv: number | null;
+    yeni: string[];
+    al: string[];
+    tk: boolean;
+  };
+  const satirlar: Satir[] = [];
+  if (mk == "paket") {
+    satirlar.push({
+      k: "",
+      ad: "Stok araç",
+      d: "Bütün parçalar sökülür",
+      sv: null,
+      yeni: [],
+      al: [],
+      tk: !takili.length,
+    });
+    for (const p of PAKETLER) {
+      const yeni = paketTak(takili, p.id);
+      satirlar.push({
+        k: p.id,
+        ad: p.n,
+        d: p.d + (p.oneri.length ? " · Öneri: " + p.oneri.map((id) => parcaBul(id)!.n).join(", ") : ""),
+        sv: null,
+        yeni,
+        al: p.parcalar.filter((id) => !parcaSahipMi(no, id)),
+        tk: p.parcalar.every((id) => takili.includes(id)),
+      });
+    }
+  } else {
+    const simdi = kategoriParcasi(no, mk);
+    satirlar.push({
+      k: "",
+      ad: "Stok",
+      d: "Aracın kendi parçası",
+      sv: null,
+      yeni: takili.filter((id) => parcaBul(id)!.kat != mk),
+      al: [],
+      tk: !simdi,
+    });
+    for (const p of PARCALAR.filter((x) => x.kat == mk))
+      satirlar.push({
+        k: p.id,
+        ad: p.n,
+        d: p.d,
+        sv: p.sv,
+        yeni: [...takili.filter((id) => parcaBul(id)!.kat != mk), p.id],
+        al: parcaSahipMi(no, p.id) ? [] : [p.id],
+        tk: simdi == p.id,
+      });
+  }
+  const sec = G.ms != null ? satirlar.find((x) => x.k == G.ms) : undefined,
+    onizleme = sec ? puan(no, sec.yeni, tur) : null,
+    bedel = (x: Satir) => x.al.reduce((a, id) => a + parcaFiyati(id), 0),
+    bakiye = para();
+  // eylem düğmesi
+  let eylem = "",
+    kapali = false,
+    al = false;
+  if (sec) {
+    const b = bedel(sec),
+      anahtar = no + ":" + sec.k;
+    if (sec.tk) {
+      eylem = sec.k && mk != "paket" ? "Sök" : "Takılı";
+      kapali = eylem == "Takılı";
+    } else if (b > 0) {
+      al = true;
+      if (b > bakiye) {
+        eylem = `${ikon("para")} ${sayi(b - bakiye)} daha gerekli`;
+        kapali = true;
+      } else
+        eylem =
+          PONAY?.anahtar == anahtar && PONAY.zaman > performance.now()
+            ? `Emin misin? ${ikon("para")} ${sayi(b)}`
+            : `Satın al ${ikon("para")} ${sayi(b)}`;
+    } else eylem = sec.k ? "Tak" : "Stoka dön";
+  }
+  const kat = (k: ParcaKategori | "paket", ad: string) => {
+    const tp = k == "paket" ? null : kategoriParcasi(no, k);
+    return `<button data-k="${k}" class="${mk == k ? "on" : ""}${tp ? " takili" : ""}"><b>${ad}</b>${
+      k == "paket" ? "" : tp ? pip(parcaBul(tp)!.sv) : "<small>Stok</small>"
+    }</button>`;
+  };
+  const ust = mk == "paket" ? "Paketler" : (KATEGORILER.find((x) => x[0] == mk)?.[1] ?? "");
+  // seçili parçanın etkisi (şimdiki yapıya göre): azami hız, 0-100, yanal tutuş, 100-0; yeşil iyi, kırmızı kötü
+  const etki = (ad: string, d: number, birim: string, ondalik: number, iyiArti: boolean) => {
+    const y = Math.abs(d) < 0.5 * 10 ** -ondalik ? 0 : d;
+    return `<span>${ad} <b class="${y == 0 ? "" : y > 0 == iyiArti ? "art" : "eks"}">${y > 0 ? "+" : y < 0 ? "−" : "±"}${Math.abs(y).toFixed(ondalik).replace(".", ",")}${birim}</b></span>`;
+  };
+  // etkiler tek zeminde karşılaştırılır (genel puanda en iyi zemin parçayla değişebilir: toprak lastiği gibi)
+  const zt = tur ?? ZEMIN_TURU[taban.zemin],
+    e0 = sec ? puan(no, takili, zt) : null,
+    e1 = sec ? puan(no, sec.yeni, zt) : null;
+  const etkiler =
+    e0 && e1
+      ? etki("HIZ", e1.hiz - e0.hiz, "", 0, true) +
+        etki("0-100", e1.ivme - e0.ivme, " sn", 1, false) +
+        etki("TUTUŞ", ((e1.tutus - e0.tutus) / e0.tutus) * 100, "%", 0, true) +
+        etki("FREN", e1.fren - e0.fren, " m", 0, false)
+      : "<span>Parçaya dokun: puana ve sürüşe etkisi</span>";
+  g.innerHTML = `<div class="gust"><div class="gbas"><div class="gad">${tb ? `<div class="gtur" style="--c:${tb[4]}">${ikon(tb[3])}${tb[1]}</div>` : ""}<h1>${c.n}</h1></div></div>
+<div class="grozet">${sinifRozeti(no, takili, tur)}${
+    onizleme && onizleme.puan != taban.puan
+      ? `<span class="bdg gsnf on" id="gsnf2" style="--c:${sinifRengi(onizleme.sinif)}">${ikon("sag")}<b>${onizleme.sinif}</b>${onizleme.puan}</span>`
+      : ""
+  }<span class="bdg gmbas">Modifiye${tur ? " · " + (turBilgi(tur)?.[1] ?? "") : ""}</span></div></div>
+<div class="gmk" id="gmk">${kat("paket", "Paketler")}${KATEGORILER.map(([k, ad]) => kat(k, kisaAd(ad))).join("")}</div>
+<div class="gmp" id="gmp"><div class="gmb"><b>${ust}</b><span>${paraYazi(bakiye)}</span></div>
+<div class="gml" id="gml">${satirlar
+    .map((x) => {
+      const d = puan(no, x.yeni, tur).puan - taban.puan,
+        b = bedel(x);
+      return `<button class="gmr${x.tk ? " takili" : ""}${G.ms == x.k ? " on" : ""}" data-p="${x.k}"><span class="gmn">${x.sv != null ? pip(x.sv) : ""}${x.ad}</span>${x.tk ? "" : fark(d)}<span class="gmfy">${
+        x.tk
+          ? ikon("tamam") + "Takılı"
+          : b > 0
+            ? ikon("para") + sayi(b)
+            : !x.k
+              ? ""
+              : x.sv === 0 || (x.sv != null && parcaFiyati(x.k) <= 0)
+                ? "Ücretsiz"
+                : "Sende"
+      }</span>${G.ms == x.k ? `<small>${x.d}</small>` : ""}</button>`;
+    })
+    .join("")}</div>
+<div class="gmo" id="gmo">${etkiler}</div>
+<div class="gbt"><button class="btn alt" id="gmgeri">Garaj</button>${
+    sec ? `<button class="btn${al ? " al" : ""}" id="gmok"${kapali ? " disabled" : ""}>${eylem}</button>` : ""
+  }</div></div>`;
+  g.querySelectorAll<HTMLElement>("#gmk [data-k]").forEach((e) => {
+    e.onclick = () => {
+      G.mk = e.dataset.k as ParcaKategori | "paket";
+      G.ms = null;
+      PONAY = null;
+      showGar();
+    };
+  });
+  g.querySelectorAll<HTMLElement>("#gml [data-p]").forEach((e) => {
+    e.onclick = () => {
+      G.ms = G.ms == e.dataset.p ? null : e.dataset.p!;
+      PONAY = null;
+      showGar();
+    };
+  });
+  $("#gmgeri").onclick = () => {
+    G.mod = false;
+    G.ms = null;
+    PONAY = null;
+    showGar();
+  };
+  const ok = document.getElementById("gmok");
+  if (ok && sec)
+    ok.onclick = () => {
+      const b = bedel(sec),
+        anahtar = no + ":" + sec.k;
+      if (!sec.tk && b > 0) {
+        // satın alma: ilk dokunuş onay ister (3 sn), ikincisi satın alır ve takar
+        if (!(PONAY?.anahtar == anahtar && PONAY.zaman > performance.now())) {
+          PONAY = { anahtar, zaman: performance.now() + 3000 };
+          clearTimeout(PONAY_ZAMANLA);
+          PONAY_ZAMANLA = setTimeout(() => {
+            PONAY = null;
+            if (GAR && GAR.mod) showGar();
+          }, 3050);
+          showGar();
+          return;
+        }
+        PONAY = null;
+        clearTimeout(PONAY_ZAMANLA);
+        if (!parcaSatinAl(no, sec.al)) return;
+        kutla(sec.ad);
+      }
+      if (mk == "paket") {
+        if (!sec.k) stokaDon(no);
+        else paketiTak(no, sec.k);
+      } else if (sec.tk || !sec.k) parcaSok(no, mk);
+      else parcaTak(no, sec.k);
+      showGar();
+    };
+}
+
 /** satın alma kutlaması: parıltı ve "Satın alındı" */
 function kutla(ad: string) {
   const k = document.createElement("div");
@@ -179,8 +430,8 @@ function gorunum() {
   v.classList.toggle("tam", kamera.gTam);
   v.classList.toggle("dur", kamera.gBtn);
   $("#gar").style.display = kamera.gTam ? "none" : "";
-  const t = $("#gvtam");
-  t.style.display = kamera.gTam ? "none" : "";
+  const t = document.getElementById("gvtam");
+  if (t) t.style.display = kamera.gTam ? "none" : "";
   magazaSeridi(GAR);
   for (const id of ["gmal", "gdes"]) {
     const e = document.getElementById(id);
@@ -393,6 +644,12 @@ function showGar() {
   g.classList.toggle("kilitli", kilitli);
   g.classList.toggle("satilik", satilik);
   document.getElementById("gmal")?.remove();
+  if (G.mod && !G.mg && acik) {
+    aciklamaGoster(null);
+    modifiyeGoster(G);
+    return;
+  }
+  g.classList.remove("modifiye");
   aciklamaGoster(L.length ? c.d : null);
   if (G.mg && !L.length) {
     // süzgeçte (ya da hiç) satılık araç kalmadı
@@ -426,7 +683,7 @@ function showGar() {
       : satir("Durum", "Sahip") +
         satir(sec ? "Seçim" : "Çekiş", sec || (c.awd ? "Dört çeker" : "Arkadan itiş"));
   g.innerHTML = `<div class="gust"><div class="gbas"><div class="gad">${tur ? `<div class="gtur" style="--c:${tur[4]}">${ikon(tur[3])}${tur[1]}</div>` : ""}<h1>${kilitli ? ikon("kilit") : ""}${c.n}</h1></div></div>
-<div class="grozet">${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}${kilitli ? `<span class="bdg kilit" title="${kilitYazi}">${ikon("kilit")}Seviye ${fiyat.seviye}</span>` : ""}${L.length ? `<button class="bdg gbil${BILGI_ACIK ? " on" : ""}" id="gbil" aria-label="Araç bilgisi" aria-pressed="${BILGI_ACIK}">${ikon("bilgi")}</button>` : ""}</div></div>
+<div class="grozet">${sinifRozeti(G.i, takiliParcalar(G.i), puanTuru(G))}${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}${kilitli ? `<span class="bdg kilit" title="${kilitYazi}">${ikon("kilit")}Seviye ${fiyat.seviye}</span>` : ""}${L.length ? `<button class="bdg gbil${BILGI_ACIK ? " on" : ""}" id="gbil" aria-label="Araç bilgisi" aria-pressed="${BILGI_ACIK}">${ikon("bilgi")}</button>` : ""}</div></div>
 <div class="gnav"><button class="ga" id="gpv" aria-label="Önceki">${ikon("sol")}</button><span class="gsay">${sira}/${L.length}</span><button class="ga" id="gnx" aria-label="Sonraki">${ikon("sag")}</button></div>
 <div class="gbar">${cubuk
     .map(
@@ -434,7 +691,7 @@ function showGar() {
         `<div class="gk"><span class="gkb">${n}</span><u><s style="width:${Math.round(cl(f, 0.05, 1) * 100)}%"></s></u><b>${d}<small>${b}</small></b></div>`,
     )
     .join("")}<p>${c.hp} HP · ${c.kg} KG</p></div>
-<div class="galt">${kilitli ? "" : '<button class="gses" id="gses"></button>'}<div id="gpara">${bilgi}</div><div class="gbt"><button class="btn alt" id="gbk">Geri</button>${dugme ? `<button class="btn${satilik ? " al" : ""}" id="gok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}<button class="btn alt gvtam" id="gvtam">Vitrin</button></div></div>`;
+<div class="galt">${kilitli ? "" : `<div class="gsr"><button class="gses" id="gses"></button>${!G.mg && acik ? `<button class="gses gmod" id="gmod">${ikon("anahtar")}Modifiye</button>` : ""}</div>`}<div id="gpara">${bilgi}</div><div class="gbt"><button class="btn alt" id="gbk">Geri</button>${dugme ? `<button class="btn${satilik ? " al" : ""}" id="gok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}<button class="btn alt gvtam" id="gvtam">Vitrin</button></div></div>`;
   magazaSeridi(G);
   const bil = document.getElementById("gbil");
   if (bil)
@@ -491,6 +748,15 @@ function showGar() {
   $("#gpv").onclick = () => go(-1);
   $("#gnx").onclick = () => go(+1);
   $("#gbk").onclick = geriDon;
+  const md = document.getElementById("gmod");
+  if (md)
+    md.onclick = () => {
+      G.mod = true;
+      G.mk ??= "paket";
+      G.ms = null;
+      PONAY = null;
+      showGar();
+    };
   if (magazadaVar) {
     // yarış öncesi ipucu: panel sığsın diye vitrinin altında (mağaza kutlama çubuğuyla aynı yerde)
     const ip = document.createElement("div");
@@ -555,8 +821,7 @@ function showGar() {
         return;
       }
       // serbest sürüş: aracın önayarıyla başlar (önayar sonra duraklatma menüsünden değiştirilebilir)
-      kurulum.pk = oyun.CAR.pk;
-      applyPreset();
+      modifiyeUygula(i);
       if (w != null) startWorld(w);
       else showMenu();
     };

@@ -37,6 +37,7 @@ const BOLUMLER = [
   "ilerleme",
   "garaj-kilit",
   "magaza",
+  "modifiye",
   "ekran-yon",
   "menu-magaza",
   "hesap-formu",
