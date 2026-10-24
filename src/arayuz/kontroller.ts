@@ -6,6 +6,7 @@ import { toApp } from "../cekirdek/ekran";
 import { CT } from "../oyun/ayarlar";
 import { askTilt, girdiSifirla, I, tilt, tiltRoll } from "../oyun/girdi";
 import { note } from "./bildirim";
+import { ikon } from "./ikonlar";
 
 function bindK(id: string, k: "l" | "r" | "g" | "b") {
   const e = $(id);
@@ -96,7 +97,7 @@ export function kontrolleriKur() {
   app.dataset.gas = CT.gas;
   const L =
     CT.steer == "btn"
-      ? '<div class="g"><div class="k" id="l">◀</div><div class="k" id="r">▶</div></div>'
+      ? `<div class="g"><div class="k" id="l">${ikon("okSol")}</div><div class="k" id="r">${ikon("okSag")}</div></div>`
       : CT.steer == "wheel"
         ? '<div class="wz" id="wz"><div class="wheel" id="wh"></div></div>'
         : '<div class="g"><div class="k" id="cal">Ortala</div></div>';
