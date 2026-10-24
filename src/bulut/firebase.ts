@@ -4,7 +4,7 @@
 // Google girişi: iPhone'da ana ekrana kurulu uygulamada (standalone) açılır pencere (popup) güvenilir dönmez; orada
 // yönlendirme (redirect) kullanılır. Safari üçüncü taraf depolamayı engellediği için yönlendirme ancak giriş yardımcısı
 // oyunun kendi adresinde barınınca çalışır (__/auth/, derlemede indirilir: vite.config.ts → firebaseYardimci).
-// Yardımcı yoksa popup denenir; olmazsa e-posta ile bağlanma her yerde çalışır (docs/FIREBASE.md).
+// Yardımcı doğru HTML türüyle sunulmuyorsa kendi Firebase adresinde popup denenir; olmazsa e-posta ile bağlanma her yerde çalışır (docs/FIREBASE.md).
 import { initializeApp } from "firebase/app";
 import {
   EmailAuthProvider,
@@ -42,12 +42,29 @@ const standalone = () =>
   !!(navigator as Navigator & { standalone?: boolean }).standalone ||
   (/iPhone|iPad|iPod/.test(navigator.userAgent) && matchMedia("(display-mode: fullscreen)").matches);
 
-/** giriş yardımcısı oyunun adresinde var mı (https'te; varsa authDomain oyunun kendi adresi olur) */
+/**
+ * GitHub Pages uzantısız handler/iframe dosyalarını application/octet-stream sunabilir: HTTP 200 tek başına
+ * yeterli değildir. iPhone bu iframe'i indirilen dosya olarak açar. İki HTML uç noktası da çalıştırılabilir olmalı.
+ * HEAD kontrolü belgeyi iframe'e yüklemez; ağ hatası hesap kurulumunu durdurmaz.
+ */
 async function yardimciVar() {
   if (location.protocol != "https:") return false;
   try {
-    const r = await fetch("__/auth/handler.js", { method: "HEAD", cache: "no-store" });
-    return r.ok;
+    const yanitlar = await Promise.all(
+      ["iframe", "handler"].map((dosya) =>
+        fetch("__/auth/" + dosya, {
+          method: "HEAD",
+          cache: "no-store",
+          signal: AbortSignal.timeout(3000),
+        }),
+      ),
+    );
+    return yanitlar.every(
+      (r) =>
+        r.ok &&
+        /^\s*text\/html(?:\s*;|\s*$)/i.test(r.headers.get("Content-Type") || "") &&
+        !/^\s*attachment\b/i.test(r.headers.get("Content-Disposition") || ""),
+    );
   } catch {
     return false;
   }
@@ -71,16 +88,17 @@ async function varsaGec(auth: Auth, e: unknown) {
 export async function firebaseSaglayici(a: FirebaseAyari): Promise<Saglayici> {
   const yardimci = await yardimciVar(),
     authDomain = yardimci ? location.host + location.pathname.replace(/\/[^/]*$/, "") : a.authDomain,
+    yonlendir = yardimci && standalone(),
     app = initializeApp({ ...a, authDomain }),
-    // çözücü başlangıçta verilmeli: linkWithRedirect kullanıcıya yönlendirme işareti koyar, dönüşte çözücü yoksa
-    // Auth "argument-error" ile başlayamaz (iPhone ana ekran uygulamasında Google ile bağlanınca görülen hata)
+    // Çözücü korunmalı: eski link/redirect kullanıcısında _redirectEventId kalmış olabilir; çözücüsüz
+    // başlangıç SDK'da argument-error üretir. MIME kontrolü bozuk GitHub yardımcısı yerine doğru Firebase
+    // alanını seçer; bu alandaki iframe HTML olarak sunulur.
     auth = initializeAuth(app, {
       persistence: [indexedDBLocalPersistence, browserLocalPersistence],
       popupRedirectResolver: browserPopupRedirectResolver,
     }),
     db = getFirestore(app),
-    google = new GoogleAuthProvider(),
-    yonlendir = yardimci && standalone();
+    google = new GoogleAuthProvider();
   auth.languageCode = "tr";
   google.setCustomParameters({ prompt: "select_account" });
 
