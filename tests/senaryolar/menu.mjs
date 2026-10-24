@@ -56,6 +56,12 @@ export default [
     tarayici: "kapak",
   },
   {
+    id: "magaza-panel",
+    ad: "Ana menü Mağaza paneli: altı panel sırası, dokununca mağaza açılır, Geri ana menüye döner",
+    p: 2,
+    tarayici: "menu-magaza",
+  },
+  {
     id: "cihaz-uyum",
     ad: "Ekran uyumu: menü, yarış, pist, profil, ayarlar, duraklatma ve yarış sonu ekranları sanal cihazlarda taşmıyor, kesilmiyor, üst üste binmiyor (alanda 3 cihaz; regresyonda iPhone 13 tam + 11 temsilci cihaz 4 ekran)",
     p: 2,

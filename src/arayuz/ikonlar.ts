@@ -1,4 +1,4 @@
-/*! Menü ikonları. Harita, araba, kask, dişli, dağ, dönüş ve start ışıkları: Tabler Icons 3.49 (https://tabler.io/icons), MIT Lisansı,
+/*! Menü ikonları. Harita, araba, mağaza, kask, dişli, dağ, dönüş ve start ışıkları: Tabler Icons 3.49 (https://tabler.io/icons), MIT Lisansı,
  * Telif (c) 2020-2026 Paweł Kuna. Lisans metni: public/lisanslar.txt. Yarış bayrağı ve pist oyunun kendi çizimi. */
 // Çizgi ikonlar (24×24, stroke=currentColor); yalnız <path> içerikleri, çerçeve ikon() ile eklenir.
 
@@ -10,6 +10,9 @@ const IKON = {
   /** tabler: car (yandan) */
   araba:
     '<path d="M5 17a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M15 17a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M5 17h-2v-6l2 -5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0h-6m-6 -6h15m-6 0v-5"/>',
+  /** tabler: building-store (mağaza) */
+  magaza:
+    '<path d="M3 21l18 0"/><path d="M3 7v1a3 3 0 0 0 6 0v-1m0 1a3 3 0 0 0 6 0v-1m0 1a3 3 0 0 0 6 0v-1h-18l2 -4h14l2 4"/><path d="M5 21l0 -10.15"/><path d="M19 21l0 -10.15"/><path d="M9 21v-4a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v4"/>',
   /** tabler: helmet */
   kask: '<path d="M12 4a9 9 0 0 1 5.656 16h-11.312a9 9 0 0 1 5.656 -16"/><path d="M20 9h-8.8a1 1 0 0 0 -.968 1.246c.507 2 1.596 3.418 3.268 4.254c2 1 4.333 1.5 7 1.5"/>',
   /** tabler: settings (dişli) */

@@ -882,6 +882,19 @@ details[open] > summary::after {
 .mk:first-child b {
   font-size: 25px;
 }
+.mk > span {
+  position: relative;
+}
+.mk .rozet {
+  position: absolute;
+  top: 12px;
+  right: 8px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ff5a3c;
+  box-shadow: 0 0 0 2px #0b161b;
+}
 .mk.basili {
   filter: brightness(1.25);
   border-color: var(--acc);
@@ -2201,9 +2214,9 @@ details[open] > summary::after {
     font-size: 13px;
   }
 }
-@media (max-width: 720px) {
+@media (max-width: 900px) {
   .mcards {
-    gap: 12px;
+    gap: 14px;
     padding: 0 6px;
   }
   .mk > span {
