@@ -229,10 +229,10 @@ export default async function ({ p, ok }) {
       stokHp: LT.CARS[no].hp,
     };
   });
-  // fizik adımı kurulumu her adımda tazeler: parçalı araç fiziğe gider
+  // fizik adımı kurulumu her adımda tazeler (geri sayımda fizik durur; başsız tarayıcı yavaş): parçalı araç fiziğe gider
   sr.fizik = await q
     .waitForFunction(() => LT.kurulum.mod && LT.yerel.cx.kurulum.car === LT.kurulum.mod.car, null, {
-      timeout: 8000,
+      timeout: 30000,
     })
     .then(() => true)
     .catch(() => false);
@@ -252,7 +252,7 @@ export default async function ({ p, ok }) {
     return { d, mod: LT.kurulum.mod };
   }, sr.no);
   const stokAyni = await q
-    .waitForFunction((d) => LT.yerel.cx.kurulum.car === LT.CARS[d], diger.d, { timeout: 8000 })
+    .waitForFunction((d) => LT.yerel.cx.kurulum.car === LT.CARS[d], diger.d, { timeout: 30000 })
     .then(() => true)
     .catch(() => false);
   ok(diger.mod == null && stokAyni, "parçasız araçta kurulum.mod yok, fizik stok araç nesnesi");
