@@ -245,7 +245,7 @@ export const PARCALAR: Parca[] = [
     sv: 2,
     n: "Rallikros süspansiyonu",
     d: "Orta uzun, sıkı: atlamada ve karışık zeminde dengeli",
-    e: { fq: 1.9, ayar: { susp: 1.15 }, ekle: { lift: 0.03, hcg: 0.01 }, gr: [1.04, 0.98] },
+    e: { fq: 1.9, ayar: { susp: 1.15 }, ekle: { lift: 0.03 }, gr: [1.04, 0.98] },
   },
   {
     id: "suspansiyon-drift",
@@ -260,8 +260,8 @@ export const PARCALAR: Parca[] = [
     kat: "suspansiyon",
     sv: 2,
     n: "Drag süspansiyonu",
-    d: "Arka çöker, ağırlık arka tekerlere biner; virajda ağır",
-    e: { fq: 1.8, ayar: { susp: 1.3, tpf: 1.1, tpr: 0.9, bal: 1.1 }, ekle: { lift: 0.02 } },
+    d: "Sert yay, düşük arka lastik basıncı: kalkışta arka tekerler yere basar; virajda ağır",
+    e: { fq: 2.2, ayar: { susp: 1, tpf: 1.1, tpr: 0.9, bal: 1.1 }, ekle: { lift: 0.02 } },
   },
   // diferansiyel: kilit arttıkça gaz arkayı kolay kaydırır (drift başlatma), açık diferansiyel kararlı
   {
