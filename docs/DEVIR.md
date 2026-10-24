@@ -9,3 +9,4 @@
 - Devirde ilk adım: `git fetch origin`, ilgili dalı güncelle, `node scripts/calisma.mjs baglam <alan>` ve görev kartını oku. Kullanıcıya geçmişi tekrar anlattırma.
 - Context7 bu ChatGPT hesabında bağlı; Three.js r186 belge sorgusu doğrulandı. Claude tarafına da kurulduğu Cem tarafından bildirildi.
 - Son iPhone düzeltmesi: `docs/isler/2026-10-25-ios-iframe.md`, Codex / codex/altyapi. 439 bayt iframe MIME hatası doğrulandı; yerel 25 test ve [CI 40134724477](https://github.com/cemcandan01/Last-Turn/actions/runs/40134724477) altyapı 19/19 geçti. 0.5.27 deneme yayını aktarılıyor; gerçek iPhone yer işareti açılışı Cem'in doğrulamasını bekler.
+- Süreç eki: `docs/isler/2026-10-25-test-kapsami.md`; `alan --senaryo ... --liste` ve risk bazlı test/model politikası. Kurallar alanı yerelde 18/18; CI varsayılanı geniş alan olarak kaldı.

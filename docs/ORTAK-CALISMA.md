@@ -33,6 +33,32 @@ Revize geldiğinde eski maddeyi sessizce değiştirme: “istenen / çıkan / fa
 - Aynı ağ/kota/izin hatasını tanı koymadan tekrar tekrar deneme. Alternatif olarak mevcut yetkili CI/yerel ortamı kullan. Sadece başka adrese giderek erişim kısıtını aşmaya çalışma.
 - Dal notunda en çok 2.000 karakter güncel özet hedefle; tarihsel açıklamalar ilgili belge/görev kartında kalır. Satır sayısı tek başına bağlam bütçesi değildir.
 
+## Kısa geri bildirim ve risk bazlı test (Cem'in kararı: 2026-10-25)
+
+Test geliştirme başlamadan kabul ölçütleriyle tasarlanır. Her küçük revizede geniş paketi yeniden koşmak yerine:
+
+| Değişiklik | Geliştirme sırasında | İş tamamlanırken |
+| --- | --- | --- |
+| Metin/belge/renk, davranış değişmez | Dosya türüne uygun kontrol; oyun testi gerekmez | İlgili biçim/kod kontrolü; yerleşim değiştiyse tek ilgili görünüm |
+| Tek davranış, ekran veya hesaplama | Değişen davranışın en yakın testi; normal durum, kritik sınır ve önceki hata | Gerekli bağlantı/akış kontrolü; CI'da ilgili alan kanıtı bir kez |
+| Kayıt, hesap, ortak fizik veya mimari | Hata tekrarı + kritik sınırlar; etkilenmiş bağlantılar | Etkilenen alanlar ve kritik uçtan uca akışlar; yalnız satır sayısıyla kapsam küçültülmez |
+| Canlı çıkış | Önceki başarılı kanıtlar kayıtlı tutulur | Tam regresyon + duman ve kullanıcı onayı korunur |
+
+Senaryo sayısına kör bir üst sınır koyma. Görev kartına seçilen kapsamı ve neden yeterli olduğunu bir satır yaz; aynı şeyi farklı testlerle tekrar ölçme. Yeni kapsam dışı sorun bulursan işi sessizce büyütme, ayrı kaydet.
+
+Dar tur örneği: `npm run alan -- altyapi --senaryo firebase-giris-yardimcisi,bulut-esitleme`.
+Önce kapsamı görmek için aynı komuta `--liste` eklenir; bu bir test sonucu değildir. Olmayan senaryo veya boş seçim başarısızdır. `regresyon`/`duman` bu seçenekle daraltılamaz.
+
+Bu komut geliştirme geri bildirimini daraltır. Mevcut GitHub Denetim iş akışı varsayılan olarak tüm ilgili alanı çalıştırmaya devam eder; otomatik dosya-etki analizi veya CI test önbelleği kurulmuş değildir. CI kanıtını aynı kaynakta yeniden yerelde üretme. Kurulum/derleme/yayın beklemesini “test eforu” veya model tokeniyle aynı sayma.
+
+## Model ve ajan seçimi
+
+- Ana sohbet için önerilen varsayılan: hesapta varsa GPT-6.1 Sol, istemcinin normal/default düşünme düzeyi. Küçük ve net işte daha düşük düşünme düzeyi; zor fizik/mimari veya dirençli hata ayıklamada daha yüksek düzey değerlendirilir. Her iş Max/Ultra değildir.
+- Dar, tekrar eden keşif/log özetleme gibi bağımsız yardımcı görev gerçekten gerekiyorsa desteklenen GPT-6 Luna kullanılabilir. Karmaşık uygulama/denetimde GPT-6.1 Sol tercih edilir. Küçük işi ajana devretmek zorunlu değildir.
+- Ana sohbetin modeli/düşünme düzeyi kullanıcı arayüzünden seçilir; ajan bunları değiştirdiğini varsaymaz. Yardımcı ajanda açık model seçimi yalnız ortamın izin verdiği araçla uygulanır, yoksa miras alındığı bildirilir.
+- Bu politika bir otomatik model yönlendirici kurulumu değildir. Görev kartında risk, tek uygulayıcı/yardımcı ihtiyacı ve kullanılan gerçek model (biliniyorsa) kaydedilir. Model, boyutun yanında yanlış sonucun etkisine göre seçilir.
+- Önceki iPhone iframe işinde yardımcı ajan daha ucuz modele yönlendirilmedi; ana model/düşünme düzeyini devraldı. Geriye dönük tasarruf veya farklı model kullanımı iddia edilmez.
+
 ## Maliyeti nasıl ölçeceğiz?
 
 Şu an Claude/ChatGPT oturumlarının toplam token/kota telemetrisi repoda yok; “en pahalı adım” ve tasarruf yüzdesi kesin ölçülmüş değildir. GitHub dakikası, kullanıcı bekleme süresi ve model kotası farklı ölçülerdir.
