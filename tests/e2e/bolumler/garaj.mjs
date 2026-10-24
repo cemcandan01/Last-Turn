@@ -223,6 +223,8 @@ export default async function ({ p, ok }) {
         ust = R("#gar .gust"),
         bar = R("#gar .gbar"),
         alt = R("#gar .galt"),
+        nav = R("#gar .gnav"),
+        aci = document.getElementById("gdes") ? R("#gdes") : null,
         // alt blok sağa yaslı sütundur: kutusu geniş satırın üstüne taşar, bu yüzden çocukları ayrı sınanır
         altCocuk = [...document.querySelectorAll("#gar .galt > *")].map((e) => e.getBoundingClientRect()),
         ORTA = {
@@ -234,13 +236,29 @@ export default async function ({ p, ok }) {
       r.push({
         cubuk: document.querySelectorAll("#gar .gk").length,
         say: document.querySelector("#gar .gsay").textContent,
-        icerde: [ust, bar, alt].every(
+        // oklar sol altta (≥48 px), açıklama sol üstte ve ad bloğuyla/oklarla çakışmaz
+        navSolAlt:
+          nav.left < innerWidth * 0.3 &&
+          nav.top > innerHeight * 0.6 &&
+          R("#gpv").width >= 48 &&
+          R("#gpv").height >= 48 &&
+          R("#gnx").width >= 48 &&
+          !kes(nav, alt),
+        aciklamaSolUst:
+          !aci ||
+          (aci.left < innerWidth * 0.3 &&
+            aci.top < innerHeight * 0.5 &&
+            !kes(aci, ust) &&
+            !kes(aci, nav) &&
+            !kes(aci, bar)),
+        icerde: [ust, bar, alt, nav].every(
           (x) => x.left >= 0 && x.top >= 0 && x.right <= innerWidth && x.bottom <= innerHeight,
         ),
         bina:
           kes(ust, bar) ||
           kes(ust, alt) ||
           kes(bar, alt) ||
+          kes(nav, ORTA) ||
           kes(ust, ORTA) ||
           kes(bar, ORTA) ||
           altCocuk.some((c) => kes(c, ORTA)),
@@ -250,7 +268,10 @@ export default async function ({ p, ok }) {
     return r;
   });
   ok(
-    pn.every((x) => x.cubuk == 5 && x.icerde && !x.bina && /^\d+\/\d+$/.test(x.say)),
+    pn.every(
+      (x) =>
+        x.cubuk == 5 && x.navSolAlt && x.aciklamaSolUst && x.icerde && !x.bina && /^\d+\/\d+$/.test(x.say),
+    ),
     "vitrin düzeni: çubuklar var, öğeler ekran içinde, birbirine ve araca binmiyor " + JSON.stringify(pn[0]),
   );
   // araç geçişi takılmıyor (iPhone'a yakın: işlemci 4 kat yavaşlatılır). Modeller garaj açılırken kurulup GPU'ya

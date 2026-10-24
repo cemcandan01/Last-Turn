@@ -123,11 +123,8 @@ export default async function ({ p, ok }) {
     "tür süzgeci yalnız o türün araçlarını gösterir: " + sz.z,
   );
   ok(
-    sz.once.ust < 40 &&
-      sz.once.alt <= sz.once.gustUst &&
-      sz.sonra.alt <= sz.sonra.gustUst &&
-      sz.once.sag < 330,
-    "süzgeç şeridi sol üstte, küçük, ad bloğuyla çakışmıyor: " + JSON.stringify(sz),
+    sz.once.ust > 190 && sz.once.alt <= 324 && sz.sonra.alt <= 324 && sz.once.sag < 330,
+    "süzgeç şeridi sol altta, okların üstünde, küçük: " + JSON.stringify(sz),
   );
   ok(
     sz.tema == "#b67cff" && sz2 == "",

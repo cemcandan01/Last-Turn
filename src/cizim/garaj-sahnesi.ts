@@ -89,36 +89,28 @@ export function garajTemasi(renk: string | null) {
       b.position.set(px, 0.55, pz);
       garG.add(m, b);
     }
-  // tavandan sarkan ışık armatürleri ve ışık hüzmeleri (yarı saydam, toplamalı koni; ışık kaynağı değil, ucuz)
-  const arm = new THREE.BoxGeometry(2.6, 0.12, 0.35),
+  // tepede tek ışık: aracın tam üstünde geniş, yumuşak hüzme (yarı saydam, toplamalı koni; ışık kaynağı değil, ucuz)
+  const arm = new THREE.BoxGeometry(5.2, 0.14, 1.2),
     armM = new THREE.MeshBasicMaterial({ color: 0xf4f8ff }),
-    huzme = new THREE.ConeGeometry(2.6, 8.4, 20, 1, true),
+    huzme = new THREE.ConeGeometry(4.6, 8.4, 28, 1, true),
     huzmeM = new THREE.MeshBasicMaterial({
       color: 0x9fc4ff,
       transparent: true,
-      opacity: 0.07,
+      opacity: 0.06,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
       side: THREE.DoubleSide,
     });
-  for (const [dx, dz, r] of [
-    [-1.2, 1.4, 0.9],
-    [3.4, -2.4, 0.3],
-    [-5.5, -3.5, 0],
-    [6.5, 4, 1.2],
-  ] as const) {
-    const l = new THREE.Mesh(arm, armM),
-      h = new THREE.Mesh(huzme, huzmeM);
-    l.position.set(GX + dx, 8.7, GZ + dz);
-    l.rotation.y = r;
-    h.position.set(GX + dx, 4.5, GZ + dz);
-    garG.add(l, h);
-  }
+  const lamba = new THREE.Mesh(arm, armM),
+    hz = new THREE.Mesh(huzme, huzmeM);
+  lamba.position.set(GX, 8.7, GZ);
+  hz.position.set(GX, 4.5, GZ);
+  garG.add(lamba, hz);
   fl.receiveShadow = true;
   tb.receiveShadow = true;
   // tepeden tek genel ışık: yumuşak, hafif gölgeli (küçük gölge haritası); araç altına gölge düşer
   const key = new THREE.DirectionalLight(0xe8f0ff, 0.75 * ISIK);
-  key.position.set(GX - 0.6, 11, GZ + 0.8);
+  key.position.set(GX, 11, GZ);
   key.target.position.set(GX, 0, GZ);
   key.castShadow = true;
   key.shadow.mapSize.set(512, 512);
