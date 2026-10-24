@@ -33,7 +33,7 @@ service cloud.firestore {
   }
 
   function gecerli(d) {
-    return d.keys().hasOnly(['surum', 'xp', 'updatedAt', 'yildiz', 'ekAcik', 'kazanilan', 'alimlar', 'rekor', 'oyunSurum'])
+    return d.keys().hasOnly(['surum', 'xp', 'updatedAt', 'yildiz', 'ekAcik', 'kazanilan', 'alimlar', 'rekor', 'oyunSurum', 'parca'])
       && d.keys().hasAll(['surum', 'xp', 'updatedAt', 'yildiz', 'ekAcik', 'kazanilan', 'alimlar'])
       && d.surum is int && d.surum >= 0 && d.surum <= 100
       && d.xp is int && d.xp >= 0 && d.xp <= 10000000
@@ -43,6 +43,8 @@ service cloud.firestore {
       && d.ekAcik is list && d.ekAcik.size() <= 1000
       && d.alimlar is map && d.alimlar.size() <= 1000
       && (!('rekor' in d) || (d.rekor is map && d.rekor.size() <= 1000))
-      && (!('oyunSurum' in d) || (d.oyunSurum is string && d.oyunSurum.size() <= 20));
+      && (!('oyunSurum' in d) || (d.oyunSurum is string && d.oyunSurum.size() <= 20))
+      // takılı modifiye parçaları: araç no → parça listesi (src/oyun/modifiye.ts)
+      && (!('parca' in d) || (d.parca is map && d.parca.size() <= 100));
   }
 }

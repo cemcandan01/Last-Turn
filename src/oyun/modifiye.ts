@@ -1,6 +1,6 @@
 // Modifiye: araç başına takılı parçalar (lt_parca: { "<araç no>": [parça id, …] }) ve sürüşe uygulanması.
 // Parçalar araç başına satın alınır (oyun/ilerleme.ts → parcaSatinAl; alım "parca_<araç>_<parça>" bulutta); takılı
-// liste yalnız bu cihazda tutulur (bulut belgesinin alanları firestore.rules'ta sabit). Fizik değerleri ve kurulum
+// liste de bulut belgesinin `parca` alanına gider (bulut/esitleme.ts; kurallar yayınlanmamışsa yalnız cihazda kalır). Fizik değerleri ve kurulum
 // arac/parcalar.ts'ten (aracKur); stokta (parça yok) kurulum.mod null, fizik bugünküyle aynı.
 import { CARS } from "../arac/araclar";
 import type { YarisTuru } from "../arac/araclar";
@@ -16,7 +16,7 @@ import { performansPuani, type PuanTuru } from "../arac/performans";
 import { TIRES } from "../fizik/veriler";
 import { okuJson, yazJson } from "../cekirdek/depo";
 import { applyPreset, kurulum } from "./kurulum";
-import { parcaSahipMi } from "./ilerleme";
+import { degisimBildir, parcaSahipMi } from "./ilerleme";
 
 const ANAHTAR = "lt_parca";
 let T: Record<string, string[]> | null = null;
@@ -32,6 +32,33 @@ function yazTakili(aracNo: number, ids: string[]) {
   const d = parcalariDuzenle(ids);
   if (d.length) t[aracNo] = d;
   else delete t[aracNo];
+  yazJson(ANAHTAR, t);
+  degisimBildir();
+}
+
+/** buluta gidecek takılı parçalar (araç no → parça listesi; boş araçlar yok) */
+export function takiliVerisi(): Record<string, string[]> {
+  const t = tablo(),
+    r: Record<string, string[]> = {};
+  for (const k in t) {
+    const d = parcalariDuzenle(t[k] ?? []);
+    if (d.length) r[k] = d;
+  }
+  return r;
+}
+
+/**
+ * buluttan gelen takılı parçaları yerele kat. degistir: başka hesaba geçişte yerel liste bulutunkiyle değişir; yoksa
+ * (aynı hesabın başka cihazı) yalnız bu cihazda parçası olmayan araçlar buluttan alınır. Bilinmeyen parça atılır
+ */
+export function takiliYukle(d: Record<string, unknown> | undefined | null, degistir = false) {
+  const t = tablo();
+  if (degistir) for (const k in t) delete t[k];
+  for (const [k, v] of Object.entries(d || {})) {
+    if (!Array.isArray(v) || !CARS[+k] || (t[k] && t[k].length)) continue;
+    const l = parcalariDuzenle(v.filter((x): x is string => typeof x == "string"));
+    if (l.length) t[k] = l;
+  }
   yazJson(ANAHTAR, t);
 }
 

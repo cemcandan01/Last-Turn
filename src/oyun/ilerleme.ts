@@ -181,6 +181,11 @@ function kaydet() {
   for (const fn of degisimDinleyiciler.slice()) fn();
 }
 
+/** ilerleme dışındaki bulut verisi değişti (modifiye: takılı parçalar): dinleyicilere bildir, kayıt değişmez */
+export function degisimBildir() {
+  for (const fn of degisimDinleyiciler.slice()) fn();
+}
+
 /** ilerleme kaydı her değişince (XP, yıldız, para, alım, bulut) çağrılır; bulut eşitlemesi için. Bırakan fonksiyon döner */
 export function degisimDinle(fn: () => void) {
   degisimDinleyiciler.push(fn);
