@@ -7,4 +7,21 @@
 - Takılı parçalar `lt_parca` (`oyun/modifiye.ts`; yalnız cihazda). Bulut belgesine yeni alan eklemek firestore.rules'u (hasOnly) bozar: kullanıcı kuralları yeniden yayınlamadan eklenmemeli (açık iş, altyapı/kurallar).
 - Sürüş: `modifiyeUygula(araç)` applyPreset yerine (startEvent, garaj Seç, açılış): `kurulum.mod` = parçalı araç + lastik + ayar alanları, `pk` paket ağır basarsa türün önayarı. `applyPreset` mod varsa ayar/lastiği üstüne yazar (serbest sürüşte önayar değişse de parçalar kalır). `surus.ts` fizik aracını `kurulum.mod.taban === oyun.CAR` ise mod'dan alır; stokta mod null → CARS nesnesi, fizik aynı.
 - Testler: `tests/birim/modifiye.test.ts`, tarayıcı bölümü `modifiye` (düzen binmesi iPhone 13 ve SE, iki dokunuş, paket, kayıt, yarışta parçalı araç); görüntüler tests/cikti/modifiye-*.png.
-- Açık: 3B modelde parça görünümü yok (kanat vb.); vitrin çubukları (HIZ/İVME…) stok değerleri gösterir; mağaza/ekonomi dengesi ölçülmedi (puan/para verimi).
+- 0.5.20 kanıt (kullanıcı: "istatistik ve hissiyat farkı kanıtla"; tablo `npm run olcum -- modifiye`, test `tests/birim/modifiye-his.test.ts`). Kızıl Ok stok: 0-100 2,77 sn, tepe 286, tutuş 35,6, yalpa 0,52°.
+  | parça | ölçü (stoğa göre) |
+  |---|---|
+  | motor yarış / kısıtlayıcı | 0-100 −0,55 / +0,47 sn; asfalt tur −1,6 / +1,2 sn |
+  | turbo küçük / büyük / kompresör | dolma 1,9 / 4,1 / 0 sn (gecikme hissi; ıslık fizik basıncıyla); 0-100 −0,13 / −0,12 / −0,23 |
+  | şanzıman kısa / uzun | tepe −17 / +15 km/sa |
+  | lastik sokak / toprak / drift | asfalt tutuş −23 / −33 / −32%; tur +5,0 / +9,6 / +6,7 sn |
+  | süspansiyon ralli / yarış | yalpa +2,1° / −0,16°; tutuş(140 m) −1 / +5% |
+  | diferansiyel açık / kilitli | çıkışta patinaj 1,16 / 0,40, kayma 6° / 14° |
+  | fren yarış / sokak (Panda 100-0, ABS) | 16,1 → 14,3 / 17,9 m; Kızıl Ok 200-100 −9% |
+  | ağırlık karbon / balast | 0-100 −0,37 / +0,20 sn |
+  | aero büyük | tutuş(140 m) +21%, tepe −18 km/sa, tur −1,75 sn |
+  | çekiş dört | tutuş(35 m) +20%, çıkış kayma −12° |
+  | açı kiti | teker açısı +24° |
+  | paketler (kendi / başka tür) | asfalt +3,0 / +8,9%; ralli +0,6% / Kızıl Ok stok bitiremez → 43,9 sn; rallikros −1,9% / bitiremez → 36,8; drift +6,5 / +11,9% puan; drag +2,2 / −0,7% |
+- Düzeltilen: önizleme satırı yalnız nokta kütle değerlerini gösteriyordu (Kor RX yarış motoru HIZ ±0: son viteste devir sınırı, gerçek); artık tur süresi + fiziksel değerler (güç, ağırlık, turbo gecikmesi, çekiş, teker açısı, yay, kilit, lastik) (`parcaEtkileri`). Yükseltme parçaları yüksek araçta üst üste biniyordu (Mavi Yıldız ralli paketiyle %17 yavaştı) → `aracKur` lift/hcg. Turbo parçası sesi yoktu → `ses.ts`/`motor.ts` ek katman.
+- Ölçüm notu: fren gerçekçide (ABS yok) kilitlenmeyle düzensiz; Dengeli'de ölçülür. Pilot tur süreleri ±%3 oynak.
+- Açık: drag paketi Kızıl Ok'ta etkisiz (−0,7%: kısa şanzıman tepe hızı keser; fizik dalı); rallikros paketi Kor RX'te −1,9% (gürültü sınırında); 3B modelde parça görünümü yok (kanat vb.); vitrin çubukları (HIZ/İVME…) stok değerleri gösterir; mağaza/ekonomi dengesi ölçülmedi (puan/para verimi).
