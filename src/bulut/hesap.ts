@@ -2,18 +2,23 @@
 // yapılandırma girilmişse ve oyun açıldıktan sonra tembel yüklenir; girilmemişse bu modül hiçbir şey yapmaz.
 // İlk açılışta sessizce anonim hesap açılır; Profil'den Google ya da e-posta ile bağlanınca aynı ilerleme başka
 // cihazda da açılır. Eşitleme kuralları bulut/esitleme.ts'te.
-import { yaz, yazJson } from "../cekirdek/depo";
+// Hesap değiştirme: bu cihazda girilmiş hesaplar listelenir (lt_hesaplar: yalnız uid, tür, e-posta/ad ve gösterim için
+// seviye/admin; şifre ya da belirteç saklanmaz). Geçişte önce bekleyen yazma gönderilir, sonra seçilen hesaba girilir;
+// yerel ilerleme o hesabın bulut kaydıyla değiştirilir (birleşmez). Giriş olmazsa önceki hesapta kalınır.
+import { okuJson, yaz, yazJson } from "../cekirdek/depo";
 import {
   adminKilit,
   adminKipi,
   adminSeviyeAyarla,
   ilerlemeyiSifirla,
   paraEkle,
+  seviye,
   xpEkle,
 } from "../oyun/ilerleme";
 import { PROF, saveProf } from "../oyun/profil";
 import { FIREBASE_AYAR, bulutAcik, type FirebaseAyari } from "./ayar";
 import {
+  bekleyenVar,
   esitleyiciKur,
   rekorlariSil,
   type EsitlemeDurumu,
@@ -54,6 +59,47 @@ const bildir = () => dinleyiciler.slice().forEach((f) => f());
 
 export const hesapDurumu = (): Readonly<HesapDurumu> => D;
 
+/** bu cihazda daha önce girilmiş hesap (Profil → Hesap değiştir) */
+export interface BilinenHesap {
+  uid: string;
+  yol: "google" | "eposta";
+  /** e-posta (yoksa Google adı) */
+  etiket: string;
+  /** son görülen seviye (yalnız gösterim) */
+  lv: number;
+  admin: boolean;
+}
+const HESAPLAR = "lt_hesaplar";
+const hesaplarOku = () => okuJson<{ liste: BilinenHesap[] }>(HESAPLAR, { liste: [] }).liste;
+
+/** listeye ekle ya da güncelle (en son kullanılan başa) */
+function hesapHatirla(k: Kullanici, ek: Partial<BilinenHesap> = {}) {
+  if (k.anonim) return;
+  const eski = hesaplarOku(),
+    o = eski.find((h) => h.uid == k.uid),
+    h: BilinenHesap = {
+      uid: k.uid,
+      yol: k.yol == "google" ? "google" : "eposta",
+      etiket: k.eposta || k.ad || o?.etiket || "Google",
+      lv: o?.lv ?? 1,
+      admin: o?.admin ?? false,
+      ...ek,
+    };
+  yazJson(HESAPLAR, { liste: [h, ...eski.filter((x) => x.uid != k.uid)] });
+}
+
+/** bu cihazda girilmiş hesaplar (şu anki hesabın seviyesi canlı) */
+export const bilinenHesaplar = (): BilinenHesap[] =>
+  hesaplarOku().map((h) => (h.uid == D.kullanici?.uid ? { ...h, lv: seviye().lv, admin: D.admin } : h));
+
+/** hesabı listeden kaldır (yalnız bu cihazın listesi; hesap ve bulut kaydı kalır). Şu anki hesap kaldırılmaz */
+export function hesapKaldir(uid: string) {
+  if (uid == D.kullanici?.uid) return false;
+  yazJson(HESAPLAR, { liste: hesaplarOku().filter((h) => h.uid != uid) });
+  bildir();
+  return true;
+}
+
 /** hesap durumu değişince çağrılır; bırakan fonksiyon döner */
 export function hesapDinle(fn: () => void) {
   dinleyiciler.push(fn);
@@ -72,6 +118,7 @@ export function hesapBaslat(s: Saglayici, o: { gecikme?: number } = {}) {
     gecikme: o.gecikme,
     degisti: (d) => {
       D.esitleme = d;
+      if (d == "tamam" && D.kullanici) hesapHatirla(D.kullanici, { lv: seviye().lv });
       bildir();
     },
   });
@@ -80,18 +127,21 @@ export function hesapBaslat(s: Saglayici, o: { gecikme?: number } = {}) {
     D.kullanici = k;
     D.admin = false;
     adminKipi(false);
+    if (k) hesapHatirla(k);
     bildir();
     // admin yetkisi sunucuda (Firestore admins/{uid}); anonim hesap admin olamaz
     if (k && !k.anonim)
       void s.adminMi(k.uid).then((a) => {
-        if (!a || D.kullanici?.uid != k.uid) return;
+        if (D.kullanici?.uid != k.uid) return;
+        hesapHatirla(k, { admin: a });
+        if (!a) return;
         D.admin = true;
         adminKipi(true);
         bildir();
       });
     if (!k && ilk) void s.anonimGir().catch(() => {});
     ilk = false;
-    void E!.oturum(k ? k.uid : null);
+    void E!.oturum(k ? k.uid : null, !!k?.anonim);
   });
   return E;
 }
@@ -143,23 +193,33 @@ function hataMetni(e: unknown) {
   if (k.includes("operation-not-allowed")) return "Bu giriş yolu henüz açılmadı (Firebase ayarı)" + kod;
   if (k.includes("unauthorized-domain")) return "Bu adres Firebase'de yetkili değil" + kod;
   if (k.includes("too-many-requests")) return "Çok deneme yapıldı; biraz sonra yeniden dene" + kod;
+  if (k.includes("gonderilemedi"))
+    return "Bu hesabın son ilerlemesi buluta gönderilemedi; internet gelince yeniden dene" + kod;
   return "Bağlanılamadı" + kod;
 }
 
-/** işlemi yürütür; başarılıysa true (bilgi: başarı bildirimi) */
-async function islem(f: (s: Saglayici) => Promise<void>, bilgi?: () => string) {
+/** kullanıcı satırı: "E-posta · ad@…", "Google · ad@…" ya da "Misafir" */
+const kimMetni = (k: Kullanici | null) =>
+  !k || k.anonim
+    ? "Misafir"
+    : (k.yol == "google" ? "Google" : "E-posta") + (k.eposta ? " · " + k.eposta : "");
+
+/** işlemi yürütür; başarılıysa true (bilgi: başarı bildirimi). gecis: başarısızsa hangi hesapta kalındığı da yazılır */
+async function islem(f: (s: Saglayici) => Promise<void>, bilgi?: () => string, gecis = false) {
   const s = S || (hazir && (await hazir));
   if (!s || D.mesgul) return false;
   D.mesgul = true;
   D.hata = null;
-  D.bilgi = null;
+  D.bilgi = gecis ? "Hesap değiştiriliyor…" : null;
   bildir();
   try {
     await f(s);
     D.bilgi = bilgi ? bilgi() : null;
     return true;
   } catch (e) {
-    D.hata = hataMetni(e);
+    D.bilgi = null;
+    const h = hataMetni(e);
+    D.hata = h && gecis ? h + " · Hesap değişmedi: " + kimMetni(D.kullanici) : h;
     return false;
   } finally {
     D.mesgul = false;
@@ -167,22 +227,59 @@ async function islem(f: (s: Saglayici) => Promise<void>, bilgi?: () => string) {
   }
 }
 
-/** anonim hesabı Google'a bağla (o Google hesabı başka cihazda varsa ona geç; ilerlemeler birleşir) */
-export const googleBagla = () =>
+/**
+ * hesap değiştirmeden önce: şu anki hesabın bekleyen yazması gönderilir (gönderilemezse geçilmez; yoksa o ilerleme
+ * yeni hesabın kaydıyla değiştirilirken kaybolurdu). Misafirin kaydı yeni hesaba bağlanırken birleşir, beklenmez
+ */
+async function onceGonder() {
+  await E?.simdiGonder();
+  if (D.kullanici && !D.kullanici.anonim && bekleyenVar()) throw { code: "gonderilemedi" };
+}
+
+/** giriş sonrası: yeni hesabın bulut kaydı yüklenene kadar bekle */
+const sonraYukle = () => E?.simdiGonder();
+
+const baglandi = () =>
+  "Bağlandı: " + (D.kullanici?.eposta || "Google") + " · Seviye " + seviye().lv + " · İlerlemen bulutta";
+
+/**
+ * Google ile: misafirse hesaba bağlar (yeni Google hesabıysa misafirin ilerlemesi ona geçer; var olan hesapsa o hesabın
+ * ilerlemesi yüklenir); bağlı hesaptaysa hesap seçiciyle başka Google hesabına geçer. ipucu: seçicide önerilen e-posta
+ */
+export const googleBagla = (ipucu?: string) =>
   islem(
-    (s) => s.googleBagla(),
-    () => (D.kullanici && !D.kullanici.anonim ? "Bağlandı: " + (D.kullanici.eposta || "Google") : ""),
+    async (s) => {
+      await onceGonder();
+      await s.googleBagla(ipucu);
+      await sonraYukle();
+    },
+    () => (D.kullanici && !D.kullanici.anonim ? baglandi() : ""),
+    true,
   );
 
-const baglandi = () => "Bağlandı: " + (D.kullanici?.eposta || "") + " · İlerlemen bulutta";
-
-/** e-posta + şifreyle yeni hesap aç (bu cihazın ilerlemesi o hesaba geçer) */
+/** e-posta + şifreyle yeni hesap aç (misafirse ilerlemesi o hesaba geçer; bağlı hesaptan açılırsa sıfırdan başlar) */
 export const epostaOlustur = (eposta: string, sifre: string) =>
-  islem((s) => s.epostaOlustur(eposta.trim(), sifre), baglandi);
+  islem(
+    async (s) => {
+      await onceGonder();
+      await s.epostaOlustur(eposta.trim(), sifre);
+      await sonraYukle();
+    },
+    baglandi,
+    true,
+  );
 
-/** var olan e-posta hesabına giriş yap (ilerlemeler birleşir) */
+/** var olan e-posta hesabına giriş yap (bu cihazdaki ilerleme o hesabınkiyle değiştirilir) */
 export const epostaGiris = (eposta: string, sifre: string) =>
-  islem((s) => s.epostaGiris(eposta.trim(), sifre), baglandi);
+  islem(
+    async (s) => {
+      await onceGonder();
+      await s.epostaGiris(eposta.trim(), sifre);
+      await sonraYukle();
+    },
+    baglandi,
+    true,
+  );
 
 /** şifre sıfırlama e-postası gönder */
 export const sifreSifirla = (eposta: string) =>
@@ -190,14 +287,6 @@ export const sifreSifirla = (eposta: string) =>
     (s) => s.sifreSifirla(eposta.trim()),
     () => "Şifre sıfırlama e-postası gönderildi: " + eposta.trim() + " (gelmezse gereksiz klasörüne bak)",
   );
-
-/** hesaptan çık: bu cihazdaki ilerleme kalır, yeni anonim hesapla sürer */
-export const cikis = () =>
-  islem(async (s) => {
-    await E?.simdiGonder();
-    await s.cikis();
-    await s.anonimGir();
-  });
 
 /**
  * yeni oyuncu olarak başla: bekleyen kayıt gönderilir, hesaptan çıkılır, bu cihazdaki ilerleme, rekorlar ve profil
@@ -226,11 +315,7 @@ export async function yeniOyuncu(yenidenAc = () => location.reload()) {
 /** hesap satırı metni: "Google ile bağlı · ad@… · Eşitlendi" gibi */
 export function hesapOzeti(d: Readonly<HesapDurumu> = D) {
   const k = d.kullanici,
-    kim = !k
-      ? "Bağlanıyor…"
-      : k.anonim
-        ? "Misafir (yalnız bu cihaz)"
-        : (k.yol == "google" ? "Google" : "E-posta") + (k.eposta ? " · " + k.eposta : ""),
+    kim = !k ? "Bağlanıyor…" : k.anonim ? "Misafir (yalnız bu cihaz)" : kimMetni(k),
     es =
       d.esitleme == "tamam"
         ? "Bulutta"

@@ -105,8 +105,10 @@ export async function firebaseSaglayici(a: FirebaseAyari): Promise<Saglayici> {
     async anonimGir() {
       if (!auth.currentUser) await signInAnonymously(auth);
     },
-    async googleBagla() {
+    async googleBagla(ipucu) {
       const u = auth.currentUser;
+      // hesap seçici her seferinde açılır; listeden seçilen hesap önerilir
+      google.setCustomParameters({ prompt: "select_account", ...(ipucu ? { login_hint: ipucu } : {}) });
       if (yonlendir) {
         localStorage.setItem(YONLENDIRME, "1");
         if (u?.isAnonymous) await linkWithRedirect(u, google, browserPopupRedirectResolver);

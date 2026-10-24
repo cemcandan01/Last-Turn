@@ -359,9 +359,9 @@ export function ilerlemeVerisi(): IlerlemeVerisi {
 
 /**
  * buluttan gelen veriyi yerelle birleştir: XP, yıldız ve kazanılan paranın büyüğü, açık öğelerin ve alımların birleşimi;
- * kimse ilerleme kaybetmez
+ * kimse ilerleme kaybetmez. sessiz: seviye atlama bildirilmez (hesap geçişi)
  */
-export function ilerlemeYukle(d: Partial<IlerlemeVerisi>) {
+export function ilerlemeYukle(d: Partial<IlerlemeVerisi>, sessiz = false) {
   const v = veri(),
     eski = seviye().lv,
     eskiPara = para();
@@ -380,7 +380,7 @@ export function ilerlemeYukle(d: Partial<IlerlemeVerisi>) {
   yazJson(ANAHTAR, v);
   paraOlayi(para() - eskiPara, "bulut");
   const yeni = seviye().lv;
-  if (yeni > eski) {
+  if (yeni > eski && !sessiz) {
     const o = { eski, yeni, acilanlar: arasindaAcilan(eski, yeni), neden: "bulut" };
     for (const fn of dinleyiciler.slice()) fn(o);
   }
@@ -414,6 +414,15 @@ export function ilerlemeyiSifirla() {
   yazJson("lt_yildiz", {});
   V = bos();
   kaydet();
+}
+
+/**
+ * başka hesaba geçişte: bu cihazdaki ilerleme o hesabın bulut kaydıyla değiştirilir (birleşmez; seviye kutlaması
+ * yok). Belge yoksa (yeni hesap) sıfırdan başlar
+ */
+export function ilerlemeDegistir(d: Partial<IlerlemeVerisi> | null) {
+  ilerlemeyiSifirla();
+  if (d) ilerlemeYukle(d, true);
 }
 
 /** testler için: bellekteki kaydı unut (yeniden localStorage'dan okunur) */

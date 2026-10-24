@@ -81,36 +81,42 @@ seç → **Aç / Kilitle**, **İlerlemeyi sıfırla** (iki dokunuşla; XP, yıld
 hesap kalır). Admin yalnız kendi kaydını değiştirir; başka oyuncunun kaydına dokunamaz. Adminliği kaldırmak için
 `admins` koleksiyonundaki belgeyi sil.
 
-## 8. Sıfır seviye test hesabı
+## 8. Sıfır seviye test hesabı ve hesap değiştirme
 
-Yeni oyuncunun ne gördüğünü denemek için ayrı bir hesap:
+Yeni oyuncunun ne gördüğünü denemek için ayrı bir hesap (bir kez):
 
-1. Profil → **Yeni oyuncu olarak başla** → **Evet, sıfırdan başla** (bu cihazdaki ilerleme silinir; bağlı hesabının
-   ilerlemesi bulutta kalır). Oyun yeniden açılır, Seviye 1, 0 para.
-2. Profil → **E-posta ile** → **Hesap oluştur**: e-posta olarak Gmail adresinin **+test** eklenmiş hâlini yaz
-   (ör. `adın+test@gmail.com`; posta aynı gelen kutusuna düşer, Firebase ayrı hesap sayar) → şifre (en az 6) → şifre
-   tekrar → **Hesap oluştur**.
-3. Hesap değiştirirken her seferinde önce Profil → **Yeni oyuncu olarak başla** (hesaptan çıkar ve bu cihazı
-   temizler; iki hesabın ilerlemesi karışmaz). Sonra asıl hesap için **Google ile bağlan**, test hesabı için
-   **E-posta ile** → **Zaten hesabım var → Giriş yap**. İlerleme buluttan geri gelir.
-   (Düz **Çıkış** bu cihazdaki ilerlemeyi bırakır; sonra başka hesaba girersen iki ilerleme birleşir.)
+1. Profil → **Hesap değiştir** → **+ Başka hesap** → **E-posta ile giriş** → **Hesabım yok → Yeni hesap**: e-posta
+   olarak Gmail adresinin **+test** eklenmiş hâlini yaz (ör. `adın+test@gmail.com`; posta aynı gelen kutusuna düşer,
+   Firebase ayrı hesap sayar) → şifre (en az 6) → şifre tekrar → **Hesap oluştur**. Bu hesap Seviye 1, 0 parayla
+   sıfırdan başlar; asıl hesabın ilerlemesi bulutta kalır. iPhone şifreyi kaydetmeyi önerir: kabul et.
+
+Sonra iki hesap arasında geçiş (2-3 dokunuş): Profil → **Hesap değiştir** → listede hesaba dokun.
+- Google hesabı: Google hesap seçicisi açılır, hesabı seç.
+- E-posta hesabı: e-posta dolu gelir, şifre alanında iPhone'un önerdiği şifreye dokun → **Giriş yap**.
+
+Geçişte önce şu anki hesabın son ilerlemesi buluta gönderilir, sonra bu cihazdaki ilerleme seçilen hesabınkiyle
+**değiştirilir**: iki hesabın ilerlemesi hiçbir zaman birleşmez. Admin hesabına geçince admin paneli ve "her şey açık"
+kipi açılır, test hesabına geçince kapanır. İnternet yokken ya da giriş olmazsa (yanlış şifre, seçici kapatıldı) geçiş
+yapılmaz; hangi hesapta kalındığı yazar. Listede **✕** hesabı yalnız bu cihazın listesinden kaldırır (hesap ve
+ilerlemesi bulutta kalır). Listede şifre ya da giriş belirteci saklanmaz; yalnız e-posta, tür, seviye ve admin rozeti.
 
 ## Oyunda nasıl görünür
 
 - İlk açılışta hesap sessizce açılır (Misafir). İlerleme buluta yazılır.
 - **Profil** ekranında "Hesap" satırı: durum (Misafir / Google / E-posta · Bulutta / Eşitleniyor / İnternet gelince
-  gönderilecek) ve düğmeler: **Google ile bağlan**, **E-posta ile**, bağlıysa **Çıkış**.
+  gönderilecek) ve düğmeler: misafirken **Google ile bağlan**, **E-posta ile**; her zaman **Hesap değiştir**.
 - **E-posta ile:** ilk kez bağlanırken **Yeni hesap oluştur** (e-posta, şifre, şifre tekrar; en az 6 karakter). Başka
-  cihazda ya da çıkıştan sonra **Zaten hesabım var → Giriş yap**; şifre unutulursa **Şifremi unuttum** sıfırlama
+  cihazda ya da Hesap değiştir → **+ Başka hesap** → **E-posta ile giriş**; şifre unutulursa **Şifremi unuttum** sıfırlama
   e-postası gönderir. Sonuç hesap satırının altında yazar ("Bağlandı: … · İlerlemen bulutta" ya da hata ve kodu).
-- Başka cihazda: oyunu aç → Profil → aynı Google hesabıyla (ya da aynı e-posta ve şifreyle) bağlan → ilerleme gelir.
-  İki cihazın ilerlemesi birleşir: XP, yıldız ve kazanılan paranın büyüğü, satın alınanların hepsi; rekorların iyisi.
+- Başka cihazda: oyunu aç → Profil → aynı Google hesabıyla (ya da aynı e-posta ve şifreyle) gir → hesabın ilerlemesi
+  gelir (o cihazda misafirken oynananlar yerine). Aynı hesapla iki cihazda oynanınca ikisinin ilerlemesi birleşir:
+  XP, yıldız ve kazanılan paranın büyüğü, satın alınanların hepsi; rekorların iyisi.
+- Birleşme yalnız iki durumda: aynı hesabın iki cihazı ve misafirken **yeni** bir hesap açmak (misafirin ilerlemesi
+  yeni hesaba geçer). Var olan başka bir hesaba girmek hep o hesabın kaydını yükler.
 - İnternet yokken oyun normal çalışır; değişiklik internet gelince gönderilir.
-- Çıkış: bu cihazdaki ilerleme kalır, oyun yeni bir misafir hesapla sürer.
-- **Yeni oyuncu olarak başla** (Profil, iki dokunuşla onaylı): bu cihazda her şey sıfırlanır (XP, yıldız, para, araçlar,
+- **Hesap değiştir → Misafir olarak devam (yeni)** (iki dokunuşla onaylı): bu cihazda her şey sıfırlanır (XP, yıldız, para, araçlar,
   rekorlar, profil sayaçları; ayarlar kalır), oyun yeniden açılır ve yeni misafir hesapla sıfırdan başlar. Google ya da
   e-postaya bağlı hesabın ilerlemesi bulutta kalır (sonra yeniden bağlanınca gelir); misafir hesabınki kaybolur.
-  Sıfırdan başladıktan sonra **başka bir Google hesabıyla** bağlanırsan o hesap da sıfırdan açılır.
 
 ## Geliştirici notu
 

@@ -2,11 +2,22 @@
 // Firebase'e doğrudan bağlı değildir: belgeyi okuyup yazan bir Saglayici alır (gerçeği bulut/firebase.ts, testte sahte).
 // - Oturum açılınca: bulut belgesi okunur, yerelle birleştirilir (ilerlemeYukle: XP, yıldız, kazanılanın büyüğü,
 //   alımların ve açık öğelerin birleşimi; rekorlarda iyisi), birleşmiş sonuç farklıysa geri yazılır.
+// - Yerel kayıt hep tek bir hesabındır (lt_bulut → sahip). Başka bir hesaba girilince birleşmez: yerel ilerleme ve
+//   rekorlar o hesabın bulut kaydıyla değiştirilir (belgesi yoksa sıfırdan). Birleşme yalnız aynı hesapta (aynı
+//   hesabın iki cihazı) ve misafir yeni hesaba bağlanınca (uid aynı kalır) olur. Eski hesabın bekleyen yazması
+//   geçişten önce gönderilir (bulut/hesap.ts).
 // - Kayıt değişince: gecikmeli (debounce) yazılır. İnternet yoksa ya da yazma başarısızsa "bekleyen" işareti
 //   localStorage'da kalır (lt_bulut); internet gelince ya da sonraki açılışta gönderilir. Kuyruk ayrıca veri tutmaz:
 //   yerel kayıt zaten en güncel hâldir, gönderilen her zaman onun tamamıdır.
 import { okuJson, yazJson } from "../cekirdek/depo";
-import { ACILMA, degisimDinle, ilerlemeVerisi, ilerlemeYukle, type IlerlemeVerisi } from "../oyun/ilerleme";
+import {
+  ACILMA,
+  degisimDinle,
+  ilerlemeDegistir,
+  ilerlemeVerisi,
+  ilerlemeYukle,
+  type IlerlemeVerisi,
+} from "../oyun/ilerleme";
 import { best, saveBest } from "../oyun/profil";
 import { TUR_ANAHTARI } from "../oyun/yildiz";
 import type { YarisTuru } from "../arac/araclar";
@@ -33,11 +44,14 @@ export interface Saglayici {
   /** oturum değişince çağrılır (null: oturum yok); ilk durum da bildirilir */
   oturumDinle(fn: (k: Kullanici | null) => void): void;
   anonimGir(): Promise<void>;
-  /** anonim hesabı Google'a bağlar; Google hesabı başka cihazda zaten varsa ona geçer. Yönlendirmede sayfa değişebilir */
-  googleBagla(): Promise<void>;
+  /**
+   * anonim hesabı Google'a bağlar (Google hesabı zaten varsa ona geçer); bağlı hesaptaysa hesap seçiciyle Google'a
+   * girer. ipucu: seçicide önerilen e-posta. Yönlendirmede sayfa değişebilir
+   */
+  googleBagla(ipucu?: string): Promise<void>;
   /** e-posta + şifreyle yeni hesap: anonim hesaba bağlanır (ilerleme kalır); e-posta kullanılıyorsa email-already-in-use */
   epostaOlustur(eposta: string, sifre: string): Promise<void>;
-  /** var olan e-posta hesabına giriş (bu cihazın ilerlemesi o hesapla birleşir) */
+  /** var olan e-posta hesabına giriş (o anki oturumun yerine geçer) */
   epostaGiris(eposta: string, sifre: string): Promise<void>;
   /** şifre sıfırlama e-postası gönderir */
   sifreSifirla(eposta: string): Promise<void>;
@@ -102,12 +116,20 @@ function ozet(b: Partial<BulutBelgesi>) {
   return JSON.stringify(sirala(b));
 }
 
-export const bekleyenVar = () => okuJson(BEKLEYEN, { bekleyen: false }).bekleyen;
-const bekleyenYaz = (b: boolean) => yazJson(BEKLEYEN, { bekleyen: b });
+interface BulutKaydi {
+  bekleyen: boolean;
+  /** yerel kaydın ait olduğu hesap (uid); yoksa eski kurulum ya da temiz cihaz */
+  sahip?: string;
+  /** sahip misafir (anonim) hesap mı */
+  sahipAnonim?: boolean;
+}
+const bulutKaydi = () => okuJson<BulutKaydi>(BEKLEYEN, { bekleyen: false });
+export const bekleyenVar = () => bulutKaydi().bekleyen;
+const bekleyenYaz = (b: boolean) => yazJson(BEKLEYEN, { ...bulutKaydi(), bekleyen: b });
 
 export interface Esitleyici {
-  /** oturum açılınca (uid) ya da kapanınca (null) */
-  oturum(uid: string | null): Promise<void>;
+  /** oturum açılınca (uid; anonim: misafir hesap) ya da kapanınca (null) */
+  oturum(uid: string | null, anonim?: boolean): Promise<void>;
   /** bekleyen yazmayı hemen gönder (internet gelince) */
   simdiGonder(): Promise<void>;
   durum(): EsitlemeDurumu;
@@ -125,6 +147,7 @@ export function esitleyiciKur(
 ) {
   const gecikme = o.gecikme ?? 4000;
   let uid: string | null = null,
+    anonim = false,
     /** bulut belgesi bu uid için okunup birleştirildi mi (okunmadan yazılmaz: başka cihazın ilerlemesi ezilmesin) */
     cekilen: string | null = null,
     zaman: ReturnType<typeof setTimeout> | null = null,
@@ -143,21 +166,28 @@ export function esitleyiciKur(
     durumYaz(cevrimdisi() ? "bekliyor" : "hata");
   };
 
-  /** buluttakini çek, yerelle birleştir; başarılıysa true */
+  /**
+   * buluttakini çek: yerel kayıt bu hesabınsa birleştir, başka hesabınsa onunla değiştir; başarılıysa true. Misafirden
+   * misafire (cihazda oturum kaybolup yeni misafir açıldı) yerel kayıt yeni misafire geçer
+   */
   async function cek(u: string) {
     const uzak = await s.oku(u);
     if (u != uid) return false;
+    const k = bulutKaydi(),
+      baska = !!k.sahip && k.sahip != u && !(k.sahipAnonim && anonim);
     sonYazilan = "";
-    if (uzak) {
-      yukleniyor = true;
-      try {
-        ilerlemeYukle(uzak);
-        rekorBirlestir(uzak.rekor);
-      } finally {
-        yukleniyor = false;
-      }
-      sonYazilan = ozet({ ...uzak, rekor: uzak.rekor || {} });
+    yukleniyor = true;
+    try {
+      if (baska) {
+        ilerlemeDegistir(uzak);
+        rekorlariSil();
+      } else if (uzak) ilerlemeYukle(uzak);
+      if (uzak) rekorBirlestir(uzak.rekor);
+      yazJson(BEKLEYEN, { bekleyen: baska ? false : k.bekleyen, sahip: u, sahipAnonim: anonim });
+    } finally {
+      yukleniyor = false;
     }
+    if (uzak) sonYazilan = ozet({ ...uzak, rekor: uzak.rekor || {} });
     cekilen = u;
     return true;
   }
@@ -208,8 +238,9 @@ export function esitleyiciKur(
   if (typeof window != "undefined") window.addEventListener("online", internetGeldi);
 
   const e: Esitleyici = {
-    oturum(yeni) {
+    oturum(yeni, a = false) {
       uid = yeni;
+      anonim = a;
       cekilen = null;
       if (zaman) clearTimeout(zaman);
       zaman = null;

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*! Menü ikonları. Harita, araba, mağaza, kask, dişli, dağ, dönüş ve start ışıkları: Tabler Icons 3.49 (https://tabler.io/icons), MIT Lisansı,
+=======
+/*! Menü ikonları. Harita, araba, kask, dişli, dağ, dönüş, start ışıkları, Google ve zarf: Tabler Icons 3.49 (https://tabler.io/icons), MIT Lisansı,
+>>>>>>> altyapi
  * Telif (c) 2020-2026 Paweł Kuna. Lisans metni: public/lisanslar.txt. Yarış bayrağı ve pist oyunun kendi çizimi. */
 // Çizgi ikonlar (24×24, stroke=currentColor); yalnız <path> içerikleri, çerçeve ikon() ile eklenir.
 
@@ -23,6 +27,12 @@ const IKON = {
     '<path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"/>',
   /** tabler: coin (madeni para) */
   para: '<path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1"/><path d="M12 7v10"/>',
+  /** tabler: brand-google (hesap türü) */
+  google:
+    '<path d="M20.945 11a9 9 0 1 1 -3.284 -5.997l-2.655 2.392a5.5 5.5 0 1 0 2.119 6.605h-4.125v-3h7.945"/>',
+  /** tabler: mail (e-posta hesabı) */
+  eposta:
+    '<path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"/><path d="M3 7l9 6l9 -6"/>',
   /** tabler: lock */
   kilit:
     '<path d="M5 11a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2l0 -6"/><path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"/><path d="M8 9v-4a4 4 0 0 1 8 0v4"/>',

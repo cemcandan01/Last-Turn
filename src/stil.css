@@ -3120,6 +3120,7 @@ details[open] > summary::after {
 .hadmin #hasv {
   flex: 0 0 70px;
 }
+<<<<<<< HEAD
 
 /* mağaza (garaj ekranının mağaza kipi): sekme + tür süzgeci vitrinin üstünde, açıklama satırı, garaja git çubuğu */
 #gmf {
@@ -3225,4 +3226,61 @@ details[open] > summary::after {
 #gmal .ik {
   width: 18px;
   height: 18px;
+=======
+/* hesap değiştir listesi (arayuz/hesap-ui.ts → listeHtml) */
+.hliste {
+  margin-top: 8px;
+  padding: 6px 10px 10px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hhesap {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+}
+.hsec {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+}
+.hsec .ik,
+.hliste .hdg .ik {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  vertical-align: -4px;
+}
+.hsec .het {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hsec small {
+  color: var(--mut);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.hhesap.su .hsec:disabled {
+  opacity: 1;
+  border-color: var(--acc);
+}
+.hrozet {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--acc);
+  color: #1b0d05;
+  font-size: 10px;
+}
+.hkaldir {
+  min-width: 44px;
+>>>>>>> altyapi
 }
