@@ -2908,40 +2908,6 @@ details[open] > summary::after {
 }
 
 /* mağaza (garaj ekranının mağaza kipi): sekme + tür süzgeci vitrinin üstünde, açıklama satırı, garaja git çubuğu */
-#gmf .gsek {
-  padding: 4px 10px;
-  border-bottom: 3px solid #ff7a1a;
-  color: #fff;
-  font-weight: 800;
-  font-size: 14px;
-}
-#gmf button {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 14px;
-  border: 1px solid color-mix(in srgb, var(--c) 70%, transparent);
-  background: #1b1e27cc;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
-}
-#gmf button .ik {
-  width: 14px;
-  height: 14px;
-  color: var(--c);
-}
-#gmf button.on {
-  background: var(--c);
-  color: #160a00;
-}
-#gmf button.on .ik {
-  color: inherit;
-}
-#gmf button[data-bos] {
-  opacity: 0.45;
-}
 .bdg.tur {
   border-color: var(--c);
   color: var(--c);
@@ -2952,17 +2918,6 @@ details[open] > summary::after {
 .bdg.tur .ik {
   width: 1.1em;
   height: 1.1em;
-}
-#gmal .btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  min-height: 40px;
-}
-#gmal .ik {
-  width: 18px;
-  height: 18px;
 }
 /* hesap değiştir listesi (arayuz/hesap-ui.ts → listeHtml) */
 .hliste {
@@ -3368,7 +3323,7 @@ details[open] > summary::after {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  min-height: 28px;
+  min-height: 40px;
   padding: 0 10px;
   border: 0;
   border-left: 2px solid var(--c);
@@ -3395,7 +3350,7 @@ details[open] > summary::after {
 #gmal {
   position: fixed;
   left: max(16px, var(--sal, 0px));
-  bottom: calc(66px * var(--gs, 1) + var(--sab, 0px));
+  bottom: calc(76px * var(--gs, 1) + var(--sab, 0px));
   z-index: 7;
   display: flex;
   align-items: center;
@@ -3413,7 +3368,7 @@ details[open] > summary::after {
   gap: 6px;
   width: auto;
   margin: 0;
-  min-height: 36px;
+  min-height: 40px;
   padding: 0 14px;
   border-radius: 0;
   font-size: max(9px, calc(12px * var(--gs, 1)));
