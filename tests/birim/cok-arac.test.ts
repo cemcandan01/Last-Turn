@@ -67,6 +67,8 @@ describe("girdi kaydı ve yeniden oynatma", () => {
               b: r() < 0.1 ? r() : 0,
               analogDireksiyon: true,
               analogGaz: true,
+              // debriyaj vuruşu da kayda girer
+              dbr: k % 300 > 260,
             };
       aracAdimi(a, gi);
     }

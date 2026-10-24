@@ -1848,6 +1848,32 @@ details[open] > summary::after {
   width: 120px;
   height: 100px;
 }
+/* debriyaj: frenin (analogda pedalın) üstünde, kısa ve dar; gazdaki başparmak kayarak ulaşır.
+   Hız göstergesi sağ tuş grubunun yüksekliğine göre yükselir (--cR). Telefonu çevirmede frenin solunda */
+.tsut {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+#dbr {
+  width: min(76px, calc(var(--aw) * 0.18));
+  height: 44px;
+  border-radius: 14px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #dfe8e6;
+}
+#app[data-debriyaj="acik"][data-gas="btn"] {
+  --cR: 136px;
+}
+#app[data-gas="auto"] .tsut {
+  flex-direction: row;
+  align-items: flex-end;
+}
+#app[data-debriyaj="kapali"] #dbr {
+  display: none;
+}
 
 /* --- HUD düzenleyici: örnek oyun görüntüsü, ortada seçim paneli (aracın yeri) --- */
 #hdA {

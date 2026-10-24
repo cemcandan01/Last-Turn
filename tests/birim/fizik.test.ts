@@ -9,6 +9,7 @@ import { duzZemin, frensiz } from "../yardimci/denemeler";
 import { DRIFT_PILOT, driftTuru } from "../yardimci/drift-pilot";
 import { surucuKur } from "../yardimci/surucu";
 import { titresimOlc } from "../yardimci/titresim";
+import { driftGirisi } from "../yardimci/debriyaj";
 import { pistNo, TDEF } from "../../src/dunya/pist-tanimlari";
 
 const DT = 1 / 60;
@@ -178,6 +179,39 @@ describe("drift yarışı (Drift Parkı, Beyaz Kurt, drift önayarı)", () => {
   });
   it("dengeli: turun %80'i tek komboda geçer", { timeout: 30000 }, () => {
     expect(driftTuru(pistNo("dp", 3), "norm", DRIFT_PILOT, 75).oran).toBeGreaterThan(0.8);
+  });
+});
+
+describe("debriyaj vuruşu: başlangıç aracıyla drift pistinde drifte giriş", () => {
+  const kizilOk = CARS.findIndex((c) => c.n == "Kızıl Ok"),
+    dp = pistNo("dp", 1);
+  it("Kızıl Ok gerçekçide: gazla dönmez, debriyajla drifte girer ve spin atmaz", () => {
+    // 58 km/s, aracın kendi önayarı (asfalt yarışı): tam gaz + tam direksiyonla tutunur
+    const guc = driftGirisi(kizilOk, "real", 16, false, dp),
+      dbr = driftGirisi(kizilOk, "real", 16, true, dp);
+    expect(guc.drift, "debriyajsız drift modu").toBe(false);
+    expect(guc.aci, "debriyajsız kayma açısı (°)").toBeLessThan(30);
+    expect(dbr.drift, "debriyajla drift modu").toBe(true);
+    expect(dbr.aci, "debriyajla kayma açısı (°)").toBeGreaterThan(45);
+    expect(dbr.patinaj, "debriyajla arka patinaj").toBeGreaterThan(2 * guc.patinaj);
+    expect(dbr.spin, "spin").toBe(0);
+  });
+  it("basılıyken motor devirlenir, tekerlere tork gitmez; bırakınca devir tekerlere iner", () => {
+    const s = surucuKur({ dunya: 0, arac: kizilOk, lk: "real" });
+    s.reset(210, -780, 0);
+    const S = s.sim.S,
+      Y = () => s.sim.yeni!,
+      v = () => Math.hypot(S.vx, S.vz),
+      gi = (dbr: boolean): FizikGirdisi => ({ ...gir(1), dbr });
+    for (let t = 0; t < 2.5; t += DT) s.adim(gi(false));
+    const v0 = v(),
+      rpm0 = Y().rpm;
+    for (let t = 0; t < 0.5; t += DT) s.adim(gi(true));
+    expect(v(), "debriyaj basılıyken hızlanmaz").toBeLessThanOrEqual(v0);
+    expect(Y().rpm, "devir kesiciye yakın").toBeGreaterThan(Math.max(rpm0, 6000));
+    for (let t = 0; t < 1; t += DT) s.adim(gi(false));
+    expect(Y().serbestDevir, "vuruş bitti, motor bağlı").toBe(0);
+    expect(sonlu(S.x, S.z, S.vx, S.vz, Y().rpm)).toBe(true);
   });
 });
 
