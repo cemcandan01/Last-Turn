@@ -19,11 +19,11 @@ import { EVENTS, leaveEvent, TYP, type YarisTanimi } from "../oyun/yarislar";
 import { gorselOynuyor } from "./arka-gorsel";
 import { enIyiYildiz, yildizEsikleri } from "../oyun/yildiz";
 import { ikon, yildizSerit, type IkonAdi } from "./ikonlar";
-import { acilmaSeviyesi, pistAcikMi, yarisSonuPara } from "../oyun/ilerleme";
+import { aracSatinAlinabilirMi, acilmaSeviyesi, pistAcikMi, yarisSonuPara } from "../oyun/ilerleme";
 import { kilitNotu, bakiyeHtml, kutlamaGoster, seviyeRozetiHtml, xpCubuguHtml } from "./seviye-ui";
 import { seviye } from "../oyun/ilerleme";
 import { bindSettings, chipsOf, settingsHTML } from "./ayarlar-ekrani";
-import { openGarage } from "./garaj";
+import { magazaAc, openGarage } from "./garaj";
 import { hesapBagla, hesapHtml } from "./hesap-ui";
 import { kontrolleriKur } from "./kontroller";
 
@@ -43,6 +43,7 @@ const NAV: [string, IkonAdi, string][] = [
   ["race", "yaris", "Yarış"],
   ["free", "harita", "Serbest sürüş"],
   ["garage", "araba", "Garaj"],
+  ["store", "magaza", "Mağaza"],
   ["profile", "kask", "Profil"],
   ["settings", "disli", "Ayarlar"],
 ];
@@ -149,7 +150,7 @@ export function showMenu(v?: string[]) {
   const logo = `<div class="logo">LAST<b>TURN</b></div>`;
   if (cur == "home")
     m.innerHTML = `<div class="mtop">${logo}<div class="mpro">${seviyeRozetiHtml(seviye().lv)}<div><b>${PROF.name}</b>${xpCubuguHtml("m")}${bakiyeHtml("m")}<small>Sürüm ${__APP_VERSION__}${import.meta.env.MODE == "gelistirme" ? " · deneme" : ""}</small></div></div></div>
-<div class="mcards">${NAV.map(([k, g, n], i) => `<button class="mk" data-nav="${k}" style="--i:${i}"><span>${ikon(g)}<b>${n.replace(" ", "<br>")}</b></span></button>`).join("")}</div>`;
+<div class="mcards">${NAV.map(([k, g, n], i) => `<button class="mk" data-nav="${k}" style="--i:${i}"><span>${ikon(g)}<b>${n.replace(" ", "<br>")}</b>${k == "store" && CARS.some((_, i) => aracSatinAlinabilirMi(i).ok) ? `<i class="rozet"></i>` : ""}</span></button>`).join("")}</div>`;
   else {
     const [bas, ust, ic] = view(cur),
       // pist listesi ve yarış ayrıntısı türün rengiyle (--c) ve ikonuyla
@@ -169,6 +170,11 @@ export function showMenu(v?: string[]) {
     if (k == "garage") {
       demoStop();
       openGarage(null);
+      return;
+    }
+    if (k == "store") {
+      demoStop();
+      magazaAc(() => showMenu());
       return;
     }
     showMenu([k]);

@@ -38,6 +38,7 @@ const BOLUMLER = [
   "garaj-kilit",
   "magaza",
   "ekran-yon",
+  "menu-magaza",
   "hesap-formu",
   "cihaz-dogrulama",
   "cihaz-menu",
