@@ -64,16 +64,16 @@ export default async function ({ p, ok }) {
   ok(sig.length > 0 && sig.every(Boolean), "garaj paneli kaydırmasız sığıyor, butonlar görünür");
   await p.evaluate(() => LT.openGarage(0));
   await p.waitForTimeout(500);
-  // yazılar panel kenarına yapışmaz (sağ kenara en az 12 px)
-  const bosluk = await p.evaluate(() => {
-    const k = document.querySelector("#gar").getBoundingClientRect().right;
-    return Math.min(
-      ...[...document.querySelectorAll("#gar .st em, #gar .bdg")].map(
-        (e) => k - e.getBoundingClientRect().right,
-      ),
-    );
-  });
-  ok(bosluk >= 12, "garaj yazıları panel kenarına yapışık değil (" + Math.round(bosluk) + " px)");
+  // yazılar ekran kenarına yapışmaz (en az 12 px içeride)
+  const bosluk = await p.evaluate(() =>
+    Math.min(
+      ...[...document.querySelectorAll("#gar .gad, #gar .gk, #gar .bdg, #gar .gbt .btn, #gpara")].map((e) => {
+        const r = e.getBoundingClientRect();
+        return Math.min(r.left, r.top, innerWidth - r.right, innerHeight - r.bottom);
+      }),
+    ),
+  );
+  ok(bosluk >= 8, "garaj öğeleri ekran kenarına yapışık değil (" + Math.round(bosluk) + " px)");
   // garajda yağış/kar noktaları çizilmez (havada beyaz kare noktalar görünmesin)
   const yagis = await p.evaluate(async () => {
     const pts = [];
@@ -211,33 +211,45 @@ export default async function ({ p, ok }) {
     "menü garajında seçme yok, yalnız Geri",
   );
   await p.evaluate(() => LT.closeGarage());
-  // panel: kartlar dolu, altta boşluk yok (içerik panel yüksekliğini doldurur), genişlik sabit, kaydırma yok
+  // tam ekran vitrin düzeni: ad bloğu, sağ üst çubuklar ve alt eylemler her araçta ekran içinde, birbirine binmez,
+  // aracın durduğu orta bölge açık kalır; çubuklar HIZ/İVME/TUTUŞ/FREN/ARAZİ
   const pn = await p.evaluate(() => {
     const r = [];
+    const kes = (a, b) => !(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top);
     for (let i = 0; i < LT.CARS.length; i++) {
       LT.openGarage(0);
       for (let k = 0; k < i; k++) document.querySelector("#gnx").click();
-      const g = document.querySelector("#gar"),
-        gb = g.getBoundingClientRect(),
-        cip = document.querySelector("#gar .gcip").getBoundingClientRect(),
-        bt = document.querySelector("#gar .gbt").getBoundingClientRect(),
-        kt = document.querySelectorAll("#gar .gk");
+      const R = (q) => document.querySelector(q).getBoundingClientRect(),
+        ust = R("#gar .gust"),
+        bar = R("#gar .gbar"),
+        alt = R("#gar .galt"),
+        ORTA = {
+          left: innerWidth * 0.42,
+          right: innerWidth * 0.58,
+          top: innerHeight * 0.35,
+          bottom: innerHeight * 0.7,
+        };
       r.push({
-        kay: g.scrollHeight <= g.clientHeight + 1,
-        w: Math.round(gb.width),
-        kart: kt.length,
-        bosluk: Math.round(bt.top - cip.bottom),
-        alt: Math.round(innerHeight - bt.bottom),
-        tasma: [...kt].some((e) => e.scrollHeight > e.clientHeight + 1),
+        cubuk: document.querySelectorAll("#gar .gk").length,
+        say: document.querySelector("#gar .gsay").textContent,
+        icerde: [ust, bar, alt].every(
+          (x) => x.left >= 0 && x.top >= 0 && x.right <= innerWidth && x.bottom <= innerHeight,
+        ),
+        bina:
+          kes(ust, bar) ||
+          kes(ust, alt) ||
+          kes(bar, alt) ||
+          kes(ust, ORTA) ||
+          kes(bar, ORTA) ||
+          kes(alt, ORTA),
       });
       LT.closeGarage();
     }
     return r;
   });
   ok(
-    pn.every((x) => x.kay && !x.tasma && x.kart >= 6 && x.bosluk <= 12 && x.alt <= 16) &&
-      new Set(pn.map((x) => x.w)).size == 1,
-    "bilgi paneli kaydırmasız, kartlar taşmıyor, boşluk yok, genişlik sabit " + JSON.stringify(pn[0]),
+    pn.every((x) => x.cubuk == 5 && x.icerde && !x.bina && /^\d+\/\d+$/.test(x.say)),
+    "vitrin düzeni: çubuklar var, öğeler ekran içinde, birbirine ve araca binmiyor " + JSON.stringify(pn[0]),
   );
   // araç geçişi takılmıyor (iPhone'a yakın: işlemci 4 kat yavaşlatılır). Modeller garaj açılırken kurulup GPU'ya
   // yüklenir (geçişte yeni shader programı ve geometri yok); motor sesi işçide hesaplanır (eskiden her geçişte
@@ -321,7 +333,7 @@ export default async function ({ p, ok }) {
       LT.applyEnv(LT.ortam.k);
       const dunya = oku();
       LT.openGarage(0);
-      sonuc.push([dunya, oku(), LT.scene.fog.near > 1e4]);
+      sonuc.push([dunya, oku(), LT.scene.fog.near == 10 && LT.scene.fog.far == 42]);
       LT.closeGarage();
       sonuc.push(oku() == dunya);
     }
