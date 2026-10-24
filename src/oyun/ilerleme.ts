@@ -5,7 +5,8 @@
 // - Yarış XP'si = taban (5 × pist seviyesi) + yeni alınan her yıldız için yıldız XP'si (20 + 15 × (seviye − 1)).
 //   Önceden alınmış yıldız yeniden XP vermez; yeni yıldız yoksa taban yarıya iner (aynı pisti tekrar oynamak az verir).
 // - Seviye eğrisi: n'den n+1'e geçmek 40 + 30 × (n − 1) XP (ilk seviyeler birkaç yarış, sonrakiler giderek uzun).
-// - Kilit tablosu (ACILMA): her türün Çaylak pisti ve Kızıl Ok + Kor RX başta açık; son içerik seviye 18'de açılır.
+// - Kilit tablosu (ACILMA): her türün Çaylak pisti ve her türün D sınıfı başlangıç aracı başta açık; son içerik seviye
+//   18'de açılır.
 //   Benzetim (tests/birim/ilerleme.test.ts): her açık pistte yıldız toplayan oyuncu Efsane pistlere girmeden hepsini açar.
 // - Para: kazanilan (toplam kazanılan, hiç azalmaz) − alimlar toplamı = bakiye. Bulutta iki cihaz birleşince kazanılanın
 //   büyüğü ve alımların birleşimi alınır (harcama kaybolmaz, para iki kez harcanmaz).
@@ -13,14 +14,14 @@ import type { YarisTuru } from "../arac/araclar";
 import { okuJson, yazJson } from "../cekirdek/depo";
 import { pistSev } from "../dunya/pist-tanimlari";
 import { parcaBul } from "../arac/parcalar";
-import { ARAC_FIYAT, aracFiyati, parcaFiyatHesapla, yarisSonuPara } from "./ekonomi";
+import { ARAC_FIYAT, ESKI_UCRETSIZ, aracFiyati, parcaFiyatHesapla, yarisSonuPara } from "./ekonomi";
 
 export { aracFiyati, yarisSonuPara } from "./ekonomi";
 import { best } from "./profil";
 import { TUR_ANAHTARI, enIyiYildiz, yildizAnahtari, yildizEsikleri, yildizKaydet, yildizSay } from "./yildiz";
 
 /** kayıt biçiminin sürümü (alan eklenirse okuJson varsayılanla birleştirir; biçim değişirse artar) */
-export const ILERLEME_SURUM = 2;
+export const ILERLEME_SURUM = 3;
 
 export interface IlerlemeVerisi {
   surum: number;
@@ -102,8 +103,8 @@ export function xpSeviyesi(xp: number) {
  * açılma seviyesi: pistler [tür][pist numarası - 1] (1-6 Çaylak … Efsane sırası, 7+ sonradan eklenen pistler; yeni pist
  * sona eklenir ve zorluk seviyesindeki komşusunun yakınında açılır), araçlar CARS sırasıyla
  * (Kızıl Ok asfalt, Kor RX rallycross, Beyaz Kurt drift, Mavi Yıldız ralli, Gece Mavisi drag; sonra Gri Atmaca,
- * Kum Fırtınası, Sarı Arı, Panda, Turuncu Ejder). Araç seviyesi satın alınabilir olduğu seviyedir (ekonomi.ts ARAC_FIYAT).
- * Araç uyumu: her araç her yarışı bitirebilir; başta asfalt ve rallycross aracı açık, drift/ralli/drag araçları sonra.
+ * Kum Fırtınası, Sarı Arı, Panda, Turuncu Ejder; sonra beş başlangıç aracı). Araç seviyesi satın alınabilir olduğu
+ * seviyedir (ekonomi.ts ARAC_FIYAT). Araç uyumu: her araç her yarışı bitirebilir; başta her türün D sınıfı aracı açık.
  */
 export const ACILMA = {
   pist: {
@@ -169,6 +170,7 @@ function veri(): IlerlemeVerisi {
   if (V) return V;
   const k = okuJson(ANAHTAR, { ...bos(), surum: 0 });
   V = !k.surum ? eskiKayittanGecis() : k.surum < 2 ? paraGecisi(k) : k;
+  if (V.surum < 3) baslangicGecisi(V);
   return V;
 }
 
@@ -224,14 +226,44 @@ function paraGecisi(v: IlerlemeVerisi): IlerlemeVerisi {
       const y = enIyiYildiz(ty, sv);
       if (y) v.kazanilan += yarisSonuPara(ty, pistSev(ty, sv), y, 0);
     }
+  // o sürümde ücretsiz olanlar (Kızıl Ok, Kor RX) burada değil, baslangicGecisi'nde (yeni oyuncuya verilmesin)
   ESKI_ARAC_ACILMA.forEach((s, no) => {
-    if (aracFiyati(no).para > 0 && lv >= s && !v.ekAcik.includes("arac_" + no)) v.ekAcik.push("arac_" + no);
+    if (!ESKI_UCRETSIZ.includes(no) && aracFiyati(no).para > 0 && lv >= s && !v.ekAcik.includes("arac_" + no))
+      v.ekAcik.push("arac_" + no);
   });
-  v.surum = ILERLEME_SURUM;
+  v.surum = 2;
   V = v;
   kaydet();
   return v;
 }
+
+/** bulut kaydında oynanmış bir şey var mı (yalnız belgeye bakar; bu cihazın profili karışmaz) */
+const oynanmisBulut = (d: Partial<IlerlemeVerisi>) =>
+  (+(d.xp ?? 0) || 0) > 0 ||
+  (+(d.kazanilan ?? 0) || 0) > 0 ||
+  Object.keys(d.alimlar || {}).length > 0 ||
+  (d.ekAcik || []).length > 0;
+
+/** kayıtta oynanmış bir şey var mı (eski oyuncu): ilerleme ya da profilde yarış/araç kullanımı */
+function oynanmis(v: IlerlemeVerisi) {
+  const prof = okuJson("lt_prof", { races: 0, use: {} as Record<string, number> });
+  return oynanmisBulut(v) || prof.races > 0 || Object.values(prof.use || {}).some((n) => n > 0);
+}
+
+/**
+ * kayıt sürümü 2'den 3'e (başlangıç araçları gelmeden önce): Kızıl Ok ve Kor RX o sürümde ücretsizdi; oynanmış kayıtta
+ * sahip sayılır (kimse aracını kaybetmez). Hiç oynanmamış kayıt yeni oyuncu gibi başlangıç araçlarıyla başlar.
+ */
+function baslangicGecisi(v: IlerlemeVerisi) {
+  if (oynanmis(v)) eskiUcretsizleriAc(v);
+  v.surum = ILERLEME_SURUM;
+  V = v;
+  kaydet();
+}
+
+const eskiUcretsizleriAc = (v: IlerlemeVerisi) => {
+  for (const no of ESKI_UCRETSIZ) if (!v.ekAcik.includes("arac_" + no)) v.ekAcik.push("arac_" + no);
+};
 
 // --- sorgular ---
 
@@ -392,6 +424,8 @@ export function ilerlemeYukle(d: Partial<IlerlemeVerisi>, sessiz = false) {
   for (const [a, m] of Object.entries(d.alimlar || {}))
     if (!(a in v.alimlar)) v.alimlar[a] = Math.max(0, +m || 0);
   for (const a of d.ekAcik || []) if (!v.ekAcik.includes(a)) v.ekAcik.push(a);
+  // eski sürümün bulut kaydı: o sürümde ücretsiz olan araçlar sahip sayılır (yeni cihazda da kaybolmaz)
+  if ((+(d.surum ?? 0) || 0) < 3 && oynanmisBulut(d)) eskiUcretsizleriAc(v);
   for (const ty of TURLER)
     for (let lv = 1; lv <= ACILMA.pist[ty].length; lv++) {
       const y = +(d.yildiz?.[yildizAnahtari(ty, lv)] ?? 0) || 0;

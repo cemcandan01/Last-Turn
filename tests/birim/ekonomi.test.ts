@@ -23,7 +23,7 @@ import {
   yarisSonuXp,
   type ParaOlayi,
 } from "../../src/oyun/ilerleme";
-import { ARAC_FIYAT } from "../../src/oyun/ekonomi";
+import { ARAC_FIYAT, BASLANGIC_ARACLARI, ILK_ARAC } from "../../src/oyun/ekonomi";
 import { pistSev } from "../../src/dunya/pist-tanimlari";
 import { CARS, type YarisTuru } from "../../src/arac/araclar";
 
@@ -126,10 +126,14 @@ describe("yarış parası", () => {
 describe("araç fiyatları ve satın alma", () => {
   it("başlangıç araçları ücretsiz; diğerlerinin seviyesi ve fiyatı var; Panda en ucuz ve en erken", () => {
     expect(ARAC_FIYAT.length).toBe(CARS.length);
-    expect(aracFiyati(0)).toEqual({ para: 0, seviye: 1 });
-    expect(aracFiyati(1)).toEqual({ para: 0, seviye: 1 });
+    // her türden bir başlangıç aracı ücretsiz; Kızıl Ok ve Kor RX artık satın alınır
+    expect(BASLANGIC_ARACLARI.length).toBe(5);
+    for (const i of BASLANGIC_ARACLARI) expect(aracFiyati(i)).toEqual({ para: 0, seviye: 1 });
+    expect(new Set(BASLANGIC_ARACLARI.map((i) => CARS[i].ty)).size).toBe(5);
+    expect(aracFiyati(0).para).toBeGreaterThan(0);
+    expect(aracFiyati(1).para).toBeGreaterThan(0);
     const ucretli = ARAC_FIYAT.map((f, i) => ({ ...f, i })).filter((f) => f.para > 0);
-    expect(ucretli.length).toBe(8);
+    expect(ucretli.length).toBe(10);
     const panda = CARS.findIndex((c) => c.n == "Panda");
     for (const f of ucretli) {
       expect(f.seviye).toBeGreaterThan(1);
@@ -147,7 +151,8 @@ describe("araç fiyatları ve satın alma", () => {
   it("seviyesi gelmeyen ya da parası yetmeyen araç alınamaz ve seçilemez; alınca açılır, ikinci kez alınamaz", () => {
     const panda = CARS.findIndex((c) => c.n == "Panda"),
       f = aracFiyati(panda);
-    expect(aracSatinAlinabilirMi(0)).toEqual({ ok: false, neden: "sahip" });
+    expect(aracSatinAlinabilirMi(ILK_ARAC)).toEqual({ ok: false, neden: "sahip" });
+    expect(aracSatinAlinabilirMi(0)).toEqual({ ok: false, neden: "seviye" });
     paraEkle(f.para, "test");
     expect(aracSatinAlinabilirMi(panda)).toEqual({ ok: false, neden: "seviye" });
     expect(aracSatinAl(panda)).toBe(false);
@@ -187,7 +192,8 @@ describe("araç fiyatları ve satın alma", () => {
     expect(y.alinan.Panda).toBe(ilk(y));
     expect(y.sahip).toBe(CARS.length);
     expect(k.sahip).toBe(CARS.length);
-    expect(y.yaris).toBeLessThanOrEqual(110);
+    // Kızıl Ok ve Kor RX de satın alındığından (0.5.x'e dek ücretsiz) hepsini almak biraz uzadı
+    expect(y.yaris).toBeLessThanOrEqual(125);
     expect(k.yaris).toBeGreaterThan(y.yaris);
     expect(k.yaris).toBeLessThan(250);
   });
@@ -214,11 +220,75 @@ describe("eski kayıttan para geçişi ve bulut", () => {
     expect(aracAcikMi(3)).toBe(true);
     expect(aracAcikMi(4)).toBe(false);
     expect(aracAcikMi(9)).toBe(true);
+    // o sürümde ücretsiz olan Kızıl Ok ve Kor RX sahip kalır
+    expect(aracAcikMi(0)).toBe(true);
+    expect(aracAcikMi(1)).toBe(true);
     const v = ilerlemeVerisi();
-    expect(v.surum).toBe(2);
+    expect(v.surum).toBe(3);
     // geçiş bir kez
     ilerlemeSifirla();
     expect(para()).toBe(v.kazanilan);
+  });
+
+  it("sürüm 2 kaydı: oynanmışsa Kızıl Ok ve Kor RX sahip kalır; hiç oynanmamış kayıt ve yeni oyuncu başlangıç araçlarıyla", () => {
+    // yeni oyuncu: yalnız başlangıç araçları
+    expect(CARS.map((_, i) => i).filter(aracAcikMi)).toEqual(BASLANGIC_ARACLARI);
+    const v2 = (o: object) => {
+      depo = {
+        lt_ilerleme: JSON.stringify({
+          surum: 2,
+          xp: 0,
+          updatedAt: 1,
+          yildiz: {},
+          ekAcik: [],
+          kazanilan: 0,
+          alimlar: {},
+          ...o,
+        }),
+      };
+      (globalThis as { localStorage?: unknown }).localStorage = {
+        getItem: (k: string) => depo[k] ?? null,
+        setItem: (k: string, v: string) => (depo[k] = v),
+      };
+      ilerlemeSifirla();
+    };
+    v2({ xp: 120, kazanilan: 900, alimlar: { arac_8: 2000 } });
+    expect(aracAcikMi(0)).toBe(true);
+    expect(aracAcikMi(1)).toBe(true);
+    expect(aracAcikMi(8)).toBe(true);
+    for (const i of BASLANGIC_ARACLARI) expect(aracAcikMi(i)).toBe(true);
+    expect(ilerlemeVerisi().surum).toBe(3);
+    // geçiş bir kez: kayıt yeniden okununca aynı
+    ilerlemeSifirla();
+    expect(aracAcikMi(0)).toBe(true);
+    // hiç oynanmamış sürüm 2 kaydı: yeni oyuncu gibi
+    v2({});
+    expect(aracAcikMi(0)).toBe(false);
+    expect(aracAcikMi(1)).toBe(false);
+    // profilde yarış varsa (ilerleme boş da olsa) eski oyuncu sayılır
+    v2({});
+    depo["lt_prof"] = JSON.stringify({ races: 3, use: { 0: 3 } });
+    depo["lt_ilerleme"] = JSON.stringify({
+      surum: 2,
+      xp: 0,
+      updatedAt: 1,
+      yildiz: {},
+      ekAcik: [],
+      kazanilan: 0,
+      alimlar: {},
+    });
+    ilerlemeSifirla();
+    expect(aracAcikMi(0)).toBe(true);
+  });
+
+  it("bulut: eski sürümün kaydı yeni cihazda da Kızıl Ok ve Kor RX'i sahip sayar; yeni sürümün kaydı saymaz", () => {
+    ilerlemeYukle({ surum: 3, xp: 500, kazanilan: 100, alimlar: {}, ekAcik: [], updatedAt: 2 }, true);
+    expect(aracAcikMi(0)).toBe(false);
+    ilerlemeYukle({ surum: 2, xp: 0, kazanilan: 0, alimlar: {}, ekAcik: [], updatedAt: 3 }, true);
+    expect(aracAcikMi(0)).toBe(false);
+    ilerlemeYukle({ surum: 2, xp: 500, kazanilan: 100, alimlar: {}, ekAcik: [], updatedAt: 4 }, true);
+    expect(aracAcikMi(0)).toBe(true);
+    expect(aracAcikMi(1)).toBe(true);
   });
 
   it("çok eski kayıt (lt_ilerleme yok): rekor ve yıldızlardan XP ve para; yeni oyuncu 0 para", () => {

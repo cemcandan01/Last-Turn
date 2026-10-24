@@ -21,6 +21,8 @@ import {
 } from "../../src/oyun/ilerleme";
 import { enIyiYildiz, yildizEsikleri } from "../../src/oyun/yildiz";
 import { CARS, type YarisTuru } from "../../src/arac/araclar";
+import { BASLANGIC_ARACLARI } from "../../src/oyun/ekonomi";
+import { performansPuani, sinifHarfi } from "../../src/arac/performans";
 
 const TURLER: YarisTuru[] = ["gp", "rx", "dp", "rl", "dg"];
 let depo: Record<string, string>;
@@ -95,21 +97,38 @@ describe("XP ve seviye eğrisi", () => {
 });
 
 describe("kilit tablosu", () => {
-  it("başta yalnız her türün Çaylak pisti ve 2 araç açık; her türde başta sürülebilir araç var", () => {
+  it("başta yalnız her türün Çaylak pisti ve her türün D sınıfı başlangıç aracı açık", () => {
     expect(seviye().lv).toBe(1);
     for (const t of TURLER) {
       expect(pistAcikMi(t, 1)).toBe(true);
       for (let l = 2; l <= 6; l++) expect(pistAcikMi(t, l)).toBe(false);
     }
     const acik = CARS.map((_, i) => i).filter(aracAcikMi);
-    expect(acik.map((i) => CARS[i].n)).toEqual(["Kızıl Ok", "Kor RX"]);
-    // her pist her seviyede açılır, seviyeler pistte artan; her türün aracı o türün 3. pistinden önce açılır
+    expect(acik.map((i) => CARS[i].n)).toEqual([
+      "Gümüş Serçe",
+      "Bozkır Tavşanı",
+      "Haki Keçi",
+      "Bordo Tilki",
+      "Kara Boğa",
+    ]);
+    expect(acik).toEqual(BASLANGIC_ARACLARI);
+    // her türde bir başlangıç aracı, D sınıfı (genel puanı ve kendi türünün puanı ≤ 400)
+    for (const t of TURLER) {
+      const b = acik.filter((i) => CARS[i].ty == t);
+      expect(b.length, t).toBe(1);
+      expect(sinifHarfi(performansPuani(b[0], []).puan), CARS[b[0]].n).toBe("D");
+      expect(performansPuani(b[0], [], t).puan, CARS[b[0]].n).toBeLessThanOrEqual(400);
+    }
+    // her pist her seviyede açılır, seviyeler pistte artan; her türün ilk satın alınan aracı o türün 4. pistinden önce
     for (const t of TURLER) {
       const s = ACILMA.pist[t];
       expect(s.length).toBe(8);
       for (let l = 1; l < 6; l++) expect(s[l]).toBeGreaterThan(s[l - 1]);
       for (let l = 6; l < 8; l++) expect(s[l]).toBeGreaterThan(1);
-      expect(ACILMA.arac[CARS.findIndex((c) => c.ty == t)]).toBeLessThanOrEqual(s[2]);
+      const ilk = Math.min(
+        ...CARS.flatMap((c, i) => (c.ty == t && !BASLANGIC_ARACLARI.includes(i) ? [ACILMA.arac[i]] : [])),
+      );
+      expect(ilk, t).toBeLessThanOrEqual(s[3]);
     }
     expect(kilitTablosu().length).toBe(40 + CARS.length);
   });
@@ -168,7 +187,7 @@ describe("eski kayıttan geçiş ve bulut verisi", () => {
     expect(seviye().toplamXp).toBe(0);
     yarisBitti("rx", 1, 1);
     const v = ilerlemeVerisi();
-    expect(v.surum).toBe(2);
+    expect(v.surum).toBe(3);
     expect(v.updatedAt).toBeGreaterThan(0);
     expect(JSON.parse(JSON.stringify(v))).toEqual(v);
     expect(v.yildiz).toEqual({ dirt_1: 1 });

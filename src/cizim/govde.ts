@@ -18,10 +18,24 @@ const KABIN: Record<string, number> = {
   int: 0.1,
   ae86: 0.11,
   supra: 0.14,
+  e30: 0.1,
+  golf: 0.1,
+  niva: 0.06,
+  c33: 0.1,
+  fox: 0.12,
 };
 
 /** teker ile kemer arasındaki boşluk: drift ve pist arabası alçak ve sıkı, diğerleri ralli için daha açık */
-const KEMER: Record<string, number> = { dr: 0.025, gt: 0.03, gt3: 0.03, ae86: 0.03, supra: 0.03 };
+const KEMER: Record<string, number> = {
+  dr: 0.025,
+  gt: 0.03,
+  gt3: 0.03,
+  ae86: 0.03,
+  supra: 0.03,
+  e30: 0.035,
+  c33: 0.035,
+  fox: 0.035,
+};
 
 /** kemer: tekerin gövdedeki daire biçimli boşluğu (z, y merkez; R yarıçap) */
 export interface Kemer {

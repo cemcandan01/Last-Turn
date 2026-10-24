@@ -46,6 +46,7 @@ import {
 } from "../../src/oyun/ilerleme";
 import { PROF, best, saveBest } from "../../src/oyun/profil";
 import { enIyiYildiz } from "../../src/oyun/yildiz";
+import { ILK_ARAC } from "../../src/oyun/ekonomi";
 
 let depo: Record<string, string>;
 /** cihaz değiştir: her cihazın kendi localStorage'ı */
@@ -330,7 +331,7 @@ describe("sahte Firebase ile eşitleme", () => {
     expect(enIyiYildiz("gp", 1)).toBe(0);
     expect(best("asphalt_1")).toBe(0);
     expect(JSON.parse(depo["lt_prof"]).races).toBe(0);
-    expect(depo["lt_car"]).toBe("1");
+    expect(depo["lt_car"]).toBe(String(ILK_ARAC));
     expect(bekleyenVar()).toBe(false);
     // e-posta: yeni hesap, aynı e-postayla tekrar oluşturma → "giriş yap" uyarısı, yanlış ve doğru şifre
     await A.anonimGir();

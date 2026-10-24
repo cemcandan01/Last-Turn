@@ -454,7 +454,10 @@ function onHazirla() {
   ONHAZIR = setTimeout(adim, 300);
 }
 
-/** türe en uygun açık araç: türün kendi aracı açıksa o, değilse türün ağırlıklı özelliklerinde (STAT) en yüksek açık araç */
+/**
+ * türe en uygun açık araç: o türün açık araçlarından o türdeki puanı (takılı parçalarla) en yüksek olan; türün aracı
+ * yoksa türün ağırlıklı özelliklerinde (STAT) en yüksek açık araç
+ */
 const TUR_AGIRLIK: Record<string, Record<string, number>> = {
   gp: { "Azami hız": 1, "Yol tutuşu": 1, Hızlanma: 0.5, Fren: 0.5 },
   rx: { Arazi: 1, "Yol tutuşu": 1, Hızlanma: 0.7 },
@@ -463,8 +466,17 @@ const TUR_AGIRLIK: Record<string, Record<string, number>> = {
   dg: { Hızlanma: 1.2, "Azami hız": 0.8 },
 };
 export function onerilenArac(ty: string) {
-  const own = CARS.findIndex((c) => c.ty == ty);
-  if (own >= 0 && aracAcikMi(own)) return own;
+  let own = -1,
+    op = -1;
+  CARS.forEach((c, k) => {
+    if (c.ty != ty || !aracAcikMi(k)) return;
+    const p = puan(k, takiliParcalar(k), ty as YarisTuru).puan;
+    if (p > op) {
+      op = p;
+      own = k;
+    }
+  });
+  if (own >= 0) return own;
   const w = TUR_AGIRLIK[ty] ?? {};
   let best = -1,
     bs = -1;
@@ -636,7 +648,7 @@ function showGar() {
   // düğme: garajda yarış/sürüş varsa Seç; mağazada alınmamış araçta satın al ya da kilit
   const dugme = G.mg ? !acik : !!sec,
     tur = turBilgi(c.ty),
-    // yarış öncesi garajda türün aracı alınmamışsa mağazaya yönlendiren ipucu
+    // yarış öncesi garajda türün alınmamış aracı varsa mağazaya yönlendiren ipucu
     magazadaVar = !G.mg && G.ev != null && CARS.some((x, k) => x.ty == EVENTS[G.ev!].ty && !aracAcikMi(k));
   kilitGorunumu(kilitli);
   g.classList.toggle("magaza", G.mg);

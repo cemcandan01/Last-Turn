@@ -53,6 +53,7 @@ export default async function ({ p, ok }) {
         return z;
       })(),
       sahip: LT.CARS.map((_, i) => i).filter((i) => LT.aracAcikMi(i)),
+      n: LT.CARS.length,
       // süzgeç kapalıyken tek düğme; açınca Tümü + 5 tür
       serit: (() => {
         const kapali = document.querySelectorAll("#gmf button").length;
@@ -65,7 +66,7 @@ export default async function ({ p, ok }) {
   });
   ok(ac.mod == "garage", "mağaza açıldı");
   ok(
-    ac.ziyaret.every((i) => !ac.sahip.includes(i)) && new Set(ac.ziyaret).size == 10 - ac.sahip.length,
+    ac.ziyaret.every((i) => !ac.sahip.includes(i)) && new Set(ac.ziyaret).size == ac.n - ac.sahip.length,
     "mağazada yalnız sahip olunmayan araçlar: " + JSON.stringify(ac.ziyaret),
   );
   ok(

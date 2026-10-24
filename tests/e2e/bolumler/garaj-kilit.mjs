@@ -1,6 +1,6 @@
 /* global LT */
 // Garajda yalnız sahip olunan araçlar: temiz profilde kilitli/satılık araç gezilmez, satın alma düğmesi yok;
-// ralli yarışında türün aracı alınmadıysa "Mağazada daha uygun araç" ipucu mağazayı açar, Geri garaja döner.
+// ralli yarışında türün alınmamış aracı varsa "Mağazada daha uygun araç" ipucu mağazayı açar, Geri garaja döner.
 // Ekran görüntüsü: tests/cikti/garaj-sahip.png (iPhone 13 yatay).
 import fs from "node:fs";
 export default async function ({ p, ok }) {

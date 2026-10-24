@@ -5,6 +5,9 @@ export default async function ({ p, ok }) {
   const r = await p.evaluate(async () => {
     const sorun = [];
     LT.demoStop();
+    // serbest sürüş ölçümü Kor RX ile (yarıştan çıkınca önceki araca döner; varsayılan araç artık başlangıç aracı)
+    LT.setCar(1);
+    LT.modifiyeUygula(1);
     const dp = LT.EVENTS.findIndex((e) => e.ty == "dp");
     for (const c of [
       { steer: "btn", gas: "btn" },
