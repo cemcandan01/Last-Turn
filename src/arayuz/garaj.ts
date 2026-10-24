@@ -1,7 +1,7 @@
 // Garaj ekranı: araçları dönen platformda incele, özellikleri karşılaştır, seç. Yarıştan ve serbest sürüşten önce de
 // buradan seçilir; yarışta türe uygun araç "Önerilen" olarak gelir.
 import { CARS, type YarisTuru } from "../arac/araclar";
-import { STAT, estTop } from "../arac/istatistik";
+import { STAT } from "../arac/istatistik";
 import { cl } from "../cekirdek/matematik";
 import { gizle, $ } from "../cekirdek/dom";
 import { garG, garajIsigi, garajTemasi } from "../cizim/garaj-sahnesi";
@@ -42,7 +42,15 @@ import {
   stokaDon,
   takiliParcalar,
 } from "../oyun/modifiye";
-import { KATEGORILER, PAKETLER, PARCALAR, paketTak, parcaBul, type ParcaKategori } from "../arac/parcalar";
+import {
+  KATEGORILER,
+  PAKETLER,
+  PARCALAR,
+  paketTak,
+  parcaBul,
+  aracKur,
+  type ParcaKategori,
+} from "../arac/parcalar";
 import { performansPuani, SINIFLAR, type PerformansDegerleri } from "../arac/performans";
 import { ikon } from "./ikonlar";
 import { EVENTS, startEvent } from "../oyun/yarislar";
@@ -667,14 +675,17 @@ function showGar() {
     if (G.alinan != null) $("#gga").onclick = garajaGit;
     return;
   }
-  const sv = Object.fromEntries(STAT(c).map(([n, f]) => [n, f])),
+  const parcalar = takiliParcalar(G.i),
+    gercekArac = aracKur(G.i, parcalar).car,
+    deger = puan(G.i, parcalar, puanTuru(G)),
+    sv = Object.fromEntries(STAT(gercekArac, deger).map(([n, f]) => [n, f])),
     pct = (f: number) => Math.round(cl(f, 0.05, 1) * 100),
     // sağ üst çubuklar: ad, değer, birim, doluluk (0-1)
     cubuk: [string, string, string, number][] = [
-      ["HIZ", String(Math.round(estTop(c))), "km/sa", sv["Azami hız"]],
-      ["İVME", c.a100.toFixed(1), "sn", sv["Hızlanma"]],
+      ["HIZ", String(Math.round(deger.hiz)), "km/sa", sv["Azami hız"]],
+      ["İVME", deger.ivme.toFixed(1), "sn", sv["Hızlanma"]],
       ["TUTUŞ", String(pct(sv["Yol tutuşu"])), "%", sv["Yol tutuşu"]],
-      ["FREN", String(c.b100), "m", sv["Fren"]],
+      ["FREN", deger.fren.toFixed(1), "m", sv["Fren"]],
       ["ARAZİ", String(pct(sv["Arazi"])), "%", sv["Arazi"]],
     ],
     sira = Math.max(0, L.indexOf(G.i)) + 1,
@@ -690,12 +701,12 @@ function showGar() {
   g.innerHTML = `<div class="gust"><div class="gbas"><div class="gad">${tur ? `<div class="gtur" style="--c:${tur[4]}">${ikon(tur[3])}${tur[1]}</div>` : ""}<h1>${kilitli ? ikon("kilit") : ""}${c.n}</h1></div></div>
 <div class="grozet">${sinifRozeti(G.i, takiliParcalar(G.i), puanTuru(G))}${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}${kilitli ? `<span class="bdg kilit" title="${kilitYazi}">${ikon("kilit")}Seviye ${fiyat.seviye}</span>` : ""}${L.length ? `<button class="bdg gbil${BILGI_ACIK ? " on" : ""}" id="gbil" aria-label="Araç bilgisi" aria-pressed="${BILGI_ACIK}">${ikon("bilgi")}</button>` : ""}</div></div>
 <div class="gnav"><button class="ga" id="gpv" aria-label="Önceki">${ikon("sol")}</button><span class="gsay">${sira}/${L.length}</span><button class="ga" id="gnx" aria-label="Sonraki">${ikon("sag")}</button></div>
-<div class="gbar">${cubuk
+<div class="gbar" title="Yaklaşık performans: düz, kuru asfalt; Dengeli yardım, seçilen yarış türü. Parçalar hesaba katılır.">${cubuk
     .map(
       ([n, d, b, f]) =>
         `<div class="gk"><span class="gkb">${n}</span><u><s style="width:${Math.round(cl(f, 0.05, 1) * 100)}%"></s></u><b>${d}<small>${b}</small></b></div>`,
     )
-    .join("")}<p>${c.hp} HP · ${c.kg} KG</p></div>
+    .join("")}<p>${gercekArac.hp} HP · ${gercekArac.kg} KG</p></div>
 <div class="galt">${kilitli ? "" : `<div class="gsr"><button class="gses" id="gses"></button>${!G.mg && acik ? `<button class="gses gmod" id="gmod">${ikon("anahtar")}Modifiye</button>` : ""}</div>`}<div id="gpara">${bilgi}</div><div class="gbt"><button class="btn alt" id="gbk">Geri</button>${dugme ? `<button class="btn${satilik ? " al" : ""}" id="gok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}<button class="btn alt gvtam" id="gvtam">Vitrin</button></div></div>`;
   magazaSeridi(G);
   const bil = document.getElementById("gbil");

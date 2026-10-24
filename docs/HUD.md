@@ -72,7 +72,7 @@ bilgi konmaz), Steven Hoober'ın başparmak bölgeleri ve oyuncuların "HUD ekra
 - Kontrol türü değişince (`kontrolleriKur`) `#app[data-steer]` ve `#app[data-gas]` ayarlanır; göstergeler
   tuş grubunun yüksekliğine (`--cR`) göre yer değiştirir. Analog pedal uzun olduğu için hız onun yanına geçer.
 - Basılı tuş turuncu (`.on`) olur: parmağın altında olsa da kenarından görülür.
-- Debriyaj tuşu (`#dbr`, 76 × 44 px) sağ grupta frenin (analogda pedalın) üstünde, telefonu çevirmede frenin
+- El freni tuşu (`#dbr`, 76 × 44 px) sağ grupta frenin (analogda pedalın) üstünde, telefonu çevirmede frenin
   solunda (`.tsut`). Tuşlarla gazda sağ grup yükselir (`--cR` 136 px), hız onun üstüne oturur.
 
 ## 6. Göstergeleri seçme
