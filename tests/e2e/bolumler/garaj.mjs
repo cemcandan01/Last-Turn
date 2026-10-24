@@ -94,9 +94,10 @@ export default async function ({ p, ok }) {
   const ly1 = await p.evaluate(() => LT.kamera.ly);
   ok(ly1 > ly0, "garajda sağa sürükleme aracı parmakla aynı yöne döndürür");
   // aşağı sürükleme kamerayı yükseltir ama 90°'ye varmaz; tekerlek yakınlaştırır; kısa dokunuş dönmeyi durdurur
-  await p.mouse.move(120, 100);
+  // sürükleme boş bir noktadan başlar (sol üstteki rozet/bilgi düğmelerine denk gelmez)
+  await p.mouse.move(260, 100);
   await p.mouse.down();
-  await p.mouse.move(120, 390, { steps: 8 });
+  await p.mouse.move(260, 390, { steps: 8 });
   await p.mouse.up();
   const gp = await p.evaluate(() => LT.kamera.gp);
   ok(
