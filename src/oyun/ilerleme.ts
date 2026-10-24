@@ -12,7 +12,8 @@
 import type { YarisTuru } from "../arac/araclar";
 import { okuJson, yazJson } from "../cekirdek/depo";
 import { pistSev } from "../dunya/pist-tanimlari";
-import { ARAC_FIYAT, aracFiyati, yarisSonuPara } from "./ekonomi";
+import { parcaBul } from "../arac/parcalar";
+import { ARAC_FIYAT, aracFiyati, parcaFiyatHesapla, yarisSonuPara } from "./ekonomi";
 
 export { aracFiyati, yarisSonuPara } from "./ekonomi";
 import { best } from "./profil";
@@ -33,7 +34,7 @@ export interface IlerlemeVerisi {
   ekAcik: string[];
   /** toplam kazanılan para (harcamayla azalmaz) */
   kazanilan: number;
-  /** satın alınan öğeler ve ödenen bedel: "arac_8" → 2000 (ileride modifiye: "mod_<araç>_<tür>") */
+  /** satın alınan öğeler ve ödenen bedel: "arac_8" → 2000, modifiye parçası "parca_<araç>_<parça>" */
   alimlar: Record<string, number>;
 }
 
@@ -321,6 +322,27 @@ export function harca(oge: string, miktar: number) {
 export function aracSatinAl(aracNo: number) {
   if (!aracSatinAlinabilirMi(aracNo).ok) return false;
   return harca("arac_" + aracNo, aracFiyati(aracNo).para);
+}
+
+// --- modifiye parçaları (araç başına alınır; takılı parçalar oyun/modifiye.ts) ---
+
+/** parçanın fiyatı (bilinmeyen parça 0) */
+export const parcaFiyati = (id: string) => {
+  const p = parcaBul(id);
+  return p ? parcaFiyatHesapla(p.sv, p.kat) : 0;
+};
+
+/** parça bu araç için alınmış mı (ücretsiz parçalar hep sahip; admin kipinde hepsi) */
+export const parcaSahipMi = (aracNo: number, id: string) =>
+  adminKip || parcaFiyati(id) <= 0 || "parca_" + aracNo + "_" + id in veri().alimlar;
+
+/** parçaları (paket için birkaç) bu araç için satın al: alınmamışların toplamı bakiyeye yetiyorsa hepsi; başarılıysa true */
+export function parcaSatinAl(aracNo: number, ids: readonly string[]) {
+  const al = ids.filter((id) => parcaBul(id) && !parcaSahipMi(aracNo, id)),
+    toplam = al.reduce((a, id) => a + parcaFiyati(id), 0);
+  if (!aracAcikMi(aracNo) || para() < toplam) return false;
+  for (const id of al) if (!harca("parca_" + aracNo + "_" + id, parcaFiyati(id))) return false;
+  return true;
 }
 
 /** XP ekle (neden: "yaris", "gecis" gibi; olayla dinleyiciye gider); seviye atlandıysa olayı döndürür */

@@ -1,8 +1,12 @@
-/*! Menü ikonları. Harita, araba, mağaza, kask, dişli, dağ, dönüş, start ışıkları, Google, zarf, kilit, para, yıldız, ok, ses ve ızgara: Tabler Icons 3.49 (https://tabler.io/icons), MIT Lisansı,
+/*! Menü ikonları. Harita, araba, mağaza, kask, dişli, dağ, dönüş, start ışıkları, Google, zarf, kilit, para, yıldız, ok, ses, ızgara, anahtar (tool) ve onay (check): Tabler Icons 3.49 (https://tabler.io/icons), MIT Lisansı,
  * Telif (c) 2020-2026 Paweł Kuna. Lisans metni: public/lisanslar.txt. Yarış bayrağı ve pist oyunun kendi çizimi. */
 // Çizgi ikonlar (24×24, stroke=currentColor); yalnız <path> içerikleri, çerçeve ikon() ile eklenir.
 
 const IKON = {
+  /** tabler: tool (modifiye) */
+  anahtar: '<path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6 -6a6 6 0 0 1 -8 -8l3.5 3.5"/>',
+  /** tabler: check (takılı) */
+  tamam: '<path d="M5 12l5 5l10 -10"/>',
   /** dama bayrak (oyunun çizimi) */
   yaris: '<path d="M5 21V4"/><path d="M5 4h13l-2.5 4L18 12H5"/><path d="M9 4v8M13 4v8M5 8h13"/>',
   /** tabler: map */

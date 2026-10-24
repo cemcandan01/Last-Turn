@@ -14,7 +14,8 @@ import { setActive } from "./bolge";
 import { carIndex, oyun, setCar } from "./durum";
 import { girdiSifirla } from "./girdi";
 import { aracAcikMi, pistAcikMi, yarisBitti } from "./ilerleme";
-import { applyPreset, kurulum, kurulumKaydet, kurulumYukle, type KurulumKaydi } from "./kurulum";
+import { modifiyeUygula } from "./modifiye";
+import { kurulumKaydet, kurulumYukle, type KurulumKaydi } from "./kurulum";
 import { PROF, saveProf } from "./profil";
 import { reset, sim } from "./surus";
 import { X6_CARPAN, X6_ORAN, driftAdimi, driftBankala, tersAdimi, type DriftOlay } from "./yaris-kurallari";
@@ -168,8 +169,8 @@ export function startEvent(i: number, ci?: number) {
   // yarışta önayar seçilmez: aracın kendi önayarı ve oyuncunun yardım seviyesi yüklenir (önayar yalnız serbest
   // sürüşte). Böylece drift yarışı, otoparkta aynı araçla drift önayarında sürmekle birebir aynıdır.
   if (ci != null && CARS[ci] !== oyun.CAR) setCar(ci);
-  kurulum.pk = oyun.CAR.pk;
-  applyPreset();
+  // takılı parçalarıyla (paket ağır basıyorsa o türün önayarı)
+  modifiyeUygula(carIndex());
   {
     const u = carIndex();
     PROF.use[u] = (PROF.use[u] || 0) + 1;

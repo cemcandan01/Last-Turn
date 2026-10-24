@@ -53,7 +53,8 @@ export function dunyaSorgusuYap(b: { cur: Bolge | null }): DunyaSorgusu {
 }
 
 const surusKurulumu = (): SurusKurulumu => ({
-  car: oyun.CAR,
+  // takılı parçalar (oyun/modifiye.ts): yalnız seçili araca aitse
+  car: kurulum.mod && kurulum.mod.taban === oyun.CAR ? kurulum.mod.car : oyun.CAR,
   pk: kurulum.pk,
   tire: kurulum.tire,
   tu: kurulum.tu,

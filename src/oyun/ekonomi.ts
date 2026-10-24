@@ -47,3 +47,26 @@ export const ARAC_FIYAT: Fiyat[] = [
 ];
 
 export const aracFiyati = (aracNo: number): Fiyat => ARAC_FIYAT[aracNo] ?? { para: 0, seviye: 1 };
+
+/**
+ * modifiye parçası fiyatı: seviye tabanı × kategori çarpanı, 50'ye yuvarlı. Zayıf parçalar (seviye 0: kısıtlayıcı,
+ * balast, sokak freni…) ücretsizdir; puanı sınıf sınırına indirmek para istemez. Parça araç başına alınır.
+ * Ölçü: bir sokak parçası ~1-2 Çaylak yarışı, tam yarış paketi kabaca bir orta sınıf aracın yarısı (Beyaz Kurt 3000).
+ */
+export const PARCA_TABAN = [0, 400, 900, 1800];
+export const PARCA_KAT_CARPAN: Record<string, number> = {
+  motor: 1.3,
+  turbo: 1.5,
+  sanziman: 0.8,
+  lastik: 0.6,
+  suspansiyon: 0.9,
+  diferansiyel: 0.8,
+  fren: 0.7,
+  agirlik: 1.2,
+  aero: 0.8,
+  cekis: 1.6,
+  direksiyon: 0.7,
+  koruma: 0.4,
+};
+export const parcaFiyatHesapla = (sv: number, kat: string) =>
+  Math.round(((PARCA_TABAN[sv] ?? 0) * (PARCA_KAT_CARPAN[kat] ?? 1)) / 50) * 50;
