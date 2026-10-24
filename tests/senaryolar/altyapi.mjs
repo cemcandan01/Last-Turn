@@ -96,7 +96,7 @@ export default [
   },
   {
     id: "bulut-esitleme",
-    ad: "Sahte Firebase: ilerleme bir cihazda yazılıp başka cihazda aynı hesapla okunur, birleşir; çevrimdışı kuyruk; reddedilen yazma yeniden çekilir; yeni oyuncu bu cihazı sıfırlar, bulut kalır",
+    ad: "Sahte Firebase: ilerleme bir cihazda yazılıp başka cihazda aynı hesapla okunur, birleşir; çevrimdışı kuyruk; reddedilen yazma yeniden çekilir; yeni oyuncu bu cihazı sıfırlar, bulut kalır; admin (sunucuda admins/{uid}) her şeyi açık görür ve panelle XP/para/seviye/kilit/sıfırlama yapar, normal oyuncu yapamaz",
     p: 1,
     birim: { dosya: BU, grup: "sahte Firebase ile eşitleme" },
   },

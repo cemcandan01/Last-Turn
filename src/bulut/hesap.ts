@@ -3,7 +3,14 @@
 // İlk açılışta sessizce anonim hesap açılır; Profil'den Google ya da e-posta ile bağlanınca aynı ilerleme başka
 // cihazda da açılır. Eşitleme kuralları bulut/esitleme.ts'te.
 import { yaz, yazJson } from "../cekirdek/depo";
-import { ilerlemeyiSifirla } from "../oyun/ilerleme";
+import {
+  adminKilit,
+  adminKipi,
+  adminSeviyeAyarla,
+  ilerlemeyiSifirla,
+  paraEkle,
+  xpEkle,
+} from "../oyun/ilerleme";
 import { PROF, saveProf } from "../oyun/profil";
 import { FIREBASE_AYAR, bulutAcik, type FirebaseAyari } from "./ayar";
 import {
@@ -26,6 +33,8 @@ export interface HesapDurumu {
   bilgi: string | null;
   /** bağlama ya da çıkış sürüyor */
   mesgul: boolean;
+  /** admin oturumu (sunucuda admins/{uid} var); admin paneli ve "her şey açık" kipi */
+  admin: boolean;
 }
 
 const D: HesapDurumu = {
@@ -35,6 +44,7 @@ const D: HesapDurumu = {
   hata: null,
   bilgi: null,
   mesgul: false,
+  admin: false,
 };
 let S: Saglayici | null = null,
   E: Esitleyici | null = null,
@@ -68,7 +78,17 @@ export function hesapBaslat(s: Saglayici, o: { gecikme?: number } = {}) {
   let ilk = true;
   s.oturumDinle((k) => {
     D.kullanici = k;
+    D.admin = false;
+    adminKipi(false);
     bildir();
+    // admin yetkisi sunucuda (Firestore admins/{uid}); anonim hesap admin olamaz
+    if (k && !k.anonim)
+      void s.adminMi(k.uid).then((a) => {
+        if (!a || D.kullanici?.uid != k.uid) return;
+        D.admin = true;
+        adminKipi(true);
+        bildir();
+      });
     if (!k && ilk) void s.anonimGir().catch(() => {});
     ilk = false;
     void E!.oturum(k ? k.uid : null);
@@ -223,3 +243,31 @@ export function hesapOzeti(d: Readonly<HesapDurumu> = D) {
               : "";
   return es && k ? kim + " · " + es : kim;
 }
+
+// --- admin (yalnız admin oturumunda; buluta yazma kuralları firestore.rules'ta) ---
+
+/** admin işlemi: yalnız admin oturumunda çalışır, sonra hemen buluta yazılır */
+function adminIslem(f: () => void, bilgi: string) {
+  if (!D.admin) return false;
+  f();
+  D.hata = null;
+  D.bilgi = bilgi;
+  bildir();
+  void E?.simdiGonder();
+  return true;
+}
+
+export const adminParaEkle = (m: number) => adminIslem(() => paraEkle(m, "admin"), "+" + m + " para");
+export const adminXpEkle = (m: number) => adminIslem(() => xpEkle(m, "admin"), "+" + m + " XP");
+export const adminSeviye = (lv: number) => adminIslem(() => adminSeviyeAyarla(lv), "Seviye " + lv);
+export const adminKilitAyarla = (oge: string, acik: boolean) =>
+  adminIslem(() => adminKilit(oge, acik), oge + (acik ? " açıldı" : " kilitlendi"));
+/** "her şey açık" kipini aç/kapat (normal oyuncu görünümünü denemek için) */
+export const adminHerSeyAcik = (acik: boolean) =>
+  adminIslem(() => adminKipi(acik), acik ? "Her şey açık" : "Normal oyuncu görünümü");
+/** ilerlemeyi sıfırla: XP, yıldız, para, alım, açık öğeler ve rekorlar (hesap aynı kalır) */
+export const adminSifirla = () =>
+  adminIslem(() => {
+    ilerlemeyiSifirla();
+    rekorlariSil();
+  }, "İlerleme sıfırlandı");

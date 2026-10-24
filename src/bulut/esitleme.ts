@@ -41,6 +41,8 @@ export interface Saglayici {
   epostaGiris(eposta: string, sifre: string): Promise<void>;
   /** şifre sıfırlama e-postası gönderir */
   sifreSifirla(eposta: string): Promise<void>;
+  /** admin mi: Firestore admins/{uid} belgesi var mı (yalnız konsoldan eklenir; istemci yazamaz) */
+  adminMi(uid: string): Promise<boolean>;
   cikis(): Promise<void>;
   /** açılışta Google yönlendirmesinden dönülürken oluşan hata (varsa kullanıcıya gösterilir) */
   baslangicHatasi?: unknown;

@@ -62,6 +62,39 @@ kısıtlaması). Bunun için Google'a o adresi tanıtmak gerekir:
 Bu adım yapılmazsa Google girişi bilgisayarda/Safari sekmesinde çalışır, kurulu uygulamada "E-posta ile" bağlanmak
 her zaman çalışır.
 
+## 7. Admin yap (her şey açık hesap)
+
+Admin yetkisi oyunda değil Firebase'de verilir; oyundan kimse kendini admin yapamaz.
+
+1. Oyunda admin olacak hesapla gir (ör. Google ile bağlan). **Profil** → "Hesap kimliği" satırı → **Kopyala**.
+2. https://console.firebase.google.com → `last-turn` projesi → **Firestore Database** → **Veriler** (Data) sekmesi.
+3. **Koleksiyon başlat** (Start collection) → Koleksiyon kimliği: `admins` → İleri.
+4. **Belge kimliği** (Document ID): kopyaladığın hesap kimliğini yapıştır (otomatik kimlik düğmesine basma).
+5. Alan ekle: Alan `admin`, tür **boolean**, değer **true** → **Kaydet**.
+   (İkinci admin eklemek için `admins` koleksiyonunda **Belge ekle** ile aynı adımlar.)
+6. **5. adımı yeniden yap**: kurallar admin için güncellendi; `firestore.rules`'un yeni hâlini yapıştırıp **Yayınla**.
+7. Oyunu kapatıp aç → Profil'de hesap satırında **Admin** yazar ve kesikli çerçeveli **Admin** paneli görünür.
+
+Admin panelinde: **Her şey açık** (bütün pist ve araçlar açık görünür; kaydı değiştirmez, "Kapalı" yapınca normal
+oyuncunun gördüğünü görürsün), **+1000 / +10000 para**, **+100 / +1000 XP**, **Seviyeyi ayarla**, bir araç ya da pist
+seç → **Aç / Kilitle**, **İlerlemeyi sıfırla** (iki dokunuşla; XP, yıldız, para, alımlar ve rekorlar sıfırlanır,
+hesap kalır). Admin yalnız kendi kaydını değiştirir; başka oyuncunun kaydına dokunamaz. Adminliği kaldırmak için
+`admins` koleksiyonundaki belgeyi sil.
+
+## 8. Sıfır seviye test hesabı
+
+Yeni oyuncunun ne gördüğünü denemek için ayrı bir hesap:
+
+1. Profil → **Yeni oyuncu olarak başla** → **Evet, sıfırdan başla** (bu cihazdaki ilerleme silinir; bağlı hesabının
+   ilerlemesi bulutta kalır). Oyun yeniden açılır, Seviye 1, 0 para.
+2. Profil → **E-posta ile** → **Hesap oluştur**: e-posta olarak Gmail adresinin **+test** eklenmiş hâlini yaz
+   (ör. `adın+test@gmail.com`; posta aynı gelen kutusuna düşer, Firebase ayrı hesap sayar) → şifre (en az 6) → şifre
+   tekrar → **Hesap oluştur**.
+3. Hesap değiştirirken her seferinde önce Profil → **Yeni oyuncu olarak başla** (hesaptan çıkar ve bu cihazı
+   temizler; iki hesabın ilerlemesi karışmaz). Sonra asıl hesap için **Google ile bağlan**, test hesabı için
+   **E-posta ile** → **Zaten hesabım var → Giriş yap**. İlerleme buluttan geri gelir.
+   (Düz **Çıkış** bu cihazdaki ilerlemeyi bırakır; sonra başka hesaba girersen iki ilerleme birleşir.)
+
 ## Oyunda nasıl görünür
 
 - İlk açılışta hesap sessizce açılır (Misafir). İlerleme buluta yazılır.

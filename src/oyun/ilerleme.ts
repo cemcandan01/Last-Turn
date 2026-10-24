@@ -150,7 +150,9 @@ const bos = (): IlerlemeVerisi => ({
   alimlar: {},
 });
 
-let V: IlerlemeVerisi | null = null;
+let V: IlerlemeVerisi | null = null,
+  /** admin kipi: her pist ve araç açık görünür, kayda yazılmaz (bulut/hesap.ts yalnız admin oturumunda açar) */
+  adminKip = false;
 const dinleyiciler: ((o: SeviyeOlayi) => void)[] = [];
 const paraDinleyiciler: ((o: ParaOlayi) => void)[] = [];
 
@@ -241,7 +243,9 @@ export function seviye(): SeviyeBilgisi {
 }
 
 export const pistAcikMi = (tur: YarisTuru, sv: number) =>
-  seviye().lv >= acilmaSeviyesi({ ty: tur, lv: sv }) || veri().ekAcik.includes(yildizAnahtari(tur, sv));
+  adminKip ||
+  seviye().lv >= acilmaSeviyesi({ ty: tur, lv: sv }) ||
+  veri().ekAcik.includes(yildizAnahtari(tur, sv));
 
 /** para bakiyesi */
 export const para = () => {
@@ -251,6 +255,7 @@ export const para = () => {
 
 /** araç açık mı: ücretsiz ve seviyesi gelmiş, satın alınmış ya da eski kayıttan açık kalmış */
 export const aracAcikMi = (aracNo: number) => {
+  if (adminKip) return true;
   const v = veri(),
     f = aracFiyati(aracNo),
     a = "arac_" + aracNo;
@@ -379,6 +384,29 @@ export function ilerlemeYukle(d: Partial<IlerlemeVerisi>) {
     const o = { eski, yeni, acilanlar: arasindaAcilan(eski, yeni), neden: "bulut" };
     for (const fn of dinleyiciler.slice()) fn(o);
   }
+}
+
+// --- admin (yetki sunucuda: Firestore admins/{uid}; bulut/hesap.ts yalnız admin oturumunda çağırır) ---
+
+/** admin kipini aç/kapat (kayda yazılmaz); argümansız: şimdiki durum */
+export function adminKipi(acik?: boolean) {
+  if (acik != null) adminKip = acik;
+  return adminKip;
+}
+
+/** XP'yi seviyenin başına ayarla (azaltabilir; buluta yalnız admin yazabilir) */
+export function adminSeviyeAyarla(lv: number) {
+  veri().xp = seviyeTabani(Math.max(1, Math.round(lv)));
+  kaydet();
+}
+
+/** öğenin kilidini aç ya da kapat ("arac_8", "asphalt_3"); kapatınca alımı da silinir. Seviyesi gelmiş öğe açık kalır */
+export function adminKilit(oge: string, acik: boolean) {
+  const v = veri();
+  v.ekAcik = v.ekAcik.filter((a) => a != oge);
+  if (acik) v.ekAcik.push(oge);
+  else delete v.alimlar[oge];
+  kaydet();
 }
 
 /** ilerlemeyi sıfırla (yeni oyuncu): XP, yıldız, para, alım ve açık öğeler; rekorlar profil.ts'te ayrı */

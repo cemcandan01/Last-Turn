@@ -3073,3 +3073,37 @@ details[open] > summary::after {
 .hkat.dar .halt .hdg {
   min-height: 32px;
 }
+/* profil: hesap kimliği (admin yapmak için kopyalanır) ve admin paneli (arayuz/hesap-ui.ts) */
+.hkimlik {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.hkimlik small {
+  color: var(--mut);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.hkimlik .inp,
+.hadmin .inp {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  padding: 6px 8px;
+}
+.hadmin {
+  margin-top: 8px;
+  padding: 6px 10px 10px;
+  border: 2px dashed var(--acc);
+  border-radius: 12px;
+}
+.hadmin .lbl {
+  margin-top: 0;
+}
+.hadmin .hdugmeler + .hdugmeler {
+  margin-top: 6px;
+}
+.hadmin #hasv {
+  flex: 0 0 70px;
+}

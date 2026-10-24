@@ -13,6 +13,12 @@ import {
   type Saglayici,
 } from "../../src/bulut/esitleme";
 import {
+  adminHerSeyAcik,
+  adminKilitAyarla,
+  adminParaEkle,
+  adminSeviye,
+  adminSifirla,
+  adminXpEkle,
   bulutKur,
   epostaGiris,
   epostaOlustur,
@@ -24,7 +30,9 @@ import {
 } from "../../src/bulut/hesap";
 import { hesapHtml } from "../../src/arayuz/hesap-ui";
 import {
+  adminKipi,
   aracAcikMi,
+  pistAcikMi,
   harca,
   ilerlemeSifirla,
   ilerlemeVerisi,
@@ -67,7 +75,9 @@ beforeEach(() => {
 /** sahte Firebase: bellekte belge deposu ve Google hesapları; yazma kuralları firestore.rules'un özü */
 function sahteBulut() {
   const db = new Map<string, BulutBelgesi>(),
-    googleHesap = new Map<string, string>();
+    googleHesap = new Map<string, string>(),
+    /** konsoldan eklenen admins/{uid} */
+    adminler = new Set<string>();
   let n = 0,
     yazma = 0;
   function cihaz(): Saglayici & { k: Kullanici | null } {
@@ -104,6 +114,9 @@ function sahteBulut() {
         s.ayarla({ uid: googleHesap.get(e)!, anonim: false, yol: "eposta", eposta: e, ad: null });
       },
       async sifreSifirla() {},
+      async adminMi(uid: string) {
+        return adminler.has(uid);
+      },
       async cikis() {
         s.ayarla(null);
       },
@@ -117,6 +130,7 @@ function sahteBulut() {
         const o = db.get(uid);
         if (
           o &&
+          !adminler.has(uid) &&
           (b.xp < o.xp || b.kazanilan < o.kazanilan || !Object.keys(o.alimlar).every((a) => a in b.alimlar))
         )
           throw { code: "permission-denied" };
@@ -126,7 +140,7 @@ function sahteBulut() {
     };
     return s;
   }
-  return { db, cihaz, yazmaSayisi: () => yazma };
+  return { db, cihaz, adminler, yazmaSayisi: () => yazma };
 }
 
 const bekle = () => new Promise((r) => setTimeout(r, 5));
@@ -321,6 +335,58 @@ describe("sahte Firebase ile eşitleme", () => {
     expect(await epostaGiris("yeni@ornek.com", "dogru1")).toBe(true);
     expect(hesapDurumu().hata).toBeNull();
     expect(hesapDurumu().bilgi).toContain("Bağlandı: yeni@ornek.com");
+    e.kapat();
+  });
+
+  it("admin: yetki sunucuda; admin her şeyi açık görür, panelle XP/para/seviye/kilit/sıfırlama; normal oyuncu göremez", async () => {
+    const bulut = sahteBulut(),
+      A = bulut.cihaz();
+    const e = hesapBaslat(A, { gecikme: 0 });
+    await bekle();
+    // normal (bağlı ama admin değil) hesap: panel yok, kilitler normal, admin işlemi çalışmaz
+    await googleBagla();
+    await bekle();
+    const uid = hesapDurumu().kullanici!.uid;
+    expect(hesapDurumu().admin).toBe(false);
+    expect(adminKipi()).toBe(false);
+    expect(pistAcikMi("gp", 8)).toBe(false);
+    expect(adminParaEkle(1000)).toBe(false);
+    expect(para()).toBe(0);
+    expect(hesapHtml()).not.toContain("Admin");
+    expect(hesapHtml()).toContain(uid); // kopyalanabilir hesap kimliği
+    // konsoldan admins/{uid} eklendi, yeniden giriş
+    bulut.adminler.add(uid);
+    await A.cikis();
+    await A.googleBagla();
+    await bekle();
+    expect(hesapDurumu().admin).toBe(true);
+    expect(pistAcikMi("gp", 8)).toBe(true);
+    expect(aracAcikMi(9)).toBe(true);
+    expect(seviye().lv).toBe(1); // kip kayda yazılmaz
+    expect(hesapHtml()).toContain("İlerlemeyi sıfırla");
+    expect(adminParaEkle(10000)).toBe(true);
+    expect(adminXpEkle(1000)).toBe(true);
+    expect(adminSeviye(10)).toBe(true);
+    expect(seviye().lv).toBe(10);
+    expect(adminSeviye(3)).toBe(true); // azaltma: buluta yalnız admin yazabilir
+    expect(seviye().lv).toBe(3);
+    expect(adminKilitAyarla("arac_9", true)).toBe(true);
+    adminHerSeyAcik(false);
+    expect(aracAcikMi(9)).toBe(true);
+    expect(pistAcikMi("gp", 8)).toBe(false);
+    expect(adminKilitAyarla("arac_9", false)).toBe(true);
+    expect(aracAcikMi(9)).toBe(false);
+    await bekle();
+    expect(adminSifirla()).toBe(true);
+    await bekle();
+    expect(seviye().toplamXp).toBe(0);
+    expect(para()).toBe(0);
+    expect(bulut.db.get(uid)!.xp).toBe(0);
+    expect(hesapDurumu().esitleme).toBe("tamam");
+    // çıkınca admin kipi kapanır
+    await A.cikis();
+    expect(hesapDurumu().admin).toBe(false);
+    expect(adminKipi()).toBe(false);
     e.kapat();
   });
 });
