@@ -61,7 +61,7 @@ function listeHtml(dis: string) {
     satirlar = bilinenHesaplar()
       .map((h) => {
         const su = h.uid == k.uid;
-        return `<div class="hhesap${su ? " su" : ""}"><button class="hdg hsec" data-gec="${kacis(h.uid)}"${su ? " disabled" : dis}>${ikon(h.yol)}<span class="het">${kacis(h.etiket)}</span><small>Seviye ${h.lv}${su ? " · şu an" : ""}</small>${h.admin ? `<b class="hrozet">Admin</b>` : ""}</button>${su ? "" : `<button class="hdg kucuk hkaldir" data-kaldir="${kacis(h.uid)}" aria-label="Listeden kaldır"${dis}>✕</button>`}</div>`;
+        return `<div class="hhesap${su ? " su" : ""}"><button class="hdg hsec" data-gec="${kacis(h.uid)}"${su ? " disabled" : dis}>${ikon(h.yol)}<span class="het">${kacis(h.etiket)}</span><small>Seviye ${h.lv}${su ? " · şu an" : ""}</small>${h.admin ? `<b class="hrozet">Admin</b>` : ""}</button>${su ? "" : `<button class="hdg kucuk hkaldir" data-kaldir="${kacis(h.uid)}" aria-label="Listeden kaldır"${dis}>${ikon("kapat")}</button>`}</div>`;
       })
       .join(""),
     misafir = sifirSor
@@ -248,7 +248,7 @@ export function epostaFormuAc(kip: Kip, degerler: Record<string, string> = {}) {
     .join("")}</div>
 <div class="hsag"><button type="submit" class="hdg ana" id="hileri"></button></div>
 <p class="hmsg" id="hmsg"></p>
-<div class="halt"><button type="button" class="hdg kucuk" id="hgeri">‹ Geri</button><button type="button" class="hdg kucuk" id="hkip">${kip == "olustur" ? "Zaten hesabım var → Giriş yap" : "Hesabım yok → Yeni hesap"}</button>${kip == "giris" ? `<button type="button" class="hdg kucuk" id="hunut">Şifremi unuttum</button>` : ""}<button type="button" class="hdg kucuk" id="hkapat">Kapat</button></div>
+<div class="halt"><button type="button" class="hdg kucuk" id="hgeri">${ikon("sol")} Geri</button><button type="button" class="hdg kucuk" id="hkip">${kip == "olustur" ? `Zaten hesabım var ${ikon("ok")} Giriş yap` : `Hesabım yok ${ikon("ok")} Yeni hesap`}</button>${kip == "giris" ? `<button type="button" class="hdg kucuk" id="hunut">Şifremi unuttum</button>` : ""}<button type="button" class="hdg kucuk" id="hkapat">Kapat</button></div>
 </form>`;
   document.body.appendChild(k);
   kat = k;
@@ -287,8 +287,8 @@ export function epostaFormuAc(kip: Kip, degerler: Record<string, string> = {}) {
   const goster = (odak = true) => {
     alanlar.forEach((a, i) => girdi(i).classList.toggle("gizli", i != adim));
     $("hadim").textContent = `${adim + 1}/${alanlar.length} · ${alanlar[adim].ad}`;
-    $("hileri").textContent =
-      adim < alanlar.length - 1 ? "İleri ›" : kip == "olustur" ? "Hesap oluştur" : "Giriş yap";
+    $("hileri").innerHTML =
+      adim < alanlar.length - 1 ? `İleri ${ikon("sag")}` : kip == "olustur" ? "Hesap oluştur" : "Giriş yap";
     $("hgeri").style.visibility = adim ? "" : "hidden";
     mesaj();
     if (odak) girdi(adim).focus();

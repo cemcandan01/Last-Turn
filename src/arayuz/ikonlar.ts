@@ -36,6 +36,14 @@ const IKON = {
   sol: '<path d="M15 6l-6 6l6 6"/>',
   /** tabler: chevron-right */
   sag: '<path d="M9 6l6 6l-6 6"/>',
+  /** tabler: x (kapat) */
+  kapat: '<path d="M18 6l-12 12"/><path d="M6 6l12 12"/>',
+  /** tabler: chevron-down */
+  asagi: '<path d="M6 9l6 6l6 -6"/>',
+  /** tabler: chevron-up */
+  yukari: '<path d="M6 15l6 -6l6 6"/>',
+  /** tabler: arrow-right (yönlendirme) */
+  ok: '<path d="M5 12l14 0"/><path d="M13 18l6 -6"/><path d="M13 6l6 6"/>',
   /** tabler: volume (motoru dinle) */
   ses: '<path d="M15 8a5 5 0 0 1 0 8"/><path d="M17.7 5a9 9 0 0 1 0 14"/><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5"/>',
   /** tabler: layout-grid (tümü) */

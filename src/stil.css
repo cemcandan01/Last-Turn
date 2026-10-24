@@ -221,12 +221,25 @@ summary::-webkit-details-marker {
   display: none;
 }
 summary::after {
-  content: "▾";
+  content: "";
   float: right;
-  color: var(--mut);
+  width: 7px;
+  height: 7px;
+  margin: 6px 4px 0 0;
+  border: solid var(--mut);
+  border-width: 0 2px 2px 0;
+  rotate: 45deg;
 }
 details[open] > summary::after {
-  content: "▴";
+  margin-top: 10px;
+  rotate: 225deg;
+}
+.hdg .ik,
+.btn .ik,
+.tk em .ik {
+  width: 1.1em;
+  height: 1.1em;
+  vertical-align: -0.2em;
 }
 .bar {
   position: sticky;
