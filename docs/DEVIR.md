@@ -7,4 +7,5 @@
 - Son süreç işi: `docs/isler/2026-10-25-ortak-calisma.md`; son uygulayıcı Codex, dal `codex/kurallar`. Tamamlandı; [PR #7](https://github.com/cemcandan01/Last-Turn/pull/7) ve [CI 40133242132](https://github.com/cemcandan01/Last-Turn/actions/runs/40133242132): 14/14 test, tip/lint/biçim temiz. Yeni işte aktif sahip ayrıca atanır.
 - Gece regresyonu/Claude merkezi ve telefon bildirimleri bu oturumda kurulmadı; Claude tarafında mevcut olanlar ayrıca doğrulanmalı.
 - Devirde ilk adım: `git fetch origin`, ilgili dalı güncelle, `node scripts/calisma.mjs baglam <alan>` ve görev kartını oku. Kullanıcıya geçmişi tekrar anlattırma.
-- Context7 bu ChatGPT hesabında bağlı; Three.js r186 belge sorgusu doğrulandı. Claude hesabında ayrıca yapılandırılmadı.
+- Context7 bu ChatGPT hesabında bağlı; Three.js r186 belge sorgusu doğrulandı. Claude tarafına da kurulduğu Cem tarafından bildirildi.
+- Aktif oyun düzeltmesi: `docs/isler/2026-10-25-ios-iframe.md`, Codex / codex/altyapi. 439 bayt iframe MIME hatası doğrulandı; yerel 25 test geçti; CI ve deneme yayını bekliyor.

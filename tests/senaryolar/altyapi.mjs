@@ -5,6 +5,15 @@ const C = "tests/birim/cok-arac.test.ts",
   BU = "tests/birim/bulut.test.ts";
 export default [
   {
+    id: "firebase-giris-yardimcisi",
+    ad: "iPhone yerel yardımcıda MIME doğrulanır; bozuk iframe seçilmez, eski redirect resolver korunur",
+    p: 1,
+    birim: {
+      dosya: "tests/birim/firebase-giris.test.ts",
+      grup: "Firebase giriş yardımcısı ve iPhone açılışı",
+    },
+  },
+  {
     id: "pwa-cevrimdisi",
     ad: "Çevrimdışı oyun açılır; hatalı yanıt saklanmaz, sürümler ve giriş yardımcısı yalıtılır",
     p: 1,

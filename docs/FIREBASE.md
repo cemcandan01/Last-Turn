@@ -52,6 +52,17 @@ onsuz gider, takılı parçalar yalnız o cihazda kalır; yayınlandıktan sonra
 
 ## 6. iPhone'da kurulu uygulamada Google girişi için (bir kez)
 
+**GitHub Pages notu (0.5.27):** uzantısız `__/auth/iframe` ve `handler` dosyaları bu sunucuda
+`application/octet-stream` olarak geliyor (iframe: 439 bayt). iPhone bunları sayfa yerine indirilen dosya
+olarak açabiliyor. Yalnız dosyanın var olması yetmez: oyun her iki HTML uç noktasının `text/html` türünde,
+attachment başlığı olmadan sunulduğunu kontrol eder. Uygun değilse Firebase'in kendi alan adını ve popup
+yolunu kullanır; indirilen dosyaya dönüşen yerel iframe seçilmez. SDK çözücüsü, eski redirect/link kayıtlarında
+argument-error oluşmaması için korunur. Yerel kayıt silinmez.
+
+Aşağıdaki aynı kökenli yönlendirme adımları **ancak yardımcıları doğru HTML türüyle sunabilen hosting'de**
+geçerlidir. Google Cloud URI ayarı tek başına GitHub Pages'in MIME türünü değiştirmez. Kurulu iPhone'da popup
+Google girişi ayrıca gerçek cihazda denenmelidir; e-posta girişi aynı kalır.
+
 Ana ekrana kurulu uygulamada Google girişi, giriş sayfasının oyunun kendi adresinde olmasını ister (Safari
 kısıtlaması). Bunun için Google'a o adresi tanıtmak gerekir:
 
@@ -130,6 +141,6 @@ ilerlemesi bulutta kalır). Listede şifre ya da giriş belirteci saklanmaz; yal
 - Kod: `src/bulut/hesap.ts` (arayüz API'si, tembel yükleme), `esitleme.ts` (birleştirme, gecikmeli yazma, kuyruk),
   `firebase.ts` (Auth + Firestore Lite), arayüz `src/arayuz/hesap-ui.ts`. Belge: `users/{uid}`.
 - Google girişi yardımcısı (`__/auth/*`) derlemede projenin `firebaseapp.com` adresinden indirilir (`vite.config.ts →
-  firebaseYardimci`, GitHub Actions'ta). Varsa `authDomain` oyunun kendi adresi olur; kurulu iPhone uygulamasında
+  firebaseYardimci`, GitHub Actions'ta). İki HTML uç noktası doğru türde sunuluyorsa `authDomain` oyunun kendi adresi olur; kurulu iPhone uygulamasında
   yönlendirme (redirect), başka yerde açılır pencere (popup) kullanılır.
 - Kuralları değiştirince 5. adım tekrarlanır (Actions ile yayın için hizmet hesabı anahtarı gerekir; şimdilik elle).
