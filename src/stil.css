@@ -3321,11 +3321,11 @@ details[open] > summary::after {
   filter: grayscale(0.6);
   pointer-events: none;
 }
-/* sol alt: kısa açıklama */
+/* sol üst: kısa açıklama (ad ve rozetlerin altında) */
 #gdes {
   position: fixed;
   left: max(16px, var(--sal, 0px));
-  bottom: calc(10px + var(--sab, 0px));
+  top: calc(118px * var(--gs, 1) + var(--sat, 0px));
   z-index: 6;
   max-width: min(calc(330px * var(--gs, 1)), calc(100% - 520px * var(--gs, 1)));
   padding: calc(6px * var(--gs, 1)) calc(12px * var(--gs, 1));
@@ -3338,7 +3338,7 @@ details[open] > summary::after {
 /* mağaza: sekme + tür süzgeci, ad bloğunun altında */
 #gmf {
   position: fixed;
-  top: calc(190px * var(--gs, 1) + var(--sat, 0px));
+  bottom: calc(72px * var(--gs, 1) + var(--sab, 0px));
   left: max(16px, var(--sal, 0px));
   z-index: 6;
   display: flex;
@@ -3559,4 +3559,25 @@ details[open] > summary::after {
   stroke-width: 2.4;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+/* araçlar arası geçiş: sol altta, baş parmakla erişilir (dokunma alanı en az 48 px) */
+.gnav {
+  position: absolute;
+  left: max(16px, var(--sal, 0px));
+  bottom: calc(10px + var(--sab, 0px));
+  display: flex;
+  align-items: center;
+  gap: calc(6px * var(--gs, 1));
+}
+#gar .gnav .ga {
+  width: max(52px, calc(56px * var(--gs, 1)));
+  height: max(52px, calc(56px * var(--gs, 1)));
+  background: #05070bb8;
+  border: 1px solid #ffffff33;
+}
+.gnav .gsay {
+  margin: 0;
+  min-width: calc(48px * var(--gs, 1));
+  text-align: center;
 }
