@@ -3073,7 +3073,6 @@ details[open] > summary::after {
 .hkat.dar .halt .hdg {
   min-height: 32px;
 }
-<<<<<<< HEAD
 /* profil: hesap kimliği (admin yapmak için kopyalanır) ve admin paneli (arayuz/hesap-ui.ts) */
 .hkimlik {
   display: flex;
@@ -3107,7 +3106,7 @@ details[open] > summary::after {
 }
 .hadmin #hasv {
   flex: 0 0 70px;
-=======
+
 
 /* mağaza (garaj ekranının mağaza kipi): sekme + tür süzgeci vitrinin üstünde, açıklama satırı, garaja git çubuğu */
 #gmf {
@@ -3213,5 +3212,4 @@ details[open] > summary::after {
 #gmal .ik {
   width: 18px;
   height: 18px;
->>>>>>> garaj
 }
