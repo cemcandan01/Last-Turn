@@ -123,7 +123,7 @@ export default async function ({ p, ok }) {
     };
   });
   ok(
-    +on.fark == on.beklenen && on.beklenen > 0 && on.onizleme && /HIZ/.test(on.etki) && on.aciklama,
+    +on.fark == on.beklenen && on.beklenen > 0 && on.onizleme && /GÜÇ \+/.test(on.etki) && on.aciklama,
     "parçaya dokununca puan farkı, önizleme rozeti, etki ve açıklama: " + JSON.stringify(on),
   );
   ok(on.kapali && /daha gerekli/.test(on.yazi), "para yokken satın alma kapalı: " + on.yazi);
