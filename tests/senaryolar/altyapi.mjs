@@ -5,6 +5,12 @@ const C = "tests/birim/cok-arac.test.ts",
   BU = "tests/birim/bulut.test.ts";
 export default [
   {
+    id: "pwa-cevrimdisi",
+    ad: "Çevrimdışı oyun açılır; hatalı yanıt saklanmaz, sürümler ve giriş yardımcısı yalıtılır",
+    p: 1,
+    birim: { dosya: "tests/birim/pwa.test.ts", grup: "PWA çevrimdışı kayıt ve sürüm yalıtımı" },
+  },
+  {
     id: "girdi-kaydi",
     ad: "Girdi kaydı iki kez oynatılınca aynı son durum (belirlenimcilik)",
     p: 1,
