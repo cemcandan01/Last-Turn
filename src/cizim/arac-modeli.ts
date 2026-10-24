@@ -428,6 +428,56 @@ const EK: Record<string, (g: THREE.Group, d: Arac) => void> = {
     g.add(bx(1.3, 0.1, 0.04, 0, 0.9, z - 0.015, tailM));
     numbers(g, "7", d.w, -0.15, 0.62, 0.9, "#15171a");
   },
+  e30: (g, d) => {
+    const k = blackM;
+    // siyah tamponlar, farlar arasında koyu ızgara (sade eski sedan)
+    tampon(g, d, 0.46, true, 0.14, 0.12, 0.06, 0.04, k);
+    tampon(g, d, 0.46, false, 0.14, 0.12, 0.06, 0.04, k);
+    tampon(g, d, 0.68, true, 0.16, 0.06, 0.02, -0.5, k);
+  },
+  golf: (g, d) => {
+    const k = blackM,
+      m = lam(d.col);
+    camurluk(g, d, m, 0.1);
+    // tavan arkasında küçük kanat, ön tamponda iki sis farı, yan çıkartma
+    kanat(g, d, k, -1.62, 1.52, 1.4, 0.2, 0.45, 0.05);
+    tampon(g, d, 0.46, true, 0.18, 0.1, 0.05, 0.04, k);
+    tampon(g, d, 0.46, false, 0.18, 0.1, 0.05, 0.04, k);
+    for (const sd of [-1, 1]) yuvarlakFar(g, d, 0.5, sd * 0.45, 0.08);
+    numbers(g, "12", d.w, 0.1, 0.84, 0.85, "#15171a");
+  },
+  niva: (g, d) => {
+    const k = blackM;
+    // yuvarlak farlar, kalın tamponlar, tavanda port bagaj, arka kapıda stepne
+    for (const sd of [-1, 1]) yuvarlakFar(g, d, 0.82, sd * 0.55, 0.12);
+    tampon(g, d, 0.5, true, 0.16, 0.14, 0.08, 0.06, k);
+    tampon(g, d, 0.5, false, 0.16, 0.14, 0.08, 0.06, k);
+    const yt = ust(d, -0.7) + 0.06;
+    g.add(bx(1.3, 0.04, 1.6, 0, yt + 0.06, -0.7, k));
+    for (const sd of [-1, 1]) g.add(bx(0.04, 0.1, 1.6, sd * 0.63, yt + 0.02, -0.7, k));
+    const { z } = uc(d, 1.0, false),
+      st = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.12, 14).rotateX(Math.PI / 2), dk);
+    st.position.set(0, 1.0, z - 0.05);
+    g.add(st);
+    numbers(g, "9", d.w, -0.3, 0.95, 0.9, "#f2f2ee");
+  },
+  c33: (g, d) => {
+    const k = blackM;
+    // ince tamponlar, bagajda küçük ördek kuyruğu
+    tampon(g, d, 0.42, true, 0.12, 0.1, 0.05, 0.02, k);
+    tampon(g, d, 0.42, false, 0.12, 0.1, 0.05, 0.02, k);
+    const zr = -2.18,
+      yr = ust(d, zr) + 0.03;
+    g.add(bx(2 * yariGenislik(d, yr, zr) - 0.1, 0.04, 0.16, 0, yr, zr, k, -0.18));
+  },
+  fox: (g, d) => {
+    const k = blackM;
+    // kaputta hava girişi, siyah tamponlar
+    g.add(bx(0.5, 0.08, 0.6, 0, ust(d, 1.5) + 0.02, 1.5, k));
+    tampon(g, d, 0.46, true, 0.16, 0.12, 0.06, 0.04, k);
+    tampon(g, d, 0.46, false, 0.16, 0.12, 0.06, 0.04, k);
+    numbers(g, "8", d.w, 0.2, 0.78, 0.9, "#f2f2ee");
+  },
 };
 
 interface TekerModeli {

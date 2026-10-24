@@ -76,6 +76,11 @@ const FREKANS: Record<string, number> = {
   int: 1.85,
   ae86: 2.0,
   supra: 2.05,
+  e30: 2.0,
+  golf: 1.9,
+  niva: 1.8,
+  c33: 1.8,
+  fox: 1.9,
 };
 
 export function aracFizigi(c: Arac, K: SurusKurulumu): AracFizigi {

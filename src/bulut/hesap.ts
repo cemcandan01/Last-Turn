@@ -16,6 +16,7 @@ import {
   xpEkle,
 } from "../oyun/ilerleme";
 import { PROF, saveProf } from "../oyun/profil";
+import { ILK_ARAC } from "../oyun/ekonomi";
 import { FIREBASE_AYAR, bulutAcik, type FirebaseAyari } from "./ayar";
 import {
   bekleyenVar,
@@ -306,7 +307,7 @@ export async function yeniOyuncu(yenidenAc = () => location.reload()) {
   rekorlariSil();
   Object.assign(PROF, { name: "Sürücü", races: 0, wins: 0, km: 0, use: {} });
   saveProf();
-  yaz("lt_car", 1);
+  yaz("lt_car", ILK_ARAC);
   yazJson("lt_bulut", { bekleyen: false });
   D.mesgul = false;
   yenidenAc();

@@ -412,7 +412,19 @@ export default async function ({ p, ok }) {
   );
   // yeni araç modelleri (k anahtarına göre): fizik dalı araçları ekleyene kadar geçici kopyalarla denenir
   const modeller = await p.evaluate(() => {
-    const k = { gt3: "gp", t16: "rx", int: "rl", ae86: "dr", supra: "dg" };
+    const k = {
+      gt3: "gp",
+      t16: "rx",
+      int: "rl",
+      ae86: "dr",
+      supra: "dg",
+      // başlangıç araçları (D sınıfı)
+      e30: "gp",
+      golf: "rx",
+      niva: "rl",
+      c33: "dp",
+      fox: "dg",
+    };
     for (const a in k) if (!LT.CARS.find((c) => c.k == a)) LT.CARS.push({ ...LT.CARS[0], k: a, ty: k[a] });
     LT.gorunumUygula(LT.CARS);
     const out = {};

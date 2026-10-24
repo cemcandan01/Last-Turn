@@ -70,7 +70,11 @@ export default async function ({ p, ok }) {
     LT.xpEkle(30, "test");
     LT.showMenu(["home"]);
     const i = LT.EVENTS.findIndex((e) => e.ty == "gp" && e.lv == 1);
-    LT.startEvent(i, 0);
+    // temiz profilde açık araç: asfalt başlangıç aracı (Kızıl Ok satın alınır)
+    LT.startEvent(
+      i,
+      LT.CARS.findIndex((c, k) => c.ty == "gp" && LT.aracAcikMi(k)),
+    );
     const E = LT.yaris.EV;
     E.t = E.ys[2] - 1;
     LT.endEvent();
