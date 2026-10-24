@@ -3062,7 +3062,7 @@ details[open] > summary::after {
   position: absolute;
   width: calc(12px * var(--gs, 1));
   height: calc(12px * var(--gs, 1));
-  border: 0 solid #ffb21a;
+  border: 0 solid var(--gt, #ffb21a);
 }
 .gad::before {
   left: 0;
@@ -3087,7 +3087,7 @@ details[open] > summary::after {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: var(--c, #ffb21a);
+  color: var(--c, var(--gt, #ffb21a));
   font-size: max(9px, calc(11px * var(--gs, 1)));
   font-weight: 800;
   letter-spacing: 0.16em;
@@ -3112,7 +3112,7 @@ details[open] > summary::after {
   height: max(44px, calc(52px * var(--gs, 1)));
   border: 0;
   background: none;
-  color: #ffb21a;
+  color: var(--gt, #ffb21a);
   font-size: calc(46px * var(--gs, 1));
   font-weight: 200;
   line-height: 1;
@@ -3130,7 +3130,7 @@ details[open] > summary::after {
 #gar .bdg {
   padding: calc(3px * var(--gs, 1)) calc(9px * var(--gs, 1));
   border: 0;
-  border-left: 2px solid #ffb21a;
+  border-left: 2px solid var(--gt, #ffb21a);
   border-radius: 0;
   background: #05070bb8;
   font-size: max(9px, calc(11px * var(--gs, 1)));
@@ -3138,7 +3138,7 @@ details[open] > summary::after {
   letter-spacing: 0.05em;
 }
 #gar .bdg.rec {
-  background: #ffb21a;
+  background: var(--gt, #ffb21a);
   color: #1b1000;
 }
 #gar .bdg.kilit {
@@ -3168,7 +3168,7 @@ details[open] > summary::after {
 }
 .gses.on {
   border-left-color: var(--acc);
-  color: #ffb21a;
+  color: var(--gt, #ffb21a);
 }
 /* sağ üst: HIZ / İVME / TUTUŞ / FREN / ARAZİ ince çubukları */
 .gbar {
@@ -3215,7 +3215,7 @@ details[open] > summary::after {
 .gk s {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, #ffb21a, #fff0c4);
+  background: linear-gradient(90deg, var(--gt, #ffb21a), #fff0c4);
 }
 .gk b {
   text-align: right;
@@ -3296,7 +3296,7 @@ details[open] > summary::after {
   border: 0;
   border-radius: 0;
   clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
-  background: #ffb21a;
+  background: var(--gt, #ffb21a);
   color: #1b1000;
   font-size: calc(13px * var(--gs, 1));
   font-weight: 800;
@@ -3312,7 +3312,7 @@ details[open] > summary::after {
 }
 #gar .gbt .btn.al:not(:disabled),
 #gvit .btn.al:not(:disabled) {
-  background: #e8b230;
+  background: var(--gt, #e8b230);
   color: #231600;
 }
 #gar .gbt .btn:disabled,
@@ -3329,16 +3329,16 @@ details[open] > summary::after {
   z-index: 6;
   max-width: min(calc(330px * var(--gs, 1)), calc(100% - 520px * var(--gs, 1)));
   padding: calc(6px * var(--gs, 1)) calc(12px * var(--gs, 1));
-  border-left: 2px solid #ffb21a;
+  border-left: 2px solid var(--gt, #ffb21a);
   background: #05070bb8;
   font-size: max(9px, calc(12px * var(--gs, 1)));
   line-height: 1.35;
   color: #dfe5f0;
 }
-/* mağaza: sekme + tür süzgeci, ad bloğunun altında */
+/* mağaza: sekme + tür süzgeci, sol üst köşede tek satır; ad bloğu altına kayar (yazı uzasa da araca binmez) */
 #gmf {
   position: fixed;
-  top: calc(190px * var(--gs, 1) + var(--sat, 0px));
+  top: calc(8px * var(--gs, 1) + var(--sat, 0px));
   left: max(16px, var(--sal, 0px));
   z-index: 6;
   display: flex;
@@ -3349,7 +3349,7 @@ details[open] > summary::after {
 }
 #gmf .gsek {
   padding: 3px 10px;
-  border-bottom: 2px solid #ffb21a;
+  border-bottom: 2px solid var(--gt, #ffb21a);
   color: #fff;
   font-weight: 800;
   font-size: max(9px, calc(11px * var(--gs, 1)));
@@ -3394,7 +3394,7 @@ details[open] > summary::after {
   gap: 10px;
   padding: 4px 6px 4px 14px;
   background: #05070bdd;
-  border-left: 2px solid #ffb21a;
+  border-left: 2px solid var(--gt, #ffb21a);
   color: #ffd45e;
   font-weight: 700;
   font-size: calc(13px * var(--gs, 1));
@@ -3520,7 +3520,7 @@ details[open] > summary::after {
   pointer-events: auto;
 }
 #gar .galt .gses.on {
-  color: #ffb21a;
+  color: var(--gt, #ffb21a);
 }
 /* süzgeç: tek satır, eş kare ikon düğmeleri */
 #gmf {
@@ -3532,16 +3532,19 @@ details[open] > summary::after {
   margin-right: 6px;
   white-space: nowrap;
 }
+#gar.magaza .gust {
+  top: calc(46px * var(--gs, 1) + var(--sat, 0px));
+}
 #gmf button {
   justify-content: center;
-  width: 40px;
-  min-height: 40px;
+  width: calc(32px * var(--gs, 1));
+  min-height: calc(32px * var(--gs, 1));
   padding: 0;
   gap: 0;
 }
 #gmf button .ik {
-  width: 20px;
-  height: 20px;
+  width: 17px;
+  height: 17px;
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
