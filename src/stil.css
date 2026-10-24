@@ -3408,29 +3408,14 @@ details[open] > summary::after {
   gap: 8px;
   z-index: 5;
 }
-/* araç geçişi: arayüz kısa solar, sahne kararıp açılır (araç gidilen yönden kayar: kamera.gKay) */
+/* araç geçişi: arayüz yazıları kısa solar; 3B görüntü kararmaz (araç gidilen yönden kayar: kamera.gKay) */
 #gar.gecis .gust,
 #gar.gecis .gbar,
 #gar.gecis .galt {
   animation: ggecis 0.3s ease-out;
 }
-#gar.gecis::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: #05070b;
-  animation: gflas 0.3s ease-out forwards;
-}
 @keyframes ggecis {
   from {
     opacity: 0.2;
-  }
-}
-@keyframes gflas {
-  from {
-    opacity: 0.6;
-  }
-  to {
-    opacity: 0;
   }
 }

@@ -320,6 +320,43 @@ export default async function ({ p, ok }) {
       gec.taban +
       ")",
   );
+  // geçişte 3B görüntü kararmaz: tuval ortalama parlaklığı geçiş boyunca taban değerin altına düşmez
+  const par = await p.evaluate(async () => {
+    LT.openGarage(0);
+    await new Promise((r) => setTimeout(r, 1500));
+    const kare = () => new Promise((r) => requestAnimationFrame(r)),
+      k = document.createElement("canvas");
+    k.width = 32;
+    k.height = 18;
+    const x = k.getContext("2d", { willReadFrequently: true });
+    const olc = () => {
+      LT.R.render(LT.scene, LT.cam);
+      x.drawImage(LT.R.domElement, 0, 0, 32, 18);
+      const d = x.getImageData(0, 0, 32, 18).data;
+      let t = 0;
+      for (let i = 0; i < d.length; i += 4) t += d[i] + d[i + 1] + d[i + 2];
+      return t / (d.length / 4) / 3;
+    };
+    for (let i = 0; i < 6; i++) await kare();
+    const taban = olc();
+    let en = taban;
+    for (let n = 0; n < 4; n++) {
+      document.querySelector("#gnx").click();
+      for (let i = 0; i < 20; i++) {
+        await kare();
+        en = Math.min(en, olc());
+      }
+    }
+    LT.closeGarage();
+    return { taban: Math.round(taban), en: Math.round(en) };
+  });
+  ok(
+    par.taban > 5 && par.en > par.taban * 0.6,
+    "araç geçişinde görüntü kararmıyor: ortalama parlaklık taban " +
+      par.taban +
+      ", geçiş boyunca en düşük " +
+      par.en,
+  );
   // garaj ışığı: dünya saati/havası ne olursa olsun aynı; kapanınca dünya ortamı geri gelir
   const isik = await p.evaluate(() => {
     const oku = () => LT.scene.background.getHex();
