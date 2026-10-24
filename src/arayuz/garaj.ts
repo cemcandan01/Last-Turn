@@ -287,7 +287,8 @@ function modifiyeGoster(G: GarajDurumu) {
       k == "paket" ? "" : tp ? pip(parcaBul(tp)!.sv) : "<small>Stok</small>"
     }</button>`;
   };
-  const ust = mk == "paket" ? "Paketler" : (KATEGORILER.find((x) => x[0] == mk)?.[1] ?? "");
+  // başlık kısa ad (bakiye aynı satırda: "Turbo / kompresör" sığmıyordu)
+  const ust = mk == "paket" ? "Paketler" : kisaAd(KATEGORILER.find((x) => x[0] == mk)?.[1] ?? "");
   // seçili parçanın etkisi (şimdiki yapıya göre): tur süresi, fiziksel değerler, nokta kütle değerleri; yeşil iyi, kırmızı kötü
   const etkiler = sec
     ? parcaEtkileri(no, takili, sec.yeni, tur)
@@ -304,7 +305,7 @@ function modifiyeGoster(G: GarajDurumu) {
       : ""
   }<span class="bdg gmbas">Modifiye${tur ? " · " + (turBilgi(tur)?.[1] ?? "") : ""}</span></div></div>
 <div class="gmk" id="gmk">${kat("paket", "Paketler")}${KATEGORILER.map(([k, ad]) => kat(k, kisaAd(ad))).join("")}</div>
-<div class="gmp" id="gmp"><div class="gmb"><b>${ust}</b><span>${paraYazi(bakiye)}</span></div>
+<div class="gmp" id="gmp"><div class="gmb" id="gmb"><b>${ust}</b><span>${paraYazi(bakiye)}</span></div>
 <div class="gml" id="gml">${satirlar
     .map((x) => {
       const d = puan(no, x.yeni, tur).puan - taban.puan,
