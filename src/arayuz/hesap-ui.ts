@@ -3,7 +3,17 @@
 // E-posta formu kendi tam ekran katmanında açılır (epostaFormuAc): iPhone yatayda klavye ekranın çoğunu kapladığı için
 // form görünür alana (visualViewport) sığdırılır ve alanlar tek tek sorulur (E-posta → Şifre → Şifre tekrar);
 // klavyenin İleri tuşu sonraki alana, son alanda gönderir.
+import { CARS } from "../arac/araclar";
+import { adminKipi, seviye } from "../oyun/ilerleme";
+import { TDEF } from "../dunya/pist-tanimlari";
+import { yildizAnahtari } from "../oyun/yildiz";
 import {
+  adminHerSeyAcik,
+  adminKilitAyarla,
+  adminParaEkle,
+  adminSeviye,
+  adminSifirla,
+  adminXpEkle,
   cikis,
   epostaGiris,
   epostaOlustur,
@@ -16,6 +26,7 @@ import {
 } from "../bulut/hesap";
 
 let sifirSor = false,
+  adminSifirSor = false,
   birak: (() => void) | null = null;
 
 const kacis = (t: string) => t.replace(/[&<>"]/g, (c) => "&#" + c.charCodeAt(0) + ";");
@@ -35,17 +46,45 @@ function ic() {
     : sifirSor
       ? `<p class="hhata">${k.anonim ? "Bu misafir hesabın ilerlemesi silinir." : "Bu cihazdan çıkılır; ilerlemen bağlı hesabında kalır."} Bu cihazda her şey sıfırdan başlar (ayarlar kalır).</p><div class="hdugmeler"><button class="hdg" id="hsifirevet"${dis}>Evet, sıfırdan başla</button><button class="hdg" id="hsifirhayir">Vazgeç</button></div>`
       : `<div class="hdugmeler"><button class="hdg" id="hsifir"${dis}>Yeni oyuncu olarak başla</button></div>`;
-  return `<div class="lbl">Hesap</div><p class="hsat">${kacis(hesapOzeti(d))}</p>${d.bilgi ? `<p class="hbilgi">${kacis(d.bilgi)}</p>` : ""}${d.hata && !formAcik() ? `<p class="hhata">${kacis(d.hata)}</p>` : ""}<div class="hdugmeler">${dugmeler}</div>${sifir}`;
+  // hesap kimliği (uid): admin yapmak için konsola yazılır; kopyalanabilir
+  const kimlik =
+    k && !k.anonim
+      ? `<div class="hkimlik"><small>Hesap kimliği</small><input id="huid" class="inp" readonly value="${kacis(k.uid)}"><button class="hdg kucuk" id="hkopya">Kopyala</button></div>`
+      : "";
+  return `<div class="lbl">Hesap</div><p class="hsat">${kacis(hesapOzeti(d))}${d.admin ? " · <b>Admin</b>" : ""}</p>${d.bilgi ? `<p class="hbilgi">${kacis(d.bilgi)}</p>` : ""}${d.hata && !formAcik() ? `<p class="hhata">${kacis(d.hata)}</p>` : ""}<div class="hdugmeler">${dugmeler}</div>${kimlik}${d.admin ? adminHtml() : ""}${sifir}`;
+}
+
+/** admin paneli: para/XP ekle, seviye ayarla, kilit aç-kapa, her şey açık kipi, ilerlemeyi sıfırla */
+function adminHtml() {
+  const ogeler = [
+    ...CARS.map((c, i) => [`arac_${i}`, "Araç: " + c.n]),
+    ...TDEF.map((t) => [yildizAnahtari(t.t, t.lv), "Pist: " + t.n]),
+  ];
+  return `<div class="hadmin"><div class="lbl">Admin</div>
+<div class="hdugmeler"><button class="hdg kucuk" id="hakip">Her şey açık: ${adminKipi() ? "Açık" : "Kapalı"}</button>
+<button class="hdg kucuk" data-para="1000">+1000 para</button><button class="hdg kucuk" data-para="10000">+10000 para</button>
+<button class="hdg kucuk" data-xp="100">+100 XP</button><button class="hdg kucuk" data-xp="1000">+1000 XP</button></div>
+<div class="hdugmeler"><input id="hasv" class="inp" type="number" min="1" max="99" value="${seviye().lv}" inputmode="numeric"><button class="hdg kucuk" id="hasvb">Seviyeyi ayarla</button></div>
+<div class="hdugmeler"><select id="haoge" class="inp">${ogeler.map(([k, a]) => `<option value="${k}">${kacis(a)}</option>`).join("")}</select><button class="hdg kucuk" id="haac">Aç</button><button class="hdg kucuk" id="hakapa">Kilitle</button></div>
+<div class="hdugmeler">${
+    adminSifirSor
+      ? `<button class="hdg kucuk" id="hasifevet">Evet, ilerlemeyi sıfırla</button><button class="hdg kucuk" id="hasifhayir">Vazgeç</button>`
+      : `<button class="hdg kucuk" id="hasif">İlerlemeyi sıfırla</button>`
+  }</div></div>`;
 }
 
 /** profil ekranı için hesap bloğu (yapılandırma yoksa boş) */
 export const hesapHtml = () => (hesapDurumu().etkin ? `<div id="hesap" class="hesap">${ic()}</div>` : "");
 
-/** profil ekranı çizilince düğmeleri bağlar; durum değişince yalnız blok yenilenir */
-export function hesapBagla(m: HTMLElement) {
+/**
+ * profil ekranı çizilince düğmeleri bağlar; durum değişince yalnız blok yenilenir. yenidenCiz: admin işleminden sonra
+ * bütün profil (XP, para, seviye) yeniden çizilsin
+ */
+export function hesapBagla(m: HTMLElement, yenidenCiz?: () => void) {
   birak?.();
   birak = null;
   sifirSor = false;
+  adminSifirSor = false;
   const kutu = m.querySelector<HTMLElement>("#hesap");
   if (!kutu) return;
   const bagla = () => {
@@ -65,6 +104,41 @@ export function hesapBagla(m: HTMLElement) {
       yenile();
     });
     tik("hsifirevet", () => void yeniOyuncu());
+    tik("hkopya", () => {
+      const u = kutu.querySelector<HTMLInputElement>("#huid")!;
+      u.select();
+      void navigator.clipboard?.writeText(u.value).catch(() => {});
+      const b = kutu.querySelector<HTMLElement>("#hkopya")!;
+      b.textContent = "Kopyalandı";
+    });
+    // admin: işlemden sonra profil (XP, para, seviye) yeniden çizilir
+    const sonra = () => yenidenCiz?.();
+    tik("hakip", () => adminHerSeyAcik(!adminKipi()) && sonra());
+    kutu
+      .querySelectorAll<HTMLElement>("[data-para]")
+      .forEach((e) => (e.onclick = () => adminParaEkle(+e.dataset.para!) && sonra()));
+    kutu
+      .querySelectorAll<HTMLElement>("[data-xp]")
+      .forEach((e) => (e.onclick = () => adminXpEkle(+e.dataset.xp!) && sonra()));
+    tik("hasvb", () => {
+      const lv = +kutu.querySelector<HTMLInputElement>("#hasv")!.value;
+      if (lv >= 1 && adminSeviye(lv)) sonra();
+    });
+    const oge = () => kutu.querySelector<HTMLSelectElement>("#haoge")!.value;
+    tik("haac", () => adminKilitAyarla(oge(), true));
+    tik("hakapa", () => adminKilitAyarla(oge(), false));
+    tik("hasif", () => {
+      adminSifirSor = true;
+      yenile();
+    });
+    tik("hasifhayir", () => {
+      adminSifirSor = false;
+      yenile();
+    });
+    tik("hasifevet", () => {
+      adminSifirSor = false;
+      if (adminSifirla()) sonra();
+    });
   };
   const yenile = () => {
     if (!kutu.isConnected) {

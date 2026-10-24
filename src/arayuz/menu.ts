@@ -218,7 +218,7 @@ export function showMenu(v?: string[]) {
       saveProf();
       showMenu();
     };
-  if (cur == "profile") hesapBagla(m);
+  if (cur == "profile") hesapBagla(m, () => showMenu());
   if (cur == "settings") bindSettings(m.querySelector<HTMLElement>(".mbody")!, () => showMenu());
   kutlamaGoster();
 }

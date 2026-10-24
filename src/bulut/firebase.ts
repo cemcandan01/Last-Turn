@@ -125,6 +125,11 @@ export async function firebaseSaglayici(a: FirebaseAyari): Promise<Saglayici> {
     },
     epostaGiris: async (eposta, sifre) => void (await signInWithEmailAndPassword(auth, eposta, sifre)),
     sifreSifirla: (eposta) => sendPasswordResetEmail(auth, eposta),
+    adminMi: (uid) =>
+      getDoc(doc(db, "admins", uid)).then(
+        (s) => s.exists(),
+        () => false,
+      ),
     cikis: () => signOut(auth),
     async oku(uid) {
       const s = await getDoc(doc(db, "users", uid));
