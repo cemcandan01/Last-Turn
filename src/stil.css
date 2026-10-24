@@ -3740,9 +3740,19 @@ details[open] > summary::after {
   font-size: calc(13px * var(--gs, 1));
   letter-spacing: 0.06em;
 }
+.gmb {
+  gap: calc(10px * var(--gs, 1));
+}
 .gmb > b {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   text-transform: uppercase;
   color: var(--gt, #ffb21a);
+}
+.gmb > span {
+  flex: none;
 }
 .gmb span b {
   display: inline-flex;

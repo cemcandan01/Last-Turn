@@ -256,6 +256,31 @@ export default async function ({ p, ok }) {
     .then(() => true)
     .catch(() => false);
   ok(diger.mod == null && stokAyni, "parçasız araçta kurulum.mod yok, fizik stok araç nesnesi");
+  // üst satır: en uzun kategori adı ve 7 haneli bakiye ayrık durur, ikisi de kesilmez (iPhone 13)
+  const ust = await q.evaluate(() => {
+    LT.paraEkle(1000000, "test");
+    LT.openGarage(null);
+    document.querySelector("#gmod").click();
+    const R = (e) => e.getBoundingClientRect(),
+      kes = (a, b) => !(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top),
+      r = [];
+    for (const k of [...document.querySelectorAll("#gmk [data-k]")].map((e) => e.dataset.k)) {
+      document.querySelector(`#gmk [data-k='${k}']`).click();
+      const b = document.querySelector("#gmb > b"),
+        s = document.querySelector("#gmb > span");
+      if (
+        kes(R(b), R(s)) ||
+        b.scrollWidth > b.clientWidth + 1 ||
+        R(s).right > R(document.querySelector("#gmb")).right + 1
+      )
+        r.push(k + ": " + b.textContent + " / " + s.textContent);
+    }
+    return { r, bakiye: document.querySelector("#gmb > span").textContent.replace(/\D/g, "").length };
+  });
+  ok(
+    ust.bakiye >= 7 && !ust.r.length,
+    "kategori başlığı ve 7 haneli bakiye ayrık, kesilmiyor: " + JSON.stringify(ust),
+  );
   // küçük ekran (iPhone SE yatay): düzen yine binmiyor
   await q.setViewportSize({ width: 667, height: 375 });
   await q.evaluate(() => {
