@@ -3419,3 +3419,107 @@ details[open] > summary::after {
     opacity: 0.2;
   }
 }
+
+/* garaj ve mağaza rozetleri, süzgeç çipleri ve motor düğmesi: tek yükseklik, ince köşeli, çizgi ikonlu */
+#gar .bdg,
+.gtur,
+#gar .gses {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  height: calc(28px * var(--gs, 1));
+  min-height: 28px;
+  margin: 0;
+  padding: 0 calc(10px * var(--gs, 1));
+  font-size: max(9px, calc(11px * var(--gs, 1)));
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+#gar .bdg .ik,
+#gar .gses .ik,
+#gar .ga .ik {
+  width: 1.3em;
+  height: 1.3em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+#gar .ga .ik {
+  width: calc(30px * var(--gs, 1));
+  height: calc(30px * var(--gs, 1));
+}
+#gar .ga {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+#gar .gad h1 .ik {
+  width: 0.8em;
+  height: 0.8em;
+  margin-right: 0.3em;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  vertical-align: -0.05em;
+}
+/* motor dinle: bilgi kutusunun hemen üstünde, diğer düğmeler gibi kesik köşeli */
+#gar .galt .gses {
+  height: 40px;
+  padding: 0 calc(18px * var(--gs, 1));
+  border: 0;
+  border-radius: 0;
+  background: #05070bb8;
+  color: #fff;
+  font-size: max(9px, calc(12px * var(--gs, 1)));
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+  pointer-events: auto;
+}
+#gar .galt .gses.on {
+  color: #ffb21a;
+}
+/* süzgeç: tek satır, eş kare ikon düğmeleri */
+#gmf {
+  flex-wrap: nowrap;
+  max-width: none;
+  gap: 4px;
+}
+#gmf .gsek {
+  margin-right: 6px;
+  white-space: nowrap;
+}
+#gmf button {
+  justify-content: center;
+  width: 40px;
+  min-height: 40px;
+  padding: 0;
+  gap: 0;
+}
+#gmf button .ik {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+#gmf button:not(.on) .ik {
+  color: var(--c);
+}
+#gvit .gvar .ik {
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

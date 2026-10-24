@@ -223,6 +223,8 @@ export default async function ({ p, ok }) {
         ust = R("#gar .gust"),
         bar = R("#gar .gbar"),
         alt = R("#gar .galt"),
+        // alt blok sağa yaslı sütundur: kutusu geniş satırın üstüne taşar, bu yüzden çocukları ayrı sınanır
+        altCocuk = [...document.querySelectorAll("#gar .galt > *")].map((e) => e.getBoundingClientRect()),
         ORTA = {
           left: innerWidth * 0.42,
           right: innerWidth * 0.58,
@@ -241,7 +243,7 @@ export default async function ({ p, ok }) {
           kes(bar, alt) ||
           kes(ust, ORTA) ||
           kes(bar, ORTA) ||
-          kes(alt, ORTA),
+          altCocuk.some((c) => kes(c, ORTA)),
       });
       LT.closeGarage();
     }
