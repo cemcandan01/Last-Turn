@@ -3654,7 +3654,8 @@ details[open] > summary::after {
   left: max(16px, var(--sal, 0px));
   bottom: calc(10px + var(--sab, 0px));
   display: grid;
-  grid-template-columns: repeat(2, calc(92px * var(--gs, 1)));
+  /* sütun en uzun ada göre genişler (yazı tipi cihazdan cihaza değişir, ad kesilmesin) */
+  grid-template-columns: repeat(2, minmax(calc(84px * var(--gs, 1)), max-content));
   gap: calc(4px * var(--gs, 1));
 }
 #gar .gmk button {
