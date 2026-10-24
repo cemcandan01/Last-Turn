@@ -729,12 +729,8 @@ function showGar() {
       k = L.indexOf(G.i);
     G.i = L[k < 0 ? 0 : (k + yon + n) % n];
     G.alinan = null;
-    // kısa kayma ve solma: araç gidilen yönden gelir (kamera.gKay), arayüz CSS ile solar
-    kamera.gKay = yon * 0.8;
+    // ekran yerinde kalır, yalnız araç değişir (kullanıcı isteği: kayma ve solma yok)
     showGar();
-    g.classList.remove("gecis");
-    void g.offsetWidth;
-    g.classList.add("gecis");
   };
   sesButonu();
   // motoru dinle: sesi ses modülü çalar (olay sözleşmesi: lt:motor-dinle → lt:motor-dinle-bitti); tekrar basınca baştan
