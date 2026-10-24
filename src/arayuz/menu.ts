@@ -336,7 +336,7 @@ function view(cur: string): [string, string, string] {
         const tum = EVENTS.filter((e) => e.ty == t),
           cnt = tum.length,
           acik = tum.filter((e) => pistAcikMi(e.ty, e.lv)).length;
-        return `<div class="tk" data-tk="${i}" style="--c:${c}">${ikon(g)}<b>${n}</b><small>${d}</small><em>${acik}/${cnt} pist açık · Çaylak → Efsane</em></div>`;
+        return `<div class="tk" data-tk="${i}" style="--c:${c}">${ikon(g)}<b>${n}</b><small>${d}</small><em>${acik}/${cnt} pist açık · Çaylak ${ikon("ok")} Efsane</em></div>`;
       }).join(
         "",
       )}</div><button class="kfo sol" id="kfs" aria-label="Önceki"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button class="kfo sag" id="kfg" aria-label="Sonraki"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button><div class="kfn">${TYPES.map((q) => `<i style="--c:${q[4]}"></i>`).join("")}</div>`,
@@ -368,7 +368,7 @@ function view(cur: string): [string, string, string] {
       e.n,
       turOf(e.ty)[1] + " yarışları",
       `<div><div class="evh"><img src="${trackThumb(r)}"><div>${seviyeRozeti(e)}<p class="lvd">${SEVIYELER[e.sev - 1].d}</p><p>${e.d}</p>
-${evSayilar(e)}${yildizEsikSatiri(e)}${paraOdulu(e)}</div></div><button class="btn" id="mgo" data-go="${i}">Araç seç ›</button></div>
+${evSayilar(e)}${yildizEsikSatiri(e)}${paraOdulu(e)}</div></div><button class="btn" id="mgo" data-go="${i}">Araç seç ${ikon("sag")}</button></div>
 <div class="evk">${condChips()}</div>`,
     ];
   }
