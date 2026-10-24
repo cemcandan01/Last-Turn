@@ -24,4 +24,5 @@
   | paketler (kendi / başka tür) | asfalt +3,0 / +8,9%; ralli +0,6% / Kızıl Ok stok bitiremez → 43,9 sn; rallikros −1,9% / bitiremez → 36,8; drift +6,5 / +11,9% puan; drag +2,2 / −0,7% |
 - Düzeltilen: önizleme satırı yalnız nokta kütle değerlerini gösteriyordu (Kor RX yarış motoru HIZ ±0: son viteste devir sınırı, gerçek); artık tur süresi + fiziksel değerler (güç, ağırlık, turbo gecikmesi, çekiş, teker açısı, yay, kilit, lastik) (`parcaEtkileri`). Yükseltme parçaları yüksek araçta üst üste biniyordu (Mavi Yıldız ralli paketiyle %17 yavaştı) → `aracKur` lift/hcg. Turbo parçası sesi yoktu → `ses.ts`/`motor.ts` ek katman.
 - Ölçüm notu: fren gerçekçide (ABS yok) kilitlenmeyle düzensiz; Dengeli'de ölçülür. Pilot tur süreleri ±%3 oynak.
-- Açık: drag paketi Kızıl Ok'ta etkisiz (−0,7%: kısa şanzıman tepe hızı keser; fizik dalı); rallikros paketi Kor RX'te −1,9% (gürültü sınırında); 3B modelde parça görünümü yok (kanat vb.); vitrin çubukları (HIZ/İVME…) stok değerleri gösterir; mağaza/ekonomi dengesi ölçülmedi (puan/para verimi).
+- Fizik 0.5.23 drag ve rallikros süspansiyonunu düzeltti: drag paketi Kızıl Ok +0,3%, Gece Mavisi +3,6%; rallikros Kor RX ±0.
+- Açık: 3B modelde parça görünümü yok (kanat vb.); vitrin çubukları (HIZ/İVME…) stok değerleri gösterir; mağaza/ekonomi dengesi ölçülmedi (puan/para verimi).
