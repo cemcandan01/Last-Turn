@@ -245,7 +245,7 @@ export const PARCALAR: Parca[] = [
     sv: 2,
     n: "Rallikros süspansiyonu",
     d: "Orta uzun, sıkı: atlamada ve karışık zeminde dengeli",
-    e: { fq: 1.9, ayar: { susp: 1.15 }, ekle: { lift: 0.03, hcg: 0.01 }, gr: [1.04, 0.98] },
+    e: { fq: 1.9, ayar: { susp: 1.15 }, ekle: { lift: 0.03 }, gr: [1.04, 0.98] },
   },
   {
     id: "suspansiyon-drift",
@@ -260,8 +260,8 @@ export const PARCALAR: Parca[] = [
     kat: "suspansiyon",
     sv: 2,
     n: "Drag süspansiyonu",
-    d: "Arka çöker, ağırlık arka tekerlere biner; virajda ağır",
-    e: { fq: 1.8, ayar: { susp: 1.3, tpf: 1.1, tpr: 0.9, bal: 1.1 }, ekle: { lift: 0.02 } },
+    d: "Sert yay, düşük arka lastik basıncı: kalkışta arka tekerler yere basar; virajda ağır",
+    e: { fq: 2.2, ayar: { susp: 1, tpf: 1.1, tpr: 0.9, bal: 1.1 }, ekle: { lift: 0.02 } },
   },
   // diferansiyel: kilit arttıkça gaz arkayı kolay kaydırır (drift başlatma), açık diferansiyel kararlı
   {
@@ -532,8 +532,15 @@ export function aracKur(aracNo: number, parcaIdleri: readonly string[] = []): Su
     const e = parcaBul(id)!.e;
     if (e.carp) for (const k in e.carp) c[k as "hp"] *= e.carp[k as "hp"]!;
     if (e.ekle) {
-      if (e.ekle.lift) c.lift = (c.lift || 0) + e.ekle.lift;
-      if (e.ekle.hcg) c.hcg = (c.hcg ?? 0.48) + e.ekle.hcg;
+      // yükseltme: yerden yükseklik parçanın değerine çıkar, zaten yüksek araç yükselmez ve ağırlık merkezi de o oranda
+      // yükselir (ralli aracına ralli süspansiyonu / alt koruma takınca devrilmeye yatkın olmasın); alçaltma her araçta işler
+      let hcgPay = 1;
+      if (e.ekle.lift) {
+        const once = c.lift || 0;
+        c.lift = e.ekle.lift > 0 ? Math.max(once, e.ekle.lift) : once + e.ekle.lift;
+        if (e.ekle.lift > 0) hcgPay = (c.lift - once) / e.ekle.lift;
+      }
+      if (e.ekle.hcg) c.hcg = (c.hcg ?? 0.48) + e.ekle.hcg * (e.ekle.hcg > 0 ? hcgPay : 1);
     }
     if (e.gr) c.gr = [c.gr[0] * e.gr[0], c.gr[1] * e.gr[1]];
     if (e.awd != null) {

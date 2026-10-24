@@ -13,6 +13,18 @@ export default [
     birim: { dosya: "tests/birim/modifiye.test.ts", grup: "modifiye: fiyat ve satın alma" },
   },
   {
+    id: "modifiye-bulut",
+    ad: "Modifiye bulutta: takılı parçalar hesaba yazılır, başka cihazda gelir; eski kurallar alanı reddederse kayıt onsuz gider, kuyruk takılmaz; hesap geçişinde değişir",
+    p: 1,
+    birim: { dosya: "tests/birim/modifiye.test.ts", grup: "modifiye: bulut" },
+  },
+  {
+    id: "modifiye-his",
+    ad: "Modifiye hissiyatı: her parça kategorisi stoktan anlamlı fark verir (0-100, tepe hız, turbo gecikmesi, yalpa, patinaj, fren, tutuş, teker açısı)",
+    p: 2,
+    birim: { dosya: "tests/birim/modifiye-his.test.ts", grup: "modifiye: her kategori hissedilir" },
+  },
+  {
     id: "modifiye-garaj",
     ad: "Garajda Modifiye: sınıf + puan rozeti, kategoriler ve parçalar araca binmiyor, puan farkı önizlemesi, iki dokunuşla satın alma, paket, kayıt, yarışta parçalı araç",
     p: 1,

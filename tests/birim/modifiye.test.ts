@@ -2,10 +2,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import "../yardimci/sahte-tuval";
 import { CARS } from "../../src/arac/araclar";
+import { belgeOlustur, esitleyiciKur, type BulutBelgesi, type Saglayici } from "../../src/bulut/esitleme";
 import { BASLANGIC_ARACLARI } from "../../src/oyun/ekonomi";
-
-/** yeni oyuncunun sahip olduğu iki araç (başlangıç araçları) */
-const [A, B] = BASLANGIC_ARACLARI;
 import { KATEGORILER, PAKETLER, PARCALAR } from "../../src/arac/parcalar";
 import {
   ilerlemeSifirla,
@@ -26,11 +24,15 @@ import {
 } from "../../src/oyun/modifiye";
 
 let depo: Record<string, string>;
+
+/** yeni oyuncunun sahip olduğu iki araç (başlangıç araçları) */
+const [A, A2] = BASLANGIC_ARACLARI;
 beforeEach(() => {
   depo = {};
   (globalThis as { localStorage?: unknown }).localStorage = {
     getItem: (k: string) => depo[k] ?? null,
     setItem: (k: string, v: string) => (depo[k] = v),
+    removeItem: (k: string) => delete depo[k],
   };
   ilerlemeSifirla();
   modifiyeSifirla();
@@ -64,7 +66,7 @@ describe("modifiye: fiyat ve satın alma", () => {
     expect(parcaSatinAl(A, ["motor-spor"])).toBe(true);
     expect(para()).toBe(5000 - parcaFiyati("motor-spor"));
     expect(parcaSahipMi(A, "motor-spor")).toBe(true);
-    expect(parcaSahipMi(B, "motor-spor")).toBe(false);
+    expect(parcaSahipMi(A2, "motor-spor")).toBe(false);
     expect(parcaSatinAl(A, ["motor-spor"])).toBe(true);
     expect(para()).toBe(5000 - parcaFiyati("motor-spor"));
     // paket: yalnız alınmamışların toplamı
@@ -86,7 +88,7 @@ describe("modifiye: takılı parçalar ve sürüş", () => {
     // kayıt kalıcı: bellek unutulsa da localStorage'dan gelir
     modifiyeSifirla();
     expect(takiliParcalar(A)).toEqual(["motor-spor"]);
-    expect(takiliParcalar(B)).toEqual([]);
+    expect(takiliParcalar(A2)).toEqual([]);
     parcaSok(A, "motor");
     expect(takiliParcalar(A)).toEqual([]);
   });
@@ -114,5 +116,88 @@ describe("modifiye: takılı parçalar ve sürüş", () => {
     depo.lt_parca = JSON.stringify({ 3: ["yok-boyle-parca", "motor-kisitli"] });
     modifiyeSifirla();
     expect(takiliParcalar(3)).toEqual(["motor-kisitli"]);
+  });
+});
+
+describe("modifiye: bulut", () => {
+  /** sahte bulut: eski kurallar (parca alanı yok) hasOnly gibi parca'lı belgeyi reddeder */
+  function sahte(eskiKural: boolean) {
+    const db = new Map<string, BulutBelgesi>();
+    let yazma = 0;
+    const s: Saglayici = {
+      oturumDinle: () => {},
+      anonimGir: async () => {},
+      googleBagla: async () => {},
+      epostaOlustur: async () => {},
+      epostaGiris: async () => {},
+      sifreSifirla: async () => {},
+      adminMi: async () => false,
+      cikis: async () => {},
+      oku: async (u) => (db.has(u) ? structuredClone(db.get(u)!) : null),
+      yaz: async (u, b) => {
+        if (eskiKural && "parca" in b) throw { code: "permission-denied" };
+        yazma++;
+        db.set(u, structuredClone(b));
+      },
+    };
+    return { s, db, yazma: () => yazma };
+  }
+  const cihaz = () => {
+    depo = {};
+    ilerlemeSifirla();
+    modifiyeSifirla();
+  };
+
+  it("takılı parçalar buluta gider ve başka cihazda geri gelir", async () => {
+    const B = sahte(false);
+    const e = esitleyiciKur(B.s, { gecikme: 0 });
+    await e.oturum("u1");
+    paraEkle(5000, "test");
+    parcaSatinAl(A, ["motor-spor"]);
+    parcaTak(A, "motor-spor");
+    await e.simdiGonder();
+    expect(B.db.get("u1")!.parca).toEqual({ [A]: ["motor-spor"] });
+    e.kapat();
+    // ikinci cihaz: aynı hesap
+    cihaz();
+    const e2 = esitleyiciKur(B.s, { gecikme: 0 });
+    await e2.oturum("u1");
+    expect(takiliParcalar(A)).toEqual(["motor-spor"]);
+    expect(e2.durum()).toBe("tamam");
+    e2.kapat();
+  });
+
+  it("eski kurallar parca alanını reddederse kayıt onsuz gider, kuyruk takılmaz, parçalar cihazda kalır", async () => {
+    const B = sahte(true);
+    const e = esitleyiciKur(B.s, { gecikme: 0 });
+    await e.oturum("u2");
+    paraEkle(5000, "test");
+    parcaSatinAl(A, ["motor-spor"]);
+    parcaTak(A, "motor-spor");
+    await e.simdiGonder();
+    const b = B.db.get("u2")!;
+    expect(b.parca).toBeUndefined();
+    expect(b.alimlar["parca_" + A + "_motor-spor"]).toBeGreaterThan(0);
+    expect(e.durum()).toBe("tamam");
+    expect(takiliParcalar(A)).toEqual(["motor-spor"]);
+    // sonraki değişiklik de takılmadan gider
+    paraEkle(100, "test");
+    await e.simdiGonder();
+    expect(B.db.get("u2")!.kazanilan).toBe(5100);
+    e.kapat();
+  });
+
+  it("başka hesaba geçişte takılı parçalar o hesabınkiyle değişir", async () => {
+    const B = sahte(false);
+    B.db.set("u3", { ...belgeOlustur(), parca: { 2: ["motor-kisitli"] } });
+    paraEkle(5000, "test");
+    parcaSatinAl(A, ["motor-spor"]);
+    parcaTak(A, "motor-spor");
+    depo.lt_bulut = JSON.stringify({ bekleyen: false, sahip: "baska" });
+    const e = esitleyiciKur(B.s, { gecikme: 0 });
+    await e.oturum("u3");
+    expect(takiliParcalar(A)).toEqual([]);
+    expect(takiliParcalar(2)).toEqual(["motor-kisitli"]);
+    e.kapat();
   });
 });

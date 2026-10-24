@@ -23,6 +23,14 @@ export interface MotorGirdisi {
   kesik: boolean;
   /** araç hızı (m/s): dişli vınlaması */
   hiz: number;
+  /** fizikteki turbo basıncı (0-1; verilirse ıslık bununla, gecikmesi fizikle aynı; yoksa gazdan tahmin) */
+  boost?: number;
+}
+
+/** modifiye parçalarının sese eklediği katmanlar (0 yok, 1 tam): sonradan takılan turbo / kompresör */
+export interface MotorEki {
+  turbo?: number;
+  kompresor?: number;
 }
 
 /** garajdaki "motoru dinle" kaydının süresi (sn) */
@@ -164,15 +172,22 @@ export class MotorSesi {
   kurulu = "";
 
   /** aracın motorunu kur (k: araç türü). Katmanlar karelere bölünerek hesaplanır */
-  async kur(k: string, devirMax: number) {
-    const anahtar = k + ":" + devirMax;
+  /** ek: modifiye parçasıyla eklenen turbo / kompresör (motor katmanları aynı kalır, yalnız ek katmanlar) */
+  async kur(k: string, devirMax: number, ek: MotorEki = {}) {
+    const taban = k + ":" + devirMax,
+      anahtar = taban + (ek.turbo || ek.kompresor ? `:${ek.turbo ?? 0}:${ek.kompresor ?? 0}` : "");
     if (anahtar == this.anahtar) return;
     this.anahtar = anahtar;
     const no = ++this.kurNo,
       ctx = this.ctx,
       sr = ctx.sampleRate,
-      p = motorProfili(k);
-    let tamponlar = ONBELLEK.get(anahtar + ":" + sr);
+      p0 = motorProfili(k),
+      p = {
+        ...p0,
+        turbo: Math.max(p0.turbo, ek.turbo ?? 0),
+        kompresor: Math.max(p0.kompresor, ek.kompresor ?? 0),
+      };
+    let tamponlar = ONBELLEK.get(taban + ":" + sr);
     if (!tamponlar) {
       // oyunda işçide hesaplanır (ana iş parçacığı takılmaz); kayıt (OfflineAudioContext) ve işçisiz durumda burada
       const ham = ctx instanceof AudioContext ? await isciyleHesapla(k, devirMax, sr) : null;
@@ -188,7 +203,7 @@ export class MotorSesi {
         if (no != this.kurNo) return;
         tamponlar.push({ devir: d, gaz, bos });
       }
-      ONBELLEK.set(anahtar + ":" + sr, tamponlar);
+      ONBELLEK.set(taban + ":" + sr, tamponlar);
       // en çok iki aracın sesi bellekte kalsın
       while (ONBELLEK.size > 2) ONBELLEK.delete(ONBELLEK.keys().next().value!);
     }
@@ -310,8 +325,9 @@ export class MotorSesi {
       vitesBasi = m.kesik && !this.kesikOnce;
     // turbo: gazla ve devirle dolar, gaz kesilince valf boşaltır
     if (this.turbo) {
-      const bh = m.gaz * sm(0.25, 0.7, u) * (m.kesik ? 0.6 : 1);
-      this.boost += (bh - this.boost) * Math.min(1, dt / (bh > this.boost ? 0.45 : 0.15));
+      const bh = m.boost ?? m.gaz * sm(0.25, 0.7, u) * (m.kesik ? 0.6 : 1);
+      this.boost +=
+        (bh - this.boost) * Math.min(1, dt / (m.boost != null ? 0.05 : bh > this.boost ? 0.45 : 0.15));
       const f = 2000 + 4200 * this.boost;
       this.turbo.o.frequency.setTargetAtTime(f, t, 0.03);
       this.turbo.g.gain.setTargetAtTime(0.022 * p.turbo * this.boost ** 1.6, t, 0.03);

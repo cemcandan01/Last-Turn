@@ -18,6 +18,7 @@ import {
   ilerlemeYukle,
   type IlerlemeVerisi,
 } from "../oyun/ilerleme";
+import { takiliVerisi, takiliYukle } from "../oyun/modifiye";
 import { best, saveBest } from "../oyun/profil";
 import { TUR_ANAHTARI } from "../oyun/yildiz";
 import type { YarisTuru } from "../arac/araclar";
@@ -28,6 +29,11 @@ export interface BulutBelgesi extends IlerlemeVerisi {
   rekor: Record<string, number>;
   /** belgeyi yazan oyun sürümü (bilgi için) */
   oyunSurum: string;
+  /**
+   * takılı modifiye parçaları (araç no → parça listesi; oyun/modifiye.ts). Yalnız parça takılıysa yazılır. Eski
+   * kurallar (firestore.rules hasOnly) bu alanı reddederse alan atılıp yeniden yazılır: parçalar yalnız cihazda kalır
+   */
+  parca?: Record<string, string[]>;
 }
 
 export interface Kullanici {
@@ -77,14 +83,17 @@ const driftMi = (k: string) => k.startsWith(TUR_ANAHTARI.dp + "_");
 
 const surum = () => (typeof __APP_VERSION__ == "string" ? __APP_VERSION__ : "");
 
-/** buluta gidecek belge: ilerleme + rekorlar */
-export function belgeOlustur(): BulutBelgesi {
+/** buluta gidecek belge: ilerleme + rekorlar (+ takılı parçalar; parcasiz: alan hiç yazılmaz) */
+export function belgeOlustur(parcasiz = false): BulutBelgesi {
   const rekor: Record<string, number> = {};
   for (const k of rekorAnahtarlari()) {
     const b = best(k);
     if (b > 0) rekor[k] = b;
   }
-  return { ...ilerlemeVerisi(), rekor, oyunSurum: surum() };
+  const b: BulutBelgesi = { ...ilerlemeVerisi(), rekor, oyunSurum: surum() },
+    parca = takiliVerisi();
+  if (!parcasiz && Object.keys(parca).length) b.parca = parca;
+  return b;
 }
 
 /** bu cihazdaki kişisel rekorları sil (yeni oyuncu) */
@@ -153,6 +162,8 @@ export function esitleyiciKur(
     zaman: ReturnType<typeof setTimeout> | null = null,
     yukleniyor = false,
     sonYazilan = "",
+    /** bulut `parca` alanını reddetti (kurallar yayınlanmamış): bu açılışta parçasız yazılır */
+    parcaRed = false,
     d: EsitlemeDurumu = "yok",
     calisan: Promise<void> = Promise.resolve();
   const durumYaz = (y: EsitlemeDurumu) => {
@@ -181,7 +192,11 @@ export function esitleyiciKur(
       if (baska) {
         ilerlemeDegistir(uzak);
         rekorlariSil();
-      } else if (uzak) ilerlemeYukle(uzak);
+        takiliYukle(uzak?.parca, true);
+      } else if (uzak) {
+        ilerlemeYukle(uzak);
+        takiliYukle(uzak.parca);
+      }
       if (uzak) rekorBirlestir(uzak.rekor);
       yazJson(BEKLEYEN, { bekleyen: baska ? false : k.bekleyen, sahip: u, sahipAnonim: anonim });
     } finally {
@@ -207,10 +222,19 @@ export function esitleyiciKur(
         durumYaz("esitleniyor");
         if (!(await cek(u))) return;
       }
-      const b = belgeOlustur(),
+      let b = belgeOlustur(parcaRed),
         oz = ozet(b);
       if (oz != sonYazilan) {
-        await s.yaz(u, b);
+        try {
+          await s.yaz(u, b);
+        } catch (h) {
+          // eski kurallar parca alanını tanımaz: alansız bir kez daha dene; geçerse bu açılışta parçalar yalnız cihazda
+          if (!b.parca || u != uid) throw h;
+          b = belgeOlustur(true);
+          oz = ozet(b);
+          await s.yaz(u, b);
+          parcaRed = true;
+        }
         if (u != uid) return;
         sonYazilan = oz;
       }
