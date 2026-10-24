@@ -36,13 +36,14 @@ import {
   kategoriParcasi,
   modifiyeUygula,
   paketiTak,
+  parcaEtkileri,
   parcaSok,
   parcaTak,
   stokaDon,
   takiliParcalar,
 } from "../oyun/modifiye";
 import { KATEGORILER, PAKETLER, PARCALAR, paketTak, parcaBul, type ParcaKategori } from "../arac/parcalar";
-import { performansPuani, SINIFLAR, type PerformansDegerleri, type PuanTuru } from "../arac/performans";
+import { performansPuani, SINIFLAR, type PerformansDegerleri } from "../arac/performans";
 import { ikon } from "./ikonlar";
 import { EVENTS, startEvent } from "../oyun/yarislar";
 import { note } from "./bildirim";
@@ -167,8 +168,6 @@ function puan(aracNo: number, parcalar: readonly string[], tur?: YarisTuru) {
 }
 /** puanın türü: yarış öncesi garajda o yarışın türü, yoksa genel puan */
 const puanTuru = (G: GarajDurumu): YarisTuru | undefined => (G.ev != null ? EVENTS[G.ev].ty : undefined);
-/** puan zemininin yarış türü (etkiler aynı zeminde karşılaştırılsın) */
-const ZEMIN_TURU: Record<PuanTuru, YarisTuru> = { asfalt: "gp", rallikros: "rx", ralli: "rl", drag: "dg" };
 const sinifRengi = (h: string) => SINIFLAR.find((x) => x.h == h)?.renk ?? "#fff";
 /** sınıf harfi ve puan rozeti (SINIFLAR rengiyle) */
 function sinifRozeti(aracNo: number, parcalar: readonly string[], tur?: YarisTuru) {
@@ -289,22 +288,15 @@ function modifiyeGoster(G: GarajDurumu) {
     }</button>`;
   };
   const ust = mk == "paket" ? "Paketler" : (KATEGORILER.find((x) => x[0] == mk)?.[1] ?? "");
-  // seçili parçanın etkisi (şimdiki yapıya göre): azami hız, 0-100, yanal tutuş, 100-0; yeşil iyi, kırmızı kötü
-  const etki = (ad: string, d: number, birim: string, ondalik: number, iyiArti: boolean) => {
-    const y = Math.abs(d) < 0.5 * 10 ** -ondalik ? 0 : d;
-    return `<span>${ad} <b class="${y == 0 ? "" : y > 0 == iyiArti ? "art" : "eks"}">${y > 0 ? "+" : y < 0 ? "−" : "±"}${Math.abs(y).toFixed(ondalik).replace(".", ",")}${birim}</b></span>`;
-  };
-  // etkiler tek zeminde karşılaştırılır (genel puanda en iyi zemin parçayla değişebilir: toprak lastiği gibi)
-  const zt = tur ?? ZEMIN_TURU[taban.zemin],
-    e0 = sec ? puan(no, takili, zt) : null,
-    e1 = sec ? puan(no, sec.yeni, zt) : null;
-  const etkiler =
-    e0 && e1
-      ? etki("HIZ", e1.hiz - e0.hiz, "", 0, true) +
-        etki("0-100", e1.ivme - e0.ivme, " sn", 1, false) +
-        etki("TUTUŞ", ((e1.tutus - e0.tutus) / e0.tutus) * 100, "%", 0, true) +
-        etki("FREN", e1.fren - e0.fren, " m", 0, false)
-      : "<span>Parçaya dokun: puana ve sürüşe etkisi</span>";
+  // seçili parçanın etkisi (şimdiki yapıya göre): tur süresi, fiziksel değerler, nokta kütle değerleri; yeşil iyi, kırmızı kötü
+  const etkiler = sec
+    ? parcaEtkileri(no, takili, sec.yeni, tur)
+        .map(
+          (e) =>
+            `<span>${e.ad} <b class="${e.iyi == null ? "" : e.iyi ? "art" : "eks"}">${e.deger}</b></span>`,
+        )
+        .join("") || "<span>Değişiklik yok</span>"
+    : "<span>Parçaya dokun: puana ve sürüşe etkisi</span>";
   g.innerHTML = `<div class="gust"><div class="gbas"><div class="gad">${tb ? `<div class="gtur" style="--c:${tb[4]}">${ikon(tb[3])}${tb[1]}</div>` : ""}<h1>${c.n}</h1></div></div>
 <div class="grozet">${sinifRozeti(no, takili, tur)}${
     onizleme && onizleme.puan != taban.puan
