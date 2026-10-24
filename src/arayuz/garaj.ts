@@ -64,10 +64,15 @@ let PARA_BIRAK: (() => void) | null = null,
   ONAY: { arac: number; zaman: number } | null = null,
   ONAY_ZAMANLA: ReturnType<typeof setTimeout> | undefined;
 
-/** vitrinin sol üstünde (ad bloğunun altında) aracın kısa açıklaması */
+/** araç açıklaması "i" düğmesiyle açılır / kapanır; seçim araçtan araca geçerken korunur */
+let BILGI_ACIK = false,
+  /** mağaza tür süzgeci açık mı (kapalıyken tek düğme: seçili tür) */
+  SUZ_ACIK = false;
+
+/** sol üstte, ad bloğunun altında aracın kısa açıklaması (yalnız "i" açıkken) */
 function aciklamaGoster(yazi: string | null) {
   let b = document.getElementById("gdes");
-  if (!yazi) {
+  if (!yazi || !BILGI_ACIK) {
     b?.remove();
     return;
   }
@@ -80,35 +85,47 @@ function aciklamaGoster(yazi: string | null) {
   b.textContent = yazi;
 }
 
-/** vitrinin sol üstündeki mağaza şeridi: sekme ("Araçlar"; ileride "Modifiye" buraya gelir) ve tür süzgeci */
+/** mağaza tür süzgeci: sağda fiyat kutusunun üstünde açılır kapanır düğme ("Araçlar" sekmesi; ileride "Modifiye" yanına gelir).
+ *  Kapalıyken seçili türün ikonu ve adı; açılınca türler sola doğru dizilir, seçince kapanır. */
 function magazaSeridi(G: GarajDurumu | null) {
-  let b = document.getElementById("gmf");
-  if (!b) {
-    b = document.createElement("div");
-    b.id = "gmf";
-    document.body.appendChild(b);
-  }
-  b.style.display = G?.mg && !kamera.gTam ? "" : "none";
   // tür süzülünce garajın vurgu rengi (yazılar, çerçeveler, zemindeki halka) o türün rengine döner
   const tema = G?.mg && G.suz != "hepsi" ? (turBilgi(G.suz)?.[4] ?? null) : null;
   if (tema) document.body.style.setProperty("--gt", tema);
   else document.body.style.removeProperty("--gt");
   garajTemasi(tema);
-  if (!G?.mg) return;
+  document.getElementById("gmf")?.remove();
+  const alt = document.querySelector("#gar .galt");
+  if (!G?.mg || !alt) return;
+  const b = document.createElement("div");
+  b.id = "gmf";
+  b.classList.toggle("acik", SUZ_ACIK);
+  alt.prepend(b);
   const say = (suz: string) =>
     CARS.filter((c, k) => !aracAcikMi(k) && (suz == "hepsi" || c.ty == suz)).length;
+  const secenek = [
+      ["hepsi", "Tümü", "izgara", ""] as const,
+      ...TYPES.map((t) => [t[0], t[1], t[3], t[4]] as const),
+    ],
+    secili = secenek.find((x) => x[0] == G.suz) ?? secenek[0];
   b.innerHTML =
-    `<span class="gsek">Araçlar</span>` +
-    [["hepsi", "Tümü", "izgara", ""] as const, ...TYPES.map((t) => [t[0], t[1], t[3], t[4]] as const)]
-      .map(
-        ([k, ad, ik, renk]) =>
-          `<button data-suz="${k}" class="${G.suz == k ? "on" : ""}" style="--c:${renk || "#ff7a1a"}" title="${ad}" aria-label="${ad}"${say(k) ? "" : ' data-bos="1"'}>${ikon(ik)}</button>`,
-      )
-      .join("");
-  b.querySelectorAll<HTMLElement>("button").forEach((e) => {
+    (SUZ_ACIK
+      ? secenek
+          .map(
+            ([k, ad, ik, renk]) =>
+              `<button data-suz="${k}" class="${G.suz == k ? "on" : ""}" style="--c:${renk || "#ff7a1a"}" title="${ad}" aria-label="${ad}"${say(k) ? "" : ' data-bos="1"'}>${ikon(ik)}</button>`,
+          )
+          .join("")
+      : "") +
+    `<button class="gsac${SUZ_ACIK ? " on" : ""}" id="gsac" aria-label="Tür süzgeci" aria-expanded="${SUZ_ACIK}" style="--c:${secili[3] || "#ff7a1a"}">${ikon(SUZ_ACIK ? "kapat" : secili[2])}<span>${SUZ_ACIK ? "Tür" : secili[1]}</span></button>`;
+  $("#gsac").onclick = () => {
+    SUZ_ACIK = !SUZ_ACIK;
+    magazaSeridi(G);
+  };
+  b.querySelectorAll<HTMLElement>("[data-suz]").forEach((e) => {
     e.onclick = () => {
       G.suz = e.dataset.suz!;
       G.alinan = null;
+      SUZ_ACIK = false;
       const l = liste(G);
       if (l.length && !l.includes(G.i)) G.i = l[0];
       showGar();
@@ -305,6 +322,7 @@ export function closeGarage() {
   PARA_BIRAK?.();
   PARA_BIRAK = null;
   ONAY = null;
+  SUZ_ACIK = false;
   magazaSeridi(null);
   aciklamaGoster(null);
   document.getElementById("gmal")?.remove();
@@ -372,7 +390,6 @@ function showGar() {
   g.classList.remove("hidden");
   g.classList.toggle("kilitli", kilitli);
   g.classList.toggle("satilik", satilik);
-  magazaSeridi(G);
   document.getElementById("gmal")?.remove();
   aciklamaGoster(L.length ? c.d : null);
   if (G.mg && !L.length) {
@@ -407,7 +424,7 @@ function showGar() {
       : satir("Durum", "Sahip") +
         satir(sec ? "Seçim" : "Çekiş", sec || (c.awd ? "Dört çeker" : "Arkadan itiş"));
   g.innerHTML = `<div class="gust"><div class="gbas"><div class="gad">${tur ? `<div class="gtur" style="--c:${tur[4]}">${ikon(tur[3])}${tur[1]}</div>` : ""}<h1>${kilitli ? ikon("kilit") : ""}${c.n}</h1></div></div>
-<div class="grozet"><span class="bdg">${tur ? ikon(tur[3]) : ""}${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}${kilitli ? `<span class="bdg kilit" title="${kilitYazi}">${ikon("kilit")}Seviye ${fiyat.seviye}</span>` : ""}</div></div>
+<div class="grozet"><span class="bdg">${tur ? ikon(tur[3]) : ""}${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}${kilitli ? `<span class="bdg kilit" title="${kilitYazi}">${ikon("kilit")}Seviye ${fiyat.seviye}</span>` : ""}${L.length ? `<button class="bdg gbil${BILGI_ACIK ? " on" : ""}" id="gbil" aria-label="Araç bilgisi" aria-pressed="${BILGI_ACIK}">${ikon("bilgi")}</button>` : ""}</div></div>
 <div class="gnav"><button class="ga" id="gpv" aria-label="Önceki">${ikon("sol")}</button><span class="gsay">${sira}/${L.length}</span><button class="ga" id="gnx" aria-label="Sonraki">${ikon("sag")}</button></div>
 <div class="gbar">${cubuk
     .map(
@@ -416,6 +433,15 @@ function showGar() {
     )
     .join("")}<p>${c.hp} HP · ${c.kg} KG</p></div>
 <div class="galt">${kilitli ? "" : '<button class="gses" id="gses"></button>'}<div id="gpara">${bilgi}</div><div class="gbt"><button class="btn alt" id="gbk">Geri</button>${dugme ? `<button class="btn${satilik ? " al" : ""}" id="gok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}<button class="btn alt gvtam" id="gvtam">Vitrin</button></div></div>`;
+  magazaSeridi(G);
+  const bil = document.getElementById("gbil");
+  if (bil)
+    bil.onclick = () => {
+      BILGI_ACIK = !BILGI_ACIK;
+      bil.classList.toggle("on", BILGI_ACIK);
+      bil.setAttribute("aria-pressed", String(BILGI_ACIK));
+      aciklamaGoster(c.d);
+    };
   const v = $("#gvit");
   v.classList.remove("hidden");
   v.innerHTML = `<button class="gvar" id="gvpv" aria-label="Önceki">${ikon("sol")}</button><button class="gvar sag" id="gvnx" aria-label="Sonraki">${ikon("sag")}</button>${dugme ? `<button class="btn${satilik ? " al" : ""}" id="gvok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}<button class="btn alt" id="gvbk">Geri</button>`;

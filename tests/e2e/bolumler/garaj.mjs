@@ -219,6 +219,9 @@ export default async function ({ p, ok }) {
     for (let i = 0; i < LT.CARS.length; i++) {
       LT.openGarage(0);
       for (let k = 0; k < i; k++) document.querySelector("#gnx").click();
+      // açıklama "i" düğmesiyle açılır (açık kalır); açıkken de çakışma sınanır
+      const bil = document.querySelector("#gbil");
+      if (bil && !bil.classList.contains("on")) bil.click();
       const R = (q) => document.querySelector(q).getBoundingClientRect(),
         ust = R("#gar .gust"),
         bar = R("#gar .gbar"),

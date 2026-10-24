@@ -53,7 +53,14 @@ export default async function ({ p, ok }) {
         return z;
       })(),
       sahip: LT.CARS.map((_, i) => i).filter((i) => LT.aracAcikMi(i)),
-      serit: document.querySelectorAll("#gmf button").length,
+      // süzgeç kapalıyken tek düğme; açınca Tümü + 5 tür
+      serit: (() => {
+        const kapali = document.querySelectorAll("#gmf button").length;
+        document.querySelector("#gsac").click();
+        const acik = document.querySelectorAll("#gmf [data-suz]").length;
+        document.querySelector("#gsac").click();
+        return { kapali, acik, sonra: document.querySelectorAll("#gmf button").length };
+      })(),
     };
   });
   ok(ac.mod == "garage", "mağaza açıldı");
@@ -61,7 +68,10 @@ export default async function ({ p, ok }) {
     ac.ziyaret.every((i) => !ac.sahip.includes(i)) && new Set(ac.ziyaret).size == 10 - ac.sahip.length,
     "mağazada yalnız sahip olunmayan araçlar: " + JSON.stringify(ac.ziyaret),
   );
-  ok(ac.serit == 6, "süzgeç çipleri: Tümü + 5 tür");
+  ok(
+    ac.serit.kapali == 1 && ac.serit.acik == 6 && ac.serit.sonra == 1,
+    "süzgeç açılır kapanır: kapalı tek düğme, açık Tümü + 5 tür: " + JSON.stringify(ac.serit),
+  );
   // seviye yok: Beyaz Kurt (4 / 3000)
   const sv = await git(2);
   ok(
@@ -71,8 +81,24 @@ export default async function ({ p, ok }) {
       /Seviye 4/.test(sv.yazi) &&
       !sv.satilik &&
       sv.tur == "Drift" &&
-      sv.aciklama,
-    "seviye yok: kilitli, düğme kapalı, tür ve açıklama: " + JSON.stringify(sv),
+      !sv.aciklama,
+    "seviye yok: kilitli, düğme kapalı, tür; açıklama kapalı: " + JSON.stringify(sv),
+  );
+  // bilgi (i): dokununca açıklama gelir, tekrar dokununca kapanır; araç değişince açık kalır
+  const bil = await q.evaluate(() => {
+    const yazi = () => document.querySelector("#gdes")?.textContent.trim() || "";
+    document.querySelector("#gbil").click();
+    const acik = yazi();
+    document.querySelector("#gnx").click();
+    const sonraki = yazi();
+    document.querySelector("#gbil").click();
+    const kapali = yazi();
+    document.querySelector("#gpv").click();
+    return { acik, sonraki, kapali };
+  });
+  ok(
+    bil.acik && bil.sonraki && bil.sonraki != bil.acik && !bil.kapali,
+    "bilgi düğmesi açıklamayı açar/kapatır: " + JSON.stringify(bil),
   );
   ok(!sv.tasma, "mağaza ekranı taşmıyor");
   await foto("seviye-yok");
@@ -96,25 +122,35 @@ export default async function ({ p, ok }) {
     "satın alınabilir: belirgin Satın al düğmesi: " + JSON.stringify(sa),
   );
   await foto("satin-alinabilir");
-  // tür süzgeci: Drift; şerit sol üstte, ad bloğuyla çakışmaz; garajın vurgu rengi drift moru olur
-  const yerlesim = () => {
-    const s = document.querySelector("#gmf").getBoundingClientRect(),
-      u = document.querySelector(".gust").getBoundingClientRect();
-    return { ust: s.top, alt: s.bottom, sag: s.right, gustUst: u.top };
-  };
-  const sz = await q.evaluate((yerlesim) => {
-    const yer = new Function("return (" + yerlesim + ")()");
-    const once = yer();
+  // tür süzgeci: sağda fiyat kutusunun üstünde, kapalıyken araca binmez; Drift seçilince kapanır, tema mor
+  const sz = await q.evaluate(() => {
+    const R = (e) => document.querySelector(e).getBoundingClientRect(),
+      kes = (a, b) => !(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top),
+      ORTA = {
+        left: innerWidth * 0.42,
+        right: innerWidth * 0.58,
+        top: innerHeight * 0.3,
+        bottom: innerHeight * 0.75,
+      },
+      s = R("#gmf"),
+      p = R("#gpara");
+    const yer = {
+      sag: s.right > innerWidth * 0.8 && s.bottom <= p.top && !kes(s, R("#gar .gbar")) && !kes(s, ORTA),
+    };
+    document.querySelector("#gsac").click();
+    yer.acikAraca = kes(R("#gmf"), ORTA);
     document.querySelector("#gmf [data-suz='dp']").click();
+    yer.kapandi = !document.querySelector("#gmf [data-suz]");
     const z = [];
     for (let k = 0; k < 4; k++) {
       z.push(LT.oyun.CAR.ty);
       document.querySelector("#gnx").click();
     }
-    return { z, once, sonra: yer(), tema: getComputedStyle(document.body).getPropertyValue("--gt").trim() };
-  }, yerlesim.toString());
+    return { z, yer, tema: getComputedStyle(document.body).getPropertyValue("--gt").trim() };
+  });
   await foto("suzgec-drift");
   const sz2 = await q.evaluate(() => {
+    document.querySelector("#gsac").click();
     document.querySelector("#gmf [data-suz='hepsi']").click();
     return getComputedStyle(document.body).getPropertyValue("--gt").trim();
   });
@@ -123,8 +159,8 @@ export default async function ({ p, ok }) {
     "tür süzgeci yalnız o türün araçlarını gösterir: " + sz.z,
   );
   ok(
-    sz.once.ust > 190 && sz.once.alt <= 324 && sz.sonra.alt <= 324 && sz.once.sag < 330,
-    "süzgeç şeridi sol altta, okların üstünde, küçük: " + JSON.stringify(sz),
+    sz.yer.sag && !sz.yer.acikAraca && sz.yer.kapandi,
+    "süzgeç sağda fiyatın üstünde, araca binmiyor, seçince kapanıyor: " + JSON.stringify(sz.yer),
   );
   ok(
     sz.tema == "#b67cff" && sz2 == "",

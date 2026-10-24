@@ -3335,54 +3335,77 @@ details[open] > summary::after {
   line-height: 1.35;
   color: #dfe5f0;
 }
-/* mağaza: sekme + tür süzgeci, sol üst köşede tek satır; ad bloğu altına kayar (yazı uzasa da araca binmez) */
+/* mağaza tür süzgeci: sağda fiyat kutusunun üstünde açılır kapanır; açılınca türler düğmenin soluna dizilir */
 #gmf {
-  position: fixed;
-  bottom: calc(72px * var(--gs, 1) + var(--sab, 0px));
-  left: max(16px, var(--sal, 0px));
-  z-index: 6;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: 4px;
-  max-width: calc(330px * var(--gs, 1));
-}
-#gmf .gsek {
-  padding: 3px 10px;
-  border-bottom: 2px solid var(--gt, #ffb21a);
-  color: #fff;
-  font-weight: 800;
-  font-size: max(9px, calc(11px * var(--gs, 1)));
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
 }
 #gmf button {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  min-height: 40px;
-  padding: 0 10px;
+  justify-content: center;
+  width: 36px;
+  height: 40px;
+  padding: 0;
   border: 0;
   border-left: 2px solid var(--c);
+  border-radius: 0;
   background: #05070bb8;
   color: #fff;
-  font-size: max(9px, calc(11px * var(--gs, 1)));
-  font-weight: 700;
+  pointer-events: auto;
 }
 #gmf button .ik {
-  width: 13px;
-  height: 13px;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+#gmf button:not(.on) .ik {
   color: var(--c);
 }
 #gmf button.on {
   background: var(--c);
   color: #160a00;
 }
-#gmf button.on .ik {
-  color: inherit;
-}
 #gmf button[data-bos] {
   opacity: 0.45;
+}
+#gmf .gsac {
+  width: auto;
+  gap: 8px;
+  padding: 0 calc(14px * var(--gs, 1));
+  font-size: max(9px, calc(12px * var(--gs, 1)));
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+}
+#gmf .gsac.on {
+  background: #05070bb8;
+  color: #fff;
+}
+#gmf .gsac.on .ik {
+  color: #fff;
+}
+/* araç bilgisi düğmesi (i): rozet satırının sonunda, basılıyken vurgulu */
+#gar .grozet .gbil {
+  justify-content: center;
+  /* görünen kare 28 px, dokunma alanı 40 px (saydam dolgu) */
+  width: 40px;
+  height: 40px;
+  margin: -6px 0;
+  padding: 6px;
+  border: 0;
+  background-clip: content-box;
+  cursor: pointer;
+}
+#gar .grozet .gbil.on {
+  background: var(--gt, #ffb21a);
+  color: #160a00;
 }
 #gmal {
   position: fixed;
@@ -3521,35 +3544,6 @@ details[open] > summary::after {
 }
 #gar .galt .gses.on {
   color: var(--gt, #ffb21a);
-}
-/* süzgeç: tek satır, eş kare ikon düğmeleri */
-#gmf {
-  flex-wrap: nowrap;
-  max-width: none;
-  gap: 4px;
-}
-#gmf .gsek {
-  margin-right: 6px;
-  white-space: nowrap;
-}
-#gmf button {
-  justify-content: center;
-  width: calc(32px * var(--gs, 1));
-  min-height: calc(32px * var(--gs, 1));
-  padding: 0;
-  gap: 0;
-}
-#gmf button .ik {
-  width: 17px;
-  height: 17px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-#gmf button:not(.on) .ik {
-  color: var(--c);
 }
 #gvit .gvar .ik {
   width: 28px;
