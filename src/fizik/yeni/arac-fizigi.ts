@@ -90,7 +90,8 @@ export function aracFizigi(c: Arac, K: SurusKurulumu): AracFizigi {
     cgZ = W.zr + ff * aks,
     lift = c.lift || 0;
   // süspansiyon: köşe kütlesine göre yay (doğal frekans), sönüm oranı ~0,35 basma / 0,55 açılma
-  const fn = (FREKANS[c.k] ?? 1.9) / Math.sqrt(tu.susp),
+  // doğal frekans: aracın kendi değeri (süspansiyon parçası fq ile değiştirir), ayar yumuşaklığıyla
+  const fn = (c.fq ?? FREKANS[c.k] ?? 1.9) / Math.sqrt(tu.susp),
     tk: TekerGeo[] = [];
   for (const [sx, on] of [
     [1, true],

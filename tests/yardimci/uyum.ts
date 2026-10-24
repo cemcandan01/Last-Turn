@@ -8,6 +8,12 @@ import { surucuKur } from "./surucu";
 
 const DT = 1 / 60;
 
+/** aracın modifiyesi (yoksa stok) ve tür uyumunun kapatılması (puan kalibrasyonu) */
+export interface AracSecenegi {
+  parca?: readonly string[];
+  uzmanliksiz?: boolean;
+}
+
 /** bir tur (açık pistte A'dan B'ye; kapalı pistte istenirse tur turlar): süre, pist dışında geçen süre, spin sayısı */
 export function turSur(
   yaris: number,
@@ -15,8 +21,9 @@ export function turSur(
   cesaret: number,
   lk: "real" | "norm" | "arc" = "norm",
   tur = 1,
+  ek: AracSecenegi = {},
 ) {
-  const s = surucuKur({ yaris, arac, lk });
+  const s = surucuKur({ yaris, arac, lk, ...ek });
   const TR = s.bolge!.TR!,
     i0 = TR.open ? 4 : TR.N - 6,
     P = TR.P[i0];
@@ -69,12 +76,18 @@ export const CESARETLER = [0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 
  * aracın sınırında en iyi tur: pist dışında 3 sn'den az ve spinsiz turların en hızlısı. Pilot virajı cesarete göre
  * alır; tutuşu çok olan araç daha yüksek cesaretle pistte kalır, böylece tutuş farkı süreye yansır.
  */
-export function enIyiTur(yaris: number, arac: number, cesaretler = CESARETLER) {
+export function enIyiTur(
+  yaris: number,
+  arac: number,
+  cesaretler = CESARETLER,
+  ek: AracSecenegi = {},
+  tur = 1,
+) {
   let en = Infinity,
     enC = 0;
   for (const c of cesaretler) {
-    const r = turSur(yaris, arac, c);
-    if (r.spin == 0 && r.disari < 3 && r.t < en) {
+    const r = turSur(yaris, arac, c, "norm", tur, ek);
+    if (r.spin == 0 && r.disari < 3 * tur && r.t < en) {
       en = r.t;
       enC = c;
     }
@@ -83,8 +96,8 @@ export function enIyiTur(yaris: number, arac: number, cesaretler = CESARETLER) {
 }
 
 /** drag: ışıkta tam gaz (gecikme: geç kalkış, sn), bitiş süresi (sn) */
-export function dragSur(yaris: number, arac: number, gecikme = 0) {
-  const s = surucuKur({ yaris, arac, lk: "norm" });
+export function dragSur(yaris: number, arac: number, gecikme = 0, ek: AracSecenegi = {}) {
+  const s = surucuKur({ yaris, arac, lk: "norm", ...ek });
   const TR = s.bolge!.TR!,
     S = s.sim.S,
     z1 = TR.P[TR.N - 1][1];
@@ -97,8 +110,8 @@ export function dragSur(yaris: number, arac: number, gecikme = 0) {
 }
 
 /** drift yarışı: 90 sn'lik puan (drift pilotu, oyundaki puan kuralları) */
-export function driftPuani(yaris: number, arac: number) {
-  return driftTuru(yaris, "norm", DRIFT_PILOT, 90, false, arac).puan;
+export function driftPuani(yaris: number, arac: number, parca: readonly string[] = []) {
+  return driftTuru(yaris, "norm", DRIFT_PILOT, 90, false, arac, 0, true, parca).puan;
 }
 
 /**
@@ -107,8 +120,14 @@ export function driftPuani(yaris: number, arac: number) {
  * (0,4 m/s/sn). Daireden 3 m'den fazla açılınca ya da spin atınca biter. Sonuç, dairede kalırken 1 sn boyunca
  * sürdürülen en yüksek yanal ivme (m/s²; oyunda yerçekimi 24). Gerçekçi seviye (yardım yok), aracın kendi önayarı.
  */
-export function virajTutusu(arac: number, zemin: number, tur: string | null = null, R = 35) {
-  const s = surucuKur({ dunya: 1, arac, lk: "real" });
+export function virajTutusu(
+  arac: number,
+  zemin: number,
+  tur: string | null = null,
+  R = 35,
+  parca: readonly string[] = [],
+) {
+  const s = surucuKur({ dunya: 1, arac, lk: "real", parca });
   const W = s.cx.dunya,
     h0 = W.H(30, -3550),
     cx = 30 + R,

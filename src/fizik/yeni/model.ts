@@ -5,6 +5,7 @@
 // Sürüş yardımları (ABS, çekiş, denge, viraj, drift) kuvvet ve tork olarak uygulanır.
 import { ad, cl, sm } from "../../cekirdek/matematik";
 import { direksiyonVeGaz, driftPenceresi, driftSiniri, driftSkoru, tozVeDuman, zeminIzleri } from "../ortak";
+import type { YarisTuru } from "../../arac/araclar";
 import type { AdimSonucu, FizikBaglami, FizikGirdisi, SimDurumu } from "../tipler";
 import { SURF, TIRES, VMAX, YERCEKIMI } from "../veriler";
 import { aracFizigi, RHO, torkEgrisi, VITESLER, type AracFizigi } from "./arac-fizigi";
@@ -329,8 +330,11 @@ export function yeniAdim(
   const kz = Math.max(DR.k, sm(0.1, 0.3, ab) * Math.min(1, +gi.g) * as.dft),
     spn = Math.min(1, Math.abs(vl) / VMAX),
     // uzmanlık: araç kendi yarış türünün pistinde daha iyi tutar (başka yerde değeri değişmez)
-    uzman = W.yolTuru() == CAR.ty ? (CAR.uz ?? 1) : 1,
-    uzmanG = W.yolTuru() == CAR.ty ? (CAR.uzg ?? 1) : 1,
+    // modifiyeli araçta tür uyumu tablosu (uzT: tür → [tutuş, güç]); stok araçta yalnız kendi türü
+    yt = W.yolTuru(),
+    uzT = yt && CAR.uzT ? CAR.uzT[yt as YarisTuru] : undefined,
+    uzman = uzT ? uzT[0] : yt == CAR.ty ? (CAR.uz ?? 1) : 1,
+    uzmanG = uzT ? uzT[1] : yt == CAR.ty ? (CAR.uzg ?? 1) : 1,
     LP: LastikParam[] = [];
   let muOrt = 0;
   for (let i = 0; i < 4; i++) {
@@ -385,7 +389,9 @@ export function yeniAdim(
     const wv = ad(pv0 - (S.pv ?? pv0)) / dt;
     wd = wv + 5 * (be + DR.dir * DR.bt);
   }
-  const delta = (d.delta = cl(dlt, -0.8, 0.8)),
+  // ön teker açısı sınırı: açı kiti büyütür (CAR.dmax)
+  const dMax = CAR.dmax ?? 0.8,
+    delta = (d.delta = cl(dlt, -dMax, dMax)),
     tanD = Math.tan(delta),
     dTek = F.tk.map((t) =>
       t.on ? delta + 0.6 * (Math.atan((F.aks * tanD) / (F.aks - t.x * tanD)) - delta) : 0,
@@ -643,7 +649,8 @@ export function yeniAdim(
       Y.tk[a].w -= dlt_;
       Y.tk[b].w += dlt_;
     };
-    if (F.awd < 1) kenet(2, 3, F.diff * 220);
+    // arka diferansiyel: kilit (tu.diff) × kenetleme katsayısı (diferansiyel parçası değiştirir; stokta 220)
+    if (F.awd < 1) kenet(2, 3, F.diff * (CAR.dk ?? 220));
     if (F.awd > 0) {
       kenet(0, 1, 40);
       const on = (Y.tk[0].w + Y.tk[1].w) / 2,
