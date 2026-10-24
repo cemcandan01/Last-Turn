@@ -3404,7 +3404,8 @@ details[open] > summary::after {
   cursor: pointer;
 }
 #gar .grozet .gbil.on {
-  background: var(--gt, #ffb21a);
+  /* yalnız renk: "background" kısaltması background-clip'i sıfırlayıp kutuyu 40 px'e büyütüyordu */
+  background-color: var(--gt, #ffb21a);
   color: #160a00;
 }
 #gmal {

@@ -435,4 +435,39 @@ export default async function ({ p, ok }) {
       modeller[a].ad && modeller[a].mesh > 20 && modeller[a].nan == 0,
       "yeni araç modeli kurulur (vitrin önbelleğiyle): " + a,
     );
+  // garajda da tür süzgeci: yalnız sahip olunan o türün araçları, tema türün rengi; "i" basılıyken kutusu aynı boyda
+  const gs = await p.evaluate(() => {
+    LT.openGarage(null);
+    const kutu = () => {
+      const b = document.querySelector("#gbil"),
+        r = b.getBoundingClientRect(),
+        st = getComputedStyle(b);
+      return { w: r.width, h: r.height, klip: st.backgroundClip };
+    };
+    const once = kutu();
+    document.querySelector("#gbil").click();
+    const basili = kutu();
+    document.querySelector("#gbil").click();
+    document.querySelector("#gsac").click();
+    document.querySelector("#gmf [data-suz='dp']").click();
+    const z = [];
+    for (let k = 0; k < 3; k++) {
+      z.push(LT.oyun.CAR.ty);
+      document.querySelector("#gnx").click();
+    }
+    const tema = getComputedStyle(document.body).getPropertyValue("--gt").trim(),
+      sahip = LT.CARS.every((_, i) => LT.aracAcikMi(i) || LT.CARS.indexOf(LT.oyun.CAR) != i);
+    document.querySelector("#gsac").click();
+    document.querySelector("#gmf [data-suz='hepsi']").click();
+    LT.closeGarage();
+    return { once, basili, z, tema, sahip };
+  });
+  ok(
+    gs.z.every((t) => t == "dp") && gs.tema == "#b67cff" && gs.sahip,
+    "garajda tür süzgeci: yalnız sahip olunan drift araçları, tema mor: " + JSON.stringify(gs),
+  );
+  ok(
+    gs.once.klip == "content-box" && gs.basili.klip == "content-box" && gs.basili.w == gs.once.w,
+    "bilgi düğmesi basılıyken görünen kutu büyümüyor: " + JSON.stringify([gs.once, gs.basili]),
+  );
 }

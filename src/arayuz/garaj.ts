@@ -56,8 +56,8 @@ const sayi = (n: number) => n.toLocaleString("tr-TR");
 const paraYazi = (n: number) => `${ikon("para")}<b>${sayi(n)}</b>`;
 /** gezilen araçlar: garajda yalnız sahip olunanlar, mağazada sahip olunmayanlar (süzgece göre) */
 const liste = (G: GarajDurumu) =>
-  CARS.map((_, k) => k).filter((k) =>
-    G.mg ? !aracAcikMi(k) && (G.suz == "hepsi" || CARS[k].ty == G.suz) : aracAcikMi(k),
+  CARS.map((_, k) => k).filter(
+    (k) => (G.mg ? !aracAcikMi(k) : aracAcikMi(k)) && (G.suz == "hepsi" || CARS[k].ty == G.suz),
   );
 const turBilgi = (ty: string) => TYPES.find((t) => t[0] == ty);
 let PARA_BIRAK: (() => void) | null = null,
@@ -85,23 +85,23 @@ function aciklamaGoster(yazi: string | null) {
   b.textContent = yazi;
 }
 
-/** mağaza tür süzgeci: sağda fiyat kutusunun üstünde açılır kapanır düğme ("Araçlar" sekmesi; ileride "Modifiye" yanına gelir).
+/** tür süzgeci (garaj ve mağaza): sağda fiyat kutusunun üstünde açılır kapanır düğme ("Araçlar" sekmesi; ileride "Modifiye" yanına gelir).
  *  Kapalıyken seçili türün ikonu ve adı; açılınca türler sola doğru dizilir, seçince kapanır. */
 function magazaSeridi(G: GarajDurumu | null) {
   // tür süzülünce garajın vurgu rengi (yazılar, çerçeveler, zemindeki halka) o türün rengine döner
-  const tema = G?.mg && G.suz != "hepsi" ? (turBilgi(G.suz)?.[4] ?? null) : null;
+  const tema = G && G.suz != "hepsi" ? (turBilgi(G.suz)?.[4] ?? null) : null;
   if (tema) document.body.style.setProperty("--gt", tema);
   else document.body.style.removeProperty("--gt");
   garajTemasi(tema);
   document.getElementById("gmf")?.remove();
   const alt = document.querySelector("#gar .galt");
-  if (!G?.mg || !alt) return;
+  if (!G || !alt) return;
   const b = document.createElement("div");
   b.id = "gmf";
   b.classList.toggle("acik", SUZ_ACIK);
   alt.prepend(b);
   const say = (suz: string) =>
-    CARS.filter((c, k) => !aracAcikMi(k) && (suz == "hepsi" || c.ty == suz)).length;
+    CARS.filter((c, k) => aracAcikMi(k) != G.mg && (suz == "hepsi" || c.ty == suz)).length;
   const secenek = [
       ["hepsi", "Tümü", "izgara", ""] as const,
       ...TYPES.map((t) => [t[0], t[1], t[3], t[4]] as const),
@@ -123,6 +123,8 @@ function magazaSeridi(G: GarajDurumu | null) {
   };
   b.querySelectorAll<HTMLElement>("[data-suz]").forEach((e) => {
     e.onclick = () => {
+      // garajda boş tür seçilmez (mağazada "bu türde araç kalmadı" yazar)
+      if (!G.mg && e.dataset.bos) return;
       G.suz = e.dataset.suz!;
       G.alinan = null;
       SUZ_ACIK = false;
