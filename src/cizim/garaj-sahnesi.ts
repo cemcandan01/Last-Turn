@@ -35,6 +35,14 @@ function betonDoku(taban: string, cizgi = false) {
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   return t;
 }
+/** platform halkasının malzemesi: rengi mağazadaki tür süzgecine göre değişir (`garajTemasi`) */
+const halkaM = new THREE.MeshBasicMaterial({ color: 0xff8a2a });
+
+/** garaj vurgu rengi: tür rengi ya da (null) varsayılan turuncu */
+export function garajTemasi(renk: string | null) {
+  halkaM.color.set(renk ?? 0xff8a2a);
+}
+
 {
   // zemin: koyu beton plakalar; ortada araç platformu (turuncu halka) ve park çizgileri
   const zt = betonDoku("#3b4047", true);
@@ -44,10 +52,7 @@ function betonDoku(taban: string, cizgi = false) {
   fl.position.set(GX, 0.01, GZ);
   const tb = new THREE.Mesh(new THREE.BoxGeometry(2 * PK, 0.1, 2 * PK), lam(0x4a4f57));
   tb.position.set(GX, 0.06, GZ);
-  const rg = new THREE.Mesh(
-    new THREE.TorusGeometry(3.7, 0.04, 6, 64),
-    new THREE.MeshBasicMaterial({ color: 0xff8a2a }),
-  );
+  const rg = new THREE.Mesh(new THREE.TorusGeometry(3.7, 0.04, 6, 64), halkaM);
   rg.rotation.x = Math.PI / 2;
   rg.position.set(GX, 0.12, GZ);
   // duvar (silindir) ve alçak beton tavan

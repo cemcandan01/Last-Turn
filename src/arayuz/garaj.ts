@@ -4,7 +4,7 @@ import { CARS } from "../arac/araclar";
 import { STAT, estTop } from "../arac/istatistik";
 import { cl } from "../cekirdek/matematik";
 import { gizle, $ } from "../cekirdek/dom";
-import { garG, garajIsigi } from "../cizim/garaj-sahnesi";
+import { garG, garajIsigi, garajTemasi } from "../cizim/garaj-sahnesi";
 import { ground } from "../cizim/zemin";
 import { REG } from "../dunya/bolgeler";
 import { dunya, WORLDS } from "../dunya/dunya";
@@ -89,11 +89,16 @@ function magazaSeridi(G: GarajDurumu | null) {
     document.body.appendChild(b);
   }
   b.style.display = G?.mg && !kamera.gTam ? "" : "none";
+  // tür süzülünce garajın vurgu rengi (yazılar, çerçeveler, zemindeki halka) o türün rengine döner
+  const tema = G?.mg && G.suz != "hepsi" ? (turBilgi(G.suz)?.[4] ?? null) : null;
+  if (tema) document.body.style.setProperty("--gt", tema);
+  else document.body.style.removeProperty("--gt");
+  garajTemasi(tema);
   if (!G?.mg) return;
   const say = (suz: string) =>
     CARS.filter((c, k) => !aracAcikMi(k) && (suz == "hepsi" || c.ty == suz)).length;
   b.innerHTML =
-    `<span class="gsek">Araçlar${G.suz == "hepsi" ? "" : " · " + (TYPES.find((t) => t[0] == G.suz)?.[1] ?? "")}</span>` +
+    `<span class="gsek">Araçlar</span>` +
     [["hepsi", "Tümü", "izgara", ""] as const, ...TYPES.map((t) => [t[0], t[1], t[3], t[4]] as const)]
       .map(
         ([k, ad, ik, renk]) =>
