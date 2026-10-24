@@ -28,6 +28,8 @@ export const kamera = {
   gTam: false,
   /** garaj tam ekranda dokunup bırakınca seç/geri tuşları görünür; sürüklemeye başlayınca kaybolur */
   gBtn: false,
+  /** garaj: araç geçişinde kısa kayma (-1..1, sıfıra söner; görüntü penceresi kaydırması) */
+  gKay: 0,
 };
 
 /** garajda dikey açı sınırı: yerin altına inmez, tam tepeden (90°) bakmaz */
@@ -50,10 +52,13 @@ export function garajKameraSifirla() {
   kamera.gYon = 1;
   kamera.gTam = false;
   kamera.gBtn = false;
+  kamera.gKay = 0;
 }
 
 /** garaj: araç kendiliğinden döner (dokununca durur), yön açısı tek yerde tutulur */
 export function garajKameraTick(dt: number) {
+  kamera.gKay *= Math.exp(-dt / 0.12);
+  if (Math.abs(kamera.gKay) < 0.001) kamera.gKay = 0;
   if (!kamera.gOto || kamera.dp !== null) return;
   // bırakma hızı, yönü değişmeden kendi dönme hızına söner
   kamera.gV += (GARAJ_DONME * kamera.gYon - kamera.gV) * (1 - Math.exp(-dt / GARAJ_SONUM));

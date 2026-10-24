@@ -64,19 +64,7 @@ let PARA_BIRAK: (() => void) | null = null,
   ONAY: { arac: number; zaman: number } | null = null,
   ONAY_ZAMANLA: ReturnType<typeof setTimeout> | undefined;
 
-/** köşedeki bakiye (garaj açıkken); yoksa kurar */
-function bakiyeGoster(goster: boolean) {
-  let b = document.getElementById("gpara");
-  if (!b) {
-    b = document.createElement("div");
-    b.id = "gpara";
-    document.body.appendChild(b);
-  }
-  b.style.display = goster ? "" : "none";
-  if (goster) b.innerHTML = paraYazi(para());
-}
-
-/** mağazada vitrinin altında aracın kısa açıklaması (panel kaydırmasız kalsın diye panelde değil) */
+/** vitrinin sol altında aracın kısa açıklaması */
 function aciklamaGoster(yazi: string | null) {
   let b = document.getElementById("gdes");
   if (!yazi) {
@@ -316,7 +304,6 @@ export function closeGarage() {
   PARA_BIRAK?.();
   PARA_BIRAK = null;
   ONAY = null;
-  bakiyeGoster(false);
   magazaSeridi(null);
   aciklamaGoster(null);
   document.getElementById("gmal")?.remove();
@@ -384,16 +371,15 @@ function showGar() {
   g.classList.remove("hidden");
   g.classList.toggle("kilitli", kilitli);
   g.classList.toggle("satilik", satilik);
-  bakiyeGoster(true);
   magazaSeridi(G);
   document.getElementById("gmal")?.remove();
-  aciklamaGoster(G.mg && L.length ? c.d : null);
+  aciklamaGoster(L.length ? c.d : null);
   if (G.mg && !L.length) {
     // süzgeçte (ya da hiç) satılık araç kalmadı
     const hepsi = CARS.every((_, k) => aracAcikMi(k));
-    g.innerHTML = `<div class="gh"><div style="flex:1;text-align:center"><h1>Mağaza</h1></div></div>
+    g.innerHTML = `<div class="gust"><div class="gbas"><div class="gad"><h1>Mağaza</h1></div></div></div>
 <div class="gbos">${hepsi ? "Bütün araçlar sende." : "Bu türde satılık araç kalmadı."}${G.alinan != null ? `<button class="btn al" id="gga">Garaja git</button>` : ""}</div>
-<div class="gbt"><button class="btn alt" id="gbk">Geri</button></div>`;
+<div class="galt"><div class="gbt"><button class="btn alt" id="gbk">Geri</button></div></div>`;
     $("#gvit").classList.add("hidden");
     $("#gbk").onclick = geriDon;
     if (G.alinan != null) $("#gga").onclick = garajaGit;
@@ -401,28 +387,36 @@ function showGar() {
   }
   const sv = Object.fromEntries(STAT(c).map(([n, f]) => [n, f])),
     pct = (f: number) => Math.round(cl(f, 0.05, 1) * 100),
-    gucAgirlik = (c.hp / c.kg) * 1000,
-    kartlar: [string, string, string, string, number][] = [
-      ["⚡", "Azami hız", String(Math.round(estTop(c))), "km/sa", sv["Azami hız"]],
-      ["🚀", "0-100 km/sa", c.a100.toFixed(1), "sn", sv["Hızlanma"]],
-      ["🛞", "Yol tutuşu", String(pct(sv["Yol tutuşu"])), "%", sv["Yol tutuşu"]],
-      ["⛰️", "Arazi", String(pct(sv["Arazi"])), "%", sv["Arazi"]],
-      ["🛑", "Fren 100-0", String(c.b100), "m", sv["Fren"]],
-      ["🔋", "Güç / ağırlık", String(Math.round(gucAgirlik)), "hp/ton", gucAgirlik / 600],
-    ];
-  g.innerHTML = `<div class="gh"><button class="ga" id="gpv">◀</button><div style="flex:1;text-align:center"><h1>${kilitli ? "🔒 " : ""}${c.n}</h1></div><button class="ga" id="gnx">▶</button></div>
-<div class="grozet${G.i == G.rec || kilitli || satilik ? " sik" : ""}">${G.mg && tur ? `<span class="bdg tur" style="--c:${tur[4]}">${ikon(tur[3])}${tur[1]}</span>` : ""}<span class="bdg">${c.ic} ${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}${kilitli ? `<span class="bdg kilit" title="${kilitYazi}">🔒 Seviye ${fiyat.seviye} · <span class="fy">${ikon("para")}${sayi(fiyat.para)}</span></span>` : ""}${satilik ? `<span class="bdg fiyat">${ikon("para")}<b>${sayi(fiyat.para)}</b></span>` : ""}<button class="gses" id="gses"></button></div>
-<div class="gkart">${kartlar
+    // sağ üst çubuklar: ad, değer, birim, doluluk (0-1)
+    cubuk: [string, string, string, number][] = [
+      ["HIZ", String(Math.round(estTop(c))), "km/sa", sv["Azami hız"]],
+      ["İVME", c.a100.toFixed(1), "sn", sv["Hızlanma"]],
+      ["TUTUŞ", String(pct(sv["Yol tutuşu"])), "%", sv["Yol tutuşu"]],
+      ["FREN", String(c.b100), "m", sv["Fren"]],
+      ["ARAZİ", String(pct(sv["Arazi"])), "%", sv["Arazi"]],
+    ],
+    sira = Math.max(0, L.indexOf(G.i)) + 1,
+    satir = (ad: string, deger: string, sinif = "") =>
+      `<div class="${sinif}"><span>${ad}</span><b>${deger}</b></div>`,
+    // sağ alttaki bilgi kutusu: mağazada fiyat / bakiye (+ seviye kilidi), garajda sahiplik ve seçim
+    bilgi = G.mg
+      ? satir("Fiyat", paraYazi(fiyat.para), "fy") +
+        satir("Bakiye", paraYazi(para()), eksik > 0 ? "az" : "") +
+        (kilitli ? satir("Kilit", "🔒 Seviye " + fiyat.seviye, "kl") : "")
+      : satir("Durum", "Sahip") +
+        satir(sec ? "Seçim" : "Çekiş", sec || (c.awd ? "Dört çeker" : "Arkadan itiş"));
+  g.innerHTML = `<div class="gust"><div class="gbas"><button class="ga" id="gpv" aria-label="Önceki">‹</button><div class="gad">${tur ? `<div class="gtur" style="--c:${tur[4]}">${ikon(tur[3])}${tur[1]}</div>` : ""}<h1>${kilitli ? "🔒 " : ""}${c.n}</h1></div><button class="ga" id="gnx" aria-label="Sonraki">›</button><span class="gsay">${sira}/${L.length}</span></div>
+<div class="grozet"><span class="bdg">${c.ic} ${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}${kilitli ? `<span class="bdg kilit" title="${kilitYazi}">🔒 Seviye ${fiyat.seviye}</span>` : ""}<button class="gses" id="gses"></button></div></div>
+<div class="gbar">${cubuk
     .map(
-      ([ic, n, d, b, f]) =>
-        `<div class="gk"><span class="gkb"><i>${ic}</i>${n}</span><b>${d}<small>${b}</small></b><u><s style="width:${Math.round(cl(f, 0.05, 1) * 100)}%"></s></u></div>`,
+      ([n, d, b, f]) =>
+        `<div class="gk"><span class="gkb">${n}</span><u><s style="width:${Math.round(cl(f, 0.05, 1) * 100)}%"></s></u><b>${d}<small>${b}</small></b></div>`,
     )
-    .join("")}</div>
-<div class="gcip"><span>⚙️ ${c.hp} hp</span><span>⚖️ ${c.kg} kg</span><span>🔩 ${c.awd ? "Dört çeker" : "Arkadan itiş"}</span></div>
-<div class="gbt"><button class="btn alt" id="gbk">Geri</button>${dugme ? `<button class="btn${satilik ? " al" : ""}" id="gok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}</div>`;
+    .join("")}<p>${c.hp} HP · ${c.kg} KG</p></div>
+<div class="galt"><div id="gpara">${bilgi}</div><div class="gbt"><button class="btn alt" id="gbk">Geri</button>${dugme ? `<button class="btn${satilik ? " al" : ""}" id="gok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}<button class="btn alt gvtam" id="gvtam">Vitrin</button></div></div>`;
   const v = $("#gvit");
   v.classList.remove("hidden");
-  v.innerHTML = `<button class="gvar" id="gvpv">◀</button><button class="gvar sag" id="gvnx">▶</button>${dugme ? `<button class="btn${satilik ? " al" : ""}" id="gvok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}<button class="btn alt" id="gvbk">Geri</button><button class="gvtam" id="gvtam">⛶</button>`;
+  v.innerHTML = `<button class="gvar" id="gvpv">◀</button><button class="gvar sag" id="gvnx">▶</button>${dugme ? `<button class="btn${satilik ? " al" : ""}" id="gvok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}<button class="btn alt" id="gvbk">Geri</button>`;
   if (dugme) $("#gvok").onclick = () => $("#gok").click();
   // tam ekranda Geri: tam ekrandan çıkıp bilgi paneline döner
   $("#gvbk").onclick = () => {
@@ -443,7 +437,12 @@ function showGar() {
       k = L.indexOf(G.i);
     G.i = L[k < 0 ? 0 : (k + yon + n) % n];
     G.alinan = null;
+    // kısa kayma ve solma: araç gidilen yönden gelir (kamera.gKay), arayüz CSS ile solar
+    kamera.gKay = yon * 0.8;
     showGar();
+    g.classList.remove("gecis");
+    void g.offsetWidth;
+    g.classList.add("gecis");
   };
   sesButonu();
   // motoru dinle: sesi ses modülü çalar (olay sözleşmesi: lt:motor-dinle → lt:motor-dinle-bitti); tekrar basınca baştan

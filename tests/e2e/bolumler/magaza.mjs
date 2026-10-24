@@ -26,7 +26,7 @@ export default async function ({ p, ok }) {
         kilitli: document.querySelector("#gar").classList.contains("kilitli"),
         satilik: document.querySelector("#gar").classList.contains("satilik"),
         bakiye: document.querySelector("#gpara")?.textContent.trim(),
-        tur: document.querySelector(".bdg.tur")?.textContent.trim(),
+        tur: document.querySelector(".gtur")?.textContent.trim(),
         aciklama: document.querySelector("#gdes")?.textContent.trim(),
         tasma:
           document.documentElement.scrollWidth > innerWidth ||

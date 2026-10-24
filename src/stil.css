@@ -347,153 +347,10 @@ details[open] > summary::after {
   font-size: 18px;
   font-weight: 600;
 }
-#gar {
-  max-height: 56%;
-}
-.land #gar {
-  left: auto;
-  width: min(calc(410px * var(--gs, 1) * var(--gw, 1)), 58%);
-  top: var(--sat);
-  bottom: 0;
-  max-height: none;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  padding-top: calc(8px * var(--gs, 1) * var(--gw, 1));
-  padding-bottom: calc(calc(8px * var(--gs, 1) * var(--gw, 1)) + var(--sab, 0px));
-  padding-right: max(12px, var(--sar, 0px));
-  border-top: 0;
-  border-left: 3px solid var(--acc);
-}
-.gh {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.gh h1 {
-  font-size: calc(22px * var(--gs, 1) * var(--gw, 1)) !important;
-  margin: 0 !important;
-}
-.grozet {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: nowrap;
-  gap: calc(6px * var(--gs, 1) * var(--gw, 1) * var(--rz, 1));
-  margin: calc(4px * var(--gs, 1) * var(--gw, 1)) 0 calc(6px * var(--gs, 1) * var(--gw, 1));
-}
-.gkart {
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-auto-rows: minmax(0, calc(56px * var(--gs, 1) * var(--gv, 1) * 1.3));
-  align-content: center;
-  gap: calc(6px * var(--gs, 1) * var(--gv, 1));
-}
-.gk {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  min-height: 0;
-  padding: calc(4px * var(--gs, 1) * var(--gv, 1)) calc(10px * var(--gs, 1) * var(--gv, 1))
-    calc(6px * var(--gs, 1) * var(--gv, 1));
-  overflow: hidden;
-  border-radius: 14px;
-  background: #ffffff12;
-  border: 1px solid #ffffff14;
-}
-.gkb {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: calc(12px * var(--gs, 1) * var(--gv, 1));
-  font-weight: 700;
-  color: var(--mut);
-}
-.gkb i {
-  font-style: normal;
-  font-size: calc(13px * var(--gs, 1) * var(--gv, 1));
-}
-.gk b {
-  font-size: calc(20px * var(--gs, 1) * var(--gv, 1));
-  line-height: 1;
-  font-weight: 800;
-}
-.gk b small {
-  font-size: calc(12px * var(--gs, 1) * var(--gv, 1));
-  font-weight: 700;
-  color: var(--mut);
-  margin-left: 4px;
-}
-.gk u {
-  display: block;
-  flex: none;
-  height: calc(4px * var(--gv, 1));
-  border-radius: 3px;
-  background: #0006;
-  overflow: hidden;
-}
-.gk s {
-  display: block;
-  height: 100%;
-  border-radius: 3px;
-  background: linear-gradient(90deg, #ff7a3c, #ffc070);
-}
-.grozet.sik {
-  gap: calc(4px * var(--rz, 1));
-}
-.grozet.sik .bdg {
-  padding: 4px calc(8px * var(--gs, 1) * var(--gw, 1) * var(--rz, 1));
-  font-size: calc(13px * var(--gs, 1) * var(--gw, 1) * var(--rz, 1));
-}
-.grozet.sik .gses {
-  gap: calc(5px * var(--rz, 1));
-  padding: 6px calc(9px * var(--gs, 1) * var(--gw, 1) * var(--rz, 1));
-  font-size: calc(13px * var(--gs, 1) * var(--gw, 1) * var(--rz, 1));
-}
-.gcip {
-  display: flex;
-  gap: calc(6px * var(--gs, 1) * var(--gw, 1));
-  margin-top: calc(8px * var(--gs, 1) * var(--gw, 1));
-}
-.gcip span {
-  flex: 1;
-  text-align: center;
-  white-space: nowrap;
-  padding: calc(5px * var(--gs, 1) * var(--gw, 1)) 4px;
-  border-radius: 999px;
-  background: #ffffff12;
-  border: 1px solid #ffffff14;
-  font-size: calc(12px * var(--gs, 1) * var(--gw, 1));
-  font-weight: 700;
-}
 .gozet {
   font-size: 13px !important;
   margin: 4px 0 0 !important;
   color: var(--mut);
-}
-.gbt {
-  display: flex;
-  gap: 8px;
-  margin-top: calc(8px * var(--gs, 1) * var(--gw, 1));
-}
-.gbt .btn {
-  margin-top: 0;
-  padding: calc(11px * var(--gs, 1) * var(--gw, 1));
-  font-size: calc(20px * var(--gs, 1) * var(--gw, 1));
-}
-.gbt .btn.alt {
-  width: 30%;
-}
-.ga {
-  width: max(40px, calc(48px * var(--gs, 1)));
-  height: max(40px, calc(48px * var(--gs, 1)));
-  border-radius: 14px;
-  border: 2px solid var(--line);
-  background: var(--card);
-  color: var(--ink);
-  font-size: 20px;
 }
 .bdg {
   display: inline-block;
@@ -562,64 +419,15 @@ details[open] > summary::after {
   color: #cfd6e4;
   border-color: #5b6578;
 }
-#gar.kilitli .gkart,
-#gar.kilitli .gcip {
-  opacity: 0.55;
-}
-.gbt .btn:disabled,
-#gvit .btn:disabled {
-  opacity: 0.55;
-  filter: grayscale(0.6);
-  pointer-events: none;
-}
 .bdg.kilit .fy {
   opacity: 0.6;
-}
-.bdg.fiyat,
-#gpara {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
 }
 .bdg.fiyat {
   background: #3a2b0a;
   color: #ffd45e;
   border-color: #c9962b;
 }
-.bdg.kilit .ik,
-.bdg.fiyat .ik,
-#gpara .ik,
-.gbt .btn .ik {
-  width: 1.05em;
-  height: 1.05em;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  vertical-align: -0.15em;
-}
-.gbt .btn.al:not(:disabled),
-#gvit .btn.al:not(:disabled) {
-  background: #e8b230;
-  color: #231600;
-  box-shadow: 0 0 14px #e8b23088;
-}
-#gar.satilik .gkart,
-#gar.satilik .gcip {
-  opacity: 0.8;
-}
 /* garaj bakiyesi: vitrinin sol üst köşesi */
-#gpara {
-  position: fixed;
-  top: calc(10px + var(--sat, 0px));
-  left: max(14px, var(--sal, 0px));
-  z-index: 6;
-  padding: 5px 12px;
-  border-radius: 20px;
-  background: #1b1e27cc;
-  border: 1px solid #c9962b;
-  color: #ffd45e;
-  font-size: 18px;
-}
 /* satın alma kutlaması */
 .gkutla {
   position: fixed;
@@ -2107,19 +1915,6 @@ details[open] > summary::after {
 }
 
 /* garaj vitrini: sağ altta tam ekran düğmesi; dönme dokunuşla durunca üstünde seç/geri */
-#gvit {
-  position: fixed;
-  bottom: calc(10px + var(--sab, 0px));
-  right: calc(min(calc(410px * var(--gs, 1) * var(--gw, 1)), 58%) + 12px);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-  z-index: 5;
-}
-#gvit.tam {
-  right: max(14px, var(--sar, 0px));
-}
 #gvit .btn {
   display: none;
   margin: 0;
@@ -2155,15 +1950,6 @@ details[open] > summary::after {
 }
 #gvit.tam .btn.alt {
   display: block;
-}
-.gvtam {
-  width: max(46px, calc(46px * var(--gs, 1)));
-  height: max(46px, calc(46px * var(--gs, 1)));
-  border-radius: 14px;
-  border: 2px solid var(--line);
-  background: #000a;
-  color: var(--ink);
-  font-size: max(22px, calc(22px * var(--gs, 1)));
 }
 /* ===== Ekran uyumu (menü): kısa ve dar ekranlarda sıkılaştırma; iPhone 13 üstü bozulmaz ===== */
 @media (max-height: 400px) {
@@ -3122,51 +2908,6 @@ details[open] > summary::after {
 }
 
 /* mağaza (garaj ekranının mağaza kipi): sekme + tür süzgeci vitrinin üstünde, açıklama satırı, garaja git çubuğu */
-#gmf {
-  position: fixed;
-  top: calc(52px + var(--sat, 0px));
-  left: max(14px, var(--sal, 0px));
-  z-index: 6;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 5px;
-  max-width: calc(100% - min(calc(410px * var(--gs, 1) * var(--gw, 1)), 58%) - 28px);
-}
-#gmf .gsek {
-  padding: 4px 10px;
-  border-bottom: 3px solid #ff7a1a;
-  color: #fff;
-  font-weight: 800;
-  font-size: 14px;
-}
-#gmf button {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 14px;
-  border: 1px solid color-mix(in srgb, var(--c) 70%, transparent);
-  background: #1b1e27cc;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
-}
-#gmf button .ik {
-  width: 14px;
-  height: 14px;
-  color: var(--c);
-}
-#gmf button.on {
-  background: var(--c);
-  color: #160a00;
-}
-#gmf button.on .ik {
-  color: inherit;
-}
-#gmf button[data-bos] {
-  opacity: 0.45;
-}
 .bdg.tur {
   border-color: var(--c);
   color: var(--c);
@@ -3177,54 +2918,6 @@ details[open] > summary::after {
 .bdg.tur .ik {
   width: 1.1em;
   height: 1.1em;
-}
-#gdes {
-  position: fixed;
-  left: max(14px, var(--sal, 0px));
-  bottom: calc(10px + var(--sab, 0px));
-  z-index: 6;
-  max-width: calc(100% - min(calc(410px * var(--gs, 1) * var(--gw, 1)), 58%) - 28px - 56px);
-  padding: 5px 10px;
-  border-radius: 10px;
-  background: #1b1e27bb;
-  font-size: 12px;
-  line-height: 1.3;
-  opacity: 0.9;
-}
-.gbos {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  font-size: calc(16px * var(--gs, 1));
-}
-#gmal {
-  position: fixed;
-  left: max(14px, var(--sal, 0px));
-  bottom: calc(64px + var(--sab, 0px));
-  z-index: 7;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 8px 6px 14px;
-  border-radius: 24px;
-  background: #1b1e27ee;
-  border: 1px solid #c9962b;
-  color: #ffd45e;
-  font-weight: 700;
-}
-#gmal .btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  min-height: 40px;
-}
-#gmal .ik {
-  width: 18px;
-  height: 18px;
 }
 /* hesap değiştir listesi (arayuz/hesap-ui.ts → listeHtml) */
 .hliste {
@@ -3281,4 +2974,463 @@ details[open] > summary::after {
 }
 .hkaldir {
   min-width: 44px;
+}
+
+/* ===== garaj ve mağaza: tam ekran vitrin (NFS Most Wanted araç seçimi düzeni) =====
+   Araç ekranın ortasında; üst solda ‹ › ve ad, üst sağda özellik çubukları, altta açıklama / bilgi kutusu / eylemler.
+   Yalnız kenardaki öğeler dokunmayı alır, ortası vitrin sürüklemesine kalır. --gs: ekran ölçeği (iPhone 13 = 1) */
+#gar {
+  position: fixed;
+  inset: 0;
+  max-height: none;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background:
+    radial-gradient(ellipse at 50% 52%, #0000 52%, #05070bcc 100%),
+    linear-gradient(#05070b99, #0000 28%, #0000 70%, #05070bb3);
+  pointer-events: none;
+  z-index: 5;
+  color: #fff;
+}
+#gar button,
+#gar .gbar,
+#gar #gpara {
+  pointer-events: auto;
+}
+.gust {
+  position: absolute;
+  top: calc(10px * var(--gs, 1) + var(--sat, 0px));
+  left: max(16px, var(--sal, 0px));
+}
+.gbas {
+  width: max-content;
+  display: grid;
+  grid-template-columns: auto auto auto;
+  align-items: center;
+  column-gap: calc(6px * var(--gs, 1));
+}
+.gbas .ga {
+  grid-row: 1 / span 2;
+}
+.gad {
+  position: relative;
+  grid-column: 2;
+  padding: calc(5px * var(--gs, 1)) calc(14px * var(--gs, 1));
+  min-width: calc(150px * var(--gs, 1));
+}
+.gad::before,
+.gad::after {
+  content: "";
+  position: absolute;
+  width: calc(12px * var(--gs, 1));
+  height: calc(12px * var(--gs, 1));
+  border: 0 solid #ffb21a;
+}
+.gad::before {
+  left: 0;
+  top: 0;
+  border-width: 2px 0 0 2px;
+}
+.gad::after {
+  right: 0;
+  bottom: 0;
+  border-width: 0 2px 2px 0;
+}
+.gad h1 {
+  margin: 0 !important;
+  font-size: calc(24px * var(--gs, 1)) !important;
+  font-weight: 300;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 10px #000;
+  white-space: nowrap;
+}
+.gtur {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--c, #ffb21a);
+  font-size: max(9px, calc(11px * var(--gs, 1)));
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.gtur .ik {
+  width: 1.3em;
+  height: 1.3em;
+}
+.gsay {
+  grid-column: 2;
+  justify-self: start;
+  margin: calc(2px * var(--gs, 1)) 0 0 calc(14px * var(--gs, 1));
+  padding: 1px calc(8px * var(--gs, 1));
+  border: 1px solid #ffffff55;
+  font-size: max(9px, calc(11px * var(--gs, 1)));
+  letter-spacing: 0.1em;
+  background: #05070b88;
+}
+#gar .ga {
+  width: max(40px, calc(40px * var(--gs, 1)));
+  height: max(44px, calc(52px * var(--gs, 1)));
+  border: 0;
+  background: none;
+  color: #ffb21a;
+  font-size: calc(46px * var(--gs, 1));
+  font-weight: 200;
+  line-height: 1;
+  padding: 0;
+  text-shadow: 0 0 12px #ff8a1a88;
+}
+.grozet {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: calc(5px * var(--gs, 1));
+  margin: calc(8px * var(--gs, 1)) 0 0 calc(4px * var(--gs, 1));
+  max-width: calc(380px * var(--gs, 1));
+}
+#gar .bdg {
+  padding: calc(3px * var(--gs, 1)) calc(9px * var(--gs, 1));
+  border: 0;
+  border-left: 2px solid #ffb21a;
+  border-radius: 0;
+  background: #05070bb8;
+  font-size: max(9px, calc(11px * var(--gs, 1)));
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+#gar .bdg.rec {
+  background: #ffb21a;
+  color: #1b1000;
+}
+#gar .bdg.kilit {
+  border-left-color: #8d96a8;
+  color: #cfd6e4;
+}
+.gses {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  min-height: 40px;
+  gap: 6px;
+  padding: 0 calc(10px * var(--gs, 1));
+  border: 0;
+  border-left: 2px solid #8d96a8;
+  border-radius: 0;
+  background: #05070bb8;
+  color: #fff;
+  font-family: inherit;
+  font-size: max(9px, calc(11px * var(--gs, 1)));
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.gses i {
+  font-style: normal;
+}
+.gses.on {
+  border-left-color: var(--acc);
+  color: #ffb21a;
+}
+/* sağ üst: HIZ / İVME / TUTUŞ / FREN / ARAZİ ince çubukları */
+.gbar {
+  position: absolute;
+  top: calc(10px * var(--gs, 1) + var(--sat, 0px));
+  right: max(16px, var(--sar, 0px));
+  width: calc(218px * var(--gs, 1));
+  padding: calc(8px * var(--gs, 1)) calc(10px * var(--gs, 1));
+  background: linear-gradient(270deg, #05070bcc, #05070b66);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 100%,
+    calc(10px * var(--gs, 1)) 100%,
+    0 calc(100% - 10px * var(--gs, 1))
+  );
+}
+.gbar p {
+  margin: calc(4px * var(--gs, 1)) 0 0;
+  text-align: right;
+  font-size: max(9px, calc(10px * var(--gs, 1)));
+  letter-spacing: 0.14em;
+  color: #9aa4b8;
+}
+.gk {
+  display: grid;
+  grid-template-columns: calc(44px * var(--gs, 1)) 1fr calc(62px * var(--gs, 1));
+  align-items: center;
+  gap: calc(6px * var(--gs, 1));
+  height: calc(20px * var(--gs, 1));
+}
+.gkb {
+  font-size: max(9px, calc(10px * var(--gs, 1)));
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #cfd6e4;
+}
+.gk u {
+  display: block;
+  height: calc(4px * var(--gs, 1));
+  background: #ffffff26;
+  overflow: hidden;
+}
+.gk s {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #ffb21a, #fff0c4);
+}
+.gk b {
+  text-align: right;
+  font-size: max(9px, calc(12px * var(--gs, 1)));
+  font-weight: 700;
+  white-space: nowrap;
+}
+.gk b small {
+  margin-left: 3px;
+  font-size: max(9px, calc(9px * var(--gs, 1)));
+  font-weight: 600;
+  color: #9aa4b8;
+}
+#gar.kilitli .gbar {
+  opacity: 0.6;
+}
+/* alt: sağda bilgi kutusu (mağazada fiyat / bakiye) ve eylem düğmeleri */
+.galt {
+  position: absolute;
+  right: max(16px, var(--sar, 0px));
+  bottom: calc(10px + var(--sab, 0px));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: calc(6px * var(--gs, 1));
+}
+#gpara {
+  min-width: calc(200px * var(--gs, 1));
+  padding: calc(6px * var(--gs, 1)) calc(14px * var(--gs, 1));
+  background: linear-gradient(270deg, #05070bd0, #05070b70);
+  clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+}
+#gpara div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  height: calc(20px * var(--gs, 1));
+}
+#gpara span {
+  color: #aab3c4;
+  font-size: max(9px, calc(11px * var(--gs, 1)));
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+#gpara b {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: calc(15px * var(--gs, 1));
+  font-weight: 700;
+}
+#gpara .fy b {
+  color: #ffd45e;
+}
+#gpara .az b {
+  color: #ff7a6a;
+}
+#gpara .ik,
+#gar .btn .ik {
+  width: 1.05em;
+  height: 1.05em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  vertical-align: -0.15em;
+}
+.gbt {
+  display: flex;
+  gap: calc(6px * var(--gs, 1));
+}
+#gar .gbt .btn,
+#gvit .btn {
+  width: auto;
+  margin: 0;
+  min-height: 40px;
+  padding: 0 calc(18px * var(--gs, 1));
+  border: 0;
+  border-radius: 0;
+  clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  background: #ffb21a;
+  color: #1b1000;
+  font-size: calc(13px * var(--gs, 1));
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+#gar .gbt .btn.alt,
+#gvit .btn.alt {
+  background: #05070bd0;
+  color: #fff;
+  box-shadow: inset 0 -2px #ffffff55;
+}
+#gar .gbt .btn.al:not(:disabled),
+#gvit .btn.al:not(:disabled) {
+  background: #e8b230;
+  color: #231600;
+}
+#gar .gbt .btn:disabled,
+#gvit .btn:disabled {
+  opacity: 0.6;
+  filter: grayscale(0.6);
+  pointer-events: none;
+}
+/* sol alt: kısa açıklama */
+#gdes {
+  position: fixed;
+  left: max(16px, var(--sal, 0px));
+  bottom: calc(10px + var(--sab, 0px));
+  z-index: 6;
+  max-width: min(calc(330px * var(--gs, 1)), calc(100% - 520px * var(--gs, 1)));
+  padding: calc(6px * var(--gs, 1)) calc(12px * var(--gs, 1));
+  border-left: 2px solid #ffb21a;
+  background: #05070bb8;
+  font-size: max(9px, calc(12px * var(--gs, 1)));
+  line-height: 1.35;
+  color: #dfe5f0;
+}
+/* mağaza: sekme + tür süzgeci, ad bloğunun altında */
+#gmf {
+  position: fixed;
+  top: calc(190px * var(--gs, 1) + var(--sat, 0px));
+  left: max(16px, var(--sal, 0px));
+  z-index: 6;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  max-width: calc(330px * var(--gs, 1));
+}
+#gmf .gsek {
+  padding: 3px 10px;
+  border-bottom: 2px solid #ffb21a;
+  color: #fff;
+  font-weight: 800;
+  font-size: max(9px, calc(11px * var(--gs, 1)));
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+#gmf button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 0;
+  border-left: 2px solid var(--c);
+  background: #05070bb8;
+  color: #fff;
+  font-size: max(9px, calc(11px * var(--gs, 1)));
+  font-weight: 700;
+}
+#gmf button .ik {
+  width: 13px;
+  height: 13px;
+  color: var(--c);
+}
+#gmf button.on {
+  background: var(--c);
+  color: #160a00;
+}
+#gmf button.on .ik {
+  color: inherit;
+}
+#gmf button[data-bos] {
+  opacity: 0.45;
+}
+#gmal {
+  position: fixed;
+  left: max(16px, var(--sal, 0px));
+  bottom: calc(76px * var(--gs, 1) + var(--sab, 0px));
+  z-index: 7;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 6px 4px 14px;
+  background: #05070bdd;
+  border-left: 2px solid #ffb21a;
+  color: #ffd45e;
+  font-weight: 700;
+  font-size: calc(13px * var(--gs, 1));
+}
+#gmal .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  margin: 0;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 0;
+  font-size: max(9px, calc(12px * var(--gs, 1)));
+}
+#gmal .ik {
+  width: 16px;
+  height: 16px;
+}
+.gbos {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 38%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  font-size: calc(16px * var(--gs, 1));
+  letter-spacing: 0.06em;
+  text-shadow: 0 2px 8px #000;
+}
+.gbos .btn {
+  width: auto;
+  margin: 0;
+  padding: 0 22px;
+  min-height: 40px;
+  pointer-events: auto;
+}
+/* vitrin kipi (arayüz gizli): dokununca Seç / Geri çıkar */
+#gvit {
+  position: fixed;
+  bottom: calc(10px + var(--sab, 0px));
+  right: max(14px, var(--sar, 0px));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  z-index: 5;
+}
+/* araç geçişi: arayüz kısa solar, sahne kararıp açılır (araç gidilen yönden kayar: kamera.gKay) */
+#gar.gecis .gust,
+#gar.gecis .gbar,
+#gar.gecis .galt {
+  animation: ggecis 0.3s ease-out;
+}
+#gar.gecis::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #05070b;
+  animation: gflas 0.3s ease-out forwards;
+}
+@keyframes ggecis {
+  from {
+    opacity: 0.2;
+  }
+}
+@keyframes gflas {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 0;
+  }
 }
