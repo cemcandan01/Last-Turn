@@ -3495,18 +3495,6 @@ details[open] > summary::after {
   gap: 8px;
   z-index: 5;
 }
-/* araç geçişi: arayüz yazıları kısa solar; 3B görüntü kararmaz (araç gidilen yönden kayar: kamera.gKay) */
-#gar.gecis .gust,
-#gar.gecis .gbar,
-#gar.gecis .galt {
-  animation: ggecis 0.3s ease-out;
-}
-@keyframes ggecis {
-  from {
-    opacity: 0.2;
-  }
-}
-
 /* garaj ve mağaza rozetleri, süzgeç çipleri ve motor düğmesi: tek yükseklik, ince köşeli, çizgi ikonlu */
 #gar .bdg,
 .gtur,

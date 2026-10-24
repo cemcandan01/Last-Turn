@@ -366,17 +366,22 @@ export default async function ({ p, ok }) {
     };
     for (let i = 0; i < 6; i++) await kare();
     const taban = olc();
-    let en = taban;
+    const x0 = LT.cam.view ? LT.cam.view.offsetX : 0;
+    let en = taban,
+      kayma = 0;
     for (let n = 0; n < 4; n++) {
       document.querySelector("#gnx").click();
       for (let i = 0; i < 20; i++) {
         await kare();
         en = Math.min(en, olc());
+        // ekran kaymaz: görüntü penceresi ve kamera yerinde (yalnız araç değişir)
+        kayma = Math.max(kayma, Math.abs((LT.cam.view ? LT.cam.view.offsetX : 0) - x0));
       }
     }
     LT.closeGarage();
-    return { taban: Math.round(taban), en: Math.round(en) };
+    return { taban: Math.round(taban), en: Math.round(en), kayma };
   });
+  ok(par.kayma == 0, "araç değişince ekran kaymıyor (görüntü penceresi oynaması " + par.kayma + " px)");
   ok(
     par.taban > 5 && par.en > par.taban * 0.6,
     "araç geçişinde görüntü kararmıyor: ortalama parlaklık taban " +
