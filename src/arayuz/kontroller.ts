@@ -1,6 +1,6 @@
 // Dokunmatik kontroller: direksiyon tuşları / ekran direksiyonu / telefonu çevirme, gaz ve fren tuşları / analog pedal.
-// Analog pedal: ortası sıfır, yukarı gaz, aşağı fren. Debriyaj fren (ya da pedal) üstünde: basılı tut, bırakınca
-// motorun devri tekerlere vurur ve arka patinaja girer (drifte giriş).
+// Analog pedal: ortası sıfır, yukarı gaz, aşağı fren. El freni fren (ya da pedal) üstünde: basılıyken arka tekerler
+// kilitlenir, arka dışarı atar (drifte giriş); bırakınca gaz ve karşı direksiyonla drift sürer.
 import { $ } from "../cekirdek/dom";
 import { ad, cl } from "../cekirdek/matematik";
 import { toApp } from "../cekirdek/ekran";
@@ -9,7 +9,7 @@ import { askTilt, girdiSifirla, I, tilt, tiltRoll } from "../oyun/girdi";
 import { note } from "./bildirim";
 import { ikon } from "./ikonlar";
 
-function bindK(id: string, k: "l" | "r" | "g" | "b" | "dbr") {
+function bindK(id: string, k: "l" | "r" | "g" | "b" | "el") {
   const e = $(id);
   e.addEventListener("pointerdown", (v) => {
     v.preventDefault();
@@ -102,7 +102,7 @@ export function kontrolleriKur() {
       : CT.steer == "wheel"
         ? '<div class="wz" id="wz"><div class="wheel" id="wh"></div></div>'
         : '<div class="g"><div class="k" id="cal">Ortala</div></div>';
-  const D = '<div class="k" id="dbr">DEBRİYAJ</div>',
+  const D = `<div class="k" id="el">${ikon("elFreni")}<span>EL FRENİ</span></div>`,
     B =
       CT.gas == "analog"
         ? '<div class="tsut">' +
@@ -124,7 +124,7 @@ export function kontrolleriKur() {
       tilt.zero = tiltRoll();
       note("Ortalandı", 30);
     };
-  bindK("#dbr", "dbr");
+  bindK("#el", "el");
   if (CT.gas != "analog") bindK("#b", "b");
   if (CT.gas == "btn") bindK("#g", "g");
   else if (CT.gas == "analog") bindPedal($("#pd"));

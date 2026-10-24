@@ -50,7 +50,7 @@ her kare (requestAnimationFrame):
 | Tekerler | 4 teker, her biri zemini ışınla bulur; yay, amortisör (basma/açılma), tampon, denge çubukları |
 | Lastik | kayma oranı (teker dönüşü) ve kayma açısı birlikte (sürtünme elipsi), her teker kendi zemininde. Gevşek zeminde tutuş düşük, tepe kayma açısı küçük (~13,5°), tepeden sonra kuvvet düşer, arka biraz daha gevşek |
 | Teker dönüşü | her tekerin açısal hızı; örtük çözücü (ikiye bölme): patinaj, kilitlenme, ABS gerçek |
-| Aktarma | tork eğrili motor, 6 ileri otomatik vites (tork kesmeli geçiş), geri vites, kalkış debriyajı, diferansiyel kilidi, dört çekerde ön/arka paylaşım ve akslar arası bağ |
+| Aktarma | tork eğrili motor, 6 ileri otomatik vites (tork kesmeli geçiş), geri vites, kalkış debriyajı, diferansiyel kilidi, dört çekerde ön/arka paylaşım ve akslar arası bağ, el freni (arka kilit) |
 | Yardımlar | kuvvet ve tork olarak: viraj desteği, denge kontrolü (aşırı dönüşü söndürür), çekiş kontrolü ve tuşla kalkış sınırı (her teker, her ara adım), ABS, drift desteği |
 | Çarpışma | darbe gövdenin vurduğu noktadan: araç vuruş yerine göre döner (rastgelelik yok) |
 | Adım maliyeti | ~0,5 ms (adım başına zemin eğimi bir kez, ara adımda düzlem) |

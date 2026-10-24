@@ -6,14 +6,14 @@ import type { FizikGirdisi } from "../fizik/tipler";
 import { note } from "../arayuz/bildirim";
 import { CT, set } from "./ayarlar";
 
-/** ham girişler: sol, sağ, gaz, fren (0-1), ekran direksiyonu (-1..1), debriyaj (0/1) */
-export const I = { l: 0, r: 0, g: 0, b: 0, sa: 0, dbr: 0 };
+/** ham girişler: sol, sağ, gaz, fren (0-1), ekran direksiyonu (-1..1), el freni (0/1) */
+export const I = { l: 0, r: 0, g: 0, b: 0, sa: 0, el: 0 };
 
 /** telefon eğimi: son okuma ve sıfır noktası */
 export const tilt = { b: 0, g: 0, zero: 0, t: -1e9 };
 
 export function girdiSifirla() {
-  I.l = I.r = I.g = I.b = I.dbr = 0;
+  I.l = I.r = I.g = I.b = I.el = 0;
   I.sa = 0;
 }
 
@@ -60,21 +60,19 @@ export function fizikGirdisi(): FizikGirdisi {
     b: I.b,
     analogDireksiyon: CT.steer != "btn",
     analogGaz: CT.gas == "analog",
-    dbr: I.dbr > 0,
+    el: I.el > 0,
   };
 }
 
 /** klavye (bilgisayarda deneme) ve yön sensörü dinleyicileri */
 export function girdiKur() {
-  // boşluk ya da C: debriyaj
-  const KM: Record<string, "l" | "r" | "g" | "b" | "dbr"> = {
+  // boşluk: el freni
+  const KM: Record<string, "l" | "r" | "g" | "b" | "el"> = {
     ArrowLeft: "l",
     ArrowRight: "r",
     ArrowUp: "g",
     ArrowDown: "b",
-    " ": "dbr",
-    c: "dbr",
-    C: "dbr",
+    " ": "el",
   };
   addEventListener("keydown", (e) => {
     if (KM[e.key]) I[KM[e.key]] = 1;

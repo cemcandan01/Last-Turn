@@ -9,7 +9,7 @@ import { duzZemin, frensiz } from "../yardimci/denemeler";
 import { DRIFT_PILOT, driftTuru } from "../yardimci/drift-pilot";
 import { surucuKur } from "../yardimci/surucu";
 import { titresimOlc } from "../yardimci/titresim";
-import { driftGirisi } from "../yardimci/debriyaj";
+import { driftGirisi } from "../yardimci/elfreni";
 import { pistNo, TDEF } from "../../src/dunya/pist-tanimlari";
 
 const DT = 1 / 60;
@@ -182,36 +182,43 @@ describe("drift yarışı (Drift Parkı, Beyaz Kurt, drift önayarı)", () => {
   });
 });
 
-describe("debriyaj vuruşu: başlangıç aracıyla drift pistinde drifte giriş", () => {
-  const kizilOk = CARS.findIndex((c) => c.n == "Kızıl Ok"),
+describe("el freni: başlangıç araçlarıyla drift pistinde drifte giriş", () => {
+  const adla = (n: string) => CARS.findIndex((c) => c.n == n),
     dp = pistNo("dp", 1);
-  it("Kızıl Ok gerçekçide: gazla dönmez, debriyajla drifte girer ve spin atmaz", () => {
-    // 58 km/s, aracın kendi önayarı (asfalt yarışı): tam gaz + tam direksiyonla tutunur
-    const guc = driftGirisi(kizilOk, "real", 16, false, dp),
-      dbr = driftGirisi(kizilOk, "real", 16, true, dp);
-    expect(guc.drift, "debriyajsız drift modu").toBe(false);
-    expect(guc.aci, "debriyajsız kayma açısı (°)").toBeLessThan(30);
-    expect(dbr.drift, "debriyajla drift modu").toBe(true);
-    expect(dbr.aci, "debriyajla kayma açısı (°)").toBeGreaterThan(45);
-    expect(dbr.patinaj, "debriyajla arka patinaj").toBeGreaterThan(2 * guc.patinaj);
-    expect(dbr.spin, "spin").toBe(0);
+  it("gerçekçide 58 km/s'de el freni (0,25 sn) aracı döndürür, spin atmaz (arkadan itiş)", () => {
+    for (const n of ["Kızıl Ok", "Gümüş Serçe"]) {
+      const yok = driftGirisi(adla(n), "real", 16, false, dp, 0.25),
+        el = driftGirisi(adla(n), "real", 16, true, dp, 0.25);
+      expect(yok.aci, n + ": el frenisiz kayma açısı (°)").toBeLessThan(30);
+      expect(el.aci, n + ": el freniyle kayma açısı (°)").toBeGreaterThan(50);
+      expect(el.spin, n + ": spin").toBe(0);
+    }
   });
-  it("basılıyken motor devirlenir, tekerlere tork gitmez; bırakınca devir tekerlere iner", () => {
-    const s = surucuKur({ dunya: 0, arac: kizilOk, lk: "real" });
+  it("dört çekerde de çalışır: arka kilitlenir, öne güç gider; uzun çekince döner", () => {
+    const a = adla("Bozkır Tavşanı"),
+      yok = driftGirisi(a, "real", 16, false, dp, 0.5),
+      el = driftGirisi(a, "real", 16, true, dp, 0.5);
+    expect(el.aci, "el freniyle kayma açısı (°)").toBeGreaterThan(yok.aci + 30);
+    const s = surucuKur({ dunya: 0, arac: a, lk: "real" });
     s.reset(210, -780, 0);
-    const S = s.sim.S,
-      Y = () => s.sim.yeni!,
-      v = () => Math.hypot(S.vx, S.vz),
-      gi = (dbr: boolean): FizikGirdisi => ({ ...gir(1), dbr });
-    for (let t = 0; t < 2.5; t += DT) s.adim(gi(false));
-    const v0 = v(),
-      rpm0 = Y().rpm;
-    for (let t = 0; t < 0.5; t += DT) s.adim(gi(true));
-    expect(v(), "debriyaj basılıyken hızlanmaz").toBeLessThanOrEqual(v0);
-    expect(Y().rpm, "devir kesiciye yakın").toBeGreaterThan(Math.max(rpm0, 6000));
-    for (let t = 0; t < 1; t += DT) s.adim(gi(false));
-    expect(Y().serbestDevir, "vuruş bitti, motor bağlı").toBe(0);
-    expect(sonlu(S.x, S.z, S.vx, S.vz, Y().rpm)).toBe(true);
+    for (let t = 0; t < 2.5; t += DT) s.adim(gir(1));
+    for (let t = 0; t < 0.3; t += DT) s.adim({ ...gir(1), el: true });
+    const Y = s.sim.yeni!;
+    expect(Math.abs(Y.tk[2].w) + Math.abs(Y.tk[3].w), "arka tekerler kilitli").toBeLessThan(1);
+    expect(Math.abs(Y.tk[0].w), "ön tekerler dönüyor").toBeGreaterThan(10);
+  });
+  it("duran ve yavaş araçta etkisiz: dururken kıpırdamaz, 18 km/s'de ani spin yok", () => {
+    const s = surucuKur({ dunya: 0, arac: adla("Kızıl Ok"), lk: "real" }),
+      S = s.sim.S;
+    s.reset(210, -780, 0);
+    for (let t = 0; t < 2; t += DT) s.adim({ ...gir(), el: true });
+    expect(Math.hypot(S.x - 210, S.z + 780), "dururken kayma (m)").toBeLessThan(0.01);
+    for (const n of ["Kızıl Ok", "Gümüş Serçe", "Bozkır Tavşanı"]) {
+      const yok = driftGirisi(adla(n), "real", 5, false, dp, 0.5),
+        el = driftGirisi(adla(n), "real", 5, true, dp, 0.5);
+      expect(el.spin, n + ": yavaşta spin").toBe(0);
+      expect(el.aci, n + ": yavaşta kayma açısı (°)").toBeLessThan(Math.max(25, yok.aci + 5));
+    }
   });
 });
 

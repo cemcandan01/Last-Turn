@@ -64,8 +64,8 @@ export interface FizikGirdisi {
   analogDireksiyon: boolean;
   /** gaz analog pedal mı */
   analogGaz: boolean;
-  /** debriyaj basılı mı (debriyaj vuruşu: bırakınca motorun fazla devri tork olarak tekerlere geçer) */
-  dbr?: boolean;
+  /** el freni çekili mi (arka tekerler kilitlenir, arka dışarı atar: drifte giriş) */
+  el?: boolean;
 }
 
 /** sürüş kurulumu: araç, lastik, ayarlar, yardımlar ve mekanik seçenekler */
