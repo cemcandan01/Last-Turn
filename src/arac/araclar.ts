@@ -15,8 +15,7 @@ export interface Arac {
   lat: number;
   b100: number;
   t90: number;
-  /** simge, öne çıkan özellik, ad, açıklama */
-  ic: string;
+  /** öne çıkan özellik, ad, açıklama */
   st: string;
   n: string;
   d: string;
@@ -107,7 +106,6 @@ export const CARS: Arac[] = [
     lat: 3.31,
     b100: 7,
     t90: 0.67,
-    ic: "🧲",
     st: "Viraj tutuşu",
     n: "Kızıl Ok",
     d: "Ortadan motorlu pist arabası. Asfaltta yüksek tutuş, keskin yön değişimi.",
@@ -190,7 +188,6 @@ export const CARS: Arac[] = [
     lat: 2.92,
     b100: 12,
     t90: 1.28,
-    ic: "⚡",
     st: "Hızlanma",
     n: "Kor RX",
     d: "Dört çeker rallikros hatchback. Güçlü kalkış, kısa toprak pistlerde çevik.",
@@ -284,7 +281,6 @@ export const CARS: Arac[] = [
     lat: 2.49,
     b100: 15,
     t90: 0.93,
-    ic: "🌀",
     st: "Drift",
     n: "Beyaz Kurt",
     d: "Geniş gövdeli arkadan itişli drift arabası. Kilitli diferansiyel, büyük kanat.",
@@ -369,7 +365,6 @@ export const CARS: Arac[] = [
     lat: 2.83,
     b100: 13,
     t90: 1.25,
-    ic: "⛰️",
     st: "Arazi",
     n: "Mavi Yıldız",
     d: "Dört çeker ralli sedanı. Uzun süspansiyon: ralli etaplarında çakılda ve karda en iyi tutuş.",
@@ -450,7 +445,6 @@ export const CARS: Arac[] = [
     lat: 2.32,
     b100: 23,
     t90: 1.58,
-    ic: "🚀",
     st: "Azami hız",
     n: "Gece Mavisi",
     d: "Kompresörlü klasik drag arabası. Çok güçlü, düz çizgide rakipsiz, virajda hantal.",
@@ -518,7 +512,6 @@ CARS.push(
     lat: 3.2,
     b100: 7,
     t90: 0.72,
-    ic: "🦅",
     st: "Fren",
     n: "Gri Atmaca",
     d: "Arkadan motorlu pist arabası. Frende çok güçlü, kalkışta iyi çeker; virajdan çıkarken gaza dikkat: kuyruk savurur.",
@@ -550,7 +543,6 @@ CARS.push(
     lat: 2.95,
     b100: 12,
     t90: 1.15,
-    ic: "🌪️",
     st: "Turbo",
     n: "Kum Fırtınası",
     d: "Hafif, ortadan motorlu dört çeker rallikros efsanesi. Turbo geç dolar, dolunca sert vurur.",
@@ -585,7 +577,6 @@ CARS.push(
     lat: 2.85,
     b100: 13,
     t90: 1.2,
-    ic: "🐝",
     st: "Denge",
     n: "Sarı Arı",
     d: "Dengeli, affedici dört çeker ralli hatchback'i. Hata yapanı da yolda tutar.",
@@ -621,7 +612,6 @@ CARS.push(
     lat: 2.4,
     b100: 15,
     t90: 0.85,
-    ic: "🐼",
     st: "Hafiflik",
     n: "Panda",
     d: "Hafif, az güçlü, arkadan itişli küçük coupe. Hızı korumayı öğreten başlangıç drift arabası.",
@@ -652,7 +642,6 @@ CARS.push(
     lat: 2.4,
     b100: 20,
     t90: 1.45,
-    ic: "🐉",
     st: "Tepe hızı",
     n: "Turuncu Ejder",
     d: "Büyük turbolu coupe. Kalkışta turbo gecikir, basınç dolunca tepede rakipsiz.",
