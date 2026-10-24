@@ -33,7 +33,7 @@ import {
 import { ikon } from "./ikonlar";
 import { EVENTS, startEvent } from "../oyun/yarislar";
 import { note } from "./bildirim";
-import { showMenu, startWorld } from "./menu";
+import { showMenu, startWorld, TYPES } from "./menu";
 
 interface GarajDurumu {
   /** yarış (yoksa null) */
@@ -44,11 +44,22 @@ interface GarajDurumu {
   prev: number;
   rec: number;
   i: number;
+  /** mağaza kipi: yalnız sahip olunmayan araçlar gezilir, süzgeç (tür anahtarı ya da "hepsi"), geri dönüş ve son alınan araç */
+  mg: boolean;
+  suz: string;
+  geri?: () => void;
+  alinan: number | null;
 }
 let GAR: GarajDurumu | null = null;
 
 const sayi = (n: number) => n.toLocaleString("tr-TR");
 const paraYazi = (n: number) => `${ikon("para")}<b>${sayi(n)}</b>`;
+/** gezilen araçlar: garajda yalnız sahip olunanlar, mağazada sahip olunmayanlar (süzgece göre) */
+const liste = (G: GarajDurumu) =>
+  CARS.map((_, k) => k).filter((k) =>
+    G.mg ? !aracAcikMi(k) && (G.suz == "hepsi" || CARS[k].ty == G.suz) : aracAcikMi(k),
+  );
+const turBilgi = (ty: string) => TYPES.find((t) => t[0] == ty);
 let PARA_BIRAK: (() => void) | null = null,
   ONAY: { arac: number; zaman: number } | null = null,
   ONAY_ZAMANLA: ReturnType<typeof setTimeout> | undefined;
@@ -63,6 +74,53 @@ function bakiyeGoster(goster: boolean) {
   }
   b.style.display = goster ? "" : "none";
   if (goster) b.innerHTML = paraYazi(para());
+}
+
+/** mağazada vitrinin altında aracın kısa açıklaması (panel kaydırmasız kalsın diye panelde değil) */
+function aciklamaGoster(yazi: string | null) {
+  let b = document.getElementById("gdes");
+  if (!yazi) {
+    b?.remove();
+    return;
+  }
+  if (!b) {
+    b = document.createElement("div");
+    b.id = "gdes";
+    document.body.appendChild(b);
+  }
+  b.style.display = kamera.gTam ? "none" : "";
+  b.textContent = yazi;
+}
+
+/** vitrinin sol üstündeki mağaza şeridi: sekme ("Araçlar"; ileride "Modifiye" buraya gelir) ve tür süzgeci */
+function magazaSeridi(G: GarajDurumu | null) {
+  let b = document.getElementById("gmf");
+  if (!b) {
+    b = document.createElement("div");
+    b.id = "gmf";
+    document.body.appendChild(b);
+  }
+  b.style.display = G?.mg && !kamera.gTam ? "" : "none";
+  if (!G?.mg) return;
+  const say = (suz: string) =>
+    CARS.filter((c, k) => !aracAcikMi(k) && (suz == "hepsi" || c.ty == suz)).length;
+  b.innerHTML =
+    `<span class="gsek">Araçlar</span>` +
+    [["hepsi", "Tümü", "", ""] as const, ...TYPES.map((t) => [t[0], t[1], t[3], t[4]] as const)]
+      .map(
+        ([k, ad, ik, renk]) =>
+          `<button data-suz="${k}" class="${G.suz == k ? "on" : ""}" style="--c:${renk || "#ff7a1a"}"${say(k) ? "" : ' data-bos="1"'}>${ik ? ikon(ik) : ""}${ad}</button>`,
+      )
+      .join("");
+  b.querySelectorAll<HTMLElement>("button").forEach((e) => {
+    e.onclick = () => {
+      G.suz = e.dataset.suz!;
+      G.alinan = null;
+      const l = liste(G);
+      if (l.length && !l.includes(G.i)) G.i = l[0];
+      showGar();
+    };
+  });
 }
 
 /** satın alma kutlaması: parıltı ve "Satın alındı" */
@@ -115,6 +173,11 @@ function gorunum() {
   $("#gar").style.display = kamera.gTam ? "none" : "";
   const t = $("#gvtam");
   t.style.display = kamera.gTam ? "none" : "";
+  magazaSeridi(GAR);
+  for (const id of ["gmal", "gdes"]) {
+    const e = document.getElementById(id);
+    if (e) e.style.display = kamera.gTam ? "none" : "";
+  }
 }
 
 /** diğer araçların modellerini kareler arasına yayarak önceden kur ve GPU'ya yükle (araç değişince takılma olmasın) */
@@ -195,7 +258,7 @@ export function openGarage(ev: number | null, w: number | null = null) {
   const prev = carIndex(),
     rec = ev != null ? onerilenArac(EVENTS[ev].ty) : -1,
     acik = (k: number) => k >= 0 && aracAcikMi(k);
-  GAR = {
+  ac({
     ev,
     w,
     prev,
@@ -205,7 +268,31 @@ export function openGarage(ev: number | null, w: number | null = null) {
       : acik(prev) || (ev == null && w == null)
         ? prev
         : CARS.findIndex((_, k) => aracAcikMi(k)),
-  };
+    mg: false,
+    suz: "hepsi",
+    alinan: null,
+  });
+}
+
+/** mağazayı aç: sahip olunmayan araçlar (satın alınabilir, para ya da seviye yetmeyen); geri verilirse Geri onu çağırır, yoksa ana menü */
+export function magazaAc(geriDonus?: () => void) {
+  const prev = carIndex(),
+    l = liste({ mg: true, suz: "hepsi" } as GarajDurumu);
+  ac({
+    ev: null,
+    w: null,
+    prev,
+    rec: -1,
+    i: l[0] ?? prev,
+    mg: true,
+    suz: "hepsi",
+    geri: geriDonus,
+    alinan: null,
+  });
+}
+
+function ac(durum: GarajDurumu) {
+  GAR = durum;
   dinleBagla();
   PARA_BIRAK?.();
   PARA_BIRAK = paraDinle(() => {
@@ -230,6 +317,9 @@ export function closeGarage() {
   PARA_BIRAK = null;
   ONAY = null;
   bakiyeGoster(false);
+  magazaSeridi(null);
+  aciklamaGoster(null);
+  document.getElementById("gmal")?.remove();
   garG.visible = false;
   garajIsigi(false);
   vitrinBosalt();
@@ -240,6 +330,23 @@ export function closeGarage() {
   GAR = null;
 }
 
+/** Geri: garajda ana menü (serbest sürüştense o liste), mağazada çağıranın verdiği yer ya da ana menü */
+function geriDon() {
+  const G = GAR!;
+  setCar(G.prev);
+  closeGarage();
+  if (G.mg && G.geri) G.geri();
+  else showMenu(G.w != null ? ["free"] : undefined);
+}
+
+/** mağazadan yeni alınan araçla garajı aç */
+function garajaGit() {
+  const a = GAR!.alinan;
+  closeGarage();
+  if (a != null) setCar(a);
+  openGarage(null);
+}
+
 function showGar() {
   const G = GAR!,
     c = CARS[G.i];
@@ -247,6 +354,7 @@ function showGar() {
   // ana menüden açılan garajda araç seçilmez (yalnız bakılır)
   const sec = G.ev != null ? "Yarış: " + EVENTS[G.ev].n : G.w != null ? "Sür: " + WORLDS[G.w].n : "";
   const g = $("#gar"),
+    L = liste(G),
     acik = aracAcikMi(G.i),
     sa = aracSatinAlinabilirMi(G.i),
     // seviyesi gelmeyen araç karartılır; seviyesi yeten ama alınmamış araç (satilik) açık renkte kalır
@@ -266,11 +374,31 @@ function showGar() {
             ? `Emin misin? ${ikon("para")} ${sayi(fiyat.para)}`
             : `Satın al ${ikon("para")} ${sayi(fiyat.para)}`
         : sec;
+  // düğme: garajda yarış/sürüş varsa Seç; mağazada alınmamış araçta satın al ya da kilit
+  const dugme = G.mg ? !acik : !!sec,
+    tur = turBilgi(c.ty),
+    // yarış öncesi garajda türün aracı alınmamışsa mağazaya yönlendiren ipucu
+    magazadaVar = !G.mg && G.ev != null && CARS.some((x, k) => x.ty == EVENTS[G.ev!].ty && !aracAcikMi(k));
   kilitGorunumu(kilitli);
+  g.classList.toggle("magaza", G.mg);
   g.classList.remove("hidden");
   g.classList.toggle("kilitli", kilitli);
   g.classList.toggle("satilik", satilik);
   bakiyeGoster(true);
+  magazaSeridi(G);
+  document.getElementById("gmal")?.remove();
+  aciklamaGoster(G.mg && L.length ? c.d : null);
+  if (G.mg && !L.length) {
+    // süzgeçte (ya da hiç) satılık araç kalmadı
+    const hepsi = CARS.every((_, k) => aracAcikMi(k));
+    g.innerHTML = `<div class="gh"><div style="flex:1;text-align:center"><h1>Mağaza</h1></div></div>
+<div class="gbos">${hepsi ? "Bütün araçlar sende." : "Bu türde satılık araç kalmadı."}${G.alinan != null ? `<button class="btn al" id="gga">Garaja git</button>` : ""}</div>
+<div class="gbt"><button class="btn alt" id="gbk">Geri</button></div>`;
+    $("#gvit").classList.add("hidden");
+    $("#gbk").onclick = geriDon;
+    if (G.alinan != null) $("#gga").onclick = garajaGit;
+    return;
+  }
   const sv = Object.fromEntries(STAT(c).map(([n, f]) => [n, f])),
     pct = (f: number) => Math.round(cl(f, 0.05, 1) * 100),
     gucAgirlik = (c.hp / c.kg) * 1000,
@@ -283,7 +411,7 @@ function showGar() {
       ["🔋", "Güç / ağırlık", String(Math.round(gucAgirlik)), "hp/ton", gucAgirlik / 600],
     ];
   g.innerHTML = `<div class="gh"><button class="ga" id="gpv">◀</button><div style="flex:1;text-align:center"><h1>${kilitli ? "🔒 " : ""}${c.n}</h1></div><button class="ga" id="gnx">▶</button></div>
-<div class="grozet${G.i == G.rec || kilitli || satilik ? " sik" : ""}"><span class="bdg">${c.ic} ${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}${kilitli ? `<span class="bdg kilit" title="${kilitYazi}">🔒 Seviye ${fiyat.seviye} · <span class="fy">${ikon("para")}${sayi(fiyat.para)}</span></span>` : ""}${satilik ? `<span class="bdg fiyat">${ikon("para")}<b>${sayi(fiyat.para)}</b></span>` : ""}<button class="gses" id="gses"></button></div>
+<div class="grozet${G.i == G.rec || kilitli || satilik ? " sik" : ""}">${G.mg && tur ? `<span class="bdg tur" style="--c:${tur[4]}">${ikon(tur[3])}${tur[1]}</span>` : ""}<span class="bdg">${c.ic} ${c.st}</span>${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}${kilitli ? `<span class="bdg kilit" title="${kilitYazi}">🔒 Seviye ${fiyat.seviye} · <span class="fy">${ikon("para")}${sayi(fiyat.para)}</span></span>` : ""}${satilik ? `<span class="bdg fiyat">${ikon("para")}<b>${sayi(fiyat.para)}</b></span>` : ""}<button class="gses" id="gses"></button></div>
 <div class="gkart">${kartlar
     .map(
       ([ic, n, d, b, f]) =>
@@ -291,27 +419,30 @@ function showGar() {
     )
     .join("")}</div>
 <div class="gcip"><span>⚙️ ${c.hp} hp</span><span>⚖️ ${c.kg} kg</span><span>🔩 ${c.awd ? "Dört çeker" : "Arkadan itiş"}</span></div>
-<div class="gbt"><button class="btn alt" id="gbk">Geri</button>${sec || satilik ? `<button class="btn${satilik ? " al" : ""}" id="gok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}</div>`;
+<div class="gbt"><button class="btn alt" id="gbk">Geri</button>${dugme ? `<button class="btn${satilik ? " al" : ""}" id="gok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}</div>`;
   const v = $("#gvit");
   v.classList.remove("hidden");
-  v.innerHTML = `<button class="gvar" id="gvpv">◀</button><button class="gvar sag" id="gvnx">▶</button>${sec || satilik ? `<button class="btn${satilik ? " al" : ""}" id="gvok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}<button class="btn alt" id="gvbk">Geri</button><button class="gvtam" id="gvtam">⛶</button>`;
-  if (sec || satilik) $("#gvok").onclick = () => $("#gok").click();
+  v.innerHTML = `<button class="gvar" id="gvpv">◀</button><button class="gvar sag" id="gvnx">▶</button>${dugme ? `<button class="btn${satilik ? " al" : ""}" id="gvok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}<button class="btn alt" id="gvbk">Geri</button><button class="gvtam" id="gvtam">⛶</button>`;
+  if (dugme) $("#gvok").onclick = () => $("#gok").click();
   // tam ekranda Geri: tam ekrandan çıkıp bilgi paneline döner
   $("#gvbk").onclick = () => {
     kamera.gTam = false;
     kamera.gBtn = false;
     gorunum();
   };
-  $("#gvpv").onclick = () => go(G.i - 1);
-  $("#gvnx").onclick = () => go(G.i + 1);
+  $("#gvpv").onclick = () => go(-1);
+  $("#gvnx").onclick = () => go(+1);
   $("#gvtam").onclick = () => {
     kamera.gTam = !kamera.gTam;
     kamera.gBtn = false;
     gorunum();
   };
   gorunum();
-  const go = (k: number) => {
-    G.i = (k + CARS.length) % CARS.length;
+  const go = (yon: number) => {
+    const n = L.length,
+      k = L.indexOf(G.i);
+    G.i = L[k < 0 ? 0 : (k + yon + n) % n];
+    G.alinan = null;
     showGar();
   };
   sesButonu();
@@ -326,14 +457,33 @@ function showGar() {
       sesButonu();
     }, DINLE_SURE + 50);
   };
-  $("#gpv").onclick = () => go(G.i - 1);
-  $("#gnx").onclick = () => go(G.i + 1);
-  $("#gbk").onclick = () => {
-    setCar(G.prev);
-    closeGarage();
-    showMenu(G.w != null ? ["free"] : undefined);
-  };
-  if (sec || satilik)
+  $("#gpv").onclick = () => go(-1);
+  $("#gnx").onclick = () => go(+1);
+  $("#gbk").onclick = geriDon;
+  if (magazadaVar) {
+    // yarış öncesi ipucu: panel sığsın diye vitrinin altında (mağaza kutlama çubuğuyla aynı yerde)
+    const ip = document.createElement("div");
+    ip.id = "gmal";
+    ip.innerHTML = `<button class="btn al" id="gmg">${ikon("para")}Mağazada daha uygun araç</button>`;
+    document.body.appendChild(ip);
+    if (kamera.gTam) ip.style.display = "none";
+    $("#gmg").onclick = () => {
+      const { ev, w } = G;
+      setCar(G.prev);
+      closeGarage();
+      magazaAc(() => openGarage(ev, w));
+    };
+  }
+  if (G.alinan != null) {
+    // satın alma sonrası: kutlamanın altında "Garaja git"
+    const al = document.createElement("div");
+    al.id = "gmal";
+    al.innerHTML = `<span>${CARS[G.alinan].n} garajında</span><button class="btn al" id="gga">Garaja git</button>`;
+    document.body.appendChild(al);
+    $("#gga").onclick = garajaGit;
+    if (kamera.gTam) al.style.display = "none";
+  }
+  if (dugme)
     $("#gok").onclick = () => {
       const { ev, w, i, prev } = G;
       if (!aracAcikMi(i)) {
@@ -352,6 +502,13 @@ function showGar() {
           ONAY = null;
           clearTimeout(ONAY_ZAMANLA);
           if (aracSatinAl(i)) {
+            if (G.mg) {
+              // araç mağazadan düşer: yakın komşuya geçilir, "Garaja git" önerilir
+              const k = L.indexOf(i),
+                yeni = L.filter((x) => x != i);
+              G.alinan = i;
+              G.i = yeni.length ? yeni[Math.min(k, yeni.length - 1)] : i;
+            }
             showGar();
             kutla(CARS[i].n);
           }

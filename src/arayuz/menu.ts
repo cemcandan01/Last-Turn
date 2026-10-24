@@ -28,7 +28,7 @@ import { hesapBagla, hesapHtml } from "./hesap-ui";
 import { kontrolleriKur } from "./kontroller";
 
 /** yarış türleri: anahtar, ad, açıklama, ikon, türün rengi (kapak akışı, pist listesi ve ayrıntıda tema) */
-const TYPES: [string, string, string, IkonAdi, string][] = [
+export const TYPES: [string, string, string, IkonAdi, string][] = [
   ["gp", "Asfalt", "Pist yarışları, fren tabelaları, kerbler", "pist", "#ff5a3c"],
   ["rx", "Rallycross", "Asfalt ve toprak karışık pist: çamur, su, rampa", "rallycross", "#d08a48"],
   ["rl", "Ralli", "A’dan B’ye dağ, orman, kar ve çöl etapları", "dag", "#4fbf74"],

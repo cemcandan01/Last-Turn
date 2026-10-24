@@ -3073,3 +3073,109 @@ details[open] > summary::after {
 .hkat.dar .halt .hdg {
   min-height: 32px;
 }
+
+/* mağaza (garaj ekranının mağaza kipi): sekme + tür süzgeci vitrinin üstünde, açıklama satırı, garaja git çubuğu */
+#gmf {
+  position: fixed;
+  top: calc(52px + var(--sat, 0px));
+  left: max(14px, var(--sal, 0px));
+  z-index: 6;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  max-width: calc(100% - min(calc(410px * var(--gs, 1) * var(--gw, 1)), 58%) - 28px);
+}
+#gmf .gsek {
+  padding: 4px 10px;
+  border-bottom: 3px solid #ff7a1a;
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
+}
+#gmf button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--c) 70%, transparent);
+  background: #1b1e27cc;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+#gmf button .ik {
+  width: 14px;
+  height: 14px;
+  color: var(--c);
+}
+#gmf button.on {
+  background: var(--c);
+  color: #160a00;
+}
+#gmf button.on .ik {
+  color: inherit;
+}
+#gmf button[data-bos] {
+  opacity: 0.45;
+}
+.bdg.tur {
+  border-color: var(--c);
+  color: var(--c);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.bdg.tur .ik {
+  width: 1.1em;
+  height: 1.1em;
+}
+#gdes {
+  position: fixed;
+  left: max(14px, var(--sal, 0px));
+  bottom: calc(10px + var(--sab, 0px));
+  z-index: 6;
+  max-width: calc(100% - min(calc(410px * var(--gs, 1) * var(--gw, 1)), 58%) - 28px - 56px);
+  padding: 5px 10px;
+  border-radius: 10px;
+  background: #1b1e27bb;
+  font-size: 12px;
+  line-height: 1.3;
+  opacity: 0.9;
+}
+.gbos {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: calc(16px * var(--gs, 1));
+}
+#gmal {
+  position: fixed;
+  left: max(14px, var(--sal, 0px));
+  bottom: calc(64px + var(--sab, 0px));
+  z-index: 7;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px 6px 14px;
+  border-radius: 24px;
+  background: #1b1e27ee;
+  border: 1px solid #c9962b;
+  color: #ffd45e;
+  font-weight: 700;
+}
+#gmal .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  min-height: 40px;
+}
+#gmal .ik {
+  width: 18px;
+  height: 18px;
+}

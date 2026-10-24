@@ -3,7 +3,7 @@
 export { CARS } from "../arac/araclar";
 export { gorunumUygula } from "../arac/gorunumler";
 export { showMenu, startWorld } from "../arayuz/menu";
-export { openGarage, closeGarage } from "../arayuz/garaj";
+export { openGarage, closeGarage, magazaAc, magazaAc as openStore } from "../arayuz/garaj";
 export { showSet } from "../arayuz/ayarlar-ekrani";
 export { R, scene, cam } from "../cizim/sahne";
 export { kamera } from "../cizim/kamera";
@@ -43,6 +43,7 @@ export {
   xpEkle,
   ilerlemeVerisi,
   ilerlemeYukle,
+  ilerlemeyiSifirla,
   kilitTablosu,
   para,
   paraEkle,
