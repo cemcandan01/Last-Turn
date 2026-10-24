@@ -46,6 +46,10 @@ başka cihazda (ileride Unity sürümünde de) açılır. Firebase ayarlanmadan 
 Kurallar: her oyuncu yalnız kendi kaydını okur ve yazar; alanlar ve sayılar sınırlı; XP ve kazanılan para azalmaz,
 satın alma silinmez. Kurallar değişirse bu adım yeniden yapılır (yönetmen haber verir).
 
+**Modifiye (0.5.21):** takılı parçalar da hesaba kaydedilir (belgede `parca` alanı). Bunun için 5. adımı bir kez daha
+yap (kuralların yeni hâlini yapıştır → Yayınla). Yayınlanana kadar oyun bozulmaz: bulut parça alanını reddederse kayıt
+onsuz gider, takılı parçalar yalnız o cihazda kalır; yayınlandıktan sonra oyunu bir kez açınca buluta da yazılır.
+
 ## 6. iPhone'da kurulu uygulamada Google girişi için (bir kez)
 
 Ana ekrana kurulu uygulamada Google girişi, giriş sayfasının oyunun kendi adresinde olmasını ister (Safari
