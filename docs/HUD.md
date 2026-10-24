@@ -72,6 +72,8 @@ bilgi konmaz), Steven Hoober'ın başparmak bölgeleri ve oyuncuların "HUD ekra
 - Kontrol türü değişince (`kontrolleriKur`) `#app[data-steer]` ve `#app[data-gas]` ayarlanır; göstergeler
   tuş grubunun yüksekliğine (`--cR`) göre yer değiştirir. Analog pedal uzun olduğu için hız onun yanına geçer.
 - Basılı tuş turuncu (`.on`) olur: parmağın altında olsa da kenarından görülür.
+- Debriyaj tuşu (`#dbr`, 76 × 44 px) sağ grupta frenin (analogda pedalın) üstünde, telefonu çevirmede frenin
+  solunda (`.tsut`). Tuşlarla gazda sağ grup yükselir (`--cR` 136 px), hız onun üstüne oturur.
 
 ## 6. Göstergeleri seçme
 
@@ -80,7 +82,7 @@ oyunun kendi sahnesinden çekilmiş örnek görüntünün (`public/img/hud_onizl
 tuşları ve örnek değerleri gösterir; seçim anında uygulanır ve kaydedilir (`gorunum`, `lt_ayar` içinde).
 Seçim paneli ortada, aracın yerinde durur; göstergelere değmez. Açıkken oyun döngüsü HUD'a yazmaz.
 
-Her gösterge ayrı seçilir (`oyun/ayarlar.ts → HUD_PARCALARI`, `#app[data-hiz|sayac|tus|harita]`):
+Her gösterge ayrı seçilir (`oyun/ayarlar.ts → HUD_PARCALARI`, `#app[data-hiz|sayac|tus|harita|debriyaj]`):
 
 | Parça | Seçenekler |
 |---|---|
@@ -88,6 +90,7 @@ Her gösterge ayrı seçilir (`oyun/ayarlar.ts → HUD_PARCALARI`, `#app[data-hi
 | Sayaç | Panel, Yazı (panelsiz; drift kombosu da panelsiz) |
 | Tuşlar | Panel, Simge (panelsiz) |
 | Harita | Kare, Yuvarlak, Küçük (yarı saydam), Kapalı |
+| Debriyaj | Açık (tuş görünür), Kapalı |
 
 Hazır düzenler bunların birleşimidir (`HUDLAR`): Köşe (varsayılan), Kadran, Bant, Sade. Seçim hiçbirine
 uymuyorsa "Özel" görünür.

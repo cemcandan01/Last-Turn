@@ -1848,6 +1848,32 @@ details[open] > summary::after {
   width: 120px;
   height: 100px;
 }
+/* debriyaj: frenin (analogda pedalın) üstünde, kısa ve dar; gazdaki başparmak kayarak ulaşır.
+   Hız göstergesi sağ tuş grubunun yüksekliğine göre yükselir (--cR). Telefonu çevirmede frenin solunda */
+.tsut {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+#dbr {
+  width: min(76px, calc(var(--aw) * 0.18));
+  height: 44px;
+  border-radius: 14px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #dfe8e6;
+}
+#app[data-debriyaj="acik"][data-gas="btn"] {
+  --cR: 136px;
+}
+#app[data-gas="auto"] .tsut {
+  flex-direction: row;
+  align-items: flex-end;
+}
+#app[data-debriyaj="kapali"] #dbr {
+  display: none;
+}
 
 /* --- HUD düzenleyici: örnek oyun görüntüsü, ortada seçim paneli (aracın yeri) --- */
 #hdA {
@@ -1866,7 +1892,7 @@ details[open] > summary::after {
   transform: translateX(-50%);
   bottom: var(--hb);
   width: min(380px, 46%);
-  max-height: calc(100% - 140px);
+  max-height: calc(100% - 108px);
   overflow: auto;
   z-index: 5;
   padding: 8px 12px 10px;
@@ -1894,7 +1920,7 @@ details[open] > summary::after {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 5px 0;
+  margin: 4px 0;
 }
 .hdR span {
   width: 52px;
@@ -1931,7 +1957,7 @@ details[open] > summary::after {
     padding: 4px 14px;
   }
   .hdR {
-    margin: 2px 0;
+    margin: 1px 0;
   }
   .hdC .chip {
     padding: 4px 2px;

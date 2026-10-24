@@ -40,6 +40,18 @@ export default [
     birim: { dosya: F, grup: "drift yarışı (Drift Parkı, Beyaz Kurt, drift önayarı)" },
   },
   {
+    id: "debriyaj",
+    ad: "Debriyaj vuruşu: Kızıl Ok gerçekçide drift pistinde debriyajla drifte girer, basılıyken tork yok",
+    p: 2,
+    birim: { dosya: F, grup: "debriyaj vuruşu: başlangıç aracıyla drift pistinde drifte giriş" },
+  },
+  {
+    id: "debriyaj-tus",
+    ad: "Debriyaj tuşu her kontrol türünde, basılıyken devir yükselir",
+    p: 2,
+    tarayici: "debriyaj",
+  },
+  {
     id: "titresim",
     ad: "Asfalt pistlerde titreşim yok, kerb sarsıntısı",
     p: 2,
