@@ -62,7 +62,15 @@ if (kip == "liste") {
   process.exit(0);
 }
 
-const dallar = (dallarArg || "").split(",").filter(Boolean);
+// PR olayında GITHUB_REF_NAME "5/merge" olur; gerçek konu dalı GITHUB_HEAD_REF'tedir.
+// Codex konu dalları da aynı alan senaryolarını kullanır (codex/altyapi → altyapi).
+const dallar = (dallarArg || "")
+  .split(",")
+  .filter(Boolean)
+  .map((dal) => {
+    const konu = /^\d+\/merge$/.test(dal) ? process.env.GITHUB_HEAD_REF || dal : dal;
+    return konu.replace(/^codex\//, "");
+  });
 if (kip == "alan" && !dallar.length) {
   console.error("alan için dal adı gerekli: node tests/kosucu.mjs alan fizik");
   process.exit(2);
