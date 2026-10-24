@@ -60,7 +60,7 @@ it("modifiye: tür paketleri (kendi türünde ve başka türde)", () => {
       ? driftPuani(y, a, parca)
       : t == "dg"
         ? dragSur(y, a, 0, { parca })
-        : enIyiTur(y, a, C, { parca }).t;
+        : enIyiTur(y, a, undefined, { parca }).t;
   };
   const out = ["| paket | tür | araç | stok | paketli | fark |"];
   for (const p of PAKETLER) {
@@ -76,5 +76,27 @@ it("modifiye: tür paketleri (kendi türünde ve başka türde)", () => {
       );
     }
   }
+  console.log(out.join("\n"));
+});
+
+it("modifiye: drift puanı ve açısı (drift pisti 3, 90 sn)", () => {
+  if (process.env.GRUP && process.env.GRUP != "1/4") return;
+  const bk = CARS.findIndex((c) => c.ty == "dp"),
+    y = pistNo("dp", 3);
+  const out = ["| araç | parça | drift puanı | çıkış kayma |"];
+  for (const [a, p] of [
+    [bk, []],
+    [bk, ["diferansiyel-acik"]],
+    [bk, ["diferansiyel-kilitli"]],
+    [bk, ["aci-kiti"]],
+    [bk, ["motor-yaris"]],
+    [bk, ["lastik-yaris"]],
+    [bk, ["suspansiyon-yaris"]],
+    [0, []],
+    [0, ["lastik-drift", "diferansiyel-kilitli", "aci-kiti", "cekis-arka"]],
+  ] as [number, string[]][])
+    out.push(
+      `| ${CARS[a].n} | ${p.join(", ") || "stok"} | ${f(driftPuani(y, a, p), 0)} | ${f(cikisPatinaji(a, p).kayma, 0)}° |`,
+    );
   console.log(out.join("\n"));
 });

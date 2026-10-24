@@ -131,3 +131,29 @@ export function cikisPatinaji(arac: number, parca: readonly string[] = []) {
   }
   return { kap, kayma: b * 57.3 };
 }
+
+/** fren mesafesi (m): düz asfaltta v0'a çıkıp tam frenle v1'e (m/s); lk: yardım seviyesi (Dengeli'de ABS var) */
+export function frenMesafesi(
+  arac: number,
+  parca: readonly string[] = [],
+  v0 = 27.78,
+  v1 = 0.3,
+  lk: "real" | "norm" = "norm",
+) {
+  const s = surucuKur({ dunya: 1, arac, lk, parca });
+  const W = s.cx.dunya,
+    h0 = W.H(30, -3550);
+  W.H = () => h0;
+  W.surf = () => 1;
+  W.yakin = () => [];
+  W.kutu = () => [-1e5, 1e5, -1e5, 1e5];
+  s.reset(30, -3700, 0);
+  const S = s.sim.S;
+  for (let k = 0; k < 60 / DT && hiz(S) < v0; k++) s.adim({ ...DUZ, g: 1 });
+  let x = 0;
+  for (let k = 0; k < 20 / DT && hiz(S) > v1; k++) {
+    s.adim({ ...DUZ, g: 0, b: 1 });
+    x += hiz(S) * DT;
+  }
+  return x;
+}
