@@ -9,6 +9,8 @@ import { lam } from "./yardimci";
 export const GX = 0,
   GZ = -9000;
 
+/** platformun yarı kenarı (kare); köşe lambaları köşelerde durur */
+const PK = 4.6;
 export const garG = new THREE.Group();
 scene.add(garG);
 garG.visible = false;
@@ -40,7 +42,7 @@ function betonDoku(taban: string, cizgi = false) {
   const fl = new THREE.Mesh(new THREE.CircleGeometry(30, 48), new THREE.MeshLambertMaterial({ map: zt }));
   fl.rotation.x = -Math.PI / 2;
   fl.position.set(GX, 0.01, GZ);
-  const tb = new THREE.Mesh(new THREE.CylinderGeometry(3.6, 3.8, 0.1, 48), lam(0x4a4f57));
+  const tb = new THREE.Mesh(new THREE.BoxGeometry(2 * PK, 0.1, 2 * PK), lam(0x4a4f57));
   tb.position.set(GX, 0.06, GZ);
   const rg = new THREE.Mesh(
     new THREE.TorusGeometry(3.7, 0.04, 6, 64),
@@ -109,9 +111,9 @@ function betonDoku(taban: string, cizgi = false) {
   }
   fl.receiveShadow = true;
   tb.receiveShadow = true;
-  // anahtar ışık: tek gölge atan ışık (küçük gölge haritası); yukarıdan, hafif önden, soğuk-beyaz
-  const key = new THREE.DirectionalLight(0xe8f0ff, 1.15 * ISIK);
-  key.position.set(GX - 3, 10, GZ + 4);
+  // tepeden tek genel ışık: yumuşak, hafif gölgeli (küçük gölge haritası); araç altına gölge düşer
+  const key = new THREE.DirectionalLight(0xe8f0ff, 0.75 * ISIK);
+  key.position.set(GX - 0.6, 11, GZ + 0.8);
   key.target.position.set(GX, 0, GZ);
   key.castShadow = true;
   key.shadow.mapSize.set(512, 512);
@@ -121,15 +123,38 @@ function betonDoku(taban: string, cizgi = false) {
   sc.near = 2;
   sc.far = 24;
   key.shadow.bias = -0.0008;
-  key.shadow.radius = 4;
-  // dolgu (sağ ön, soğuk mavi, zayıf) ve arka kenar ışığı (turuncu: araca kontrast)
-  const fill = new THREE.DirectionalLight(0x7f9cc8, 0.3 * ISIK);
-  fill.position.set(GX + 7, 3, GZ + 5);
-  fill.target.position.set(GX, 0.5, GZ);
-  const rim = new THREE.DirectionalLight(0xffa860, 0.8 * ISIK);
-  rim.position.set(GX + 3, 4, GZ - 8);
-  rim.target.position.set(GX, 0.5, GZ);
-  garG.add(key, key.target, fill, fill.target, rim, rim.target);
+  key.shadow.radius = 6;
+  garG.add(key, key.target);
+  // platformun dört köşesinde projektör: gövdeleri görünür, ışıkları araca yönelik (gölgesiz SpotLight, sayı sabit)
+  const dir = new THREE.BoxGeometry(0.34, 0.34, 0.34),
+    dirM = lam(0x2a2e35),
+    mercek = new THREE.BoxGeometry(0.26, 0.26, 0.04),
+    direk = new THREE.BoxGeometry(0.12, 0.7, 0.12);
+  const renk = [0xfff2dc, 0xdbe8ff, 0xdbe8ff, 0xfff2dc];
+  [
+    [-1, -1],
+    [1, -1],
+    [1, 1],
+    [-1, 1],
+  ].forEach(([sx, sz], k) => {
+    const px = GX + sx * (PK - 0.35),
+      pz = GZ + sz * (PK - 0.35),
+      ph = new THREE.Group();
+    ph.position.set(px, 0.1, pz);
+    const d = new THREE.Mesh(direk, dirM);
+    d.position.y = 0.35;
+    const g = new THREE.Mesh(dir, dirM);
+    g.position.y = 0.85;
+    const m = new THREE.Mesh(mercek, new THREE.MeshBasicMaterial({ color: renk[k] }));
+    m.position.set(0, 0.85, -0.19);
+    ph.add(d, g, m);
+    ph.lookAt(GX, 0.85, GZ);
+    garG.add(ph);
+    const sp = new THREE.SpotLight(renk[k], 2.1 * ISIK, 0, 0.62, 0.85, 0);
+    sp.position.set(px, 0.95, pz);
+    sp.target.position.set(GX, 0.55, GZ);
+    garG.add(sp, sp.target);
+  });
   // zemin diski üstünde yumuşak, koyu gölge lekesi (gölge haritası kapalı ya da zayıf olsa da kök oturur)
   const lc = document.createElement("canvas");
   lc.width = lc.height = 128;
@@ -140,7 +165,7 @@ function betonDoku(taban: string, cizgi = false) {
   cx.fillStyle = gr;
   cx.fillRect(0, 0, 128, 128);
   const blob = new THREE.Mesh(
-    new THREE.PlaneGeometry(6.6, 3.5),
+    new THREE.PlaneGeometry(6.2, 3.2),
     new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(lc), transparent: true, depthWrite: false }),
   );
   blob.rotation.x = -Math.PI / 2;
@@ -164,5 +189,5 @@ export function garajIsigi(ac: boolean) {
   fog.far = 42;
   hemi.color.setHex(0x9db4d6);
   hemi.groundColor.setHex(0x1b1d22);
-  hemi.intensity = 0.35 * ISIK;
+  hemi.intensity = 0.28 * ISIK;
 }
