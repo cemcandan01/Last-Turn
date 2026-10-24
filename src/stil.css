@@ -1343,6 +1343,14 @@ details[open] > summary::after {
   color: #cfe0dc;
   white-space: nowrap;
 }
+#ev .ik,
+#lap .ik {
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: 0.3em;
+  vertical-align: -0.08em;
+  stroke-width: 2.2;
+}
 #ev:empty,
 #lap:empty {
   display: none;
@@ -1779,6 +1787,13 @@ details[open] > summary::after {
   width: min(88px, calc(var(--aw) * 0.21));
   height: 96px;
 }
+#l .ik,
+#r .ik {
+  width: 38px;
+  height: 38px;
+  fill: currentColor;
+  stroke-width: 2;
+}
 /* gaz ve fren pedal biçiminde: koyu cam, yatay oluklar, hafif öne yatık; basınca turuncu ve daha çok yatar.
    Fren geniş ve kısa, gaz dar ve uzun (gerçek pedaller gibi). Renk yalnız basınca (vurgu rengi tek) */
 .pd {
@@ -2189,6 +2204,15 @@ details[open] > summary::after {
 }
 .yres small .dolu {
   color: #ffc83d;
+}
+.yres small .ik {
+  width: 1.1em;
+  height: 1.1em;
+  margin-left: 1px;
+  vertical-align: -0.15em;
+}
+.yres small .dolu .ik {
+  fill: currentColor;
 }
 @media (max-height: 400px) {
   .ys.buyuk svg {

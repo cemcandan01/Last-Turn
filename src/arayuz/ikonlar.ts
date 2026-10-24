@@ -49,6 +49,12 @@ const IKON = {
   /** tabler: layout-grid (tümü) */
   izgara:
     '<path d="M4 4h6v6h-6z"/><path d="M14 4h6v6h-6z"/><path d="M4 14h6v6h-6z"/><path d="M14 14h6v6h-6z"/>',
+  /** tabler: stopwatch (süre) */
+  kronometre:
+    '<path d="M5 13a7 7 0 1 0 14 0a7 7 0 0 0 -14 0"/><path d="M14.5 10.5l-2.5 2.5"/><path d="M17 8l1 -1"/><path d="M14 3h-4"/>',
+  /** direksiyon düğmesi: dolu üçgen ok (oyunun çizimi; dolgu CSS ile) */
+  okSol: '<path d="M16 5v14l-9 -7z"/>',
+  okSag: '<path d="M8 5v14l9 -7z"/>',
   // yarış türleri
   /** asfalt: firketeli kapalı pist ve start çizgisi (oyunun çizimi) */
   pist: '<path d="M5 7.5a2.5 2.5 0 0 1 2.5 -2.5h9a2.5 2.5 0 0 1 2.5 2.5v1a2.5 2.5 0 0 1 -2.5 2.5h-3.5a1.5 1.5 0 0 0 0 3h3.5a2.5 2.5 0 0 1 2.5 2.5v.5a2.5 2.5 0 0 1 -2.5 2.5h-9a2.5 2.5 0 0 1 -2.5 -2.5z"/><path d="M9 3.5v3"/>',
