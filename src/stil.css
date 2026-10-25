@@ -2054,7 +2054,7 @@ details[open] > summary::after {
     font-size: 13px;
   }
 }
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .mcards {
     gap: 14px;
     padding: 0 6px;

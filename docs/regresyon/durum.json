@@ -1,1 +1,1 @@
-{"surum": "0.6.7", "asama": "suruyor", "not": "İlk tur sürüyor; hayalet doğruluk ve eski test beklentileri düzeltildi, son kaynak tam regresyona gönderiliyor", "tarih": "2026-10-25T13:14:27.769314+00:00"}
+{"surum": "0.6.8", "asama": "suruyor", "not": "İlk tam raporun test yalıtımı ve menü hataları düzeltildi; kritik kontroller ardından tam regresyon", "tarih": "2026-10-25T13:30:05.257350+00:00"}
