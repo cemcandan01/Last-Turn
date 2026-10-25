@@ -93,12 +93,15 @@ let PARA_BIRAK: (() => void) | null = null,
   ONAY_ZAMANLA: ReturnType<typeof setTimeout> | undefined;
 
 /** araç açıklaması "i" düğmesiyle açılır / kapanır; seçim araçtan araca geçerken korunur */
+let aciklamaKaresi = 0;
 let BILGI_ACIK = false,
   /** mağaza tür süzgeci açık mı (kapalıyken tek düğme: seçili tür) */
   SUZ_ACIK = false;
 
 /** sol üstte, ad bloğunun altında aracın kısa açıklaması (yalnız "i" açıkken) */
 function aciklamaGoster(yazi: string | null) {
+  if (aciklamaKaresi) cancelAnimationFrame(aciklamaKaresi);
+  aciklamaKaresi = 0;
   let b = document.getElementById("gdes");
   if (!yazi || !BILGI_ACIK) {
     b?.remove();
@@ -111,8 +114,13 @@ function aciklamaGoster(yazi: string | null) {
   }
   b.style.display = kamera.gTam ? "none" : "";
   b.textContent = yazi;
-  const ust = document.querySelector("#gar .gust");
-  if (ust) b.style.top = `${ust.getBoundingClientRect().bottom + 8}px`;
+  // Yeni DOM'un yerleşimini tıklama işleyicisinin içinde zorla hesaplatma.
+  const aciklama = b;
+  aciklamaKaresi = requestAnimationFrame(() => {
+    aciklamaKaresi = 0;
+    const ust = document.querySelector("#gar .gust");
+    if (ust && aciklama.isConnected) aciklama.style.top = `${ust.getBoundingClientRect().bottom + 8}px`;
+  });
 }
 
 /** tür süzgeci (garaj ve mağaza): sağda fiyat kutusunun üstünde açılır kapanır düğme ("Araçlar" sekmesi; ileride "Modifiye" yanına gelir).
@@ -777,8 +785,8 @@ function showGar() {
   g.classList.remove("modifiye", "ic");
   garajOdakla(null);
   kamera.gYukH = 0;
-  aciklamaGoster(L.length ? c.d : null);
   if (G.mg && !L.length) {
+    aciklamaGoster(null);
     // süzgeçte (ya da hiç) satılık araç kalmadı
     const hepsi = CARS.every((_, k) => aracAcikMi(k));
     g.innerHTML = `<div class="gust"><div class="gbas"><div class="gad"><h1>Mağaza</h1></div></div></div>

@@ -7,7 +7,7 @@ export default async function ({ p, ok }) {
       LT.demoStop();
       LT.openGarage(0);
     });
-    const kontrol = await p.evaluate(() => {
+    const kontrol = await p.evaluate(async () => {
       const sonuc = [];
       for (let n = 0; n < LT.CARS.length; n++) {
         const sinif = document.querySelector("#gsnf");
@@ -26,6 +26,7 @@ export default async function ({ p, ok }) {
       }
       const bilgi = document.querySelector("#gbil");
       if (bilgi.getAttribute("aria-pressed") !== "true") bilgi.click();
+      await new Promise((r) => requestAnimationFrame(r));
       const ust = document.querySelector(".gust").getBoundingClientRect();
       const aciklama = document.querySelector("#gdes").getBoundingClientRect();
       return { hepsi: sonuc.every(Boolean), aciklama: aciklama.top >= ust.bottom };

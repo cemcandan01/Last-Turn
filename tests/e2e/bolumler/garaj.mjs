@@ -215,7 +215,7 @@ export default async function ({ p, ok }) {
   await p.evaluate(() => LT.closeGarage());
   // tam ekran vitrin düzeni: ad bloğu, sağ üst çubuklar ve alt eylemler her araçta ekran içinde, birbirine binmez,
   // aracın durduğu orta bölge açık kalır; altı çubukta fiziksel değer ve özellik puanı
-  const pn = await p.evaluate(() => {
+  const pn = await p.evaluate(async () => {
     const r = [];
     const kes = (a, b) => !(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top);
     for (let i = 0; i < LT.CARS.length; i++) {
@@ -224,6 +224,7 @@ export default async function ({ p, ok }) {
       // açıklama "i" düğmesiyle açılır (açık kalır); açıkken de çakışma sınanır
       const bil = document.querySelector("#gbil");
       if (bil && !bil.classList.contains("on")) bil.click();
+      await new Promise((r) => requestAnimationFrame(r));
       const R = (q) => document.querySelector(q).getBoundingClientRect(),
         ust = R("#gar .gust"),
         bar = R("#gar .gbar"),

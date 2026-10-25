@@ -23,6 +23,7 @@ jobs:
       - name: Kritik hata tekrarları
         run: node tests/e2e/duman.mjs --bolum garaj-duzen,hayalet,yarislar,hud-minimap,garaj,surus
       - name: iPhone 15 Pro Max menü
+        if: always()
         run: node tests/cihaz.mjs --cihaz iphone-15-pro-max --ekran menu-ana
       - name: Kritik kanıt
         if: always()

@@ -23,3 +23,7 @@
 - Garaj zoom testi artık açıklama/motor düğmesi bölgesinin altında kalıyordu; boş vitrin merkezinde aynı tekerlek girdisi ve aynı yakınlaşma ölçütü kullanılır.
 - iPhone 15 Pro Max (932 px) 900 px kompakt menü eşiğinin hemen dışında kalıyordu; masaüstü boyundaki metin ve simgeler dar karttan taşıyordu. Kompakt eşik 1100 px'e alındı, çakışma kontrolü kaldırılmadı.
 - Tam koşum öncesine bu hataların kritik tekrarları ve iphone-15-pro-max/menu-ana denetimi eklendi; kritik kontrol kalırsa uzun koşum başlamaz. Tam koşumun kapsamı/bütçesi aynıdır. Yalnız tamamlanmış rapor/devir belgelerinin güncellenmesi yeni bir tam regresyon tetiklemez.
+
+## Kritik tur (CI 40197944854)
+
+Hayaletin kayıt/kurulum/konum/bölge bağımsızlığı/piste dönüş/yarım kayıt/çıkış kontrollerinin tümü geçti. İlerleme yalıtımı ile önayar ve zoom da geçti. Tek kalan: 4× CPU yavaşlatılmış garaj geçişinde en uzun senkron tıklama 118 ms (sınır 60 ms), program/geometri artışı yok. Araç açıklaması eski DOM ve yeni DOM için iki kez senkron yerleşim ölçüyordu; eski ölçüm kaldırıldı ve son ölçüm çizim karesine taşındı. Eşikler aynıdır; görünüm testleri boyut ölçmeden önce çizim karesini bekler. Kritik tur başarısız olduğu için gereksiz uzun tam tur başlamadı. Menü cihaz denetimi, başka kritik test kalsa da sonuç üretecek.
