@@ -25,7 +25,7 @@ import { CAMS, oyun } from "../oyun/durum";
 import { askTilt, girdiSifirla } from "../oyun/girdi";
 import { applyPreset, kurulum } from "../oyun/kurulum";
 import { reset } from "../oyun/surus";
-import { yaris } from "../oyun/yarislar";
+import { yaris, yarisiYenidenBaslat } from "../oyun/yarislar";
 import { note } from "./bildirim";
 import { hudDuzenleyiciAc } from "./hud-duzenleyici";
 import { kontrolleriKur } from "./kontroller";
@@ -121,16 +121,18 @@ export const settingsHTML = () =>
   ctlHTML() +
   sesHTML() +
   `<div class="card hdAc" data-hdac><b>Göstergeler (HUD)</b><span>${hudDuzeni() == "ozel" ? "Özel" : HUDLAR[hudDuzeni() as HudDuzeni].n} · hız, sayaç, tuşlar ve harita; önizlemeli</span></div>` +
-  sec(
-    "tir",
-    "Lastik: " + TIRES[kurulum.tire].n,
-    '<div class="chips" style="flex-wrap:wrap">' +
-      TIRES.map(
-        (t, i) =>
-          `<div class="chip ${kurulum.tire == i ? "sel" : ""}" data-t="${i}" style="flex:1 1 40%">${t.n}<small>${t.d}</small></div>`,
-      ).join("") +
-      "</div>",
-  ) +
+  (serbestSurus()
+    ? sec(
+        "tir",
+        "Lastik: " + TIRES[kurulum.tire].n,
+        '<div class="chips" style="flex-wrap:wrap">' +
+          TIRES.map(
+            (t, i) =>
+              `<div class="chip ${kurulum.tire == i ? "sel" : ""}" data-t="${i}" style="flex:1 1 40%">${t.n}<small>${t.d}</small></div>`,
+          ).join("") +
+          "</div>",
+      )
+    : "") +
   sec(
     "mek",
     "Mekanikler",
@@ -201,6 +203,7 @@ export function bindSettings(s: HTMLElement, re: () => void) {
   s.querySelectorAll<HTMLElement>(".chip[data-t]").forEach(
     (e) =>
       (e.onclick = () => {
+        if (!serbestSurus()) return;
         kurulum.tire = +e.dataset.t!;
         kurulum.custom = true;
         re();
@@ -246,7 +249,7 @@ export function showSet() {
     $("#ctl").classList.add("hidden");
   }
   s.innerHTML =
-    `<div class="bar"><button class="btn" id="cl">Sürüşe dön</button><button class="btn alt" id="mn">Ana menü</button></div><p style="margin:0 0 4px">Oyun duraklatıldı.</p>` +
+    `<div class="bar"><button class="btn" id="cl">Sürüşe dön</button>${yaris.EV ? '<button class="btn" id="restart">Yeniden başlat</button>' : ""}<button class="btn alt" id="mn">Ana menü</button></div><p style="margin:0 0 4px">Oyun duraklatıldı.</p>` +
     settingsHTML() +
     (yaris.EV
       ? ""
@@ -268,6 +271,8 @@ export function showSet() {
         resume();
       }),
   );
+  const restart = s.querySelector<HTMLElement>("#restart");
+  if (restart) restart.onclick = yarisiYenidenBaslat;
   $("#cl").onclick = resume;
   $("#mn").onclick = () => {
     s.classList.add("hidden");
@@ -277,6 +282,7 @@ export function showSet() {
 
 /** sürüş sırasında lastik değiştir (🛞 tuşu) */
 export function lastikDegistir() {
+  if (!serbestSurus()) return;
   kurulum.tire = (kurulum.tire + 1) % TIRES.length;
   kurulum.custom = true;
   note(TIRES[kurulum.tire].n + " lastik", 30);

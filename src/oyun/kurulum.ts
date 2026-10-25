@@ -2,7 +2,7 @@
 // Yarıştan önceki kurulum yarış bitince geri yüklenir (yarislar.ts).
 // Modifiye: takılı parçalar varsa (oyun/modifiye.ts → modifiyeUygula) kurulum.mod parçalı aracı ve parçaların ayar
 // alanlarını taşır; fizik aracı ondan alır (oyun/surus.ts), önayar seçilse de parça ayarları üstüne yazılır.
-import type { Arac } from "../arac/araclar";
+import type { Arac, YarisTuru } from "../arac/araclar";
 import {
   LEVELS,
   PRESETS,
@@ -18,6 +18,8 @@ export const kurulum = {
   tu: {} as Ayarlar,
   as: {} as Yardimlar,
   tire: 1,
+  /** Yarışa özel geçici lastik; serbest sürüşe dönünce kayıtla geri yüklenir. */
+  yarisLastik: null as number | null,
   /** önayardan sonra elle değiştirildi mi */
   custom: false,
   /**
@@ -50,6 +52,14 @@ export function applyPreset() {
     Object.assign(kurulum.tu, m.ayar);
     if (m.tire != null) kurulum.tire = m.tire;
   }
+  if (kurulum.yarisLastik != null) kurulum.tire = kurulum.yarisLastik;
+}
+
+/** Yarış malzemesine uygun lastik; garajdaki parça sahipliği ve takılı liste değişmez. */
+export const YARIS_LASTIKLERI: Record<YarisTuru, number> = { gp: 0, rx: 2, rl: 1, dp: 3, dg: 6 };
+export function yarisLastigiTak(tur: YarisTuru) {
+  kurulum.yarisLastik = YARIS_LASTIKLERI[tur];
+  kurulum.tire = kurulum.yarisLastik;
 }
 
 export type KurulumKaydi = ReturnType<typeof kurulumKaydet>;
@@ -58,6 +68,7 @@ export const kurulumKaydet = () => ({
   pk: kurulum.pk,
   lk: kurulum.lk,
   tire: kurulum.tire,
+  yarisLastik: kurulum.yarisLastik,
   tu: { ...kurulum.tu },
   as: { ...kurulum.as },
   custom: kurulum.custom,

@@ -32,3 +32,9 @@ jobs:
       - name: Rapor
         if: always()
         run: cat tests/cikti/rapor.md >> "$GITHUB_STEP_SUMMARY" || true
+      - name: Yarış dönüşü görsel kanıtı
+        if: always() && hashFiles('tests/cikti/yarista-reset-iphone13.png') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: yarista-reset-iphone13
+          path: tests/cikti/yarista-reset-iphone13.png

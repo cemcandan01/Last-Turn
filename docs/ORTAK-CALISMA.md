@@ -90,3 +90,7 @@ Bir sonraki Claude oturumu için Cem'in tek yönlendirmesi yeterlidir: “gelist
 - Upstash: [Context7](https://github.com/upstash/context7/blob/master/packages/mcp/README.md): sürüme uygun API belgeleri; MCP kaynağı açık, servis altyapısının tamamı açık kaynak değil.
 - Oraios: [Serena](https://github.com/oraios/serena): sembol ve ilişki bazında kod erişimi; yararı Last Turn üzerinde ölçülmeden tasarruf yüzdesi vaat edilmez.
 - Obra: [Superpowers](https://github.com/obra/superpowers): tasarım/plan/test/denetim iş akışları; mevcut süreçle çakışan zorunlu adımlar ikinci kez etkinleştirilmez.
+
+## Gönderim yetkisi açıklığı (Cem, 2026-10-25)
+
+Konu dalına ve `gelistirme` denemesine gönderim için yeniden push onayı istenmez. Cem'in açık ifadesi: “sadece regresyonda push onayı bekleyecek benden, bu işi gönderebilmen lazım”. Mevcut test/dondurma kuralları ve regresyon sonunda canlıya çıkış onayı korunur.
