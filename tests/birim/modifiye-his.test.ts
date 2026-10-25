@@ -69,10 +69,9 @@ describe("modifiye: her kategori hissedilir", () => {
       gazlaKaydir(0, [], 12, 1).delta * 57.3 + 15,
     );
   });
-  it("koruma: alçak araçta gövdeyi yükseltir ve ralli uyumu kazandırır; yüksek ralli aracını yükseltmez", () => {
+  it("koruma: alçak araçta gövdeyi yükseltir; yüksek ralli aracını yükseltmez", () => {
     const k = aracKur(0, ["koruma"]).car;
     expect((k.lift ?? 0) - (CARS[0].lift ?? 0)).toBeGreaterThan(0.015);
-    expect(k.uzT?.rl?.[0] ?? 1).toBeGreaterThan(1);
     const rl = CARS.findIndex((c) => c.ty == "rl");
     expect(aracKur(rl, ["koruma", "suspansiyon-ralli"]).car.lift).toBe(CARS[rl].lift);
   });

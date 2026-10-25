@@ -115,7 +115,7 @@ describe("parçalar", () => {
     expect(aracKur(1, ["cekis-dort"]).car.kg).toBe(CARS[1].kg);
   });
 
-  it("paketler: kurulum, önayar ailesi ve tür uyumu", () => {
+  it("paketler: kurulum ve önayar ailesi; pist türüne göre tutuş/güç çarpanı yok", () => {
     const d = aracKur(0, paketTak([], "drift")),
       K = parcaliKurulum(0, paketTak([], "drift"), "norm");
     expect(d.pk).toBe("dr");
@@ -127,13 +127,12 @@ describe("parçalar", () => {
     const r = aracKur(0, paketTak([], "ralli"));
     expect(r.pk).toBe("rl");
     expect(r.tire).toBe(1);
-    expect(r.car.uzT!.rl).toEqual([1.15, 1.4]);
     expect(r.uyum.rl).toBe(1);
-    // asfalt aracının kendi uzmanlığı korunur
-    expect(r.car.uzT!.gp).toEqual([CARS[0].uz, 1]);
-    // yarım paket: uyumun üçte ikisi, önayar ailesi değişir; üçte biri değişmez
+    // araç verisinde türe özel çarpan alanı kalmadı
+    for (const c of [r.car, ...CARS])
+      for (const k of ["uz", "uzg", "uzT"]) expect(k in c, c.n + " " + k).toBe(false);
+    // yarım paket: üçte ikisi önayar ailesini değiştirir; üçte biri değiştirmez
     const y = aracKur(2, ["lastik-yaris", "suspansiyon-yaris"]);
-    expect(y.car.uzT!.gp![0]).toBeCloseTo(1 + 0.12 * (2 / 3), 6);
     expect(y.pk).toBe("ar");
     expect(aracKur(2, ["lastik-yaris"]).pk).toBe("dr");
   });

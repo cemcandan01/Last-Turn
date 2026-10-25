@@ -65,7 +65,7 @@ export default [
   },
   {
     id: "uyum",
-    ad: "Türe uygun araç kendi yarışında avantajlı: pistte yol tutuşu (asfalt, rallikros, ralli) ve drag süresi",
+    ad: "Pist türüne göre araç optimizasyonu yok: aynı araç aynı zeminde yarış/drift/drag pistinde, rallikros/ralli toprağında aynı tutuşu alır; zemin sürtünmesi sabit",
     p: 2,
     birim: { dosya: "tests/birim/uyum.test.ts", grup: "araç ve yarış türü uyumu" },
   },
