@@ -13,6 +13,7 @@ export default async function ({ p, ok }) {
     LT.startEvent(i);
     const E = LT.yaris.EV;
     E.t = E.ys[2] - 1;
+    E.state = "run";
     LT.endEvent();
     const res = document.querySelector("#res");
     r.sonuc3 =

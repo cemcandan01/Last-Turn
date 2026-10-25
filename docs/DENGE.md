@@ -2,7 +2,11 @@
 
 25 Ekim 2026. Sahip: Codex. Kaynak oyun: `f41728c601fe28633f5e4ed229a5a513d1d80e73`, deneme 0.7.1.
 
-Durum: mevcut sistem incelendi; aşağıdaki model uygulama için tasarım temelidir. Hedef aralıklar ilk kalibrasyon önerileridir, oyuncu ölçümü veya bitmiş denge iddiası değildir. Bu belge oyun sayılarını değiştirmez. İş kartı: [denge modeli](isler/2026-10-25-denge-modeli.md). Yeni araç/pist/parça/ödül çalışması önce bu belgeyi okumalı; modelle çelişkiyi görev kartında açıkça çözmelidir. Önceki kullanıcı kararları sessizce değiştirilemez.
+Durum: ilk kariyer entegrasyonu uygulandı; [uygulama ve kanıt](isler/2026-10-25-kariyer-uygulama.md). Aşağıdaki ilk araştırma ile öneriler tarihsel tasarım gerekçesidir; güncel uygulama özeti burada ve görev kartındadır.
+
+Uygulama: 40 yarışta D200/D250/D400/C500/B600/açık999 bütçesi, ayrı ödülsüz deneme, süre bazlı para/XP, kategori yatırım kredisi, otomatik bileşikte K1/K2/K3 kalite ve tek türde yıldızlarla erişim. XP eğrisi/eski erişim korunur; aynı piste birden çok kupa eklenmedi. Fiyat ve parça parametreleri değişti; 40 hedef gerçek fizik ile yeniden ölçüldü. Normal motor +%8/+%16/+%28; büyük turbo +%70 pahalı proje olarak korunur. Yeni içerikte `tests/birim/kariyer.test.ts` ölçüm imzasını doğrular.
+
+Araştırma: mevcut sistem incelendi; aşağıdaki model uygulama için tasarım temelidir. Hedef aralıklar ilk kalibrasyon önerileridir, oyuncu ölçümü veya bitmiş denge iddiası değildir. Araştırmanın kendisi oyun sayılarını değiştirmedi; sonraki kullanıcı talimatıyla yukarıdaki ilk entegrasyon yapıldı. İş kartı: [denge modeli](isler/2026-10-25-denge-modeli.md). Yeni araç/pist/parça/ödül çalışması önce bu belgeyi okumalı; modelle çelişkiyi görev kartında açıkça çözmelidir. Önceki kullanıcı kararları sessizce değiştirilemez.
 
 ## 1. Amaç ve korunacak kararlar
 

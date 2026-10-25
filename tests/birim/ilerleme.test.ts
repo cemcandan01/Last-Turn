@@ -19,6 +19,7 @@ import {
   yarisSonuXp,
   type SeviyeOlayi,
 } from "../../src/oyun/ilerleme";
+import { yarisOdulTabani } from "../../src/oyun/ekonomi";
 import { enIyiYildiz, yildizEsikleri } from "../../src/oyun/yildiz";
 import { CARS, type YarisTuru } from "../../src/arac/araclar";
 import { BASLANGIC_ARACLARI } from "../../src/oyun/ekonomi";
@@ -69,11 +70,12 @@ describe("XP ve seviye eğrisi", () => {
   });
 
   it("yarış XP'si: yıldız başına, seviyeyle artan; eski yıldız yeniden XP vermez", () => {
-    expect(yarisSonuXp("gp", 1, 1, 0)).toBe(25);
-    expect(yarisSonuXp("gp", 1, 3, 0)).toBe(65);
-    expect(yarisSonuXp("gp", 1, 3, 2)).toBe(25);
-    expect(yarisSonuXp("gp", 1, 2, 3)).toBe(3);
-    expect(yarisSonuXp("gp", 1, 0, 0)).toBe(3);
+    const b = yarisOdulTabani("gp", 1).xp;
+    expect(yarisSonuXp("gp", 1, 1, 0)).toBe(b * 1.5);
+    expect(yarisSonuXp("gp", 1, 3, 0)).toBe(b * 2.5);
+    expect(yarisSonuXp("gp", 1, 3, 2)).toBe(b * 1.5);
+    expect(yarisSonuXp("gp", 1, 2, 3)).toBe(b);
+    expect(yarisSonuXp("gp", 1, 0, 0)).toBeLessThan(b);
     expect(yarisSonuXp("rl", 6, 1, 0)).toBeGreaterThan(yarisSonuXp("rl", 2, 1, 0));
   });
 
@@ -153,12 +155,12 @@ describe("kilit tablosu", () => {
   });
 
   it("yarış bitişi yıldızı kaydeder, yalnız yeni yıldız tam XP verir", () => {
-    expect(yarisBitti("gp", 1, 2).xp).toBe(45);
+    const b = yarisOdulTabani("gp", 1).xp;
+    expect(yarisBitti("gp", 1, 2).xp).toBe(b * 2);
     expect(enIyiYildiz("gp", 1)).toBe(2);
-    expect(yarisBitti("gp", 1, 2).xp).toBe(3);
-    expect(yarisBitti("gp", 1, 3).xp).toBe(25);
-    expect(seviye().toplamXp).toBe(73);
-    expect(seviye().lv).toBe(2);
+    expect(yarisBitti("gp", 1, 2).xp).toBe(b);
+    expect(yarisBitti("gp", 1, 3).xp).toBe(b * 1.5);
+    expect(seviye().toplamXp).toBe(b * 4.5);
   });
 });
 

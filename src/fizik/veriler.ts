@@ -105,6 +105,15 @@ export const TIRES: Lastik[] = [
   },
 ];
 
+// Sabit indeksler 0–6 korunur. Her bileşiğin üç kalite basamağı aynı gerçek lastik eğrisini iyileştirir.
+for (const taban of TIRES.slice())
+  for (let kalite = 1; kalite <= 3; kalite++)
+    TIRES.push({
+      ...taban,
+      n: `${taban.n} · K${kalite}`,
+      g: [taban.g[0] * (1 + 0.03 * kalite), taban.g[1] * (1 + 0.03 * kalite)],
+    });
+
 /** araç ayarları: [anahtar, ad, açıklama, en az, en çok, adım] */
 export type AyarSatiri = [string, string, string, number, number, number];
 

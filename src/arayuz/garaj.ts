@@ -1,5 +1,7 @@
 // Garaj ekranı: araçları dönen platformda incele, özellikleri karşılaştır, seç. Yarıştan ve serbest sürüşten önce de
 // buradan seçilir; yarışta türe uygun araç "Önerilen" olarak gelir.
+import { enIyiYildiz } from "../oyun/yildiz";
+import { kariyerKurali, kariyereUygun } from "../oyun/kariyer";
 import { CARS, type YarisTuru } from "../arac/araclar";
 import { STAT } from "../arac/istatistik";
 import { cl } from "../cekirdek/matematik";
@@ -28,6 +30,7 @@ import {
   para,
   paraDinle,
   parcaFiyati,
+  parcaAlimBedeli,
   parcaSahipMi,
   parcaSatinAl,
   pistAcikMi,
@@ -329,7 +332,8 @@ function modifiyeGoster(G: GarajDurumu) {
       satirlar.push({
         k: p.id,
         ad: p.n,
-        d: p.d,
+        d:
+          p.d + (p.kat == "lastik" ? ` · Yarışta otomatik bileşiğe K${p.sv} kalite; tür elle seçilmez.` : ""),
         sv: p.sv,
         yeni: [...takili.filter((id) => parcaBul(id)!.kat != mk), p.id],
         al: parcaSahipMi(no, p.id) ? [] : [p.id],
@@ -340,7 +344,7 @@ function modifiyeGoster(G: GarajDurumu) {
   if (ic && G.ms == null) G.ms = satirlar.find((x) => x.tk)?.k ?? "";
   const sec = ic && G.ms != null ? satirlar.find((x) => x.k == G.ms) : undefined,
     onizleme = sec ? puan(no, sec.yeni, tur) : null,
-    bedel = (x: Satir) => x.al.reduce((a, id) => a + parcaFiyati(id), 0),
+    bedel = (x: Satir) => parcaAlimBedeli(no, x.al),
     bakiye = para();
   // eylem düğmesi: kategorilerde "Seç" (parçalara gir), parçalarda satın al / tak / sök
   let eylem = "Seç",
@@ -586,11 +590,16 @@ const TUR_AGIRLIK: Record<string, Record<string, number>> = {
   dp: { Hızlanma: 1, "Yol tutuşu": 0.6, "Azami hız": 0.4 },
   dg: { Hızlanma: 1.2, "Azami hız": 0.8 },
 };
-export function onerilenArac(ty: string) {
+export function onerilenArac(ty: string, lv?: number) {
   let own = -1,
     op = -1;
   CARS.forEach((c, k) => {
-    if (c.ty != ty || !aracAcikMi(k)) return;
+    if (
+      c.ty != ty ||
+      !aracAcikMi(k) ||
+      (lv != null && !kariyereUygun(ty as YarisTuru, lv, k, takiliParcalar(k)))
+    )
+      return;
     const p = puan(k, takiliParcalar(k), ty as YarisTuru).puan;
     if (p > op) {
       op = p;
@@ -602,7 +611,7 @@ export function onerilenArac(ty: string) {
   let best = -1,
     bs = -1;
   CARS.forEach((c, k) => {
-    if (!aracAcikMi(k)) return;
+    if (!aracAcikMi(k) || (lv != null && !kariyereUygun(ty as YarisTuru, lv, k, takiliParcalar(k)))) return;
     const sc = STAT(c).reduce((a, [n, f]) => a + (w[n] ?? 0) * f, 0);
     if (sc > bs) {
       bs = sc;
@@ -648,7 +657,7 @@ export function openGarage(ev: number | null, w: number | null = null) {
     return;
   }
   const prev = carIndex(),
-    rec = ev != null ? onerilenArac(EVENTS[ev].ty) : -1,
+    rec = ev != null ? onerilenArac(EVENTS[ev].ty, EVENTS[ev].lv) : -1,
     acik = (k: number) => k >= 0 && aracAcikMi(k);
   ac({
     ev,
@@ -691,6 +700,7 @@ function ac(durum: GarajDurumu) {
     if (GAR) showGar();
   });
   ONAY = null;
+  document.getElementById("lvup")?.classList.remove("acik");
   oyun.mode = "garage";
   garajKameraSifirla();
   gizle("#menu", "#hud", "#mm", "#ctl", "#set", "#res");
@@ -744,7 +754,9 @@ function showGar() {
     c = CARS[G.i];
   if (oyun.CAR !== c) setCar(G.i, true);
   // ana menüden açılan garajda araç seçilmez (yalnız bakılır)
-  const sec = G.ev != null ? "Yarış: " + EVENTS[G.ev].n : G.w != null ? "Sür: " + WORLDS[G.w].n : "";
+  const e = G.ev != null ? EVENTS[G.ev] : null,
+    uygun = !e || kariyereUygun(e.ty, e.lv, G.i, takiliParcalar(G.i)),
+    sec = e ? (uygun ? "Yarış: " + e.n : "Ödülsüz deneme") : G.w != null ? "Sür: " + WORLDS[G.w].n : "";
   const g = $("#gar"),
     L = liste(G),
     acik = aracAcikMi(G.i),
@@ -770,7 +782,7 @@ function showGar() {
   const dugme = G.mg ? !acik : !!sec,
     tur = turBilgi(c.ty),
     // yarış öncesi garajda türün alınmamış aracı varsa mağazaya yönlendiren ipucu
-    magazadaVar = !G.mg && G.ev != null && CARS.some((x, k) => x.ty == EVENTS[G.ev!].ty && !aracAcikMi(k));
+    gelisimVar = !G.mg && e != null && enIyiYildiz(e.ty, e.lv) < 3;
   kilitGorunumu(kilitli);
   g.classList.toggle("magaza", G.mg);
   g.classList.remove("hidden");
@@ -828,7 +840,7 @@ function showGar() {
     )
     .join(
       "",
-    )}<p id="goztop">Toplam ${deger.puan} · ${deger.sinif} tavan ${SINIFLAR.find((s) => s.h == deger.sinif)!.max}</p><p>${gercekArac.hp} HP · ${gercekArac.kg} KG</p></div>
+    )}<p id="goztop">Toplam ${deger.puan} · ${deger.sinif} tavan ${SINIFLAR.find((s) => s.h == deger.sinif)!.max}</p><p>${e ? `Kupa ${kariyerKurali(e.ty, e.lv)!.ad} · ${uygun ? "Uygun" : "Sınır üstü"}` : `${gercekArac.hp} HP · ${gercekArac.kg} KG`}</p></div>
 <div class="galt">${!G.mg && acik ? `<div class="gsr"><button class="gses gmod" id="gmod">${ikon("anahtar")}Modifiye</button></div>` : ""}${G.mg ? `<div id="gpara">${bilgi}</div>` : ""}<div class="gbt"><button class="btn alt" id="gbk">Geri</button>${dugme ? `<button class="btn${satilik ? " al" : ""}" id="gok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}<button class="btn alt gvtam" id="gvtam">Vitrin</button></div></div>`;
   aciklamaGoster(L.length ? c.d : null);
   magazaSeridi(G);
@@ -893,18 +905,19 @@ function showGar() {
       PONAY = null;
       showGar();
     };
-  if (magazadaVar) {
+  if (gelisimVar) {
     // yarış öncesi ipucu: panel sığsın diye vitrinin altında (mağaza kutlama çubuğuyla aynı yerde)
     const ip = document.createElement("div");
     ip.id = "gmal";
-    ip.innerHTML = `<button class="btn al" id="gmg">${ikon("para")}Mağazada daha uygun araç</button>`;
+    ip.innerHTML = `<button class="btn al" id="gmg">${ikon("anahtar")}Kurulumunu geliştir</button>`;
     document.body.appendChild(ip);
     if (kamera.gTam) ip.style.display = "none";
     $("#gmg").onclick = () => {
-      const { ev, w } = G;
-      setCar(G.prev);
-      closeGarage();
-      magazaAc(() => openGarage(ev, w));
+      G.mod = true;
+      G.mi = false;
+      G.mk = "paket";
+      G.ms = null;
+      showGar();
     };
   }
   if (G.alinan != null) {

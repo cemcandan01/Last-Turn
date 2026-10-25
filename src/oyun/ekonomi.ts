@@ -1,27 +1,31 @@
-// Ekonomi: yarış ödülü (para) ve fiyatlar. Saf tablolar ve formüller; bakiye ve alımlar ilerleme kaydında (oyun/ilerleme.ts).
-// İleride mağaza ve modifiye buraya fiyat tablosu ekler; harcama ilerleme.ts → harca(oge, miktar) ile yapılır.
-// Denge (gerekçe docs/notlar/altyapi.md, benzetim tests/birim/ekonomi.test.ts):
-// - Ödül pistin zorluk seviyesine (sev, 1-6) bağlı: taban 50 + 50 × sev, yeni yıldız başına 100 + 100 × sev.
-// - Yeni yıldız yoksa (tekrar) tabanın %40'ı + alınan yıldız başına %10'u: sıfır değil, "kasma" mümkün ama yavaş.
-// - Araçlar seviye + para ile açılır: seviye gelince satın alınabilir olur, parayla alınır. Başlangıç araçları (her türden
-//   bir D sınıfı araç) ücretsiz; Kızıl Ok ve Kor RX 0.5.x'e dek ücretsizdi, artık alınır (eski kayıtta sahip kalır).
+// Süreye normalize kariyer ekonomisi. Kimlik/zorluk/kurulum sözleşmesi kariyer.ts'te;
+// ölçülmüş referanslar pist-tanimlari.ts'te, sahiplik ve net alım kredisi ilerleme.ts'te.
+// Her geçerli bitiriş olağan ödül, yalnız iyileşen yıldızlar birikimli bonus verir.
 import type { YarisTuru } from "../arac/araclar";
+import { kariyerKurali, KARIYER_PARA_DAKIKA, KARIYER_XP_DAKIKA } from "./kariyer";
 
-/** onluğa yuvarla (göstermesi kolay sayılar) */
-const onluk = (x: number) => Math.round(x / 10) * 10;
-
-/** her bitişte (yeni yıldız alınınca) taban ödül */
-export const tabanPara = (zorluk: number) => 50 + 50 * zorluk;
-/** pistte ilk kez alınan bir yıldızın ödülü */
-export const yildizPara = (zorluk: number) => 100 + 100 * zorluk;
-
-/** yarış sonu parası (zorluk: pistin sev'i): yeni yıldız varsa taban + yeni yıldızlar; yoksa küçük tekrar ödülü */
-export function yarisSonuPara(tur: YarisTuru, zorluk: number, yildiz: number, oncekiYildiz: number) {
-  void tur;
-  const yeni = Math.max(0, yildiz - oncekiYildiz);
-  if (yeni > 0) return tabanPara(zorluk) + yeni * yildizPara(zorluk);
-  return onluk(tabanPara(zorluk) * (0.4 + 0.1 * Math.max(0, Math.min(3, yildiz))));
+/** Yarış kimliğinden süre ve zorluk birlikte alınır; lv hiçbir zaman zorluk değildir. */
+export function yarisOdulTabani(tur: YarisTuru, lv: number) {
+  const k = kariyerKurali(tur, lv);
+  if (!k) return { para: 0, xp: 0 };
+  return {
+    para: Math.max(10, Math.round(((k.referansSn / 60) * KARIYER_PARA_DAKIKA[k.asama - 1]) / 10) * 10),
+    xp: Math.max(2, Math.round(((k.referansSn / 60) * KARIYER_XP_DAKIKA[k.asama - 1]) / 2) * 2),
+  };
 }
+
+/** Yıldız bonusu birikimli: doğrudan 3★ ile 1→2→3 aynı toplam bonusu verir. */
+export function yarisOdulu(tur: YarisTuru, lv: number, yildiz: number, oncekiYildiz: number) {
+  const b = yarisOdulTabani(tur, lv),
+    simdi = Math.max(0, Math.min(3, Math.trunc(yildiz))),
+    once = Math.max(0, Math.min(3, Math.trunc(oncekiYildiz))),
+    bonus = Math.max(0, simdi - once) * 0.5,
+    // Yeni yıldızın bonusu dışında her geçerli bitiriş aynı olağan ödül çizgisindedir.
+    katsayi = (simdi > 0 ? 1 : 0.35) + bonus;
+  return { para: Math.round(b.para * katsayi), xp: Math.round(b.xp * katsayi) };
+}
+export const yarisSonuPara = (tur: YarisTuru, lv: number, yildiz: number, oncekiYildiz: number) =>
+  yarisOdulu(tur, lv, yildiz, oncekiYildiz).para;
 
 export interface Fiyat {
   /** satın alma bedeli (0: seviye gelince ücretsiz açık) */
@@ -30,22 +34,18 @@ export interface Fiyat {
   seviye: number;
 }
 
-/**
- * araç fiyatları (CARS sırasıyla). Yeni oyuncu her türün D sınıfı başlangıç aracıyla başlar (ücretsiz); diğerleri seviye
- * gelince parayla alınır. Fiyat sınıf ve puanla artar; her türün ilk alınabilir aracı o türün 3.-4. pistiyle gelir
- * (Panda ~7-11 yarış, Kor RX ve Beyaz Kurt sonra; Kızıl Ok B sınıfı, Gri Atmaca'nın biraz altında).
- */
+/** Araç başına edinme bedeli; beş başlangıç aracı ücretsiz. Sınıf değişimi yeni platform yatırımıdır. */
 export const ARAC_FIYAT: Fiyat[] = [
-  { para: 6000, seviye: 8 }, // Kızıl Ok (B)
-  { para: 3500, seviye: 5 }, // Kor RX (C)
-  { para: 3000, seviye: 4 }, // Beyaz Kurt
-  { para: 4000, seviye: 6 }, // Mavi Yıldız
-  { para: 5000, seviye: 7 }, // Gece Mavisi
-  { para: 8000, seviye: 10 }, // Gri Atmaca
-  { para: 10000, seviye: 11 }, // Kum Fırtınası
-  { para: 12000, seviye: 13 }, // Sarı Arı
-  { para: 2000, seviye: 3 }, // Panda
-  { para: 15000, seviye: 15 }, // Turuncu Ejder
+  { para: 18000, seviye: 8 }, // Kızıl Ok (C)
+  { para: 12500, seviye: 5 }, // Kor RX (C)
+  { para: 8500, seviye: 4 }, // Beyaz Kurt
+  { para: 14000, seviye: 6 }, // Mavi Yıldız
+  { para: 16000, seviye: 7 }, // Gece Mavisi
+  { para: 22000, seviye: 10 }, // Gri Atmaca
+  { para: 25000, seviye: 11 }, // Kum Fırtınası
+  { para: 26000, seviye: 13 }, // Sarı Arı
+  { para: 7000, seviye: 3 }, // Panda
+  { para: 35000, seviye: 15 }, // Turuncu Ejder
   { para: 0, seviye: 1 }, // Gümüş Serçe (başlangıç, asfalt)
   { para: 0, seviye: 1 }, // Bozkır Tavşanı (başlangıç, rallycross)
   { para: 0, seviye: 1 }, // Haki Keçi (başlangıç, ralli)
@@ -65,9 +65,11 @@ export const aracFiyati = (aracNo: number): Fiyat => ARAC_FIYAT[aracNo] ?? { par
 /**
  * modifiye parçası fiyatı: seviye tabanı × kategori çarpanı, 50'ye yuvarlı. Zayıf parçalar (seviye 0: kısıtlayıcı,
  * balast, sokak freni…) ücretsizdir; puanı sınıf sınırına indirmek para istemez. Parça araç başına alınır.
- * Ölçü: bir sokak parçası ~1-2 Çaylak yarışı, tam yarış paketi kabaca bir orta sınıf aracın yarısı (Beyaz Kurt 3000).
+ * İlk parça yaklaşık 2–4 dakika, uzmanlık kurulumu birkaç tamamlayıcı yatırım. Net bedel kategori kredisiyle bulunur.
  */
-export const PARCA_TABAN = [0, 400, 900, 1800];
+export const PARCA_TABAN = [0, 350, 1000, 2400];
+/** Büyük dönüşümler normal kademe fiyatını kullanmaz. */
+export const PARCA_OZEL_FIYAT: Record<string, number> = { "motor-degisim": 9000, "turbo-buyuk": 5500 };
 export const PARCA_KAT_CARPAN: Record<string, number> = {
   motor: 1.3,
   turbo: 1.5,

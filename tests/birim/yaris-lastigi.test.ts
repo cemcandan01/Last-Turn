@@ -8,7 +8,7 @@ afterEach(() => kurulumYukle(once));
 describe("yarış lastiği", () => {
   it.each([
     ["gp", "Yarış"],
-    ["rx", "Karışık"],
+    ["rx", "Toprak"],
     ["rl", "Toprak"],
     ["dp", "Drift"],
     ["dg", "Drag"],
@@ -16,10 +16,10 @@ describe("yarış lastiği", () => {
     kurulum.pk = "fd";
     kurulum.mod = { taban: CARS[0], car: CARS[0], tire: 4, ayar: {}, parcalar: ["lastik-sokak"] };
     yarisLastigiTak(tur);
-    expect(TIRES[kurulum.tire].n).toBe(ad);
+    expect(TIRES[kurulum.tire].n).toBe(ad + " · K1");
     kurulum.lk = "norm";
     applyPreset();
-    expect(TIRES[kurulum.tire].n).toBe(ad);
+    expect(TIRES[kurulum.tire].n).toBe(ad + " · K1");
     expect(kurulum.mod.parcalar).toEqual(["lastik-sokak"]);
   });
   it("çıkış önceki lastiği ve kilitsiz serbest sürüşü geri yükler", () => {

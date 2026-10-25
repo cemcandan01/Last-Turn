@@ -47,7 +47,7 @@ export default async function ({ p, ok }) {
     };
   });
   ok(liste.kilitli == 7 && liste.toplam == 8, "temiz profilde 7 pist kilitli: " + JSON.stringify(liste));
-  ok(/Seviye 2'de açılır/.test(liste.metin), "kilit yazısı: " + liste.metin);
+  ok(/Seviye 2 veya önceki aşamada 2 yıldız/.test(liste.metin), "kilit yazısı: " + liste.metin);
   ok(liste.acikAyrintiyaGitmedi && liste.not, "kilitli pist açılmaz, kısa açıklama çıkar");
   await bekle(400);
   await foto("pistler");
@@ -77,6 +77,7 @@ export default async function ({ p, ok }) {
     );
     const E = LT.yaris.EV;
     E.t = E.ys[2] - 1;
+    E.state = "run";
     LT.endEvent();
     return { xp: E.xp, lvSonra: LT.seviye().lv, blok: !!document.querySelector("#res .xps") };
   });

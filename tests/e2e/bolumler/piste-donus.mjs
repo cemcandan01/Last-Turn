@@ -148,7 +148,7 @@ export default async function ({ p, ok }) {
     const sonuc = [];
     for (const [ty, tire] of [
       ["gp", 0],
-      ["rx", 2],
+      ["rx", 1],
       ["rl", 1],
       ["dp", 3],
       ["dg", 6],

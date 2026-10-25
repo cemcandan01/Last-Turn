@@ -4,7 +4,7 @@ import { $ } from "../cekirdek/dom";
 import { WORLDS } from "../dunya/dunya";
 import { oyun } from "../oyun/durum";
 import { best, saveBest } from "../oyun/profil";
-import { leaveEvent, startEvent, type Yaris } from "../oyun/yarislar";
+import { leaveEvent, startEvent, yaris, type Yaris } from "../oyun/yarislar";
 import { adimXp, seviye, seviyeTabani, xpSeviyesi } from "../oyun/ilerleme";
 import { enIyiYildiz } from "../oyun/yildiz";
 import { ikon, yildizSerit } from "./ikonlar";
@@ -34,7 +34,9 @@ export function sonucGoster(EV: Yaris) {
             (v, i) =>
               `<span class="${i < EV.yildiz ? "dolu" : ""}">${i + 1}${ikon("yildiz")} ${bicim(v)}</span>`,
           )
-          .join("")}</small><small class="eniyi">En iyi: ${enIyiYildiz(EV.ty, EV.lv)} / 3</small></div>` +
+          .join(
+            "",
+          )}</small><small class="eniyi">${EV.kariyer ? `En iyi: ${enIyiYildiz(EV.ty, EV.lv)} / 3` : "Kupa kaydı değişmez"}</small></div>` +
         xpBlok(EV.xp) +
         paraSonucHtml(EV.para)
       : "";
@@ -78,11 +80,14 @@ export function sonucGoster(EV: Yaris) {
   const r = $("#res"),
     k = EV.i;
   r.classList.remove("hidden");
-  r.innerHTML = `<h1>${h}</h1>${p}<button class="btn" id="again">Tekrar</button><button class="btn alt" id="free">Açık dünyaya dön</button><button class="btn alt" id="rm">Ana menü</button>`;
+  r.innerHTML = `<h1>${EV.kariyer ? h : "Serbest deneme"}</h1>${EV.kariyer ? "" : '<p class="note">Puan sınırı aşıldı. Bu koşu kupa yıldızı, para veya XP vermez.</p>'}${p}<button class="btn" id="again">Tekrar</button><button class="btn alt" id="free">Açık dünyaya dön</button><button class="btn alt" id="rm">Ana menü</button>`;
   xpSonucAnimasyonu(r);
   paraSonucAnimasyonu(r);
   // seviye atladıysa kutlama, çubuk dolduktan sonra sonuç ekranının üstünde
-  if (seviye().toplamXp) setTimeout(kutlamaGoster, 2300);
+  if (EV.xp > 0)
+    setTimeout(() => {
+      if (oyun.mode == "result" && yaris.EV === EV) kutlamaGoster();
+    }, 2300);
   $("#again").onclick = () => startEvent(k);
   $("#free").onclick = () => {
     r.classList.add("hidden");

@@ -106,8 +106,8 @@ export const PARCALAR: Parca[] = [
     kat: "motor",
     sv: 3,
     n: "Yarış motoru",
-    d: "Tam yarış motoru: güç %75 fazla",
-    e: { carp: { hp: 1.75 } },
+    d: "Tam yarış motoru: güç %28 fazla",
+    e: { carp: { hp: 1.28 } },
   },
   {
     id: "motor-degisim",

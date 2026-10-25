@@ -1,6 +1,6 @@
 /* global LT */
 // Garajda yalnız sahip olunan araçlar: temiz profilde kilitli/satılık araç gezilmez, satın alma düğmesi yok;
-// ralli yarışında türün alınmamış aracı varsa "Mağazada daha uygun araç" ipucu mağazayı açar, Geri garaja döner.
+// ralli yarışında türün alınmamış aracı varsa "Kurulumunu geliştir" ipucu modifiyeyi açar, Geri garaja döner.
 // Ekran görüntüsü: tests/cikti/garaj-sahip.png (iPhone 13 yatay).
 import fs from "node:fs";
 export default async function ({ p, ok }) {
@@ -41,7 +41,7 @@ export default async function ({ p, ok }) {
     "garajda yalnız sahip olunan araçlar gezilir: " + JSON.stringify(r.ziyaret),
   );
   ok(!r.kilitSinifi && !r.alDugmesi, "garajda kilit, fiyat ve satın alma düğmesi yok");
-  ok(r.ipucu, "türün aracı alınmamış: Mağazada daha uygun araç ipucu");
+  ok(r.ipucu, "kupa tamamlanmamış: mevcut aracı geliştirme ipucu");
   await q.waitForTimeout(500);
   fs.mkdirSync("tests/cikti", { recursive: true });
   await q.screenshot({ path: "tests/cikti/garaj-sahip.png" });
@@ -49,14 +49,14 @@ export default async function ({ p, ok }) {
     document.querySelector("#gmg").click();
     const s = {
       mod: LT.oyun.mode,
-      serit: !!document.querySelector("#gar .galt #gmf"),
+      modifiye: document.querySelector("#gar").classList.contains("modifiye"),
     };
-    s.sahipDegil = !LT.aracAcikMi(LT.CARS.indexOf(LT.oyun.CAR));
-    document.querySelector("#gbk").click();
+    s.sahip = LT.aracAcikMi(LT.CARS.indexOf(LT.oyun.CAR));
+    document.querySelector("#gmgeri").click();
     s.geriGaraj = LT.oyun.mode == "garage" && !document.querySelector("#gar").classList.contains("magaza");
     return s;
   });
-  ok(m.mod == "garage" && m.serit && m.sahipDegil, "ipucu mağazayı açtı: " + JSON.stringify(m));
-  ok(m.geriGaraj, "mağazadan Geri yarış öncesi garaja döndü");
+  ok(m.mod == "garage" && m.modifiye && m.sahip, "ipucu modifiyeyi açtı: " + JSON.stringify(m));
+  ok(m.geriGaraj, "modifiyeden Geri yarış öncesi garaja döndü");
   await kx.close();
 }

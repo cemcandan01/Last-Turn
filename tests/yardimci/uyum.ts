@@ -37,11 +37,15 @@ export function turSur(
     disari = 0,
     spin = 0,
     sp = false,
-    biten = 0;
+    biten = 0,
+    durdu = 0;
   const sinir = TR.open ? 200 : 300 * tur;
   while (t < sinir) {
     s.adim(pl(S));
     t += DT;
+    durdu = Math.hypot(S.vx, S.vz) < 0.5 ? durdu + DT : 0;
+    // Bariyerde takılan pilotu 15 dakika sanal süre döndürme; başarılı koşunun sonucunu değiştirmez.
+    if (durdu > 10) return { t: Infinity, disari, spin };
     const ti = ipucu.ti,
       N = TR.N,
       dd = nearest(TR, S.x, S.z, ti)[1];

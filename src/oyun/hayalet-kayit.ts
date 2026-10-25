@@ -57,14 +57,14 @@ export function hayaletKaydet(
     return false;
   if (kayit.kesik || kayit.tasti || kayit.n <= 0) return false;
   const mevcut = hayaletOku(k);
-  if (mevcut?.surum === 2 && mevcut.kurulum) {
+  if (mevcut?.surum === 3 && mevcut.kurulum) {
     const iyilesti = driftMi ? sure > mevcut.sure : sure < mevcut.sure;
     if (!iyilesti) return false;
   }
   const veri: HayaletKaydiVerisi = {
     k,
     arac,
-    surum: 2,
+    surum: 3,
     baslangicAdimi,
     hava,
     sure,
@@ -87,7 +87,7 @@ export function hayaletGirdiKaydiOku(k: string): {
   const h = hayaletOku(k);
   if (
     !h ||
-    h.surum !== 2 ||
+    h.surum !== 3 ||
     h.k !== k ||
     !h.girdiJson ||
     !h.kurulum?.car ||
