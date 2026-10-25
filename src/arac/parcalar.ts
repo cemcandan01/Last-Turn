@@ -41,6 +41,8 @@ export const KATEGORILER: [ParcaKategori, string][] = [
 ];
 
 export interface ParcaEtkisi {
+  /** Komple atmosferik motor değişimi: önceki motor/turbo yerine bu güç gelir. */
+  motorHp?: number;
   /** araç değerlerine çarpan: güç, kütle, tepe hız (vites ve sürükleme), fren, bastırma */
   carp?: Partial<Record<"hp" | "kg" | "top" | "brk" | "ae", number>>;
   /** araç değerlerine ekleme: yerden yükseklik (m), ağırlık merkezi yüksekliği (m) */
@@ -104,8 +106,16 @@ export const PARCALAR: Parca[] = [
     kat: "motor",
     sv: 3,
     n: "Yarış motoru",
-    d: "Dövme iç parçalar: güç %27 fazla",
-    e: { carp: { hp: 1.27 } },
+    d: "Tam yarış motoru: güç %75 fazla",
+    e: { carp: { hp: 1.75 } },
+  },
+  {
+    id: "motor-degisim",
+    kat: "motor",
+    sv: 3,
+    n: "Motor değişimi",
+    d: "350 HP atmosferik yarış motoru; kütle %5 artar. Sonradan turbo takılabilir.",
+    e: { motorHp: 350, carp: { kg: 1.05 } },
   },
   // turbo: turbo gecikir (dolma süresi), kompresör gecikmesiz ama daha az güç verir
   {
@@ -121,8 +131,8 @@ export const PARCALAR: Parca[] = [
     kat: "turbo",
     sv: 3,
     n: "Büyük turbo",
-    d: "Geç dolar, tepede sert: güç %30 fazla, belirgin gecikme",
-    e: { turbo: { guc: 1.3, tbs: 1.1, tbu: 0.72 } },
+    d: "Geç dolar, tepede sert: güç %70 fazla, belirgin gecikme",
+    e: { turbo: { guc: 1.7, tbs: 1.1, tbu: 0.72 } },
   },
   {
     id: "kompresor",
@@ -530,6 +540,12 @@ export function aracKur(aracNo: number, parcaIdleri: readonly string[] = []): Su
   let tire = PRESETS[taban].tire;
   for (const id of parcalar) {
     const e = parcaBul(id)!.e;
+    if (e.motorHp != null) {
+      c.hp = e.motorHp;
+      c.tb = 0;
+      delete c.tbs;
+      delete c.tbu;
+    }
     if (e.carp) for (const k in e.carp) c[k as "hp"] *= e.carp[k as "hp"]!;
     if (e.ekle) {
       // yükseltme: yerden yükseklik parçanın değerine çıkar, zaten yüksek araç yükselmez ve ağırlık merkezi de o oranda
@@ -560,7 +576,7 @@ export function aracKur(aracNo: number, parcaIdleri: readonly string[] = []): Su
     c.hp *= tp.guc;
     if (tp.tbs != null) {
       // turbo: basınçsız güç aynı kalır, eklenen güç basınçtan gelir
-      c.tb = 1 - (1 - (c0.tb ?? 0)) / tp.guc;
+      c.tb = 1 - (1 - (c.tb ?? 0)) / tp.guc;
       c.tbs = tp.tbs;
       c.tbu = tp.tbu ?? c0.tbu;
     }

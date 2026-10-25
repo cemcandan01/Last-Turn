@@ -1,9 +1,8 @@
 # Claude + Codex devir
 
-- Cem Claude ve Codex arasında kota durumuna göre geçer; ortak bellek bu repo, `CLAUDE.md` ve görev kartlarıdır.
-- Claude gece 0.5.28 regresyonunu tamamladı ve canlıya çıkardı (`a103508`); `gelistirme` 0.6.0'a geçti (`eb89753`). Güncel durum Git'ten doğrulanır.
-- Aktif iş: Codex / `codex/surus`, `docs/isler/2026-10-25-surus.md`, PR #10. Cem son isteğin güncel sürüm üzerinden bitirilmesini istedi. Eski sürüş dalı geceki yayına girmedi; 0.6.0 ve katlanır ekran düzeltmeleri korunarak 0.6.1'e taşındı.
-- Serçe: gerçek düz asfalt 236,4 → 167,7 km/sa, 0–100 3,23 → 7,63 sn; görünüm korunur. Garaj 15 stok ölçümüne dayanır; modifiye oranları yaklaşık modelden. Debriyaj yerine arka el freni; eski giriş/ayar anahtarları korunur.
-- İlk kaynak `afaa70b75c0d8ddb3a2ea6dfec90628177ae5cb4`: [CI](https://github.com/cemcandan01/Last-Turn/actions/runs/40137401600) 12/12 başarılı. Güncel `3663f4f` kaynak [CI 40171573466](https://github.com/cemcandan01/Last-Turn/actions/runs/40171573466): 12/12 başarılı; 0.6.1 deneme aktarımı PR #10 / görev kartında tutulur; telefonda sürüş hissi Cem'in denemesini bekler.
-- Yerel Chromium indirmesi ZIP yerine HTML veriyor; tekrar deneme. GitHub Actions tarayıcıları çalışıyor. Context7 iki tarafta bağlı (Claude kurulumu Cem tarafından bildirildi).
-- Test/model politikası `docs/ORTAK-CALISMA.md`: dar kapsam, aynı kaynakta başarılı kanıtı tekrar üretmeme, küçük işte ajan zinciri kurmama. Sonraki adım: PR #10'un deneme yayınını doğrula; ardından Cem'in sürüş geri bildiriminden devam et. Canlıya çıkış ayrı regresyon/onay ister.
+- Cem kota durumuna göre iki araç arasında geçer; ortak bellek `CLAUDE.md`, bu dosya ve görev kartıdır. “Mesela/örneğin” genel isteğin örneğidir: yalnız o aracı/ekranı düzeltip işi bitti sayma (ortak rehbere eklendi).
+- Güncel iş tamam: Codex / `codex/denge`, PR #11, 0.6.2 deneme aktarımı. Görev: `docs/isler/2026-10-25-surus.md` → “Revize” ve “0.6.2 tamamlama kanıtı”. İlk 0.6.1 işi Serçe'ye daraltılmıştı; Cem bütün araçları kastettiğini düzeltti.
+- Artık bütün 15 araç aynı altı özellik formülünden sınıflanır. Görünür sayıların toplamı = sınıf puanı; pist/pilot puanı belirlemez. Stok tavanlar D200/C450/B550/A650/S750/X900; sınıf tavanları 400/500/600/700/800/999. Tüm stok D ≤200; modifiye sınırı aşınca sınıf yükselir.
+- Beş başlangıç motoru 85/95/85/120/195 HP; tutuş/fren/aktarım da mütevazı. 350 HP motor değişimi + seçeneklerle tüm başlangıçlarda 300+ D yapıları, bazılarında 380–400 mümkün. İlk yıldız eşikleri ölçülen zayıf stoklara uyarlandı. El freni/görünümler ve kayıt sahipliği korunur.
+- Kaynak `0661e43b2fea69aa890331cd48f5a2938b04b2eb`, [CI 40174417371](https://github.com/cemcandan01/Last-Turn/actions/runs/40174417371): 12/12, tip/lint/biçim temiz, 3 cihaz × 5 ekran 0 hata. 0 ekran cihaz denetimi artık başarı sayılmaz. Son birleştirmede yalnız devir belgeleri değişti; oyun kodu test edilen kaynakla aynı.
+- Yerel Chromium indirme engeli tekrar denenmedi; tarayıcı kanıtı CI'da. Canlı `master` 0.5.28 korunur. Sonraki adım PR #11'den deneme yayını/adres kanıtını kontrol et; Cem'in sürüş geri bildiriminden devam et. Canlıya çıkış ayrı regresyon/onay ister.

@@ -50,11 +50,15 @@ describe("kararlılık ve temel değerler", () => {
         vmax = Math.max(vmax, v);
       }
       expect(t100, "0-100 km/sa (sn)").toBeGreaterThan(1.5);
-      expect(t100, "0-100 km/sa (sn)").toBeLessThan(ci >= 10 ? 9 : 5);
-      expect(vmax, "azami hız (km/sa)").toBeGreaterThan(ci == 12 ? 125 : ci >= 10 ? 145 : 170);
+      expect(t100, "0-100 km/sa (sn)").toBeLessThan(
+        ci == 12 ? 15 : ci >= 10 ? 13 : ci == 2 || ci == 8 ? 7 : 5,
+      );
+      expect(vmax, "azami hız (km/sa)").toBeGreaterThan(
+        ci == 12 ? 110 : ci >= 10 ? 125 : ci == 8 ? 150 : 170,
+      );
       // fren: 100 km/sa'dan
       s.reset(210, -780, 0);
-      for (let k = 0; k < 600 && Math.hypot(S.vx, S.vz) < 27.78; k++) s.adim(gir(1));
+      for (let k = 0; k < 1200 && Math.hypot(S.vx, S.vz) < 27.78; k++) s.adim(gir(1));
       const z0 = S.z;
       for (let k = 0; k < 600 && Math.hypot(S.vx, S.vz) > 0.3; k++) s.adim(gir(0, 1));
       expect(S.z - z0, "100-0 fren mesafesi (m)").toBeLessThan(30);
@@ -168,17 +172,21 @@ describe("drift dengesi (Boş Otopark, Beyaz Kurt, drift önayarı)", () => {
 });
 
 describe("drift yarışı (Drift Parkı, Beyaz Kurt, drift önayarı)", () => {
+  const parca = ["motor-degisim", "kompresor"],
+    pilot = { ...DRIFT_PILOT, gaz: 1, aci: 0.3 };
   it("gerçekçi: ölçülü açıyla turun %80'i tek komboda geçer", { timeout: 30000 }, () => {
-    const r = driftTuru(pistNo("dp", 3), "real", DRIFT_PILOT, 75);
+    const r = driftTuru(pistNo("dp", 3), "real", pilot, 75, false, 2, 0, false, parca);
     expect(r.oran, "en uzun kombo / tur").toBeGreaterThan(0.8);
     expect(r.spin, "spin").toBe(0);
   });
   it("gerçekçi: açıyı abartan komboyu yakar", { timeout: 30000 }, () => {
-    const r = driftTuru(pistNo("dp", 3), "real", { ...DRIFT_PILOT, aci: 0.65 }, 75);
+    const r = driftTuru(pistNo("dp", 3), "real", { ...pilot, aci: 0.65 }, 75, false, 2, 0, false, parca);
     expect(r.oran, "en uzun kombo / tur").toBeLessThan(0.8);
   });
   it("dengeli: turun %80'i tek komboda geçer", { timeout: 30000 }, () => {
-    expect(driftTuru(pistNo("dp", 3), "norm", DRIFT_PILOT, 75).oran).toBeGreaterThan(0.8);
+    expect(driftTuru(pistNo("dp", 3), "norm", pilot, 75, false, 2, 0, false, parca).oran).toBeGreaterThan(
+      0.8,
+    );
   });
 });
 
