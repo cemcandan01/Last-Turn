@@ -18,7 +18,7 @@ export { REG } from "../dunya/bolgeler";
 export { WORLDS, dunya } from "../dunya/dunya";
 export { ipucu } from "../dunya/pist";
 export { set, CT, gorunum, HUDLAR, HUD_PARCALARI } from "./ayarlar";
-export { hudDuzeniUygula } from "../arayuz/hud";
+export { hudDuzeniUygula, hudGuncelle } from "../arayuz/hud";
 export { hudDuzenleyiciAc, hudDuzenleyiciKapat, duzenleyici } from "../arayuz/hud-duzenleyici";
 export { epostaFormuAc, epostaFormuKapat } from "../arayuz/hesap-ui";
 export { oyun, setCar } from "./durum";

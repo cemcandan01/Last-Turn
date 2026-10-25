@@ -32,12 +32,12 @@ export function engine(kmh: number, dt: number) {
 
 let E: Record<string, HTMLElement>;
 let kadranF = -1;
-const durum = { dr: "", ters: false };
+const durum = { dr: "", ters: false, gsy: 0 };
 /** drift bonus bildirimleri: okunan olay sayısı, hangi yarışa ait olduğu, son nabız puanı */
 const bonus = { ev: null as unknown, n: 0, nabiz: 0, carpan: 0 };
 /** pist dalının drift çarpanı alanları (yoksa hiçbiri gösterilmez) */
 type X6Alan = { driftOran?: number; driftCarpan?: number; x6?: boolean };
-const BONUS_SATIR = 3;
+const BONUS_SATIR = 2;
 let x6Zt = 0;
 
 export function hudKur() {
@@ -50,6 +50,7 @@ export function hudKur() {
     "dr",
     "ters",
     "bon",
+    "gsy",
     "drA",
     "drP",
     "drX",
@@ -184,6 +185,22 @@ function driftGostergesi() {
   }
 }
 
+/** pist dışında ekran ortasında piste dönüşe kalan saniye (pist dalı EV.pistDisi; kısa taşmalarda görünmez) */
+function pisteDonusSayaci() {
+  const EV = yaris.EV as { state?: string; pistDisi?: { sure: number } } | null;
+  const sure = EV?.state == "run" ? (EV.pistDisi?.sure ?? 0) : 0;
+  const n = sure > 0.5 ? Math.max(1, Math.ceil(5 - sure)) : 0;
+  if (n == durum.gsy) return;
+  durum.gsy = n;
+  E.gsy.className = n ? "" : "hidden";
+  if (n) {
+    (E.gsy.firstElementChild as HTMLElement).textContent = String(n);
+    E.gsy.classList.remove("pop");
+    void E.gsy.offsetWidth;
+    E.gsy.classList.add("pop");
+  }
+}
+
 /** panelin altındaki x6 satırı: 1. turda %oran + %90 işareti (hazır/kaçtı), x6 kazanıldıysa rozet; gösterilecek bir şey yoksa false */
 function oranGostergesi(EV: NonNullable<typeof yaris.EV> & X6Alan): boolean {
   let sinif = "hidden",
@@ -219,11 +236,13 @@ function x6Animasyon() {
     E.x6f.classList.remove("ac");
   }, 1900);
 }
-/** bonus satırını göster; üstteki satır aynı bonussa puanı toplayıp yeniden "pop"lar, en fazla 3 satır */
+/** bonusu tek satırda yan yana göster (yolu kapatmasın); aynı bonus görünürse puanı toplayıp yeniden "pop"lar, en fazla 2 (direksiyon tuşlarına taşmaz) */
 export function bonusGoster(ad: string, puan: number) {
   const kap = E.bon;
-  let sat = kap.firstElementChild as HTMLElement | null;
-  if (sat && sat.dataset.ad == ad && !sat.classList.contains("son")) {
+  let sat = ([...kap.children] as HTMLElement[]).find(
+    (s) => s.dataset.ad == ad && !s.classList.contains("son"),
+  );
+  if (sat) {
     const top = Number(sat.dataset.puan) + puan;
     sat.dataset.puan = String(top);
     (sat.lastElementChild as HTMLElement).textContent = "+" + top;
@@ -241,8 +260,8 @@ export function bonusGoster(ad: string, puan: number) {
     a.textContent = ad;
     p.textContent = "+" + puan;
     sat.append(a, p);
-    kap.prepend(sat);
-    while (kap.children.length > BONUS_SATIR) kap.lastElementChild!.remove();
+    kap.append(sat);
+    while (kap.children.length > BONUS_SATIR) kap.firstElementChild!.remove();
   }
   const el = sat;
   el.dataset.zt = String(
@@ -319,6 +338,7 @@ export function hudGuncelle(v: number) {
       .join(" · "),
   );
   driftGostergesi();
+  pisteDonusSayaci();
   if (CT.steer == "tilt") {
     const c = document.getElementById("cal");
     if (c) yazi(c, performance.now() - tilt.t < 1500 ? "Ortala" : "Sensör izni");

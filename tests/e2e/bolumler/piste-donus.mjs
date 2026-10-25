@@ -57,14 +57,37 @@ export default async function ({ p, ok }) {
     koy(E, k, 0);
     LT.evTick(1 / 60, son);
     const erkenDonus = E.pistDisi.ilk === null && E.pistDisi.sure === 0;
+    // ekran ortasında geri sayım: kısa taşmada yok, sonra kalan saniye, piste dönünce kaybolur
+    const gsy = document.querySelector("#gsy"),
+      gorunen = () => (gsy.classList.contains("hidden") ? "" : gsy.querySelector("b").textContent);
+    koy(E, k, E.TR.hw + 8);
+    LT.evTick(0.3, son);
+    LT.hudGuncelle(0);
+    const kisa = gorunen();
+    LT.evTick(1, son);
+    LT.hudGuncelle(0);
+    const dort = gorunen();
+    const r = gsy.getBoundingClientRect();
+    const ortada =
+      Math.abs(r.left + r.width / 2 - innerWidth / 2) < 2 &&
+      r.top + r.height / 2 > innerHeight / 3 &&
+      r.top + r.height / 2 < (innerHeight * 2) / 3;
+    LT.evTick(2.9, son);
+    LT.hudGuncelle(0);
+    const bir = gorunen();
+    koy(E, k, 0);
+    LT.evTick(1 / 60, son);
+    LT.hudGuncelle(0);
+    const geriSayim = kisa === "" && dort === "4" && bir === "1" && ortada && gorunen() === "";
     E.state = "count";
     koy(E, k, E.TR.hw + 8);
     LT.evTick(6, son);
-    return { sonuc, erkenDonus, sayim: E.pistDisi.sure === 0 };
+    return { sonuc, erkenDonus, geriSayim, sayim: E.pistDisi.sure === 0 };
   });
   for (const [ty, gecti] of sonuc.sonuc)
     ok(gecti, ty + ": 5 sn sınırı, ilk çıkış hizası, hız/yön/süre/tur/puan");
   ok(sonuc.erkenDonus && sonuc.sayim, "erken dönüş temizler, geri sayımda otomatik dönüş yok");
+  ok(sonuc.geriSayim, "pist dışında ekran ortasında 4…1 geri sayım, kısa taşmada ve dönüşte gizli");
   const durmus = await p.evaluate(() => ({ t: LT.yaris.EV.t, sure: LT.yaris.EV.pistDisi.sure }));
   await p.waitForTimeout(150);
   ok(
