@@ -38,3 +38,9 @@ jobs:
         with:
           name: yarista-reset-iphone13
           path: tests/cikti/yarista-reset-iphone13.png
+      - name: Garaj düzeni görsel kanıtı
+        if: always() && hashFiles('tests/cikti/garaj-duzen-iphone13.png') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: garaj-duzen-iphone13
+          path: tests/cikti/garaj-duzen-iphone13.png

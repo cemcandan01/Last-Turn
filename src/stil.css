@@ -3575,7 +3575,8 @@ details[open] > summary::after {
   stroke-width: 2;
   vertical-align: -0.05em;
 }
-/* motor dinle: bilgi kutusunun hemen üstünde, diğer düğmeler gibi kesik köşeli */
+/* Motor dinle solda sınıfın altında; modifiye sağda aynı düğme görünümünü korur. */
+#gar .gdinle .gses,
 #gar .galt .gses {
   height: 40px;
   padding: 0 calc(18px * var(--gs, 1));
@@ -3590,6 +3591,7 @@ details[open] > summary::after {
   clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
   pointer-events: auto;
 }
+#gar .gdinle .gses.on,
 #gar .galt .gses.on {
   color: var(--gt, #ffb21a);
 }
@@ -4114,4 +4116,15 @@ details[open] > summary::after {
   margin: 0;
   white-space: nowrap;
   font-size: max(12px, calc(14px * var(--gs, 1)));
+}
+
+/* Sınıf harfi ve toplam puan, araç seçerken ilk bakışta okunur. */
+#gar .grozet .gsnf {
+  height: max(42px, calc(42px * var(--gs, 1)));
+  font-size: max(17px, calc(20px * var(--gs, 1)));
+  padding: 0 calc(10px * var(--gs, 1));
+}
+#gar .gdinle {
+  margin-top: calc(8px * var(--gs, 1));
+  width: max-content;
 }

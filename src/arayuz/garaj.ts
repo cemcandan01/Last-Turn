@@ -111,6 +111,8 @@ function aciklamaGoster(yazi: string | null) {
   }
   b.style.display = kamera.gTam ? "none" : "";
   b.textContent = yazi;
+  const ust = document.querySelector("#gar .gust");
+  if (ust) b.style.top = `${ust.getBoundingClientRect().bottom + 8}px`;
 }
 
 /** tür süzgeci (garaj ve mağaza): sağda fiyat kutusunun üstünde açılır kapanır düğme ("Araçlar" sekmesi; ileride "Modifiye" yanına gelir).
@@ -802,15 +804,14 @@ function showGar() {
     sira = Math.max(0, L.indexOf(G.i)) + 1,
     satir = (ad: string, deger: string, sinif = "") =>
       `<div class="${sinif}"><span>${ad}</span><b>${deger}</b></div>`,
-    // sağ alttaki bilgi kutusu: mağazada fiyat / bakiye (+ seviye kilidi), garajda sahiplik ve seçim
+    // Sağ altta yalnız mağazanın fiyat/bakiye/kilit bilgisi kalır.
     bilgi = G.mg
       ? satir("Fiyat", paraYazi(fiyat.para), "fy") +
         satir("Bakiye", paraYazi(para()), eksik > 0 ? "az" : "") +
         (kilitli ? satir("Kilit", ikon("kilit") + " Seviye " + fiyat.seviye, "kl") : "")
-      : satir("Durum", "Sahip") +
-        satir(sec ? "Seçim" : "Çekiş", sec || (c.awd ? "Dört çeker" : "Arkadan itiş"));
+      : "";
   g.innerHTML = `<div class="gust"><div class="gbas"><div class="gad">${tur ? `<div class="gtur" style="--c:${tur[4]}">${ikon(tur[3])}${tur[1]}</div>` : ""}<h1>${kilitli ? ikon("kilit") : ""}${c.n}</h1></div></div>
-<div class="grozet">${sinifRozeti(G.i, takiliParcalar(G.i), puanTuru(G))}${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}${kilitli ? `<span class="bdg kilit" title="${kilitYazi}">${ikon("kilit")}Seviye ${fiyat.seviye}</span>` : ""}${L.length ? `<button class="bdg gbil${BILGI_ACIK ? " on" : ""}" id="gbil" aria-label="Araç bilgisi" aria-pressed="${BILGI_ACIK}">${ikon("bilgi")}</button>` : ""}</div></div>
+<div class="grozet">${sinifRozeti(G.i, takiliParcalar(G.i), puanTuru(G))}${G.i == G.rec ? '<span class="bdg rec">Önerilen</span>' : ""}${kilitli ? `<span class="bdg kilit" title="${kilitYazi}">${ikon("kilit")}Seviye ${fiyat.seviye}</span>` : ""}${L.length ? `<button class="bdg gbil${BILGI_ACIK ? " on" : ""}" id="gbil" aria-label="Araç bilgisi" aria-pressed="${BILGI_ACIK}">${ikon("bilgi")}</button>` : ""}</div>${kilitli ? "" : '<div class="gdinle"><button class="gses" id="gses"></button></div>'}</div>
 <div class="gnav"><button class="ga" id="gpv" aria-label="Önceki">${ikon("sol")}</button><span class="gsay">${sira}/${L.length}</span><button class="ga" id="gnx" aria-label="Sonraki">${ikon("sag")}</button></div>
 <div class="gbar" title="Yaklaşık performans: düz, kuru asfalt; Dengeli yardım, seçilen yarış türü. Parçalar hesaba katılır.">${cubuk
     .map(
@@ -820,7 +821,8 @@ function showGar() {
     .join(
       "",
     )}<p id="goztop">Toplam ${deger.puan} · ${deger.sinif} tavan ${SINIFLAR.find((s) => s.h == deger.sinif)!.max}</p><p>${gercekArac.hp} HP · ${gercekArac.kg} KG</p></div>
-<div class="galt">${kilitli ? "" : `<div class="gsr"><button class="gses" id="gses"></button>${!G.mg && acik ? `<button class="gses gmod" id="gmod">${ikon("anahtar")}Modifiye</button>` : ""}</div>`}<div id="gpara">${bilgi}</div><div class="gbt"><button class="btn alt" id="gbk">Geri</button>${dugme ? `<button class="btn${satilik ? " al" : ""}" id="gok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}<button class="btn alt gvtam" id="gvtam">Vitrin</button></div></div>`;
+<div class="galt">${!G.mg && acik ? `<div class="gsr"><button class="gses gmod" id="gmod">${ikon("anahtar")}Modifiye</button></div>` : ""}${G.mg ? `<div id="gpara">${bilgi}</div>` : ""}<div class="gbt"><button class="btn alt" id="gbk">Geri</button>${dugme ? `<button class="btn${satilik ? " al" : ""}" id="gok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}<button class="btn alt gvtam" id="gvtam">Vitrin</button></div></div>`;
+  aciklamaGoster(L.length ? c.d : null);
   magazaSeridi(G);
   const bil = document.getElementById("gbil");
   if (bil)
