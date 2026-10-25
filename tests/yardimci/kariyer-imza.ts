@@ -20,7 +20,7 @@ const MODEL = [
     if (f == "src/fizik/yeni/model.ts")
       s = s
         .replace(
-          /  let cimTeker = 0;\n  for \(let i = 0; i < 4; i\+\+\) if \(Y.tk\[i\].zemin == 2\) cimTeker\+\+;\n/,
+          / {2}let cimTeker = 0;\n {2}for \(let i = 0; i < 4; i\+\+\) if \(Y.tk\[i\].zemin == 2\) cimTeker\+\+;\n/,
           "",
         )
         .replace(
