@@ -18,7 +18,6 @@ export type MekanikDurum = {
   enerji: number;
   kapasite: number;
   sonTetik: Record<string, number>;
-  gorulenOlaylar: string[];
 };
 
 export const DRIFT_HARVESTER: MekanikTanim = {
@@ -33,7 +32,12 @@ export const DRIFT_HARVESTER: MekanikTanim = {
 export function mekanikBaslat(kapasite = 100, baslangic = 0): MekanikDurum {
   if (!Number.isFinite(kapasite) || kapasite <= 0 || !Number.isFinite(baslangic))
     throw new RangeError("Gecersiz enerji kapasitesi veya baslangici");
-  return { adim: 0, enerji: Math.max(0, Math.min(kapasite, baslangic)), kapasite, sonTetik: {}, gorulenOlaylar: [] };
+  return {
+    adim: 0,
+    enerji: Math.max(0, Math.min(kapasite, baslangic)),
+    kapasite,
+    sonTetik: {},
+  };
 }
 
 export function mekanikAdimi(
@@ -49,17 +53,24 @@ export function mekanikAdimi(
     enerji: durum.enerji,
     kapasite: durum.kapasite,
     sonTetik: { ...durum.sonTetik },
-    gorulenOlaylar: [...durum.gorulenOlaylar],
   };
-  const gorulen = new Set(yeni.gorulenOlaylar);
+  const gorulen = new Set<string>();
   for (const olay of olaylar) {
     if (!olay.kimlik || gorulen.has(olay.kimlik)) continue;
     gorulen.add(olay.kimlik);
-    yeni.gorulenOlaylar.push(olay.kimlik);
     for (const m of takili) {
-      if (m.tetik !== olay.tur || m.versiyon < 1 || m.beklemeAdimi < 0 || m.maliyet < 0 || m.enerjiKazanimi < 0) continue;
+      if (
+        m.tetik !== olay.tur ||
+        m.versiyon < 1 ||
+        m.beklemeAdimi < 0 ||
+        !Number.isFinite(m.maliyet) ||
+        !Number.isFinite(m.enerjiKazanimi) ||
+        !Number.isSafeInteger(m.beklemeAdimi) ||
+        m.maliyet < 0 ||
+        m.enerjiKazanimi < 0
+      ) continue;
       if (olay.tur === "drift" &&
-        (!olay.kasitli || olay.sure <= 0 || olay.hiz < 11 || Math.abs(olay.aci) < 0.2)) continue;
+        (!olay.kasitli || !Number.isFinite(olay.sure) || !Number.isFinite(olay.hiz) || !Number.isFinite(olay.aci) || olay.sure <= 0 || olay.sure > 1 / 30 || olay.hiz < 11 || Math.abs(olay.aci) < 0.2)) continue;
       if (olay.tur === "yetenek" && olay.yetenek !== m.id) continue;
       const son = yeni.sonTetik[m.id];
       if (son !== undefined && yeni.adim - son <= m.beklemeAdimi) continue;
