@@ -104,7 +104,8 @@ export default async function ({ p, ok }) {
     gp > 0.15 && gp < Math.PI / 2,
     "garajda aşağı sürükleme kamerayı yükseltir, 90° olmaz (" + gp.toFixed(2) + ")",
   );
-  await p.mouse.move(120, 200);
+  // Bilgi açıklaması ve motor düğmesinden uzak, vitrinin boş merkezinde yakınlaştır.
+  await p.mouse.move(420, 230);
   await p.mouse.wheel(0, -300);
   await p.waitForTimeout(100);
   ok((await p.evaluate(() => LT.kamera.gz)) < 1, "garajda tekerlekle yakınlaşılır");

@@ -15,3 +15,11 @@
 - Yarışta piste dönüş, kayıt başlangıcını keser: eksik sürüş rekor diye saklanmaz; mevcut hayaletin zamanı başa alınmaz. Serbest tur kaydı tur başlangıç indeksini taşır ve başlangıç öncesi girdileri yükleyerek doğru yerden oynar; bozuk/eski kurulumsuz kayıt oynatılmaz, ilerleme/para/yıldız silinmez.
 - Tarayıcı sürüş testi önceki ekranın bıraktığı araçla 2 sn/10 m bekliyordu. Zayıflatılan başlangıç araçlarından bağımsız, ölçülü test aracı açıkça kurulur; hız/mesafe eşikleri gevşetilmez.
 - Dar doğrulama: hayalet + modifiye 11/11, hayalet sınırları eklenince 5/5 hayalet testi; fizik 80 km/sa testi geçti; tip/lint/biçim temiz. Gerçek yarışta farklı araç/aynı kayıt/bağımsız sorgu/yarım kayıt engeli tarayıcı senaryosu tam regresyona eklendi.
+
+## İlk tam rapor (CI 40196021549)
+
+- 18,9 dk: 101 senaryoda 91 geçti / 10 kaldı / 0 koşulmamış. Çoklu dal aynı garaj/sürüş testini raporladığından 10 satır aynı sayıda bağımsız oyun hatası değildir. İlk rapor docs/regresyon/ilk-rapor.json.
+- Garaj düzeni testinin mağaza kontrolü ilerlemeyi sıfırlıyor ve geri yüklemiyordu; sonrasındaki drift önayar/40 yarış/hud minimap testlerinde kilitli yarış hiç başlamıyordu. Teste try/finally ilerleme geri yükleme ve temiz çıkış eklendi. Gerçek oyuncu kaydı etkilenen bir hata değildir.
+- Garaj zoom testi artık açıklama/motor düğmesi bölgesinin altında kalıyordu; boş vitrin merkezinde aynı tekerlek girdisi ve aynı yakınlaşma ölçütü kullanılır.
+- iPhone 15 Pro Max (932 px) 900 px kompakt menü eşiğinin hemen dışında kalıyordu; masaüstü boyundaki metin ve simgeler dar karttan taşıyordu. Kompakt eşik 1100 px'e alındı, çakışma kontrolü kaldırılmadı.
+- Tam koşum öncesine bu hataların kritik tekrarları ve iphone-15-pro-max/menu-ana denetimi eklendi; kritik kontrol kalırsa uzun koşum başlamaz. Tam koşumun kapsamı/bütçesi aynıdır. Yalnız tamamlanmış rapor/devir belgelerinin güncellenmesi yeni bir tam regresyon tetiklemez.
