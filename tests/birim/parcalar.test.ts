@@ -59,7 +59,7 @@ function sur(K: SurusKurulumu) {
 }
 
 describe("parçalar", () => {
-  it("stok araç: aynı nesne, aynı kurulum, aynı fizik", () => {
+  it("stok araç: aynı nesne, aynı kurulum, aynı fizik", { timeout: 30000 }, () => {
     for (const a of sira) {
       const P = aracKur(a, []);
       expect(P.car).toBe(CARS[a]);

@@ -12,7 +12,8 @@ import { ADIM } from "../fizik/simulasyon";
 import type { DunyaSorgusu, SurusKurulumu } from "../fizik/tipler";
 import { kameraSifirla } from "../cizim/kamera";
 import { set } from "./ayarlar";
-import { oyun } from "./durum";
+import { carIndex, oyun } from "./durum";
+import { hayaletKaydet } from "./hayalet-kayit";
 import { fizikGirdisi } from "./girdi";
 import { kurulum } from "./kurulum";
 import { PROF, saveProf } from "./profil";
@@ -127,7 +128,11 @@ function turSayaci(dt: number) {
     if (LAP.prev > N * 0.8 && ti < N * 0.2) {
       if (LAP.run && LAP.armed) {
         LAP.last = LAP.t;
+        const yeniRekor = LAP.best == null || LAP.t < LAP.best;
         LAP.best = LAP.best == null ? LAP.t : Math.min(LAP.best, LAP.t);
+        if (yeniRekor && cur) {
+          hayaletKaydet("lap_" + (cur.n || "pist"), carIndex(), LAP.last, yerel.kayit);
+        }
       }
       LAP.run = 1;
       LAP.t = 0;

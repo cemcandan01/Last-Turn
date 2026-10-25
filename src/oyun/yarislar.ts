@@ -16,8 +16,11 @@ import { girdiSifirla } from "./girdi";
 import { aracAcikMi, pistAcikMi, yarisBitti } from "./ilerleme";
 import { modifiyeUygula } from "./modifiye";
 import { kurulumKaydet, kurulumYukle, type KurulumKaydi } from "./kurulum";
+import { hayaletKaydet } from "./hayalet-kayit";
 import { PROF, saveProf } from "./profil";
-import { reset, sim } from "./surus";
+import { dunya } from "../dunya/dunya";
+import { dunyaSorgusuYap, reset, sim, yerel } from "./surus";
+import { rekorHayaletiBaslat, rekorHayaletiDurdur } from "./uzak";
 import { X6_CARPAN, X6_ORAN, driftAdimi, driftBankala, tersAdimi, type DriftOlay } from "./yaris-kurallari";
 import { DRIFT_TUR, TUR_ANAHTARI, yildizEsikleri, yildizSay } from "./yildiz";
 
@@ -217,6 +220,7 @@ export function startEvent(i: number, ci?: number) {
     para: 0,
     limit: e.limit || 0,
   };
+  rekorHayaletiBaslat(e.k, dunyaSorgusuYap(dunya));
   return true;
 }
 
@@ -227,6 +231,7 @@ export function leaveEvent() {
   const sv = EV.sv;
   if (CARS[sv.car] !== oyun.CAR) setCar(sv.car);
   kurulumYukle(sv);
+  rekorHayaletiDurdur();
   yaris.EV = null;
   $("#ev").textContent = "";
 }
@@ -298,7 +303,10 @@ export function endEvent() {
   EV.state = "done";
   oyun.mode = "result";
   PROF.races++;
-  EV.yildiz = yildizSay(EV.ty, EV.ty == "dp" ? EV.score : EV.t, EV.ys);
+  const sureSkor = EV.ty == "dp" ? EV.score : EV.t;
+  EV.yildiz = yildizSay(EV.ty, sureSkor, EV.ys);
+  hayaletKaydet(EV.k, carIndex(), sureSkor, yerel.kayit, EV.ty == "dp");
+  rekorHayaletiDurdur();
   const odul = yarisBitti(EV.ty, EV.lv, EV.yildiz);
   EV.xp = odul.xp;
   EV.para = odul.para;
