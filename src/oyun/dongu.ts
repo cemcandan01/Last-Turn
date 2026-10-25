@@ -226,13 +226,15 @@ function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h
         K.lp *= d;
       }
     }
-    const far = camMode == 1 ? 1.6 : 1,
-      pit = 0.3 + K.lp,
-      dist = (9 + spn * 3 - cl(S.axs * 0.05, -1.5, 1.5)) * far,
+    // Yakın takip: araç daha belirgin; hızda görüş mesafesi yumuşakça açılır.
+    const yakin = camMode == 0 && mode != "menu" && mode != "garage",
+      far = camMode == 1 ? 1.6 : 1,
+      pit = (yakin ? 0.25 : 0.3) + K.lp,
+      dist = ((yakin ? 6.8 : 9) + spn * (yakin ? 2 : 3) - cl(S.axs * 0.05, -1.5, 1.5)) * far,
       a = K.camYaw + K.ly;
     const cz = z - Math.cos(a) * dist * Math.cos(pit);
     let cx = x - Math.sin(a) * dist * Math.cos(pit),
-      cy = y + 2.4 * far + dist * Math.sin(pit);
+      cy = y + (yakin ? 1.7 : 2.4) * far + dist * Math.sin(pit);
     cy += (Math.random() - 0.5) * shake;
     cx += (Math.random() - 0.5) * shake * 0.6;
     cy = Math.max(cy, Hw(cx, cz) + 1);

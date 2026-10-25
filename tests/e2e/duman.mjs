@@ -37,6 +37,7 @@ const BOLUMLER = [
   "hud-duzenleyici",
   "hud-minimap",
   "kokpit",
+  "kamera",
   "cok-arac",
   "hayalet",
   "kariyer",
