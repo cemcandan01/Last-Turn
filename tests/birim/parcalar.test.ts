@@ -161,9 +161,13 @@ describe("performans puanı", () => {
       expect(parcaPuanFarki(a, [], "motor-yaris"), CARS[a].n).toBeGreaterThan(0);
       expect(parcaPuanFarki(a, [], "agirlik-3"), CARS[a].n).toBeGreaterThan(0);
       // zayıf parça puanı düşürür (asfalt puanında; genel puan toprakta çekiş sınırlıyken ±1 oynayabilir)
-      expect(parcaPuanFarki(a, [], "motor-kisitli", "gp"), CARS[a].n).toBeLessThan(0);
+      const asfalt = performansPuani(a, [], "gp"),
+        kisitli = performansPuani(a, ["motor-kisitli"], "gp");
+      // Puan tabanı 100: daha yavaş araç orada aynı puanda kalabilir; fizik etkisi yine ölçülür.
+      expect(kisitli.puan, CARS[a].n).toBeLessThanOrEqual(asfalt.puan);
+      expect(kisitli.tur, CARS[a].n).toBeGreaterThan(asfalt.tur);
       expect(parcaPuanFarki(a, [], "motor-kisitli"), CARS[a].n).toBeLessThanOrEqual(1);
-      expect(parcaPuanFarki(a, [], "agirlik-balast", "gp"), CARS[a].n).toBeLessThan(0);
+      expect(performansPuani(a, ["agirlik-balast"], "gp").tur, CARS[a].n).toBeGreaterThan(asfalt.tur);
       // daha güçlü motor daha çok puan
       expect(performansPuani(a, ["motor-yaris"]).puan).toBeGreaterThan(
         performansPuani(a, ["motor-spor"]).puan,

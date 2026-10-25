@@ -50,8 +50,8 @@ describe("kararlılık ve temel değerler", () => {
         vmax = Math.max(vmax, v);
       }
       expect(t100, "0-100 km/sa (sn)").toBeGreaterThan(1.5);
-      expect(t100, "0-100 km/sa (sn)").toBeLessThan(5);
-      expect(vmax, "azami hız (km/sa)").toBeGreaterThan(170);
+      expect(t100, "0-100 km/sa (sn)").toBeLessThan(ci >= 10 ? 9 : 5);
+      expect(vmax, "azami hız (km/sa)").toBeGreaterThan(ci == 12 ? 125 : ci >= 10 ? 145 : 170);
       // fren: 100 km/sa'dan
       s.reset(210, -780, 0);
       for (let k = 0; k < 600 && Math.hypot(S.vx, S.vz) < 27.78; k++) s.adim(gir(1));
@@ -182,37 +182,38 @@ describe("drift yarışı (Drift Parkı, Beyaz Kurt, drift önayarı)", () => {
   });
 });
 
-describe("debriyaj vuruşu: başlangıç aracıyla drift pistinde drifte giriş", () => {
-  const kizilOk = CARS.findIndex((c) => c.n == "Kızıl Ok"),
-    dp = pistNo("dp", 1);
-  it("Kızıl Ok gerçekçide: gazla dönmez, debriyajla drifte girer ve spin atmaz", () => {
-    // 58 km/s, aracın kendi önayarı (asfalt yarışı): tam gaz + tam direksiyonla tutunur
-    const guc = driftGirisi(kizilOk, "real", 16, false, dp),
-      dbr = driftGirisi(kizilOk, "real", 16, true, dp);
-    expect(guc.drift, "debriyajsız drift modu").toBe(false);
-    expect(guc.aci, "debriyajsız kayma açısı (°)").toBeLessThan(30);
-    expect(dbr.drift, "debriyajla drift modu").toBe(true);
-    expect(dbr.aci, "debriyajla kayma açısı (°)").toBeGreaterThan(45);
-    expect(dbr.patinaj, "debriyajla arka patinaj").toBeGreaterThan(2 * guc.patinaj);
-    expect(dbr.spin, "spin").toBe(0);
-  });
-  it("basılıyken motor devirlenir, tekerlere tork gitmez; bırakınca devir tekerlere iner", () => {
-    const s = surucuKur({ dunya: 0, arac: kizilOk, lk: "real" });
-    s.reset(210, -780, 0);
-    const S = s.sim.S,
-      Y = () => s.sim.yeni!,
-      v = () => Math.hypot(S.vx, S.vz),
-      gi = (dbr: boolean): FizikGirdisi => ({ ...gir(1), dbr });
-    for (let t = 0; t < 2.5; t += DT) s.adim(gi(false));
-    const v0 = v(),
-      rpm0 = Y().rpm;
-    for (let t = 0; t < 0.5; t += DT) s.adim(gi(true));
-    expect(v(), "debriyaj basılıyken hızlanmaz").toBeLessThanOrEqual(v0);
-    expect(Y().rpm, "devir kesiciye yakın").toBeGreaterThan(Math.max(rpm0, 6000));
-    for (let t = 0; t < 1; t += DT) s.adim(gi(false));
-    expect(Y().serbestDevir, "vuruş bitti, motor bağlı").toBe(0);
-    expect(sonlu(S.x, S.z, S.vx, S.vz, Y().rpm)).toBe(true);
-  });
+describe("el freni: arka kilit ve kontrollü drift girişi", () => {
+  for (const ad of ["Kızıl Ok", "Gümüş Serçe"])
+    it(`${ad}: kısa el freni darbesi arkayı açar`, () => {
+      const a = CARS.findIndex((c) => c.n == ad),
+        dp = pistNo("dp", 1),
+        gaz = driftGirisi(a, "real", 16, false, dp),
+        el = driftGirisi(a, "real", 16, true, dp);
+      expect(gaz.drift, "yalnız gazla otomatik drift yok").toBe(false);
+      expect(el.drift, "kasıtlı el freniyle drift girişi").toBe(true);
+      expect(el.aci).toBeGreaterThan(gaz.aci + 10);
+      expect(el.spin).toBe(0);
+    });
+  for (const arac of [10, 11])
+    it(`araç ${arac}: arka kilit, ön aks serbest; bırakınca hızlanır`, () => {
+      const s = surucuKur({ dunya: 0, arac, lk: "real" });
+      s.reset(210, -780, 0);
+      const v = () => Math.hypot(s.sim.S.vx, s.sim.S.vz),
+        gi = (dbr: boolean): FizikGirdisi => ({ ...gir(1), dbr });
+      for (let k = 0; k < 900 && v() < 20; k++) s.adim(gi(false));
+      const once = v(),
+        vites = s.sim.yeni!.vites;
+      for (let k = 0; k < 20; k++) s.adim(gi(true));
+      const Y = s.sim.yeni!,
+        sonra = v();
+      expect(Y.vites).toBe(vites);
+      expect(sonra).toBeLessThan(once - 0.5);
+      expect(Math.abs(Y.tk[2].w)).toBeLessThan(Math.abs(Y.tk[0].w) * 0.3);
+      expect(Math.abs(Y.tk[3].w)).toBeLessThan(Math.abs(Y.tk[1].w) * 0.3);
+      for (let k = 0; k < 120; k++) s.adim(gi(false));
+      expect(v()).toBeGreaterThan(sonra + 1);
+      expect(sonlu(s.sim.S.x, s.sim.S.z, Y.rpm)).toBe(true);
+    });
 });
 
 describe("asfalt pistte titreşim yok (her araç, her asfalt pist)", () => {

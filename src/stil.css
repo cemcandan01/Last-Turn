@@ -1848,7 +1848,7 @@ details[open] > summary::after {
   width: 120px;
   height: 100px;
 }
-/* debriyaj: frenin (analogda pedalın) üstünde, kısa ve dar; gazdaki başparmak kayarak ulaşır.
+/* el freni: frenin (analogda pedalın) üstünde, kısa ve dar; gazdaki başparmak kayarak ulaşır.
    Hız göstergesi sağ tuş grubunun yüksekliğine göre yükselir (--cR). Telefonu çevirmede frenin solunda */
 .tsut {
   display: flex;

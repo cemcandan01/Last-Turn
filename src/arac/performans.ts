@@ -10,7 +10,7 @@ import { sm } from "../cekirdek/matematik";
 import { mkTrack } from "../dunya/pist";
 import { cizPist } from "../dunya/pist-ciz";
 import type { SurusKurulumu } from "../fizik/tipler";
-import type { YarisTuru } from "./araclar";
+import { CARS, type YarisTuru } from "./araclar";
 import { TIRES, YERCEKIMI } from "../fizik/veriler";
 import { aracFizigi, RHO, torkEgrisi, VITESLER } from "../fizik/yeni/arac-fizigi";
 import { GEVSEK_ARKA, GEVSEK_TUTUS, TUTUS } from "../fizik/yeni/model";
@@ -210,7 +210,12 @@ interface NoktaKutle {
   tbs: number;
 }
 
-function noktaKutle(K: SurusKurulumu, kal: KalibreAnahtari, uz: [number, number] = [1, 1]): NoktaKutle {
+function noktaKutle(
+  K: SurusKurulumu,
+  kal: KalibreAnahtari,
+  uz: [number, number] = [1, 1],
+  kalibrasyon = true,
+): NoktaKutle {
   const c = K.car,
     tu = K.tu,
     as = K.as,
@@ -224,7 +229,7 @@ function noktaKutle(K: SurusKurulumu, kal: KalibreAnahtari, uz: [number, number]
     gevsek = zemin == 0,
     pb = gevsek ? 0.35 : 0.15,
     zt = gevsek ? (26 / 30) * GEVSEK_TUTUS : 1,
-    KL = KALIBRE[kal],
+    KL = kalibrasyon ? KALIBRE[kal] : { ...KALIBRE[kal], guc: 1, cekis: 1 },
     // tutuş üssünün dayanağı: zeminin tipik tutuşu
     mu0 = gevsek ? 0.85 : 1.3,
     lg = T.lg ? T.lg[zemin] : 1,
@@ -251,7 +256,7 @@ function noktaKutle(K: SurusKurulumu, kal: KalibreAnahtari, uz: [number, number]
     for (const o of VITESLER) {
       const oran = o * F.son,
         u = ((v / rArka) * oran) / wMax;
-      if (u > 1) continue;
+      if (u > (kalibrasyon ? 1 : 1.02)) continue;
       const uE = Math.max(u, F.kalkis / F.devirMax),
         turbo = tb ? 1 - tb * (1 - Math.min(basinc, sm(tbu - 0.2, tbu, uE))) : 1,
         Fx = (F.tork * torkEgrisi(uE) * turbo * oran * F.verim) / rArka;
@@ -394,14 +399,32 @@ export function kurulumPerformansi(K: SurusKurulumu, tur?: PuanTuru): Performans
       const t = hesap(pt);
       if (t.puan > r.puan) r = t;
     }
-  const d = duzCizgi(noktaKutle(K, "asfalt"));
+  // Gösterge verisi tur pilotunun kalibrasyon katsayısını kullanmaz: motor/vites/direnç doğrudan fizikten.
+  // Garajda aracın kendi yarışındaki, yarış öncesinde seçilen türdeki en iyi kuru asfalt koşulu gösterilir.
+  const yt: YarisTuru =
+      tur == "asfalt"
+        ? "gp"
+        : tur == "rallikros"
+          ? "rx"
+          : tur == "ralli"
+            ? "rl"
+            : tur == "drag"
+              ? "dg"
+              : K.car.ty,
+    gucUyumu = K.car.uzT?.[yt]?.[1] ?? (yt == K.car.ty ? (K.car.uzg ?? 1) : 1),
+    d = duzCizgi(noktaKutle(K, "asfalt", [1, gucUyumu], false));
+  // Stok referansları gerçek 4 teker modelinden ölçülür. Parçalar ve yarış uyumu aynı hızlı modelin
+  // stok oranıyla taşınır; ekranda her seçimde binlerce fizik adımı çalıştırılmaz. PI kalibrasyonu ayrıdır.
+  const stok = CARS.find((c) => c.k == K.car.k) ?? K.car,
+    K0 = parcaliKurulum(CARS.indexOf(stok), [], "norm"),
+    d0 = duzCizgi(noktaKutle(K0, "asfalt", [1, stok.uzg ?? 1], false));
   return {
     puan: r.puan,
     sinif: sinifHarfi(r.puan),
-    hiz: d.vmax * 3.6,
-    ivme: d.t100,
+    hiz: ((stok.vmax ?? d0.vmax * 3.6) * d.vmax) / d0.vmax,
+    ivme: (stok.a100 * d.t100) / d0.t100,
     tutus: r.N.ayHam * (1 + (r.N.cl * 625) / r.N.g),
-    fren: d.b100,
+    fren: (stok.b100 * d.b100) / d0.b100,
     tur: r.t,
     zemin: r.pt,
   };

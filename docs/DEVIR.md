@@ -1,12 +1,9 @@
 # Claude + Codex devir
 
-- Cem kotası bitince diğer araca geçer. İkimiz de `CLAUDE.md` ve aynı görev kartıyla devam ederiz; sohbet belleği aktarılmış sayılmaz.
-- Son oyun düzeltmesi: 0.5.27, [PR #8](https://github.com/cemcandan01/Last-Turn/pull/8); kaynak `8caed4cfd4399baf2152712a65bf010327d4da9a`. Canlı kaynak `master`; güncel numara her devirde Git'ten doğrulanır.
-- Codex: PWA önbelleği/giriş yardımcısı ve PR test alanı eşlemesini düzeltti. Altyapı 18/18 senaryo; [CI 40131460601](https://github.com/cemcandan01/Last-Turn/actions/runs/40131460601). Yerelde 42/42 ilgili birim testi.
-- Yerel Chromium indirme adresi ZIP yerine 195 bayt “Site Unavailable” HTML döndürüyor; bu ortamda tekrar indirme. GitHub Actions'ta Chromium ve beş ilgili tarayıcı senaryosu geçti.
-- Son süreç işi: `docs/isler/2026-10-25-ortak-calisma.md`; son uygulayıcı Codex, dal `codex/kurallar`. Tamamlandı; [PR #7](https://github.com/cemcandan01/Last-Turn/pull/7) ve [CI 40133242132](https://github.com/cemcandan01/Last-Turn/actions/runs/40133242132): 14/14 test, tip/lint/biçim temiz. Yeni işte aktif sahip ayrıca atanır.
-- Gece regresyonu/Claude merkezi ve telefon bildirimleri bu oturumda kurulmadı; Claude tarafında mevcut olanlar ayrıca doğrulanmalı.
-- Devirde ilk adım: `git fetch origin`, ilgili dalı güncelle, `node scripts/calisma.mjs baglam <alan>` ve görev kartını oku. Kullanıcıya geçmişi tekrar anlattırma.
-- Context7 bu ChatGPT hesabında bağlı; Three.js r186 belge sorgusu doğrulandı. Claude tarafına da kurulduğu Cem tarafından bildirildi.
-- Son iPhone düzeltmesi: `docs/isler/2026-10-25-ios-iframe.md`, Codex / codex/altyapi. 439 bayt iframe MIME hatası doğrulandı; yerel 25 test ve [CI 40134724477](https://github.com/cemcandan01/Last-Turn/actions/runs/40134724477) altyapı 19/19 geçti. 0.5.27 deneme yayını aktarılıyor; gerçek iPhone yer işareti açılışı Cem'in doğrulamasını bekler.
-- Süreç eki: `docs/isler/2026-10-25-test-kapsami.md`; `alan --senaryo ... --liste` ve risk bazlı test/model politikası. Kurallar alanı yerelde 18/18; CI varsayılanı geniş alan olarak kaldı.
+- Cem Claude ve Codex arasında kota durumuna göre geçer; ortak bellek bu repo, `CLAUDE.md` ve görev kartlarıdır.
+- Claude gece 0.5.28 regresyonunu tamamladı ve canlıya çıkardı (`a103508`); `gelistirme` 0.6.0'a geçti (`eb89753`). Güncel durum Git'ten doğrulanır.
+- Aktif iş: Codex / `codex/surus`, `docs/isler/2026-10-25-surus.md`, PR #10. Cem son isteğin güncel sürüm üzerinden bitirilmesini istedi. Eski sürüş dalı geceki yayına girmedi; 0.6.0 ve katlanır ekran düzeltmeleri korunarak 0.6.1'e taşındı.
+- Serçe: gerçek düz asfalt 236,4 → 167,7 km/sa, 0–100 3,23 → 7,63 sn; görünüm korunur. Garaj 15 stok ölçümüne dayanır; modifiye oranları yaklaşık modelden. Debriyaj yerine arka el freni; eski giriş/ayar anahtarları korunur.
+- İlk kaynak `afaa70b75c0d8ddb3a2ea6dfec90628177ae5cb4`: [CI](https://github.com/cemcandan01/Last-Turn/actions/runs/40137401600) 12/12 başarılı. Güncel `3663f4f` kaynak [CI 40171573466](https://github.com/cemcandan01/Last-Turn/actions/runs/40171573466): 12/12 başarılı; 0.6.1 deneme aktarımı PR #10 / görev kartında tutulur; telefonda sürüş hissi Cem'in denemesini bekler.
+- Yerel Chromium indirmesi ZIP yerine HTML veriyor; tekrar deneme. GitHub Actions tarayıcıları çalışıyor. Context7 iki tarafta bağlı (Claude kurulumu Cem tarafından bildirildi).
+- Test/model politikası `docs/ORTAK-CALISMA.md`: dar kapsam, aynı kaynakta başarılı kanıtı tekrar üretmeme, küçük işte ajan zinciri kurmama. Sonraki adım: PR #10'un deneme yayınını doğrula; ardından Cem'in sürüş geri bildiriminden devam et. Canlıya çıkış ayrı regresyon/onay ister.

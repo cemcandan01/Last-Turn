@@ -1,6 +1,5 @@
 // Dokunmatik kontroller: direksiyon tuşları / ekran direksiyonu / telefonu çevirme, gaz ve fren tuşları / analog pedal.
-// Analog pedal: ortası sıfır, yukarı gaz, aşağı fren. Debriyaj fren (ya da pedal) üstünde: basılı tut, bırakınca
-// motorun devri tekerlere vurur ve arka patinaja girer (drifte giriş).
+// Analog pedal: ortası sıfır, yukarı gaz, aşağı fren. El freni frenin (ya da pedalın) üstünde durur.
 import { $ } from "../cekirdek/dom";
 import { ad, cl } from "../cekirdek/matematik";
 import { toApp } from "../cekirdek/ekran";
@@ -102,7 +101,7 @@ export function kontrolleriKur() {
       : CT.steer == "wheel"
         ? '<div class="wz" id="wz"><div class="wheel" id="wh"></div></div>'
         : '<div class="g"><div class="k" id="cal">Ortala</div></div>';
-  const D = '<div class="k" id="dbr">DEBRİYAJ</div>',
+  const D = '<div class="k" id="dbr">EL FRENİ</div>',
     B =
       CT.gas == "analog"
         ? '<div class="tsut">' +
