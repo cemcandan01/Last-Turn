@@ -1,0 +1,1684 @@
+{
+  "kaynak": "f41728c (origin/gelistirme, 0.7.1)",
+  "tarih": "2026-10-25",
+  "yontem": "İçe aktarılan saf oyun verileri ve gerçek hesaplama fonksiyonları; sürüş/insan başarı oranı ölçümü değildir.",
+  "araclar": [
+    {
+      "no": 0,
+      "ad": "Kızıl Ok",
+      "tur": "gp",
+      "hp": 480,
+      "kg": 1240,
+      "para": 6000,
+      "seviye": 8,
+      "puan": 448,
+      "sinif": "C",
+      "tekParca": [
+        {
+          "id": "motor-sokak",
+          "hp": 518.4000000000001,
+          "kg": 1240,
+          "puan": 463
+        },
+        {
+          "id": "motor-spor",
+          "hp": 556.8,
+          "kg": 1240,
+          "puan": 477
+        },
+        {
+          "id": "motor-yaris",
+          "hp": 840,
+          "kg": 1240,
+          "puan": 561
+        },
+        {
+          "id": "motor-degisim",
+          "hp": 350,
+          "kg": 1302,
+          "puan": 395
+        },
+        {
+          "id": "turbo-buyuk",
+          "hp": 816,
+          "kg": 1240,
+          "puan": 546
+        }
+      ]
+    },
+    {
+      "no": 1,
+      "ad": "Kor RX",
+      "tur": "rx",
+      "hp": 450,
+      "kg": 1300,
+      "para": 3500,
+      "seviye": 5,
+      "puan": 418,
+      "sinif": "C",
+      "tekParca": [
+        {
+          "id": "motor-sokak",
+          "hp": 486.00000000000006,
+          "kg": 1300,
+          "puan": 429
+        },
+        {
+          "id": "motor-spor",
+          "hp": 522,
+          "kg": 1300,
+          "puan": 440
+        },
+        {
+          "id": "motor-yaris",
+          "hp": 787.5,
+          "kg": 1300,
+          "puan": 518
+        },
+        {
+          "id": "motor-degisim",
+          "hp": 350,
+          "kg": 1365,
+          "puan": 377
+        },
+        {
+          "id": "turbo-buyuk",
+          "hp": 765,
+          "kg": 1300,
+          "puan": 507
+        }
+      ]
+    },
+    {
+      "no": 2,
+      "ad": "Beyaz Kurt",
+      "tur": "dp",
+      "hp": 145,
+      "kg": 1250,
+      "para": 3000,
+      "seviye": 4,
+      "puan": 184,
+      "sinif": "D",
+      "tekParca": [
+        {
+          "id": "motor-sokak",
+          "hp": 156.60000000000002,
+          "kg": 1250,
+          "puan": 188
+        },
+        {
+          "id": "motor-spor",
+          "hp": 168.2,
+          "kg": 1250,
+          "puan": 192
+        },
+        {
+          "id": "motor-yaris",
+          "hp": 253.75,
+          "kg": 1250,
+          "puan": 221
+        },
+        {
+          "id": "motor-degisim",
+          "hp": 350,
+          "kg": 1312.5,
+          "puan": 243
+        },
+        {
+          "id": "turbo-buyuk",
+          "hp": 246.5,
+          "kg": 1250,
+          "puan": 214
+        }
+      ]
+    },
+    {
+      "no": 3,
+      "ad": "Mavi Yıldız",
+      "tur": "rl",
+      "hp": 330,
+      "kg": 1230,
+      "para": 4000,
+      "seviye": 6,
+      "puan": 427,
+      "sinif": "C",
+      "tekParca": [
+        {
+          "id": "motor-sokak",
+          "hp": 356.40000000000003,
+          "kg": 1230,
+          "puan": 438
+        },
+        {
+          "id": "motor-spor",
+          "hp": 382.79999999999995,
+          "kg": 1230,
+          "puan": 449
+        },
+        {
+          "id": "motor-yaris",
+          "hp": 577.5,
+          "kg": 1230,
+          "puan": 532
+        },
+        {
+          "id": "motor-degisim",
+          "hp": 350,
+          "kg": 1291.5,
+          "puan": 428
+        },
+        {
+          "id": "turbo-buyuk",
+          "hp": 561,
+          "kg": 1230,
+          "puan": 499
+        }
+      ]
+    },
+    {
+      "no": 4,
+      "ad": "Gece Mavisi",
+      "tur": "dg",
+      "hp": 920,
+      "kg": 1550,
+      "para": 5000,
+      "seviye": 7,
+      "puan": 437,
+      "sinif": "C",
+      "tekParca": [
+        {
+          "id": "motor-sokak",
+          "hp": 993.6,
+          "kg": 1550,
+          "puan": 452
+        },
+        {
+          "id": "motor-spor",
+          "hp": 1067.1999999999998,
+          "kg": 1550,
+          "puan": 468
+        },
+        {
+          "id": "motor-yaris",
+          "hp": 1610,
+          "kg": 1550,
+          "puan": 594
+        },
+        {
+          "id": "motor-degisim",
+          "hp": 350,
+          "kg": 1627.5,
+          "puan": 303
+        },
+        {
+          "id": "turbo-buyuk",
+          "hp": 1564,
+          "kg": 1550,
+          "puan": 583
+        }
+      ]
+    },
+    {
+      "no": 5,
+      "ad": "Gri Atmaca",
+      "tur": "gp",
+      "hp": 480,
+      "kg": 1420,
+      "para": 8000,
+      "seviye": 10,
+      "puan": 443,
+      "sinif": "C",
+      "tekParca": [
+        {
+          "id": "motor-sokak",
+          "hp": 518.4000000000001,
+          "kg": 1420,
+          "puan": 455
+        },
+        {
+          "id": "motor-spor",
+          "hp": 556.8,
+          "kg": 1420,
+          "puan": 468
+        },
+        {
+          "id": "motor-yaris",
+          "hp": 840,
+          "kg": 1420,
+          "puan": 556
+        },
+        {
+          "id": "motor-degisim",
+          "hp": 350,
+          "kg": 1491,
+          "puan": 398
+        },
+        {
+          "id": "turbo-buyuk",
+          "hp": 816,
+          "kg": 1420,
+          "puan": 529
+        }
+      ]
+    },
+    {
+      "no": 6,
+      "ad": "Kum Fırtınası",
+      "tur": "rx",
+      "hp": 420,
+      "kg": 1020,
+      "para": 10000,
+      "seviye": 11,
+      "puan": 439,
+      "sinif": "C",
+      "tekParca": [
+        {
+          "id": "motor-sokak",
+          "hp": 453.6,
+          "kg": 1020,
+          "puan": 452
+        },
+        {
+          "id": "motor-spor",
+          "hp": 487.2,
+          "kg": 1020,
+          "puan": 466
+        },
+        {
+          "id": "motor-yaris",
+          "hp": 735,
+          "kg": 1020,
+          "puan": 571
+        },
+        {
+          "id": "motor-degisim",
+          "hp": 350,
+          "kg": 1071,
+          "puan": 418
+        },
+        {
+          "id": "turbo-buyuk",
+          "hp": 714,
+          "kg": 1020,
+          "puan": 542
+        }
+      ]
+    },
+    {
+      "no": 7,
+      "ad": "Sarı Arı",
+      "tur": "rl",
+      "hp": 280,
+      "kg": 1180,
+      "para": 12000,
+      "seviye": 13,
+      "puan": 417,
+      "sinif": "C",
+      "tekParca": [
+        {
+          "id": "motor-sokak",
+          "hp": 302.40000000000003,
+          "kg": 1180,
+          "puan": 427
+        },
+        {
+          "id": "motor-spor",
+          "hp": 324.79999999999995,
+          "kg": 1180,
+          "puan": 436
+        },
+        {
+          "id": "motor-yaris",
+          "hp": 490,
+          "kg": 1180,
+          "puan": 508
+        },
+        {
+          "id": "motor-degisim",
+          "hp": 350,
+          "kg": 1239,
+          "puan": 441
+        },
+        {
+          "id": "turbo-buyuk",
+          "hp": 476,
+          "kg": 1180,
+          "puan": 476
+        }
+      ]
+    },
+    {
+      "no": 8,
+      "ad": "Panda",
+      "tur": "dp",
+      "hp": 115,
+      "kg": 950,
+      "para": 2000,
+      "seviye": 3,
+      "puan": 185,
+      "sinif": "D",
+      "tekParca": [
+        {
+          "id": "motor-sokak",
+          "hp": 124.2,
+          "kg": 950,
+          "puan": 189
+        },
+        {
+          "id": "motor-spor",
+          "hp": 133.39999999999998,
+          "kg": 950,
+          "puan": 193
+        },
+        {
+          "id": "motor-yaris",
+          "hp": 201.25,
+          "kg": 950,
+          "puan": 221
+        },
+        {
+          "id": "motor-degisim",
+          "hp": 350,
+          "kg": 997.5,
+          "puan": 266
+        },
+        {
+          "id": "turbo-buyuk",
+          "hp": 195.5,
+          "kg": 950,
+          "puan": 215
+        }
+      ]
+    },
+    {
+      "no": 9,
+      "ad": "Turuncu Ejder",
+      "tur": "dg",
+      "hp": 1200,
+      "kg": 1500,
+      "para": 15000,
+      "seviye": 15,
+      "puan": 537,
+      "sinif": "B",
+      "tekParca": [
+        {
+          "id": "motor-sokak",
+          "hp": 1296,
+          "kg": 1500,
+          "puan": 560
+        },
+        {
+          "id": "motor-spor",
+          "hp": 1392,
+          "kg": 1500,
+          "puan": 584
+        },
+        {
+          "id": "motor-yaris",
+          "hp": 2100,
+          "kg": 1500,
+          "puan": 767
+        },
+        {
+          "id": "motor-degisim",
+          "hp": 350,
+          "kg": 1575,
+          "puan": 329
+        },
+        {
+          "id": "turbo-buyuk",
+          "hp": 2040,
+          "kg": 1500,
+          "puan": 751
+        }
+      ]
+    },
+    {
+      "no": 10,
+      "ad": "Gümüş Serçe",
+      "tur": "gp",
+      "hp": 85,
+      "kg": 1150,
+      "para": 0,
+      "seviye": 1,
+      "puan": 181,
+      "sinif": "D",
+      "tekParca": [
+        {
+          "id": "motor-sokak",
+          "hp": 91.80000000000001,
+          "kg": 1150,
+          "puan": 183
+        },
+        {
+          "id": "motor-spor",
+          "hp": 98.6,
+          "kg": 1150,
+          "puan": 186
+        },
+        {
+          "id": "motor-yaris",
+          "hp": 148.75,
+          "kg": 1150,
+          "puan": 204
+        },
+        {
+          "id": "motor-degisim",
+          "hp": 350,
+          "kg": 1207.5,
+          "puan": 264
+        },
+        {
+          "id": "turbo-buyuk",
+          "hp": 144.5,
+          "kg": 1150,
+          "puan": 200
+        }
+      ]
+    },
+    {
+      "no": 11,
+      "ad": "Bozkır Tavşanı",
+      "tur": "rx",
+      "hp": 95,
+      "kg": 1150,
+      "para": 0,
+      "seviye": 1,
+      "puan": 178,
+      "sinif": "D",
+      "tekParca": [
+        {
+          "id": "motor-sokak",
+          "hp": 102.60000000000001,
+          "kg": 1150,
+          "puan": 181
+        },
+        {
+          "id": "motor-spor",
+          "hp": 110.19999999999999,
+          "kg": 1150,
+          "puan": 183
+        },
+        {
+          "id": "motor-yaris",
+          "hp": 166.25,
+          "kg": 1150,
+          "puan": 203
+        },
+        {
+          "id": "motor-degisim",
+          "hp": 350,
+          "kg": 1207.5,
+          "puan": 267
+        },
+        {
+          "id": "turbo-buyuk",
+          "hp": 161.5,
+          "kg": 1150,
+          "puan": 196
+        }
+      ]
+    },
+    {
+      "no": 12,
+      "ad": "Haki Keçi",
+      "tur": "rl",
+      "hp": 85,
+      "kg": 1180,
+      "para": 0,
+      "seviye": 1,
+      "puan": 178,
+      "sinif": "D",
+      "tekParca": [
+        {
+          "id": "motor-sokak",
+          "hp": 91.80000000000001,
+          "kg": 1180,
+          "puan": 180
+        },
+        {
+          "id": "motor-spor",
+          "hp": 98.6,
+          "kg": 1180,
+          "puan": 183
+        },
+        {
+          "id": "motor-yaris",
+          "hp": 148.75,
+          "kg": 1180,
+          "puan": 201
+        },
+        {
+          "id": "motor-degisim",
+          "hp": 350,
+          "kg": 1239,
+          "puan": 270
+        },
+        {
+          "id": "turbo-buyuk",
+          "hp": 144.5,
+          "kg": 1180,
+          "puan": 196
+        }
+      ]
+    },
+    {
+      "no": 13,
+      "ad": "Bordo Tilki",
+      "tur": "dp",
+      "hp": 120,
+      "kg": 1300,
+      "para": 0,
+      "seviye": 1,
+      "puan": 186,
+      "sinif": "D",
+      "tekParca": [
+        {
+          "id": "motor-sokak",
+          "hp": 129.60000000000002,
+          "kg": 1300,
+          "puan": 189
+        },
+        {
+          "id": "motor-spor",
+          "hp": 139.2,
+          "kg": 1300,
+          "puan": 192
+        },
+        {
+          "id": "motor-yaris",
+          "hp": 210,
+          "kg": 1300,
+          "puan": 216
+        },
+        {
+          "id": "motor-degisim",
+          "hp": 350,
+          "kg": 1365,
+          "puan": 254
+        },
+        {
+          "id": "turbo-buyuk",
+          "hp": 204,
+          "kg": 1300,
+          "puan": 208
+        }
+      ]
+    },
+    {
+      "no": 14,
+      "ad": "Kara Boğa",
+      "tur": "dg",
+      "hp": 195,
+      "kg": 1300,
+      "para": 0,
+      "seviye": 1,
+      "puan": 194,
+      "sinif": "D",
+      "tekParca": [
+        {
+          "id": "motor-sokak",
+          "hp": 210.60000000000002,
+          "kg": 1300,
+          "puan": 198
+        },
+        {
+          "id": "motor-spor",
+          "hp": 226.2,
+          "kg": 1300,
+          "puan": 203
+        },
+        {
+          "id": "motor-yaris",
+          "hp": 341.25,
+          "kg": 1300,
+          "puan": 234
+        },
+        {
+          "id": "motor-degisim",
+          "hp": 350,
+          "kg": 1365,
+          "puan": 232
+        },
+        {
+          "id": "turbo-buyuk",
+          "hp": 331.5,
+          "kg": 1300,
+          "puan": 230
+        }
+      ]
+    }
+  ],
+  "parcalar": [
+    {
+      "id": "motor-kisitli",
+      "kategori": "motor",
+      "seviye": 0,
+      "fiyat": 0,
+      "etki": {
+        "carp": {
+          "hp": 0.85
+        }
+      }
+    },
+    {
+      "id": "motor-sokak",
+      "kategori": "motor",
+      "seviye": 1,
+      "fiyat": 500,
+      "etki": {
+        "carp": {
+          "hp": 1.08
+        }
+      }
+    },
+    {
+      "id": "motor-spor",
+      "kategori": "motor",
+      "seviye": 2,
+      "fiyat": 1150,
+      "etki": {
+        "carp": {
+          "hp": 1.16
+        }
+      }
+    },
+    {
+      "id": "motor-yaris",
+      "kategori": "motor",
+      "seviye": 3,
+      "fiyat": 2350,
+      "etki": {
+        "carp": {
+          "hp": 1.75
+        }
+      }
+    },
+    {
+      "id": "motor-degisim",
+      "kategori": "motor",
+      "seviye": 3,
+      "fiyat": 2350,
+      "etki": {
+        "motorHp": 350,
+        "carp": {
+          "kg": 1.05
+        }
+      }
+    },
+    {
+      "id": "turbo-kucuk",
+      "kategori": "turbo",
+      "seviye": 2,
+      "fiyat": 1350,
+      "etki": {
+        "turbo": {
+          "guc": 1.12,
+          "tbs": 0.45,
+          "tbu": 0.5
+        }
+      }
+    },
+    {
+      "id": "turbo-buyuk",
+      "kategori": "turbo",
+      "seviye": 3,
+      "fiyat": 2700,
+      "etki": {
+        "turbo": {
+          "guc": 1.7,
+          "tbs": 1.1,
+          "tbu": 0.72
+        }
+      }
+    },
+    {
+      "id": "kompresor",
+      "kategori": "turbo",
+      "seviye": 2,
+      "fiyat": 1350,
+      "etki": {
+        "turbo": {
+          "guc": 1.1
+        }
+      }
+    },
+    {
+      "id": "sanziman-kisa",
+      "kategori": "sanziman",
+      "seviye": 2,
+      "fiyat": 700,
+      "etki": {
+        "carp": {
+          "top": 0.93
+        }
+      }
+    },
+    {
+      "id": "sanziman-uzun",
+      "kategori": "sanziman",
+      "seviye": 2,
+      "fiyat": 700,
+      "etki": {
+        "carp": {
+          "top": 1.07
+        }
+      }
+    },
+    {
+      "id": "lastik-sokak",
+      "kategori": "lastik",
+      "seviye": 1,
+      "fiyat": 250,
+      "etki": {
+        "lastik": 4
+      }
+    },
+    {
+      "id": "lastik-spor",
+      "kategori": "lastik",
+      "seviye": 2,
+      "fiyat": 550,
+      "etki": {
+        "lastik": 5
+      }
+    },
+    {
+      "id": "lastik-yaris",
+      "kategori": "lastik",
+      "seviye": 3,
+      "fiyat": 1100,
+      "etki": {
+        "lastik": 0
+      }
+    },
+    {
+      "id": "lastik-toprak",
+      "kategori": "lastik",
+      "seviye": 2,
+      "fiyat": 550,
+      "etki": {
+        "lastik": 1
+      }
+    },
+    {
+      "id": "lastik-karisik",
+      "kategori": "lastik",
+      "seviye": 2,
+      "fiyat": 550,
+      "etki": {
+        "lastik": 2
+      }
+    },
+    {
+      "id": "lastik-drift",
+      "kategori": "lastik",
+      "seviye": 2,
+      "fiyat": 550,
+      "etki": {
+        "lastik": 3
+      }
+    },
+    {
+      "id": "lastik-drag",
+      "kategori": "lastik",
+      "seviye": 2,
+      "fiyat": 550,
+      "etki": {
+        "lastik": 6
+      }
+    },
+    {
+      "id": "suspansiyon-sokak",
+      "kategori": "suspansiyon",
+      "seviye": 0,
+      "fiyat": 0,
+      "etki": {
+        "fq": 1.8,
+        "ayar": {
+          "susp": 1.15
+        },
+        "ekle": {
+          "hcg": 0.03
+        },
+        "gr": [1, 0.95]
+      }
+    },
+    {
+      "id": "suspansiyon-spor",
+      "kategori": "suspansiyon",
+      "seviye": 2,
+      "fiyat": 800,
+      "etki": {
+        "fq": 2.2,
+        "ayar": {
+          "susp": 0.85
+        },
+        "ekle": {
+          "lift": -0.02,
+          "hcg": -0.02
+        },
+        "gr": [0.97, 1.02]
+      }
+    },
+    {
+      "id": "suspansiyon-yaris",
+      "kategori": "suspansiyon",
+      "seviye": 3,
+      "fiyat": 1600,
+      "etki": {
+        "fq": 2.4,
+        "ayar": {
+          "susp": 0.7
+        },
+        "ekle": {
+          "lift": -0.04,
+          "hcg": -0.04
+        },
+        "gr": [0.9, 1.04]
+      }
+    },
+    {
+      "id": "suspansiyon-ralli",
+      "kategori": "suspansiyon",
+      "seviye": 2,
+      "fiyat": 800,
+      "etki": {
+        "fq": 1.6,
+        "ayar": {
+          "susp": 1.4
+        },
+        "ekle": {
+          "lift": 0.06,
+          "hcg": 0.03
+        },
+        "gr": [1.06, 0.95]
+      }
+    },
+    {
+      "id": "suspansiyon-rallikros",
+      "kategori": "suspansiyon",
+      "seviye": 2,
+      "fiyat": 800,
+      "etki": {
+        "fq": 1.9,
+        "ayar": {
+          "susp": 1.15
+        },
+        "ekle": {
+          "lift": 0.03
+        },
+        "gr": [1.04, 0.98]
+      }
+    },
+    {
+      "id": "suspansiyon-drift",
+      "kategori": "suspansiyon",
+      "seviye": 2,
+      "fiyat": 800,
+      "etki": {
+        "fq": 2.1,
+        "ayar": {
+          "susp": 1.2,
+          "tpr": 1.18,
+          "bal": 0.92
+        }
+      }
+    },
+    {
+      "id": "suspansiyon-drag",
+      "kategori": "suspansiyon",
+      "seviye": 2,
+      "fiyat": 800,
+      "etki": {
+        "fq": 2.2,
+        "ayar": {
+          "susp": 1,
+          "tpf": 1.1,
+          "tpr": 0.9,
+          "bal": 1.1
+        },
+        "ekle": {
+          "lift": 0.02
+        }
+      }
+    },
+    {
+      "id": "diferansiyel-acik",
+      "kategori": "diferansiyel",
+      "seviye": 0,
+      "fiyat": 0,
+      "etki": {
+        "ayar": {
+          "diff": 0.2
+        },
+        "dk": 8
+      }
+    },
+    {
+      "id": "diferansiyel-lsd",
+      "kategori": "diferansiyel",
+      "seviye": 2,
+      "fiyat": 700,
+      "etki": {
+        "ayar": {
+          "diff": 0.5
+        },
+        "dk": 35
+      }
+    },
+    {
+      "id": "diferansiyel-ralli",
+      "kategori": "diferansiyel",
+      "seviye": 2,
+      "fiyat": 700,
+      "etki": {
+        "ayar": {
+          "diff": 0.75
+        },
+        "dk": 90
+      }
+    },
+    {
+      "id": "diferansiyel-kilitli",
+      "kategori": "diferansiyel",
+      "seviye": 2,
+      "fiyat": 700,
+      "etki": {
+        "ayar": {
+          "diff": 1.15
+        },
+        "dk": 260
+      }
+    },
+    {
+      "id": "fren-sokak",
+      "kategori": "fren",
+      "seviye": 0,
+      "fiyat": 0,
+      "etki": {
+        "carp": {
+          "brk": 0.85
+        }
+      }
+    },
+    {
+      "id": "fren-spor",
+      "kategori": "fren",
+      "seviye": 2,
+      "fiyat": 650,
+      "etki": {
+        "carp": {
+          "brk": 1.12
+        }
+      }
+    },
+    {
+      "id": "fren-yaris",
+      "kategori": "fren",
+      "seviye": 3,
+      "fiyat": 1250,
+      "etki": {
+        "carp": {
+          "brk": 1.25
+        }
+      }
+    },
+    {
+      "id": "agirlik-balast",
+      "kategori": "agirlik",
+      "seviye": 0,
+      "fiyat": 0,
+      "etki": {
+        "carp": {
+          "kg": 1.08
+        }
+      }
+    },
+    {
+      "id": "agirlik-1",
+      "kategori": "agirlik",
+      "seviye": 1,
+      "fiyat": 500,
+      "etki": {
+        "carp": {
+          "kg": 0.95
+        }
+      }
+    },
+    {
+      "id": "agirlik-2",
+      "kategori": "agirlik",
+      "seviye": 2,
+      "fiyat": 1100,
+      "etki": {
+        "carp": {
+          "kg": 0.9
+        }
+      }
+    },
+    {
+      "id": "agirlik-3",
+      "kategori": "agirlik",
+      "seviye": 3,
+      "fiyat": 2150,
+      "etki": {
+        "carp": {
+          "kg": 0.85
+        },
+        "ekle": {
+          "hcg": -0.02
+        }
+      }
+    },
+    {
+      "id": "aero-dusuk",
+      "kategori": "aero",
+      "seviye": 1,
+      "fiyat": 300,
+      "etki": {
+        "carp": {
+          "ae": 0.5,
+          "top": 1.02
+        }
+      }
+    },
+    {
+      "id": "aero-yaris",
+      "kategori": "aero",
+      "seviye": 2,
+      "fiyat": 700,
+      "etki": {
+        "carp": {
+          "ae": 1.4,
+          "top": 0.98
+        }
+      }
+    },
+    {
+      "id": "aero-buyuk",
+      "kategori": "aero",
+      "seviye": 3,
+      "fiyat": 1450,
+      "etki": {
+        "carp": {
+          "ae": 1.9,
+          "top": 0.95
+        }
+      }
+    },
+    {
+      "id": "cekis-arka",
+      "kategori": "cekis",
+      "seviye": 2,
+      "fiyat": 1450,
+      "etki": {
+        "awd": 0
+      }
+    },
+    {
+      "id": "cekis-dort",
+      "kategori": "cekis",
+      "seviye": 2,
+      "fiyat": 1450,
+      "etki": {
+        "awd": 0.45
+      }
+    },
+    {
+      "id": "aci-kiti",
+      "kategori": "direksiyon",
+      "seviye": 2,
+      "fiyat": 650,
+      "etki": {
+        "ayar": {
+          "lock": 0.95
+        },
+        "dmax": 1
+      }
+    },
+    {
+      "id": "koruma",
+      "kategori": "koruma",
+      "seviye": 2,
+      "fiyat": 350,
+      "etki": {
+        "carp": {
+          "kg": 1.025
+        },
+        "ekle": {
+          "lift": 0.02
+        }
+      }
+    }
+  ],
+  "pistler": [
+    {
+      "tur": "gp",
+      "no": 1,
+      "zorluk": 1,
+      "ad": "Yeşil Vadi",
+      "acilma": 1,
+      "hedef": 151,
+      "esik": [133, 119],
+      "ilkUcYildizPara": 700,
+      "tekrarUcYildizPara": 70,
+      "ilkUcYildizXp": 65,
+      "zorlugaGoreXp": 65
+    },
+    {
+      "tur": "gp",
+      "no": 2,
+      "zorluk": 2,
+      "ad": "Kıyı Pisti",
+      "acilma": 2,
+      "hedef": 167,
+      "esik": [137, 128],
+      "ilkUcYildizPara": 1050,
+      "tekrarUcYildizPara": 110,
+      "ilkUcYildizXp": 115,
+      "zorlugaGoreXp": 115
+    },
+    {
+      "tur": "gp",
+      "no": 3,
+      "zorluk": 3,
+      "ad": "Grand Prix",
+      "acilma": 5,
+      "hedef": 164,
+      "esik": [138, 130],
+      "ilkUcYildizPara": 1400,
+      "tekrarUcYildizPara": 140,
+      "ilkUcYildizXp": 165,
+      "zorlugaGoreXp": 165
+    },
+    {
+      "tur": "gp",
+      "no": 4,
+      "zorluk": 4,
+      "ad": "Sisli Orman Pisti",
+      "acilma": 8,
+      "hedef": 165,
+      "esik": [140, 132],
+      "ilkUcYildizPara": 1750,
+      "tekrarUcYildizPara": 180,
+      "ilkUcYildizXp": 215,
+      "zorlugaGoreXp": 215
+    },
+    {
+      "tur": "gp",
+      "no": 5,
+      "zorluk": 5,
+      "ad": "Şehir Pisti",
+      "acilma": 12,
+      "hedef": 148,
+      "esik": [128, 122],
+      "ilkUcYildizPara": 2100,
+      "tekrarUcYildizPara": 210,
+      "ilkUcYildizXp": 265,
+      "zorlugaGoreXp": 265
+    },
+    {
+      "tur": "gp",
+      "no": 6,
+      "zorluk": 6,
+      "ad": "Dağ Pisti",
+      "acilma": 16,
+      "hedef": 199,
+      "esik": [173, 165],
+      "ilkUcYildizPara": 2450,
+      "tekrarUcYildizPara": 250,
+      "ilkUcYildizXp": 315,
+      "zorlugaGoreXp": 315
+    },
+    {
+      "tur": "rx",
+      "no": 1,
+      "zorluk": 1,
+      "ad": "Toz Tepeleri",
+      "acilma": 1,
+      "hedef": 170,
+      "esik": [149, 129],
+      "ilkUcYildizPara": 700,
+      "tekrarUcYildizPara": 70,
+      "ilkUcYildizXp": 65,
+      "zorlugaGoreXp": 65
+    },
+    {
+      "tur": "rx",
+      "no": 2,
+      "zorluk": 2,
+      "ad": "Çamur Vadisi",
+      "acilma": 2,
+      "hedef": 131,
+      "esik": [106, 100],
+      "ilkUcYildizPara": 1050,
+      "tekrarUcYildizPara": 110,
+      "ilkUcYildizXp": 115,
+      "zorlugaGoreXp": 115
+    },
+    {
+      "tur": "rx",
+      "no": 3,
+      "zorluk": 3,
+      "ad": "Taş Ocağı",
+      "acilma": 5,
+      "hedef": 164,
+      "esik": [138, 130],
+      "ilkUcYildizPara": 1400,
+      "tekrarUcYildizPara": 140,
+      "ilkUcYildizXp": 165,
+      "zorlugaGoreXp": 165
+    },
+    {
+      "tur": "rx",
+      "no": 4,
+      "zorluk": 4,
+      "ad": "Orman Kros",
+      "acilma": 8,
+      "hedef": 154,
+      "esik": [132, 124],
+      "ilkUcYildizPara": 1750,
+      "tekrarUcYildizPara": 180,
+      "ilkUcYildizXp": 215,
+      "zorlugaGoreXp": 215
+    },
+    {
+      "tur": "rx",
+      "no": 5,
+      "zorluk": 5,
+      "ad": "Sisli Tepe",
+      "acilma": 12,
+      "hedef": 201,
+      "esik": [173, 165],
+      "ilkUcYildizPara": 2100,
+      "tekrarUcYildizPara": 210,
+      "ilkUcYildizXp": 265,
+      "zorlugaGoreXp": 265
+    },
+    {
+      "tur": "rx",
+      "no": 6,
+      "zorluk": 6,
+      "ad": "Kanyon Kros",
+      "acilma": 16,
+      "hedef": 177,
+      "esik": [154, 147],
+      "ilkUcYildizPara": 2450,
+      "tekrarUcYildizPara": 250,
+      "ilkUcYildizXp": 315,
+      "zorlugaGoreXp": 315
+    },
+    {
+      "tur": "dp",
+      "no": 1,
+      "zorluk": 1,
+      "ad": "Drift Okulu",
+      "acilma": 1,
+      "hedef": 5500,
+      "esik": [9500, 14000],
+      "ilkUcYildizPara": 700,
+      "tekrarUcYildizPara": 70,
+      "ilkUcYildizXp": 65,
+      "zorlugaGoreXp": 65
+    },
+    {
+      "tur": "dp",
+      "no": 2,
+      "zorluk": 2,
+      "ad": "Kıyı Drifti",
+      "acilma": 3,
+      "hedef": 12700,
+      "esik": [31400, 42650],
+      "ilkUcYildizPara": 1050,
+      "tekrarUcYildizPara": 110,
+      "ilkUcYildizXp": 115,
+      "zorlugaGoreXp": 115
+    },
+    {
+      "tur": "dp",
+      "no": 3,
+      "zorluk": 3,
+      "ad": "Drift Parkı",
+      "acilma": 6,
+      "hedef": 15300,
+      "esik": [37650, 50150],
+      "ilkUcYildizPara": 1400,
+      "tekrarUcYildizPara": 140,
+      "ilkUcYildizXp": 165,
+      "zorlugaGoreXp": 165
+    },
+    {
+      "tur": "dp",
+      "no": 4,
+      "zorluk": 4,
+      "ad": "Liman",
+      "acilma": 10,
+      "hedef": 16300,
+      "esik": [41200, 54000],
+      "ilkUcYildizPara": 1750,
+      "tekrarUcYildizPara": 180,
+      "ilkUcYildizXp": 215,
+      "zorlugaGoreXp": 215
+    },
+    {
+      "tur": "dp",
+      "no": 5,
+      "zorluk": 5,
+      "ad": "Şehir Drifti",
+      "acilma": 14,
+      "hedef": 25100,
+      "esik": [63200, 81350],
+      "ilkUcYildizPara": 2100,
+      "tekrarUcYildizPara": 210,
+      "ilkUcYildizXp": 265,
+      "zorlugaGoreXp": 265
+    },
+    {
+      "tur": "dp",
+      "no": 6,
+      "zorluk": 6,
+      "ad": "Dağ Yolu",
+      "acilma": 18,
+      "hedef": 9100,
+      "esik": [22750, 28800],
+      "ilkUcYildizPara": 2450,
+      "tekrarUcYildizPara": 250,
+      "ilkUcYildizXp": 315,
+      "zorlugaGoreXp": 315
+    },
+    {
+      "tur": "rl",
+      "no": 1,
+      "zorluk": 1,
+      "ad": "Kır Etabı",
+      "acilma": 1,
+      "hedef": 68.5,
+      "esik": [59.5, 49],
+      "ilkUcYildizPara": 700,
+      "tekrarUcYildizPara": 70,
+      "ilkUcYildizXp": 65,
+      "zorlugaGoreXp": 65
+    },
+    {
+      "tur": "rl",
+      "no": 2,
+      "zorluk": 2,
+      "ad": "Orman Etabı",
+      "acilma": 3,
+      "hedef": 66.5,
+      "esik": [54.5, 51],
+      "ilkUcYildizPara": 1050,
+      "tekrarUcYildizPara": 110,
+      "ilkUcYildizXp": 115,
+      "zorlugaGoreXp": 115
+    },
+    {
+      "tur": "rl",
+      "no": 3,
+      "zorluk": 3,
+      "ad": "Taşlı Yol",
+      "acilma": 7,
+      "hedef": 61.5,
+      "esik": [52, 48.5],
+      "ilkUcYildizPara": 1400,
+      "tekrarUcYildizPara": 140,
+      "ilkUcYildizXp": 165,
+      "zorlugaGoreXp": 165
+    },
+    {
+      "tur": "rl",
+      "no": 4,
+      "zorluk": 4,
+      "ad": "Sisli Orman",
+      "acilma": 10,
+      "hedef": 68,
+      "esik": [58.5, 54.5],
+      "ilkUcYildizPara": 1750,
+      "tekrarUcYildizPara": 180,
+      "ilkUcYildizXp": 215,
+      "zorlugaGoreXp": 215
+    },
+    {
+      "tur": "rl",
+      "no": 5,
+      "zorluk": 5,
+      "ad": "Kanyon Etabı",
+      "acilma": 14,
+      "hedef": 64.5,
+      "esik": [56, 53.5],
+      "ilkUcYildizPara": 2100,
+      "tekrarUcYildizPara": 210,
+      "ilkUcYildizXp": 265,
+      "zorlugaGoreXp": 265
+    },
+    {
+      "tur": "rl",
+      "no": 6,
+      "zorluk": 6,
+      "ad": "Tepe Etabı",
+      "acilma": 18,
+      "hedef": 104,
+      "esik": [90, 86],
+      "ilkUcYildizPara": 2450,
+      "tekrarUcYildizPara": 250,
+      "ilkUcYildizXp": 315,
+      "zorlugaGoreXp": 315
+    },
+    {
+      "tur": "dg",
+      "no": 1,
+      "zorluk": 1,
+      "ad": "Sekizde Bir Mil",
+      "acilma": 1,
+      "hedef": 11,
+      "esik": [9.3, 8],
+      "ilkUcYildizPara": 700,
+      "tekrarUcYildizPara": 70,
+      "ilkUcYildizXp": 65,
+      "zorlugaGoreXp": 65
+    },
+    {
+      "tur": "dg",
+      "no": 2,
+      "zorluk": 2,
+      "ad": "Bin Fit",
+      "acilma": 4,
+      "hedef": 9.6,
+      "esik": [8.1, 7.7],
+      "ilkUcYildizPara": 1050,
+      "tekrarUcYildizPara": 110,
+      "ilkUcYildizXp": 115,
+      "zorlugaGoreXp": 115
+    },
+    {
+      "tur": "dg",
+      "no": 3,
+      "zorluk": 3,
+      "ad": "Çeyrek Mil",
+      "acilma": 7,
+      "hedef": 11.1,
+      "esik": [9.5, 9.1],
+      "ilkUcYildizPara": 1400,
+      "tekrarUcYildizPara": 140,
+      "ilkUcYildizXp": 165,
+      "zorlugaGoreXp": 165
+    },
+    {
+      "tur": "dg",
+      "no": 4,
+      "zorluk": 4,
+      "ad": "Yarım Kilometre",
+      "acilma": 11,
+      "hedef": 12.6,
+      "esik": [10.8, 10.4],
+      "ilkUcYildizPara": 1750,
+      "tekrarUcYildizPara": 180,
+      "ilkUcYildizXp": 215,
+      "zorlugaGoreXp": 215
+    },
+    {
+      "tur": "dg",
+      "no": 5,
+      "zorluk": 5,
+      "ad": "Yarım Mil",
+      "acilma": 15,
+      "hedef": 16.9,
+      "esik": [14.7, 14.2],
+      "ilkUcYildizPara": 2100,
+      "tekrarUcYildizPara": 210,
+      "ilkUcYildizXp": 265,
+      "zorlugaGoreXp": 265
+    },
+    {
+      "tur": "dg",
+      "no": 6,
+      "zorluk": 6,
+      "ad": "Bir Mil",
+      "acilma": 17,
+      "hedef": 27.2,
+      "esik": [24, 23.3],
+      "ilkUcYildizPara": 2450,
+      "tekrarUcYildizPara": 250,
+      "ilkUcYildizXp": 315,
+      "zorlugaGoreXp": 315
+    },
+    {
+      "tur": "gp",
+      "no": 7,
+      "zorluk": 2,
+      "ad": "Çöl Otoyolu",
+      "acilma": 3,
+      "hedef": 210,
+      "esik": [171, 161],
+      "ilkUcYildizPara": 1050,
+      "tekrarUcYildizPara": 110,
+      "ilkUcYildizXp": 365,
+      "zorlugaGoreXp": 115
+    },
+    {
+      "tur": "gp",
+      "no": 8,
+      "zorluk": 4,
+      "ad": "Kar Dağı Pisti",
+      "acilma": 9,
+      "hedef": 137,
+      "esik": [117, 109],
+      "ilkUcYildizPara": 1750,
+      "tekrarUcYildizPara": 180,
+      "ilkUcYildizXp": 415,
+      "zorlugaGoreXp": 215
+    },
+    {
+      "tur": "rx",
+      "no": 7,
+      "zorluk": 2,
+      "ad": "Plaj Kros",
+      "acilma": 3,
+      "hedef": 189,
+      "esik": [154, 144],
+      "ilkUcYildizPara": 1050,
+      "tekrarUcYildizPara": 110,
+      "ilkUcYildizXp": 365,
+      "zorlugaGoreXp": 115
+    },
+    {
+      "tur": "rx",
+      "no": 8,
+      "zorluk": 4,
+      "ad": "Kar Kros",
+      "acilma": 9,
+      "hedef": 154,
+      "esik": [132, 124],
+      "ilkUcYildizPara": 1750,
+      "tekrarUcYildizPara": 180,
+      "ilkUcYildizXp": 415,
+      "zorlugaGoreXp": 215
+    },
+    {
+      "tur": "dp",
+      "no": 7,
+      "zorluk": 2,
+      "ad": "Çöl Drifti",
+      "acilma": 4,
+      "hedef": 13800,
+      "esik": [34200, 46500],
+      "ilkUcYildizPara": 1050,
+      "tekrarUcYildizPara": 110,
+      "ilkUcYildizXp": 365,
+      "zorlugaGoreXp": 115
+    },
+    {
+      "tur": "dp",
+      "no": 8,
+      "zorluk": 4,
+      "ad": "Taş Ocağı Drifti",
+      "acilma": 11,
+      "hedef": 16250,
+      "esik": [41100, 53800],
+      "ilkUcYildizPara": 1750,
+      "tekrarUcYildizPara": 180,
+      "ilkUcYildizXp": 415,
+      "zorlugaGoreXp": 215
+    },
+    {
+      "tur": "rl",
+      "no": 7,
+      "zorluk": 2,
+      "ad": "Kıyı Etabı",
+      "acilma": 4,
+      "hedef": 42,
+      "esik": [34, 32],
+      "ilkUcYildizPara": 1050,
+      "tekrarUcYildizPara": 110,
+      "ilkUcYildizXp": 365,
+      "zorlugaGoreXp": 115
+    },
+    {
+      "tur": "rl",
+      "no": 8,
+      "zorluk": 4,
+      "ad": "Dağ Etabı",
+      "acilma": 11,
+      "hedef": 58.5,
+      "esik": [49.5, 47],
+      "ilkUcYildizPara": 1750,
+      "tekrarUcYildizPara": 180,
+      "ilkUcYildizXp": 415,
+      "zorlugaGoreXp": 215
+    },
+    {
+      "tur": "dg",
+      "no": 7,
+      "zorluk": 1,
+      "ad": "Çeyrek Kilometre",
+      "acilma": 2,
+      "hedef": 8.7,
+      "esik": [7.3, 6.9],
+      "ilkUcYildizPara": 700,
+      "tekrarUcYildizPara": 70,
+      "ilkUcYildizXp": 365,
+      "zorlugaGoreXp": 65
+    },
+    {
+      "tur": "dg",
+      "no": 8,
+      "zorluk": 5,
+      "ad": "Bir Kilometre",
+      "acilma": 16,
+      "hedef": 19.6,
+      "esik": [17.1, 16.5],
+      "ilkUcYildizPara": 2100,
+      "tekrarUcYildizPara": 210,
+      "ilkUcYildizXp": 415,
+      "zorlugaGoreXp": 265
+    }
+  ],
+  "toplam": {
+    "arac": 15,
+    "parca": 42,
+    "pist": 40,
+    "ilkUcYildizPara": 61250,
+    "ilkUcYildizXp": 9600
+  }
+}

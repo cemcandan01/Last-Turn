@@ -1,4 +1,6 @@
-# Son devir: 0.6.8 canlıda
+# Son devir: kariyer dengesi araştırıldı; canlı 0.6.8, deneme 0.7.1
+
+- Yeni iş: `docs/isler/2026-10-25-denge-modeli.md`, Codex. `docs/DENGE.md` yeni araç/parça/pist/XP/yıldız çalışmalarının tasarım temeli; kök rehbere okuma kuralı eklendi. 15 araç/42 parça/40 pist envanteri `docs/denge/2026-10-25-envanter.json`. Araştırma ve öneri tamam; oyun sayıları değişmedi. XP pist kimliği/zorluk hatası, sınırsız kupa girişi, parça maliyet/etki ve otomatik lastik çelişkisi açık. Süreç birimleri 18/18; sonraki adım ilk D kupasında iki yatırım rotasını ölçmek.
 
 - Codex regresyonu tamamladı. Cem bu sohbette tam regresyon sonrası canlıya çıkışı açıkça yetkilendirdi; aynı onay tekrar istenmedi. Gelecekte konu/deneme gönderimi onaysız, yeni canlı çıkışı kullanıcı onaylıdır.
 - Canlı master 0.6.8: 147ea038eaf81eab10511c222b358402eb60586f. Yayın 40201273989: adres doğrulaması ve canlı duman 10/10 geçti. Gelistirme 0.7.0 aynı oyun koduyla açıldı; regresyon durumu tamamlandi, dondurma kalkar.
