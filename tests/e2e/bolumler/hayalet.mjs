@@ -41,7 +41,7 @@ export default async function ({ p, ok }) {
     LT.sim.S.z = P[1] - T[0] * (E.TR.hw + 10);
     LT.ipucu.ti = k;
     const adim = H.adimIndex;
-    LT.evTick(5.1, { si: 0, v: 0 });
+    LT.evTick(6.1, { si: 0, v: 0 });
     const donus = LT.yerel.kayit.kesik && H.adimIndex === adim;
     localStorage.removeItem("lt_hayalet_" + anahtar);
     for (let n = 0; n < 10; n++) LT.surusAdimi();

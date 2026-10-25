@@ -30,7 +30,7 @@ export default async function ({ p, ok }) {
       LT.evTick(1 / 60, son);
       const ilk = { ...E.pistDisi.ilk };
       koy(E, Math.floor(E.TR.N * 0.6), E.TR.hw + 8);
-      for (let n = 1; n < 300; n++) LT.evTick(1 / 60, son);
+      for (let n = 1; n < 360; n++) LT.evTick(1 / 60, son);
       const erken = E.pistDisi.ilk !== null;
       LT.sim.S.vx = 30;
       LT.sim.S.vz = 20;
@@ -66,28 +66,31 @@ export default async function ({ p, ok }) {
     const kisa = gorunen();
     LT.evTick(1, son);
     LT.hudGuncelle(0);
-    const dort = gorunen();
+    const bes = gorunen();
     const r = gsy.getBoundingClientRect();
     const ortada =
       Math.abs(r.left + r.width / 2 - innerWidth / 2) < 2 &&
       r.top + r.height / 2 > innerHeight / 3 &&
       r.top + r.height / 2 < (innerHeight * 2) / 3;
-    LT.evTick(2.9, son);
+    LT.evTick(4.3, son);
     LT.hudGuncelle(0);
     const bir = gorunen();
     koy(E, k, 0);
     LT.evTick(1 / 60, son);
     LT.hudGuncelle(0);
-    const geriSayim = kisa === "" && dort === "4" && bir === "1" && ortada && gorunen() === "";
+    const geriSayim = kisa === "" && bes === "5" && bir === "1" && ortada && gorunen() === "";
     E.state = "count";
     koy(E, k, E.TR.hw + 8);
     LT.evTick(6, son);
     return { sonuc, erkenDonus, geriSayim, sayim: E.pistDisi.sure === 0 };
   });
   for (const [ty, gecti] of sonuc.sonuc)
-    ok(gecti, ty + ": 5 sn sınırı, ilk çıkış hizası, hız/yön/süre/tur/puan");
+    ok(gecti, ty + ": 1+5 sn sınırı, ilk çıkış hizası, hız/yön/süre/tur/puan");
   ok(sonuc.erkenDonus && sonuc.sayim, "erken dönüş temizler, geri sayımda otomatik dönüş yok");
-  ok(sonuc.geriSayim, "pist dışında ekran ortasında 4…1 geri sayım, kısa taşmada ve dönüşte gizli");
+  ok(
+    sonuc.geriSayim,
+    "pist dışında 1 sn sonra ekran ortasında 5…1 geri sayım, ilk saniyede ve dönüşte gizli",
+  );
   const durmus = await p.evaluate(() => ({ t: LT.yaris.EV.t, sure: LT.yaris.EV.pistDisi.sure }));
   await p.waitForTimeout(150);
   ok(

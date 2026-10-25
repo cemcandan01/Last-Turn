@@ -1,6 +1,6 @@
 // Pist dışı sayacı: yalnız aktif yarışın sabit adımlarında ilerler; zeminin malzemesine bağlı değildir.
 import { cl } from "../cekirdek/matematik";
-import { nearest, type Pist } from "../dunya/pist";
+import { KW, nearest, type Pist } from "../dunya/pist";
 
 export interface DonusNoktasi {
   x: number;
@@ -12,6 +12,13 @@ export interface PistDisiSayaci {
   ilk: DonusNoktasi | null;
 }
 export const bosPistDisi = (): PistDisiSayaci => ({ sure: 0, ilk: null });
+
+/** pist dışında geri sayım başlamadan önce bekleme ve geri sayımın kendisi (sn): dönüş BEKLEME + SAYIM'da */
+export const PIST_DISI_BEKLEME = 1,
+  PIST_DISI_SAYIM = 5;
+
+/** pist sınırı: kerbli pistte (asfalt, drift) kerb de pisttir; zemin de orada asfalttır */
+export const pistKenari = (TR: Pist) => TR.hw + (TR.kb ? KW : 0);
 
 /** Örnek noktalar arasına izdüşüm: pist kenarında örnek aralığı kadar yanlış dışarı algılama olmaz. */
 export function pistKonumu(TR: Pist, x: number, z: number, hint: number) {
@@ -39,13 +46,13 @@ export function pistKonumu(TR: Pist, x: number, z: number, hint: number) {
 /** İlk çıkış konumu kilitlenir; piste dönüş yeni çıkış için sayacı temizler. */
 export function pistDisiAdimi(s: PistDisiSayaci, TR: Pist, x: number, z: number, hint: number, dt: number) {
   const p = pistKonumu(TR, x, z, hint);
-  if (p.uzaklik <= TR.hw) {
+  if (p.uzaklik <= pistKenari(TR)) {
     s.sure = 0;
     s.ilk = null;
     return null;
   }
   s.ilk ??= p.nokta;
   s.sure += dt;
-  // 300 adet 1/60 adımın kayan nokta hatası tam 5 saniyede dönüş yaratmasın.
-  return s.sure > 5 + 1e-9 ? s.ilk : null;
+  // 360 adet 1/60 adımın kayan nokta hatası tam sınırda dönüş yaratmasın.
+  return s.sure > PIST_DISI_BEKLEME + PIST_DISI_SAYIM + 1e-9 ? s.ilk : null;
 }

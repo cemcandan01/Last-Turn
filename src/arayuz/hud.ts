@@ -2,6 +2,7 @@
 // Her gösterge ayrı seçilir (#app[data-hiz|sayac|tus|harita]; düzenleyici hud-duzenleyici.ts); yerleşim
 // stil.css'te. Kurallar: docs/HUD.md.
 // Yazılar yalnız değişince DOM'a metinlır.
+import { PIST_DISI_BEKLEME, PIST_DISI_SAYIM } from "../oyun/piste-donus";
 import { fmt } from "../cekirdek/bicim";
 import { cl } from "../cekirdek/matematik";
 import { $, yazi } from "../cekirdek/dom";
@@ -186,11 +187,12 @@ function driftGostergesi() {
   }
 }
 
-/** pist dışında ekran ortasında piste dönüşe kalan saniye (pist dalı EV.pistDisi; kısa taşmalarda görünmez) */
+/** pist dışında ekran ortasında piste dönüşe kalan saniye (pist dalı EV.pistDisi; ilk saniye görünmez) */
 function pisteDonusSayaci() {
   const EV = yaris.EV as { state?: string; pistDisi?: { sure: number } } | null;
   const sure = EV?.state == "run" ? (EV.pistDisi?.sure ?? 0) : 0;
-  const n = sure > 0.5 ? Math.max(1, Math.ceil(5 - sure)) : 0;
+  // ilk saniye sayım yok (kısa taşma), sonra 5…1
+  const n = sure > PIST_DISI_BEKLEME ? Math.max(1, Math.ceil(PIST_DISI_BEKLEME + PIST_DISI_SAYIM - sure)) : 0;
   if (n == durum.gsy) return;
   durum.gsy = n;
   E.gsy.className = n ? "" : "hidden";

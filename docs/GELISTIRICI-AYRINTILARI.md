@@ -85,6 +85,7 @@ npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 - Oyun yalnız yatay ekranda; dikey düzen için emek harcanmaz.
 - Direksiyon tuşu hassasiyeti varsayılan 0,5 (tüm önayarlarda `sens:.5`).
 - Gerçek marka adı ve logo yok; araçlar gerçek araçlardan esinlenir, kendi adları vardır (Kızıl Ok, Kor RX, Beyaz Kurt, Mavi Yıldız, Gece Mavisi).
+- Pist sınırı (0.7.5, Cem): kerbli pistte (asfalt, drift) kerb pisttir. Drift kombosu yalnız dört teker de çimdeyken yanar. Pist dışında ilk 1 sn sayım yok, sonra ekran ortasında 5…1 geri sayım ve ilk çıkış noktasına dönüş.
 - Drift ile kayma ayrı: küçük kaymalar drift duruşuna geçmez. Drift yarışında ayrı bir drift ayarı yoktur: aracın kendi önayarıyla, otoparktaki driftle aynı çalışır.
 - Gerçekçi seviyede drift zor ama mümkün olmalı. Arcade'de bile denge kurmak gerekir; abartan ya da direksiyonu bırakan spin atar.
 - Kalkış patinajı hızı az düşürür. Tuşla gazda patinaj araca özgü sabit ve düşüktür; analog pedalda gazın ne kadar açıldığına bağlıdır.
