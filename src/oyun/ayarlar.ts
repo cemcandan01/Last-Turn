@@ -49,7 +49,7 @@ export const HUD_PARCALARI = {
     n: "Harita",
     s: { kare: "Kare", yuvarlak: "Yuvarlak", kucuk: "Küçük", kapali: "Kapalı" },
   },
-  debriyaj: { n: "Debriyaj", s: { acik: "Açık", kapali: "Kapalı" } },
+  debriyaj: { n: "El freni", s: { acik: "Açık", kapali: "Kapalı" } },
 } as const;
 export type HudParcasi = keyof typeof HUD_PARCALARI;
 export type HudSecimi = { [K in HudParcasi]: keyof (typeof HUD_PARCALARI)[K]["s"] };

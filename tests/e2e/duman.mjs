@@ -17,7 +17,10 @@ import { TUM_ACIK } from "../yardimci/ilerleme-acik.mjs";
 const BOLUMLER = [
   "acilis",
   "yarislar",
+  "piste-donus",
   "garaj",
+  "garaj-duzen",
+  "ozellik-puanlari",
   "garaj-ses",
   "dokunma",
   "gecis",
@@ -35,6 +38,7 @@ const BOLUMLER = [
   "hud-minimap",
   "kokpit",
   "cok-arac",
+  "hayalet",
   "ilerleme",
   "garaj-kilit",
   "magaza",

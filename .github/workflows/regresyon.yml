@@ -1,0 +1,65 @@
+name: Tam regresyon
+on:
+  push:
+    branches: [regresyon]
+    paths-ignore: ["docs/**", "README.md"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  kritik:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run kontrol
+      - run: npx playwright install chromium
+      - run: npx vite build --logLevel warn
+      - name: Kritik hata tekrarları
+        run: node tests/e2e/duman.mjs --bolum garaj-duzen,hayalet,yarislar,hud-minimap,garaj,surus
+      - name: iPhone 15 Pro Max menü
+        if: always()
+        run: node tests/cihaz.mjs --cihaz iphone-15-pro-max --ekran menu-ana
+      - name: Kritik kanıt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kritik-kanit
+          path: tests/cikti/
+  regresyon:
+    needs: kritik
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Tarayıcı
+        run: npx playwright install chromium
+      - name: Tam regresyon (bütün alanlar)
+        run: |
+          set +e
+          node tests/kosucu.mjs regresyon --sure 55
+          sonuc=$?
+          mkdir -p tests/cikti/regresyon
+          cp tests/cikti/rapor.* tests/cikti/regresyon/ 2>/dev/null || true
+          exit "$sonuc"
+      - name: Duman
+        run: node tests/kosucu.mjs duman --derlemeden
+      - name: Rapor ve kanıt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regresyon-kanit
+          path: tests/cikti/
+      - name: Özet
+        if: always()
+        run: cat tests/cikti/regresyon/rapor.md tests/cikti/rapor.md >> "$GITHUB_STEP_SUMMARY" || true

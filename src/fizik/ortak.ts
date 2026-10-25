@@ -50,7 +50,7 @@ export function driftPenceresi(
       DR.hold = full && v > 11 ? DR.hold + dt : 0;
       const dth = DRIFT_ONAYARLARI.includes(K.pk) ? 0.35 : 0.55;
       DR.nc = ab > dth && gi.g > 0.5 && v > 11 ? (DR.nc || 0) + dt : 0;
-      if (as.dft > 0 && DR.nc > 0.25) {
+      if ((gi.dbr && full && ab > 0.2 && v > 8) || (as.dft > 0 && DR.nc > 0.25)) {
         DR.on = 1;
         DR.dir = -Math.sign(be);
         DR.bt = Math.min(ab, bmax);

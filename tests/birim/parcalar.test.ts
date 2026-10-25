@@ -104,10 +104,10 @@ describe("parçalar", () => {
   it("parça etkileri araç değerlerine işler, stok araç değişmez", () => {
     const hp0 = CARS[0].hp,
       P = aracKur(0, ["motor-yaris", "agirlik-2", "turbo-buyuk"]);
-    expect(P.car.hp).toBeCloseTo(hp0 * 1.27 * 1.3, 6);
+    expect(P.car.hp).toBeCloseTo(hp0 * 1.75 * 1.7, 6);
     expect(P.car.kg).toBeCloseTo(CARS[0].kg * 0.9, 6);
     // turbosuz araca turbo: basınçsız güç stokla aynı
-    expect(P.car.hp * (1 - P.car.tb!)).toBeCloseTo(hp0 * 1.27, 6);
+    expect(P.car.hp * (1 - P.car.tb!)).toBeCloseTo(hp0 * 1.75, 6);
     expect(CARS[0].hp).toBe(hp0);
     expect(CARS[0].tb).toBeUndefined();
     // dört çekere geçiş ağırlık ekler, zaten dört çekerde eklemez
@@ -115,7 +115,7 @@ describe("parçalar", () => {
     expect(aracKur(1, ["cekis-dort"]).car.kg).toBe(CARS[1].kg);
   });
 
-  it("paketler: kurulum, önayar ailesi ve tür uyumu", () => {
+  it("paketler: kurulum ve önayar ailesi; pist türüne göre tutuş/güç çarpanı yok", () => {
     const d = aracKur(0, paketTak([], "drift")),
       K = parcaliKurulum(0, paketTak([], "drift"), "norm");
     expect(d.pk).toBe("dr");
@@ -127,13 +127,12 @@ describe("parçalar", () => {
     const r = aracKur(0, paketTak([], "ralli"));
     expect(r.pk).toBe("rl");
     expect(r.tire).toBe(1);
-    expect(r.car.uzT!.rl).toEqual([1.15, 1.4]);
     expect(r.uyum.rl).toBe(1);
-    // asfalt aracının kendi uzmanlığı korunur
-    expect(r.car.uzT!.gp).toEqual([CARS[0].uz, 1]);
-    // yarım paket: uyumun üçte ikisi, önayar ailesi değişir; üçte biri değişmez
+    // araç verisinde türe özel çarpan alanı kalmadı
+    for (const c of [r.car, ...CARS])
+      for (const k of ["uz", "uzg", "uzT"]) expect(k in c, c.n + " " + k).toBe(false);
+    // yarım paket: üçte ikisi önayar ailesini değiştirir; üçte biri değiştirmez
     const y = aracKur(2, ["lastik-yaris", "suspansiyon-yaris"]);
-    expect(y.car.uzT!.gp![0]).toBeCloseTo(1 + 0.12 * (2 / 3), 6);
     expect(y.pk).toBe("ar");
     expect(aracKur(2, ["lastik-yaris"]).pk).toBe("dr");
   });
@@ -161,9 +160,13 @@ describe("performans puanı", () => {
       expect(parcaPuanFarki(a, [], "motor-yaris"), CARS[a].n).toBeGreaterThan(0);
       expect(parcaPuanFarki(a, [], "agirlik-3"), CARS[a].n).toBeGreaterThan(0);
       // zayıf parça puanı düşürür (asfalt puanında; genel puan toprakta çekiş sınırlıyken ±1 oynayabilir)
-      expect(parcaPuanFarki(a, [], "motor-kisitli", "gp"), CARS[a].n).toBeLessThan(0);
+      const asfalt = performansPuani(a, [], "gp"),
+        kisitli = performansPuani(a, ["motor-kisitli"], "gp");
+      // Puan tabanı 100: daha yavaş araç orada aynı puanda kalabilir; fizik etkisi yine ölçülür.
+      expect(kisitli.puan, CARS[a].n).toBeLessThanOrEqual(asfalt.puan);
+      expect(kisitli.tur, CARS[a].n).toBeGreaterThan(asfalt.tur);
       expect(parcaPuanFarki(a, [], "motor-kisitli"), CARS[a].n).toBeLessThanOrEqual(1);
-      expect(parcaPuanFarki(a, [], "agirlik-balast", "gp"), CARS[a].n).toBeLessThan(0);
+      expect(performansPuani(a, ["agirlik-balast"], "gp").tur, CARS[a].n).toBeGreaterThan(asfalt.tur);
       // daha güçlü motor daha çok puan
       expect(performansPuani(a, ["motor-yaris"]).puan).toBeGreaterThan(
         performansPuani(a, ["motor-spor"]).puan,

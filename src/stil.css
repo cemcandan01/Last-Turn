@@ -1848,7 +1848,7 @@ details[open] > summary::after {
   width: 120px;
   height: 100px;
 }
-/* debriyaj: frenin (analogda pedalın) üstünde, kısa ve dar; gazdaki başparmak kayarak ulaşır.
+/* el freni: frenin (analogda pedalın) üstünde, kısa ve dar; gazdaki başparmak kayarak ulaşır.
    Hız göstergesi sağ tuş grubunun yüksekliğine göre yükselir (--cR). Telefonu çevirmede frenin solunda */
 .tsut {
   display: flex;
@@ -2054,7 +2054,7 @@ details[open] > summary::after {
     font-size: 13px;
   }
 }
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .mcards {
     gap: 14px;
     padding: 0 6px;
@@ -3250,12 +3250,28 @@ details[open] > summary::after {
   color: #cfd6e4;
 }
 .gk u {
-  display: block;
-  height: calc(4px * var(--gs, 1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: max(12px, calc(12px * var(--gs, 1)));
+  text-align: center;
+  text-decoration: none;
   background: #ffffff26;
   overflow: hidden;
 }
+.gk u em {
+  display: block;
+  position: relative;
+  font-style: normal;
+  font-size: max(9px, calc(9px * var(--gs, 1)));
+  line-height: 1;
+  color: white;
+  text-shadow: 0 1px 2px #000;
+}
 .gk s {
+  position: absolute;
+  inset: 0;
   display: block;
   height: 100%;
   background: linear-gradient(90deg, var(--gt, #ffb21a), #fff0c4);
@@ -3559,7 +3575,8 @@ details[open] > summary::after {
   stroke-width: 2;
   vertical-align: -0.05em;
 }
-/* motor dinle: bilgi kutusunun hemen üstünde, diğer düğmeler gibi kesik köşeli */
+/* Motor dinle solda sınıfın altında; modifiye sağda aynı düğme görünümünü korur. */
+#gar .gdinle .gses,
 #gar .galt .gses {
   height: 40px;
   padding: 0 calc(18px * var(--gs, 1));
@@ -3574,6 +3591,7 @@ details[open] > summary::after {
   clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
   pointer-events: auto;
 }
+#gar .gdinle .gses.on,
 #gar .galt .gses.on {
   color: var(--gt, #ffb21a);
 }
@@ -3630,8 +3648,6 @@ details[open] > summary::after {
   color: var(--c);
 }
 #gar .bdg.gsnf .ik,
-#gar .gmr .ik,
-#gar .gmb .ik,
 .gsr .ik {
   width: 1.1em;
   height: 1.1em;
@@ -3642,10 +3658,6 @@ details[open] > summary::after {
   stroke-linejoin: round;
   vertical-align: -0.15em;
 }
-#gar .bdg.gmbas {
-  border-left-color: #8d96a8;
-  color: #cfd6e4;
-}
 .gsr {
   display: flex;
   gap: calc(6px * var(--gs, 1));
@@ -3653,51 +3665,343 @@ details[open] > summary::after {
 .gsr .gmod {
   border-left-color: var(--gt, #ffb21a);
 }
-/* modifiye: kategoriler */
-.gmk {
-  position: absolute;
-  left: max(16px, var(--sal, 0px));
-  bottom: calc(10px + var(--sab, 0px));
-  display: grid;
-  /* sütun en uzun ada göre genişler (yazı tipi cihazdan cihaza değişir, ad kesilmesin) */
-  grid-template-columns: repeat(2, minmax(calc(84px * var(--gs, 1)), max-content));
-  gap: calc(4px * var(--gs, 1));
+/* ===== modifiye (NFS Carbon özelleştirme düzeni) =====
+   Üst solda yol başlığı ("MODİFİYE › MOTOR") ve araç adı, üst sağda bakiye, sağda sınıf/puan + performans çubukları,
+   sol altta seçili kategori/parça kartı, altta yatay şerit (kategori ikonları ya da parça kartları) ve eylem düğmeleri.
+   Paneller eğik köşeli (clip-path); araç ortada serbest, kamera seçili parçaya yaklaşır. */
+#gar.modifiye {
+  background:
+    radial-gradient(ellipse at 50% 45%, #0000 45%, #05070bd9 100%),
+    linear-gradient(#05070bb3, #0000 26%, #0000 62%, #05070bee);
 }
-#gar .gmk button {
+#gar.modifiye .gust {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: max(34px, calc(34px * var(--gs, 1)));
-  margin: 0;
-  padding: 0 calc(8px * var(--gs, 1));
-  border: 0;
-  border-left: 2px solid #ffffff33;
-  border-radius: 0;
-  background: #05070bb8;
-  color: #fff;
-  font-family: inherit;
-  text-align: left;
+  gap: calc(2px * var(--gs, 1));
 }
-#gar .gmk button b {
-  font-size: max(9px, calc(11px * var(--gs, 1)));
-  font-weight: 700;
+.gmyol {
+  display: flex;
+  align-items: center;
+  gap: calc(6px * var(--gs, 1));
+  padding: calc(3px * var(--gs, 1)) calc(16px * var(--gs, 1)) calc(3px * var(--gs, 1))
+    calc(10px * var(--gs, 1));
+  background: linear-gradient(90deg, #05070be6, #05070b80 75%, #0000);
+  border-left: 3px solid var(--gt, #ffb21a);
+  font-style: italic;
+  font-weight: 900;
+  font-size: max(15px, calc(20px * var(--gs, 1)));
   letter-spacing: 0.04em;
+  text-transform: uppercase;
   white-space: nowrap;
 }
-#gar .gmk button small {
-  font-size: max(8px, calc(9px * var(--gs, 1)));
-  color: #8d96a8;
+.gmyol span {
+  color: #aab3c4;
+  font-size: 0.7em;
+  letter-spacing: 0.12em;
 }
-#gar .gmk button.takili {
-  border-left-color: var(--gt, #ffb21a);
+.gmyol b {
+  color: var(--gt, #ffb21a);
+  text-shadow: 0 0 14px color-mix(in srgb, var(--gt, #ffb21a) 55%, #0000);
 }
-#gar .gmk button.on {
-  background: var(--gt, #ffb21a);
+#gar .gmyol .ik,
+#gar .gmarac .ik,
+#gar .gmay .ik,
+#gar .gmsag .ik,
+#gar .gml .ik,
+#gar .gmb .ik,
+#gar .gmp .btn .ik {
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+.gmarac {
+  display: flex;
+  align-items: center;
+  gap: calc(6px * var(--gs, 1));
+  padding-left: calc(13px * var(--gs, 1));
+}
+.gmarac h1 {
+  margin: 0;
+  font-size: max(11px, calc(13px * var(--gs, 1)));
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #e7ebf3;
+}
+.gmarac .gtur {
+  display: inline-flex;
+  color: var(--c);
+  font-size: max(12px, calc(14px * var(--gs, 1)));
+}
+/* üst sağ: bakiye (ve yarış öncesi garajda puanın türü) */
+.gmb {
+  position: absolute;
+  top: calc(10px * var(--gs, 1) + var(--sat, 0px));
+  right: max(16px, var(--sar, 0px));
+  display: flex;
+  align-items: center;
+  gap: calc(8px * var(--gs, 1));
+  padding: calc(5px * var(--gs, 1)) calc(12px * var(--gs, 1)) calc(5px * var(--gs, 1))
+    calc(18px * var(--gs, 1));
+  background: #05070bd0;
+  clip-path: polygon(calc(10px * var(--gs, 1)) 0, 100% 0, 100% 100%, 0 100%);
+  font-size: max(12px, calc(14px * var(--gs, 1)));
+  white-space: nowrap;
+}
+.gmpara b {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #ffd45e;
+  font-variant-numeric: tabular-nums;
+}
+.gmtur {
+  color: #aab3c4;
+  font-size: 0.75em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+/* sağ: sınıf/puan ve performans çubukları */
+.gmsag {
+  position: absolute;
+  top: calc(50px * var(--gs, 1) + var(--sat, 0px));
+  right: max(16px, var(--sar, 0px));
+  width: calc(196px * var(--gs, 1));
+  display: flex;
+  flex-direction: column;
+  gap: calc(5px * var(--gs, 1));
+  padding: calc(8px * var(--gs, 1)) calc(10px * var(--gs, 1));
+  background: linear-gradient(270deg, #05070bd9, #05070b99);
+  border-right: 3px solid var(--gt, #ffb21a);
+  clip-path: polygon(calc(12px * var(--gs, 1)) 0, 100% 0, 100% 100%, 0 100%);
+}
+.gmpuan {
+  display: flex;
+  align-items: center;
+  gap: calc(5px * var(--gs, 1));
+  color: #aab3c4;
+  margin-bottom: calc(2px * var(--gs, 1));
+}
+.gmc {
+  display: grid;
+  grid-template-columns: calc(46px * var(--gs, 1)) 1fr auto;
+  align-items: center;
+  column-gap: calc(6px * var(--gs, 1));
+  font-size: max(9px, calc(10px * var(--gs, 1)));
+  letter-spacing: 0.08em;
+  color: #aab3c4;
+}
+.gmc u {
+  position: relative;
+  height: calc(6px * var(--gs, 1));
+  background: #ffffff1c;
+  transform: skewX(-20deg);
+}
+.gmc s,
+.gmc i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background: #e7ebf3;
+  transition: width 0.35s ease;
+}
+.gmc.art i {
+  background: #5ee07a;
+  box-shadow: 0 0 8px #5ee07a99;
+}
+.gmc.eks i {
+  background: #ff5a4a;
+  box-shadow: 0 0 8px #ff5a4a99;
+}
+.gmc b {
+  min-width: calc(58px * var(--gs, 1));
+  text-align: right;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+.gmc.art b {
+  color: #7be08a;
+}
+.gmc.eks b {
+  color: #ff7a6a;
+}
+.gmo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(2px * var(--gs, 1)) calc(10px * var(--gs, 1));
+  margin-top: calc(3px * var(--gs, 1));
+  padding-top: calc(5px * var(--gs, 1));
+  border-top: 1px solid #ffffff1f;
+  color: #aab3c4;
+  font-size: max(9px, calc(10px * var(--gs, 1)));
+  letter-spacing: 0.06em;
+}
+.gmo span {
+  white-space: nowrap;
+}
+.gmo b {
+  color: #fff;
+}
+.gmo b.art {
+  color: #7be08a;
+}
+.gmo b.eks {
+  color: #ff7a6a;
+}
+/* sol alt: seçili kategori ya da parça kartı */
+.gmay {
+  position: absolute;
+  left: max(16px, var(--sal, 0px));
+  /* şeridin üstünde: kart yüksekliği (en az 66 px) + şerit payı */
+  bottom: calc(max(66px, 70px * var(--gs, 1)) + 34px + var(--sab, 0px));
+  width: calc(230px * var(--gs, 1));
+  padding: calc(6px * var(--gs, 1)) calc(12px * var(--gs, 1));
+  background: linear-gradient(90deg, #05070be0, #05070b99);
+  border-left: 3px solid var(--gt, #ffb21a);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 12px * var(--gs, 1)) 100%, 0 100%);
+  animation: gmay 0.25s ease-out;
+}
+.gmay b {
+  display: flex;
+  align-items: center;
+  gap: calc(6px * var(--gs, 1));
+  font-size: max(11px, calc(13px * var(--gs, 1)));
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.gmay b .ik {
+  color: var(--gt, #ffb21a);
+}
+.gmay p {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  margin: calc(3px * var(--gs, 1)) 0 0;
+  color: #cfd6e4;
+  font-size: max(9px, calc(11px * var(--gs, 1)));
+  line-height: 1.3;
+}
+.gmay p .ik {
+  margin-top: 0.15em;
+  color: var(--gt, #ffb21a);
+}
+@keyframes gmay {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+}
+/* alt: şerit + düğmeler */
+.gmp {
+  position: absolute;
+  left: max(16px, var(--sal, 0px));
+  right: max(16px, var(--sar, 0px));
+  bottom: calc(8px + var(--sab, 0px));
+  display: flex;
+  align-items: flex-end;
+  gap: calc(10px * var(--gs, 1));
+}
+.gmsr {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 2px solid #ffffff22;
+}
+.gmsr::after {
+  /* şeridin alt çizgisi: ortası türün renginde parlar */
+  content: "";
+  position: absolute;
+  left: 20%;
+  right: 20%;
+  bottom: -2px;
+  height: 2px;
+  background: linear-gradient(90deg, #0000, var(--gt, #ffb21a), #0000);
+}
+.gmad {
+  align-self: center;
+  margin-bottom: calc(2px * var(--gs, 1));
+  font-style: italic;
+  font-weight: 900;
+  font-size: max(11px, calc(13px * var(--gs, 1)));
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gt, #ffb21a);
+}
+.gmk,
+.gml {
+  display: flex;
+  align-items: flex-end;
+  gap: calc(5px * var(--gs, 1));
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: calc(4px * var(--gs, 1)) calc(6px * var(--gs, 1)) calc(6px * var(--gs, 1));
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+  pointer-events: auto;
+}
+.gmk::-webkit-scrollbar,
+.gml::-webkit-scrollbar {
+  display: none;
+}
+.gmk {
+  justify-content: safe center;
+}
+#gar .gmt {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: max(40px, calc(44px * var(--gs, 1)));
+  height: max(40px, calc(44px * var(--gs, 1)));
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #05070bc0;
+  color: #cfd6e4;
+  clip-path: polygon(calc(7px * var(--gs, 1)) 0, 100% 0, calc(100% - 7px * var(--gs, 1)) 100%, 0 100%);
+  transition:
+    width 0.18s,
+    height 0.18s,
+    background 0.18s;
+}
+#gar .gmt .ik {
+  width: 52%;
+  height: 52%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+#gar .gmt.takili {
+  color: #fff;
+  box-shadow: inset 0 -2px 0 var(--gt, #ffb21a);
+}
+#gar .gmt.on {
+  width: max(50px, calc(56px * var(--gs, 1)));
+  height: max(50px, calc(56px * var(--gs, 1)));
+  background: linear-gradient(160deg, color-mix(in srgb, var(--gt, #ffb21a) 80%, #fff), var(--gt, #ffb21a));
   color: #1b1000;
 }
-#gar .gmk button.on small {
-  color: #1b1000aa;
+#gar .gmt .gpip {
+  position: absolute;
+  bottom: calc(4px * var(--gs, 1));
+  margin: 0;
+}
+#gar .gmt .gpip u {
+  width: calc(6px * var(--gs, 1));
+  height: 2px;
 }
 /* seviye çizgileri: 0 zayıf (boş), 1 sokak, 2 spor, 3 yarış */
 .gpip {
@@ -3716,93 +4020,67 @@ details[open] > summary::after {
 .gpip[data-sv="3"] u {
   background: var(--gt, #ffb21a);
 }
-#gar .gmk button.on .gpip u {
+#gar .gmt.on .gpip u {
   background: #1b100040;
 }
-#gar .gmk button.on .gpip[data-sv="1"] u:nth-child(-n + 1),
-#gar .gmk button.on .gpip[data-sv="2"] u:nth-child(-n + 2),
-#gar .gmk button.on .gpip[data-sv="3"] u {
+#gar .gmt.on .gpip[data-sv="1"] u:nth-child(-n + 1),
+#gar .gmt.on .gpip[data-sv="2"] u:nth-child(-n + 2),
+#gar .gmt.on .gpip[data-sv="3"] u {
   background: #1b1000;
 }
-/* modifiye: parçalar (sağ sütun) */
-.gmp {
-  position: absolute;
-  top: calc(10px * var(--gs, 1) + var(--sat, 0px));
-  right: max(16px, var(--sar, 0px));
-  bottom: calc(10px + var(--sab, 0px));
-  width: calc(256px * var(--gs, 1));
-  display: flex;
-  flex-direction: column;
-  gap: calc(5px * var(--gs, 1));
-  pointer-events: auto;
-}
-.gmb {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: calc(4px * var(--gs, 1)) calc(10px * var(--gs, 1));
-  background: linear-gradient(270deg, #05070bd0, #05070b70);
-  font-size: calc(13px * var(--gs, 1));
-  letter-spacing: 0.06em;
-}
-.gmb {
-  gap: calc(10px * var(--gs, 1));
-}
-.gmb > b {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-transform: uppercase;
-  color: var(--gt, #ffb21a);
-}
-.gmb > span {
-  flex: none;
-}
-.gmb span b {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.gml {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: calc(3px * var(--gs, 1));
-  overscroll-behavior: contain;
-}
+/* parça kartları */
 #gar .gmr {
   flex: none;
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  align-items: center;
-  column-gap: calc(8px * var(--gs, 1));
-  min-height: max(32px, calc(32px * var(--gs, 1)));
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: calc(3px * var(--gs, 1));
+  width: calc(118px * var(--gs, 1));
+  height: max(66px, calc(70px * var(--gs, 1)));
   margin: 0;
-  padding: calc(3px * var(--gs, 1)) calc(10px * var(--gs, 1));
+  padding: calc(6px * var(--gs, 1)) calc(12px * var(--gs, 1)) calc(6px * var(--gs, 1))
+    calc(14px * var(--gs, 1));
   border: 0;
-  border-left: 2px solid #ffffff22;
   border-radius: 0;
-  background: #05070bb8;
+  background: #05070bc8;
   color: #fff;
   font-family: inherit;
-  font-size: max(9px, calc(12px * var(--gs, 1)));
   text-align: left;
+  clip-path: polygon(calc(9px * var(--gs, 1)) 0, 100% 0, calc(100% - 9px * var(--gs, 1)) 100%, 0 100%);
+  transition:
+    transform 0.18s,
+    background 0.18s;
 }
 #gar .gmr.takili {
-  border-left-color: var(--gt, #ffb21a);
+  box-shadow: inset 0 -2px 0 var(--gt, #ffb21a);
 }
 #gar .gmr.on {
-  background: #1d2230e8;
-  box-shadow: inset 0 0 0 1px var(--gt, #ffb21a);
+  transform: translateY(calc(-4px * var(--gs, 1)));
+  background: linear-gradient(160deg, #262c3cf0, #121620f0);
+  box-shadow:
+    inset 0 0 0 1px var(--gt, #ffb21a),
+    inset 0 -3px 0 var(--gt, #ffb21a);
 }
 .gmn {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  font-weight: 700;
+  font-weight: 800;
+  font-size: max(10px, calc(11px * var(--gs, 1)));
+  line-height: 1.15;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.gms2 {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: max(10px, calc(11px * var(--gs, 1)));
+}
+.gpk {
+  display: inline-flex;
+  color: var(--gt, #ffb21a);
 }
 .gmd {
   font-weight: 800;
@@ -3822,43 +4100,31 @@ details[open] > summary::after {
   color: #ffd45e;
   font-weight: 700;
   font-size: max(9px, calc(11px * var(--gs, 1)));
+  white-space: nowrap;
 }
 .gmr.takili .gmfy {
   color: var(--gt, #ffb21a);
 }
-#gar .gmr small {
-  grid-column: 1 / -1;
-  margin-top: 2px;
-  color: #cfd6e4;
-  font-size: max(9px, calc(11px * var(--gs, 1)));
-  line-height: 1.3;
-  white-space: normal;
-}
-.gmo {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 10px;
-  padding: calc(3px * var(--gs, 1)) calc(10px * var(--gs, 1));
-  background: #05070bb8;
-  color: #aab3c4;
-  font-size: max(9px, calc(10px * var(--gs, 1)));
-  letter-spacing: 0.06em;
-}
-.gmo span:only-child {
-  grid-column: 1 / -1;
-}
-.gmo span {
-  white-space: nowrap;
-}
-.gmo b {
-  color: #fff;
-}
-.gmo b.art {
-  color: #7be08a;
-}
-.gmo b.eks {
-  color: #ff7a6a;
-}
 .gmp .gbt {
-  justify-content: flex-end;
+  flex: none;
+  flex-direction: column;
+  align-items: stretch;
+  gap: calc(4px * var(--gs, 1));
+  min-width: calc(130px * var(--gs, 1));
+}
+.gmp .gbt .btn {
+  margin: 0;
+  white-space: nowrap;
+  font-size: max(12px, calc(14px * var(--gs, 1)));
+}
+
+/* Sınıf harfi ve toplam puan, araç seçerken ilk bakışta okunur. */
+#gar .grozet .gsnf {
+  height: max(42px, calc(42px * var(--gs, 1)));
+  font-size: max(17px, calc(20px * var(--gs, 1)));
+  padding: 0 calc(10px * var(--gs, 1));
+}
+#gar .gdinle {
+  margin-top: calc(8px * var(--gs, 1));
+  width: max-content;
 }

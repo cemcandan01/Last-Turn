@@ -117,7 +117,7 @@ describe("kilit tablosu", () => {
       const b = acik.filter((i) => CARS[i].ty == t);
       expect(b.length, t).toBe(1);
       expect(sinifHarfi(performansPuani(b[0], []).puan), CARS[b[0]].n).toBe("D");
-      expect(performansPuani(b[0], [], t).puan, CARS[b[0]].n).toBeLessThanOrEqual(400);
+      expect(performansPuani(b[0], [], t).puan, CARS[b[0]].n).toBeLessThanOrEqual(200);
     }
     // her pist her seviyede açılır, seviyeler pistte artan; her türün ilk satın alınan aracı o türün 4. pistinden önce
     for (const t of TURLER) {

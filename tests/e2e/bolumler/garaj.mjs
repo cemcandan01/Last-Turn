@@ -104,7 +104,8 @@ export default async function ({ p, ok }) {
     gp > 0.15 && gp < Math.PI / 2,
     "garajda aşağı sürükleme kamerayı yükseltir, 90° olmaz (" + gp.toFixed(2) + ")",
   );
-  await p.mouse.move(120, 200);
+  // Bilgi açıklaması ve motor düğmesinden uzak, vitrinin boş merkezinde yakınlaştır.
+  await p.mouse.move(420, 230);
   await p.mouse.wheel(0, -300);
   await p.waitForTimeout(100);
   ok((await p.evaluate(() => LT.kamera.gz)) < 1, "garajda tekerlekle yakınlaşılır");
@@ -213,8 +214,8 @@ export default async function ({ p, ok }) {
   );
   await p.evaluate(() => LT.closeGarage());
   // tam ekran vitrin düzeni: ad bloğu, sağ üst çubuklar ve alt eylemler her araçta ekran içinde, birbirine binmez,
-  // aracın durduğu orta bölge açık kalır; çubuklar HIZ/İVME/TUTUŞ/FREN/ARAZİ
-  const pn = await p.evaluate(() => {
+  // aracın durduğu orta bölge açık kalır; altı çubukta fiziksel değer ve özellik puanı
+  const pn = await p.evaluate(async () => {
     const r = [];
     const kes = (a, b) => !(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top);
     for (let i = 0; i < LT.CARS.length; i++) {
@@ -223,6 +224,7 @@ export default async function ({ p, ok }) {
       // açıklama "i" düğmesiyle açılır (açık kalır); açıkken de çakışma sınanır
       const bil = document.querySelector("#gbil");
       if (bil && !bil.classList.contains("on")) bil.click();
+      await new Promise((r) => requestAnimationFrame(r));
       const R = (q) => document.querySelector(q).getBoundingClientRect(),
         ust = R("#gar .gust"),
         bar = R("#gar .gbar"),
@@ -274,7 +276,7 @@ export default async function ({ p, ok }) {
   ok(
     pn.every(
       (x) =>
-        x.cubuk == 5 && x.navSolAlt && x.aciklamaSolUst && x.icerde && !x.bina && /^\d+\/\d+$/.test(x.say),
+        x.cubuk == 6 && x.navSolAlt && x.aciklamaSolUst && x.icerde && !x.bina && /^\d+\/\d+$/.test(x.say),
     ),
     "vitrin düzeni: çubuklar var, öğeler ekran içinde, birbirine ve araca binmiyor " + JSON.stringify(pn[0]),
   );

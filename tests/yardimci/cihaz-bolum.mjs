@@ -43,7 +43,7 @@ export async function cihazBolumu(dal, { p, ok }) {
   const hatali = benim.filter((h) => h.hatalar.length);
   const satirlar = hataSatirlari(benim);
   ok(
-    !satirlar.length,
+    benim.length > 0 && !satirlar.length,
     `${dal}: ${cihazlar.length} cihaz × ${new Set(benim.map((h) => h.ekran)).size} ekran (${benim.length} hücre, ${hatali.length} hatalı, toplam ${Math.round(sure)} sn)`,
   );
   for (const s of satirlar.slice(0, SATIR_SINIRI)) ok(false, s.replace(/\s+/g, " "));

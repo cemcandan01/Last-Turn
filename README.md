@@ -5,12 +5,17 @@ iPhone için 3D sürüş ve yarış oyunu. Ana ekrana kurulan bir uygulama (PWA)
 ## İçerik
 
 - **Açık dünya** (serbest sürüş): *Çorak Topraklar* (oval, uzun düz yol, zıplama rampası, tırmanış yolu) ve *Boş Otopark* (AVM önünde geniş açık otopark, asfalt testleri için).
-- **40 pist**, 5 yarış türü (Asfalt, Rallycross, Ralli, Drift, Drag) × 8 pist; her pistin zorluk seviyesi ve üç yıldızlık hedefi var, drift pistlerinde hedef puan. Türe uygun araç kendi yarışında daha başarılıdır, ama her araç her yarışı bitirebilir.
+- **40 pist**, 5 yarış türü (Asfalt, Rallycross, Ralli, Drift, Drag) × 8 pist; her pistin zorluk seviyesi ve üç yıldızlık hedefi var, drift pistlerinde hedef puan. Her araç her yarış türüne girebilir; pist türüne göre gizli araç güç/tutuş çarpanı uygulanmaz.
 - **Garaj**: araçları ışıklı vitrinde incele (sürükleyerek döndür, iki parmakla yakınlaştır, tam ekranda ◀ ▶ ile araç değiştir), azami hız, hızlanma, güç, yol tutuşu, arazi, fren ve çeviklik değerlerini karşılaştır, **Motoru dinle** ile motor sesini duy. Her yarıştan önce araç seçilir.
 - **15 araç**, her yarış türünde D sınıfı bir başlangıç aracı (yeni oyuncu bunlarla başlar) ve sınıflar (performans puanı); ilk beşi her yarış türü için bir tane: *Kızıl Ok* (ortadan motorlu pist arabası), *Kor RX* (dört çeker rallikros), *Beyaz Kurt* (geniş gövdeli drift arabası), *Mavi Yıldız* (dört çeker ralli sedanı), *Gece Mavisi* (kompresörlü drag arabası). Yarışa varsayılan olarak türüne uygun araçla girilir. Yeni beş araç: *Gri Atmaca*, *Kum Fırtınası*, *Sarı Arı*, *Panda*, *Turuncu Ejder* (turbolu motorlarda turbo gecikmesi).
 - **İlerleme**: yarışlar XP ve para verir; seviye atladıkça pistler ve araçlar açılır, araçlar garajda parayla satın alınır. Sahip olunmayan araçlar **Mağaza**'da, sahip olunanlar Garaj'da. Pist kartında en iyi yıldız, yarış sonunda XP, para ve yıldızlar.
 - **Modifiye**: garajda motor, aktarma, süspansiyon gibi parçalar ve hazır paketler satın alınır, takılı parçalar sürüşü değiştirir ve hesaba kaydedilir.
-- **Debriyaj vuruşu**: DEBRİYAJ tuşuyla drifte giriş.
+- **El freni**: arka tekerleri frenleyerek direksiyonla drifte giriş; basılıyken otomatik vites sabit kalır.
+- **Ortak sınıf puanı**: altı görünür özellik puanının toplamı sınıfı belirler; D tavanı 400, stok D araçlar en fazla 200 puanla modifiye payı bırakır.
+- **Yarışta yeniden başlatma ve piste dönüş**: duraklatma menüsünden aynı yarışı yeniden başlat; pist dışında kesintisiz 5 saniyeyi aşınca ilk çıkış hizasındaki pist merkezine dön (süre devam eder).
+- **Otomatik yarış lastiği**: asfalt Yarış, rallikros Karışık, ralli Toprak, drift Drift, drag Drag. Elle lastik değişimi yalnız serbest sürüşte; yarıştan çıkınca önceki ayar geri gelir.
+- **Rekor hayaleti**: en iyi yarış ve serbest tur kaydı saydam araçla tekrar oynatılır; kayıtlı araç, parçalar, lastik, yardım ve hava kullanılır. Piste dönüşle kesilmiş kayıt tam rekor diye saklanmaz.
+- **Garaj düzeni**: büyük sınıf/puan göstergesi, altında Motoru dinle; sade sağ panel ve parçaya yaklaşan kamera ile modifiye ekranı.
 - **Drift puanı**: açı × hız; uzun drift, direksiyonsuz ve tek yön bonusları; drift yarışında 1. turun %90'ı driftle geçilirse 2. turda x6 çarpan.
 - **Hesap ve bulut kaydı**: ilerleme buluta kaydedilir, hesaplar arasında hızlıca geçilir; Google ya da e-posta ile bağlanıp başka cihazda sürdürülebilir. Profil'de "Yeni oyuncu olarak başla".
 - **Ana menü**: ekranın altında soldan sağa ikonlu eğik paneller (Yarış, Serbest sürüş, Garaj, Mağaza, Profil, Ayarlar); arkada oyunun kendi sahnelerinden hafif görseller yavaş kayarak akar. Yarış türü seçimi parmağı izleyen kapak akışı, her türün kendi rengi ve ikonu → pist listesi → günün saati ve hava → araç seçimi.
@@ -51,7 +56,7 @@ Oyun tamamlandığında aynı kod Capacitor ile native iOS uygulamasına sarıla
 
 - Kod `src/` altında katmanlara ayrılmış TypeScript modülleri: `fizik` (saf, test edilebilir), `dunya`, `cizim` (three.js), `arayuz` (DOM), `oyun` (akış). Ayrıntı: `docs/MIMARI.md`, kurallar ve dosya haritası: `CLAUDE.md`.
 - Bilgisayarda: `npm ci`, `npm run dev` (anında yenilenen geliştirme sunucusu), `npm run kontrol` (tüm denetimler).
-- Testler: `npm test` (fizik, ~2 sn), `npm run test:e2e` (başsız tarayıcı), `npm run test:goruntu` (ekran görüntüleri).
+- Testler: `npm test` (bütün birim testleri; kapsamına göre birkaç dakika), `npm run test:e2e` (başsız tarayıcı), `npm run test:goruntu` (ekran görüntüleri).
 - Her geliştirme alanı için yeni sohbete yapıştırılacak istemler: `docs/GELISTIRME.md`.
 
 ## Claude ve Codex ile devam

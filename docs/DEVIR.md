@@ -1,10 +1,8 @@
-# Claude + Codex devir
+# Son devir: 0.6.8 regresyonu
 
-- Cem kotası bitince diğer araca geçer. İkimiz de `CLAUDE.md` ve aynı görev kartıyla devam ederiz; sohbet belleği aktarılmış sayılmaz.
-- Son geliştirme işi: `docs/isler/2026-10-25-hayalet-arac.md`; uygulayıcı Jules/Claude. En İyi Tur Hayalet Aracı (Ghost Car) özelliği eklendi. Depodaki rekor tur girdileri yüklenip yarış başında saydam hayalet araç olarak çiziliyor ve birebir oynatılıyor.
-- Yerel testler: 17/17 test dosyasında 266/266 birim ve fizik testi, `tsc` ve ESLint temiz geçti.
-- Son oyun düzeltmesi: 0.5.27, [PR #8](https://github.com/cemcandan01/Last-Turn/pull/8); kaynak `8caed4cfd4399baf2152712a65bf010327d4da9a`. Canlı kaynak `master`; güncel numara her devirde Git'ten doğrulanır.
-- Codex: PWA önbelleği/giriş yardımcısı ve PR test alanı eşlemesini düzeltti. Altyapı 18/18 senaryo; [CI 40131460601](https://github.com/cemcandan01/Last-Turn/actions/runs/40131460601). Yerelde 42/42 ilgili birim testi.
-- Yerel Chromium indirme adresi ZIP yerine 195 bayt “Site Unavailable” HTML döndürüyor; bu ortamda tekrar indirme. GitHub Actions'ta Chromium ve beş ilgili tarayıcı senaryosu geçti.
-- Devirde ilk adım: `git fetch origin`, ilgili dalı güncelle, `node scripts/calisma.mjs baglam <alan>` ve görev kartını oku. Kullanıcıya geçmişi tekrar anlattırma.
-- Context7 bu ChatGPT hesabında bağlı; Three.js r186 belge sorgusu doğrulandı. Claude tarafına da kurulduğu Cem tarafından bildirildi.
+- Sahip Codex; dal regresyon. Cem bu sohbette tam regresyon ardından canlıya çıkışı açıkça istedi; yeniden aynı push onayı sorulmaz. İleride konu/deneme gönderimi onaysız, canlı çıkışı kullanıcı onaylıdır.
+- Canlıdaki hayalet PR #14 (master 5073499) güncel denemeyle birleştirildi. Son kaynak 126f03d1e80f96e6c1b4415e7210f7d8a189411d; CI 40198483398: tam regresyon 104/104 ve ardından duman 10/10 geçti. Kritik tekrarlar ve 12 sanal cihaz/62 ekran temiz.
+- Hayalet kayıtlı araç/parça/lastik/yardım/havayla oynar; başka araç seçimi kaydı bozmaz, oyuncunun pist ipucunu etkilemez. Yarım/bozuk kayıt oynatılmaz; serbest tur başlangıcı doğru indeksle yüklenir.
+- Eski modifiye/gövde kayma testleri güncel kullanıcı kararlarıyla doğrulandı. Garaj testinin ilerleme sızıntısı yalıtıldı, iPhone 15 Pro Max menüsü düzeldi. Garaj senkron tıklaması 4× CPU'da 6 ms.
+- 0.6.8 denemede, Yayın 40198851372 başarılı. Bu kaynak canlıya aktarılıyor; sonraki adım canlı Yayın/adres/duman kanıtı, sonra gelistirme 0.7.0 ve regresyon tamamlandi kaydı.
+- Görev ve ham raporlar: docs/isler/2026-10-25-canli-esitleme-regresyon.md; docs/regresyon/ilk-rapor.json, son-rapor.json, duman-rapor.json. Yerel Chromium yok; kanıt GitHub Actions'ta. Gemini/Jules'un başka bekleyen dalı bu sürüme eklenmedi.

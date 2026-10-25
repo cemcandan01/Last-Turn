@@ -41,13 +41,13 @@ export default [
   },
   {
     id: "debriyaj",
-    ad: "Debriyaj vuruşu: Kızıl Ok gerçekçide drift pistinde debriyajla drifte girer, basılıyken tork yok",
+    ad: "El freni: kısa darbeyle drift girişi, arka kilit ve bırakınca hızlanma",
     p: 2,
-    birim: { dosya: F, grup: "debriyaj vuruşu: başlangıç aracıyla drift pistinde drifte giriş" },
+    birim: { dosya: F, grup: "el freni: arka kilit ve kontrollü drift girişi" },
   },
   {
     id: "debriyaj-tus",
-    ad: "Debriyaj tuşu her kontrol türünde, basılıyken devir yükselir",
+    ad: "El freni tuşu, görünürlük ve Space/C girişi",
     p: 2,
     tarayici: "debriyaj",
   },
@@ -65,7 +65,7 @@ export default [
   },
   {
     id: "uyum",
-    ad: "Türe uygun araç kendi yarışında avantajlı: pistte yol tutuşu (asfalt, rallikros, ralli) ve drag süresi",
+    ad: "Pist türüne göre araç optimizasyonu yok: aynı araç aynı zeminde yarış/drift/drag pistinde, rallikros/ralli toprağında aynı tutuşu alır; zemin sürtünmesi sabit",
     p: 2,
     birim: { dosya: "tests/birim/uyum.test.ts", grup: "araç ve yarış türü uyumu" },
   },

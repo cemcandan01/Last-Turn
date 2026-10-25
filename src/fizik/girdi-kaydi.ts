@@ -1,4 +1,4 @@
-// Girdi kaydı: her fizik adımının girdisi (direksiyon, gaz, fren, analog ve debriyaj bayrakları) sıkıştırılmış olarak tutulur.
+// Girdi kaydı: her fizik adımının girdisi (direksiyon, gaz, fren, analog ve el freni bayrakları) sıkıştırılmış olarak tutulur.
 // Başlangıç durumu ve tohumla birlikte kayıt yeniden oynatılınca aynı sonucu verir (fizik belirlenimci): hayalet
 // araç ve süre doğrulaması için. Adım başına 8 bayt (60 Hz'de dakikada ~29 KB). Saf kod.
 //

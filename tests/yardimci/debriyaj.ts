@@ -1,6 +1,6 @@
 // Drifte giriş denemesi (test için): otoparkın açık alanında ya da drift pistinin başlangıç düzlüğünde düz
-// hızlan, sonra tam direksiyon + tam gazla 1 sn tutunarak dön; ardından gaz ve direksiyon basılıyken debriyaja
-// 0,3 sn basılıp bırakılır (debriyaj vuruşu). Karşılaştırma: aynısı debriyajsız.
+// hızlan, sonra tam direksiyon + tam gazla 1 sn tutunarak dön; ardından gaz ve direksiyon basılıyken el frenine
+// 0,3 sn basılıp bırakılır (el freni). Karşılaştırma: aynısı el frensiz.
 import type { FizikGirdisi } from "../../src/fizik/tipler";
 import type { SeviyeAnahtari } from "../../src/fizik/veriler";
 import { PARK } from "../../src/dunya/bolgeler";
@@ -24,7 +24,7 @@ export function driftGirisi(
   arac: number,
   lk: SeviyeAnahtari,
   hiz: number,
-  debriyaj: boolean,
+  elFreni: boolean,
   yaris?: number,
 ): DriftGirisi {
   const s = yaris == null ? surucuKur({ dunya: 1, arac, lk }) : surucuKur({ yaris, arac, lk });
@@ -51,9 +51,9 @@ export function driftGirisi(
     patinaj = 0,
     drift = false,
     driftSure = 0;
-  // ölçüm: gaz ve direksiyon basılı kalır; debriyajlı denemede ilk 0,3 sn debriyaj basılı
-  for (let t = 0; t < 2; t += DT) {
-    s.adim(gi(1, 1, debriyaj && t < 0.3));
+  // ölçüm: gaz ve direksiyon basılı kalır; el frenli denemede ilk 0,3 sn elFreni basılı
+  for (let t = 0; t < 0.7; t += DT) {
+    s.adim(gi(1, 1, elFreni && t < 0.3));
     const S = s.sim.S,
       Y = s.sim.yeni!,
       v = Math.hypot(S.vx, S.vz);

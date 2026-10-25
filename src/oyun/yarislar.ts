@@ -15,13 +15,13 @@ import { carIndex, oyun, setCar } from "./durum";
 import { girdiSifirla } from "./girdi";
 import { aracAcikMi, pistAcikMi, yarisBitti } from "./ilerleme";
 import { modifiyeUygula } from "./modifiye";
-import { kurulumKaydet, kurulumYukle, type KurulumKaydi } from "./kurulum";
+import { kurulumKaydet, kurulumYukle, yarisLastigiTak, type KurulumKaydi } from "./kurulum";
 import { hayaletKaydet } from "./hayalet-kayit";
 import { PROF, saveProf } from "./profil";
-import { dunya } from "../dunya/dunya";
-import { dunyaSorgusuYap, reset, sim, yerel } from "./surus";
+import { dunyaSorgusuYap, kayitKurulumu, kayitHavasi, reset, sim, yerel } from "./surus";
 import { rekorHayaletiBaslat, rekorHayaletiDurdur } from "./uzak";
 import { X6_CARPAN, X6_ORAN, driftAdimi, driftBankala, tersAdimi, type DriftOlay } from "./yaris-kurallari";
+import { bosPistDisi, pistDisiAdimi, type DonusNoktasi, type PistDisiSayaci } from "./piste-donus";
 import { DRIFT_TUR, TUR_ANAHTARI, yildizEsikleri, yildizSay } from "./yildiz";
 
 /** yarış türleri: hedef süre, pist uzunluğundan ve ilk pistlerin ayarlı hızından (v, m/s) hesaplanır */
@@ -93,6 +93,7 @@ export interface YarisTanimi {
 
 export interface Yaris extends YarisTanimi {
   i: number;
+  pistDisi: PistDisiSayaci;
   sv: KurulumKaydi & { car: number };
   TR: Pist;
   state: "count" | "run" | "done";
@@ -174,12 +175,14 @@ export function startEvent(i: number, ci?: number) {
   if (ci != null && CARS[ci] !== oyun.CAR) setCar(ci);
   // takılı parçalarıyla (paket ağır basıyorsa o türün önayarı)
   modifiyeUygula(carIndex());
+  yarisLastigiTak(e.ty);
   {
     const u = carIndex();
     PROF.use[u] = (PROF.use[u] || 0) + 1;
   }
-  gizle("#res", "#set", "#menu");
+  gizle("#res", "#set", "#menu", "#ts");
   setActive(REG[e.reg]);
+  girdiSifirla();
   reset(e.g[1], e.g[2], e.g[3]);
   oyun.mode = "drive";
   kontrolleriKur();
@@ -187,6 +190,7 @@ export function startEvent(i: number, ci?: number) {
   yaris.EV = {
     ...e,
     i,
+    pistDisi: bosPistDisi(),
     sv,
     TR: REG[e.reg].TR!,
     state: "count",
@@ -220,8 +224,29 @@ export function startEvent(i: number, ci?: number) {
     para: 0,
     limit: e.limit || 0,
   };
-  rekorHayaletiBaslat(e.k, dunyaSorgusuYap(dunya));
+  rekorHayaletiBaslat(e.k, dunyaSorgusuYap({ cur: null }));
   return true;
+}
+
+/** Aynı yarış, seçili araç ve takılı parçalarla sıfırdan geri sayım. */
+export function yarisiYenidenBaslat() {
+  if (!yaris.EV || (oyun.mode != "drive" && oyun.mode != "pause")) return false;
+  return startEvent(yaris.EV.i, carIndex());
+}
+
+/** Yarış süresi/turlar/puan korunur; taşınan konum bir tur veya bitiş sayılmaz. */
+export function yaristaPisteDon(p: DonusNoktasi) {
+  const EV = yaris.EV;
+  if (!EV) return;
+  reset(p.x, p.z, p.h, false);
+  // Yarışın yalnız son parçası rekor hayaleti diye kaydedilemez.
+  yerel.kayit.kesik = true;
+  EV.prev = ipucu.ti;
+  EV.pistDisi = bosPistDisi();
+  EV.ters = false;
+  EV.tersT = 0;
+  driftAdimi(EV, false, 0, true, 0, false, 0);
+  EV.driftCarpan = 1;
 }
 
 /** yarıştan çık: önceki araç ve kurulum geri gelir */
@@ -233,6 +258,7 @@ export function leaveEvent() {
   kurulumYukle(sv);
   rekorHayaletiDurdur();
   yaris.EV = null;
+  goster("#ts");
   $("#ev").textContent = "";
 }
 
@@ -250,6 +276,18 @@ export function evTick(dt: number, o: AdimSonucu, tg = 0.5) {
     D = sim.d.D,
     ti = ipucu.ti;
   EV.t += dt;
+  const donus = pistDisiAdimi(EV.pistDisi, EV.TR, S.x, S.z, ti, dt);
+  if (donus) {
+    yaristaPisteDon(donus);
+    note("PİSTE DÖNDÜN", 30);
+    return;
+  }
+  if (EV.pistDisi.ilk) {
+    // Pist dışında ilerleyerek tur/bitiş ya da drift puanı kazanılmaz.
+    driftAdimi(EV, false, 0, true, 0, false, dt);
+    EV.driftCarpan = 1;
+    return;
+  }
   const T = EV.TR.T[ti],
     geri = tersAdimi(EV, S.vx, S.vz, T[0], T[1], dt);
   if (EV.ty == "dp") {
@@ -305,7 +343,7 @@ export function endEvent() {
   PROF.races++;
   const sureSkor = EV.ty == "dp" ? EV.score : EV.t;
   EV.yildiz = yildizSay(EV.ty, sureSkor, EV.ys);
-  hayaletKaydet(EV.k, carIndex(), sureSkor, yerel.kayit, EV.ty == "dp");
+  hayaletKaydet(EV.k, carIndex(), sureSkor, yerel.kayit, EV.ty == "dp", kayitKurulumu, 0, kayitHavasi);
   rekorHayaletiDurdur();
   const odul = yarisBitti(EV.ty, EV.lv, EV.yildiz);
   EV.xp = odul.xp;

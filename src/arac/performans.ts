@@ -1,20 +1,16 @@
-// Performans puanı (100-999) ve sınıflar. Puan aracın (parçalarıyla birlikte) fizik değerlerinden belirlenimci ve
-// hızlı (~2 ms) hesaplanır: nokta kütle modeliyle referans pistte bir tur sürülür, süre puana çevrilir. Model fizikle
-// aynı değerleri kullanır (aracFizigi: güç eğrisi, vitesler, turbo, sürükleme ve bastırma, fren; lastik ve zemin
-// tutuşu). Türe göre dört puan: asfalt (yarış pisti, drift), rallikros, ralli, drag (400 m); yarışın sınıf sınırı
-// kendi türünün puanıyla denetlenir. Genel puan (garaj) asfalt, rallikros ve rallinin büyüğü. Tür uyumu (uzmanlık)
-// puana girmez: türe uygun aracın kendi yarışındaki avantajı odur (toprak puanında herkes türün tam paket uyumuyla
-// ölçülür: o yarışta rakipler de onu taşır). Puan "Dengeli" yardım seviyesinde ölçülür.
-// Kalibrasyon: npm run olcum -- kalibre (model ↔ pilot, puan ↔ tur süresi), sınıf içi uyum: npm run olcum -- sinif.
+// Sınıf = altı görünür özellik puanının toplamı. Ortak ölçek ozellikler.ts'te; modifiyeler
+// gerçek motor, kütle, lastik/fren ve aktarma oranlarıyla bu özellikleri değiştirir.
+// Tur modeli yalnız performans/denge tanısı içindir; sınıfı pist veya pilot süresi belirlemez.
+import { ozellikPuani } from "./ozellikler";
 import { sm } from "../cekirdek/matematik";
 import { mkTrack } from "../dunya/pist";
 import { cizPist } from "../dunya/pist-ciz";
 import type { SurusKurulumu } from "../fizik/tipler";
-import type { YarisTuru } from "./araclar";
+import { CARS, type YarisTuru } from "./araclar";
 import { TIRES, YERCEKIMI } from "../fizik/veriler";
 import { aracFizigi, RHO, torkEgrisi, VITESLER } from "../fizik/yeni/arac-fizigi";
 import { GEVSEK_ARKA, GEVSEK_TUTUS, TUTUS } from "../fizik/yeni/model";
-import { parcaBul, parcaliKurulum, parcalariDuzenle, TUR_UYUMU } from "./parcalar";
+import { parcaBul, parcaliKurulum, parcalariDuzenle } from "./parcalar";
 
 export type SinifHarfi = "D" | "C" | "B" | "A" | "S" | "X";
 
@@ -35,7 +31,7 @@ export const sinifHarfi = (puan: number): SinifHarfi =>
  * kalibrasyon (zemine göre): nokta kütlenin yanal tutuş payı ve tutuş üssü (süreye etkisi doğrusal değil), fren ve
  * çekiş payı, güç verimi; otomatik pilotun turlarına uydurulur (sapma: asfalt ~%3, rallikros ~%2,5, ralli ~%6;
  * ralli etabında pilot zıplama ve tümseklerde oynak).
- * Puan = PUAN_ORTA + PUAN_OLCEK × ln(orta / süre): 100 puan ≈ sürede %6,9
+ * Bu katsayılar yalnız tur tanısında kullanılır; sınıf puanına girmez.
  */
 export const KALIBRE = {
   asfalt: { yanal: 0.7, us: 0.6, fren: 1, cekis: 0.85, guc: 0.85 },
@@ -43,8 +39,6 @@ export const KALIBRE = {
   ralli: { yanal: 0.7, us: 0.3, fren: 1, cekis: 0.4, guc: 0.7 },
 };
 export type KalibreAnahtari = keyof typeof KALIBRE;
-const PUAN_ORTA = 500,
-  PUAN_OLCEK = 1500;
 
 /** referans pist parçaları: [uzunluk (m), yarıçap (m, 0 düz)] */
 type Parcalar = [number, number][];
@@ -119,8 +113,6 @@ interface Bolum {
 }
 
 interface ReferansPist {
-  /** türün tam paket uyumu [tutuş, güç]: o türün yarışında herkes taşır (toprakta büyük; asfaltta ve dragda yok) */
-  uz: [number, number];
   /** pist bölümleri: süre toplanır (kapalıda uçan tur, açıkta duran kalkış) */
   bolum: Bolum[];
   zemin: 0 | 1;
@@ -129,13 +121,8 @@ interface ReferansPist {
   orta: number;
 }
 
-function referans(
-  bolum: Bolum[],
-  kal: KalibreAnahtari,
-  orta: number,
-  uz: [number, number] = [1, 1],
-): ReferansPist {
-  return { uz, bolum, zemin: kal == "asfalt" ? 1 : 0, kal, orta };
+function referans(bolum: Bolum[], kal: KalibreAnahtari, orta: number): ReferansPist {
+  return { bolum, zemin: kal == "asfalt" ? 1 : 0, kal, orta };
 }
 
 /** parçalardan bölüm (2 m adım) */
@@ -161,13 +148,11 @@ const referanslar = (): Record<PuanTuru, ReferansPist> =>
       RALLIKROS_TARIF.map((t) => tarifEgriligi(t, true)),
       "rallikros",
       116.98,
-      TUR_UYUMU.rx,
     ),
     ralli: referans(
       RALLI_TARIF.map((t) => tarifEgriligi(t, false)),
       "ralli",
       167.95,
-      TUR_UYUMU.rl,
     ),
     drag: referans([parcaBolumu([[400, 0]], false)], "asfalt", 8.932),
   });
@@ -176,14 +161,18 @@ export interface PerformansDegerleri {
   /** puan (100-999) ve sınıf */
   puan: number;
   sinif: SinifHarfi;
+  /** Toplamı tam olarak puan alanına eşit olan özellik puanları. */
+  ozellikler: { ad: string; puan: number }[];
   /** azami hız (km/sa), 0-100 (sn), yanal tutuş (m/s², 25 m/s'de, en iyi zeminde), 100-0 (m) */
   hiz: number;
   ivme: number;
   tutus: number;
   fren: number;
+  /** ortak kuru toprak referansı, yanal ivme (m/s²) */
+  arazi: number;
   /** referans tur süresi (sn) */
   tur: number;
-  /** puanın türü (genel puanda aracın en iyi zemini) */
+  /** tur tanısının zemini; sınıfı etkilemez */
   zemin: PuanTuru;
 }
 
@@ -210,7 +199,7 @@ interface NoktaKutle {
   tbs: number;
 }
 
-function noktaKutle(K: SurusKurulumu, kal: KalibreAnahtari, uz: [number, number] = [1, 1]): NoktaKutle {
+function noktaKutle(K: SurusKurulumu, kal: KalibreAnahtari, kalibrasyon = true): NoktaKutle {
   const c = K.car,
     tu = K.tu,
     as = K.as,
@@ -219,12 +208,12 @@ function noktaKutle(K: SurusKurulumu, kal: KalibreAnahtari, uz: [number, number]
     g = YERCEKIMI,
     m = F.m,
     ff = c.ff ?? 0.55,
-    ortak = (1 + 0.25 * as.grip) * TUTUS * uz[0],
+    ortak = (1 + 0.25 * as.grip) * TUTUS,
     zemin = kal == "asfalt" ? 1 : 0,
     gevsek = zemin == 0,
     pb = gevsek ? 0.35 : 0.15,
     zt = gevsek ? (26 / 30) * GEVSEK_TUTUS : 1,
-    KL = KALIBRE[kal],
+    KL = kalibrasyon ? KALIBRE[kal] : { ...KALIBRE[kal], guc: 1, cekis: 1 },
     // tutuş üssünün dayanağı: zeminin tipik tutuşu
     mu0 = gevsek ? 0.85 : 1.3,
     lg = T.lg ? T.lg[zemin] : 1,
@@ -251,11 +240,11 @@ function noktaKutle(K: SurusKurulumu, kal: KalibreAnahtari, uz: [number, number]
     for (const o of VITESLER) {
       const oran = o * F.son,
         u = ((v / rArka) * oran) / wMax;
-      if (u > 1) continue;
+      if (u > (kalibrasyon ? 1 : 1.02)) continue;
       const uE = Math.max(u, F.kalkis / F.devirMax),
         turbo = tb ? 1 - tb * (1 - Math.min(basinc, sm(tbu - 0.2, tbu, uE))) : 1,
         Fx = (F.tork * torkEgrisi(uE) * turbo * oran * F.verim) / rArka;
-      en = Math.max(en, (KL.guc * uz[1] * Fx) / m);
+      en = Math.max(en, (KL.guc * Fx) / m);
     }
     return en;
   };
@@ -338,8 +327,6 @@ function noktaTuru(
 
 const referansTur = (N: NoktaKutle, R: ReferansPist) =>
   R.bolum.reduce((t, b) => t + noktaTuru(N, b.k, b.dx, b.kapali, !b.kapali), 0);
-const puanOf = (t: number, R: ReferansPist) =>
-  Math.round(Math.min(999, Math.max(100, PUAN_ORTA + PUAN_OLCEK * Math.log(R.orta / t))));
 
 /** kalibrasyon için: kurulumun verilen pistte nokta kütle tur süresi (kal: zemin ve katsayılar; ayakta kalkış) */
 export function noktaKutleTuru(
@@ -380,30 +367,67 @@ function duzCizgi(N: NoktaKutle) {
 }
 
 /** sürüş kurulumunun performans değerleri (Dengeli yardım seviyesinde kurulmuş olmalı) */
+/**
+ * puanın ölçüldüğü sabit lastik. Sınıf/puan aracın kendi özelliğidir: takılı lastikten ve pist türünden bağımsız.
+ * Stok aracın değerleri sabittir (kendi stok kurulumuyla ölçülmüş); parçalar bu değeri sabit lastikle ölçülen oranla
+ * değiştirir, bu yüzden lastik parçası puanı değiştirmez.
+ */
+export const PUAN_LASTIGI = TIRES.findIndex((t) => t.n == "Karışık");
+
+/** yanal tutuş ve arazi göstergesi (bastırma payıyla) */
+const yanal = (n: NoktaKutle, pay: number) => n.ayHam * (1 + (n.cl * pay) / n.g);
+
+/** stok aracın sabit değerleri (kendi stok kurulumuyla) ve sabit lastikle oran tabanı; araç başına bir kez */
+const STOK_DEGER = new Map<
+  string,
+  { d0: ReturnType<typeof duzCizgi>; tutus0: number; arazi0: number; tutus: number; arazi: number }
+>();
+function stokDegeri(stok: (typeof CARS)[number]) {
+  let v = STOK_DEGER.get(stok.k);
+  if (!v) {
+    const kendi = parcaliKurulum(CARS.indexOf(stok), [], "norm"),
+      K0 = { ...kendi, tire: PUAN_LASTIGI };
+    v = {
+      d0: duzCizgi(noktaKutle(K0, "asfalt", false)),
+      tutus0: yanal(noktaKutle(K0, "asfalt"), 625),
+      arazi0: yanal(noktaKutle(K0, "ralli"), 400),
+      tutus: yanal(noktaKutle(kendi, "asfalt"), 625),
+      arazi: yanal(noktaKutle(kendi, "ralli"), 400),
+    };
+    STOK_DEGER.set(stok.k, v);
+  }
+  return v;
+}
+
 export function kurulumPerformansi(K: SurusKurulumu, tur?: PuanTuru): PerformansDegerleri {
-  const hesap = (pt: PuanTuru) => {
-    const R = referanslar()[pt],
-      N = noktaKutle(K, R.kal, R.uz),
-      t = referansTur(N, R);
-    return { pt, t, N, puan: puanOf(t, R) };
-  };
-  // genel puan: asfalt, rallikros ve rallinin büyüğü (aracın en iyi zemini)
-  let r = hesap(tur ?? "asfalt");
-  if (!tur)
-    for (const pt of ["rallikros", "ralli"] as const) {
-      const t = hesap(pt);
-      if (t.puan > r.puan) r = t;
-    }
-  const d = duzCizgi(noktaKutle(K, "asfalt"));
+  // tur süresi takılı lastikle (parçanın sürüşe etkisi); puan ve görünen değerler sabit lastikle ölçülen orandan
+  const R = referanslar()[tur ?? "asfalt"],
+    turSuresi = referansTur(noktaKutle(K, R.kal), R),
+    P: SurusKurulumu = { ...K, tire: PUAN_LASTIGI },
+    d = duzCizgi(noktaKutle(P, "asfalt", false));
+  // Stok referansları gerçek 4 teker modelinden ölçülür. Parçalar aynı hızlı modelin stok oranıyla taşınır;
+  // ekranda her seçimde binlerce fizik adımı çalıştırılmaz. Sınıf toplamı ortak özellik ölçeğinden gelir.
+  const stok = CARS.find((c) => c.k == K.car.k) ?? K.car,
+    S0 = stokDegeri(stok),
+    d0 = S0.d0,
+    hiz = ((stok.vmax ?? d0.vmax * 3.6) * d.vmax) / d0.vmax,
+    ivme = (stok.a100 * d.t100) / d0.t100,
+    tutus = (S0.tutus * yanal(noktaKutle(P, "asfalt"), 625)) / S0.tutus0,
+    arazi = (S0.arazi * yanal(noktaKutle(P, "ralli"), 400)) / S0.arazi0,
+    fren = (stok.b100 * d.b100) / d0.b100,
+    ozellikler = ozellikPuani({ gucAgirlik: K.car.hp / K.car.kg, ivme, hiz, tutus, fren, arazi }),
+    puan = ozellikler.reduce((a, b) => a + b.puan, 0);
   return {
-    puan: r.puan,
-    sinif: sinifHarfi(r.puan),
-    hiz: d.vmax * 3.6,
-    ivme: d.t100,
-    tutus: r.N.ayHam * (1 + (r.N.cl * 625) / r.N.g),
-    fren: d.b100,
-    tur: r.t,
-    zemin: r.pt,
+    puan,
+    sinif: sinifHarfi(puan),
+    ozellikler,
+    hiz,
+    ivme,
+    tutus,
+    arazi,
+    fren,
+    tur: turSuresi,
+    zemin: tur ?? "asfalt",
   };
 }
 
@@ -425,7 +449,7 @@ export function parcaPuanFarki(aracNo: number, takili: readonly string[], parcaI
 
 /** puan ayarında denenen performans parçaları (kategori başına; "" stok) */
 const AYAR_SECENEKLERI: string[][] = [
-  ["", "motor-kisitli", "motor-sokak", "motor-spor", "motor-yaris"],
+  ["", "motor-kisitli", "motor-sokak", "motor-spor", "motor-yaris", "motor-degisim"],
   ["", "turbo-kucuk", "kompresor", "turbo-buyuk"],
   ["", "agirlik-balast", "agirlik-1", "agirlik-2", "agirlik-3"],
   ["", "fren-sokak", "fren-spor", "fren-yaris"],

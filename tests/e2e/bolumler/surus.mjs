@@ -3,6 +3,10 @@
 export default async function ({ p, ok }) {
   const sr = await p.evaluate(async () => {
     LT.startWorld(1);
+    // Giriş/cihaz testlerinin bıraktığı araçtan bağımsız, ölçülü test aracı.
+    LT.setCar(0);
+    LT.modifiyeUygula(0);
+    LT.reset();
     const S = LT.sim.S,
       x0 = S.x,
       z0 = S.z,

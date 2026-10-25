@@ -1,8 +1,46 @@
 /*! Menü ikonları. Harita, araba, mağaza, kask, dişli, dağ, dönüş, start ışıkları, Google, zarf, kilit, para, yıldız, ok, ses, ızgara, anahtar (tool) ve onay (check): Tabler Icons 3.49 (https://tabler.io/icons), MIT Lisansı,
- * Telif (c) 2020-2026 Paweł Kuna. Lisans metni: public/lisanslar.txt. Yarış bayrağı ve pist oyunun kendi çizimi. */
+ * Telif (c) 2020-2026 Paweł Kuna. Lisans metni: public/lisanslar.txt. Yarış bayrağı ve pist oyunun kendi çizimi.
+ * Modifiye kategorileri: paket (package), ağırlık (weight), direksiyon (steering-wheel), koruma (shield) Tabler; motor, turbo,
+ * şanzıman, lastik, süspansiyon, diferansiyel, fren, aero ve çekiş oyunun kendi çizimi (aynı stil). */
 // Çizgi ikonlar (24×24, stroke=currentColor); yalnız <path> içerikleri, çerçeve ikon() ile eklenir.
 
 const IKON = {
+  /** tabler: package (modifiye paketleri) */
+  paket:
+    '<path d="M12 3l8 4.5v9l-8 4.5l-8 -4.5v-9l8 -4.5"/><path d="M12 12l8 -4.5"/><path d="M12 12v9"/><path d="M12 12l-8 -4.5"/><path d="M16 5.25l-8 4.5"/>',
+  /** motor bloğu (oyunun çizimi) */
+  motor:
+    '<path d="M4 10h2l2 -2h5l2 3h2v-2h3v8h-3v-2h-2l-2 3h-5l-2 -2h-2z"/><path d="M10 5h4"/><path d="M12 5v3"/><path d="M2 11v4"/>',
+  /** turbo çarkı (oyunun çizimi) */
+  turbo:
+    '<path d="M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0"/><path d="M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M12 10c0 -3 2 -5 5 -5"/><path d="M14 12c3 0 5 2 5 5"/><path d="M12 14c0 3 -2 5 -5 5"/><path d="M10 12c-3 0 -5 -2 -5 -5"/>',
+  /** H vites düzeni (oyunun çizimi) */
+  sanziman:
+    '<path d="M5 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M12 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M19 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M5 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M12 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M5 8v8"/><path d="M12 8v8"/><path d="M19 8v4h-14"/>',
+  /** lastik ve jant (oyunun çizimi) */
+  lastik:
+    '<path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M12 3v2"/><path d="M12 19v2"/><path d="M3 12h2"/><path d="M19 12h2"/><path d="M5.6 5.6l1.4 1.4"/><path d="M17 17l1.4 1.4"/><path d="M5.6 18.4l1.4 -1.4"/><path d="M17 7l1.4 -1.4"/>',
+  /** helezon yay (oyunun çizimi) */
+  suspansiyon:
+    '<path d="M6 3h12"/><path d="M6 21h12"/><path d="M12 3v2l5 1.5l-10 3l10 3l-10 3l10 3l-5 1.5v1"/>',
+  /** diferansiyel: taç dişli ve akslar (oyunun çizimi) */
+  diferansiyel:
+    '<path d="M12 12m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0"/><path d="M2 12h5"/><path d="M17 12h5"/><path d="M12 7v-4"/><path d="M9.5 9.5l5 5"/><path d="M14.5 9.5l-5 5"/>',
+  /** fren diski ve kaliper (oyunun çizimi) */
+  fren: '<path d="M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0"/><path d="M12 12m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0"/><path d="M15 2.6a10 10 0 0 1 6.4 6.4l-3.3 1a6.5 6.5 0 0 0 -4.1 -4.1z"/>',
+  /** tabler: weight */
+  agirlik:
+    '<path d="M12 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M6.835 9h10.33a1 1 0 0 1 .984 .821l1.637 9a1 1 0 0 1 -.984 1.179h-15.604a1 1 0 0 1 -.984 -1.179l1.637 -9a1 1 0 0 1 .984 -.821z"/>',
+  /** arka kanat (oyunun çizimi) */
+  aero: '<path d="M3 6h18l-2 3h-14z"/><path d="M8 9v6"/><path d="M16 9v6"/><path d="M4 15h16"/><path d="M3 19h4"/><path d="M10 19h7"/>',
+  /** dört teker ve akslar (oyunun çizimi) */
+  cekis:
+    '<path d="M3 3h4v6h-4z"/><path d="M17 3h4v6h-4z"/><path d="M3 15h4v6h-4z"/><path d="M17 15h4v6h-4z"/><path d="M7 6h10"/><path d="M7 18h10"/><path d="M12 6v12"/>',
+  /** tabler: steering-wheel */
+  direksiyon:
+    '<path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M12 14v7"/><path d="M10 12l-6.75 -2"/><path d="M14 12l6.75 -2"/>',
+  /** tabler: shield */
+  koruma: '<path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/>',
   /** tabler: tool (modifiye) */
   anahtar: '<path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6 -6a6 6 0 0 1 -8 -8l3.5 3.5"/>',
   /** tabler: check (takılı) */
