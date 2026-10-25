@@ -1,6 +1,7 @@
 // Ana menü: altta soldan sağa eğik yarış panelleri, her birinde ikon ve başlık (Yarış, Serbest sürüş, Garaj,
 // Profil, Ayarlar); Yarış öne çıkan turuncu ana düğme. Arkada menü videosu ya da canlı sinematik çekimler.
 // Yarış türü → pist listesi (şekil, uzunluk, ortalama süre, rekor) → günün saati ve hava → garajda araç seçimi.
+import { kariyerKurali, kariyerYildizKapisi } from "../oyun/kariyer";
 import { CARS } from "../arac/araclar";
 import { fmt, fmt3 } from "../cekirdek/bicim";
 import { gizle, goster, $ } from "../cekirdek/dom";
@@ -67,7 +68,7 @@ const evSayilar = (e: YarisTanimi, kart = false) =>
   }<span>PR<b>${prOf(e)}</b></span></div>`;
 /** pist ayrıntısında para ödülü: ilk kez (1★-3★) ve tekrar */
 const paraOdulu = (e: YarisTanimi) =>
-  `<div class="pod">${ikon("para")}<span>İlk kez <b>${yarisSonuPara(e.ty, e.sev, 1, 0)}–${yarisSonuPara(e.ty, e.sev, 3, 0)}</b></span><span>Tekrar <b>~${yarisSonuPara(e.ty, e.sev, 0, 0)}</b></span></div>`;
+  `<div class="pod">${ikon("para")}<span>İlk kez <b>${yarisSonuPara(e.ty, e.lv, 1, 0)}–${yarisSonuPara(e.ty, e.lv, 3, 0)}</b></span><span>Tekrar <b>~${yarisSonuPara(e.ty, e.lv, 0, 0)}</b></span></div>`;
 /** yarış ayrıntısında 1★/2★/3★ eşikleri (alınanlar dolu) */
 const yildizEsikSatiri = (e: YarisTanimi) => {
   const es = yildizEsikleri(e.ty, e.lv),
@@ -358,7 +359,7 @@ function view(cur: string): [string, string, string] {
       `<p>${y.d}</p><div class="rlist">${pl
         .map(
           ([e, i]) =>
-            `<div class="rc${pistAcikMi(e.ty, e.lv) ? "" : " kilitli"}" data-ev="${i}"><div class="rcu"><img src="${trackThumb(REG[e.reg])}"><div class="rcm">${seviyeRozeti(e)}<em>${evLen(e)}</em>${pistAcikMi(e.ty, e.lv) ? yildizSerit(enIyiYildiz(e.ty, e.lv), "kucuk") : ""}</div>${pistAcikMi(e.ty, e.lv) ? "" : `<div class="kilit">${ikon("kilit")}<b>Seviye ${acilmaSeviyesi({ ty: e.ty, lv: e.lv })}'de açılır</b></div>`}</div><div class="rci"><b>${e.n}</b><small>${SEVIYELER[e.sev - 1].d}</small>${evSayilar(e, true)}</div></div>`,
+            `<div class="rc${pistAcikMi(e.ty, e.lv) ? "" : " kilitli"}" data-ev="${i}"><div class="rcu"><img src="${trackThumb(REG[e.reg])}"><div class="rcm">${seviyeRozeti(e)}<em>${evLen(e)}</em>${pistAcikMi(e.ty, e.lv) ? yildizSerit(enIyiYildiz(e.ty, e.lv), "kucuk") : ""}</div>${pistAcikMi(e.ty, e.lv) ? "" : `<div class="kilit">${ikon("kilit")}<b>Seviye ${acilmaSeviyesi({ ty: e.ty, lv: e.lv })} veya önceki aşamada ${kariyerYildizKapisi(e.ty, e.lv, enIyiYildiz).gereken} yıldız</b></div>`}</div><div class="rci"><b>${e.n}</b><small>${kariyerKurali(e.ty, e.lv)!.ad} · ${SEVIYELER[e.sev - 1].d}</small>${evSayilar(e, true)}</div></div>`,
         )
         .join("")}</div>`,
     ];
@@ -371,7 +372,7 @@ function view(cur: string): [string, string, string] {
       e.n,
       turOf(e.ty)[1] + " yarışları",
       `<div><div class="evh"><img src="${trackThumb(r)}"><div>${seviyeRozeti(e)}<p class="lvd">${SEVIYELER[e.sev - 1].d}</p><p>${e.d}</p>
-${evSayilar(e)}${yildizEsikSatiri(e)}${paraOdulu(e)}</div></div><button class="btn" id="mgo" data-go="${i}">Araç seç ${ikon("sag")}</button></div>
+<p class="note">Kupa sınırı: <b>${kariyerKurali(e.ty, e.lv)!.ad}</b>. Üstündeki araçla ödülsüz deneme yapılır.</p>${evSayilar(e)}${yildizEsikSatiri(e)}${paraOdulu(e)}</div></div><button class="btn" id="mgo" data-go="${i}">Araç seç ${ikon("sag")}</button></div>
 <div class="evk">${condChips()}</div>`,
     ];
   }

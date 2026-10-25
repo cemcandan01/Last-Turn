@@ -3,6 +3,7 @@
 // Modifiye: takılı parçalar varsa (oyun/modifiye.ts → modifiyeUygula) kurulum.mod parçalı aracı ve parçaların ayar
 // alanlarını taşır; fizik aracı ondan alır (oyun/surus.ts), önayar seçilse de parça ayarları üstüne yazılır.
 import type { Arac, YarisTuru } from "../arac/araclar";
+import { yarisLastigi } from "../arac/yaris-lastigi";
 import {
   LEVELS,
   PRESETS,
@@ -56,9 +57,9 @@ export function applyPreset() {
 }
 
 /** Yarış malzemesine uygun lastik; garajdaki parça sahipliği ve takılı liste değişmez. */
-export const YARIS_LASTIKLERI: Record<YarisTuru, number> = { gp: 0, rx: 2, rl: 1, dp: 3, dg: 6 };
+export { YARIS_LASTIKLERI } from "../arac/yaris-lastigi";
 export function yarisLastigiTak(tur: YarisTuru) {
-  kurulum.yarisLastik = YARIS_LASTIKLERI[tur];
+  kurulum.yarisLastik = yarisLastigi(tur, kurulum.mod?.parcalar);
   kurulum.tire = kurulum.yarisLastik;
 }
 

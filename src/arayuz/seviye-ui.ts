@@ -1,5 +1,8 @@
 // XP ve seviye görselleri: seviye rozeti + XP çubuğu (ana menü, profil, yarış sonu), kilit notu ve seviye atlama kutlaması.
 // Mantık oyun/ilerleme.ts'te; burada yalnız gösterim.
+import { kariyerYildizKapisi } from "../oyun/kariyer";
+import { enIyiYildiz } from "../oyun/yildiz";
+import type { YarisTuru } from "../arac/araclar";
 import { CARS } from "../arac/araclar";
 import { SEVIYELER, pistSev } from "../dunya/pist-tanimlari";
 import {
@@ -47,7 +50,7 @@ export function kilitNotu(ty: string, lv: number) {
     n.id = "kilitnot";
     document.body.appendChild(n);
   }
-  n.innerHTML = `${ikon("kilit")} <b>${TUR_AD[ty]} · ${SEVIYELER[pistSev(ty as never, lv) - 1].n}</b> pisti Seviye ${acilmaSeviyesi({ ty: ty as never, lv })}'de açılır. Yarış kazandıkça XP toplayıp seviye atlarsın.`;
+  n.innerHTML = `${ikon("kilit")} <b>${TUR_AD[ty]} · ${SEVIYELER[pistSev(ty as never, lv) - 1].n}</b> pisti Seviye ${acilmaSeviyesi({ ty: ty as never, lv })} veya önceki aşamada ${kariyerYildizKapisi(ty as YarisTuru, lv, enIyiYildiz).gereken} yıldızla açılır. Aynı türde yarışarak ilerleyebilirsin.`;
   n.classList.remove("goster");
   void n.offsetWidth;
   n.classList.add("goster");

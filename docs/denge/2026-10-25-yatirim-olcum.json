@@ -1,0 +1,198 @@
+{
+  "yontem": "Gerçek fizik; 2 sürüş tarzı. null: bu pilot örnekleminde temiz bitiriş yok, insan için imkânsız demek değildir.",
+  "satirlar": [
+    {
+      "tur": "gp",
+      "lv": 4,
+      "ad": "Tek sokak motoru",
+      "arac": 10,
+      "parca": ["motor-sokak"],
+      "bedel": 450,
+      "puan": 183,
+      "sonuc": 207.11666666672363,
+      "kurulumImza": "55b56d240b1963f2612445744c5948282c33a9c9ec63123649e465b8cd293cb4"
+    },
+    {
+      "tur": "gp",
+      "lv": 4,
+      "ad": "Eski platform projesi",
+      "arac": 10,
+      "parca": [
+        "motor-degisim",
+        "turbo-kucuk",
+        "agirlik-2",
+        "lastik-spor",
+        "suspansiyon-spor",
+        "diferansiyel-lsd"
+      ],
+      "bedel": 14000,
+      "puan": 290,
+      "sonuc": 160.0500000000195,
+      "kurulumImza": "bd7c27401a60cfaf89d96b70542020b84f56539943a898debe79a399ce535d7d"
+    },
+    {
+      "tur": "gp",
+      "lv": 4,
+      "ad": "Yeni platform stok",
+      "arac": 0,
+      "parca": [],
+      "bedel": 18000,
+      "puan": 448,
+      "sonuc": 143.6166666666731,
+      "kurulumImza": "5ec3b6c1e087944529610c120c19fdb570f12da5e8f063f092b1f8037d20f743"
+    },
+    {
+      "tur": "rx",
+      "lv": 4,
+      "ad": "Tek sokak motoru",
+      "arac": 11,
+      "parca": ["motor-sokak"],
+      "bedel": 450,
+      "puan": 181,
+      "sonuc": null,
+      "kurulumImza": "144785f53b18fb4b826dfb776c378bb9f2d46b27fc7b666a89d533fe2b83579b"
+    },
+    {
+      "tur": "rx",
+      "lv": 4,
+      "ad": "Eski platform projesi",
+      "arac": 11,
+      "parca": [
+        "motor-degisim",
+        "turbo-kucuk",
+        "agirlik-2",
+        "lastik-spor",
+        "suspansiyon-rallikros",
+        "diferansiyel-ralli"
+      ],
+      "bedel": 14000,
+      "puan": 296,
+      "sonuc": 151.28333333334587,
+      "kurulumImza": "a7faeb8b2e4da97ba441afdae7dc85de6fda1ac182815f10bbfb78fc786349f9"
+    },
+    {
+      "tur": "rx",
+      "lv": 4,
+      "ad": "Yeni platform stok",
+      "arac": 1,
+      "parca": [],
+      "bedel": 12500,
+      "puan": 418,
+      "sonuc": 130.916666666663,
+      "kurulumImza": "403debb092cf58249d98bbc6efaf75e0b664ee95586041f7e9a5d4f89af250be"
+    },
+    {
+      "tur": "rl",
+      "lv": 4,
+      "ad": "Tek sokak motoru",
+      "arac": 12,
+      "parca": ["motor-sokak"],
+      "bedel": 450,
+      "puan": 180,
+      "sonuc": null,
+      "kurulumImza": "ec2010707cb0431f1a615aea28fccc4eca8f176f37bdae7126ec60c4ed9c6981"
+    },
+    {
+      "tur": "rl",
+      "lv": 4,
+      "ad": "Eski platform projesi",
+      "arac": 12,
+      "parca": ["motor-degisim", "turbo-kucuk", "agirlik-2", "lastik-spor", "suspansiyon-ralli", "koruma"],
+      "bedel": 13600,
+      "puan": 295,
+      "sonuc": 73.28333333333046,
+      "kurulumImza": "b58a5429485347bef8f98041e8b93ab32d805c40899d070bd9d57d58f5fb77ed"
+    },
+    {
+      "tur": "rl",
+      "lv": 4,
+      "ad": "Yeni platform stok",
+      "arac": 3,
+      "parca": [],
+      "bedel": 14000,
+      "puan": 427,
+      "sonuc": 53.34999999999825,
+      "kurulumImza": "e073f748603f13a2eda9009742310b8e251003ae4a9209322a884eae66508223"
+    },
+    {
+      "tur": "dg",
+      "lv": 4,
+      "ad": "Tek sokak motoru",
+      "arac": 14,
+      "parca": ["motor-sokak"],
+      "bedel": 450,
+      "puan": 198,
+      "sonuc": 16.05,
+      "kurulumImza": "70b06722029f0527bbbe6e0e32ab6a95f1f3a0c59e8c2343da4ca44d599dcabd"
+    },
+    {
+      "tur": "dg",
+      "lv": 4,
+      "ad": "Eski platform projesi",
+      "arac": 14,
+      "parca": [
+        "motor-degisim",
+        "turbo-kucuk",
+        "agirlik-2",
+        "lastik-spor",
+        "suspansiyon-drag",
+        "sanziman-uzun"
+      ],
+      "bedel": 14000,
+      "puan": 256,
+      "sonuc": 13.316666666666666,
+      "kurulumImza": "7745cc89434af5d2465443594b6034397fb88c4f413500281e49a8c276fd2e59"
+    },
+    {
+      "tur": "dg",
+      "lv": 4,
+      "ad": "Yeni platform stok",
+      "arac": 4,
+      "parca": [],
+      "bedel": 16000,
+      "puan": 437,
+      "sonuc": 10.3,
+      "kurulumImza": "9193c1589b6272bddb7e262f5882148f3803a29f312a52eca6d0c68b03b39072"
+    },
+    {
+      "kurulumImza": "8caacaf5bb8f7037d2f055e6e0e98b2d10c3aeb0a18effd0562f9f47116ec3be",
+      "tur": "dp",
+      "lv": 4,
+      "ad": "Tek sokak motoru",
+      "arac": 13,
+      "parca": ["motor-sokak"],
+      "bedel": 450,
+      "puan": 189,
+      "sonuc": 4316
+    },
+    {
+      "kurulumImza": "6c9fc35055788c908d35b487905f95314edc26b89087c48c2e54d2c2fe2dbf3a",
+      "tur": "dp",
+      "lv": 4,
+      "ad": "Eski platform projesi",
+      "arac": 13,
+      "parca": [
+        "motor-degisim",
+        "turbo-kucuk",
+        "agirlik-2",
+        "lastik-spor",
+        "diferansiyel-kilitli",
+        "aci-kiti"
+      ],
+      "bedel": 13800,
+      "puan": 275,
+      "sonuc": 14326
+    },
+    {
+      "kurulumImza": "00710ba622dc781ae4cb76d1466a571f3bb7166d295b7bc70b093d7a10de2594",
+      "tur": "dp",
+      "lv": 4,
+      "ad": "Yeni platform stok",
+      "arac": 2,
+      "parca": [],
+      "bedel": 8500,
+      "puan": 184,
+      "sonuc": 6240
+    }
+  ]
+}

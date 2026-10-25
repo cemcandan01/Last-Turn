@@ -12,7 +12,8 @@ import {
   parcalariDuzenle,
   type ParcaKategori,
 } from "../arac/parcalar";
-import { performansPuani, type PuanTuru } from "../arac/performans";
+import { performansPuani, kurulumPerformansi, type PuanTuru } from "../arac/performans";
+import { yarisLastigi } from "../arac/yaris-lastigi";
 import { TIRES } from "../fizik/veriler";
 import { okuJson, yazJson } from "../cekirdek/depo";
 import { applyPreset, kurulum } from "./kurulum";
@@ -135,12 +136,20 @@ export function parcaEtkileri(
       if (Math.abs(x) >= 0.5 * 10 ** -n) r.push({ ad, deger: isaret(x, n) + birim, iyi: x > 0 == iyiArti });
     };
   const zt = tur ?? ZEMIN_TURU[performansPuani(aracNo, once).zemin],
-    p0 = performansPuani(aracNo, once, zt),
-    p1 = performansPuani(aracNo, sonra, zt);
+    K0 = parcaliKurulum(aracNo, once, "norm"),
+    K1 = parcaliKurulum(aracNo, sonra, "norm");
+  if (tur) {
+    K0.tire = yarisLastigi(tur, once);
+    K1.tire = yarisLastigi(tur, sonra);
+  }
+  const p0 = tur
+      ? kurulumPerformansi(K0, performansPuani(aracNo, once, zt).zemin)
+      : performansPuani(aracNo, once, zt),
+    p1 = tur
+      ? kurulumPerformansi(K1, performansPuani(aracNo, sonra, zt).zemin)
+      : performansPuani(aracNo, sonra, zt);
   ekle("TUR", p1.tur - p0.tur, 2, " sn", false);
-  const K0 = parcaliKurulum(aracNo, once, "norm"),
-    K1 = parcaliKurulum(aracNo, sonra, "norm"),
-    a = K0.car,
+  const a = K0.car,
     b = K1.car;
   ekle("GÜÇ", b.hp - a.hp, 0, " hp", true);
   ekle("AĞIRLIK", b.kg - a.kg, 0, " kg", false);

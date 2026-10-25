@@ -2,7 +2,7 @@
 export default async function ({ p, ok }) {
   const r = await p.evaluate(() => {
     LT.demoStop();
-    const i = LT.EVENTS.findIndex((e) => e.ty === "gp");
+    const i = LT.EVENTS.findIndex((e) => e.ty === "gp" && e.lv === 4);
     LT.startEvent(i, 10);
     LT.yaris.EV.state = "run";
     LT.oyun.mode = "pause";

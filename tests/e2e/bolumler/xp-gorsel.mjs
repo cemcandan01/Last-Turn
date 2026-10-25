@@ -77,6 +77,7 @@ export default async function ({ p, ok }) {
     );
     const E = LT.yaris.EV;
     E.t = E.ys[2] - 1;
+    E.state = "run";
     LT.endEvent();
     return { xp: E.xp, lvSonra: LT.seviye().lv, blok: !!document.querySelector("#res .xps") };
   });

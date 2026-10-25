@@ -46,6 +46,7 @@ export {
   xpEkle,
   ilerlemeVerisi,
   ilerlemeYukle,
+  ilerlemeSifirla,
   ilerlemeyiSifirla,
   kilitTablosu,
   para,
@@ -59,6 +60,7 @@ export {
 } from "./ilerleme";
 export {
   takiliParcalar,
+  takiliYukle,
   parcaTak,
   parcaSok,
   paketiTak,

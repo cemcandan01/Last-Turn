@@ -1,3 +1,4 @@
+import { kariyerSozlesmesi } from "../yardimci/kariyer-senaryosu.mjs";
 import fizik from "./fizik.mjs";
 import garaj from "./garaj.mjs";
 import modifiye from "./modifiye.mjs";
@@ -25,4 +26,5 @@ export default [
   },
   ...modifiye.filter((s) => s.id == "modifiye-garaj"),
   ...garaj.filter((s) => ["garaj", "cihaz-uyum"].includes(s.id)),
+  kariyerSozlesmesi,
 ];

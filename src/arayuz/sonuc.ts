@@ -34,7 +34,9 @@ export function sonucGoster(EV: Yaris) {
             (v, i) =>
               `<span class="${i < EV.yildiz ? "dolu" : ""}">${i + 1}${ikon("yildiz")} ${bicim(v)}</span>`,
           )
-          .join("")}</small><small class="eniyi">En iyi: ${enIyiYildiz(EV.ty, EV.lv)} / 3</small></div>` +
+          .join(
+            "",
+          )}</small><small class="eniyi">${EV.kariyer ? `En iyi: ${enIyiYildiz(EV.ty, EV.lv)} / 3` : "Kupa kaydı değişmez"}</small></div>` +
         xpBlok(EV.xp) +
         paraSonucHtml(EV.para)
       : "";
@@ -78,7 +80,7 @@ export function sonucGoster(EV: Yaris) {
   const r = $("#res"),
     k = EV.i;
   r.classList.remove("hidden");
-  r.innerHTML = `<h1>${h}</h1>${p}<button class="btn" id="again">Tekrar</button><button class="btn alt" id="free">Açık dünyaya dön</button><button class="btn alt" id="rm">Ana menü</button>`;
+  r.innerHTML = `<h1>${EV.kariyer ? h : "Serbest deneme"}</h1>${EV.kariyer ? "" : '<p class="note">Puan sınırı aşıldı. Bu koşu kupa yıldızı, para veya XP vermez.</p>'}${p}<button class="btn" id="again">Tekrar</button><button class="btn alt" id="free">Açık dünyaya dön</button><button class="btn alt" id="rm">Ana menü</button>`;
   xpSonucAnimasyonu(r);
   paraSonucAnimasyonu(r);
   // seviye atladıysa kutlama, çubuk dolduktan sonra sonuç ekranının üstünde

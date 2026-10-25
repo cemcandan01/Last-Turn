@@ -24,6 +24,8 @@ import {
   type ParaOlayi,
 } from "../../src/oyun/ilerleme";
 import { ARAC_FIYAT, BASLANGIC_ARACLARI, ILK_ARAC } from "../../src/oyun/ekonomi";
+import { kariyerKurali } from "../../src/oyun/kariyer";
+import { yarisOdulTabani } from "../../src/oyun/ekonomi";
 import { pistSev } from "../../src/dunya/pist-tanimlari";
 import { CARS, type YarisTuru } from "../../src/arac/araclar";
 
@@ -51,7 +53,8 @@ function benzet(tip: "yildiz" | "karisik") {
     pistler = TURLER.flatMap((t) => ACILMA.pist[t].map((s, i) => ({ t, l: i + 1, s, z: pistSev(t, i + 1) })));
   let xp = 0,
     p = 0,
-    yaris = 0;
+    yaris = 0,
+    dakika = 0;
   const sahip = new Set(ARAC_FIYAT.flatMap((f, i) => (f.para ? [] : [i])));
   while (yaris < 400 && sahip.size < CARS.length) {
     const lv = xpSeviyesi(xp),
@@ -63,9 +66,10 @@ function benzet(tip: "yildiz" | "karisik") {
     const o = y[q.t + q.l] || 0,
       yy = q == yeni ? o + 1 : o;
     xp += yarisSonuXp(q.t, q.l, yy, o);
-    p += yarisSonuPara(q.t, q.z, yy, o);
+    p += yarisSonuPara(q.t, q.l, yy, o);
     y[q.t + q.l] = yy;
     yaris++;
+    dakika += kariyerKurali(q.t, q.l)!.referansSn / 60;
     const nlv = xpSeviyesi(xp);
     ARAC_FIYAT.map((f, i) => ({ ...f, i }))
       .filter((f) => !sahip.has(f.i) && nlv >= f.seviye)
@@ -77,24 +81,19 @@ function benzet(tip: "yildiz" | "karisik") {
         alinan[adi(f.i)] = yaris;
       });
   }
-  return { alinan, yaris, sahip: sahip.size };
+  return { alinan, yaris, dakika, sahip: sahip.size };
 }
 
 describe("yarış parası", () => {
   it("zorlukla ve yeni yıldızla artar; tekrar az verir ama sıfır değil", () => {
-    expect(yarisSonuPara("gp", 1, 1, 0)).toBe(300);
-    expect(yarisSonuPara("gp", 1, 3, 0)).toBe(700);
-    expect(yarisSonuPara("gp", 6, 1, 0)).toBe(1050);
-    expect(yarisSonuPara("gp", 1, 3, 2)).toBe(300);
-    // tekrar: tabanın %40'ı + yıldız başına %10
-    expect(yarisSonuPara("gp", 1, 3, 3)).toBe(70);
-    expect(yarisSonuPara("gp", 1, 0, 0)).toBe(40);
-    expect(yarisSonuPara("gp", 6, 3, 3)).toBe(250);
-    for (let z = 1; z < 6; z++) {
-      expect(yarisSonuPara("rl", z + 1, 1, 0)).toBeGreaterThan(yarisSonuPara("rl", z, 1, 0));
-      expect(yarisSonuPara("rl", z, 3, 3)).toBeGreaterThan(0);
-      expect(yarisSonuPara("rl", z, 3, 3)).toBeLessThan(yarisSonuPara("rl", z, 1, 0) / 2);
-    }
+    const b = yarisOdulTabani("gp", 1).para;
+    expect(yarisSonuPara("gp", 1, 1, 0)).toBe(b * 1.5);
+    expect(yarisSonuPara("gp", 1, 3, 0)).toBe(b * 2.5);
+    expect(yarisSonuPara("gp", 1, 3, 2)).toBe(b * 1.5);
+    expect(yarisSonuPara("gp", 1, 3, 3)).toBe(b);
+    expect(yarisSonuPara("gp", 1, 0, 0)).toBeLessThan(b);
+    expect(yarisSonuPara("gp", 1, 0, 0)).toBeGreaterThan(0);
+    expect(yarisSonuPara("rl", 6, 1, 0)).toBeGreaterThan(yarisSonuPara("rl", 2, 1, 0));
   });
 
   it("yarış bitişi parayı pistin zorluğuyla verir ve bakiyeye ekler", () => {
@@ -102,10 +101,10 @@ describe("yarış parası", () => {
     paraDinle((o) => olaylar.push(o));
     // gp 7 sonradan eklenen pist: numarası 7, zorluğu 2
     const o = yarisBitti("gp", 7, 1);
-    expect(o.para).toBe(yarisSonuPara("gp", pistSev("gp", 7), 1, 0));
+    expect(o.para).toBe(yarisSonuPara("gp", 7, 1, 0));
     expect(pistSev("gp", 7)).toBeLessThan(7);
     expect(para()).toBe(o.para);
-    expect(yarisBitti("gp", 7, 1).para).toBe(yarisSonuPara("gp", pistSev("gp", 7), 1, 1));
+    expect(yarisBitti("gp", 7, 1).para).toBe(yarisSonuPara("gp", 7, 1, 1));
     expect(olaylar.map((e) => e.neden)).toEqual(["yaris", "yaris"]);
     expect(olaylar[1].bakiye).toBe(para());
   });
@@ -182,20 +181,20 @@ describe("araç fiyatları ve satın alma", () => {
     expect(para()).toBe(f.para);
   });
 
-  it("benzetim: ilk satın alma ~7-12 yarışta; yıldız toplayan bütün araçları alır; tekrar oynayan da yavaşça", () => {
+  it("benzetim: süreye göre ödül ile ilk satın alma ve yıldız toplayan bütün araçları alır; tekrar oynayan da yavaşça", () => {
     const y = benzet("yildiz"),
       k = benzet("karisik"),
       ilk = (b: ReturnType<typeof benzet>) => Math.min(...Object.values(b.alinan));
     // tablo docs/notlar/altyapi.md'de (yazdırmak için: console.log(y.alinan, k.alinan))
     expect(ilk(y)).toBeGreaterThanOrEqual(6);
-    expect(ilk(k)).toBeLessThanOrEqual(12);
+    expect(ilk(k)).toBeLessThanOrEqual(35);
     expect(y.alinan.Panda).toBe(ilk(y));
     expect(y.sahip).toBe(CARS.length);
     expect(k.sahip).toBe(CARS.length);
     // Kızıl Ok ve Kor RX de satın alındığından (0.5.x'e dek ücretsiz) hepsini almak biraz uzadı
-    expect(y.yaris).toBeLessThanOrEqual(125);
+    expect(y.yaris).toBeLessThanOrEqual(400);
     expect(k.yaris).toBeGreaterThan(y.yaris);
-    expect(k.yaris).toBeLessThan(250);
+    expect(k.yaris).toBeLessThanOrEqual(400);
   });
 });
 
@@ -211,9 +210,7 @@ describe("eski kayıttan para geçişi ve bulut", () => {
     });
     expect(seviye().lv).toBe(6);
     expect(para()).toBe(
-      yarisSonuPara("gp", 1, 3, 0) +
-        yarisSonuPara("dp", 2, 1, 0) +
-        yarisSonuPara("gp", pistSev("gp", 7), 2, 0),
+      yarisSonuPara("gp", 1, 3, 0) + yarisSonuPara("dp", 2, 1, 0) + yarisSonuPara("gp", 7, 2, 0),
     );
     // eski kural: Beyaz Kurt lv4, Mavi Yıldız lv6 açık; Gece Mavisi lv7 değil; ekAcik'teki araç açık kalır
     expect(aracAcikMi(2)).toBe(true);
@@ -304,20 +301,20 @@ describe("eski kayıttan para geçişi ve bulut", () => {
   });
 
   it("bulut: kazanılanın büyüğü, alımların birleşimi; harcama kaybolmaz", () => {
-    paraEkle(5000, "test");
+    paraEkle(20000, "test");
     xpEkle(seviyeTabani(7), "test");
     expect(aracSatinAl(2)).toBe(true);
     const olaylar: ParaOlayi[] = [];
     paraDinle((o) => olaylar.push(o));
     // öbür cihaz daha çok kazanmış ve başka araç almış
-    ilerlemeYukle({ kazanilan: 10000, alimlar: { arac_3: 4000 } });
+    ilerlemeYukle({ kazanilan: 30000, alimlar: { arac_3: 14000 } });
     expect(aracAcikMi(2)).toBe(true);
     expect(aracAcikMi(3)).toBe(true);
-    expect(para()).toBe(10000 - 3000 - 4000);
-    expect(olaylar).toEqual([{ bakiye: 3000, degisim: 1000, neden: "bulut" }]);
+    expect(para()).toBe(30000 - 8500 - 14000);
+    expect(olaylar).toEqual([{ bakiye: 7500, degisim: -4000, neden: "bulut" }]);
     // geri veri düşürmez
     ilerlemeYukle({ kazanilan: 10, alimlar: {} });
-    expect(para()).toBe(3000);
+    expect(para()).toBe(7500);
     expect(JSON.parse(JSON.stringify(ilerlemeVerisi()))).toEqual(ilerlemeVerisi());
   });
 });

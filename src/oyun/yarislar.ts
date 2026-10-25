@@ -14,7 +14,8 @@ import { setActive } from "./bolge";
 import { carIndex, oyun, setCar } from "./durum";
 import { girdiSifirla } from "./girdi";
 import { aracAcikMi, pistAcikMi, yarisBitti } from "./ilerleme";
-import { modifiyeUygula } from "./modifiye";
+import { kariyereUygun } from "./kariyer";
+import { modifiyeUygula, takiliParcalar } from "./modifiye";
 import { kurulumKaydet, kurulumYukle, yarisLastigiTak, type KurulumKaydi } from "./kurulum";
 import { hayaletKaydet } from "./hayalet-kayit";
 import { PROF, saveProf } from "./profil";
@@ -98,6 +99,8 @@ export interface Yaris extends YarisTanimi {
   sv: KurulumKaydi & { car: number };
   TR: Pist;
   state: "count" | "run" | "done";
+  /** Puan bütçesine uymayan araçla serbest deneme: kariyer ödülü/rekoru yok. */
+  kariyer: boolean;
   /** geri sayım */
   cd: number;
   t: number;
@@ -169,6 +172,7 @@ export function startEvent(i: number, ci?: number) {
     note("Kilitli", 40);
     return false;
   }
+  const uygun = kariyereUygun(e.ty, e.lv, ci ?? carIndex(), takiliParcalar(ci ?? carIndex()));
   const EV = yaris.EV,
     sv = EV && EV.sv ? EV.sv : { ...kurulumKaydet(), car: carIndex() };
   // yarışta önayar seçilmez: aracın kendi önayarı ve oyuncunun yardım seviyesi yüklenir (önayar yalnız serbest
@@ -190,6 +194,8 @@ export function startEvent(i: number, ci?: number) {
   goster("#hud", "#mm", "#ctl");
   yaris.EV = {
     ...e,
+    k: uygun ? e.k : "deneme_" + e.k,
+    kariyer: uygun,
     i,
     pistDisi: bosPistDisi(),
     sv,
@@ -339,7 +345,8 @@ export function evTick(dt: number, o: AdimSonucu, tg = 0.5) {
 
 /** yarış bitti: profil, yıldız, rekor, sonuç ekranı */
 export function endEvent() {
-  const EV = yaris.EV!;
+  const EV = yaris.EV;
+  if (!EV || EV.state != "run" || !(EV.t > 0)) return;
   EV.state = "done";
   oyun.mode = "result";
   PROF.races++;
@@ -347,10 +354,10 @@ export function endEvent() {
   EV.yildiz = yildizSay(EV.ty, sureSkor, EV.ys);
   hayaletKaydet(EV.k, carIndex(), sureSkor, yerel.kayit, EV.ty == "dp", kayitKurulumu, 0, kayitHavasi);
   rekorHayaletiDurdur();
-  const odul = yarisBitti(EV.ty, EV.lv, EV.yildiz);
+  const odul = EV.kariyer ? yarisBitti(EV.ty, EV.lv, EV.yildiz) : { xp: 0, para: 0 };
   EV.xp = odul.xp;
   EV.para = odul.para;
-  if (EV.ty == "dp" ? EV.score > 0 && EV.score >= EV.limit : EV.t <= EV.limit) PROF.wins++;
+  if (EV.kariyer && (EV.ty == "dp" ? EV.score > 0 && EV.score >= EV.limit : EV.t <= EV.limit)) PROF.wins++;
   saveProf();
   girdiSifirla();
   gizle("#ctl");

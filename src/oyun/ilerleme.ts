@@ -1,22 +1,27 @@
 // İlerleme: XP, seviye, para ve kilitler. Yarışı bitirince XP ve para gelir; seviye atladıkça pistler açılır, araçlar
 // satın alınabilir olur (seviye + para; fiyatlar ve ödül formülü oyun/ekonomi.ts).
 // Bütün veri tek, düz bir nesnede (lt_ilerleme): bulut eşitlemesi (Firebase) ilerlemeVerisi / ilerlemeYukle ile.
-// Denge (gerekçe docs/notlar/altyapi.md):
-// - Yarış XP'si = taban (5 × pist seviyesi) + yeni alınan her yıldız için yıldız XP'si (20 + 15 × (seviye − 1)).
-//   Önceden alınmış yıldız yeniden XP vermez; yeni yıldız yoksa taban yarıya iner (aynı pisti tekrar oynamak az verir).
-// - Seviye eğrisi: n'den n+1'e geçmek 40 + 30 × (n − 1) XP (ilk seviyeler birkaç yarış, sonrakiler giderek uzun).
-// - Kilit tablosu (ACILMA): her türün Çaylak pisti ve her türün D sınıfı başlangıç aracı başta açık; son içerik seviye
-//   18'de açılır.
-//   Benzetim (tests/birim/ilerleme.test.ts): her açık pistte yıldız toplayan oyuncu Efsane pistlere girmeden hepsini açar.
-// - Para: kazanilan (toplam kazanılan, hiç azalmaz) − alimlar toplamı = bakiye. Bulutta iki cihaz birleşince kazanılanın
-//   büyüğü ve alımların birleşimi alınır (harcama kaybolmaz, para iki kez harcanmaz).
+// Ödül gerçek pist kimliğinden bulunur; XP/para aynı referans süreyi kullanır.
+// Erişim XP seviyesi veya aynı disiplinin önceki aşamasındaki yıldızlarla; sahiplik kaydı değişmez.
+// Para: toplam kazanılan − gerçek net alım bedelleri. Kategori yatırımı üst parçaya kredi olur;
+// geçmiş alimlar kayıtları değiştirilmez, bulutun birleşim davranışı korunur.
 import type { YarisTuru } from "../arac/araclar";
 import { okuJson, yazJson } from "../cekirdek/depo";
-import { pistSev } from "../dunya/pist-tanimlari";
 import { parcaBul } from "../arac/parcalar";
-import { ARAC_FIYAT, ESKI_UCRETSIZ, aracFiyati, parcaFiyatHesapla, yarisSonuPara } from "./ekonomi";
+import {
+  ARAC_FIYAT,
+  ESKI_UCRETSIZ,
+  PARCA_OZEL_FIYAT,
+  aracFiyati,
+  parcaFiyatHesapla,
+  yarisSonuPara,
+  yarisOdulu,
+} from "./ekonomi";
 
 export { aracFiyati, yarisSonuPara } from "./ekonomi";
+import { kariyerKurali, kariyerYildizKapisi, aracKariyerAsamasi } from "./kariyer";
+import { CARS } from "../arac/araclar";
+import { TDEF } from "../dunya/pist-tanimlari";
 import { best } from "./profil";
 import { TUR_ANAHTARI, enIyiYildiz, yildizAnahtari, yildizEsikleri, yildizKaydet, yildizSay } from "./yildiz";
 
@@ -75,13 +80,9 @@ export const tabanXp = (seviye: number) => 5 * seviye;
 /** pistte alınan bir yıldızın XP'si (yalnız ilk alınışta) */
 export const yildizXp = (seviye: number) => 20 + 15 * (seviye - 1);
 
-/** yarış sonu XP'si: taban + yeni yıldızlar; yeni yıldız yoksa taban yarıya iner */
-export function yarisSonuXp(tur: YarisTuru, seviye: number, yildiz: number, oncekiYildiz: number) {
-  void tur;
-  const yeni = Math.max(0, yildiz - oncekiYildiz);
-  const taban = yeni > 0 ? tabanXp(seviye) : Math.ceil(tabanXp(seviye) / 2);
-  return taban + yeni * yildizXp(seviye);
-}
+/** Pist kimliğinden gerçek zorluk ve referans süre bulunur. */
+export const yarisSonuXp = (tur: YarisTuru, lv: number, yildiz: number, oncekiYildiz: number) =>
+  yarisOdulu(tur, lv, yildiz, oncekiYildiz).xp;
 
 // --- seviye eğrisi ---
 
@@ -229,7 +230,7 @@ function paraGecisi(v: IlerlemeVerisi): IlerlemeVerisi {
   for (const ty of TURLER)
     for (let sv = 1; sv <= ACILMA.pist[ty].length; sv++) {
       const y = enIyiYildiz(ty, sv);
-      if (y) v.kazanilan += yarisSonuPara(ty, pistSev(ty, sv), y, 0);
+      if (y) v.kazanilan += yarisSonuPara(ty, sv, y, 0);
     }
   // o sürümde ücretsiz olanlar (Kızıl Ok, Kor RX) burada değil, baslangicGecisi'nde (yeni oyuncuya verilmesin)
   ESKI_ARAC_ACILMA.forEach((s, no) => {
@@ -280,10 +281,21 @@ export function seviye(): SeviyeBilgisi {
   return { lv, xp, sonrakiXp, oran: xp / sonrakiXp, toplamXp: toplam };
 }
 
-export const pistAcikMi = (tur: YarisTuru, sv: number) =>
+export const pistAcikMi = (tur: YarisTuru, lv: number) =>
   adminKip ||
-  seviye().lv >= acilmaSeviyesi({ ty: tur, lv: sv }) ||
-  veri().ekAcik.includes(yildizAnahtari(tur, sv));
+  seviye().lv >= acilmaSeviyesi({ ty: tur, lv }) ||
+  veri().ekAcik.includes(yildizAnahtari(tur, lv)) ||
+  kariyerYildizKapisi(tur, lv, enIyiYildiz).acik;
+
+/** XP erişimi yanında aynı disiplinin kupa başarısı da yeni platformu satın alınabilir kılar. */
+export const aracErisimi = (no: number) =>
+  seviye().lv >= aracFiyati(no).seviye ||
+  TDEF.some(
+    (d) =>
+      d.t == CARS[no]?.ty &&
+      (kariyerKurali(d.t, d.lv)?.asama ?? 0) >= aracKariyerAsamasi(no) &&
+      kariyerYildizKapisi(d.t, d.lv, enIyiYildiz).acik,
+  );
 
 /** para bakiyesi */
 export const para = () => {
@@ -304,7 +316,7 @@ export const aracAcikMi = (aracNo: number) => {
 export function aracSatinAlinabilirMi(aracNo: number): { ok: boolean; neden: SatinAlmaEngeli | null } {
   const f = aracFiyati(aracNo);
   if (aracAcikMi(aracNo)) return { ok: false, neden: "sahip" };
-  if (seviye().lv < f.seviye) return { ok: false, neden: "seviye" };
+  if (!aracErisimi(aracNo)) return { ok: false, neden: "seviye" };
   if (para() < f.para) return { ok: false, neden: "para" };
   return { ok: true, neden: null };
 }
@@ -366,19 +378,44 @@ export function aracSatinAl(aracNo: number) {
 /** parçanın fiyatı (bilinmeyen parça 0) */
 export const parcaFiyati = (id: string) => {
   const p = parcaBul(id);
-  return p ? parcaFiyatHesapla(p.sv, p.kat) : 0;
+  return p ? (PARCA_OZEL_FIYAT[id] ?? parcaFiyatHesapla(p.sv, p.kat)) : 0;
 };
 
 /** parça bu araç için alınmış mı (ücretsiz parçalar hep sahip; admin kipinde hepsi) */
 export const parcaSahipMi = (aracNo: number, id: string) =>
   adminKip || parcaFiyati(id) <= 0 || "parca_" + aracNo + "_" + id in veri().alimlar;
 
-/** parçaları (paket için birkaç) bu araç için satın al: alınmamışların toplamı bakiyeye yetiyorsa hepsi; başarılıysa true */
+/** Kategoriye ödenmiş bütün gerçek bedeller üst kademeye kredi olur; eski kayıt silinmez. */
+function parcaAlimPlani(aracNo: number, ids: readonly string[]) {
+  const v = veri(),
+    yatirim: Record<string, number> = {},
+    plan: { id: string; bedel: number }[] = [];
+  const onek = `parca_${aracNo}_`;
+  for (const [k, bedel] of Object.entries(v.alimlar)) {
+    const p = k.startsWith(onek) && parcaBul(k.slice(onek.length));
+    if (p) yatirim[p.kat] = (yatirim[p.kat] ?? 0) + bedel;
+  }
+  for (const id of new Set(ids)) {
+    const p = parcaBul(id);
+    if (!p || parcaSahipMi(aracNo, id)) continue;
+    const bedel = Math.max(0, parcaFiyati(id) - (yatirim[p.kat] ?? 0));
+    yatirim[p.kat] = (yatirim[p.kat] ?? 0) + bedel;
+    plan.push({ id, bedel });
+  }
+  return plan;
+}
+export const parcaAlimBedeli = (aracNo: number, ids: readonly string[]) =>
+  parcaAlimPlani(aracNo, ids).reduce((n, p) => n + p.bedel, 0);
+
+/** Paket tek işlemde alınır; aynı kategori yatırımı ikinci kez harcanmaz. */
 export function parcaSatinAl(aracNo: number, ids: readonly string[]) {
-  const al = ids.filter((id) => parcaBul(id) && !parcaSahipMi(aracNo, id)),
-    toplam = al.reduce((a, id) => a + parcaFiyati(id), 0);
+  const plan = parcaAlimPlani(aracNo, ids),
+    toplam = plan.reduce((n, p) => n + p.bedel, 0);
   if (!aracAcikMi(aracNo) || para() < toplam) return false;
-  for (const id of al) if (!harca("parca_" + aracNo + "_" + id, parcaFiyati(id))) return false;
+  if (!plan.length) return true;
+  for (const p of plan) veri().alimlar[`parca_${aracNo}_${p.id}`] = p.bedel;
+  kaydet();
+  paraOlayi(-toplam, "alim:parcalar");
   return true;
 }
 
@@ -400,7 +437,7 @@ export function yarisBitti(tur: YarisTuru, sv: number, yildiz: number): YarisOdu
   veri(); // eski kayıttan geçiş yıldız yazılmadan önce olmalı (yoksa yeni yıldız iki kez sayılır)
   const onceki = enIyiYildiz(tur, sv),
     xp = yarisSonuXp(tur, sv, yildiz, onceki),
-    p = yarisSonuPara(tur, pistSev(tur, sv), yildiz, onceki);
+    p = yarisSonuPara(tur, sv, yildiz, onceki);
   yildizKaydet(tur, sv, yildiz);
   paraEkle(p, "yaris");
   xpEkle(xp, "yaris");

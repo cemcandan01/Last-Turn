@@ -1,3 +1,4 @@
+import { kariyerSozlesmesi } from "../yardimci/kariyer-senaryosu.mjs";
 // Pist dalının senaryoları (tests/senaryolar/BENIOKU.md)
 const P = "tests/birim/pistler.test.ts";
 export default [
@@ -32,4 +33,5 @@ export default [
     p: 2,
     birim: { dosya: "tests/birim/yildiz.test.ts", grup: "drift bonusları" },
   },
+  kariyerSozlesmesi,
 ];

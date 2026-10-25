@@ -1,3 +1,4 @@
+import { kariyerSozlesmesi } from "../yardimci/kariyer-senaryosu.mjs";
 // Fizik dalının senaryoları (tests/senaryolar/BENIOKU.md)
 const F = "tests/birim/fizik.test.ts";
 export default [
@@ -87,4 +88,5 @@ export default [
     p: 2,
     birim: { dosya: "tests/birim/parcalar.test.ts", grup: "hissiyat: parçalar hissedilir, kurallar korunur" },
   },
+  kariyerSozlesmesi,
 ];
