@@ -1,0 +1,167 @@
+{
+  "kip": "duman",
+  "dallar": [
+    "--derlemeden"
+  ],
+  "daraltilmis": false,
+  "dk": 5.6,
+  "ozet": {
+    "denge": {
+      "senaryo": 2,
+      "gecti": 2,
+      "kaldi": 0,
+      "kosulmadi": 0
+    },
+    "fizik": {
+      "senaryo": 2,
+      "gecti": 2,
+      "kaldi": 0,
+      "kosulmadi": 0
+    },
+    "garaj": {
+      "senaryo": 1,
+      "gecti": 1,
+      "kaldi": 0,
+      "kosulmadi": 0
+    },
+    "menu": {
+      "senaryo": 1,
+      "gecti": 1,
+      "kaldi": 0,
+      "kosulmadi": 0
+    },
+    "pist": {
+      "senaryo": 1,
+      "gecti": 1,
+      "kaldi": 0,
+      "kosulmadi": 0
+    },
+    "surus": {
+      "senaryo": 3,
+      "gecti": 3,
+      "kaldi": 0,
+      "kosulmadi": 0
+    }
+  },
+  "senaryolar": [
+    {
+      "id": "kararlilik",
+      "ad": "Bütün araçlar: kararlılık ve temel değerler",
+      "p": 1,
+      "duman": true,
+      "birim": {
+        "dosya": "tests/birim/fizik.test.ts",
+        "grup": "kararlılık ve temel değerler"
+      },
+      "dal": "denge",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 6.892469028000001
+    },
+    {
+      "id": "garaj",
+      "ad": "Garaj, serbest sürüş öncesi araç seçimi, önayar kuralı",
+      "p": 1,
+      "duman": true,
+      "tarayici": "garaj",
+      "dal": "denge",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 106.603
+    },
+    {
+      "id": "kararlilik",
+      "ad": "Bütün araçlar: kararlılık ve temel değerler",
+      "p": 1,
+      "duman": true,
+      "birim": {
+        "dosya": "tests/birim/fizik.test.ts",
+        "grup": "kararlılık ve temel değerler"
+      },
+      "dal": "fizik",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 6.892469028000001
+    },
+    {
+      "id": "surus",
+      "ad": "Tarayıcıda gazla araç ilerliyor",
+      "p": 1,
+      "duman": true,
+      "tarayici": "surus",
+      "dal": "fizik",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 2.288
+    },
+    {
+      "id": "garaj",
+      "ad": "Garaj, serbest sürüş öncesi araç seçimi, önayar kuralı",
+      "p": 1,
+      "duman": true,
+      "tarayici": "garaj",
+      "dal": "garaj",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 106.603
+    },
+    {
+      "id": "acilis",
+      "ad": "Menü ekranları, ana ekran kartları, yarış türü görselleri, sürüm numarası",
+      "p": 1,
+      "duman": true,
+      "tarayici": "acilis",
+      "dal": "menu",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 1.691
+    },
+    {
+      "id": "yarislar",
+      "ad": "40 yarış ve açık dünyalar kuruluyor",
+      "p": 1,
+      "duman": true,
+      "tarayici": "yarislar",
+      "dal": "pist",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 3.963
+    },
+    {
+      "id": "kararlilik",
+      "ad": "Bütün araçlar: kararlılık ve temel değerler",
+      "p": 1,
+      "duman": true,
+      "birim": {
+        "dosya": "tests/birim/fizik.test.ts",
+        "grup": "kararlılık ve temel değerler"
+      },
+      "dal": "surus",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 6.892469028000001
+    },
+    {
+      "id": "surus",
+      "ad": "Tarayıcıda gazla araç ilerliyor",
+      "p": 1,
+      "duman": true,
+      "tarayici": "surus",
+      "dal": "surus",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 2.288
+    },
+    {
+      "id": "garaj",
+      "ad": "Garaj, serbest sürüş öncesi araç seçimi, önayar kuralı",
+      "p": 1,
+      "duman": true,
+      "tarayici": "garaj",
+      "dal": "surus",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 106.603
+    }
+  ]
+}

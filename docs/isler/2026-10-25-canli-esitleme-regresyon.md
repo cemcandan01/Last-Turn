@@ -27,3 +27,18 @@
 ## Kritik tur (CI 40197944854)
 
 Hayaletin kayıt/kurulum/konum/bölge bağımsızlığı/piste dönüş/yarım kayıt/çıkış kontrollerinin tümü geçti. İlerleme yalıtımı ile önayar ve zoom da geçti. Tek kalan: 4× CPU yavaşlatılmış garaj geçişinde en uzun senkron tıklama 118 ms (sınır 60 ms), program/geometri artışı yok. Araç açıklaması eski DOM ve yeni DOM için iki kez senkron yerleşim ölçüyordu; eski ölçüm kaldırıldı ve son ölçüm çizim karesine taşındı. Eşikler aynıdır; görünüm testleri boyut ölçmeden önce çizim karesini bekler. Kritik tur başarısız olduğu için gereksiz uzun tam tur başlamadı. Menü cihaz denetimi, başka kritik test kalsa da sonuç üretecek.
+
+## Son doğrulama ve yayın yetkisi
+
+- Son kaynak `126f03d1e80f96e6c1b4415e7210f7d8a189411d`, CI 40198483398: kritik tekrarlar başarılı; tam regresyon 104/104 geçti, 0 hata / 0 koşulmamış (23,2 dk). Ardından duman 10/10 geçti (5,6 dk). Ham kanıt artifact 12601154719; kritik kanıt 12600823333.
+- 12 sanal cihazdaki kontrollerde 62 ekran hücresi hatasız; iPhone 15 Pro Max menü görseli ve iPhone 13 garaj görüntüsü incelendi. Fizik değerleri bu regresyonda değiştirilmedi.
+- Garaj 4× CPU ölçümü: senkron tıklama 118 ms → 6 ms; program/geometri sayısı değişmez. Test eşikleri gevşetilmedi.
+- Node22/Ubuntu/Chromium ortamı; bağımlılık kilidi son kaynakla aynı. Deneme 0.6.8, merge e92fe898bc70b0c32a4b03d41b09f64a42725a78, Yayın 40198851372 adreste sürüm kontrolü geçti.
+- Kullanıcı “regresyon başlatıp canlıya geçelim” diyerek test sonrası canlı çıkışını açıkça yetkilendirdi. Aynı onay yeniden istenmeden, test edilen oyun kodu ve sürüm canlıya taşınır; son ekler yalnız README/kanıt/devir belgeleridir. Canlı dumanı ayrıca izlenecek; bu adım geçmiş sayılmadı.
+
+## Canlı çıkışı ve kapanış
+
+- Yayın 0.6.8 commit `147ea038eaf81eab10511c222b358402eb60586f`; master'a kullanıcı onayı ve geçmiş korunarak gönderildi. Canlı/deneme `src`, test ve bağımlılık kilidi ağaçları aynıydı.
+- Yayın CI 40201273989: master ve dev 0.6.8 adreste doğrulandı; canlı adreste duman 10/10 geçti. Böylece yalnız derleme değil gerçek yayın adresi de doğrulandı.
+- Regresyon durumu tamamlandi; rapor/devir belgeleri oyun kodunu değiştirmez ve yeni tam koşum tetiklemez. Gelistirme 0.7.0, aynı oyun koduyla sonraki sürüme açılır; canlı 0.6.8 kalır. Canlıda olup denemede olmayan hayalet özelliği kalmadı.
+- Uygulayıcı 1; kullanıcı revizesi 0, hata tekrarları ve düzeltmeler yukarıda kaydedildi. Aynı başarılı oyun kodu için kaynak kanıtı kullanıldı; sürüm/devir eklerinde fizik regresyonu tekrar edilmedi. Platform token/TL telemetrisi yok; süreler CI raporlarında.

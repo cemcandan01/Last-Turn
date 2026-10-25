@@ -1,1 +1,1 @@
-{"surum": "0.6.8", "asama": "suruyor", "not": "İlk tam raporun test yalıtımı ve menü hataları düzeltildi; kritik kontroller ardından tam regresyon", "tarih": "2026-10-25T13:30:05.257350+00:00"}
+{"surum": "0.6.8", "asama": "tamamlandi", "not": "0.6.8 canlıda; 104/104 regresyon, 10/10 duman ve 10/10 canlı duman geçti. 0.7.0 geliştirme açılıyor.", "tarih": "2026-10-25T14:21:00.713701+00:00"}
