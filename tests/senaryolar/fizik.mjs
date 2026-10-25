@@ -40,16 +40,16 @@ export default [
     birim: { dosya: F, grup: "drift yarışı (Drift Parkı, Beyaz Kurt, drift önayarı)" },
   },
   {
-    id: "elfreni",
-    ad: "El freni: başlangıç araçları drift pistinde el freniyle döner, dört çekerde de çalışır, dururken ve yavaşta etkisiz",
+    id: "debriyaj",
+    ad: "Debriyaj vuruşu: Kızıl Ok gerçekçide drift pistinde debriyajla drifte girer, basılıyken tork yok",
     p: 2,
-    birim: { dosya: F, grup: "el freni: başlangıç araçlarıyla drift pistinde drifte giriş" },
+    birim: { dosya: F, grup: "debriyaj vuruşu: başlangıç aracıyla drift pistinde drifte giriş" },
   },
   {
-    id: "elfreni-tus",
-    ad: "El freni tuşu her kontrol türünde, basılıyken arka kilitlenir",
+    id: "debriyaj-tus",
+    ad: "Debriyaj tuşu her kontrol türünde, basılıyken devir yükselir",
     p: 2,
-    tarayici: "elfreni",
+    tarayici: "debriyaj",
   },
   {
     id: "titresim",

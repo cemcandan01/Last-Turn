@@ -1,4 +1,4 @@
-// Girdi kaydı: her fizik adımının girdisi (direksiyon, gaz, fren, analog ve el freni bayrakları) sıkıştırılmış olarak tutulur.
+// Girdi kaydı: her fizik adımının girdisi (direksiyon, gaz, fren, analog ve debriyaj bayrakları) sıkıştırılmış olarak tutulur.
 // Başlangıç durumu ve tohumla birlikte kayıt yeniden oynatılınca aynı sonucu verir (fizik belirlenimci): hayalet
 // araç ve süre doğrulaması için. Adım başına 8 bayt (60 Hz'de dakikada ~29 KB). Saf kod.
 //
@@ -65,7 +65,7 @@ export function girdiyiKaydet(k: GirdiKaydi, gi: FizikGirdisi, out: FizikGirdisi
   out.b = b / OLCEK;
   out.analogDireksiyon = gi.analogDireksiyon;
   out.analogGaz = gi.analogGaz;
-  out.el = !!gi.el;
+  out.dbr = !!gi.dbr;
   if (k.n >= EN_COK) {
     k.tasti = true;
     return out;
@@ -80,7 +80,7 @@ export function girdiyiKaydet(k: GirdiKaydi, gi: FizikGirdisi, out: FizikGirdisi
   V[o] = a;
   V[o + 1] = g;
   V[o + 2] = b;
-  V[o + 3] = (gi.analogDireksiyon ? 1 : 0) | (gi.analogGaz ? 2 : 0) | (gi.el ? 4 : 0);
+  V[o + 3] = (gi.analogDireksiyon ? 1 : 0) | (gi.analogGaz ? 2 : 0) | (gi.dbr ? 4 : 0);
   k.n++;
   return out;
 }
@@ -94,7 +94,7 @@ export function kayitGirdisi(k: GirdiKaydi, i: number, out: FizikGirdisi = bosGi
   out.b = V[o + 2] / OLCEK;
   out.analogDireksiyon = (V[o + 3] & 1) != 0;
   out.analogGaz = (V[o + 3] & 2) != 0;
-  out.el = (V[o + 3] & 4) != 0;
+  out.dbr = (V[o + 3] & 4) != 0;
   return out;
 }
 
@@ -104,7 +104,7 @@ export const bosGirdi = (): FizikGirdisi => ({
   b: 0,
   analogDireksiyon: false,
   analogGaz: false,
-  el: false,
+  dbr: false,
 });
 
 /**

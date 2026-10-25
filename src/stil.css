@@ -1848,7 +1848,7 @@ details[open] > summary::after {
   width: 120px;
   height: 100px;
 }
-/* el freni: frenin (analogda pedalın) üstünde, kısa ve dar; gazdaki başparmak kayarak ulaşır.
+/* debriyaj: frenin (analogda pedalın) üstünde, kısa ve dar; gazdaki başparmak kayarak ulaşır.
    Hız göstergesi sağ tuş grubunun yüksekliğine göre yükselir (--cR). Telefonu çevirmede frenin solunda */
 .tsut {
   display: flex;
@@ -1856,29 +1856,22 @@ details[open] > summary::after {
   align-items: flex-start;
   gap: 8px;
 }
-#el {
+#dbr {
   width: min(76px, calc(var(--aw) * 0.18));
   height: 44px;
-  gap: 4px;
   border-radius: 14px;
-  font-size: 10px;
-  letter-spacing: 0.5px;
+  font-size: 11px;
+  letter-spacing: 1px;
   color: #dfe8e6;
-  white-space: nowrap;
 }
-#el .ik {
-  width: 16px;
-  height: 16px;
-  flex: 0 0 auto;
-}
-#app[data-elfreni="acik"][data-gas="btn"] {
+#app[data-debriyaj="acik"][data-gas="btn"] {
   --cR: 136px;
 }
 #app[data-gas="auto"] .tsut {
   flex-direction: row;
   align-items: flex-end;
 }
-#app[data-elfreni="kapali"] #el {
+#app[data-debriyaj="kapali"] #dbr {
   display: none;
 }
 

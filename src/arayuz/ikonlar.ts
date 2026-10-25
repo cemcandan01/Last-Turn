@@ -62,9 +62,6 @@ const IKON = {
   kronometre:
     '<path d="M5 13a7 7 0 1 0 14 0a7 7 0 0 0 -14 0"/><path d="M14.5 10.5l-2.5 2.5"/><path d="M17 8l1 -1"/><path d="M14 3h-4"/>',
   /** direksiyon düğmesi: dolu üçgen ok (oyunun çizimi; dolgu CSS ile) */
-  // el freni (Tabler parking-circle)
-  elFreni:
-    '<path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M10 16v-8h3.334c.92 0 1.666 .895 1.666 2s-.746 2 -1.666 2h-3.334"/>',
   okSol: '<path d="M16 5v14l-9 -7z"/>',
   okSag: '<path d="M8 5v14l9 -7z"/>',
   // yarış türleri

@@ -25,7 +25,7 @@ const BOLUMLER = [
   "seviyeler",
   "kapak",
   "surus",
-  "elfreni",
+  "debriyaj",
   "kerb",
   "yildiz",
   "xp-gorsel",

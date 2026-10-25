@@ -28,13 +28,13 @@ export const GEVSEK_TUTUS = 0.75,
   GEVSEK_C = 1.55,
   GEVSEK_ARKA = 0.92;
 /**
- * el freni: arka tekerlere ABS'siz fren torku (toplam fren torkunun payı) ve arka tutuşu EL_TUTUS kadar düşer;
- * hızla devreye girer (dururken ve yavaşta etkisiz, ani spin yok). Basılıyken arkaya güç gitmez (dört çekerde akslar
- * arası bağ da çözülür)
+ * debriyaj vuruşu: motor ve volan ataleti motor torkuyla orantılı (kg·m² = VOLAN × tork; 600 Nm'de 0,24) ve
+ * fazla devrin tekerlere geçme süresi (sn); vuruştan sonra çekiş kontrolü ve tuşla gaz patinaj sınırı VURUS_SURE
+ * boyunca devre dışı (oyuncu patinajı kendisi istedi)
  */
-const EL_FREN = 0.9,
-  EL_TUTUS = 0.35,
-  EL_HIZ: [number, number] = [3, 9];
+const VOLAN = 4e-4,
+  VURUS_T = 0.12,
+  VURUS_SURE = 0.6;
 /** dört çekerde akslar arası bağ (1/s): düşük değer arka tekerin gazla patinaj yapmasına izin verir */
 const AKS_BAGI = 20;
 
@@ -83,6 +83,9 @@ export interface YeniDurum {
   turbo: number;
   /** önceki adımın boylamsal hızı (ivme için) */
   vlOnce: number;
+  /** debriyaj: aktarımdan ayrık motorun devri (0: bağlı), vuruştan sonra çekiş sınırlarının kalkık kalacağı süre */
+  serbestDevir: number;
+  vurusT: number;
 }
 
 // ---------- vektör ve dördey yardımcıları (ayırma yapmadan)
@@ -263,6 +266,8 @@ export function yeniBaslat(d: SimDurumu, cx: FizikBaglami): YeniDurum {
     vitesT: 0,
     turbo: 0,
     vlOnce: 0,
+    serbestDevir: 0,
+    vurusT: 0,
   };
   rot(Y, 0, F.cgY, F.cgZ, T1);
   Y.px = S.x + T1.x;
@@ -334,8 +339,6 @@ export function yeniAdim(
     ab = Math.abs(be),
     bmax = driftSiniri(v);
   driftPenceresi(d, gi, cx, v, be, ab, bmax, dt);
-  // el freni payı (0-1): basılıyken hızla artar
-  const el = gi.el ? sm(EL_HIZ[0], EL_HIZ[1], Math.abs(vl)) : 0;
   // ---------- lastik değerleri: her teker kendi zemininde
   const kz = Math.max(DR.k, sm(0.1, 0.3, ab) * Math.min(1, +gi.g) * as.dft),
     spn = Math.min(1, Math.abs(vl) / VMAX),
@@ -368,8 +371,6 @@ export function yeniAdim(
     mu *= t.on ? CAR.fb : CAR.rb * (1 - 0.3 * as.ini * DR.k);
     if (gevsek) mu *= GEVSEK_TUTUS * (t.on ? 1 : GEVSEK_ARKA);
     mu *= uzman;
-    // el freni: kilitli arka lastik kayar (oyunlardaki gibi arka tutuşu büyük ölçüde gider, araç az yavaşlar)
-    if (!t.on) mu *= 1 - EL_TUTUS * el;
     let B = T.B[ti] * (zi == 3 ? 0.85 : 1) * tp,
       Cc = gevsek ? Math.max(T.C[ti], GEVSEK_C) : T.C[ti];
     // asfaltta drift: arka lastik kaymaya başlayınca (drift yardımı açıkken) toprakta olduğu gibi yumuşak ve uzun kayar
@@ -411,7 +412,10 @@ export function yeniAdim(
   // ---------- gaz, fren, vites
   let gaz = S.gas,
     fren = gi.b;
-  if (as.tcs > 0 && !DR.on) gaz *= 1 - as.tcs * sm(0.12, 0.35, ab);
+  // debriyaj vuruşundan hemen sonra çekiş sınırları kalkık: patinajı oyuncu istedi
+  Y.vurusT = Math.max(0, Y.vurusT - dt);
+  const vurusta = Y.vurusT > 0 || Y.serbestDevir > 0;
+  if (as.tcs > 0 && !DR.on && !vurusta) gaz *= 1 - as.tcs * sm(0.12, 0.35, ab);
   if (fren > 0 && vl < 0.5 && gi.g < 0.05) Y.vites = -1;
   else if (Y.vites == -1 && gi.g > 0.05) Y.vites = 1;
   if (Y.vites == -1) {
@@ -421,9 +425,9 @@ export function yeniAdim(
   // çekiş sınırı (tepe kaymanın katı): çekiş kontrolü ve tuşla gazda kalkış patinajı (araca özgü, sabit ve düşük).
   // Sınır her ara adımda teker torkuna uygulanır: teker, lastiğin bu kaymada aktarabileceğinden fazla tork almaz.
   let cekisSiniri = 1e9;
-  if (as.tcs > 0) cekisSiniri = 1.2 + 2.5 * (1 - as.tcs);
+  if (as.tcs > 0 && !vurusta) cekisSiniri = 1.2 + 2.5 * (1 - as.tcs);
   // tuşla gazda sınır hızla gevşer (klasik modeldeki gibi): kalkışta sabit, 30 m/s'de neredeyse yok
-  if (!gi.analogGaz)
+  if (!gi.analogGaz && !vurusta)
     cekisSiniri = Math.min(
       cekisSiniri,
       1 + 4 * (0.02 + 0.08 * tu.lch) + Math.max(0, Math.abs(vl) - 6) * 0.25,
@@ -451,7 +455,25 @@ export function yeniAdim(
   oranV = (Y.vites > 0 ? VITESLER[Y.vites - 1] : -3) * F.son;
   // kalkış debriyajı: tekerler yavaşken motor kalkış devrinde kalır, tork kayan debriyajdan geçer
   const kalkis = F.devirMin + (F.kalkis - F.devirMin) * Math.min(1, gaz * 1.5),
-    devir = Math.max(devirT, gaz > 0.05 ? kalkis : F.devirMin),
+    devirBagli = Math.max(devirT, gaz > 0.05 ? kalkis : F.devirMin);
+  // debriyaj: basılıyken motor aktarımdan ayrılır ve kendiliğinden kesici altına devirlenir (tekerlere tork yok;
+  // dokunmatikte başparmak gazdan kalksa da vuruş olsun). Bırakınca
+  // motorun tekerlerden fazla devri (volan ataleti) VURUS_T sürede tork vuruşu olarak tekerlere geçer: arkadan
+  // itişte arka tekerler patinaja girer. Kalkış debriyajı (devirBagli) bundan ayrıdır.
+  const dbr = !!gi.dbr && Y.vites > 0;
+  let vurus = 0;
+  if (dbr) {
+    const hedefD = 0.97 * F.devirMax;
+    if (Y.serbestDevir <= 0) Y.serbestDevir = Math.max(Y.rpm, devirBagli);
+    Y.serbestDevir += (hedefD - Y.serbestDevir) * Math.min(1, dt * 5);
+  } else if (Y.serbestDevir > devirBagli) {
+    const fark = Y.serbestDevir - devirBagli,
+      kalan = fark * Math.exp(-dt / VURUS_T);
+    vurus = (VOLAN * F.tork * (fark - kalan) * 2 * Math.PI) / 60 / dt;
+    Y.serbestDevir = kalan > 50 ? devirBagli + kalan : 0;
+    Y.vurusT = VURUS_SURE;
+  } else Y.serbestDevir = 0;
+  const devir = Y.serbestDevir > 0 ? Math.min(Y.serbestDevir, F.devirMax) : devirBagli,
     u = devir / F.devirMax;
   Y.rpm += (devir - Y.rpm) * Math.min(1, dt * 12);
   // turbo: torkun tb payı basınçtan gelir. Basınç gaz açık ve devir tbu'yu geçmişken tbs sürede dolar,
@@ -463,15 +485,14 @@ export function yeniAdim(
     Y.turbo += (hedef - Y.turbo) * Math.min(1, dt / (hedef > Y.turbo ? tbs : tbs * 0.3));
     turbo = 1 - CAR.tb * (1 - Y.turbo);
   }
-  let Te = 0;
-  if (Y.vitesT <= 0) {
+  let Te = vurus;
+  if (Y.vitesT <= 0 && !dbr) {
     Te = u < 1.02 ? F.tork * torkEgrisi(u) * gaz * uzmanG * turbo : 0;
     // motor freni: gaz kapalıyken
     if (devirT > F.devirMin) Te -= F.tork * 0.15 * u * (1 - gaz);
   }
   const Tw = Te * oranV * F.verim,
-    Tarka = (Tw * (1 - F.awd) * (1 - el)) / 2,
-    Tsurus = [(Tw * F.awd) / 2, (Tw * F.awd) / 2, Tarka, Tarka];
+    Tsurus = [(Tw * F.awd) / 2, (Tw * F.awd) / 2, (Tw * (1 - F.awd)) / 2, (Tw * (1 - F.awd)) / 2];
   // frenler ve ABS; dururken gaz ve fren yoksa yokuş kalkış desteği aracı tutar
   const Tfren: number[] = [],
     tutma = Math.abs(vl) < 0.6 && gaz < 0.05 && fren < 0.05 ? 0.3 : 0;
@@ -480,14 +501,11 @@ export function yeniAdim(
       hedef = 1 - as.abs * sm(1.1, 1.8, -tk.kap / LP[i].kp);
     tk.abs += (hedef - tk.abs) * Math.min(1, dt * 30);
     Tfren.push(((F.fren * (fren + tutma) * (F.tk[i].on ? F.frenOn : 1 - F.frenOn)) / 2) * tk.abs);
-    // el freni: arka tekerleri ABS'siz kilitler, tutuş yanlamasına da düşer, arka dışarı atar
-    if (!F.tk[i].on) Tfren[i] += (F.fren * EL_FREN * el) / 2;
   }
   // ---------- yardım kuvvetleri için hedefler
-  // driftte ve el freninde yardımlar geri çekilir (kaymayı oyuncu istedi)
-  const kin = 5 * as.str * (1 - DR.k) * (1 - el),
-    al = 2.5 * as.str * (1 - DR.k) * (1 - el),
-    esc = 1.6 * as.stm * (1 - DR.k) * (1 - el),
+  const kin = 5 * as.str * (1 - DR.k),
+    al = 2.5 * as.str * (1 - DR.k),
+    esc = 1.6 * as.stm * (1 - DR.k),
     Aeq = 30 * muOrt * (1 + 0.5 * tu.aero * CAR.ae * spn * spn);
   // ---------- ara adımlar
   const h = dt / ARA,
@@ -671,7 +689,7 @@ export function yeniAdim(
       kenet(0, 1, 40);
       const on = (Y.tk[0].w + Y.tk[1].w) / 2,
         arka = (Y.tk[2].w + Y.tk[3].w) / 2,
-        l = Math.min(1, h * AKS_BAGI * (1 - el)) * 0.5 * (on - arka);
+        l = Math.min(1, h * AKS_BAGI) * 0.5 * (on - arka);
       Y.tk[0].w -= l;
       Y.tk[1].w -= l;
       Y.tk[2].w += l;

@@ -49,7 +49,7 @@ export const HUD_PARCALARI = {
     n: "Harita",
     s: { kare: "Kare", yuvarlak: "Yuvarlak", kucuk: "Küçük", kapali: "Kapalı" },
   },
-  elfreni: { n: "El freni", s: { acik: "Açık", kapali: "Kapalı" } },
+  debriyaj: { n: "Debriyaj", s: { acik: "Açık", kapali: "Kapalı" } },
 } as const;
 export type HudParcasi = keyof typeof HUD_PARCALARI;
 export type HudSecimi = { [K in HudParcasi]: keyof (typeof HUD_PARCALARI)[K]["s"] };
@@ -58,22 +58,22 @@ export const HUDLAR: Record<HudDuzeni, { n: string; d: string; p: HudSecimi }> =
   kose: {
     n: "Köşe",
     d: "Hız sağda, gaz tuşunun üstünde",
-    p: { hiz: "kose", sayac: "panel", tus: "panel", harita: "kare", elfreni: "acik" },
+    p: { hiz: "kose", sayac: "panel", tus: "panel", harita: "kare", debriyaj: "acik" },
   },
   kadran: {
     n: "Kadran",
     d: "Yuvarlak hız kadranı, yuvarlak harita",
-    p: { hiz: "kadran", sayac: "panel", tus: "panel", harita: "yuvarlak", elfreni: "acik" },
+    p: { hiz: "kadran", sayac: "panel", tus: "panel", harita: "yuvarlak", debriyaj: "acik" },
   },
   bant: {
     n: "Bant",
     d: "Hız üstte ortada, alt taraf boş",
-    p: { hiz: "bant", sayac: "panel", tus: "panel", harita: "kare", elfreni: "acik" },
+    p: { hiz: "bant", sayac: "panel", tus: "panel", harita: "kare", debriyaj: "acik" },
   },
   sade: {
     n: "Sade",
     d: "Panelsiz, en az gösterge",
-    p: { hiz: "sade", sayac: "yazi", tus: "simge", harita: "kucuk", elfreni: "acik" },
+    p: { hiz: "sade", sayac: "yazi", tus: "simge", harita: "kucuk", debriyaj: "acik" },
   },
 };
 export const gorunum: HudSecimi = { ...HUDLAR.kose.p };
