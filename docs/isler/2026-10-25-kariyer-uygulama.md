@@ -9,7 +9,7 @@ Kullanıcı: “değiştirilmesi gereken fiyatlar ve fizikler varsa yapalım. oy
 - Kabul 4: yalnız bir türde 1–2 yıldızla ilerleme mümkün; diğer türde farm zorunlu değil; mevcut para, sahiplik, yıldız ve açık içerik korunur.
 - Kabul 5: oyuncu yarıştan önce sınırı/uygunluğu, modifiye alırken net bedeli görür; sonraki içerik aynı veri/denetim sözleşmesini kullanır. İlgili birim/fizik/arayüz kanıtı, ardından 0.7.2 veya güncel sürümün bir sonraki yaması denemede doğrulanır. Canlı değişmez.
 - Sınır: bütün davranışı yeniden yazan fizik motoru değişikliği yok; gerçek fizik üzerinde parça parametreleri kalibre edilir. İnsan oyuncu keyfi/başarı dağılımı otomasyonla kanıtlanmış sayılmaz.
-- Durum: uygulama ve kaynak doğrulaması tamam; 0.7.6 deneme yayını hazırlanıyor.
+- Durum: tamamlandı; 0.7.6 deneme adresinde doğrulandı.
 
 ## Uygulanan davranış
 
@@ -28,7 +28,7 @@ Kullanıcı: “değiştirilmesi gereken fiyatlar ve fizikler varsa yapalım. oy
 - tests/yardimci/uyum.ts bariyerde 10 sn hareketsiz kalan pilotu erken başarısız sayar; başarılı sürüşün süre/puanını değiştirmez. Zor başarısız referansı dakikalarca simüle etmeyi önler.
 - 40 pistin ölçümleri ve kurulum/fizik/geometri imzaları docs/denge/2026-10-25-kariyer-olcum.json; 5 türde Usta pistinde 3 yatırım yolu (15 sürüş örneği) docs/denge/2026-10-25-yatirim-olcum.json. Bu pilot örneklemi, insan başarı oranı garantisi değildir.
 - İlk bağımsız denetim bitişin tekilliği, deneme rekorlarının ayrılması, kredi muhasebesi ve kayıt uyumu risklerini belirledi; uygulamaya alındı. İkinci bağımsız denetim araç kotası nedeniyle tamamlanmadı; kalan doğrulama ana uygulayıcı ve ilgili testlerle yürütüldü.
-- CI/tarayıcı/deneme yayın kanıtı: gönderim sonunda eklenecek. Canlı sürüm değişmez.
+- CI/tarayıcı ve deneme yayın kanıtları aşağıda tamamlandı. Canlı sürüm değişmedi.
 
 ## Güncel dal birleştirmesi
 
@@ -47,4 +47,11 @@ Kullanıcı: “değiştirilmesi gereken fiyatlar ve fizikler varsa yapalım. oy
 - Test edilen kaynak: 1fb87cdeb7a64d32373618e439c757947c1668e6; Denetim https://github.com/cemcandan01/Last-Turn/actions/runs/40227251363, job 121271129008: başarılı. 31/31 alan senaryosu, 91 seçilen birim ve 11 tarayıcı bölümü; kapsam dışı 8 bulut testi Vitest filtrelidir, koşuldu denmez.
 - iPhone 13 kariyer garajı görseli ve sonradan açılan modalın engellenmesi doğrulandı; tüm HUD/kontrol kombinasyonları çakışmasız. RX Toprak/restart/yardım/serbest sürüş geri dönüşü geçti. Tam regresyon veya insan başarı dağılımı iddiası yok.
 - Yayın tabanı gelistirme 0871a3b (0.7.5); sürüm dondurma yok. Deneme 0.7.6: aynı oyun/test kodu, yalnız sürüm kökleri ve belge kanıtı eklenir. Canlı 0.6.8 değişmez.
-- Sonraki adım: 0.7.6 deneme yayınının adres/sürüm doğrulaması; ardından Cem'in iPhone sürüş geri bildirimiyle ince ayar.
+- Sonraki adım: Cem'in iPhone sürüş geri bildirimiyle gerekirse ince ayar; teknik yayın adımı tamamlandı.
+
+## Teslim
+
+- Deneme birleştirmesi: 95ba863b69694a8a6b45cc43a247198e6cae66d1, 0.7.6. Kaynak CI 1fb87cd ile src/tests/scripts/.github farkı yok; yalnız sürüm kökleri ve Markdown kanıt eklendi. Yerel yayın kontrolü (tip/ESLint/biçim) geçti.
+- Yayın https://github.com/cemcandan01/Last-Turn/actions/runs/40227752816 başarılı; derle 121272669381, yayınla 121272937236, adres kontrolü 121272987653 başarılı. Adres kanıtı: kök → 0.6.8, /dev/ → 0.7.6 (25 Ekim 2026, 19:50 UTC). Canlı sürüm aynı olduğu için canlı duman bu deneme yayınında çalışmaz.
+- Oynama adresi: https://cemcandan01.github.io/Last-Turn/dev/
+- Son kanıt/devir commit'i yalnız bu kart, devir ve alan notu Markdown'ıdır. Oyun/bağımlılık/sürüm değişmez; aynı başarılı CI/yayın kanıtı yeniden kullanılır. Gereksiz ikinci Pages yayını tetiklenmesin diye belge commit'inde [skip ci] kullanıldı; oyun doğrulaması atlanmadı.

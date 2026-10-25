@@ -8,4 +8,4 @@
 - Otomatik lastik bileşiği + takılı parçanın kalite seviyesi; rallikros Toprak. Başlangıç/başarı/para/sahiplik korunur, eski fizik hayaleti oynatılmaz.
 - Tek türde iki yıldızla erişim alternatifi; global XP yolu korunur. Garaj mevcut aracı geliştirmeyi gösterir.
 - İnsan keyfi/başarı dağılımı otomasyonla kanıtlanmış değil; denemede Cem'in sürüş geri bildirimiyle incelenir.
-- Son kaynak 1fb87cd; Denetim 40227251363: 31/31 alan, 91 birim ve 11 tarayıcı bölümü başarılı. 0.7.6 deneme yayını bekleniyor; canlı değişmez.
+- Son kaynak 1fb87cd; Denetim 40227251363: 31/31 alan, 91 birim ve 11 tarayıcı bölümü başarılı. 0.7.6 denemede (95ba863), Yayın 40227752816/adres kontrolü başarılı; canlı 0.6.8 değişmedi.
