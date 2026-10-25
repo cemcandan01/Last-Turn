@@ -16,8 +16,10 @@ import { girdiSifirla } from "./girdi";
 import { aracAcikMi, pistAcikMi, yarisBitti } from "./ilerleme";
 import { modifiyeUygula } from "./modifiye";
 import { kurulumKaydet, kurulumYukle, yarisLastigiTak, type KurulumKaydi } from "./kurulum";
+import { hayaletKaydet } from "./hayalet-kayit";
 import { PROF, saveProf } from "./profil";
-import { reset, sim } from "./surus";
+import { dunyaSorgusuYap, kayitKurulumu, kayitHavasi, reset, sim, yerel } from "./surus";
+import { rekorHayaletiBaslat, rekorHayaletiDurdur } from "./uzak";
 import { X6_CARPAN, X6_ORAN, driftAdimi, driftBankala, tersAdimi, type DriftOlay } from "./yaris-kurallari";
 import { bosPistDisi, pistDisiAdimi, type DonusNoktasi, type PistDisiSayaci } from "./piste-donus";
 import { DRIFT_TUR, TUR_ANAHTARI, yildizEsikleri, yildizSay } from "./yildiz";
@@ -222,6 +224,7 @@ export function startEvent(i: number, ci?: number) {
     para: 0,
     limit: e.limit || 0,
   };
+  rekorHayaletiBaslat(e.k, dunyaSorgusuYap({ cur: null }));
   return true;
 }
 
@@ -235,7 +238,9 @@ export function yarisiYenidenBaslat() {
 export function yaristaPisteDon(p: DonusNoktasi) {
   const EV = yaris.EV;
   if (!EV) return;
-  reset(p.x, p.z, p.h);
+  reset(p.x, p.z, p.h, false);
+  // Yarışın yalnız son parçası rekor hayaleti diye kaydedilemez.
+  yerel.kayit.kesik = true;
   EV.prev = ipucu.ti;
   EV.pistDisi = bosPistDisi();
   EV.ters = false;
@@ -251,6 +256,7 @@ export function leaveEvent() {
   const sv = EV.sv;
   if (CARS[sv.car] !== oyun.CAR) setCar(sv.car);
   kurulumYukle(sv);
+  rekorHayaletiDurdur();
   yaris.EV = null;
   goster("#ts");
   $("#ev").textContent = "";
@@ -335,7 +341,10 @@ export function endEvent() {
   EV.state = "done";
   oyun.mode = "result";
   PROF.races++;
-  EV.yildiz = yildizSay(EV.ty, EV.ty == "dp" ? EV.score : EV.t, EV.ys);
+  const sureSkor = EV.ty == "dp" ? EV.score : EV.t;
+  EV.yildiz = yildizSay(EV.ty, sureSkor, EV.ys);
+  hayaletKaydet(EV.k, carIndex(), sureSkor, yerel.kayit, EV.ty == "dp", kayitKurulumu, 0, kayitHavasi);
+  rekorHayaletiDurdur();
   const odul = yarisBitti(EV.ty, EV.lv, EV.yildiz);
   EV.xp = odul.xp;
   EV.para = odul.para;

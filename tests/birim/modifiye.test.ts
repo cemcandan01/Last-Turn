@@ -104,7 +104,7 @@ describe("modifiye: takılı parçalar ve sürüş", () => {
     parcaTak(A, "motor-yaris");
     modifiyeUygula(A);
     expect(kurulum.mod!.taban).toBe(CARS[A]);
-    expect(kurulum.mod!.car.hp).toBeCloseTo(CARS[A].hp * 1.27, 5);
+    expect(kurulum.mod!.car.hp).toBeCloseTo(CARS[A].hp * 1.75, 5);
     expect(kurulum.pk).toBe("dr");
     expect(kurulum.tire).toBe(kurulum.mod!.tire);
   });

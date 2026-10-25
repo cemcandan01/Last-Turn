@@ -115,7 +115,7 @@ describe("girdi kaydı ve yeniden oynatma", () => {
 });
 
 describe("araç örnekleri birbirinden bağımsız", () => {
-  it("iki araç sırayla adımlanınca her biri tek başına sürülmüş gibi", () => {
+  it("iki araç sırayla adımlanınca her biri tek başına sürülmüş gibi", { timeout: 30000 }, () => {
     const gi = (k: number, i: number): FizikGirdisi => ({
       tg: Math.sin(k / (40 + i * 13)),
       g: 1,

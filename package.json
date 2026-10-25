@@ -1,6 +1,6 @@
 {
   "name": "last-turn",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "private": true,
   "type": "module",
   "description": "iPhone için 3D sürüş ve yarış oyunu (PWA)",

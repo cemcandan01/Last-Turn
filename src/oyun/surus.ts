@@ -12,12 +12,13 @@ import { ADIM } from "../fizik/simulasyon";
 import type { DunyaSorgusu, SurusKurulumu } from "../fizik/tipler";
 import { kameraSifirla } from "../cizim/kamera";
 import { set } from "./ayarlar";
-import { oyun } from "./durum";
+import { carIndex, oyun } from "./durum";
+import { hayaletKaydet } from "./hayalet-kayit";
 import { fizikGirdisi } from "./girdi";
 import { kurulum } from "./kurulum";
 import { PROF, saveProf } from "./profil";
 import { yaris, evTick } from "./yarislar";
-import { uzakAdimi, uzakSifirla } from "./uzak";
+import { rekorHayaletiBaslat, rekorHayaletiDurdur, uzakAdimi, uzakSifirla } from "./uzak";
 
 /** serbest sürüşte tur sayacı (kapalı pistlerde) */
 export const LAP = {
@@ -26,6 +27,7 @@ export const LAP = {
   last: null as number | null,
   best: null as number | null,
   armed: 0,
+  kayitBas: 0,
   prev: 0,
   reg: null as Bolge | null,
 };
@@ -39,8 +41,14 @@ export function dunyaSorgusuYap(b: { cur: Bolge | null }): DunyaSorgusu {
   return {
     H: Hw,
     surf: (x, z) => {
+      const oncekiBolge = dunya.cur,
+        oncekiIpucu = ipucu.ti;
       const r = surfW(x, z);
       b.cur = dunya.cur;
+      if (b !== dunya) {
+        dunya.cur = oncekiBolge;
+        ipucu.ti = oncekiIpucu;
+      }
       return r;
     },
     yakin: (x, z) => dunya.cols.yakin(x, z),
@@ -74,15 +82,22 @@ export const yerel = aracOrnegiYap(
   1,
 );
 export const sim = yerel.sim;
+let kayitImza = "";
+export let kayitKurulumu = structuredClone(surusKurulumu());
+export let kayitHavasi = { tutus: ortam.g, karli: ortam.k === "snow" };
 
 /** aracı (x, z) noktasına koy; verilmezse açık dünyanın ilk ışınlanma noktası */
-export function reset(x?: number, z?: number, h?: number) {
+export function reset(x?: number, z?: number, h?: number, rekoruSifirla = true) {
   const sp = oyun.CURW.tele[0];
   x = x ?? sp[1];
   z = z ?? sp[2];
   h = h ?? sp[3];
   aracSifirla(yerel, x, z, h, Hw(x, z));
-  uzakSifirla();
+  kayitKurulumu = structuredClone(surusKurulumu());
+  kayitImza = JSON.stringify(kayitKurulumu);
+  kayitHavasi = { tutus: ortam.g, karli: ortam.k === "snow" };
+  LAP.kayitBas = 0;
+  uzakSifirla(rekoruSifirla);
   kameraSifirla(h);
   LAP.run = 0;
   LAP.t = 0;
@@ -101,6 +116,8 @@ export function surusAdimi() {
   const S = sim.S;
   PROF.km += (Math.hypot(S.vx, S.vz) * ADIM) / 1000;
   yerel.cx.kurulum = surusKurulumu();
+  if (JSON.stringify(yerel.cx.kurulum) !== kayitImza || ortam.g !== kayitHavasi.tutus)
+    yerel.kayit.kesik = true;
   const gi = fizikGirdisi(),
     son = aracAdimi(yerel, gi);
   if (sim.d.zaman % 20 < ADIM) saveProf();
@@ -116,7 +133,9 @@ function turSayaci(dt: number) {
   if (LAP.reg !== cur) {
     LAP.reg = cur;
     LAP.run = 0;
+    LAP.best = null;
     LAP.armed = 0;
+    if (!yaris.EV) rekorHayaletiDurdur();
     LAP.prev = ipucu.ti;
   }
   const TR = dunya.TR;
@@ -128,7 +147,21 @@ function turSayaci(dt: number) {
       if (LAP.run && LAP.armed) {
         LAP.last = LAP.t;
         LAP.best = LAP.best == null ? LAP.t : Math.min(LAP.best, LAP.t);
+        if (cur) {
+          hayaletKaydet(
+            "lap_" + (cur.n || "pist"),
+            carIndex(),
+            LAP.last,
+            yerel.kayit,
+            false,
+            kayitKurulumu,
+            LAP.kayitBas,
+            kayitHavasi,
+          );
+        }
       }
+      if (cur) rekorHayaletiBaslat("lap_" + (cur.n || "pist"), dunyaSorgusuYap({ cur: null }));
+      LAP.kayitBas = yerel.kayit.n;
       LAP.run = 1;
       LAP.t = 0;
       LAP.armed = 0;

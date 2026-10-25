@@ -38,6 +38,7 @@ const BOLUMLER = [
   "hud-minimap",
   "kokpit",
   "cok-arac",
+  "hayalet",
   "ilerleme",
   "garaj-kilit",
   "magaza",
