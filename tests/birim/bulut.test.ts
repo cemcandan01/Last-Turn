@@ -175,8 +175,15 @@ describe("rekor ve belge", () => {
     rekorBirlestir({ asphalt_1: 80, drift_1: 6000 });
     expect(best("asphalt_1")).toBe(65.2);
     expect(best("drift_1")).toBe(6000);
+    // yeni drift kuralının rekoru ayrı anahtarda: eskisiyle karışmaz, o da büyüğü alır
+    saveBest("drift2_1", "1500");
+    rekorBirlestir({ drift2_1: 1200 });
+    expect(best("drift2_1")).toBe(1500);
+    rekorBirlestir({ drift2_1: 1800 });
+    expect(best("drift2_1")).toBe(1800);
+    expect(best("drift_1")).toBe(6000);
     const b = belgeOlustur();
-    expect(b.rekor).toMatchObject({ asphalt_1: 65.2, drift_1: 6000, rally_2: 90 });
+    expect(b.rekor).toMatchObject({ asphalt_1: 65.2, drift_1: 6000, drift2_1: 1800, rally_2: 90 });
     expect(Object.keys(b).sort()).toEqual(
       ["alimlar", "ekAcik", "kazanilan", "oyunSurum", "rekor", "surum", "updatedAt", "xp", "yildiz"].sort(),
     );

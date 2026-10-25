@@ -1,6 +1,6 @@
 # 2026-10-25-drift-bonus-denge
 
-- Durum: görünürlük tamam (0.7.3); denge önerisi Cem'in onayını bekliyor. Sahip: Claude; dal: `drift-bonus-denge`.
+- Durum: tamamlandı (0.7.3 görünürlük, 0.7.4 denge; Cem "onayla"). Sahip: Claude; dal: `drift-bonus-denge`.
 
 ## İstek
 
@@ -25,8 +25,16 @@ Pilot puanının ~%80'i bonus. 1★ eşikleri (5500, 12700, 25100, 9100) bonusla
 
 1. [x] Bankaya geçmemiş bonus kombo panelinde "+N BONUS" olarak görünür (`hud-cakisma`).
 2. [x] Bonus kuralı bonus başına `bas`/`puan` ile ayarlanabilir; değerler değişmedi (birim testleri aynı).
-3. [ ] Denge: Cem'in onayıyla yeni bonus kuralı + drift yıldız eşikleri + rekor uyumu.
+3. [x] Yeni bonus kuralı: uzun drift 3 sn'den sonra artan +100/+200/+300…; tek yön 3 sn'den sonra +150/sn; direksiyonsuz 2 sn'den sonra +100/sn (`yildiz` birim testleri).
+4. [x] Drift yıldız eşikleri mevcut yöntemle yeniden ölçüldü (`npm run olcum -- drift-puan`, pilot P0 × DRIFT_PAY). lv sırasıyla 1★/2★/3★: 1050/2700/3700, 1350/3350/4550, 1750/4300/5750, 1750/4450/5800, 3150/7950/10250, 2650/6550/8300, 1350/3350/4600, 1550/3950/5200. Bordo Tilki ilk drift yarışında 1★ alabilir (`surus` birim testi). Ham çıktı `tests/cikti/drift-puan-yeni.txt` (yerel).
+5. [x] Rekor uyumu: drift rekoru/hayaleti `drift2_<lv>`; eski kural rekoru `drift_<lv>`de kalır, profil listesinde "eski kural" diye görünür, bulutta ikisi de eşitlenir (`bulut` birim testi). Yıldızlar ve yıldız anahtarı değişmedi; kazanılmış yıldız silinmez.
+
+## Denge notu (DENGE.md)
+
+- Rol: drift bonusu kaliteli (uzun, tek yönlü, dengeli) drifti ödüllendirir; kısa drift bonus almaz. Edinme süresi/ekonomi değişmedi; yalnız drift puan ölçeği ve yıldız eşikleri.
+- Sınır: eşikler pilotla kalibre; pilot 3 sn'yi nadiren geçer, insan uzun driftte artan bonusla daha yüksek puan alır. 1★ insan için kolay kalabilir; iPhone'da gerçek oyuncu denemesiyle yeniden bakılmalı (§8).
 
 ## Kanıt
 
-`npm run kontrol` temiz; `yildiz`+`surus` birim 17/17; `alan hud` 4/4. Görüntü `tests/cikti/bonus-panel.png`.
+0.7.3: `npm run kontrol` temiz; `yildiz`+`surus` 17/17; `alan hud` 4/4; görüntü `tests/cikti/bonus-panel.png`.
+0.7.4: `npm run kontrol` temiz; `npm test` 290/290; `alan pist,hud,hayalet,yarista-reset` 17/17.

@@ -17,7 +17,7 @@ import { demoStart, demoStop } from "../oyun/sinematik";
 import { reset } from "../oyun/surus";
 import { EVENTS, leaveEvent, TYP, type YarisTanimi } from "../oyun/yarislar";
 import { gorselOynuyor } from "./arka-gorsel";
-import { enIyiYildiz, yildizEsikleri } from "../oyun/yildiz";
+import { TUR_ANAHTARI, enIyiYildiz, yildizEsikleri } from "../oyun/yildiz";
 import { ikon, yildizSerit, type IkonAdi } from "./ikonlar";
 import { aracSatinAlinabilirMi, acilmaSeviyesi, pistAcikMi, yarisSonuPara } from "../oyun/ilerleme";
 import { kilitNotu, bakiyeHtml, kutlamaGoster, seviyeRozetiHtml, xpCubuguHtml } from "./seviye-ui";
@@ -80,9 +80,12 @@ const yildizEsikSatiri = (e: YarisTanimi) => {
     )
     .join("")}</div>`;
 };
-const prOf = (e: YarisTanimi) => {
-  const b = best(e.k);
-  return b ? (e.ty == "dp" ? b + " puan" : e.ty == "dg" ? fmt3(+b) : fmt(+b)) : "—";
+const prOf = (e: YarisTanimi, eskiKural = false) => {
+  const b = best(e.k),
+    // drift bonus kuralı 0.7.4'te değişti: eski kuralla yapılan rekor (profil listesinde) ayrı gösterilir
+    eski = eskiKural && e.ty == "dp" ? best(TUR_ANAHTARI.dp + "_" + e.lv) : 0;
+  const s = b ? (e.ty == "dp" ? b + " puan" : e.ty == "dg" ? fmt3(+b) : fmt(+b)) : "—";
+  return eski ? s + " · eski kural " + eski : s;
 };
 const condChips = () =>
   '<div class="lbl">Günün saati</div>' +
@@ -385,7 +388,7 @@ ${evSayilar(e)}${yildizEsikSatiri(e)}${paraOdulu(e)}</div></div><button class="b
       "Sürücü",
       `<div class="pcol"><div class="pseviye">${seviyeRozetiHtml(seviye().lv, "b")}<div><b>Seviye ${seviye().lv}</b>${xpCubuguHtml("b")}<small>Toplam ${seviye().toplamXp} XP</small>${bakiyeHtml("b")}</div></div>${hesapHtml()}<div class="lbl">Sürücü adı</div><input id="pname" class="inp" value="${PROF.name.replace(/"/g, "")}" maxlength="20">
 <div class="pst"><span>Yarış<b>${PROF.races}</b></span><span>Hedef geçildi<b>${PROF.wins}</b></span><span>Toplam yol<b>${PROF.km.toFixed(1)} km</b></span><span>En çok kullanılan<b>${fav ? CARS[+fav[0]].n : "—"}</b></span></div></div>
-<div class="pcol"><div class="lbl">Kişisel rekorlar</div>${EVENTS.map((e) => `<div class="rk"><span>${e.n}</span><span>${prOf(e)}</span></div>`).join("")}</div>`,
+<div class="pcol"><div class="lbl">Kişisel rekorlar</div>${EVENTS.map((e) => `<div class="rk"><span>${e.n}</span><span>${prOf(e, true)}</span></div>`).join("")}</div>`,
     ];
   }
   if (cur == "settings") return ["Ayarlar", "", settingsHTML()];

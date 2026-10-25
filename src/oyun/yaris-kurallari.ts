@@ -27,11 +27,14 @@ export interface DriftOlay {
   t: number;
 }
 
-/** bonus puanları: koşul `bas` sn kesintisiz sürünce başlar, sonra her tam saniye için `puan` verilir */
+/**
+ * bonus puanları: koşul `bas` sn kesintisiz sürünce başlar, sonra her tam saniye için `puan` verilir; `artan` ise
+ * n. bonus n × puan (uzun drift: +100, +200, +300…). Kısa ve özensiz drift bonus almaz, gerçekten uzun drift kazandırır.
+ */
 export const DRIFT_BONUS = {
-    uzun: { puan: 100, bas: 1 },
-    direksiyonsuz: { puan: 100, bas: 1 },
-    tekYon: { puan: 250, bas: 1 },
+    uzun: { puan: 100, bas: 3, artan: true },
+    direksiyonsuz: { puan: 100, bas: 2, artan: false },
+    tekYon: { puan: 150, bas: 3, artan: false },
   },
   /** direksiyon girişi bunun altındaysa "direksiyonsuz" (ölü bölge), kıç tarafı için en az açı (rad) */
   DIREKSIYON_OLU = 0.1,
@@ -185,10 +188,12 @@ function bonusAdimi(E: DriftSayaci, surer: boolean, beta: number, tg: number, dt
     E.yan = 0;
     return;
   }
-  const ver = (onceki: number, simdi: number, ad: DriftOlay["ad"], b: { puan: number; bas: number }) => {
-    if (Math.floor(simdi + 1e-9) > Math.floor(onceki + 1e-9) && simdi >= b.bas - 1e-9) {
-      E.bonus += b.puan;
-      E.driftOlay.push({ ad, puan: b.puan, t: zaman });
+  const ver = (onceki: number, simdi: number, ad: DriftOlay["ad"], b: (typeof DRIFT_BONUS)["uzun"]) => {
+    const n = Math.floor(simdi + 1e-9);
+    if (n > Math.floor(onceki + 1e-9) && simdi >= b.bas - 1e-9) {
+      const puan = b.artan ? (n - b.bas + 1) * b.puan : b.puan;
+      E.bonus += puan;
+      E.driftOlay.push({ ad, puan, t: zaman });
     }
   };
   let c = E.uzunT;

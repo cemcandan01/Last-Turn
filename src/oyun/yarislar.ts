@@ -22,7 +22,7 @@ import { dunyaSorgusuYap, kayitKurulumu, kayitHavasi, reset, sim, yerel } from "
 import { rekorHayaletiBaslat, rekorHayaletiDurdur } from "./uzak";
 import { X6_CARPAN, X6_ORAN, driftAdimi, driftBankala, tersAdimi, type DriftOlay } from "./yaris-kurallari";
 import { bosPistDisi, pistDisiAdimi, type DonusNoktasi, type PistDisiSayaci } from "./piste-donus";
-import { DRIFT_TUR, TUR_ANAHTARI, yildizEsikleri, yildizSay } from "./yildiz";
+import { DRIFT_REKOR_ON_EKI, DRIFT_TUR, TUR_ANAHTARI, yildizEsikleri, yildizSay } from "./yildiz";
 
 /** yarış türleri: hedef süre, pist uzunluğundan ve ilk pistlerin ayarlı hızından (v, m/s) hesaplanır */
 export const TYP: Record<
@@ -46,7 +46,8 @@ export const TYP: Record<
     d: "3 tur, asfalt ve toprak karışık: çamur, su ve rampalar. Hedef süreyi geç.",
   },
   dp: {
-    k: TUR_ANAHTARI.dp,
+    // 0.7.4 drift bonus kuralı değişti: rekor ve hayalet yeni anahtarda (eski kural rekoru drift_<lv>'de kalır)
+    k: DRIFT_REKOR_ON_EKI,
     pk: "dr",
     laps: DRIFT_TUR,
     n: "Drift yarışmaları",
