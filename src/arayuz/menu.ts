@@ -19,16 +19,16 @@ import { EVENTS, leaveEvent, TYP, type YarisTanimi } from "../oyun/yarislar";
 import { gorselOynuyor } from "./arka-gorsel";
 import { enIyiYildiz, yildizEsikleri } from "../oyun/yildiz";
 import { ikon, yildizSerit, type IkonAdi } from "./ikonlar";
-import { acilmaSeviyesi, pistAcikMi, yarisSonuPara } from "../oyun/ilerleme";
+import { aracSatinAlinabilirMi, acilmaSeviyesi, pistAcikMi, yarisSonuPara } from "../oyun/ilerleme";
 import { kilitNotu, bakiyeHtml, kutlamaGoster, seviyeRozetiHtml, xpCubuguHtml } from "./seviye-ui";
 import { seviye } from "../oyun/ilerleme";
 import { bindSettings, chipsOf, settingsHTML } from "./ayarlar-ekrani";
-import { openGarage } from "./garaj";
+import { magazaAc, openGarage } from "./garaj";
 import { hesapBagla, hesapHtml } from "./hesap-ui";
 import { kontrolleriKur } from "./kontroller";
 
 /** yarış türleri: anahtar, ad, açıklama, ikon, türün rengi (kapak akışı, pist listesi ve ayrıntıda tema) */
-const TYPES: [string, string, string, IkonAdi, string][] = [
+export const TYPES: [string, string, string, IkonAdi, string][] = [
   ["gp", "Asfalt", "Pist yarışları, fren tabelaları, kerbler", "pist", "#ff5a3c"],
   ["rx", "Rallycross", "Asfalt ve toprak karışık pist: çamur, su, rampa", "rallycross", "#d08a48"],
   ["rl", "Ralli", "A’dan B’ye dağ, orman, kar ve çöl etapları", "dag", "#4fbf74"],
@@ -43,6 +43,7 @@ const NAV: [string, IkonAdi, string][] = [
   ["race", "yaris", "Yarış"],
   ["free", "harita", "Serbest sürüş"],
   ["garage", "araba", "Garaj"],
+  ["store", "magaza", "Mağaza"],
   ["profile", "kask", "Profil"],
   ["settings", "disli", "Ayarlar"],
 ];
@@ -149,7 +150,7 @@ export function showMenu(v?: string[]) {
   const logo = `<div class="logo">LAST<b>TURN</b></div>`;
   if (cur == "home")
     m.innerHTML = `<div class="mtop">${logo}<div class="mpro">${seviyeRozetiHtml(seviye().lv)}<div><b>${PROF.name}</b>${xpCubuguHtml("m")}${bakiyeHtml("m")}<small>Sürüm ${__APP_VERSION__}${import.meta.env.MODE == "gelistirme" ? " · deneme" : ""}</small></div></div></div>
-<div class="mcards">${NAV.map(([k, g, n], i) => `<button class="mk" data-nav="${k}" style="--i:${i}"><span>${ikon(g)}<b>${n.replace(" ", "<br>")}</b></span></button>`).join("")}</div>`;
+<div class="mcards">${NAV.map(([k, g, n], i) => `<button class="mk" data-nav="${k}" style="--i:${i}"><span>${ikon(g)}<b>${n.replace(" ", "<br>")}</b>${k == "store" && CARS.some((_, i) => aracSatinAlinabilirMi(i).ok) ? `<i class="rozet"></i>` : ""}</span></button>`).join("")}</div>`;
   else {
     const [bas, ust, ic] = view(cur),
       // pist listesi ve yarış ayrıntısı türün rengiyle (--c) ve ikonuyla
@@ -169,6 +170,11 @@ export function showMenu(v?: string[]) {
     if (k == "garage") {
       demoStop();
       openGarage(null);
+      return;
+    }
+    if (k == "store") {
+      demoStop();
+      magazaAc(() => showMenu());
       return;
     }
     showMenu([k]);
@@ -218,7 +224,7 @@ export function showMenu(v?: string[]) {
       saveProf();
       showMenu();
     };
-  if (cur == "profile") hesapBagla(m);
+  if (cur == "profile") hesapBagla(m, () => showMenu());
   if (cur == "settings") bindSettings(m.querySelector<HTMLElement>(".mbody")!, () => showMenu());
   kutlamaGoster();
 }
@@ -330,7 +336,7 @@ function view(cur: string): [string, string, string] {
         const tum = EVENTS.filter((e) => e.ty == t),
           cnt = tum.length,
           acik = tum.filter((e) => pistAcikMi(e.ty, e.lv)).length;
-        return `<div class="tk" data-tk="${i}" style="--c:${c}">${ikon(g)}<b>${n}</b><small>${d}</small><em>${acik}/${cnt} pist açık · Çaylak → Efsane</em></div>`;
+        return `<div class="tk" data-tk="${i}" style="--c:${c}">${ikon(g)}<b>${n}</b><small>${d}</small><em>${acik}/${cnt} pist açık · Çaylak ${ikon("ok")} Efsane</em></div>`;
       }).join(
         "",
       )}</div><button class="kfo sol" id="kfs" aria-label="Önceki"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button class="kfo sag" id="kfg" aria-label="Sonraki"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button><div class="kfn">${TYPES.map((q) => `<i style="--c:${q[4]}"></i>`).join("")}</div>`,
@@ -362,7 +368,7 @@ function view(cur: string): [string, string, string] {
       e.n,
       turOf(e.ty)[1] + " yarışları",
       `<div><div class="evh"><img src="${trackThumb(r)}"><div>${seviyeRozeti(e)}<p class="lvd">${SEVIYELER[e.sev - 1].d}</p><p>${e.d}</p>
-${evSayilar(e)}${yildizEsikSatiri(e)}${paraOdulu(e)}</div></div><button class="btn" id="mgo" data-go="${i}">Araç seç ›</button></div>
+${evSayilar(e)}${yildizEsikSatiri(e)}${paraOdulu(e)}</div></div><button class="btn" id="mgo" data-go="${i}">Araç seç ${ikon("sag")}</button></div>
 <div class="evk">${condChips()}</div>`,
     ];
   }

@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import { ad, cl, lerp, lerpAci } from "../cekirdek/matematik";
 import { $ } from "../cekirdek/dom";
-import { ekran, garajPanel } from "../cekirdek/ekran";
+import { ekran } from "../cekirdek/ekran";
 import { kareKaydet } from "../cekirdek/performans";
 import { bildirimTick, note } from "../arayuz/bildirim";
 import { engine, hudGuncelle, motor } from "../arayuz/hud";
@@ -239,12 +239,12 @@ function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h
     cam.up.set(0, 1, 0);
     cam.lookAt(x + fxm * 3, y + 1.2, z + fzm * 3);
   }
-  // garaj kamerası: araç, panel ve şerit dışında kalan boşluğun ortasında (görüntü penceresi panel payı kadar kaydırılır)
+  // garaj kamerası: araç ekranın ortasında; araç geçişinde görüntü penceresi kısa süre yana kayar (kamera.gKay)
   if (mode == "garage") {
     const a = 0.55,
       lnd = ekran.aw > ekran.ah,
-      dd = (lnd ? 8.2 : 8.8) * kamera.gz,
-      pay = lnd && !kamera.gTam ? garajPanel() / 2 : 0,
+      dd = (lnd ? 7.2 : 8.8) * kamera.gz,
+      pay = kamera.gKay * ekran.aw * 0.35,
       ty = lnd ? 0.7 : -0.2,
       gp = lnd ? kamera.gp : kamera.gp + 0.25;
     cam.position.set(

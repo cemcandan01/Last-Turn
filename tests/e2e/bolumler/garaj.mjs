@@ -64,16 +64,16 @@ export default async function ({ p, ok }) {
   ok(sig.length > 0 && sig.every(Boolean), "garaj paneli kaydırmasız sığıyor, butonlar görünür");
   await p.evaluate(() => LT.openGarage(0));
   await p.waitForTimeout(500);
-  // yazılar panel kenarına yapışmaz (sağ kenara en az 12 px)
-  const bosluk = await p.evaluate(() => {
-    const k = document.querySelector("#gar").getBoundingClientRect().right;
-    return Math.min(
-      ...[...document.querySelectorAll("#gar .st em, #gar .bdg")].map(
-        (e) => k - e.getBoundingClientRect().right,
-      ),
-    );
-  });
-  ok(bosluk >= 12, "garaj yazıları panel kenarına yapışık değil (" + Math.round(bosluk) + " px)");
+  // yazılar ekran kenarına yapışmaz (en az 12 px içeride)
+  const bosluk = await p.evaluate(() =>
+    Math.min(
+      ...[...document.querySelectorAll("#gar .gad, #gar .gk, #gar .bdg, #gar .gbt .btn, #gpara")].map((e) => {
+        const r = e.getBoundingClientRect();
+        return Math.min(r.left, r.top, innerWidth - r.right, innerHeight - r.bottom);
+      }),
+    ),
+  );
+  ok(bosluk >= 8, "garaj öğeleri ekran kenarına yapışık değil (" + Math.round(bosluk) + " px)");
   // garajda yağış/kar noktaları çizilmez (havada beyaz kare noktalar görünmesin)
   const yagis = await p.evaluate(async () => {
     const pts = [];
@@ -94,9 +94,10 @@ export default async function ({ p, ok }) {
   const ly1 = await p.evaluate(() => LT.kamera.ly);
   ok(ly1 > ly0, "garajda sağa sürükleme aracı parmakla aynı yöne döndürür");
   // aşağı sürükleme kamerayı yükseltir ama 90°'ye varmaz; tekerlek yakınlaştırır; kısa dokunuş dönmeyi durdurur
-  await p.mouse.move(120, 100);
+  // sürükleme boş bir noktadan başlar (sol üstteki rozet/bilgi düğmelerine denk gelmez)
+  await p.mouse.move(260, 100);
   await p.mouse.down();
-  await p.mouse.move(120, 390, { steps: 8 });
+  await p.mouse.move(260, 390, { steps: 8 });
   await p.mouse.up();
   const gp = await p.evaluate(() => LT.kamera.gp);
   ok(
@@ -211,33 +212,71 @@ export default async function ({ p, ok }) {
     "menü garajında seçme yok, yalnız Geri",
   );
   await p.evaluate(() => LT.closeGarage());
-  // panel: kartlar dolu, altta boşluk yok (içerik panel yüksekliğini doldurur), genişlik sabit, kaydırma yok
+  // tam ekran vitrin düzeni: ad bloğu, sağ üst çubuklar ve alt eylemler her araçta ekran içinde, birbirine binmez,
+  // aracın durduğu orta bölge açık kalır; çubuklar HIZ/İVME/TUTUŞ/FREN/ARAZİ
   const pn = await p.evaluate(() => {
     const r = [];
+    const kes = (a, b) => !(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top);
     for (let i = 0; i < LT.CARS.length; i++) {
       LT.openGarage(0);
       for (let k = 0; k < i; k++) document.querySelector("#gnx").click();
-      const g = document.querySelector("#gar"),
-        gb = g.getBoundingClientRect(),
-        cip = document.querySelector("#gar .gcip").getBoundingClientRect(),
-        bt = document.querySelector("#gar .gbt").getBoundingClientRect(),
-        kt = document.querySelectorAll("#gar .gk");
+      // açıklama "i" düğmesiyle açılır (açık kalır); açıkken de çakışma sınanır
+      const bil = document.querySelector("#gbil");
+      if (bil && !bil.classList.contains("on")) bil.click();
+      const R = (q) => document.querySelector(q).getBoundingClientRect(),
+        ust = R("#gar .gust"),
+        bar = R("#gar .gbar"),
+        alt = R("#gar .galt"),
+        nav = R("#gar .gnav"),
+        aci = document.getElementById("gdes") ? R("#gdes") : null,
+        // alt blok sağa yaslı sütundur: kutusu geniş satırın üstüne taşar, bu yüzden çocukları ayrı sınanır
+        altCocuk = [...document.querySelectorAll("#gar .galt > *")].map((e) => e.getBoundingClientRect()),
+        ORTA = {
+          left: innerWidth * 0.42,
+          right: innerWidth * 0.58,
+          top: innerHeight * 0.35,
+          bottom: innerHeight * 0.7,
+        };
       r.push({
-        kay: g.scrollHeight <= g.clientHeight + 1,
-        w: Math.round(gb.width),
-        kart: kt.length,
-        bosluk: Math.round(bt.top - cip.bottom),
-        alt: Math.round(innerHeight - bt.bottom),
-        tasma: [...kt].some((e) => e.scrollHeight > e.clientHeight + 1),
+        cubuk: document.querySelectorAll("#gar .gk").length,
+        say: document.querySelector("#gar .gsay").textContent,
+        // oklar sol altta (≥48 px), açıklama sol üstte ve ad bloğuyla/oklarla çakışmaz
+        navSolAlt:
+          nav.left < innerWidth * 0.3 &&
+          nav.top > innerHeight * 0.6 &&
+          R("#gpv").width >= 48 &&
+          R("#gpv").height >= 48 &&
+          R("#gnx").width >= 48 &&
+          !kes(nav, alt),
+        aciklamaSolUst:
+          !aci ||
+          (aci.left < innerWidth * 0.3 &&
+            aci.top < innerHeight * 0.5 &&
+            !kes(aci, ust) &&
+            !kes(aci, nav) &&
+            !kes(aci, bar)),
+        icerde: [ust, bar, alt, nav].every(
+          (x) => x.left >= 0 && x.top >= 0 && x.right <= innerWidth && x.bottom <= innerHeight,
+        ),
+        bina:
+          kes(ust, bar) ||
+          kes(ust, alt) ||
+          kes(bar, alt) ||
+          kes(nav, ORTA) ||
+          kes(ust, ORTA) ||
+          kes(bar, ORTA) ||
+          altCocuk.some((c) => kes(c, ORTA)),
       });
       LT.closeGarage();
     }
     return r;
   });
   ok(
-    pn.every((x) => x.kay && !x.tasma && x.kart >= 6 && x.bosluk <= 12 && x.alt <= 16) &&
-      new Set(pn.map((x) => x.w)).size == 1,
-    "bilgi paneli kaydırmasız, kartlar taşmıyor, boşluk yok, genişlik sabit " + JSON.stringify(pn[0]),
+    pn.every(
+      (x) =>
+        x.cubuk == 5 && x.navSolAlt && x.aciklamaSolUst && x.icerde && !x.bina && /^\d+\/\d+$/.test(x.say),
+    ),
+    "vitrin düzeni: çubuklar var, öğeler ekran içinde, birbirine ve araca binmiyor " + JSON.stringify(pn[0]),
   );
   // araç geçişi takılmıyor (iPhone'a yakın: işlemci 4 kat yavaşlatılır). Modeller garaj açılırken kurulup GPU'ya
   // yüklenir (geçişte yeni shader programı ve geometri yok); motor sesi işçide hesaplanır (eskiden her geçişte
@@ -308,6 +347,48 @@ export default async function ({ p, ok }) {
       gec.taban +
       ")",
   );
+  // geçişte 3B görüntü kararmaz: tuval ortalama parlaklığı geçiş boyunca taban değerin altına düşmez
+  const par = await p.evaluate(async () => {
+    LT.openGarage(0);
+    await new Promise((r) => setTimeout(r, 1500));
+    const kare = () => new Promise((r) => requestAnimationFrame(r)),
+      k = document.createElement("canvas");
+    k.width = 32;
+    k.height = 18;
+    const x = k.getContext("2d", { willReadFrequently: true });
+    const olc = () => {
+      LT.R.render(LT.scene, LT.cam);
+      x.drawImage(LT.R.domElement, 0, 0, 32, 18);
+      const d = x.getImageData(0, 0, 32, 18).data;
+      let t = 0;
+      for (let i = 0; i < d.length; i += 4) t += d[i] + d[i + 1] + d[i + 2];
+      return t / (d.length / 4) / 3;
+    };
+    for (let i = 0; i < 6; i++) await kare();
+    const taban = olc();
+    const x0 = LT.cam.view ? LT.cam.view.offsetX : 0;
+    let en = taban,
+      kayma = 0;
+    for (let n = 0; n < 4; n++) {
+      document.querySelector("#gnx").click();
+      for (let i = 0; i < 20; i++) {
+        await kare();
+        en = Math.min(en, olc());
+        // ekran kaymaz: görüntü penceresi ve kamera yerinde (yalnız araç değişir)
+        kayma = Math.max(kayma, Math.abs((LT.cam.view ? LT.cam.view.offsetX : 0) - x0));
+      }
+    }
+    LT.closeGarage();
+    return { taban: Math.round(taban), en: Math.round(en), kayma };
+  });
+  ok(par.kayma == 0, "araç değişince ekran kaymıyor (görüntü penceresi oynaması " + par.kayma + " px)");
+  ok(
+    par.taban > 5 && par.en > par.taban * 0.6,
+    "araç geçişinde görüntü kararmıyor: ortalama parlaklık taban " +
+      par.taban +
+      ", geçiş boyunca en düşük " +
+      par.en,
+  );
   // garaj ışığı: dünya saati/havası ne olursa olsun aynı; kapanınca dünya ortamı geri gelir
   const isik = await p.evaluate(() => {
     const oku = () => LT.scene.background.getHex();
@@ -321,7 +402,7 @@ export default async function ({ p, ok }) {
       LT.applyEnv(LT.ortam.k);
       const dunya = oku();
       LT.openGarage(0);
-      sonuc.push([dunya, oku(), LT.scene.fog.near > 1e4]);
+      sonuc.push([dunya, oku(), LT.scene.fog.near == 10 && LT.scene.fog.far == 42]);
       LT.closeGarage();
       sonuc.push(oku() == dunya);
     }
@@ -336,7 +417,19 @@ export default async function ({ p, ok }) {
   );
   // yeni araç modelleri (k anahtarına göre): fizik dalı araçları ekleyene kadar geçici kopyalarla denenir
   const modeller = await p.evaluate(() => {
-    const k = { gt3: "gp", t16: "rx", int: "rl", ae86: "dr", supra: "dg" };
+    const k = {
+      gt3: "gp",
+      t16: "rx",
+      int: "rl",
+      ae86: "dr",
+      supra: "dg",
+      // başlangıç araçları (D sınıfı)
+      e30: "gp",
+      golf: "rx",
+      niva: "rl",
+      c33: "dp",
+      fox: "dg",
+    };
     for (const a in k) if (!LT.CARS.find((c) => c.k == a)) LT.CARS.push({ ...LT.CARS[0], k: a, ty: k[a] });
     LT.gorunumUygula(LT.CARS);
     const out = {};
@@ -360,4 +453,39 @@ export default async function ({ p, ok }) {
       modeller[a].ad && modeller[a].mesh > 20 && modeller[a].nan == 0,
       "yeni araç modeli kurulur (vitrin önbelleğiyle): " + a,
     );
+  // garajda da tür süzgeci: yalnız sahip olunan o türün araçları, tema türün rengi; "i" basılıyken kutusu aynı boyda
+  const gs = await p.evaluate(() => {
+    LT.openGarage(null);
+    const kutu = () => {
+      const b = document.querySelector("#gbil"),
+        r = b.getBoundingClientRect(),
+        st = getComputedStyle(b);
+      return { w: r.width, h: r.height, klip: st.backgroundClip };
+    };
+    const once = kutu();
+    document.querySelector("#gbil").click();
+    const basili = kutu();
+    document.querySelector("#gbil").click();
+    document.querySelector("#gsac").click();
+    document.querySelector("#gmf [data-suz='dp']").click();
+    const z = [];
+    for (let k = 0; k < 3; k++) {
+      z.push(LT.oyun.CAR.ty);
+      document.querySelector("#gnx").click();
+    }
+    const tema = getComputedStyle(document.body).getPropertyValue("--gt").trim(),
+      sahip = LT.CARS.every((_, i) => LT.aracAcikMi(i) || LT.CARS.indexOf(LT.oyun.CAR) != i);
+    document.querySelector("#gsac").click();
+    document.querySelector("#gmf [data-suz='hepsi']").click();
+    LT.closeGarage();
+    return { once, basili, z, tema, sahip };
+  });
+  ok(
+    gs.z.every((t) => t == "dp") && gs.tema == "#b67cff" && gs.sahip,
+    "garajda tür süzgeci: yalnız sahip olunan drift araçları, tema mor: " + JSON.stringify(gs),
+  );
+  ok(
+    gs.once.klip == "content-box" && gs.basili.klip == "content-box" && gs.basili.w == gs.once.w,
+    "bilgi düğmesi basılıyken görünen kutu büyümüyor: " + JSON.stringify([gs.once, gs.basili]),
+  );
 }

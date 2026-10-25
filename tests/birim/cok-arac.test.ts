@@ -67,6 +67,8 @@ describe("girdi kaydı ve yeniden oynatma", () => {
               b: r() < 0.1 ? r() : 0,
               analogDireksiyon: true,
               analogGaz: true,
+              // debriyaj vuruşu da kayda girer (5 sn'de bir 0,17 sn: araç yine yol alır)
+              dbr: k % 300 >= 280 && k % 300 < 290,
             };
       aracAdimi(a, gi);
     }

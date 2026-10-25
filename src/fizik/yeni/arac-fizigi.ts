@@ -76,6 +76,11 @@ const FREKANS: Record<string, number> = {
   int: 1.85,
   ae86: 2.0,
   supra: 2.05,
+  e30: 2.0,
+  golf: 1.9,
+  niva: 1.8,
+  c33: 1.8,
+  fox: 1.9,
 };
 
 export function aracFizigi(c: Arac, K: SurusKurulumu): AracFizigi {
@@ -90,7 +95,8 @@ export function aracFizigi(c: Arac, K: SurusKurulumu): AracFizigi {
     cgZ = W.zr + ff * aks,
     lift = c.lift || 0;
   // süspansiyon: köşe kütlesine göre yay (doğal frekans), sönüm oranı ~0,35 basma / 0,55 açılma
-  const fn = (FREKANS[c.k] ?? 1.9) / Math.sqrt(tu.susp),
+  // doğal frekans: aracın kendi değeri (süspansiyon parçası fq ile değiştirir), ayar yumuşaklığıyla
+  const fn = (c.fq ?? FREKANS[c.k] ?? 1.9) / Math.sqrt(tu.susp),
     tk: TekerGeo[] = [];
   for (const [sx, on] of [
     [1, true],

@@ -5,9 +5,12 @@ iPhone için 3D sürüş ve yarış oyunu. Ana ekrana kurulan bir uygulama (PWA)
 ## İçerik
 
 - **Açık dünya** (serbest sürüş): *Çorak Topraklar* (oval, uzun düz yol, zıplama rampası, tırmanış yolu) ve *Boş Otopark* (AVM önünde geniş açık otopark, asfalt testleri için).
-- **30 pist**, 5 yarış türü (Asfalt, Rallycross, Ralli, Drift, Drag) × 6 seviye; her seviyenin hedefi var, drift pistlerinde hedef puan. Türe uygun araç kendi yarışında daha başarılıdır, ama her araç her yarışı bitirebilir.
+- **40 pist**, 5 yarış türü (Asfalt, Rallycross, Ralli, Drift, Drag) × 8 pist; her pistin zorluk seviyesi ve üç yıldızlık hedefi var, drift pistlerinde hedef puan. Türe uygun araç kendi yarışında daha başarılıdır, ama her araç her yarışı bitirebilir.
 - **Garaj**: araçları ışıklı vitrinde incele (sürükleyerek döndür, iki parmakla yakınlaştır, tam ekranda ◀ ▶ ile araç değiştir), azami hız, hızlanma, güç, yol tutuşu, arazi, fren ve çeviklik değerlerini karşılaştır, **Motoru dinle** ile motor sesini duy. Her yarıştan önce araç seçilir.
-- **5 araç**, her yarış türü için bir tane: *Kızıl Ok* (ortadan motorlu pist arabası), *Kor RX* (dört çeker rallikros), *Beyaz Kurt* (geniş gövdeli drift arabası), *Mavi Yıldız* (dört çeker ralli sedanı), *Gece Mavisi* (kompresörlü drag arabası). Yarışa varsayılan olarak türüne uygun araçla girilir.
+- **10 araç**; ilk beşi her yarış türü için bir tane: *Kızıl Ok* (ortadan motorlu pist arabası), *Kor RX* (dört çeker rallikros), *Beyaz Kurt* (geniş gövdeli drift arabası), *Mavi Yıldız* (dört çeker ralli sedanı), *Gece Mavisi* (kompresörlü drag arabası). Yarışa varsayılan olarak türüne uygun araçla girilir. Yeni beş araç: *Gri Atmaca*, *Kum Fırtınası*, *Sarı Arı*, *Panda*, *Turuncu Ejder* (turbolu motorlarda turbo gecikmesi).
+- **İlerleme**: yarışlar XP ve para verir; seviye atladıkça pistler ve araçlar açılır, araçlar garajda parayla satın alınır. Pist kartında en iyi yıldız, yarış sonunda XP, para ve yıldızlar.
+- **Drift puanı**: açı × hız; uzun drift, direksiyonsuz ve tek yön bonusları; drift yarışında 1. turun %90'ı driftle geçilirse 2. turda x6 çarpan.
+- **Hesap ve bulut kaydı**: ilerleme buluta kaydedilir; Google ya da e-posta ile bağlanıp başka cihazda sürdürülebilir. Profil'de "Yeni oyuncu olarak başla".
 - **Ana menü**: ekranın altında soldan sağa ikonlu eğik paneller (Yarış, Serbest sürüş, Garaj, Profil, Ayarlar); arkada oyunun kendi sahnelerinden hafif görseller yavaş kayarak akar. Yarış türü seçimi parmağı izleyen kapak akışı, her türün kendi rengi ve ikonu → pist listesi → günün saati ve hava → araç seçimi.
 - **Araçlar ve kokpit**: teker kemerli, yuvarlak hatlı gövdeler ve yeni jantlar; her aracın kendi kokpit tasarımı, gösterge kadranları, yan aynalar ve dikiz aynası, yarış araçlarında koruma kafesi.
 - **Koşullar**: sabah, öğlen, akşam; güneşli, yağmurlu, karlı (yağışta zemin kayganlaşır). Gölgeler.
@@ -48,3 +51,7 @@ Oyun tamamlandığında aynı kod Capacitor ile native iOS uygulamasına sarıla
 - Bilgisayarda: `npm ci`, `npm run dev` (anında yenilenen geliştirme sunucusu), `npm run kontrol` (tüm denetimler).
 - Testler: `npm test` (fizik, ~2 sn), `npm run test:e2e` (başsız tarayıcı), `npm run test:goruntu` (ekran görüntüleri).
 - Her geliştirme alanı için yeni sohbete yapıştırılacak istemler: `docs/GELISTIRME.md`.
+
+## Claude ve Codex ile devam
+
+Kota durumuna göre iki araç aynı görev kartıyla dönüşümlü çalışır. Başlangıç: `CLAUDE.md` ve `docs/DEVIR.md`; ayrıntı: `docs/ORTAK-CALISMA.md`. Kısa bağlam: `npm run calisma -- baglam hud`. Kart açma: `npm run calisma -- yeni hud-gaz hud "Gaz düğmesi yolu kapatmasın"`. Kullanıcı teknik komut yazmak zorunda değildir; bu adımları ajan yapar.

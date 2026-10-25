@@ -60,8 +60,8 @@ export default async function ({ p, ok }) {
     };
   });
   ok(
-    ana.n == 5 && ana.sira && ana.icinde && ana.gorsel && ana.yarisAcildi && ana.eve,
-    "ana ekran: altta soldan sağa 5 ikonlu panel, Yarış kartı açılıyor, geri ana ekrana döner " +
+    ana.n == 6 && ana.sira && ana.icinde && ana.gorsel && ana.yarisAcildi && ana.eve,
+    "ana ekran: altta soldan sağa 6 ikonlu panel, Yarış kartı açılıyor, geri ana ekrana döner " +
       JSON.stringify(ana),
   );
   const surum = await p.evaluate(() => [

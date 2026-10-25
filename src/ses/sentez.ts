@@ -171,15 +171,21 @@ export const MOTORLAR: Record<string, MotorProfili> = {
   },
 };
 
+/** kendi motor profili olmayan başlangıç araçları: dizilimi en yakın motorun sesini kullanır */
+const BENZER_MOTOR: Record<string, string> = { e30: "gt", golf: "rx", niva: "rl", c33: "dr", fox: "dg" };
+const motorAnahtari = (k: string) => BENZER_MOTOR[k] ?? k;
+
 /** aracın motoru: elle verilen karakter + gerçek motor seslerine göre uydurulmuş değerler (hedefler.ts) */
 export function motorProfili(k: string): MotorProfili {
+  k = motorAnahtari(k);
   const p = MOTORLAR[k] ?? MOTORLAR.gt,
     a = MOTOR_AYAR[k];
   return a ? { ...p, govde: a.govde, puruz: a.puruz, lope: a.lope, kolFark: a.kolFark } : p;
 }
 
 /** katmanın frekans dağılımı ayarı (katmanDevirleri sırasıyla); yoksa ayarsız */
-export const motorEq = (k: string, katman: number): number[] | undefined => MOTOR_AYAR[k]?.eq[katman];
+export const motorEq = (k: string, katman: number): number[] | undefined =>
+  MOTOR_AYAR[motorAnahtari(k)]?.eq[katman];
 
 // ---------- süzgeçler (RBJ biquad)
 

@@ -40,6 +40,18 @@ export default [
     birim: { dosya: F, grup: "drift yarışı (Drift Parkı, Beyaz Kurt, drift önayarı)" },
   },
   {
+    id: "debriyaj",
+    ad: "Debriyaj vuruşu: Kızıl Ok gerçekçide drift pistinde debriyajla drifte girer, basılıyken tork yok",
+    p: 2,
+    birim: { dosya: F, grup: "debriyaj vuruşu: başlangıç aracıyla drift pistinde drifte giriş" },
+  },
+  {
+    id: "debriyaj-tus",
+    ad: "Debriyaj tuşu her kontrol türünde, basılıyken devir yükselir",
+    p: 2,
+    tarayici: "debriyaj",
+  },
+  {
     id: "titresim",
     ad: "Asfalt pistlerde titreşim yok, kerb sarsıntısı",
     p: 2,
@@ -56,5 +68,23 @@ export default [
     ad: "Türe uygun araç kendi yarışında avantajlı: pistte yol tutuşu (asfalt, rallikros, ralli) ve drag süresi",
     p: 2,
     birim: { dosya: "tests/birim/uyum.test.ts", grup: "araç ve yarış türü uyumu" },
+  },
+  {
+    id: "parcalar",
+    ad: "Modifiye: stok araç bugünkü fizikle aynı, parça ve paket etkileri tutarlı",
+    p: 1,
+    birim: { dosya: "tests/birim/parcalar.test.ts", grup: "parçalar" },
+  },
+  {
+    id: "puan",
+    ad: "Performans puanı belirlenimci, parça tak/sök tutarlı, sınıf tablosu",
+    p: 1,
+    birim: { dosya: "tests/birim/parcalar.test.ts", grup: "performans puanı" },
+  },
+  {
+    id: "parca-his",
+    ad: "Modifiye hissedilir: lastik, süspansiyon, aero, diferansiyel, açı kiti; toprak kuralı paketle de geçerli",
+    p: 2,
+    birim: { dosya: "tests/birim/parcalar.test.ts", grup: "hissiyat: parçalar hissedilir, kurallar korunur" },
   },
 ];

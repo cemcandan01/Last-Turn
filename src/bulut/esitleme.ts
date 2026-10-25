@@ -2,11 +2,23 @@
 // Firebase'e doğrudan bağlı değildir: belgeyi okuyup yazan bir Saglayici alır (gerçeği bulut/firebase.ts, testte sahte).
 // - Oturum açılınca: bulut belgesi okunur, yerelle birleştirilir (ilerlemeYukle: XP, yıldız, kazanılanın büyüğü,
 //   alımların ve açık öğelerin birleşimi; rekorlarda iyisi), birleşmiş sonuç farklıysa geri yazılır.
+// - Yerel kayıt hep tek bir hesabındır (lt_bulut → sahip). Başka bir hesaba girilince birleşmez: yerel ilerleme ve
+//   rekorlar o hesabın bulut kaydıyla değiştirilir (belgesi yoksa sıfırdan). Birleşme yalnız aynı hesapta (aynı
+//   hesabın iki cihazı) ve misafir yeni hesaba bağlanınca (uid aynı kalır) olur. Eski hesabın bekleyen yazması
+//   geçişten önce gönderilir (bulut/hesap.ts).
 // - Kayıt değişince: gecikmeli (debounce) yazılır. İnternet yoksa ya da yazma başarısızsa "bekleyen" işareti
 //   localStorage'da kalır (lt_bulut); internet gelince ya da sonraki açılışta gönderilir. Kuyruk ayrıca veri tutmaz:
 //   yerel kayıt zaten en güncel hâldir, gönderilen her zaman onun tamamıdır.
 import { okuJson, yazJson } from "../cekirdek/depo";
-import { ACILMA, degisimDinle, ilerlemeVerisi, ilerlemeYukle, type IlerlemeVerisi } from "../oyun/ilerleme";
+import {
+  ACILMA,
+  degisimDinle,
+  ilerlemeDegistir,
+  ilerlemeVerisi,
+  ilerlemeYukle,
+  type IlerlemeVerisi,
+} from "../oyun/ilerleme";
+import { takiliVerisi, takiliYukle } from "../oyun/modifiye";
 import { best, saveBest } from "../oyun/profil";
 import { TUR_ANAHTARI } from "../oyun/yildiz";
 import type { YarisTuru } from "../arac/araclar";
@@ -17,6 +29,11 @@ export interface BulutBelgesi extends IlerlemeVerisi {
   rekor: Record<string, number>;
   /** belgeyi yazan oyun sürümü (bilgi için) */
   oyunSurum: string;
+  /**
+   * takılı modifiye parçaları (araç no → parça listesi; oyun/modifiye.ts). Yalnız parça takılıysa yazılır. Eski
+   * kurallar (firestore.rules hasOnly) bu alanı reddederse alan atılıp yeniden yazılır: parçalar yalnız cihazda kalır
+   */
+  parca?: Record<string, string[]>;
 }
 
 export interface Kullanici {
@@ -33,14 +50,19 @@ export interface Saglayici {
   /** oturum değişince çağrılır (null: oturum yok); ilk durum da bildirilir */
   oturumDinle(fn: (k: Kullanici | null) => void): void;
   anonimGir(): Promise<void>;
-  /** anonim hesabı Google'a bağlar; Google hesabı başka cihazda zaten varsa ona geçer. Yönlendirmede sayfa değişebilir */
-  googleBagla(): Promise<void>;
+  /**
+   * anonim hesabı Google'a bağlar (Google hesabı zaten varsa ona geçer); bağlı hesaptaysa hesap seçiciyle Google'a
+   * girer. ipucu: seçicide önerilen e-posta. Yönlendirmede sayfa değişebilir
+   */
+  googleBagla(ipucu?: string): Promise<void>;
   /** e-posta + şifreyle yeni hesap: anonim hesaba bağlanır (ilerleme kalır); e-posta kullanılıyorsa email-already-in-use */
   epostaOlustur(eposta: string, sifre: string): Promise<void>;
-  /** var olan e-posta hesabına giriş (bu cihazın ilerlemesi o hesapla birleşir) */
+  /** var olan e-posta hesabına giriş (o anki oturumun yerine geçer) */
   epostaGiris(eposta: string, sifre: string): Promise<void>;
   /** şifre sıfırlama e-postası gönderir */
   sifreSifirla(eposta: string): Promise<void>;
+  /** admin mi: Firestore admins/{uid} belgesi var mı (yalnız konsoldan eklenir; istemci yazamaz) */
+  adminMi(uid: string): Promise<boolean>;
   cikis(): Promise<void>;
   /** açılışta Google yönlendirmesinden dönülürken oluşan hata (varsa kullanıcıya gösterilir) */
   baslangicHatasi?: unknown;
@@ -61,14 +83,17 @@ const driftMi = (k: string) => k.startsWith(TUR_ANAHTARI.dp + "_");
 
 const surum = () => (typeof __APP_VERSION__ == "string" ? __APP_VERSION__ : "");
 
-/** buluta gidecek belge: ilerleme + rekorlar */
-export function belgeOlustur(): BulutBelgesi {
+/** buluta gidecek belge: ilerleme + rekorlar (+ takılı parçalar; parcasiz: alan hiç yazılmaz) */
+export function belgeOlustur(parcasiz = false): BulutBelgesi {
   const rekor: Record<string, number> = {};
   for (const k of rekorAnahtarlari()) {
     const b = best(k);
     if (b > 0) rekor[k] = b;
   }
-  return { ...ilerlemeVerisi(), rekor, oyunSurum: surum() };
+  const b: BulutBelgesi = { ...ilerlemeVerisi(), rekor, oyunSurum: surum() },
+    parca = takiliVerisi();
+  if (!parcasiz && Object.keys(parca).length) b.parca = parca;
+  return b;
 }
 
 /** bu cihazdaki kişisel rekorları sil (yeni oyuncu) */
@@ -100,12 +125,20 @@ function ozet(b: Partial<BulutBelgesi>) {
   return JSON.stringify(sirala(b));
 }
 
-export const bekleyenVar = () => okuJson(BEKLEYEN, { bekleyen: false }).bekleyen;
-const bekleyenYaz = (b: boolean) => yazJson(BEKLEYEN, { bekleyen: b });
+interface BulutKaydi {
+  bekleyen: boolean;
+  /** yerel kaydın ait olduğu hesap (uid); yoksa eski kurulum ya da temiz cihaz */
+  sahip?: string;
+  /** sahip misafir (anonim) hesap mı */
+  sahipAnonim?: boolean;
+}
+const bulutKaydi = () => okuJson<BulutKaydi>(BEKLEYEN, { bekleyen: false });
+export const bekleyenVar = () => bulutKaydi().bekleyen;
+const bekleyenYaz = (b: boolean) => yazJson(BEKLEYEN, { ...bulutKaydi(), bekleyen: b });
 
 export interface Esitleyici {
-  /** oturum açılınca (uid) ya da kapanınca (null) */
-  oturum(uid: string | null): Promise<void>;
+  /** oturum açılınca (uid; anonim: misafir hesap) ya da kapanınca (null) */
+  oturum(uid: string | null, anonim?: boolean): Promise<void>;
   /** bekleyen yazmayı hemen gönder (internet gelince) */
   simdiGonder(): Promise<void>;
   durum(): EsitlemeDurumu;
@@ -123,11 +156,14 @@ export function esitleyiciKur(
 ) {
   const gecikme = o.gecikme ?? 4000;
   let uid: string | null = null,
+    anonim = false,
     /** bulut belgesi bu uid için okunup birleştirildi mi (okunmadan yazılmaz: başka cihazın ilerlemesi ezilmesin) */
     cekilen: string | null = null,
     zaman: ReturnType<typeof setTimeout> | null = null,
     yukleniyor = false,
     sonYazilan = "",
+    /** bulut `parca` alanını reddetti (kurallar yayınlanmamış): bu açılışta parçasız yazılır */
+    parcaRed = false,
     d: EsitlemeDurumu = "yok",
     calisan: Promise<void> = Promise.resolve();
   const durumYaz = (y: EsitlemeDurumu) => {
@@ -141,21 +177,32 @@ export function esitleyiciKur(
     durumYaz(cevrimdisi() ? "bekliyor" : "hata");
   };
 
-  /** buluttakini çek, yerelle birleştir; başarılıysa true */
+  /**
+   * buluttakini çek: yerel kayıt bu hesabınsa birleştir, başka hesabınsa onunla değiştir; başarılıysa true. Misafirden
+   * misafire (cihazda oturum kaybolup yeni misafir açıldı) yerel kayıt yeni misafire geçer
+   */
   async function cek(u: string) {
     const uzak = await s.oku(u);
     if (u != uid) return false;
+    const k = bulutKaydi(),
+      baska = !!k.sahip && k.sahip != u && !(k.sahipAnonim && anonim);
     sonYazilan = "";
-    if (uzak) {
-      yukleniyor = true;
-      try {
+    yukleniyor = true;
+    try {
+      if (baska) {
+        ilerlemeDegistir(uzak);
+        rekorlariSil();
+        takiliYukle(uzak?.parca, true);
+      } else if (uzak) {
         ilerlemeYukle(uzak);
-        rekorBirlestir(uzak.rekor);
-      } finally {
-        yukleniyor = false;
+        takiliYukle(uzak.parca);
       }
-      sonYazilan = ozet({ ...uzak, rekor: uzak.rekor || {} });
+      if (uzak) rekorBirlestir(uzak.rekor);
+      yazJson(BEKLEYEN, { bekleyen: baska ? false : k.bekleyen, sahip: u, sahipAnonim: anonim });
+    } finally {
+      yukleniyor = false;
     }
+    if (uzak) sonYazilan = ozet({ ...uzak, rekor: uzak.rekor || {} });
     cekilen = u;
     return true;
   }
@@ -175,10 +222,19 @@ export function esitleyiciKur(
         durumYaz("esitleniyor");
         if (!(await cek(u))) return;
       }
-      const b = belgeOlustur(),
+      let b = belgeOlustur(parcaRed),
         oz = ozet(b);
       if (oz != sonYazilan) {
-        await s.yaz(u, b);
+        try {
+          await s.yaz(u, b);
+        } catch (h) {
+          // eski kurallar parca alanını tanımaz: alansız bir kez daha dene; geçerse bu açılışta parçalar yalnız cihazda
+          if (!b.parca || u != uid) throw h;
+          b = belgeOlustur(true);
+          oz = ozet(b);
+          await s.yaz(u, b);
+          parcaRed = true;
+        }
         if (u != uid) return;
         sonYazilan = oz;
       }
@@ -206,8 +262,9 @@ export function esitleyiciKur(
   if (typeof window != "undefined") window.addEventListener("online", internetGeldi);
 
   const e: Esitleyici = {
-    oturum(yeni) {
+    oturum(yeni, a = false) {
       uid = yeni;
+      anonim = a;
       cekilen = null;
       if (zaman) clearTimeout(zaman);
       zaman = null;

@@ -175,8 +175,9 @@ export function driftTuru(
   arac = 2,
   tur = 0,
   x6Izin = true,
+  parca: readonly string[] = [],
 ) {
-  const s = surucuKur({ yaris, arac, lk });
+  const s = surucuKur({ yaris, arac, lk, parca });
   const TR = s.bolge!.TR!,
     i0 = TR.N - 6,
     P = TR.P[i0];

@@ -13,3 +13,5 @@ Alanlar:
   - `birim: { dosya: "tests/birim/x.test.ts", grup: "<describe adı>" }`: Vitest'te o `describe` grubu
 
 Koşum: `node tests/kosucu.mjs duman | alan <dal> | regresyon` (ayrıntı `oyun-test` skill'i).
+
+Geliştirme turunda seçilmiş kapsam: `npm run alan -- altyapi --senaryo firebase-giris-yardimcisi,bulut-esitleme`; `--liste` yalnız kapsamı gösterir. Boş/yanlış seçim hata verir. Tam regresyon/duman daraltılamaz. CI varsayılanı tüm ilgili alandır.

@@ -3,16 +3,28 @@ rules_version = '2';
 // Her oyuncu yalnız kendi belgesini (users/{uid}) okur ve yazar. Belge oyunun yerel kaydının kopyasıdır
 // (src/bulut/esitleme.ts → BulutBelgesi). Bozma koruması: alan adları ve tipleri sabit, sayılar makul sınırda;
 // XP ve kazanılan para azalmaz, yapılmış alım silinmez (para iki kez harcanmasın). Silmek yok.
+// Admin: admins/{uid} belgesi yalnız konsoldan eklenir (istemci yazamaz). Admin kendi belgesinde XP/para azaltabilir,
+// alım silebilir (test için sıfırlama, kilit kapama); başka oyuncunun belgesine yazamaz.
 service cloud.firestore {
   match /databases/{database}/documents {
+    // admin mi (database değişkeni yalnız bu blokta görünür)
+    function admin() {
+      return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
     match /users/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
       allow create: if request.auth != null && request.auth.uid == uid && gecerli(request.resource.data);
       allow update: if request.auth != null && request.auth.uid == uid && gecerli(request.resource.data)
-        && request.resource.data.xp >= resource.data.xp
-        && request.resource.data.kazanilan >= resource.data.kazanilan
-        && request.resource.data.alimlar.keys().hasAll(resource.data.alimlar.keys());
+        && (admin() || (request.resource.data.xp >= resource.data.xp
+          && request.resource.data.kazanilan >= resource.data.kazanilan
+          && request.resource.data.alimlar.keys().hasAll(resource.data.alimlar.keys())));
       allow delete: if false;
+    }
+    // admin listesi: herkes yalnız kendi kaydını okuyabilir (admin mi diye); yazmak yalnız konsoldan
+    match /admins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
     }
     // başka her şey kapalı
     match /{document=**} {
@@ -21,7 +33,7 @@ service cloud.firestore {
   }
 
   function gecerli(d) {
-    return d.keys().hasOnly(['surum', 'xp', 'updatedAt', 'yildiz', 'ekAcik', 'kazanilan', 'alimlar', 'rekor', 'oyunSurum'])
+    return d.keys().hasOnly(['surum', 'xp', 'updatedAt', 'yildiz', 'ekAcik', 'kazanilan', 'alimlar', 'rekor', 'oyunSurum', 'parca'])
       && d.keys().hasAll(['surum', 'xp', 'updatedAt', 'yildiz', 'ekAcik', 'kazanilan', 'alimlar'])
       && d.surum is int && d.surum >= 0 && d.surum <= 100
       && d.xp is int && d.xp >= 0 && d.xp <= 10000000
@@ -31,6 +43,8 @@ service cloud.firestore {
       && d.ekAcik is list && d.ekAcik.size() <= 1000
       && d.alimlar is map && d.alimlar.size() <= 1000
       && (!('rekor' in d) || (d.rekor is map && d.rekor.size() <= 1000))
-      && (!('oyunSurum' in d) || (d.oyunSurum is string && d.oyunSurum.size() <= 20));
+      && (!('oyunSurum' in d) || (d.oyunSurum is string && d.oyunSurum.size() <= 20))
+      // takılı modifiye parçaları: araç no → parça listesi (src/oyun/modifiye.ts)
+      && (!('parca' in d) || (d.parca is map && d.parca.size() <= 100));
   }
 }

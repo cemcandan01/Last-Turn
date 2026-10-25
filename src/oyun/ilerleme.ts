@@ -5,21 +5,23 @@
 // - Yarış XP'si = taban (5 × pist seviyesi) + yeni alınan her yıldız için yıldız XP'si (20 + 15 × (seviye − 1)).
 //   Önceden alınmış yıldız yeniden XP vermez; yeni yıldız yoksa taban yarıya iner (aynı pisti tekrar oynamak az verir).
 // - Seviye eğrisi: n'den n+1'e geçmek 40 + 30 × (n − 1) XP (ilk seviyeler birkaç yarış, sonrakiler giderek uzun).
-// - Kilit tablosu (ACILMA): her türün Çaylak pisti ve Kızıl Ok + Kor RX başta açık; son içerik seviye 18'de açılır.
+// - Kilit tablosu (ACILMA): her türün Çaylak pisti ve her türün D sınıfı başlangıç aracı başta açık; son içerik seviye
+//   18'de açılır.
 //   Benzetim (tests/birim/ilerleme.test.ts): her açık pistte yıldız toplayan oyuncu Efsane pistlere girmeden hepsini açar.
 // - Para: kazanilan (toplam kazanılan, hiç azalmaz) − alimlar toplamı = bakiye. Bulutta iki cihaz birleşince kazanılanın
 //   büyüğü ve alımların birleşimi alınır (harcama kaybolmaz, para iki kez harcanmaz).
 import type { YarisTuru } from "../arac/araclar";
 import { okuJson, yazJson } from "../cekirdek/depo";
 import { pistSev } from "../dunya/pist-tanimlari";
-import { ARAC_FIYAT, aracFiyati, yarisSonuPara } from "./ekonomi";
+import { parcaBul } from "../arac/parcalar";
+import { ARAC_FIYAT, ESKI_UCRETSIZ, aracFiyati, parcaFiyatHesapla, yarisSonuPara } from "./ekonomi";
 
 export { aracFiyati, yarisSonuPara } from "./ekonomi";
 import { best } from "./profil";
 import { TUR_ANAHTARI, enIyiYildiz, yildizAnahtari, yildizEsikleri, yildizKaydet, yildizSay } from "./yildiz";
 
 /** kayıt biçiminin sürümü (alan eklenirse okuJson varsayılanla birleştirir; biçim değişirse artar) */
-export const ILERLEME_SURUM = 2;
+export const ILERLEME_SURUM = 3;
 
 export interface IlerlemeVerisi {
   surum: number;
@@ -33,7 +35,7 @@ export interface IlerlemeVerisi {
   ekAcik: string[];
   /** toplam kazanılan para (harcamayla azalmaz) */
   kazanilan: number;
-  /** satın alınan öğeler ve ödenen bedel: "arac_8" → 2000 (ileride modifiye: "mod_<araç>_<tür>") */
+  /** satın alınan öğeler ve ödenen bedel: "arac_8" → 2000, modifiye parçası "parca_<araç>_<parça>" */
   alimlar: Record<string, number>;
 }
 
@@ -101,8 +103,8 @@ export function xpSeviyesi(xp: number) {
  * açılma seviyesi: pistler [tür][pist numarası - 1] (1-6 Çaylak … Efsane sırası, 7+ sonradan eklenen pistler; yeni pist
  * sona eklenir ve zorluk seviyesindeki komşusunun yakınında açılır), araçlar CARS sırasıyla
  * (Kızıl Ok asfalt, Kor RX rallycross, Beyaz Kurt drift, Mavi Yıldız ralli, Gece Mavisi drag; sonra Gri Atmaca,
- * Kum Fırtınası, Sarı Arı, Panda, Turuncu Ejder). Araç seviyesi satın alınabilir olduğu seviyedir (ekonomi.ts ARAC_FIYAT).
- * Araç uyumu: her araç her yarışı bitirebilir; başta asfalt ve rallycross aracı açık, drift/ralli/drag araçları sonra.
+ * Kum Fırtınası, Sarı Arı, Panda, Turuncu Ejder; sonra beş başlangıç aracı). Araç seviyesi satın alınabilir olduğu
+ * seviyedir (ekonomi.ts ARAC_FIYAT). Araç uyumu: her araç her yarışı bitirebilir; başta her türün D sınıfı aracı açık.
  */
 export const ACILMA = {
   pist: {
@@ -150,7 +152,9 @@ const bos = (): IlerlemeVerisi => ({
   alimlar: {},
 });
 
-let V: IlerlemeVerisi | null = null;
+let V: IlerlemeVerisi | null = null,
+  /** admin kipi: her pist ve araç açık görünür, kayda yazılmaz (bulut/hesap.ts yalnız admin oturumunda açar) */
+  adminKip = false;
 const dinleyiciler: ((o: SeviyeOlayi) => void)[] = [];
 const paraDinleyiciler: ((o: ParaOlayi) => void)[] = [];
 
@@ -166,6 +170,7 @@ function veri(): IlerlemeVerisi {
   if (V) return V;
   const k = okuJson(ANAHTAR, { ...bos(), surum: 0 });
   V = !k.surum ? eskiKayittanGecis() : k.surum < 2 ? paraGecisi(k) : k;
+  if (V.surum < 3) baslangicGecisi(V);
   return V;
 }
 
@@ -175,6 +180,11 @@ function kaydet() {
   const v = veri();
   v.updatedAt = Date.now();
   yazJson(ANAHTAR, v);
+  for (const fn of degisimDinleyiciler.slice()) fn();
+}
+
+/** ilerleme dışındaki bulut verisi değişti (modifiye: takılı parçalar): dinleyicilere bildir, kayıt değişmez */
+export function degisimBildir() {
   for (const fn of degisimDinleyiciler.slice()) fn();
 }
 
@@ -221,14 +231,44 @@ function paraGecisi(v: IlerlemeVerisi): IlerlemeVerisi {
       const y = enIyiYildiz(ty, sv);
       if (y) v.kazanilan += yarisSonuPara(ty, pistSev(ty, sv), y, 0);
     }
+  // o sürümde ücretsiz olanlar (Kızıl Ok, Kor RX) burada değil, baslangicGecisi'nde (yeni oyuncuya verilmesin)
   ESKI_ARAC_ACILMA.forEach((s, no) => {
-    if (aracFiyati(no).para > 0 && lv >= s && !v.ekAcik.includes("arac_" + no)) v.ekAcik.push("arac_" + no);
+    if (!ESKI_UCRETSIZ.includes(no) && aracFiyati(no).para > 0 && lv >= s && !v.ekAcik.includes("arac_" + no))
+      v.ekAcik.push("arac_" + no);
   });
-  v.surum = ILERLEME_SURUM;
+  v.surum = 2;
   V = v;
   kaydet();
   return v;
 }
+
+/** bulut kaydında oynanmış bir şey var mı (yalnız belgeye bakar; bu cihazın profili karışmaz) */
+const oynanmisBulut = (d: Partial<IlerlemeVerisi>) =>
+  (+(d.xp ?? 0) || 0) > 0 ||
+  (+(d.kazanilan ?? 0) || 0) > 0 ||
+  Object.keys(d.alimlar || {}).length > 0 ||
+  (d.ekAcik || []).length > 0;
+
+/** kayıtta oynanmış bir şey var mı (eski oyuncu): ilerleme ya da profilde yarış/araç kullanımı */
+function oynanmis(v: IlerlemeVerisi) {
+  const prof = okuJson("lt_prof", { races: 0, use: {} as Record<string, number> });
+  return oynanmisBulut(v) || prof.races > 0 || Object.values(prof.use || {}).some((n) => n > 0);
+}
+
+/**
+ * kayıt sürümü 2'den 3'e (başlangıç araçları gelmeden önce): Kızıl Ok ve Kor RX o sürümde ücretsizdi; oynanmış kayıtta
+ * sahip sayılır (kimse aracını kaybetmez). Hiç oynanmamış kayıt yeni oyuncu gibi başlangıç araçlarıyla başlar.
+ */
+function baslangicGecisi(v: IlerlemeVerisi) {
+  if (oynanmis(v)) eskiUcretsizleriAc(v);
+  v.surum = ILERLEME_SURUM;
+  V = v;
+  kaydet();
+}
+
+const eskiUcretsizleriAc = (v: IlerlemeVerisi) => {
+  for (const no of ESKI_UCRETSIZ) if (!v.ekAcik.includes("arac_" + no)) v.ekAcik.push("arac_" + no);
+};
 
 // --- sorgular ---
 
@@ -241,7 +281,9 @@ export function seviye(): SeviyeBilgisi {
 }
 
 export const pistAcikMi = (tur: YarisTuru, sv: number) =>
-  seviye().lv >= acilmaSeviyesi({ ty: tur, lv: sv }) || veri().ekAcik.includes(yildizAnahtari(tur, sv));
+  adminKip ||
+  seviye().lv >= acilmaSeviyesi({ ty: tur, lv: sv }) ||
+  veri().ekAcik.includes(yildizAnahtari(tur, sv));
 
 /** para bakiyesi */
 export const para = () => {
@@ -251,6 +293,7 @@ export const para = () => {
 
 /** araç açık mı: ücretsiz ve seviyesi gelmiş, satın alınmış ya da eski kayıttan açık kalmış */
 export const aracAcikMi = (aracNo: number) => {
+  if (adminKip) return true;
   const v = veri(),
     f = aracFiyati(aracNo),
     a = "arac_" + aracNo;
@@ -318,6 +361,27 @@ export function aracSatinAl(aracNo: number) {
   return harca("arac_" + aracNo, aracFiyati(aracNo).para);
 }
 
+// --- modifiye parçaları (araç başına alınır; takılı parçalar oyun/modifiye.ts) ---
+
+/** parçanın fiyatı (bilinmeyen parça 0) */
+export const parcaFiyati = (id: string) => {
+  const p = parcaBul(id);
+  return p ? parcaFiyatHesapla(p.sv, p.kat) : 0;
+};
+
+/** parça bu araç için alınmış mı (ücretsiz parçalar hep sahip; admin kipinde hepsi) */
+export const parcaSahipMi = (aracNo: number, id: string) =>
+  adminKip || parcaFiyati(id) <= 0 || "parca_" + aracNo + "_" + id in veri().alimlar;
+
+/** parçaları (paket için birkaç) bu araç için satın al: alınmamışların toplamı bakiyeye yetiyorsa hepsi; başarılıysa true */
+export function parcaSatinAl(aracNo: number, ids: readonly string[]) {
+  const al = ids.filter((id) => parcaBul(id) && !parcaSahipMi(aracNo, id)),
+    toplam = al.reduce((a, id) => a + parcaFiyati(id), 0);
+  if (!aracAcikMi(aracNo) || para() < toplam) return false;
+  for (const id of al) if (!harca("parca_" + aracNo + "_" + id, parcaFiyati(id))) return false;
+  return true;
+}
+
 /** XP ekle (neden: "yaris", "gecis" gibi; olayla dinleyiciye gider); seviye atlandıysa olayı döndürür */
 export function xpEkle(miktar: number, neden: string): SeviyeOlayi | null {
   const v = veri(),
@@ -354,9 +418,9 @@ export function ilerlemeVerisi(): IlerlemeVerisi {
 
 /**
  * buluttan gelen veriyi yerelle birleştir: XP, yıldız ve kazanılan paranın büyüğü, açık öğelerin ve alımların birleşimi;
- * kimse ilerleme kaybetmez
+ * kimse ilerleme kaybetmez. sessiz: seviye atlama bildirilmez (hesap geçişi)
  */
-export function ilerlemeYukle(d: Partial<IlerlemeVerisi>) {
+export function ilerlemeYukle(d: Partial<IlerlemeVerisi>, sessiz = false) {
   const v = veri(),
     eski = seviye().lv,
     eskiPara = para();
@@ -365,6 +429,8 @@ export function ilerlemeYukle(d: Partial<IlerlemeVerisi>) {
   for (const [a, m] of Object.entries(d.alimlar || {}))
     if (!(a in v.alimlar)) v.alimlar[a] = Math.max(0, +m || 0);
   for (const a of d.ekAcik || []) if (!v.ekAcik.includes(a)) v.ekAcik.push(a);
+  // eski sürümün bulut kaydı: o sürümde ücretsiz olan araçlar sahip sayılır (yeni cihazda da kaybolmaz)
+  if ((+(d.surum ?? 0) || 0) < 3 && oynanmisBulut(d)) eskiUcretsizleriAc(v);
   for (const ty of TURLER)
     for (let lv = 1; lv <= ACILMA.pist[ty].length; lv++) {
       const y = +(d.yildiz?.[yildizAnahtari(ty, lv)] ?? 0) || 0;
@@ -375,10 +441,33 @@ export function ilerlemeYukle(d: Partial<IlerlemeVerisi>) {
   yazJson(ANAHTAR, v);
   paraOlayi(para() - eskiPara, "bulut");
   const yeni = seviye().lv;
-  if (yeni > eski) {
+  if (yeni > eski && !sessiz) {
     const o = { eski, yeni, acilanlar: arasindaAcilan(eski, yeni), neden: "bulut" };
     for (const fn of dinleyiciler.slice()) fn(o);
   }
+}
+
+// --- admin (yetki sunucuda: Firestore admins/{uid}; bulut/hesap.ts yalnız admin oturumunda çağırır) ---
+
+/** admin kipini aç/kapat (kayda yazılmaz); argümansız: şimdiki durum */
+export function adminKipi(acik?: boolean) {
+  if (acik != null) adminKip = acik;
+  return adminKip;
+}
+
+/** XP'yi seviyenin başına ayarla (azaltabilir; buluta yalnız admin yazabilir) */
+export function adminSeviyeAyarla(lv: number) {
+  veri().xp = seviyeTabani(Math.max(1, Math.round(lv)));
+  kaydet();
+}
+
+/** öğenin kilidini aç ya da kapat ("arac_8", "asphalt_3"); kapatınca alımı da silinir. Seviyesi gelmiş öğe açık kalır */
+export function adminKilit(oge: string, acik: boolean) {
+  const v = veri();
+  v.ekAcik = v.ekAcik.filter((a) => a != oge);
+  if (acik) v.ekAcik.push(oge);
+  else delete v.alimlar[oge];
+  kaydet();
 }
 
 /** ilerlemeyi sıfırla (yeni oyuncu): XP, yıldız, para, alım ve açık öğeler; rekorlar profil.ts'te ayrı */
@@ -386,6 +475,15 @@ export function ilerlemeyiSifirla() {
   yazJson("lt_yildiz", {});
   V = bos();
   kaydet();
+}
+
+/**
+ * başka hesaba geçişte: bu cihazdaki ilerleme o hesabın bulut kaydıyla değiştirilir (birleşmez; seviye kutlaması
+ * yok). Belge yoksa (yeni hesap) sıfırdan başlar
+ */
+export function ilerlemeDegistir(d: Partial<IlerlemeVerisi> | null) {
+  ilerlemeyiSifirla();
+  if (d) ilerlemeYukle(d, true);
 }
 
 /** testler için: bellekteki kaydı unut (yeniden localStorage'dan okunur) */

@@ -81,6 +81,21 @@ export const EKRANLAR = [
     bekle: "#gar:not(.hidden) #gok",
   },
   {
+    id: "magaza",
+    dal: "garaj",
+    ad: "Mağaza (satılık araç, süzgeç çipleri)",
+    ac: (p) =>
+      p.evaluate(() => {
+        LT.demoStop();
+        // cihaz profili her aracı açık tutar: mağaza satılık araç görsün diye ilerleme sıfırlanır
+        LT.ilerlemeyiSifirla();
+        LT.xpEkle(400, "test");
+        LT.paraEkle(4000, "test");
+        LT.openStore();
+      }),
+    bekle: "#gar.magaza:not(.hidden) #gpv",
+  },
+  {
     id: "garaj-vitrin",
     dal: "garaj",
     ad: "Garaj (tam ekran vitrin)",

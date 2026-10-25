@@ -5,6 +5,7 @@ import { set } from "../oyun/ayarlar";
 import { CARS } from "../arac/araclar";
 import { oyun } from "../oyun/durum";
 import { I } from "../oyun/girdi";
+import { kurulum } from "../oyun/kurulum";
 import { sim } from "../oyun/surus";
 import { yaris } from "../oyun/yarislar";
 import { sesDurumu, sesKilidiKur } from "./baglam";
@@ -121,10 +122,14 @@ export function sesTick(dt: number) {
   // motor: araç değişince yeniden kurulur
   const car = oyun.CAR,
     dMax = car.dv ?? 7500,
-    anahtar = car.k + ":" + dMax;
+    // modifiye: sonradan takılan turbo / kompresör kendi katmanını ekler, ıslık fizikteki basınçla (gecikme duyulur)
+    mp = kurulum.mod && kurulum.mod.taban === car ? kurulum.mod.parcalar : [],
+    ekTurbo = mp.includes("turbo-buyuk") ? 1 : mp.includes("turbo-kucuk") ? 0.7 : 0,
+    ekKomp = mp.includes("kompresor") ? 0.9 : 0,
+    anahtar = car.k + ":" + dMax + (ekTurbo || ekKomp ? `:${ekTurbo}:${ekKomp}` : "");
   if (anahtar != once.arac) {
     once.arac = anahtar;
-    void M.kur(car.k, dMax);
+    void M.kur(car.k, dMax, { turbo: ekTurbo, kompresor: ekKomp });
   }
   // garajda motor kendiliğinden çalışmaz; yalnız "motoru dinle" ile 5 sn
   if (mod != "garage" || (dinle.arac >= 0 && CARS[dinle.arac] !== car)) dinle.bekle = false;
@@ -151,7 +156,12 @@ export function sesTick(dt: number) {
   const sesli = mod == "drive" || mod == "garage" || mod == "result",
     ms = mod == "garage" ? (dinliyor ? 1 : 0) : mod == "result" ? 0.35 : sesli ? 1 : 0;
   if (Y && mod == "drive" && !geriSayim)
-    M.guncelle(t, dt, { devir: Y.rpm, gaz: S.gas, kesik: Y.vitesT > 0, hiz: v }, ms);
+    M.guncelle(
+      t,
+      dt,
+      { devir: Y.rpm, gaz: S.gas, kesik: Y.vitesT > 0, hiz: v, boost: ekTurbo ? Y.turbo : undefined },
+      ms,
+    );
   else M.guncelle(t, dt, { devir: sanal.devir, gaz: sanal.gaz, kesik: false, hiz: 0 }, ms);
 
   // lastik ve zemin

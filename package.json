@@ -1,6 +1,6 @@
 {
   "name": "last-turn",
-  "version": "0.4.42",
+  "version": "0.5.27",
   "private": true,
   "type": "module",
   "description": "iPhone için 3D sürüş ve yarış oyunu (PWA)",
@@ -24,7 +24,8 @@
     "olcum": "vitest run --config vitest.olcum.config.ts",
     "ses": "node tests/e2e/ses-kaydi.mjs",
     "cihaz": "node tests/cihaz.mjs",
-    "menugorsel": "node scripts/menu-gorsel.mjs"
+    "menugorsel": "node scripts/menu-gorsel.mjs",
+    "calisma": "node scripts/calisma.mjs"
   },
   "engines": {
     "node": ">=22.12"
