@@ -1,7 +1,12 @@
 /* global LT */
 // Aynı sayısal ölçek: garaj ve mağazadaki tüm stok araçların altı puanı görünür ve toplamla eşittir.
 export default async function ({ p, ok }) {
-  const r = await p.evaluate(() => {
+  // Ana koşucu tüm araçları açar; mağazayı da sınamak için gerçek temiz profil kullan.
+  const cx = await p.context().browser().newContext({ viewport: p.viewportSize() });
+  const q = await cx.newPage();
+  await q.goto(p.url());
+  await q.waitForFunction(() => window.LT);
+  const r = await q.evaluate(() => {
     LT.demoStop();
     const gorulen = new Set(),
       hata = [];
@@ -33,6 +38,7 @@ export default async function ({ p, ok }) {
     }
     return { gorulen: gorulen.size, beklenen: LT.CARS.length, hata };
   });
+  await cx.close();
   ok(r.gorulen == r.beklenen, "garaj ve mağazada bütün araçlar denetlendi: " + r.gorulen);
   ok(
     r.hata.length == 0,

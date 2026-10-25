@@ -14,7 +14,9 @@ export default [
     p: 1,
     birim: { dosya: "tests/birim/surus.test.ts", grup: "garaj ve gerçek sürüş" },
   },
-  ...fizik.filter((s) => ["kararlilik", "parcalar", "puan", "uyum"].includes(s.id)),
+  ...fizik.filter((s) =>
+    ["kararlilik", "parcalar", "puan", "uyum", "drift-yarisi", "debriyaj"].includes(s.id),
+  ),
   {
     id: "gorunen-puanlar",
     ad: "Garaj ve mağazada gösterilen altı puan toplanır",
