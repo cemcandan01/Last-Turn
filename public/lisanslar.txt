@@ -1,6 +1,6 @@
 Last Turn: üçüncü taraf lisansları
 
-Tabler Icons (https://tabler.io/icons): menü ikonları (harita, araba, mağaza, kask, dişli, dağ, dönüş, start ışıkları, madeni para, kilit, ok, hoparlör, ızgara)
+Tabler Icons (https://tabler.io/icons): menü ikonları (harita, araba, mağaza, kask, dişli, dağ, dönüş, start ışıkları, madeni para, kilit, ok, hoparlör, ızgara, paket, ağırlık, direksiyon, kalkan)
 
 MIT License
 
