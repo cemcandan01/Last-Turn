@@ -65,7 +65,7 @@ export function mekanikAdimi(
       if (son !== undefined && yeni.adim - son <= m.beklemeAdimi) continue;
       if (yeni.enerji < m.maliyet) continue;
       const kazanc = olay.tur === "drift"
-        ? m.enerjiKazanimi * Math.min(1, Math.max(0, olay.sure)) / 60
+        ? m.enerjiKazanimi * Math.min(1, Math.max(0, olay.sure))
         : m.enerjiKazanimi;
       yeni.enerji = Math.min(yeni.kapasite, Math.max(0, yeni.enerji - m.maliyet + kazanc));
       yeni.sonTetik[m.id] = yeni.adim;
