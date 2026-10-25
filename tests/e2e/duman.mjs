@@ -19,6 +19,7 @@ const BOLUMLER = [
   "yarislar",
   "piste-donus",
   "garaj",
+  "garaj-duzen",
   "ozellik-puanlari",
   "garaj-ses",
   "dokunma",
