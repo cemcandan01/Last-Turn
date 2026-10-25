@@ -4161,7 +4161,7 @@ details[open] > summary::after {
 }
 
 /* Direksiyonun geniş dokunma alanıyla bonus satırı çakışmasın: kalan üst koridorun ortası. */
-#app[data-steer="wheel"][data-hiz="kose"] #bon {
+#app[data-steer="wheel"] #bon {
   left: calc(
     (
         var(--cx) + min(calc(var(--aw) * 0.5), 250px) + var(--aw) - var(--cxr) -
@@ -4171,10 +4171,10 @@ details[open] > summary::after {
   );
   gap: 6px;
 }
-#app[data-steer="wheel"][data-hiz="kose"] #bon div {
+#app[data-steer="wheel"] #bon div {
   font-size: clamp(9px, calc(var(--aw) * 0.014), 12px);
   gap: 4px;
 }
-#app[data-steer="wheel"][data-hiz="kose"] #bon b {
+#app[data-steer="wheel"] #bon b {
   font-size: clamp(12px, calc(var(--aw) * 0.019), 16px);
 }

@@ -8,7 +8,13 @@ import { TIRES } from "../../src/fizik/veriler";
 import { yarisLastigi } from "../../src/arac/yaris-lastigi";
 import { TDEF } from "../../src/dunya/pist-tanimlari";
 import { kariyerKurali, kariyerYildizKapisi, kariyereUygun } from "../../src/oyun/kariyer";
-import { yarisOdulTabani, yarisOdulu } from "../../src/oyun/ekonomi";
+import {
+  ARAC_FIYAT,
+  BASLANGIC_ARACLARI,
+  PARCA_OZEL_FIYAT,
+  yarisOdulTabani,
+  yarisOdulu,
+} from "../../src/oyun/ekonomi";
 import {
   ilerlemeSifirla,
   ilerlemeVerisi,
@@ -90,6 +96,18 @@ describe("kariyer sözleşmesi", () => {
       expect(kariyerYildizKapisi(tur, 6, enIyiYildiz).acik).toBe(true);
     },
   );
+  it("yeni içerikte araç fiyatı unutulamaz; büyük güç dönüşümü ucuz sıradan parça olamaz", () => {
+    expect(ARAC_FIYAT).toHaveLength(CARS.length);
+    for (const [i, f] of ARAC_FIYAT.entries()) {
+      if (BASLANGIC_ARACLARI.includes(i)) expect(f.para).toBe(0);
+      else expect(f.para, CARS[i].n + " edinme bütçesi").toBeGreaterThanOrEqual(20 * 2 * 140);
+    }
+    for (const p of PARCALAR) {
+      if (p.e.motorHp != null || (p.e.carp?.hp ?? 1) > 1.3 || (p.e.turbo?.guc ?? 1) > 1.4) {
+        expect(PARCA_OZEL_FIYAT[p.id], p.n + " büyük dönüşüm fiyatı").toBeGreaterThanOrEqual(5500);
+      }
+    }
+  });
   it("ilk sokak motoru her başlangıç disiplininde yaklaşık 2–4 dakikalık geçerli sürüşle alınabilir", () => {
     for (const d of TDEF.filter((d) => d.lv == 1)) {
       const k = kariyerKurali(d.t, 1)!,
