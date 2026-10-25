@@ -101,3 +101,26 @@ Taban: origin/gelistirme 75be48a (paket 0.7.7; canlı master 0.6.8 / 147ea03). D
 - Tekrar engeli sınırsız kimlik listesi yerine artan olay sıra numarası (`sira`); bellek sabit.
 - Nitelik koşulları mekanik tanımında veri (en az hız/açı); "kasıtlı" bilgisi yalnız `DR.on`.
 - Olay kuyruğu nedensel derinlik ve adım başı işlem sınırıyla sonlu; mekanik başına telemetri (tetik, kazanç).
+
+## FAZ 1 uygulaması (Claude)
+
+Kapsam: `src/cekirdek/mekanikler.ts` (taslağın yerine), `tests/birim/mekanikler.test.ts`. Oyun kodu, fizik, `surus.ts`, hayalet, ekonomi, modifiye **değişmedi**; modülü oyunda çağıran yer yok. Oyun sürümü artmaz (oynanış değişikliği yok).
+
+- `MEKANIK_SISTEMI_ACIK = false`; `mekanikAdimi(..., etkin=false)` aynı nesneyi döndürür.
+- Tipli girdi olayları `DriftStarted`, `DriftTickQualified`, `DriftEnded{spin}`, `AbilityActivated` + türev `EnergyGained`. Tekrar engeli artan `sira` (sabit bellek).
+- Mekanik tanımı: id, versiyon, kategori, tetik, `kosul` (enAzHiz/enAzAci/yetenek), maliyet, beklemeAdimi (0 = adımda en çok bir kez), kazanç + birim (saniye/olay). Aynı id ikinci kez takılmaz; geçersiz tanım atılır.
+- Sonluluk: mekanik kendi `EnergyGained`ine tepki vermez; adım başı tek tetik; `NEDENSEL_DERINLIK=3`, `ADIM_ISLEM_SINIRI=64`, atılanlar `kesilen` sayacında (denge alarmı).
+- Telemetri: mekanik başına tetik/kazanç/harcama (ileride energyUptime ölçümü).
+- `driftGozlemcisi`: yalnız `DR.on`dan olay üretir; havada nitelikli adım yok; spin bitişi `DR.cool > 0` ile.
+- Drift Harvester v1: 6 enerji/sn nitelikli drift, en az 11 m/s ve 0,2 rad. **Bu sayılar ölçülmüş denge değildir**; DENGE §9 dört etkisi (performans bütçesi, başarı eşiği, kazanç hızı, kayıt uyumu) enerji harcayan ilk mekanikle birlikte yazılacak. Enerjinin şu an hiçbir harcama yolu yok.
+
+### Kabul ölçütleri ve testler (17 birim)
+1. Bayrak kapalı → eski davranış: bayrak `false`, kapalı yürütücü aynı nesne; gerçek fizikte (Boş Otopark, Beyaz Kurt, drift önayarı, gerçekçi, 9 sn) gözlemci+yürütücü açık/kapalı `SimDurumu` JSON birebir aynı.
+2. Belirlenimcilik: aynı girdilerle yürütücü ve gerçek fizik koşusu aynı enerji/olay dizisi.
+3. Sonluluk/sınır: karşılıklı EnergyGained döngüsü her mekanikte 1 tetikte durur; işlem sınırı aşımı sayılır; enerji 0..kapasite; aynı olay/aynı mekanik iki kez ödül vermez; aynı adımda iki tik tek ödül.
+4. Nitelik: savrulma (DR.on=0, D.act=1, 0,9 rad) olay/enerji üretmez; havada nitelikli adım yok; eşik altı hız/açı ve geçersiz dt enerji vermez; ölçülü gerçek drift enerji üretir, abartan sürüş `DriftEnded{spin:true}`.
+5. CI kanıtı: aşağıda.
+
+### Açık tasarım soruları (FAZ 2 öncesi Cem'e)
+- Spinle biten driftin o ana kadar topladığı enerji korunsun mu, yansın mı (yarış kombosu yanıyor)?
+- Enerjinin ilk harcama yolu ne olacak (boost / Traction Pulse) ve hangi yarışlarda açık (allowedSkills)? Kariyer rekorları için ayrı anahtar kabul mü?
