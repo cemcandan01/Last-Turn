@@ -17,5 +17,7 @@
 - Yerel tip, ESLint, Prettier ve üretim derlemesi başarılı.
 - Kaynak ef5803f7dd0c34d7901fac7217ee6fd3d5a173a9; CI 40238496618 başarılı. 1/1 kamera alan senaryosu: 15/15 araç yakın kadrajda, çevre kutuları kesilmiyor; uzak açı korunuyor. Görsel kanıt kamera-yakin-iphone13 (artifact 12615653962), iPhone 13 yatay.
 - Görüntü incelendi: araç belirgin, gövde kesilmiyor, ileri yol görünür. Tüm pist görüntüleri yerine ilgili kamera karesi kullanıldı; fizik ölçümü gerekmiyor.
-- Deneme sürümü 0.7.7. Canlı 0.6.8 değişmez. Sonraki: yayın ve adres doğrulaması.
+- Deneme sürümü 0.7.7. Canlı 0.6.8 değişmez. Yayın 40238705321 başarılı; kontrol işi 121305996779 adresleri doğruladı: /dev/ 0.7.7, kök 0.6.8. Yayın kaynağı 0746c6f; test edilen kaynakla oyun/test dosyaları birebir aynı. Sonraki: Cem kadrajı denesin.
 - Tek uygulayıcı, revize yok; platform token maliyeti ölçülmüyor.
+
+- Son belge kaydı yalnız teslim kanıtı içerir; [skip ci] ile aynı kaynak için ikinci derleme başlatılmaz.

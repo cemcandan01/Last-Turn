@@ -2,7 +2,7 @@
 
 - Codex / codex/kamera; kart docs/isler/2026-10-26-yakin-takip.md. Taban mesafe 9 → 6,8 m, hız eki 3 → 2 m; yükseklik 1,7 m, açı 0,25 rad. Uzak/garaj/menü/kaput/kokpit korunur.
 - Kaynak ef5803f; CI: https://github.com/cemcandan01/Last-Turn/actions/runs/40238496618. Yalnız kamera alanı ve iPhone 13 yatay görsel kanıtı; tam regresyon değil.
-- Sonraki: deneme yayınını doğrula; canlı çıkış regresyon + Cem onayı ister.
+- 0.7.7 denemede: 0746c6f; Yayın 40238705321 derleme/yayın/adres kontrolü başarılı. /dev/ 0.7.7, kök 0.6.8. Sonraki: Cem yeni yakın kadrajı denesin; canlı çıkış regresyon + Cem onayı ister.
 
 ## Önceki iş: kariyer gelişimi 0.7.6 denemede
 
