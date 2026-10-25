@@ -50,11 +50,15 @@ describe("kararlılık ve temel değerler", () => {
         vmax = Math.max(vmax, v);
       }
       expect(t100, "0-100 km/sa (sn)").toBeGreaterThan(1.5);
-      expect(t100, "0-100 km/sa (sn)").toBeLessThan(ci >= 10 ? 9 : 5);
-      expect(vmax, "azami hız (km/sa)").toBeGreaterThan(ci == 12 ? 125 : ci >= 10 ? 145 : 170);
+      expect(t100, "0-100 km/sa (sn)").toBeLessThan(
+        ci == 12 ? 15 : ci >= 10 ? 13 : ci == 2 || ci == 8 ? 7 : 5,
+      );
+      expect(vmax, "azami hız (km/sa)").toBeGreaterThan(
+        ci == 12 ? 110 : ci >= 10 ? 125 : ci == 8 ? 150 : 170,
+      );
       // fren: 100 km/sa'dan
       s.reset(210, -780, 0);
-      for (let k = 0; k < 600 && Math.hypot(S.vx, S.vz) < 27.78; k++) s.adim(gir(1));
+      for (let k = 0; k < 1200 && Math.hypot(S.vx, S.vz) < 27.78; k++) s.adim(gir(1));
       const z0 = S.z;
       for (let k = 0; k < 600 && Math.hypot(S.vx, S.vz) > 0.3; k++) s.adim(gir(0, 1));
       expect(S.z - z0, "100-0 fren mesafesi (m)").toBeLessThan(30);

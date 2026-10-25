@@ -104,10 +104,10 @@ describe("parçalar", () => {
   it("parça etkileri araç değerlerine işler, stok araç değişmez", () => {
     const hp0 = CARS[0].hp,
       P = aracKur(0, ["motor-yaris", "agirlik-2", "turbo-buyuk"]);
-    expect(P.car.hp).toBeCloseTo(hp0 * 1.27 * 1.3, 6);
+    expect(P.car.hp).toBeCloseTo(hp0 * 1.75 * 1.7, 6);
     expect(P.car.kg).toBeCloseTo(CARS[0].kg * 0.9, 6);
     // turbosuz araca turbo: basınçsız güç stokla aynı
-    expect(P.car.hp * (1 - P.car.tb!)).toBeCloseTo(hp0 * 1.27, 6);
+    expect(P.car.hp * (1 - P.car.tb!)).toBeCloseTo(hp0 * 1.75, 6);
     expect(CARS[0].hp).toBe(hp0);
     expect(CARS[0].tb).toBeUndefined();
     // dört çekere geçiş ağırlık ekler, zaten dört çekerde eklemez

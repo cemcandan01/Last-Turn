@@ -18,6 +18,7 @@ const BOLUMLER = [
   "acilis",
   "yarislar",
   "garaj",
+  "ozellik-puanlari",
   "garaj-ses",
   "dokunma",
   "gecis",

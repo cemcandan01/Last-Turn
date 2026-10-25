@@ -3251,11 +3251,24 @@ details[open] > summary::after {
 }
 .gk u {
   display: block;
-  height: calc(4px * var(--gs, 1));
+  position: relative;
+  height: calc(12px * var(--gs, 1));
+  text-align: center;
+  text-decoration: none;
   background: #ffffff26;
   overflow: hidden;
 }
+.gk u em {
+  position: relative;
+  font-style: normal;
+  font-size: max(9px, calc(9px * var(--gs, 1)));
+  line-height: calc(12px * var(--gs, 1));
+  color: white;
+  text-shadow: 0 1px 2px #000;
+}
 .gk s {
+  position: absolute;
+  inset: 0;
   display: block;
   height: 100%;
   background: linear-gradient(90deg, var(--gt, #ffb21a), #fff0c4);

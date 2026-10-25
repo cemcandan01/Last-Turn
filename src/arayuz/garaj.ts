@@ -180,7 +180,7 @@ const sinifRengi = (h: string) => SINIFLAR.find((x) => x.h == h)?.renk ?? "#fff"
 /** sınıf harfi ve puan rozeti (SINIFLAR rengiyle) */
 function sinifRozeti(aracNo: number, parcalar: readonly string[], tur?: YarisTuru) {
   const p = puan(aracNo, parcalar, tur);
-  return `<span class="bdg gsnf" id="gsnf" style="--c:${sinifRengi(p.sinif)}" title="Performans sınıfı ve puanı"><b>${p.sinif}</b>${p.puan}</span>`;
+  return `<span class="bdg gsnf" id="gsnf" style="--c:${sinifRengi(p.sinif)}" title="Altı özellik puanının toplamı; HP değildir"><b>${p.sinif}</b>${p.puan}</span>`;
 }
 
 /** parça satın alma onayı (iki dokunuş, 3 sn) */
@@ -678,15 +678,14 @@ function showGar() {
   const parcalar = takiliParcalar(G.i),
     gercekArac = aracKur(G.i, parcalar).car,
     deger = puan(G.i, parcalar, puanTuru(G)),
-    sv = Object.fromEntries(STAT(gercekArac, deger).map(([n, f]) => [n, f])),
-    pct = (f: number) => Math.round(cl(f, 0.05, 1) * 100),
-    // sağ üst çubuklar: ad, değer, birim, doluluk (0-1)
+    // Her satırda hem fiziksel değer hem toplama giren puan gösterilir.
     cubuk: [string, string, string, number][] = [
-      ["HIZ", String(Math.round(deger.hiz)), "km/sa", sv["Azami hız"]],
-      ["İVME", deger.ivme.toFixed(1), "sn", sv["Hızlanma"]],
-      ["TUTUŞ", String(pct(sv["Yol tutuşu"])), "%", sv["Yol tutuşu"]],
-      ["FREN", deger.fren.toFixed(1), "m", sv["Fren"]],
-      ["ARAZİ", String(pct(sv["Arazi"])), "%", sv["Arazi"]],
+      ["GÜÇ", String(Math.round((1000 * gercekArac.hp) / gercekArac.kg)), "HP/t", deger.ozellikler[0].puan],
+      ["İVME", deger.ivme.toFixed(1), "sn", deger.ozellikler[1].puan],
+      ["HIZ", String(Math.round(deger.hiz)), "km/sa", deger.ozellikler[2].puan],
+      ["TUTUŞ", (deger.tutus / 24).toFixed(2), "g", deger.ozellikler[3].puan],
+      ["FREN", deger.fren.toFixed(1), "m", deger.ozellikler[4].puan],
+      ["ARAZİ", (deger.arazi / 24).toFixed(2), "g", deger.ozellikler[5].puan],
     ],
     sira = Math.max(0, L.indexOf(G.i)) + 1,
     satir = (ad: string, deger: string, sinif = "") =>
@@ -704,9 +703,11 @@ function showGar() {
 <div class="gbar" title="Yaklaşık performans: düz, kuru asfalt; Dengeli yardım, seçilen yarış türü. Parçalar hesaba katılır.">${cubuk
     .map(
       ([n, d, b, f]) =>
-        `<div class="gk"><span class="gkb">${n}</span><u><s style="width:${Math.round(cl(f, 0.05, 1) * 100)}%"></s></u><b>${d}<small>${b}</small></b></div>`,
+        `<div class="gk"><span class="gkb">${n}</span><u><s style="width:${Math.round(cl(f / 200, 0.02, 1) * 100)}%"></s><em data-ozellik-puani="${f}">${f}</em></u><b>${d}<small>${b}</small></b></div>`,
     )
-    .join("")}<p>${gercekArac.hp} HP · ${gercekArac.kg} KG</p></div>
+    .join(
+      "",
+    )}<p id="goztop">Toplam ${deger.puan} · ${deger.sinif} tavan ${SINIFLAR.find((s) => s.h == deger.sinif)!.max}</p><p>${gercekArac.hp} HP · ${gercekArac.kg} KG</p></div>
 <div class="galt">${kilitli ? "" : `<div class="gsr"><button class="gses" id="gses"></button>${!G.mg && acik ? `<button class="gses gmod" id="gmod">${ikon("anahtar")}Modifiye</button>` : ""}</div>`}<div id="gpara">${bilgi}</div><div class="gbt"><button class="btn alt" id="gbk">Geri</button>${dugme ? `<button class="btn${satilik ? " al" : ""}" id="gok"${kilitli || (satilik && eksik > 0) ? " disabled" : ""}>${okYazi}</button>` : ""}<button class="btn alt gvtam" id="gvtam">Vitrin</button></div></div>`;
   magazaSeridi(G);
   const bil = document.getElementById("gbil");

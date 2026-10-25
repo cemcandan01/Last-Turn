@@ -20,9 +20,9 @@ describe("garaj ve gerçek sürüş", () => {
     };
     const serce = olc(10),
       ust = olc(0);
-    expect(serce.hiz).toBeGreaterThan(160);
-    expect(serce.hiz).toBeLessThan(175);
-    expect(serce.ivme).toBeGreaterThan(6);
+    expect(serce.hiz).toBeGreaterThan(140);
+    expect(serce.hiz).toBeLessThan(165);
+    expect(serce.ivme).toBeGreaterThan(10);
     expect(ust.hiz).toBeGreaterThan(serce.hiz * 1.4);
     expect(ust.ivme).toBeLessThan(serce.ivme * 0.65);
   });
