@@ -152,32 +152,39 @@ describe("drift bonusları", () => {
     return E;
   };
   const adlar = (E: DriftSayaci) => E.driftOlay.map((o) => o.ad + o.puan);
-  it("koşul 1 sn sürünce başlar, sonra her tam saniye için verilir", () => {
+  it("uzun drift ve tek yön 3 sn'de başlar; uzun drift her saniye artar", () => {
     const E = kos(
-      3.5,
+      5.5,
       () => 0.5,
       () => 0.8,
     );
-    expect(adlar(E).sort()).toEqual([...Array(3).fill("TEK YÖN250"), ...Array(3).fill("UZUN DRIFT100")]);
-    expect(E.bonus).toBe(3 * 350);
+    expect(adlar(E)).toEqual([
+      "UZUN DRIFT100",
+      "TEK YÖN150",
+      "UZUN DRIFT200",
+      "TEK YÖN150",
+      "UZUN DRIFT300",
+      "TEK YÖN150",
+    ]);
+    expect(E.bonus).toBe(600 + 450);
     expect(
       kos(
-        0.9,
+        2.9,
         () => 0.5,
         () => 0.8,
       ).bonus,
     ).toBe(0);
   });
-  it("direksiyonsuz drift saniyede +100 daha verir; taraf değişince tek yön sıfırlanır", () => {
+  it("direksiyonsuz 2 sn'de başlar, saniyede +100; taraf değişince tek yön sıfırlanır", () => {
     expect(
       kos(
-        2.5,
+        3.5,
         () => 0.5,
         () => 0,
       ).bonus,
-    ).toBe(2 * 450);
+    ).toBe(200 + 100 + 150);
     const E = kos(
-      2.5,
+      5,
       (t) => (t < 1.5 ? 0.5 : -0.5),
       () => 0.8,
     );
@@ -185,14 +192,14 @@ describe("drift bonusları", () => {
   });
   it("bonus bankalanır; kombo yanınca bonus da yanar; ters sürüşte bonus yok", () => {
     const E = kos(
-      2.2,
+      3.2,
       () => 0.5,
       () => 0.8,
     );
     const kombo = Math.round(E.combo * E.mult);
-    expect(driftBankala(E)).toBe(kombo + 700);
+    expect(driftBankala(E)).toBe(kombo + 250);
     const Y = kos(
-      2.2,
+      3.2,
       () => 0.5,
       () => 0.8,
     );

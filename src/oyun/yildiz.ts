@@ -13,6 +13,12 @@ export const TUR_ANAHTARI: Record<YarisTuru, string> = {
   dg: "drag",
 };
 
+/**
+ * drift rekor/hayalet anahtarının ön eki (kural sürümlü: 0.7.4'te bonus kuralı değişti). Eski kuralın rekoru
+ * `drift_<lv>`de kalır ve "eski kural" diye gösterilir; yıldız anahtarı (`drift_<lv>`) değişmez.
+ */
+export const DRIFT_REKOR_ON_EKI = TUR_ANAHTARI.dp + "2";
+
 export const yildizAnahtari = (tur: YarisTuru, seviye: number) => TUR_ANAHTARI[tur] + "_" + seviye;
 
 /** [1★, 2★, 3★] eşikleri: zamanlı yarışta süre (sn, azalan), drift yarışında puan (artan); pist yoksa boş */
