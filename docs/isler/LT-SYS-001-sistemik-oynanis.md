@@ -124,3 +124,8 @@ Kapsam: `src/cekirdek/mekanikler.ts` (taslağın yerine), `tests/birim/mekanikle
 ### Açık tasarım soruları (FAZ 2 öncesi Cem'e)
 - Spinle biten driftin o ana kadar topladığı enerji korunsun mu, yansın mı (yarış kombosu yanıyor)?
 - Enerjinin ilk harcama yolu ne olacak (boost / Traction Pulse) ve hangi yarışlarda açık (allowedSkills)? Kariyer rekorları için ayrı anahtar kabul mü?
+
+### Doğrulama (yerel, 91f193d kodu; CI koşmadı)
+- `npm run kontrol` (tip + ESLint + Prettier) başarılı. `npm test` 23/23 dosya, 323/323 test başarılı (mekanikler 17). `npm run build` başarılı (Firebase yardımcı indirme uyarısı ağ kaynaklı, derlemeyi bozmadı).
+- `npm run alan -- fizik`: 47 vitest geçti, 35 alan seçimiyle atlandı (fizik.test 28, parcalar.test 7; aynı testler tam `npm test`te geçti), tarayıcı 16/16.
+- Durum: kod `claude/sistemik-oynanis-faz1` dalında. `codex/sistemik-oynanis-tasarim`a eşzamanlı Codex commit'leri (0b418c3, 08551ed, 5748895, PR #15) geldiği için o dala push edilmedi; tek sahip kararı Cem'de. gelistirme/master'a birleştirilmedi.
