@@ -8,11 +8,9 @@ describe("LT-SYS-001 enerji mekanikleri", () => {
     const ilk = mekanikBaslat();
     expect(mekanikAdimi(ilk, [drift], [DRIFT_HARVESTER])).toBe(ilk);
   });
-  it("ayni olayi ikinci kez odullendirmez", () => {
-    const a = mekanikAdimi(mekanikBaslat(), [drift], [DRIFT_HARVESTER], true);
-    const b = mekanikAdimi(a, [drift], [DRIFT_HARVESTER], true);
-    expect(a.enerji).toBeGreaterThan(0);
-    expect(b.enerji).toBe(a.enerji);
+  it("ayni adimda olayi ikinci kez odullendirmez", () => {
+    const a = mekanikAdimi(mekanikBaslat(), [drift, drift], [DRIFT_HARVESTER], true);
+    expect(a.enerji).toBeCloseTo(6 / 60);
   });
   it("kasitsiz kaymadan enerji uretmez", () => {
     const a = mekanikAdimi(mekanikBaslat(), [{ ...drift, kasitli: false }], [DRIFT_HARVESTER], true);
@@ -23,6 +21,12 @@ describe("LT-SYS-001 enerji mekanikleri", () => {
     expect(a.enerji).toBeLessThanOrEqual(2);
     expect(a.enerji).toBeGreaterThanOrEqual(0);
   });
+  it("gecersiz sayisal girdiler enerji uretmez", () => {
+    expect(() => mekanikBaslat(NaN)).toThrow(RangeError);
+    const a = mekanikAdimi(mekanikBaslat(), [{ ...drift, sure: Infinity }], [DRIFT_HARVESTER], true);
+    expect(a.enerji).toBe(0);
+  });
+
   it("ayni girdiler ayni sonucu verir", () => {
     const run = () => mekanikAdimi(mekanikBaslat(100, 0), [drift], [DRIFT_HARVESTER], true);
     expect(run()).toEqual(run());
