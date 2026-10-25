@@ -4,7 +4,14 @@ import { aracAdimi, aracOrnegiYap } from "../../src/fizik/arac-ornegi";
 import { bosGirdi } from "../../src/fizik/girdi-kaydi";
 import type { DunyaSorgusu, FizikOlaylari } from "../../src/fizik/tipler";
 import { hayaletGirdiKaydiOku, hayaletKaydet, hayaletOku } from "../../src/oyun/hayalet-kayit";
-import { HAYALET, rekorHayaleti, rekorHayaletiBaslat, rekorHayaletiDurdur, uzak, uzakAdimi } from "../../src/oyun/uzak";
+import {
+  HAYALET,
+  rekorHayaleti,
+  rekorHayaletiBaslat,
+  rekorHayaletiDurdur,
+  uzak,
+  uzakAdimi,
+} from "../../src/oyun/uzak";
 import { kurulumYap } from "../yardimci/surucu";
 
 const sahteOlay: FizikOlaylari = {
@@ -32,10 +39,7 @@ describe("Hayalet tur kaydı ve oynatma", () => {
 
   test("hayalet kaydı kaydetme, okuma ve derece karşılaştırması", () => {
     const k = kurulumYap(0, "ar", "real");
-    const a = aracOrnegiYap(
-      { dunya: sahteDunya, kurulum: k, olay: sahteOlay, gorselRng: Math.random },
-      123,
-    );
+    const a = aracOrnegiYap({ dunya: sahteDunya, kurulum: k, olay: sahteOlay, gorselRng: Math.random }, 123);
 
     for (let i = 0; i < 10; i++) {
       aracAdimi(a, { ...bosGirdi(), g: 1, tg: 0.1 * i });
@@ -68,10 +72,7 @@ describe("Hayalet tur kaydı ve oynatma", () => {
 
   test("rekor hayaleti başlatma ve adım adım oynatma", () => {
     const k = kurulumYap(0, "ar", "real");
-    const a = aracOrnegiYap(
-      { dunya: sahteDunya, kurulum: k, olay: sahteOlay, gorselRng: Math.random },
-      456,
-    );
+    const a = aracOrnegiYap({ dunya: sahteDunya, kurulum: k, olay: sahteOlay, gorselRng: Math.random }, 456);
 
     for (let i = 0; i < 15; i++) {
       aracAdimi(a, { ...bosGirdi(), g: 1 });

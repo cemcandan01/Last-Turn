@@ -2,7 +2,14 @@
 // yok: ağ katmanı uzakAracEkle ile aracı açıp gelen her durumu uzakAnlikEkle ile verecek; yumuşatma fizik/anlik.ts'te.
 // Rekor hayaleti: kaydedilmiş en iyi tur girdilerini adım adım simüle eder ve pistte saydam araç olarak çizer.
 // Geliştirici hayaleti (deneme sürümünde ayarlardan): yerel aracın görüntüleri seyrek ve gecikmeli verilir.
-import { anlikAl, uzakAnlikEkle, uzakAracYap, uzakGuncelle, type AracAnlik, type UzakArac } from "../fizik/anlik";
+import {
+  anlikAl,
+  uzakAnlikEkle,
+  uzakAracYap,
+  uzakGuncelle,
+  type AracAnlik,
+  type UzakArac,
+} from "../fizik/anlik";
 import { aracAnligi } from "../fizik/arac-ornegi";
 import { kayitGirdisi, type GirdiKaydi } from "../fizik/girdi-kaydi";
 import { Simulasyon } from "../fizik/simulasyon";
@@ -120,7 +127,8 @@ export function uzakAdimi() {
   }
   if (!u) u = uzakAracEkle(HAYALET, carIndex());
   u.arac = carIndex();
-  if (++Hdev.adim % Hdev.siklik == 0) Hdev.kuyruk.push({ ulas: sim.d.zaman + Hdev.gecikme, a: aracAnligi(yerel) });
+  if (++Hdev.adim % Hdev.siklik == 0)
+    Hdev.kuyruk.push({ ulas: sim.d.zaman + Hdev.gecikme, a: aracAnligi(yerel) });
   while (Hdev.kuyruk.length && Hdev.kuyruk[0].ulas <= sim.d.zaman) uzakAnlikEkle(u, Hdev.kuyruk.shift()!.a);
 }
 
