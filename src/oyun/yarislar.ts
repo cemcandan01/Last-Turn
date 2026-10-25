@@ -53,7 +53,7 @@ export const TYP: Record<
     n: "Drift yarışmaları",
     d:
       DRIFT_TUR +
-      " turda hedef puanları topla. Drift uzadıkça çarpan x5’e çıkar; çime çıkmak, çarpmak ya da spin komboyu yakar. Drift ayarları otomatik gelir.",
+      " turda hedef puanları topla. Drift uzadıkça çarpan x5’e çıkar; tamamen çime çıkmak, çarpmak ya da spin komboyu yakar. Drift ayarları otomatik gelir.",
   },
   rl: {
     k: TUR_ANAHTARI.rl,
@@ -292,7 +292,8 @@ export function evTick(dt: number, o: AdimSonucu, tg = 0.5) {
   const T = EV.TR.T[ti],
     geri = tersAdimi(EV, S.vx, S.vz, T[0], T[1], dt);
   if (EV.ty == "dp") {
-    const lost = o.si == 2 || sim.d.zaman - S.hit < 0.05 || Math.abs(D.beta) > 1.4,
+    // kombo araç tamamen çime çıkınca yanar (tek teker ya da kerb yakmaz)
+    const lost = o.cimTeker == 4 || sim.d.zaman - S.hit < 0.05 || Math.abs(D.beta) > 1.4,
       r = driftAdimi(EV, !!D.act, D.beta, lost, o.v, EV.ters || geri, dt, tg, sim.d.zaman, EV.x6);
     if (EV.lap == 0 && D.act && !lost && !EV.ters && !geri) {
       // orta çizgi ilerlemesi (pist uzunluğuyla aynı ölçü; dış çizgiden giden fazla yol sayılmaz)

@@ -111,11 +111,12 @@ export class KomboSayaci {
   private onceki = -1;
   constructor(private TR: Pist) {}
 
-  adim(d: SimDurumu, si: number, dt: number) {
+  /** cim: araç tamamen çimde (dört teker; oyundaki kuralla aynı) */
+  adim(d: SimDurumu, cim: boolean, dt: number) {
     const S = d.S,
       D = d.D,
       ti = ipucu.ti,
-      lost = si == 2 || d.zaman - S.hit < 0.05 || Math.abs(D.beta) > 1.4;
+      lost = cim || d.zaman - S.hit < 0.05 || Math.abs(D.beta) > 1.4;
     let ds = 0;
     if (this.onceki >= 0) {
       ds = this.TR.S[ti] - this.TR.S[this.onceki];
@@ -153,8 +154,8 @@ export class PuanSayaci {
   get puan() {
     return this.E.score;
   }
-  adim(d: SimDurumu, si: number, v: number, dt: number, ters = false, tg = 0.5) {
-    const lost = si == 2 || d.zaman - d.S.hit < 0.05 || Math.abs(d.D.beta) > 1.4;
+  adim(d: SimDurumu, cim: boolean, v: number, dt: number, ters = false, tg = 0.5) {
+    const lost = cim || d.zaman - d.S.hit < 0.05 || Math.abs(d.D.beta) > 1.4;
     driftAdimi(this.E, !!d.D.act, d.D.beta, lost, v, ters, dt, tg, d.zaman, this.x6);
   }
   bankala() {
@@ -196,8 +197,8 @@ export function driftTuru(
   for (let k = 0; k < sn / DT; k++) {
     const gi = pl(S);
     const o = s.adim(gi);
-    ks.adim(s.sim.d, o.si, DT);
-    ps.adim(s.sim.d, o.si, o.v, DT, false, gi.tg);
+    ks.adim(s.sim.d, o.cimTeker == 4, DT);
+    ps.adim(s.sim.d, o.cimTeker == 4, o.v, DT, false, gi.tg);
     let ds = TR.S[ipucu.ti] - TR.S[onceki];
     if (ds < -TR.len / 2) ds += TR.len;
     yol += ds;
