@@ -65,8 +65,8 @@ export default async function ({ p, ok }) {
   });
   ok(
     (await p.locator("#gpara").isVisible()) &&
-      (await p.locator("#gpara").innerText()).includes("Fiyat") &&
-      (await p.locator("#gpara").innerText()).includes("Bakiye"),
+      (await p.locator("#gpara").textContent()).includes("Fiyat") &&
+      (await p.locator("#gpara").textContent()).includes("Bakiye"),
     "mağazanın fiyat ve bakiye alanları korunur",
   );
 }
