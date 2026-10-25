@@ -12,7 +12,7 @@ import { duzenleyici } from "../arayuz/hud-duzenleyici";
 import { miniHaritaCiz } from "../arayuz/mini-harita";
 import { body, car, model } from "../cizim/arac-modeli";
 import { GX, GZ } from "../cizim/garaj-sahnesi";
-import { kamera, garajKameraTick } from "../cizim/kamera";
+import { kamera, garajKameraTick, GARAJ_KAMERA_YONU, type GarajOdak } from "../cizim/kamera";
 import { aynaCiz } from "../cizim/ayna";
 import { cock, gauges, kokpit } from "../cizim/kokpit";
 import { glassQM } from "../cizim/malzemeler";
@@ -103,7 +103,8 @@ function kare(ts: number) {
     S.h = kamera.ly;
     S.vx = S.vz = S.w = 0;
     S.axs = 0;
-    sim.d.delta = 0;
+    // modifiyede direksiyon parçasına gelince ön tekerler döner
+    sim.d.delta = kamera.gDon;
   }
   const v = Math.hypot(S.vx, S.vz),
     gx = mode == "garage" ? S.x : px,
@@ -239,22 +240,47 @@ function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h
     cam.up.set(0, 1, 0);
     cam.lookAt(x + fxm * 3, y + 1.2, z + fzm * 3);
   }
-  // garaj kamerası: araç ekranın ortasında; araç geçişinde görüntü penceresi kısa süre yana kayar (kamera.gKay)
+  // garaj kamerası: araç ekranın ortasında; araç geçişinde görüntü penceresi kısa süre yana kayar (kamera.gKay).
+  // Modifiyede kamera seçili parçaya yaklaşır (kamera.gOdak: NFS Carbon gibi; motor → kaput, süspansiyon → teker)
   if (mode == "garage") {
-    const a = 0.55,
+    const a = GARAJ_KAMERA_YONU,
       lnd = ekran.aw > ekran.ah,
-      dd = (lnd ? 7.2 : 8.8) * kamera.gz,
-      pay = kamera.gKay * ekran.aw * 0.35,
       ty = lnd ? 0.7 : -0.2,
+      k = kamera.gOk,
+      dd = ((lnd ? 7.2 : 8.8) * (1 - k) + (kamera.gOdak?.dd ?? 7.2) * k) * kamera.gz,
+      pay = kamera.gKay * ekran.aw * 0.35,
       gp = lnd ? kamera.gp : kamera.gp + 0.25;
+    // bakılan nokta: genel görünümde araç ortası, odakta parçanın noktası (araçla birlikte döner); yumuşak geçiş
+    const O = kamera.gOdak;
+    let hx = GX,
+      hy = ty,
+      hz = GZ;
+    if (O) {
+      odakNoktasi(O, odakV);
+      car.localToWorld(odakV);
+      hx = odakV.x;
+      hy = odakV.y;
+      hz = odakV.z;
+    }
+    const yk = Math.min(1, dt * 5);
+    kamera.gOx += (hx - kamera.gOx) * yk;
+    kamera.gOy += (hy - kamera.gOy) * yk;
+    kamera.gOz += (hz - kamera.gOz) * yk;
+    if (Math.abs(kamera.gOz - GZ) > 50) {
+      // ilk kare: noktaya sıçra
+      kamera.gOx = hx;
+      kamera.gOy = hy;
+      kamera.gOz = hz;
+    }
     cam.position.set(
-      GX + Math.sin(a) * dd * Math.cos(gp),
-      ty + dd * Math.sin(gp),
-      GZ + Math.cos(a) * dd * Math.cos(gp),
+      kamera.gOx + Math.sin(a) * dd * Math.cos(gp),
+      kamera.gOy + dd * Math.sin(gp),
+      kamera.gOz + Math.cos(a) * dd * Math.cos(gp),
     );
     cam.up.set(0, 1, 0);
-    cam.lookAt(GX, ty, GZ);
-    cam.setViewOffset(ekran.aw, ekran.ah, pay, 0, ekran.aw, ekran.ah);
+    cam.lookAt(kamera.gOx, kamera.gOy, kamera.gOz);
+    // modifiyede alt şerit için görüntü biraz yukarı kayar
+    cam.setViewOffset(ekran.aw, ekran.ah, pay, kamera.gYuk * ekran.ah * 0.1, ekran.aw, ekran.ah);
     garajGorus = true;
   } else if (garajGorus) {
     cam.clearViewOffset();
@@ -272,6 +298,48 @@ function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h
 
 /** garaj görüntü penceresi kaydırması açık mı */
 let garajGorus = false;
+const odakV = new THREE.Vector3();
+
+/** modifiye odağının araç içindeki noktası: aks / teker konumları modelin tekerlerinden, yükseklik gövdenin tepesinden */
+function odakNoktasi(O: GarajOdak, v: THREE.Vector3) {
+  const ws = model.carM?.ws ?? [],
+    on = ws.find((w) => w.f)?.pv.position,
+    ar = ws.find((w) => !w.f)?.pv.position,
+    zf = on?.z ?? 1.3,
+    zr = ar?.z ?? -1.3,
+    r = on?.y ?? 0.33;
+  if (ustY.arac !== model.carM) {
+    // gövdenin tepesi (yalnız yükseklik: yönden bağımsız)
+    ustY.arac = model.carM;
+    const b = new THREE.Box3().setFromObject(body);
+    ustY.y = Number.isFinite(b.max.y) ? Math.max(0.8, b.max.y - car.position.y) : 1.3;
+  }
+  const tepe = ustY.y,
+    yan = (p: THREE.Vector3 | undefined) => {
+      // kameraya bakan yandaki teker: aracın yerel +x yönü kameraya dönükse +x
+      const h = O.h,
+        isaret = Math.sin(-h) >= 0 ? 1 : -1;
+      return Math.abs(p?.x ?? 0.8) * isaret;
+    };
+  switch (O.nok) {
+    case "on":
+      v.set(0, tepe * O.y, zf + (O.z ?? 0));
+      break;
+    case "ar":
+      v.set(0, tepe * O.y, zr + (O.z ?? 0));
+      break;
+    case "orta":
+      v.set(0, tepe * O.y, (zf + zr) / 2 + (O.z ?? 0));
+      break;
+    case "onTeker":
+      v.set(yan(on), r + O.y, zf + (O.z ?? 0));
+      break;
+    case "arTeker":
+      v.set(yan(ar), (ar?.y ?? r) + O.y, zr + (O.z ?? 0));
+      break;
+  }
+}
+const ustY = { arac: null as unknown, y: 1.3 };
 
 export function donguBaslat() {
   requestAnimationFrame(kare);

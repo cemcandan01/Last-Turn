@@ -213,7 +213,7 @@ export default async function ({ p, ok }) {
   );
   await p.evaluate(() => LT.closeGarage());
   // tam ekran vitrin düzeni: ad bloğu, sağ üst çubuklar ve alt eylemler her araçta ekran içinde, birbirine binmez,
-  // aracın durduğu orta bölge açık kalır; çubuklar HIZ/İVME/TUTUŞ/FREN/ARAZİ
+  // aracın durduğu orta bölge açık kalır; altı çubukta fiziksel değer ve özellik puanı
   const pn = await p.evaluate(() => {
     const r = [];
     const kes = (a, b) => !(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top);
@@ -274,7 +274,7 @@ export default async function ({ p, ok }) {
   ok(
     pn.every(
       (x) =>
-        x.cubuk == 5 && x.navSolAlt && x.aciklamaSolUst && x.icerde && !x.bina && /^\d+\/\d+$/.test(x.say),
+        x.cubuk == 6 && x.navSolAlt && x.aciklamaSolUst && x.icerde && !x.bina && /^\d+\/\d+$/.test(x.say),
     ),
     "vitrin düzeni: çubuklar var, öğeler ekran içinde, birbirine ve araca binmiyor " + JSON.stringify(pn[0]),
   );

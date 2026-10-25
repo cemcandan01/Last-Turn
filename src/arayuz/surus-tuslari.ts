@@ -4,9 +4,10 @@ import { cl } from "../cekirdek/matematik";
 import { REG } from "../dunya/bolgeler";
 import { dunya, Hw } from "../dunya/dunya";
 import { ipucu } from "../dunya/pist";
+import { pistKonumu } from "../oyun/piste-donus";
 import { CAMS, oyun } from "../oyun/durum";
 import { reset, sim, yerel } from "../oyun/surus";
-import { yaris } from "../oyun/yarislar";
+import { yaris, yaristaPisteDon } from "../oyun/yarislar";
 import { lastikDegistir, showSet } from "./ayarlar-ekrani";
 import { note } from "./bildirim";
 
@@ -16,6 +17,11 @@ function yenidenDog() {
   const EV = yaris.EV,
     TR = EV ? EV.TR : dunya.TR,
     rg = EV ? REG[EV.reg] : dunya.cur;
+  if (EV) {
+    const p = EV.pistDisi.ilk ?? pistKonumu(EV.TR, sim.S.x, sim.S.z, ipucu.ti).nokta;
+    yaristaPisteDon(p);
+    return;
+  }
   if (TR) {
     let i = ipucu.ti;
     // çamurda yeniden doğma: çamurdan çıkana kadar pist boyunca ileri al
@@ -31,16 +37,8 @@ function yenidenDog() {
       )
         i = TR.open ? Math.min(i + 1, TR.N - 1) : (i + 1) % TR.N;
     const P = TR.P[i],
-      T = TR.T[i],
-      t = EV ? EV.t : 0;
+      T = TR.T[i];
     reset(P[0], P[1], Math.atan2(T[0], T[1]));
-    if (EV) {
-      EV.t = t;
-      EV.prev = ipucu.ti;
-      EV.combo = 0;
-      EV.mult = 1;
-      EV.ct = 0;
-    }
   } else {
     const S = sim.S;
     S.vx = S.vz = S.w = 0;

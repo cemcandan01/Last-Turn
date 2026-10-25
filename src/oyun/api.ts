@@ -4,6 +4,7 @@ export { CARS } from "../arac/araclar";
 export { gorunumUygula } from "../arac/gorunumler";
 export { showMenu, startWorld } from "../arayuz/menu";
 export { openGarage, closeGarage, magazaAc, magazaAc as openStore } from "../arayuz/garaj";
+export { lastikDegistir } from "../arayuz/ayarlar-ekrani";
 export { showSet } from "../arayuz/ayarlar-ekrani";
 export { R, scene, cam } from "../cizim/sahne";
 export { kamera } from "../cizim/kamera";
@@ -28,7 +29,7 @@ export { sim, reset, yerel } from "./surus";
 export { uzak, hayalet, uzakAracEkle, uzakAracSil, uzakAnlikEkle } from "./uzak";
 export { aracAnligi } from "../fizik/arac-ornegi";
 export { kaydiSerilestir, kaydiCoz, kaydiOynat } from "../fizik/girdi-kaydi";
-export { EVENTS, startEvent, endEvent, yaris } from "./yarislar";
+export { EVENTS, startEvent, endEvent, yaris, evTick, yarisiYenidenBaslat } from "./yarislar";
 import { tt } from "./dongu";
 
 /** görsel saat */

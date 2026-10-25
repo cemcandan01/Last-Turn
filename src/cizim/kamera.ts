@@ -30,7 +30,37 @@ export const kamera = {
   gBtn: false,
   /** garaj: araç geçişinde kısa kayma (-1..1, sıfıra söner; görüntü penceresi kaydırması) */
   gKay: 0,
+  /** garaj modifiye: kameranın yaklaştığı parça (null: genel görünüm, araç kendiliğinden döner) */
+  gOdak: null as GarajOdak | null,
+  /** odak açıkken araç odağın yönüne çekilir; parmakla çevrilince bırakılır, bir süre dokunulmazsa yeniden çekilir */
+  gOdakCek: true,
+  gOdakSon: 0,
+  /** odağa geçiş oranı (0 genel, 1 parça) ve kameranın baktığı nokta (yumuşatılmış, dünya koordinatı) */
+  gOk: 0,
+  gOx: 0,
+  gOy: 0.7,
+  gOz: 0,
+  /** ön tekerlerin dönüş açısı (direksiyon parçasında tekerler döner) ve görüntünün yukarı kayması (0-1, modifiye) */
+  gDon: 0,
+  gYuk: 0,
+  gYukH: 0,
 };
+
+/**
+ * garaj modifiye kamerası (NFS Carbon gibi parçaya yaklaşır): araç `h` kadar döner (kameraya göre: 0 önü, π arkası,
+ * ±π/2 yanı görünür), kamera `nok` noktasına (araç içinde; teker noktaları kameraya bakan yandakini alır) `y`/`z` kaydırmasıyla
+ * bakar, `gp` yükseklik açısından, `dd` metre uzaktan. `don`: ön teker dönüşü (rad).
+ */
+export interface GarajOdak {
+  ad: string;
+  h: number;
+  gp: number;
+  dd: number;
+  nok: "on" | "ar" | "orta" | "onTeker" | "arTeker";
+  y: number;
+  z?: number;
+  don?: number;
+}
 
 /** garajda dikey açı sınırı: yerin altına inmez, tam tepeden (90°) bakmaz */
 const GP_MIN = 0.03,
@@ -42,6 +72,8 @@ const GP_MIN = 0.03,
   /** bırakma ivmesinin sönüm süresi (sn) ve parmak hızının ölçüldüğü pencere (ms) */
   GARAJ_SONUM = 0.8,
   HIZ_PENCERE = 100;
+/** garaj kamerasının araca göre sabit yönü (rad; kamera aracın bu yönünde durur) */
+export const GARAJ_KAMERA_YONU = 0.55;
 
 export function garajKameraSifirla() {
   kamera.ly = 0;
@@ -53,12 +85,53 @@ export function garajKameraSifirla() {
   kamera.gTam = false;
   kamera.gBtn = false;
   kamera.gKay = 0;
+  kamera.gOdak = null;
+  kamera.gOk = 0;
+  kamera.gDon = 0;
+  kamera.gYukH = 0;
 }
+
+/** modifiye odağını değiştir (aynı odak yeniden verilirse dokunulmaz: ekran tazelenince araç yeniden çekilmesin) */
+export function garajOdakla(o: GarajOdak | null) {
+  if ((o?.ad ?? null) == (kamera.gOdak?.ad ?? null)) return;
+  kamera.gOdak = o;
+  kamera.gOdakCek = true;
+  if (!o) {
+    kamera.gOto = true;
+    kamera.gV = GARAJ_DONME * kamera.gYon;
+  }
+}
+
+/** en kısa yoldan açı farkı (-π..π) */
+const aciFark = (a: number, b: number) => Math.atan2(Math.sin(b - a), Math.cos(b - a));
 
 /** garaj: araç kendiliğinden döner (dokununca durur), yön açısı tek yerde tutulur */
 export function garajKameraTick(dt: number) {
   kamera.gKay *= Math.exp(-dt / 0.12);
   if (Math.abs(kamera.gKay) < 0.001) kamera.gKay = 0;
+  const yum = (t: number) => 1 - Math.exp(-dt / t),
+    O = kamera.gOdak;
+  kamera.gOk += ((O ? 1 : 0) - kamera.gOk) * yum(0.35);
+  kamera.gDon += ((O?.don ?? 0) - kamera.gDon) * yum(0.25);
+  kamera.gYuk += (kamera.gYukH - kamera.gYuk) * yum(0.3);
+  if (O) {
+    const simdi = performance.now();
+    if (kamera.dp !== null) {
+      kamera.gOdakCek = false;
+      kamera.gOdakSon = simdi;
+    } else if (!kamera.gOdakCek) {
+      // parmakla çevrildi: bırakınca süzülüp durur, 2,5 sn dokunulmazsa parçaya geri döner
+      kamera.ly += kamera.gV * dt;
+      kamera.gV *= Math.exp(-dt / 0.45);
+      if (simdi - kamera.gOdakSon > 2500) kamera.gOdakCek = true;
+    } else {
+      kamera.ly += aciFark(kamera.ly, O.h + GARAJ_KAMERA_YONU) * yum(0.32);
+      kamera.gp += (O.gp - kamera.gp) * yum(0.32);
+      kamera.gz += (1 - kamera.gz) * yum(0.32);
+      kamera.gV = 0;
+    }
+    return;
+  }
   if (!kamera.gOto || kamera.dp !== null) return;
   // bırakma hızı, yönü değişmeden kendi dönme hızına söner
   kamera.gV += (GARAJ_DONME * kamera.gYon - kamera.gV) * (1 - Math.exp(-dt / GARAJ_SONUM));

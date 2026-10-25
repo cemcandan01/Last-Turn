@@ -1,10 +1,16 @@
 # Claude + Codex devir
 
-- Cem kotası bitince diğer araca geçer. İkimiz de `CLAUDE.md` ve aynı görev kartıyla devam ederiz; sohbet belleği aktarılmış sayılmaz.
+- Cem kota durumuna göre iki araç arasında geçer; ortak bellek `CLAUDE.md`, bu dosya ve görev kartıdır. “Mesela/örneğin” genel isteğin örneğidir: yalnız o aracı/ekranı düzeltip işi bitti sayma (ortak rehbere eklendi).
+- Güncel iş tamam: Codex / `codex/denge`, PR #11, 0.6.2 deneme aktarımı. Görev: `docs/isler/2026-10-25-surus.md` → “Revize” ve “0.6.2 tamamlama kanıtı”. İlk 0.6.1 işi Serçe'ye daraltılmıştı; Cem bütün araçları kastettiğini düzeltti.
+- Artık bütün 15 araç aynı altı özellik formülünden sınıflanır. Görünür sayıların toplamı = sınıf puanı; pist/pilot puanı belirlemez. Stok tavanlar D200/C450/B550/A650/S750/X900; sınıf tavanları 400/500/600/700/800/999. Tüm stok D ≤200; modifiye sınırı aşınca sınıf yükselir.
+- Göstergeler / garaj / mağaza / sürüş kartı / sonuç ekranı bu sınıf etiketi ve puanını kullanır. HUD gösterge rengi sınıfa göredir.
+- Yarış güç önerisi kaldırıldı; yarışlar yalnız sınıf kilitli ("C ve altı", "S ve altı"). Her araç her sınıf kilitli yarışa girebilir; sınıfı yüksekse garajda uyarılır.
+- Denge simülasyonları: 15 araç × 40 pist otomatik tur zamanları ölçüldü (`npm run olcum -- --senaryo sinif-d,sinif,tempo,degerler`).
+- Düşük sınıflar (D, C) virajda daha afedici; yüksek sınıflar (S, X) aşırı gazda tork spini atar. Asfalt, rallikros, ralli ve drag sınıf hiyerarşisi korundu.
+- Yayın süreci eklendi: `docs/SUREC.md`; `surum-yayinla` ve `regresyon` skill'leri (gece 00:00 otomasyonu, dondurma, senaryo düzeltmeleri, duman ve canlı onayı).
+- Son süreç işi: `docs/isler/2026-10-25-tur-bagimsiz.md`; uygulayıcı Claude, dal `tur-bagimsiz`. Görev kartı ve devir özeti güncellendi. Denediği alan testleri ve tarayıcı geçişleri karta eklendi.
+- Yeni iş (Claude / `tur-bagimsiz`, `docs/isler/2026-10-25-tur-bagimsiz.md`): pist türüne göre araç optimizasyonu kaldırıldı (`uz/uzg/uzT/TUR_UYUMU`), puan lastikten bağımsız (`PUAN_LASTIGI`), gp/rx/rl yıldız eşikleri oranla gevşetildi. Temelde (0.6.4) zaten kalan 3 test: Kor RX toprakta kayma, modifiye drift paketi güç beklentisi, tarayıcı surus (Serçe 2 sn'de 8 m) — sahibi düzeltmeli.
+- Garaj görsel sadeleştirme: Codex / `codex/garaj-duzen`, görev `docs/isler/2026-10-25-garaj-duzen.md`; motor dinle sınıf/puan altına, sınıf büyütüldü, garaj Durum/Çekiş/Seçim kutusu kaldırıldı (mağaza fiyatları korunur). Yerel tip/lint/biçim temiz. CI'da odaklı tarayıcı + üç cihaz garaj uyumu ve iPhone 13 görüntüsü doğrulanacak. Konu/deneme yetkili, canlı ayrı onaylı.
+- Garaj sadeleştirme tamam: PR #13, CI 40189533545 başarılı (odaklı senaryo + 3 cihaz × 5 ekran 0 hata). Motor düğmesi büyük sınıf/puanın altında; garaj Durum/Çekiş/Seçim kutusu kalktı; mağaza fiyatları korunur. iPhone 13 görüntüsü incelendi, artifact 12597503383. 0.6.6 denemesine sürüm/devir ekleriyle aktarılıyor; sıradaki adım yayın/adres kontrolü. Fizik/puan/son diğer araç işleri değiştirilmedi.
 - Son geliştirme işi: `docs/isler/2026-10-25-hayalet-arac.md`; uygulayıcı Jules/Claude. En İyi Tur Hayalet Aracı (Ghost Car) özelliği eklendi. Depodaki rekor tur girdileri yüklenip yarış başında saydam hayalet araç olarak çiziliyor ve birebir oynatılıyor.
-- Yerel testler: 17/17 test dosyasında 266/266 birim ve fizik testi, `tsc` ve ESLint temiz geçti.
-- Son oyun düzeltmesi: 0.5.27, [PR #8](https://github.com/cemcandan01/Last-Turn/pull/8); kaynak `8caed4cfd4399baf2152712a65bf010327d4da9a`. Canlı kaynak `master`; güncel numara her devirde Git'ten doğrulanır.
-- Codex: PWA önbelleği/giriş yardımcısı ve PR test alanı eşlemesini düzeltti. Altyapı 18/18 senaryo; [CI 40131460601](https://github.com/cemcandan01/Last-Turn/actions/runs/40131460601). Yerelde 42/42 ilgili birim testi.
-- Yerel Chromium indirme adresi ZIP yerine 195 bayt “Site Unavailable” HTML döndürüyor; bu ortamda tekrar indirme. GitHub Actions'ta Chromium ve beş ilgili tarayıcı senaryosu geçti.
-- Devirde ilk adım: `git fetch origin`, ilgili dalı güncelle, `node scripts/calisma.mjs baglam <alan>` ve görev kartını oku. Kullanıcıya geçmişi tekrar anlattırma.
-- Context7 bu ChatGPT hesabında bağlı; Three.js r186 belge sorgusu doğrulandı. Claude tarafına da kurulduğu Cem tarafından bildirildi.
+- Yerel testler: 17/17 test dosyasında 266/266 birim ve fizik testi, `tsc`, ESLint ve Prettier temiz geçti.

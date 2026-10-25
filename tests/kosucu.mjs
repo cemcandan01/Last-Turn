@@ -110,7 +110,9 @@ if (process.argv.includes("--liste")) {
 // sanal cihaz denetimi: regresyonda iPhone 13 tam + temsilci cihazlar 4 ekran, alanda dalın ekranları 3 cihazda
 // (tests/yardimci/cihaz-bolum.mjs)
 process.env.LT_CIHAZ_KAPSAM = kip == "regresyon" ? "tam" : "alan";
-process.env.LT_CIHAZ_DALLAR = kip == "alan" ? dallar.join(",") : "";
+// Birleştirilmiş görev alanlarında (ör. denge) cihaz senaryosunun gerçek ekran sahibini de seç.
+const cihazSahipleri = secili.flatMap((s) => (s.tarayici?.startsWith("cihaz-") ? [s.tarayici.slice(6)] : []));
+process.env.LT_CIHAZ_DALLAR = kip == "alan" ? [...new Set([...dallar, ...cihazSahipleri])].join(",") : "";
 
 const kos = (komut, argv) => {
   const r = spawnSync(komut, argv, { cwd: KOK, stdio: "inherit", shell: process.platform == "win32" });

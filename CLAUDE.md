@@ -12,6 +12,7 @@
 
 - TypeScript + Vite + Three.js; iPhone 13, yatay ekran. Kullanıcı metni, yorum ve commit Türkçe. Oyun arayüzünde emoji/gerçek marka logosu yok.
 - Oynanış, tasarım, mimari ve kayıt uyumu kararları korunur. Ayrıntılar `docs/GELISTIRICI-AYRINTILARI.md` → “Genel kurallar ve tuzaklar” ve “Kullanıcının kararları”; yalnız işe değen kısımları oku. Fizik/çekirdek saf, fizik sabit adımlı ve belirlenimci kalır.
+- Cem “mesela/örneğin” diyerek bir sorun gösterdiğinde bunu genel davranışın örneği kabul et; aynı sorunu bütün ilgili araç/ekran/türlerde araştır. Yalnız örneği düzeltip genel isteği tamamlanmış sayma; kapsanan öğeleri görev kartında ve testte belirt.
 - İş kapsamı dışında oynanışı değiştirme. Büyük/öznel tasarımda önce referansı ve beklenen örnek davranışı netleştir; test geçmesi görsel beğeninin kanıtı değildir.
 - Konu dalı → ilgili kontroller → `gelistirme` → deneme yayını. Oyun değişikliği denemeye girerken yama +1; yalnız süreç/belge değişikliğinde oyun sürümü artmaz. `master`a canlı çıkış regresyon ve kullanıcı onayı ister. Rebase/force-push yok.
 - Testi kabul ölçütleriyle erken tasarla; geliştirme turunda normal durum + kritik sınır + önceki hataya odaklan. Küçük revizede tam alanı tekrarlama; risk bazlı kapsam/model seçimi `docs/ORTAK-CALISMA.md`de.
