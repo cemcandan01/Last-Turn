@@ -2106,6 +2106,23 @@ details[open] > summary::after {
     height: 48px;
   }
 }
+/* uzun ama dar ekran (katlanır telefon iç ekranı): altı panelde yazılar komşu panele taşmasın */
+@media (min-height: 600px) and (max-width: 900px) {
+  .mk b {
+    font-size: 15px;
+  }
+  .mk .ik {
+    width: 26px;
+    height: 26px;
+  }
+  .mk:first-child b {
+    font-size: 24px;
+  }
+  .mk:first-child .ik {
+    width: 36px;
+    height: 36px;
+  }
+}
 /* pist ayrıntısı bilgi kutuları: 3 kutuda Uzunluk tam satır (tek satıra sığar), altında Hedef süre ve PR; boş yarım kutu kalmaz */
 .evh .rcs span:nth-child(1):nth-last-child(3) {
   grid-column: 1 / -1;
