@@ -46,7 +46,7 @@ describe("Hayalet tur kaydı ve oynatma", () => {
     }
 
     // İlk rekor: 50 saniye
-    const kayit1 = hayaletKaydet("test_pist_1", 0, 50.0, a.kayit);
+    const kayit1 = hayaletKaydet("test_pist_1", 0, 50.0, a.kayit, false, k);
     expect(kayit1).toBe(true);
 
     const okunan1 = hayaletOku("test_pist_1");
@@ -55,12 +55,12 @@ describe("Hayalet tur kaydı ve oynatma", () => {
     expect(okunan1?.arac).toBe(0);
 
     // Kötü derece: 55 saniye (güncellenmemeli)
-    const kayitKotu = hayaletKaydet("test_pist_1", 1, 55.0, a.kayit);
+    const kayitKotu = hayaletKaydet("test_pist_1", 1, 55.0, a.kayit, false, k);
     expect(kayitKotu).toBe(false);
     expect(hayaletOku("test_pist_1")?.sure).toBe(50.0);
 
     // İyi derece: 42 saniye (güncellenmeli)
-    const kayitIyi = hayaletKaydet("test_pist_1", 2, 42.0, a.kayit);
+    const kayitIyi = hayaletKaydet("test_pist_1", 2, 42.0, a.kayit, false, k);
     expect(kayitIyi).toBe(true);
     expect(hayaletOku("test_pist_1")?.sure).toBe(42.0);
     expect(hayaletOku("test_pist_1")?.arac).toBe(2);
@@ -78,7 +78,7 @@ describe("Hayalet tur kaydı ve oynatma", () => {
       aracAdimi(a, { ...bosGirdi(), g: 1 });
     }
 
-    hayaletKaydet("test_pist_2", 1, 30.0, a.kayit);
+    hayaletKaydet("test_pist_2", 1, 30.0, a.kayit, false, k);
 
     // Hayaleti başlat
     const basladi = rekorHayaletiBaslat("test_pist_2", sahteDunya);
@@ -99,5 +99,66 @@ describe("Hayalet tur kaydı ve oynatma", () => {
     rekorHayaletiDurdur();
     expect(rekorHayaleti.aktif).toBe(false);
     expect(uzak.araclar.find((u) => u.id == HAYALET)).toBeUndefined();
+  });
+});
+
+describe("hayalet sürüş doğruluğu", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    rekorHayaletiDurdur();
+  });
+  test("farklı araçla yarışa girilse de kaydedilen araç ve kurulumla aynı konumda biter", () => {
+    const k = kurulumYap(10, "ar", "real");
+    const a = aracOrnegiYap({ dunya: sahteDunya, kurulum: k, olay: sahteOlay, gorselRng: Math.random }, 789);
+    for (let n = 0; n < 180; n++) aracAdimi(a, { ...bosGirdi(), g: 0.8, tg: n < 90 ? 0.1 : -0.1 });
+    hayaletKaydet("dogruluk", 10, 3, a.kayit, false, k);
+    expect(rekorHayaletiBaslat("dogruluk", sahteDunya)).toBe(true);
+    expect(rekorHayaleti.cx!.kurulum.car.hp).toBe(k.car.hp);
+    for (let n = 0; n < a.kayit.n; n++) uzakAdimi();
+    expect(rekorHayaleti.sim!.S.x).toBeCloseTo(a.sim.S.x, 7);
+    expect(rekorHayaleti.sim!.S.z).toBeCloseTo(a.sim.S.z, 7);
+    expect(rekorHayaleti.sim!.S.h).toBeCloseTo(a.sim.S.h, 7);
+  });
+});
+
+describe("hayalet kayıt sınırları", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    rekorHayaletiDurdur();
+  });
+  const hazir = () => {
+    const k = kurulumYap(10, "ar", "real");
+    const a = aracOrnegiYap({ dunya: sahteDunya, kurulum: k, olay: sahteOlay, gorselRng: Math.random }, 42);
+    for (let n = 0; n < 180; n++) aracAdimi(a, { ...bosGirdi(), g: 0.8 });
+    return { k, a };
+  };
+  test("kurulum kopyası korunur, serbest turun başlangıç öncesi girdileri atlanır", () => {
+    const { k, a } = hazir();
+    const ilkGuc = k.tu.pow;
+    expect(hayaletKaydet("tur", 10, 1.5, a.kayit, false, k, 90, { tutus: 0.8, karli: false })).toBe(true);
+    k.tu.pow = 0.1;
+    expect(rekorHayaletiBaslat("tur", sahteDunya)).toBe(true);
+    expect(rekorHayaleti.adimIndex).toBe(90);
+    expect(rekorHayaleti.cx!.kurulum.tu.pow).toBe(ilkGuc);
+    expect(rekorHayaleti.cx!.dunya.havaTutusu()).toBe(0.8);
+    rekorHayaletiDurdur();
+    hayaletKaydet("kuru", 10, 1.5, a.kayit, false, { ...k, tu: { ...k.tu, pow: ilkGuc } }, 90);
+    rekorHayaletiBaslat("kuru", sahteDunya);
+    for (let n = 90; n < 180; n++) uzakAdimi();
+    expect(rekorHayaleti.sim!.S.z).toBeCloseTo(a.sim.S.z, 7);
+  });
+  test("piste dönüşle kesilmiş, taşmış ve bozuk/eski kayıt oynatılmaz", () => {
+    const { k, a } = hazir();
+    a.kayit.kesik = true;
+    expect(hayaletKaydet("kesik", 10, 3, a.kayit, false, k)).toBe(false);
+    a.kayit.kesik = false;
+    a.kayit.tasti = true;
+    expect(hayaletKaydet("tasdi", 10, 3, a.kayit, false, k)).toBe(false);
+    localStorage.setItem(
+      "lt_hayalet_eski",
+      JSON.stringify({ k: "eski", arac: 10, sure: 2, girdiJson: "bozuk" }),
+    );
+    expect(rekorHayaletiBaslat("eski", sahteDunya)).toBe(false);
+    expect(uzak.araclar.some((u) => u.id === HAYALET)).toBe(false);
   });
 });

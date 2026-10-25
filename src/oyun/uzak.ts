@@ -63,9 +63,13 @@ export function rekorHayaletiBaslat(pistAnahtari: string, dunyaSorgusu: DunyaSor
   Object.assign(ghostSim.d.S, veri.kayit.bas);
 
   const cx: FizikBaglami = {
-    dunya: dunyaSorgusu,
-    kurulum: yerel.cx.kurulum,
-    olay: yerel.cx.olay,
+    dunya: {
+      ...dunyaSorgusu,
+      havaTutusu: () => veri.hava?.tutus ?? dunyaSorgusu.havaTutusu(),
+      karli: () => veri.hava?.karli ?? dunyaSorgusu.karli(),
+    },
+    kurulum: veri.kurulum,
+    olay: { spin: () => {}, puf: () => {}, caliRengi: () => 0 },
     gorselRng: yerel.cx.gorselRng || Math.random,
     rng: ghostSim.rng,
   };
@@ -74,7 +78,11 @@ export function rekorHayaletiBaslat(pistAnahtari: string, dunyaSorgusu: DunyaSor
   rekorHayaleti.kayit = veri.kayit;
   rekorHayaleti.sim = ghostSim;
   rekorHayaleti.cx = cx;
-  rekorHayaleti.adimIndex = 0;
+  // Serbest sürüş turu öncesindeki girdiler başlangıç fiziğini aynı duruma getirir.
+  for (let n = 0; n < veri.baslangicAdimi; n++) ghostSim.adim(kayitGirdisi(veri.kayit, n), cx);
+  rekorHayaleti.adimIndex = veri.baslangicAdimi;
+  const u = uzak.araclar.find((a) => a.id === HAYALET)!;
+  uzakAnlikEkle(u, anlikAl(ghostSim.d, ghostSim.yeni));
   return true;
 }
 
@@ -133,14 +141,8 @@ export function uzakAdimi() {
 }
 
 /** yerel araç sıfırlandı (yeni yarış, ışınlanma): hayalet baştan */
-export function uzakSifirla() {
-  const H = rekorHayaleti;
-  if (H.aktif && H.kayit && H.sim) {
-    H.adimIndex = 0;
-    const k = H.kayit;
-    H.sim.sifirla(k.bas.x, k.bas.z, k.bas.h, k.bas.y);
-    Object.assign(H.sim.d.S, k.bas);
-  }
+export function uzakSifirla(rekoruSifirla = true) {
+  if (rekoruSifirla) rekorHayaletiDurdur();
   hayalet.kuyruk.length = 0;
   const u = uzak.araclar.find((a) => a.id == HAYALET);
   if (u) {

@@ -37,15 +37,17 @@ export function duzZemin(
     s.adim({ tg: 0, g: 1, b: 0, analogDireksiyon: false, analogGaz: false });
   const v0 = Math.hypot(S.vx, S.vz);
   let bMax = 0,
+    aMax = 0,
     spin = 0;
   for (let k = 0; k < (o.sn ?? 3) / DT; k++) {
     s.adim({ tg: 1, g, b: 0, analogDireksiyon: false, analogGaz: g < 1 });
     const b = Math.abs(s.sim.d.D.beta);
     bMax = Math.max(bMax, b);
+    for (const t of s.sim.yeni?.tk ?? []) aMax = Math.max(aMax, Math.abs(Math.atan(t.tanA)));
     if (b > 1.3) spin = 1;
     o.izle?.(k * DT);
   }
-  return { v0, v1: Math.hypot(S.vx, S.vz), bMax, spin: spin || s.olaylar.spin, s };
+  return { v0, v1: Math.hypot(S.vx, S.vz), bMax, aMax, spin: spin || s.olaylar.spin, s };
 }
 
 /** pistte otomatik pilotla ısın, sonra 2,5 sn tam direksiyon + tam gaz */
