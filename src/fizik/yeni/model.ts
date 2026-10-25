@@ -5,7 +5,6 @@
 // Sürüş yardımları (ABS, çekiş, denge, viraj, drift) kuvvet ve tork olarak uygulanır.
 import { ad, cl, sm } from "../../cekirdek/matematik";
 import { direksiyonVeGaz, driftPenceresi, driftSiniri, driftSkoru, tozVeDuman, zeminIzleri } from "../ortak";
-import type { YarisTuru } from "../../arac/araclar";
 import type { AdimSonucu, FizikBaglami, FizikGirdisi, SimDurumu } from "../tipler";
 import { SURF, TIRES, VMAX, YERCEKIMI } from "../veriler";
 import { aracFizigi, RHO, torkEgrisi, VITESLER, type AracFizigi } from "./arac-fizigi";
@@ -329,12 +328,6 @@ export function yeniAdim(
   // ---------- lastik değerleri: her teker kendi zemininde
   const kz = Math.max(DR.k, sm(0.1, 0.3, ab) * Math.min(1, +gi.g) * as.dft),
     spn = Math.min(1, Math.abs(vl) / VMAX),
-    // uzmanlık: araç kendi yarış türünün pistinde daha iyi tutar (başka yerde değeri değişmez)
-    // modifiyeli araçta tür uyumu tablosu (uzT: tür → [tutuş, güç]); stok araçta yalnız kendi türü
-    yt = W.yolTuru(),
-    uzT = yt && CAR.uzT ? CAR.uzT[yt as YarisTuru] : undefined,
-    uzman = uzT ? uzT[0] : yt == CAR.ty ? (CAR.uz ?? 1) : 1,
-    uzmanG = uzT ? uzT[1] : yt == CAR.ty ? (CAR.uzg ?? 1) : 1,
     LP: LastikParam[] = [];
   let muOrt = 0;
   for (let i = 0; i < 4; i++) {
@@ -357,7 +350,6 @@ export function yeniAdim(
       (1 + 0.5 * S.mud);
     mu *= t.on ? CAR.fb : CAR.rb * (1 - 0.3 * as.ini * DR.k);
     if (gevsek) mu *= GEVSEK_TUTUS * (t.on ? 1 : GEVSEK_ARKA);
-    mu *= uzman;
     let B = T.B[ti] * (zi == 3 ? 0.85 : 1) * tp,
       Cc = gevsek ? Math.max(T.C[ti], GEVSEK_C) : T.C[ti];
     // asfaltta drift: arka lastik kaymaya başlayınca (drift yardımı açıkken) toprakta olduğu gibi yumuşak ve uzun kayar
@@ -457,7 +449,7 @@ export function yeniAdim(
   }
   let Te = 0;
   if (Y.vitesT <= 0) {
-    Te = u < 1.02 ? F.tork * torkEgrisi(u) * gaz * uzmanG * turbo : 0;
+    Te = u < 1.02 ? F.tork * torkEgrisi(u) * gaz * turbo : 0;
     // motor freni: gaz kapalıyken
     if (devirT > F.devirMin) Te -= F.tork * 0.15 * u * (1 - gaz);
   }

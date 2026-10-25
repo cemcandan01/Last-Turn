@@ -78,8 +78,8 @@ export const TDEF: PistTanimi[] = [
     d: "Geniş yol, uzun ve yumuşak virajlar: aracın frenini ve gazını tanımak için.",
     hw: 12,
     tarif: "D250 L80/90 D195 L60/90 D232 L70/60 R90/60 L70/90 D95 L90/90 K40",
-    tg: 140,
-    ys: [123, 110],
+    tg: 151,
+    ys: [133, 119],
   },
   {
     t: "gp",
@@ -92,8 +92,8 @@ export const TDEF: PistTanimi[] = [
     d: "Gün batımında deniz kıyısı: ilk şikan, ilk firkete. Fren noktasını bul.",
     hw: 11,
     tarif: "D300 L45/90 D80 R40/45 L40/45 D100 L60/60 D457 L25/120 D205 R35/60 L35/60 D225 L50/90 K40",
-    tg: 159,
-    ys: [130, 122],
+    tg: 167,
+    ys: [137, 128],
   },
   {
     t: "gp",
@@ -107,8 +107,8 @@ export const TDEF: PistTanimi[] = [
     hw: 10,
     tarif:
       "D350 L25/90 D120 R50/40 L50/40 D150 L18/180 D80 R30/90 D188 L40/40 R40/40 L45/50 R45/50 D138 L25/90 D113 L60/90 K40",
-    tg: 155,
-    ys: [130, 123],
+    tg: 164,
+    ys: [138, 130],
   },
   {
     t: "gp",
@@ -123,8 +123,8 @@ export const TDEF: PistTanimi[] = [
     hw: 9,
     tarif:
       "D300 R70/30 D150 L60/45 L35/45 L20/60 D174 R40/50 L40/70 R40/50 D84 L22/110 D372 R50/60 L30/130 R45/40 D100 L25/90 D20 L60/40 K40",
-    tg: 161,
-    ys: [137, 129],
+    tg: 165,
+    ys: [140, 132],
   },
   {
     t: "gp",
@@ -137,8 +137,8 @@ export const TDEF: PistTanimi[] = [
     hw: 8,
     tarif:
       "D300 R15/90 D88 L15/90 D80 R18/90 D118 R16/90 D100 R20/45 L20/45 D286 R14/90 D60 L14/90 D60 R14/90 D132 R25/90 K40",
-    tg: 142,
-    ys: [123, 117],
+    tg: 148,
+    ys: [128, 122],
   },
   {
     t: "gp",
@@ -154,8 +154,8 @@ export const TDEF: PistTanimi[] = [
     hw: 7.5,
     tarif:
       "D200 L30/90 D60 R40/60 L40/60 D82 L12/180 D70 R12/180 D70 L12/180 D98 R40/90 D87 L30/50 R30/100 L30/50 D80 L15/120 R20/60 L40/120 K40",
-    tg: 198,
-    ys: [172, 164],
+    tg: 199,
+    ys: [173, 165],
   },
   {
     t: "rx",
@@ -171,8 +171,8 @@ export const TDEF: PistTanimi[] = [
     ],
     m: [0.5],
     w: [0.2],
-    tg: 145,
-    ys: [127, 110],
+    tg: 170,
+    ys: [149, 129],
   },
   {
     t: "rx",
@@ -189,8 +189,8 @@ export const TDEF: PistTanimi[] = [
     ],
     m: [0.35, 0.7],
     w: [0.25, 0.9],
-    tg: 123,
-    ys: [100, 94],
+    tg: 131,
+    ys: [106, 100],
   },
   {
     t: "rx",
@@ -214,8 +214,8 @@ export const TDEF: PistTanimi[] = [
     ],
     m: [0.3, 0.62],
     w: [0.2, 0.85],
-    tg: 149,
-    ys: [125, 118],
+    tg: 164,
+    ys: [138, 130],
   },
   {
     t: "rx",
@@ -235,8 +235,8 @@ export const TDEF: PistTanimi[] = [
     ],
     m: [0.35, 0.65, 0.9],
     w: [0.25, 0.7],
-    tg: 143,
-    ys: [122, 115],
+    tg: 154,
+    ys: [132, 124],
   },
   {
     t: "rx",
@@ -421,8 +421,8 @@ export const TDEF: PistTanimi[] = [
     j: [["bump", 0.5]],
     m: [0.3],
     w: [0.62],
-    tg: 60,
-    ys: [52, 43],
+    tg: 68.5,
+    ys: [59.5, 49],
   },
   {
     t: "rl",
@@ -440,8 +440,8 @@ export const TDEF: PistTanimi[] = [
     ],
     m: [0.3, 0.75],
     w: [0.15, 0.45, 0.85],
-    tg: 55.5,
-    ys: [45.5, 42.5],
+    tg: 66.5,
+    ys: [54.5, 51],
   },
   {
     t: "rl",
@@ -461,8 +461,8 @@ export const TDEF: PistTanimi[] = [
     ],
     m: [0.2, 0.66],
     w: [0.1, 0.4, 0.9],
-    tg: 57.5,
-    ys: [48.5, 45.5],
+    tg: 61.5,
+    ys: [52, 48.5],
   },
   {
     t: "rl",
@@ -481,8 +481,8 @@ export const TDEF: PistTanimi[] = [
     ],
     m: [0.35, 0.6, 0.85],
     w: [0.15, 0.45, 0.72],
-    tg: 65.5,
-    ys: [56, 52.5],
+    tg: 68,
+    ys: [58.5, 54.5],
   },
   {
     t: "rl",
@@ -503,8 +503,8 @@ export const TDEF: PistTanimi[] = [
     ],
     m: [0.2, 0.55, 0.85],
     w: [0.1, 0.4, 0.65, 0.95],
-    tg: 60,
-    ys: [52, 49.5],
+    tg: 64.5,
+    ys: [56, 53.5],
   },
   {
     t: "rl",
@@ -526,8 +526,8 @@ export const TDEF: PistTanimi[] = [
     ],
     m: [0.35, 0.62],
     w: [0.15, 0.5, 0.92],
-    tg: 96.5,
-    ys: [83.5, 79.5],
+    tg: 104,
+    ys: [90, 86],
   },
   {
     t: "dg",
@@ -619,8 +619,8 @@ export const TDEF: PistTanimi[] = [
     d: "Kızıl kayalar arasında uzun hızlı virajlar: gazı ne zaman bırakacağını öğren.",
     hw: 10.5,
     tarif: "D320 L90/60 D200 R70/50 L70/50 D180 L60/120 D150 R80/70 D240 L70/90 K60",
-    tg: 197,
-    ys: [161, 151],
+    tg: 210,
+    ys: [171, 161],
   },
   {
     t: "gp",
@@ -636,8 +636,8 @@ export const TDEF: PistTanimi[] = [
     d: "Karlı dağ yolu: kaygan zemin, firketeler ve tepeler. Fren erken, gaz yumuşak.",
     hw: 9,
     tarif: "D260 L45/90 D120 R35/60 L35/60 D140 L40/90 D260 L40/90 D100 R35/70 L35/70 D100 K40",
-    tg: 129,
-    ys: [110, 103],
+    tg: 137,
+    ys: [117, 109],
   },
   {
     t: "rx",
@@ -655,8 +655,8 @@ export const TDEF: PistTanimi[] = [
     ],
     m: [0.4],
     w: [0.15, 0.55, 0.85],
-    tg: 179,
-    ys: [146, 136],
+    tg: 189,
+    ys: [154, 144],
   },
   {
     t: "rx",
@@ -674,8 +674,8 @@ export const TDEF: PistTanimi[] = [
     ],
     m: [0.5],
     w: [0.2, 0.8],
-    tg: 153,
-    ys: [131, 123],
+    tg: 154,
+    ys: [132, 124],
   },
   {
     t: "dp",
@@ -719,8 +719,8 @@ export const TDEF: PistTanimi[] = [
     j: [["bump", 0.45]],
     m: [0.35],
     w: [0.6],
-    tg: 38.5,
-    ys: [31.5, 29.5],
+    tg: 42,
+    ys: [34, 32],
   },
   {
     t: "rl",
@@ -740,8 +740,8 @@ export const TDEF: PistTanimi[] = [
     ],
     m: [0.25, 0.6],
     w: [0.45],
-    tg: 55.5,
-    ys: [47, 44.5],
+    tg: 58.5,
+    ys: [49.5, 47],
   },
   {
     t: "dg",

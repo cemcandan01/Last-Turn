@@ -483,13 +483,6 @@ export const PAKETLER: Paket[] = [
   },
 ];
 
-/** türün tam paketle ulaşılan uyumu [tutuş, güç]: stok tür araçlarının uzmanlığı kadar (drift ve drag'de yok) */
-export const TUR_UYUMU: Partial<Record<YarisTuru, [number, number]>> = {
-  gp: [1.12, 1],
-  rx: [1.25, 1],
-  rl: [1.15, 1.4],
-};
-
 /** türün önayar ailesi: paket ağır basınca yardım sınırları ve drift eşiği bu önayardan */
 const TUR_ONAYAR: Record<YarisTuru, OnayarAnahtari> = { gp: "ar", rx: "tr", rl: "rl", dp: "dr", dg: "dg" };
 
@@ -581,22 +574,14 @@ export function aracKur(aracNo: number, parcaIdleri: readonly string[] = []): Su
       c.tbu = tp.tbu ?? c0.tbu;
     }
   }
-  // tür uyumu: paketin çekirdek parçalarından takılı olanların payı; stok tür aracı kendi uzmanlığının altına düşmez
-  const uyum: Partial<Record<YarisTuru, number>> = {},
-    uzT: Partial<Record<YarisTuru, [number, number]>> = {};
+  // paketin çekirdek parçalarından takılı olanların payı (yalnız önayar ailesini seçer; pist türüne göre tutuş/güç çarpanı yok)
+  const uyum: Partial<Record<YarisTuru, number>> = {};
   let agir: YarisTuru | null = null;
   for (const p of PAKETLER) {
     const f = p.parcalar.filter((id) => parcalar.includes(id)).length / p.parcalar.length;
     if (f > 0) uyum[p.tur] = f;
     if (f >= 2 / 3 && (!agir || f > uyum[agir]!)) agir = p.tur;
-    const std = TUR_UYUMU[p.tur],
-      stok: [number, number] = p.tur == c0.ty ? [c0.uz ?? 1, c0.uzg ?? 1] : [1, 1];
-    if (std || stok[0] != 1 || stok[1] != 1) {
-      const s = std ?? [1, 1];
-      uzT[p.tur] = [Math.max(stok[0], 1 + (s[0] - 1) * f), Math.max(stok[1], 1 + (s[1] - 1) * f)];
-    }
   }
-  c.uzT = uzT;
   // paket ağır basınca (çekirdek parçaların en az üçte ikisi) ayar tabanı da o türün önayarı olur: drift aracına asfalt
   // paketi takılınca kilitli diferansiyel ve yüksek arka basınç kalmaz
   const pk = agir ? TUR_ONAYAR[agir] : taban;

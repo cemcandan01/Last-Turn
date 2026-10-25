@@ -25,18 +25,6 @@ export interface Arac {
   pk: OnayarAnahtari;
   /** zemin tutuşu [toprak, asfalt] */
   gr: [number, number];
-  /**
-   * uzmanlık: kendi yarış türünün pistinde tutuş çarpanı (asfalt aracı yarış pistinde, rallikros aracı rallikros
-   * pistinde, ralli aracı ralli etabında). Başka pistlerde aracın değeri değişmez (yoksa 1)
-   */
-  uz?: number;
-  /** uzmanlık: kendi yarış türünün pistinde motor gücü çarpanı (o yarışa göre ayarlı motor; yoksa 1) */
-  uzg?: number;
-  /**
-   * modifiyeli araçta tür uyumu: yarış türü → [tutuş, güç] çarpanı (aracKur doldurur; varsa uz/uzg yerine bu
-   * okunur). Stok araçta yok
-   */
-  uzT?: Partial<Record<YarisTuru, [number, number]>>;
   /** süspansiyonun doğal frekansı (Hz, ayar yumuşaklığından önce; yoksa aracın kendi değeri). Süspansiyon parçası */
   fq?: number;
   /** arka diferansiyelin kenetleme katsayısı (1/s, yoksa 220): diferansiyel parçası belirler */
@@ -113,7 +101,6 @@ export const CARS: Arac[] = [
     n: "Kızıl Ok",
     d: "Ortadan motorlu pist arabası. Asfaltta yüksek tutuş, keskin yön değişimi.",
     pk: "ar",
-    uz: 1.12,
     gr: [0.88, 1.15],
     trq: 1.0,
     pw: 1.2,
@@ -197,7 +184,6 @@ export const CARS: Arac[] = [
     d: "Dört çeker rallikros hatchback. Güçlü kalkış, kısa toprak pistlerde çevik.",
     pk: "tr",
     gr: [1.12, 1.0],
-    uz: 1.3,
     trq: 1.4,
     pw: 1.0,
     top: 0.86,
@@ -376,8 +362,6 @@ export const CARS: Arac[] = [
     d: "Dört çeker ralli sedanı. Uzun süspansiyon: ralli etaplarında çakılda ve karda en iyi tutuş.",
     pk: "rl",
     gr: [1.18, 0.95],
-    uz: 1.15,
-    uzg: 1.4,
     trq: 1.2,
     pw: 0.98,
     top: 0.95,
@@ -524,7 +508,6 @@ CARS.push(
     n: "Gri Atmaca",
     d: "Arkadan motorlu pist arabası. Frende çok güçlü, kalkışta iyi çeker; virajdan çıkarken gaza dikkat: kuyruk savurur.",
     pk: "ar",
-    uz: 1.12,
     gr: [0.85, 1.18],
     trq: 1.1,
     pw: 1.25,
@@ -557,7 +540,6 @@ CARS.push(
     d: "Hafif, ortadan motorlu dört çeker rallikros efsanesi. Turbo geç dolar, dolunca sert vurur.",
     pk: "tr",
     gr: [1.15, 0.98],
-    uz: 1.25,
     trq: 1.3,
     pw: 1.05,
     top: 0.86,
@@ -592,8 +574,6 @@ CARS.push(
     d: "Dengeli, affedici dört çeker ralli hatchback'i. Hata yapanı da yolda tutar.",
     pk: "rl",
     gr: [1.18, 0.96],
-    uz: 1.15,
-    uzg: 1.4,
     trq: 1.15,
     pw: 0.95,
     top: 0.96,
@@ -696,7 +676,6 @@ CARS.push(
     n: "Gümüş Serçe",
     d: "Eski, arkadan itişli küçük sedan. Az güçlü ama dengeli; virajı doğru çizgiden almayı öğretir.",
     pk: "ar",
-    uz: 1.22,
     gr: [0.7, 0.95],
     trq: 0.8,
     pw: 0.75,
@@ -729,7 +708,6 @@ CARS.push(
     d: "Eski, dört çeker küçük hatchback. Gücü az ama toprakta da asfaltta da yolu bırakmaz.",
     pk: "tr",
     gr: [0.57, 0.9],
-    uz: 1.25,
     trq: 0.85,
     pw: 0.8,
     top: 0.68,
@@ -764,8 +742,6 @@ CARS.push(
     d: "Eski, kutu gibi dört çeker arazi aracı. Yavaş ama yüksek ve sağlam; bozuk yolda yılmaz.",
     pk: "rl",
     gr: [0.65, 0.92],
-    uz: 1.15,
-    uzg: 1.15,
     trq: 0.75,
     pw: 0.65,
     top: 0.6,

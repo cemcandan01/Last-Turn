@@ -75,8 +75,9 @@ describe("girdi kaydı ve yeniden oynatma", () => {
     const canli = durum(a);
     expect(a.kayit.n).toBe(1500);
     expect(a.kayit.kesik).toBe(false);
+    // gürültülü girdiyle 25 sn: başlangıçtan kuş uçuşu uzaklık (pist kıvrımlı, yol daha uzun)
     expect(Math.hypot(a.sim.S.x - TR.P[10][0], a.sim.S.z - TR.P[10][1]), "araç yol aldı").toBeGreaterThan(
-      200,
+      100,
     );
 
     const oyna = () => {

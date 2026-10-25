@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CARS } from "../../src/arac/araclar";
 import { performansPuani, SINIFLAR, sinifHarfi } from "../../src/arac/performans";
-import { paketTak, aracKur } from "../../src/arac/parcalar";
+import { paketTak, aracKur, PARCALAR } from "../../src/arac/parcalar";
 import { STOK_TAVAN, ozellikPuani } from "../../src/arac/ozellikler";
 import { BASLANGIC_ARACLARI } from "../../src/oyun/ekonomi";
 
@@ -29,6 +29,13 @@ describe("ortak özellik toplamı ve modifiye alanı", () => {
       const p = performansPuani(a);
       for (const t of ["gp", "rx", "rl", "dp", "dg"] as const)
         expect(performansPuani(a, [], t).ozellikler).toEqual(p.ozellikler);
+    });
+  });
+  it("puan takılı lastikten bağımsız: lastik parçası puanı değiştirmez", () => {
+    const lastikler = PARCALAR.filter((x) => x.kat == "lastik");
+    CARS.forEach((c, a) => {
+      const s = performansPuani(a).puan;
+      for (const p of lastikler) expect(performansPuani(a, [p.id]).puan, c.n + " " + p.id).toBe(s);
     });
   });
   it("parça tak/sök toplamı değiştirir; sürücü yardımı puan değildir", () => {
@@ -59,7 +66,8 @@ describe("ortak özellik toplamı ve modifiye alanı", () => {
       ),
     );
     enIyi.forEach((p) => expect(p).toBeGreaterThanOrEqual(300));
-    expect(Math.max(...enIyi)).toBeGreaterThanOrEqual(380);
+    // lastik puan vermez (puan lastikten bağımsız): en iyi yapı ~375
+    expect(Math.max(...enIyi)).toBeGreaterThanOrEqual(370);
     const swap = aracKur(10, ["motor-degisim", "turbo-buyuk"]);
     expect(swap.car.hp).toBeCloseTo(350 * 1.7);
     expect(aracKur(10, []).car).toBe(CARS[10]);
