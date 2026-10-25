@@ -2,9 +2,27 @@ import "../yardimci/sahte-tuval";
 import { beforeEach, describe, expect, test } from "vitest";
 import { aracAdimi, aracOrnegiYap } from "../../src/fizik/arac-ornegi";
 import { bosGirdi } from "../../src/fizik/girdi-kaydi";
+import type { DunyaSorgusu, FizikOlaylari } from "../../src/fizik/tipler";
 import { hayaletGirdiKaydiOku, hayaletKaydet, hayaletOku } from "../../src/oyun/hayalet-kayit";
 import { HAYALET, rekorHayaleti, rekorHayaletiBaslat, rekorHayaletiDurdur, uzak, uzakAdimi } from "../../src/oyun/uzak";
 import { kurulumYap } from "../yardimci/surucu";
+
+const sahteOlay: FizikOlaylari = {
+  spin: () => {},
+  puf: () => {},
+  caliRengi: () => 0,
+};
+
+const sahteDunya: DunyaSorgusu = {
+  H: () => 0,
+  surf: () => 0,
+  yakin: () => [],
+  kutu: (): [number, number, number, number] => [-1000, 1000, -1000, 1000],
+  kerb: () => 0,
+  havaTutusu: () => 1,
+  karli: () => false,
+  yolTuru: () => null,
+};
 
 describe("Hayalet tur kaydı ve oynatma", () => {
   beforeEach(() => {
@@ -13,20 +31,9 @@ describe("Hayalet tur kaydı ve oynatma", () => {
   });
 
   test("hayalet kaydı kaydetme, okuma ve derece karşılaştırması", () => {
-    const dunyaSorgusu = {
-      H: () => 0,
-      surf: () => 0,
-      yakin: () => [],
-      kutu: () => [],
-      kerb: () => 0,
-      havaTutusu: () => 1,
-      karli: () => false,
-      yolTuru: () => null,
-    };
-
     const k = kurulumYap(0, "ar", "real");
     const a = aracOrnegiYap(
-      { dunya: dunyaSorgusu, kurulum: k, olay: {}, gorselRng: Math.random },
+      { dunya: sahteDunya, kurulum: k, olay: sahteOlay, gorselRng: Math.random },
       123,
     );
 
@@ -60,20 +67,9 @@ describe("Hayalet tur kaydı ve oynatma", () => {
   });
 
   test("rekor hayaleti başlatma ve adım adım oynatma", () => {
-    const dunyaSorgusu = {
-      H: () => 0,
-      surf: () => 0,
-      yakin: () => [],
-      kutu: () => [],
-      kerb: () => 0,
-      havaTutusu: () => 1,
-      karli: () => false,
-      yolTuru: () => null,
-    };
-
     const k = kurulumYap(0, "ar", "real");
     const a = aracOrnegiYap(
-      { dunya: dunyaSorgusu, kurulum: k, olay: {}, gorselRng: Math.random },
+      { dunya: sahteDunya, kurulum: k, olay: sahteOlay, gorselRng: Math.random },
       456,
     );
 
@@ -84,7 +80,7 @@ describe("Hayalet tur kaydı ve oynatma", () => {
     hayaletKaydet("test_pist_2", 1, 30.0, a.kayit);
 
     // Hayaleti başlat
-    const basladi = rekorHayaletiBaslat("test_pist_2", dunyaSorgusu);
+    const basladi = rekorHayaletiBaslat("test_pist_2", sahteDunya);
     expect(basladi).toBe(true);
     expect(rekorHayaleti.aktif).toBe(true);
 
