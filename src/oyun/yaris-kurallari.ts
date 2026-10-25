@@ -27,8 +27,12 @@ export interface DriftOlay {
   t: number;
 }
 
-/** bonus puanları: koşul en az 1 sn kesintisiz sürünce başlar, sonra her tam saniye için verilir */
-export const DRIFT_BONUS = { uzun: 100, direksiyonsuz: 100, tekYon: 250 },
+/** bonus puanları: koşul `bas` sn kesintisiz sürünce başlar, sonra her tam saniye için `puan` verilir */
+export const DRIFT_BONUS = {
+    uzun: { puan: 100, bas: 1 },
+    direksiyonsuz: { puan: 100, bas: 1 },
+    tekYon: { puan: 250, bas: 1 },
+  },
   /** direksiyon girişi bunun altındaysa "direksiyonsuz" (ölü bölge), kıç tarafı için en az açı (rad) */
   DIREKSIYON_OLU = 0.1,
   YAN_ACI = 0.1;
@@ -181,10 +185,10 @@ function bonusAdimi(E: DriftSayaci, surer: boolean, beta: number, tg: number, dt
     E.yan = 0;
     return;
   }
-  const ver = (onceki: number, simdi: number, ad: DriftOlay["ad"], puan: number) => {
-    if (Math.floor(simdi + 1e-9) > Math.floor(onceki + 1e-9) && simdi >= 1 - 1e-9) {
-      E.bonus += puan;
-      E.driftOlay.push({ ad, puan, t: zaman });
+  const ver = (onceki: number, simdi: number, ad: DriftOlay["ad"], b: { puan: number; bas: number }) => {
+    if (Math.floor(simdi + 1e-9) > Math.floor(onceki + 1e-9) && simdi >= b.bas - 1e-9) {
+      E.bonus += b.puan;
+      E.driftOlay.push({ ad, puan: b.puan, t: zaman });
     }
   };
   let c = E.uzunT;
