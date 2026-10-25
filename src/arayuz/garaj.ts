@@ -700,6 +700,7 @@ function ac(durum: GarajDurumu) {
     if (GAR) showGar();
   });
   ONAY = null;
+  document.getElementById("lvup")?.classList.remove("acik");
   oyun.mode = "garage";
   garajKameraSifirla();
   gizle("#menu", "#hud", "#mm", "#ctl", "#set", "#res");

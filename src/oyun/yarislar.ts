@@ -14,7 +14,7 @@ import { setActive } from "./bolge";
 import { carIndex, oyun, setCar } from "./durum";
 import { girdiSifirla } from "./girdi";
 import { aracAcikMi, pistAcikMi, yarisBitti } from "./ilerleme";
-import { kariyereUygun } from "./kariyer";
+import { kariyereUygun, kariyerRekorAnahtari } from "./kariyer";
 import { modifiyeUygula, takiliParcalar } from "./modifiye";
 import { kurulumKaydet, kurulumYukle, yarisLastigiTak, type KurulumKaydi } from "./kurulum";
 import { hayaletKaydet } from "./hayalet-kayit";
@@ -148,7 +148,7 @@ export const EVENTS: YarisTanimi[] = REG.filter((r) => r.t != "park").map((r, i)
     TR = r.TR!;
   return {
     // rekor anahtarı türe ve seviyeye bağlı (pistler 0.2'de yenilendi: eski rekorlar yeni pistlere taşınmaz)
-    k: y.k + "_" + r.lv,
+    k: kariyerRekorAnahtari(y.k + "_" + r.lv),
     ty,
     lv: r.lv!,
     sev: r.sev ?? r.lv!,
@@ -189,6 +189,7 @@ export function startEvent(i: number, ci?: number) {
   setActive(REG[e.reg]);
   girdiSifirla();
   reset(e.g[1], e.g[2], e.g[3]);
+  document.getElementById("lvup")?.classList.remove("acik");
   oyun.mode = "drive";
   kontrolleriKur();
   goster("#hud", "#mm", "#ctl");

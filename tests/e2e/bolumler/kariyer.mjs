@@ -6,17 +6,20 @@ export default async function ({ p, ok }) {
     const eskiIlerleme = LT.ilerlemeVerisi(),
       eskiYildiz = localStorage.getItem("lt_yildiz"),
       eskiParca = localStorage.getItem("lt_parca");
+    const i = LT.EVENTS.findIndex((e) => e.ty == "gp" && e.lv == 1),
+      anahtar = LT.EVENTS[i].k;
     const anahtarlar = [
-      "sv_asphalt_1",
-      "sv_deneme_asphalt_1",
-      "lt_hayalet_asphalt_1",
-      "lt_hayalet_deneme_asphalt_1",
+      "sv_" + anahtar,
+      "sv_deneme_" + anahtar,
+      "lt_hayalet_" + anahtar,
+      "lt_hayalet_deneme_" + anahtar,
     ];
     const eski = Object.fromEntries(anahtarlar.map((k) => [k, localStorage.getItem(k)]));
     try {
-      const i = LT.EVENTS.findIndex((e) => e.ty == "gp" && e.lv == 1);
       localStorage.removeItem("lt_yildiz");
       LT.takiliYukle({}, true);
+      const seviye = LT.seviye();
+      LT.xpEkle(seviye.sonrakiXp - seviye.xp - 1, "test:seviye sınırı");
       LT.startEvent(i, 10);
       const uygun = LT.yaris.EV.kariyer;
       LT.yaris.EV.state = "run";
@@ -27,7 +30,7 @@ export default async function ({ p, ok }) {
       LT.endEvent();
       const tekil = LT.para() === para && LT.ilerlemeVerisi().xp === b.xp;
       const yildiz = JSON.stringify(LT.ilerlemeVerisi().yildiz);
-      const rekor = localStorage.getItem("sv_asphalt_1");
+      const rekor = localStorage.getItem("sv_" + anahtar);
       LT.startEvent(i, 0);
       const deneme = !LT.yaris.EV.kariyer && LT.yaris.EV.k.startsWith("deneme_");
       LT.yaris.EV.state = "run";
@@ -38,7 +41,7 @@ export default async function ({ p, ok }) {
         LT.yaris.EV.para === 0 &&
         LT.para() === para &&
         JSON.stringify(LT.ilerlemeVerisi().yildiz) === yildiz &&
-        localStorage.getItem("sv_asphalt_1") === rekor;
+        localStorage.getItem("sv_" + anahtar) === rekor;
       const acik = !!document.querySelector("#res")?.textContent.includes("Serbest deneme");
       LT.openGarage(i);
       return {
@@ -74,7 +77,11 @@ export default async function ({ p, ok }) {
     LT.openGarage(i);
   });
   fs.mkdirSync("tests/cikti", { recursive: true });
-  await p.waitForTimeout(100);
+  await p.waitForTimeout(2600);
+  ok(
+    await p.evaluate(() => !document.getElementById("lvup")?.classList.contains("acik")),
+    "sonuçtan çıkınca gecikmiş seviye penceresi garajı kapatmaz",
+  );
   await p.screenshot({ path: "tests/cikti/kariyer-kupa-iphone13.png" });
   await p.evaluate(() => LT.showMenu(["home"]));
 }

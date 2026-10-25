@@ -5,6 +5,8 @@ import { TDEF } from "../dunya/pist-tanimlari";
 import { performansPuani, sinifHarfi } from "../arac/performans";
 
 export const KARIYER_SURUM = 1;
+/** Önceki sınırsız/başka fizik kurallı rekorlar yeni kupanın rekoruyla karışmaz. */
+export const kariyerRekorAnahtari = (eski: string, surum = KARIYER_SURUM) => `kariyer${surum}_${eski}`;
 export const KARIYER_TAVAN = [200, 250, 400, 500, 600, 999] as const;
 export const KARIYER_PARA_DAKIKA = [140, 170, 205, 245, 290, 340] as const;
 export const KARIYER_XP_DAKIKA = [18, 21, 25, 30, 36, 43] as const;

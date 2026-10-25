@@ -4,7 +4,7 @@ import { $ } from "../cekirdek/dom";
 import { WORLDS } from "../dunya/dunya";
 import { oyun } from "../oyun/durum";
 import { best, saveBest } from "../oyun/profil";
-import { leaveEvent, startEvent, type Yaris } from "../oyun/yarislar";
+import { leaveEvent, startEvent, yaris, type Yaris } from "../oyun/yarislar";
 import { adimXp, seviye, seviyeTabani, xpSeviyesi } from "../oyun/ilerleme";
 import { enIyiYildiz } from "../oyun/yildiz";
 import { ikon, yildizSerit } from "./ikonlar";
@@ -84,7 +84,10 @@ export function sonucGoster(EV: Yaris) {
   xpSonucAnimasyonu(r);
   paraSonucAnimasyonu(r);
   // seviye atladıysa kutlama, çubuk dolduktan sonra sonuç ekranının üstünde
-  if (seviye().toplamXp) setTimeout(kutlamaGoster, 2300);
+  if (EV.xp > 0)
+    setTimeout(() => {
+      if (oyun.mode == "result" && yaris.EV === EV) kutlamaGoster();
+    }, 2300);
   $("#again").onclick = () => startEvent(k);
   $("#free").onclick = () => {
     r.classList.add("hidden");

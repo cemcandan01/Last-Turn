@@ -83,10 +83,10 @@ const yildizEsikSatiri = (e: YarisTanimi) => {
 };
 const prOf = (e: YarisTanimi, eskiKural = false) => {
   const b = best(e.k),
-    // drift bonus kuralı 0.7.4'te değişti: eski kuralla yapılan rekor (profil listesinde) ayrı gösterilir
+    onceki = eskiKural ? best(e.k.replace(/^kariyer\d+_/, "")) : 0,
     eski = eskiKural && e.ty == "dp" ? best(TUR_ANAHTARI.dp + "_" + e.lv) : 0;
   const s = b ? (e.ty == "dp" ? b + " puan" : e.ty == "dg" ? fmt3(+b) : fmt(+b)) : "—";
-  return eski ? s + " · eski kural " + eski : s;
+  return s + (onceki ? " · önceki kupa " + onceki : "") + (eski ? " · eski kural " + eski : "");
 };
 const condChips = () =>
   '<div class="lbl">Günün saati</div>' +
@@ -403,6 +403,7 @@ export function startWorld(w: number) {
   oyun.CURW = WORLDS[w || 0];
   setActive(oyun.CURW.reg);
   reset();
+  document.getElementById("lvup")?.classList.remove("acik");
   oyun.mode = "drive";
   kontrolleriKur();
   goster("#hud", "#mm", "#ctl");

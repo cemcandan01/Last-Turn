@@ -17,6 +17,7 @@ export default [
   ...["modifiye: fiyat ve satın alma", "modifiye: takılı parçalar ve sürüş", "modifiye: bulut"].map((g, i) =>
     birim("modifiye-" + i, "modifiye", g),
   ),
+  birim("bulut-rekor", "bulut", "rekor ve belge"),
   birim("lastik", "yaris-lastigi", "yarış lastiği"),
   ...["parçalar", "performans puanı", "hissiyat: parçalar hissedilir, kurallar korunur"].map((g, i) =>
     birim("parca-" + i, "parcalar", g),

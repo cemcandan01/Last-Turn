@@ -31,7 +31,7 @@ export { sim, reset, yerel, surusAdimi } from "./surus";
 export { uzak, hayalet, uzakAracEkle, uzakAracSil, uzakAnlikEkle } from "./uzak";
 export { aracAnligi } from "../fizik/arac-ornegi";
 export { kaydiSerilestir, kaydiCoz, kaydiOynat } from "../fizik/girdi-kaydi";
-export { EVENTS, startEvent, endEvent, yaris, evTick, yarisiYenidenBaslat } from "./yarislar";
+export { EVENTS, startEvent, leaveEvent, endEvent, yaris, evTick, yarisiYenidenBaslat } from "./yarislar";
 import { tt } from "./dongu";
 
 /** görsel saat */

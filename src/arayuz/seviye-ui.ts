@@ -3,6 +3,7 @@
 import { kariyerYildizKapisi } from "../oyun/kariyer";
 import { enIyiYildiz } from "../oyun/yildiz";
 import type { YarisTuru } from "../arac/araclar";
+import { oyun } from "../oyun/durum";
 import { CARS } from "../arac/araclar";
 import { SEVIYELER, pistSev } from "../dunya/pist-tanimlari";
 import {
@@ -68,6 +69,10 @@ export function seviyeKutlamaKur() {
 
 /** bekleyen seviye atlamaları tek katmanda göster (dokununca kapanır); olan varsa true */
 export function kutlamaGoster() {
+  if (oyun.mode != "menu" && oyun.mode != "result") {
+    document.getElementById("lvup")?.classList.remove("acik");
+    return false;
+  }
   if (!bekleyen.length) return false;
   const yeni = bekleyen[bekleyen.length - 1].yeni,
     acilan = bekleyen.flatMap((o) => o.acilanlar);
