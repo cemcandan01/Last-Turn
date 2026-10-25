@@ -2,6 +2,7 @@
 // Oyunun sürüş katmanını (oyun/surus.ts) kullanmaz; aynı fizik bağlamını burada kurar.
 import "./sahte-tuval";
 import { CARS } from "../../src/arac/araclar";
+import { parcaliKurulum } from "../../src/arac/parcalar";
 import { REG, regAt } from "../../src/dunya/bolgeler";
 import { dunya, ensureBuilt, Hw, loadWorld, surfW, WORLDS } from "../../src/dunya/dunya";
 import { ipucu, nearest } from "../../src/dunya/pist";
@@ -18,6 +19,10 @@ export interface SurusAyari {
   pk?: OnayarAnahtari;
   lk: SeviyeAnahtari;
   wx?: string;
+  /** modifiye parçaları (src/arac/parcalar.ts; yoksa stok) */
+  parca?: readonly string[];
+  /** tür uyumu (uzmanlık) kapalı: puan kalibrasyonu için */
+  uzmanliksiz?: boolean;
 }
 
 /** önayar ve yardım seviyesinden sürüş kurulumu (oyundaki applyPreset ile aynı) */
@@ -44,13 +49,16 @@ export function surucuKur(a: SurusAyari) {
     kerb: (x, z) => (dunya.cur && dunya.cur.Hk ? dunya.cur.Hk(x, z) : 0),
     havaTutusu: () => havaTutusu(tema, wx),
     karli: () => tema == "snow",
-    yolTuru: () => (dunya.cur ? dunya.cur.t : null),
+    yolTuru: () => (a.uzmanliksiz ? null : dunya.cur ? dunya.cur.t : null),
   };
   const sim = new Simulasyon(7);
   const olaylar = { spin: 0 };
   const cx: FizikBaglami = {
     dunya: W,
-    kurulum: kurulumYap(a.arac, a.pk || CARS[a.arac].pk, a.lk),
+    kurulum:
+      a.parca && a.parca.length && !a.pk
+        ? parcaliKurulum(a.arac, a.parca, a.lk)
+        : kurulumYap(a.arac, a.pk || CARS[a.arac].pk, a.lk),
     olay: { spin: () => olaylar.spin++, puf: () => {}, caliRengi: () => 0 },
     rng: sim.rng,
     gorselRng: Math.random,

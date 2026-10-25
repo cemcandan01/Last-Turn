@@ -13,18 +13,28 @@ import {
   type Saglayici,
 } from "../../src/bulut/esitleme";
 import {
+  adminHerSeyAcik,
+  adminKilitAyarla,
+  adminParaEkle,
+  adminSeviye,
+  adminSifirla,
+  adminXpEkle,
   bulutKur,
   epostaGiris,
   epostaOlustur,
   googleBagla,
+  bilinenHesaplar,
   hesapBaslat,
   hesapDurumu,
+  hesapKaldir,
   hesapOzeti,
   yeniOyuncu,
 } from "../../src/bulut/hesap";
 import { hesapHtml } from "../../src/arayuz/hesap-ui";
 import {
+  adminKipi,
   aracAcikMi,
+  pistAcikMi,
   harca,
   ilerlemeSifirla,
   ilerlemeVerisi,
@@ -36,6 +46,7 @@ import {
 } from "../../src/oyun/ilerleme";
 import { PROF, best, saveBest } from "../../src/oyun/profil";
 import { enIyiYildiz } from "../../src/oyun/yildiz";
+import { ILK_ARAC } from "../../src/oyun/ekonomi";
 
 let depo: Record<string, string>;
 /** cihaz değiştir: her cihazın kendi localStorage'ı */
@@ -67,7 +78,9 @@ beforeEach(() => {
 /** sahte Firebase: bellekte belge deposu ve Google hesapları; yazma kuralları firestore.rules'un özü */
 function sahteBulut() {
   const db = new Map<string, BulutBelgesi>(),
-    googleHesap = new Map<string, string>();
+    googleHesap = new Map<string, string>(),
+    /** konsoldan eklenen admins/{uid} */
+    adminler = new Set<string>();
   let n = 0,
     yazma = 0;
   function cihaz(): Saglayici & { k: Kullanici | null } {
@@ -85,25 +98,31 @@ function sahteBulut() {
       async anonimGir() {
         if (!s.k) s.ayarla({ uid: "anon" + ++n, anonim: true, yol: "anonim", eposta: null, ad: null });
       },
-      async googleBagla() {
-        const g = "oyuncu@ornek.com",
+      /** misafirse bağlar (uid aynı kalır), bağlı hesaptaysa seçilen Google hesabına girer (yoksa yeni uid) */
+      async googleBagla(ipucu?: string) {
+        const g = ipucu || "oyuncu@ornek.com",
           var_ = googleHesap.get(g);
         if (var_) s.ayarla({ uid: var_, anonim: false, yol: "google", eposta: g, ad: null });
         else {
-          googleHesap.set(g, s.k!.uid);
-          s.ayarla({ ...s.k!, anonim: false, yol: "google", eposta: g });
+          const uid = s.k?.anonim ? s.k.uid : "u" + ++n;
+          googleHesap.set(g, uid);
+          s.ayarla({ uid, anonim: false, yol: "google", eposta: g, ad: null });
         }
       },
       async epostaOlustur(e: string) {
         if (googleHesap.has(e)) throw { code: "auth/email-already-in-use" };
-        googleHesap.set(e, s.k!.uid);
-        s.ayarla({ ...s.k!, anonim: false, yol: "eposta", eposta: e });
+        const uid = s.k?.anonim ? s.k.uid : "u" + ++n;
+        googleHesap.set(e, uid);
+        s.ayarla({ uid, anonim: false, yol: "eposta", eposta: e, ad: null });
       },
       async epostaGiris(e: string, sf: string) {
         if (!googleHesap.has(e) || sf != "dogru1") throw { code: "auth/invalid-credential" };
         s.ayarla({ uid: googleHesap.get(e)!, anonim: false, yol: "eposta", eposta: e, ad: null });
       },
       async sifreSifirla() {},
+      async adminMi(uid: string) {
+        return adminler.has(uid);
+      },
       async cikis() {
         s.ayarla(null);
       },
@@ -117,6 +136,7 @@ function sahteBulut() {
         const o = db.get(uid);
         if (
           o &&
+          !adminler.has(uid) &&
           (b.xp < o.xp || b.kazanilan < o.kazanilan || !Object.keys(o.alimlar).every((a) => a in b.alimlar))
         )
           throw { code: "permission-denied" };
@@ -126,7 +146,7 @@ function sahteBulut() {
     };
     return s;
   }
-  return { db, cihaz, yazmaSayisi: () => yazma };
+  return { db, cihaz, adminler, yazmaSayisi: () => yazma };
 }
 
 const bekle = () => new Promise((r) => setTimeout(r, 5));
@@ -188,31 +208,38 @@ describe("sahte Firebase ile eşitleme", () => {
       paraA = para();
     eA.kapat();
 
-    // 2. cihaz: kendi küçük ilerlemesi var, sonra aynı Google hesabına girer
+    // 2. cihaz: misafir olarak biraz oynar, sonra var olan Google hesabına girer: misafirin ilerlemesi birleşmez,
+    // yerine hesabınki gelir (hesaplar karışmaz)
     const B = bulut.cihaz();
     cihazDeposu();
     const eB = esitleyiciKur(B, { gecikme: 0 });
     await B.anonimGir();
-    await eB.oturum(B.k!.uid);
-    yarisBitti("rx", 1, 2);
+    await eB.oturum(B.k!.uid, true);
+    yarisBitti("dg", 1, 1);
     await bekle();
     await eB.simdiGonder();
     await B.googleBagla();
     expect(B.k!.uid).toBe(uidA);
     await eB.oturum(B.k!.uid);
-    expect(seviye().lv).toBeGreaterThanOrEqual(lvA);
+    expect(seviye().lv).toBe(lvA);
     expect(enIyiYildiz("gp", 1)).toBe(3);
-    expect(enIyiYildiz("rx", 1)).toBe(2);
+    expect(enIyiYildiz("dg", 1)).toBe(0);
     expect(aracAcikMi(8)).toBe(true);
     expect(best("asphalt_1")).toBe(61.5);
-    expect(para()).toBeGreaterThanOrEqual(paraA);
-    // birleşmiş hâl buluta da yazıldı: 1. cihaz tekrar açılınca 2. cihazın yıldızını görür
+    expect(para()).toBe(paraA);
+    expect(bulut.db.get(uidA)!.yildiz["drag_1"] ?? 0).toBe(0);
+    // aynı hesabın iki cihazı birleşir: 2. cihazda kazanılan yıldız, 1. cihazın yazılmamış yıldızıyla buluşur
+    yarisBitti("rx", 1, 2);
+    await bekle();
+    await eB.simdiGonder();
     expect(bulut.db.get(uidA)!.yildiz["dirt_1"]).toBe(2);
     eB.kapat();
     cihazDeposu(dA);
+    yarisBitti("rl", 1, 1); // 1. cihazda çevrimdışı kalmış ilerleme
     const eA2 = esitleyiciKur(A, { gecikme: 0 });
     await eA2.oturum(uidA);
     expect(enIyiYildiz("rx", 1)).toBe(2);
+    expect(enIyiYildiz("rl", 1)).toBe(1);
     // para iki kez harcanmaz: alım birleşti, bakiye iki cihazda aynı
     const v = ilerlemeVerisi();
     expect(Object.keys(v.alimlar)).toEqual(["arac_8"]);
@@ -287,7 +314,7 @@ describe("sahte Firebase ile eşitleme", () => {
     expect(hesapDurumu().kullanici?.yol).toBe("google");
     expect(hesapOzeti()).toContain("oyuncu@ornek.com");
     expect(hesapOzeti()).toContain("Bulutta");
-    expect(hesapHtml()).toContain("Çıkış");
+    expect(hesapHtml()).toContain("Hesap değiştir");
     // yeni oyuncu: bulutta kalır, bu cihaz sıfırdan; oyun yeniden açılınca yeni misafir hesap
     const uid = hesapDurumu().kullanici!.uid;
     yarisBitti("gp", 1, 3);
@@ -304,13 +331,13 @@ describe("sahte Firebase ile eşitleme", () => {
     expect(enIyiYildiz("gp", 1)).toBe(0);
     expect(best("asphalt_1")).toBe(0);
     expect(JSON.parse(depo["lt_prof"]).races).toBe(0);
-    expect(depo["lt_car"]).toBe("1");
+    expect(depo["lt_car"]).toBe(String(ILK_ARAC));
     expect(bekleyenVar()).toBe(false);
     // e-posta: yeni hesap, aynı e-postayla tekrar oluşturma → "giriş yap" uyarısı, yanlış ve doğru şifre
     await A.anonimGir();
     await bekle();
     expect(await epostaOlustur("yeni@ornek.com", "dogru1")).toBe(true);
-    expect(hesapDurumu().bilgi).toBe("Bağlandı: yeni@ornek.com · İlerlemen bulutta");
+    expect(hesapDurumu().bilgi).toBe("Bağlandı: yeni@ornek.com · Seviye 1 · İlerlemen bulutta");
     expect(hesapOzeti()).toContain("E-posta · yeni@ornek.com");
     await A.cikis();
     await A.anonimGir();
@@ -321,6 +348,165 @@ describe("sahte Firebase ile eşitleme", () => {
     expect(await epostaGiris("yeni@ornek.com", "dogru1")).toBe(true);
     expect(hesapDurumu().hata).toBeNull();
     expect(hesapDurumu().bilgi).toContain("Bağlandı: yeni@ornek.com");
+    e.kapat();
+  });
+
+  it("admin: yetki sunucuda; admin her şeyi açık görür, panelle XP/para/seviye/kilit/sıfırlama; normal oyuncu göremez", async () => {
+    const bulut = sahteBulut(),
+      A = bulut.cihaz();
+    const e = hesapBaslat(A, { gecikme: 0 });
+    await bekle();
+    // normal (bağlı ama admin değil) hesap: panel yok, kilitler normal, admin işlemi çalışmaz
+    await googleBagla();
+    await bekle();
+    const uid = hesapDurumu().kullanici!.uid;
+    expect(hesapDurumu().admin).toBe(false);
+    expect(adminKipi()).toBe(false);
+    expect(pistAcikMi("gp", 8)).toBe(false);
+    expect(adminParaEkle(1000)).toBe(false);
+    expect(para()).toBe(0);
+    expect(hesapHtml()).not.toContain("Admin");
+    expect(hesapHtml()).toContain(uid); // kopyalanabilir hesap kimliği
+    // konsoldan admins/{uid} eklendi, yeniden giriş
+    bulut.adminler.add(uid);
+    await A.cikis();
+    await A.googleBagla();
+    await bekle();
+    expect(hesapDurumu().admin).toBe(true);
+    expect(pistAcikMi("gp", 8)).toBe(true);
+    expect(aracAcikMi(9)).toBe(true);
+    expect(seviye().lv).toBe(1); // kip kayda yazılmaz
+    expect(hesapHtml()).toContain("İlerlemeyi sıfırla");
+    expect(adminParaEkle(10000)).toBe(true);
+    expect(adminXpEkle(1000)).toBe(true);
+    expect(adminSeviye(10)).toBe(true);
+    expect(seviye().lv).toBe(10);
+    expect(adminSeviye(3)).toBe(true); // azaltma: buluta yalnız admin yazabilir
+    expect(seviye().lv).toBe(3);
+    expect(adminKilitAyarla("arac_9", true)).toBe(true);
+    adminHerSeyAcik(false);
+    expect(aracAcikMi(9)).toBe(true);
+    expect(pistAcikMi("gp", 8)).toBe(false);
+    expect(adminKilitAyarla("arac_9", false)).toBe(true);
+    expect(aracAcikMi(9)).toBe(false);
+    await bekle();
+    expect(adminSifirla()).toBe(true);
+    await bekle();
+    expect(seviye().toplamXp).toBe(0);
+    expect(para()).toBe(0);
+    expect(bulut.db.get(uid)!.xp).toBe(0);
+    expect(hesapDurumu().esitleme).toBe("tamam");
+    // çıkınca admin kipi kapanır
+    await A.cikis();
+    expect(hesapDurumu().admin).toBe(false);
+    expect(adminKipi()).toBe(false);
+    e.kapat();
+  });
+  it("hesap değiştirme: A ve B hesaplarının ilerlemesi karışmaz; bekleyen yazma önce gönderilir; liste; admin kipi", async () => {
+    const bulut = sahteBulut(),
+      A = bulut.cihaz();
+    // gecikmeli yazma hiç kendiliğinden çalışmaz: geçişten önce gönderilenler yalnız geçişin gönderdiğidir
+    const e = hesapBaslat(A, { gecikme: 60000 });
+    await bekle();
+    const uidG = hesapDurumu().kullanici!.uid;
+    bulut.adminler.add(uidG);
+    // misafir oynar, yeni Google hesabına bağlanır: misafirin ilerlemesi hesaba geçer (tek birleşme yeri)
+    yarisBitti("gp", 1, 3);
+    expect(await googleBagla()).toBe(true);
+    await bekle();
+    expect(hesapDurumu().kullanici!.uid).toBe(uidG);
+    expect(enIyiYildiz("gp", 1)).toBe(3);
+    expect(hesapDurumu().admin).toBe(true);
+    expect(adminKipi()).toBe(true);
+    xpEkle(500, "test");
+    paraEkle(700, "test");
+    const xpG = seviye().toplamXp,
+      paraG = para();
+
+    // + Başka hesap → yeni e-posta test hesabı: sıfırdan başlar, admin kipi kapanır; Google'ın son değişikliği gönderildi
+    expect(await epostaOlustur("oyuncu+test@ornek.com", "dogru1")).toBe(true);
+    await bekle();
+    const uidT = hesapDurumu().kullanici!.uid;
+    expect(uidT).not.toBe(uidG);
+    expect(bulut.db.get(uidG)!.xp).toBe(xpG);
+    expect(seviye().toplamXp).toBe(0);
+    expect(para()).toBe(0);
+    expect(enIyiYildiz("gp", 1)).toBe(0);
+    expect(hesapDurumu().admin).toBe(false);
+    expect(adminKipi()).toBe(false);
+    expect(pistAcikMi("gp", 8)).toBe(false);
+    yarisBitti("rx", 1, 2);
+    saveBest("dirt_1", "75");
+
+    // listeden Google'a geri: Google'ın kaydı gelir, test hesabınınki karışmaz; admin kipi açılır
+    const liste = bilinenHesaplar();
+    expect(liste.map((h) => [h.yol, h.etiket, h.admin])).toEqual([
+      ["eposta", "oyuncu+test@ornek.com", false],
+      ["google", "oyuncu@ornek.com", true],
+    ]);
+    expect(await googleBagla(liste[1].etiket)).toBe(true);
+    await bekle();
+    expect(hesapDurumu().kullanici!.uid).toBe(uidG);
+    expect(seviye().toplamXp).toBe(xpG);
+    expect(para()).toBe(paraG);
+    expect(enIyiYildiz("gp", 1)).toBe(3);
+    expect(enIyiYildiz("rx", 1)).toBe(0);
+    expect(best("dirt_1")).toBe(0);
+    expect(hesapDurumu().admin).toBe(true);
+    expect(adminKipi()).toBe(true);
+    expect(hesapDurumu().bilgi).toContain("Bağlandı: oyuncu@ornek.com");
+    expect(bulut.db.get(uidT)!.yildiz["dirt_1"]).toBe(2);
+    expect(bulut.db.get(uidT)!.yildiz["asphalt_1"] ?? 0).toBe(0);
+    expect(bulut.db.get(uidG)!.yildiz["dirt_1"] ?? 0).toBe(0);
+
+    // ve yeniden test hesabına (e-posta dolu, şifre): test hesabının kaydı geri gelir; listede seviyesi güncel
+    expect(bilinenHesaplar().find((h) => h.uid == uidG)!.lv).toBe(seviye().lv);
+    expect(await epostaGiris("oyuncu+test@ornek.com", "dogru1")).toBe(true);
+    await bekle();
+    expect(hesapDurumu().kullanici!.uid).toBe(uidT);
+    expect(enIyiYildiz("rx", 1)).toBe(2);
+    expect(enIyiYildiz("gp", 1)).toBe(0);
+    expect(best("dirt_1")).toBe(75);
+    expect(para()).toBe(bulut.db.get(uidT)!.kazanilan);
+    expect(adminKipi()).toBe(false);
+
+    // yanlış şifre: geçiş olmaz, hangi hesapta kalındığı yazar, ilerleme yerinde
+    expect(await epostaGiris("oyuncu@ornek.com", "yanlis")).toBe(false);
+    expect(hesapDurumu().hata).toContain("Hesap değişmedi: E-posta · oyuncu+test@ornek.com");
+    expect(hesapDurumu().kullanici!.uid).toBe(uidT);
+    // internet yokken bekleyen yazma gönderilemez: geçilmez (yoksa o ilerleme kaybolurdu)
+    cevrimici = false;
+    xpEkle(77, "test");
+    const xpT = seviye().toplamXp;
+    expect(await googleBagla("oyuncu@ornek.com")).toBe(false);
+    expect(hesapDurumu().hata).toContain("gönderilemedi");
+    expect(hesapDurumu().kullanici!.uid).toBe(uidT);
+    cevrimici = true;
+    expect(await googleBagla("oyuncu@ornek.com")).toBe(true);
+    await bekle();
+    expect(seviye().toplamXp).toBe(xpG);
+    expect(bulut.db.get(uidT)!.xp).toBe(xpT);
+
+    // listeden kaldır: şu anki hesap kaldırılmaz; kaldırılan hesap bulutta kalır
+    expect(hesapKaldir(uidG)).toBe(false);
+    expect(hesapKaldir(uidT)).toBe(true);
+    expect(bilinenHesaplar().map((h) => h.uid)).toEqual([uidG]);
+    expect(bulut.db.has(uidT)).toBe(true);
+    expect(JSON.stringify(depo["lt_hesaplar"])).not.toMatch(/dogru1|sifre|token/i);
+
+    // misafir olarak devam (yeni): yeni misafir sıfırdan; yeni e-posta hesabına bağlanınca misafirin ilerlemesi ona geçer
+    await yeniOyuncu(() => {});
+    await A.anonimGir();
+    await bekle();
+    expect(hesapDurumu().kullanici!.anonim).toBe(true);
+    expect(seviye().toplamXp).toBe(0);
+    expect(adminKipi()).toBe(false);
+    yarisBitti("dg", 1, 1);
+    expect(await epostaOlustur("ikinci@ornek.com", "dogru1")).toBe(true);
+    await bekle();
+    expect(enIyiYildiz("dg", 1)).toBe(1);
+    expect(bulut.db.get(hesapDurumu().kullanici!.uid)!.yildiz["drag_1"]).toBe(1);
+    expect(bilinenHesaplar()).toHaveLength(2);
     e.kapat();
   });
 });

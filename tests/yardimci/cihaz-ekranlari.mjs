@@ -16,9 +16,10 @@ const yarisAc = (tur, ek) => (p) =>
       LT.demoStop();
       LT.oyun.camMode = 0;
       const i = LT.EVENTS.findIndex((e) => e.ty == tur);
+      // temiz profilde açık araç: türün başlangıç aracı (diğerleri satın alınır)
       LT.startEvent(
         i,
-        LT.CARS.findIndex((c) => c.ty == tur),
+        LT.CARS.findIndex((c, k) => c.ty == tur && LT.aracAcikMi(k)),
       );
       const EV = LT.yaris.EV;
       EV.state = "run";
@@ -79,6 +80,21 @@ export const EKRANLAR = [
         LT.openGarage(0);
       }),
     bekle: "#gar:not(.hidden) #gok",
+  },
+  {
+    id: "magaza",
+    dal: "garaj",
+    ad: "Mağaza (satılık araç, süzgeç çipleri)",
+    ac: (p) =>
+      p.evaluate(() => {
+        LT.demoStop();
+        // cihaz profili her aracı açık tutar: mağaza satılık araç görsün diye ilerleme sıfırlanır
+        LT.ilerlemeyiSifirla();
+        LT.xpEkle(400, "test");
+        LT.paraEkle(4000, "test");
+        LT.openStore();
+      }),
+    bekle: "#gar.magaza:not(.hidden) #gpv",
   },
   {
     id: "garaj-vitrin",

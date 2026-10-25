@@ -9,15 +9,15 @@ export default [
   },
   {
     id: "garaj-kilit",
-    ad: "Garaj araç kilitleri: kilitli araç karartılmış gezilir, Seç devre dışı, öneri açık araca düşer",
+    ad: "Garajda yalnız sahip olunan araçlar: kilit, fiyat ve satın alma düğmesi yok; uygun araç alınmamışsa mağaza ipucu",
     p: 1,
     tarayici: "garaj-kilit",
   },
   {
-    id: "garaj-satin",
-    ad: "Garajda satın alma: sahip / seviye yok / para yok / satın alınabilir kartları, iki dokunuşla onay, başarıda araç açılır",
+    id: "magaza",
+    ad: "Mağaza: sahip olunmayan araçlar, seviye yok / para yok / satın alınabilir kartları, iki dokunuşla onay, kutlama, araç mağazadan düşer, Garaja git, tür süzgeci, Geri",
     p: 1,
-    tarayici: "garaj-satin",
+    tarayici: "magaza",
   },
   {
     id: "cihaz-uyum",

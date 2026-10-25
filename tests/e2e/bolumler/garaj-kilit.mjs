@@ -1,6 +1,7 @@
 /* global LT */
-// Garaj araç kilitleri: temiz profilde kilitli araç vitrinde görünür, Seç devre dışı, öneri açık araca düşer.
-// Ekran görüntüsü: tests/cikti/garaj-kilit.png (iPhone 13 yatay).
+// Garajda yalnız sahip olunan araçlar: temiz profilde kilitli/satılık araç gezilmez, satın alma düğmesi yok;
+// ralli yarışında türün alınmamış aracı varsa "Mağazada daha uygun araç" ipucu mağazayı açar, Geri garaja döner.
+// Ekran görüntüsü: tests/cikti/garaj-sahip.png (iPhone 13 yatay).
 import fs from "node:fs";
 export default async function ({ p, ok }) {
   const url = p.url().split("?")[0] + "?" + Date.now();
@@ -15,43 +16,47 @@ export default async function ({ p, ok }) {
     LT.demoStop();
     const ev = (ty, lv) => LT.EVENTS.findIndex((e) => e.ty == ty && e.lv == lv),
       s = {};
-    // ralli Çaylak: Mavi Yıldız (3) kilitli -> öneri açık araç
     LT.openGarage(ev("rl", 1));
     s.mod = LT.oyun.mode;
     s.recAcik = LT.aracAcikMi(LT.CARS.indexOf(LT.oyun.CAR));
-    s.recBadge = !!document.querySelector(".bdg.rec");
-    s.baslangicKilitli = document.querySelector("#gar").classList.contains("kilitli");
-    // kilitli araca git (Beyaz Kurt=2)
-    for (let k = 0; k < 6 && LT.CARS.indexOf(LT.oyun.CAR) != 2; k++) document.querySelector("#gnx").click();
-    s.kilitliSecili = LT.CARS.indexOf(LT.oyun.CAR) == 2;
-    const b = document.querySelector("#gok");
-    s.disabled = b.disabled;
-    s.yazi = b.textContent;
-    s.rozet = !!document.querySelector(".bdg.kilit");
-    s.panelKilit = document.querySelector("#gar").classList.contains("kilitli");
-    document.querySelector("#gok").click();
-    s.hala = LT.oyun.mode == "garage" && !LT.yaris.EV;
-    // açık araca dönünce Seç etkin
-    document.querySelector("#gpv").click();
-    document.querySelector("#gpv").click();
-    s.acikEtkin = !document.querySelector("#gok").disabled && !document.querySelector(".bdg.kilit");
+    s.ziyaret = [];
+    for (let k = 0; k < LT.CARS.length + 2; k++) {
+      s.ziyaret.push(LT.CARS.indexOf(LT.oyun.CAR));
+      s.kilitSinifi ||= ["kilitli", "satilik"].some((c) =>
+        document.querySelector("#gar").classList.contains(c),
+      );
+      s.alDugmesi ||= !!document.querySelector("#gok.al, .bdg.kilit, .bdg.fiyat");
+      document.querySelector("#gnx").click();
+    }
+    s.hepsiAcik = s.ziyaret.every((i) => LT.aracAcikMi(i));
+    s.sahipSayisi = new Set(s.ziyaret).size;
+    s.beklenen = LT.CARS.filter((_, i) => LT.aracAcikMi(i)).length;
+    s.ipucu = !!document.querySelector("#gmg");
     return s;
   });
   ok(r.mod == "garage", "garaj açıldı");
-  ok(r.recAcik && r.recBadge, "ralli önerisi açık araca düştü");
-  ok(!r.baslangicKilitli, "açık araçta kilit yok");
+  ok(r.recAcik, "ralli önerisi sahip olunan araca düştü");
   ok(
-    r.kilitliSecili && r.disabled && r.rozet && r.panelKilit,
-    "kilitli araç gezilir, Seç devre dışı: " + JSON.stringify(r),
+    r.hepsiAcik && r.sahipSayisi == r.beklenen,
+    "garajda yalnız sahip olunan araçlar gezilir: " + JSON.stringify(r.ziyaret),
   );
-  ok(/Seviye 4/.test(r.yazi), "Seç yerine seviye yazısı: " + r.yazi);
-  ok(r.hala, "kilitli araçla yarış başlamadı");
-  ok(r.acikEtkin, "açık araca dönünce Seç etkin");
-  await q.evaluate(() => {
-    for (let k = 0; k < 6 && LT.CARS.indexOf(LT.oyun.CAR) != 2; k++) document.querySelector("#gnx").click();
-  });
-  await q.waitForTimeout(600);
+  ok(!r.kilitSinifi && !r.alDugmesi, "garajda kilit, fiyat ve satın alma düğmesi yok");
+  ok(r.ipucu, "türün aracı alınmamış: Mağazada daha uygun araç ipucu");
+  await q.waitForTimeout(500);
   fs.mkdirSync("tests/cikti", { recursive: true });
-  await q.screenshot({ path: "tests/cikti/garaj-kilit.png" });
+  await q.screenshot({ path: "tests/cikti/garaj-sahip.png" });
+  const m = await q.evaluate(() => {
+    document.querySelector("#gmg").click();
+    const s = {
+      mod: LT.oyun.mode,
+      serit: !!document.querySelector("#gar .galt #gmf"),
+    };
+    s.sahipDegil = !LT.aracAcikMi(LT.CARS.indexOf(LT.oyun.CAR));
+    document.querySelector("#gbk").click();
+    s.geriGaraj = LT.oyun.mode == "garage" && !document.querySelector("#gar").classList.contains("magaza");
+    return s;
+  });
+  ok(m.mod == "garage" && m.serit && m.sahipDegil, "ipucu mağazayı açtı: " + JSON.stringify(m));
+  ok(m.geriGaraj, "mağazadan Geri yarış öncesi garaja döndü");
   await kx.close();
 }

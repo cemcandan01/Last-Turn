@@ -62,18 +62,50 @@ if (kip == "liste") {
   process.exit(0);
 }
 
-const dallar = (dallarArg || "").split(",").filter(Boolean);
+// PR olayında GITHUB_REF_NAME "5/merge" olur; gerçek konu dalı GITHUB_HEAD_REF'tedir.
+// Codex konu dalları da aynı alan senaryolarını kullanır (codex/altyapi → altyapi).
+const dallar = (dallarArg || "")
+  .split(",")
+  .filter(Boolean)
+  .map((dal) => {
+    const konu = /^\d+\/merge$/.test(dal) ? process.env.GITHUB_HEAD_REF || dal : dal;
+    return konu.replace(/^codex\//, "");
+  });
 if (kip == "alan" && !dallar.length) {
   console.error("alan için dal adı gerekli: node tests/kosucu.mjs alan fizik");
   process.exit(2);
 }
-const secili = SENARYOLAR.filter((s) =>
+let secili = SENARYOLAR.filter((s) =>
   kip == "duman" ? s.duman : kip == "alan" ? dallar.includes(s.dal) : true,
 ).sort((a, b) => a.p - b.p);
 if (kip == "alan")
   for (const d of dallar)
-    if (!SENARYOLAR.some((s) => s.dal == d))
-      console.log(`(${d} dalının kayıtlı senaryosu yok: koşacak bir şey yok)`);
+    if (!SENARYOLAR.some((s) => s.dal == d)) {
+      console.error(`${d} alanının kayıtlı senaryosu yok; boş koşum başarılı sayılamaz.`);
+      process.exit(2);
+    }
+
+// Dar geri bildirim turu: yalnız açıkça seçilen mevcut senaryolar. Canlı regresyonu daraltılamaz.
+if (process.argv.includes("--senaryo")) {
+  const deger_ = deger("--senaryo");
+  const istenen = [...new Set((deger_ || "").split(",").filter(Boolean))];
+  if (kip != "alan" || !istenen.length || deger_?.startsWith("--")) {
+    console.error("--senaryo yalnız alan kipinde, boş olmayan senaryo listesiyle kullanılır.");
+    process.exit(2);
+  }
+  const eslesir = (s, id) => id == s.id || id == s.dal + "/" + s.id;
+  const eksik = istenen.filter((id) => !secili.some((s) => eslesir(s, id)));
+  if (eksik.length) {
+    console.error("Bu alanlarda bulunamayan senaryo: " + eksik.join(", "));
+    process.exit(2);
+  }
+  secili = secili.filter((s) => istenen.some((id) => eslesir(s, id)));
+}
+if (process.argv.includes("--liste")) {
+  for (const s of secili) console.log(`${s.dal}/${s.id} · P${s.p} · ${s.tarayici ? "tarayıcı" : "birim"}`);
+  console.log("Bu yalnız kapsam listesidir; test çalıştırılmadı.");
+  process.exit(0);
+}
 
 // sanal cihaz denetimi: regresyonda iPhone 13 tam + temsilci cihazlar 4 ekran, alanda dalın ekranları 3 cihazda
 // (tests/yardimci/cihaz-bolum.mjs)
@@ -206,6 +238,8 @@ for (const s of satirlar) {
 const dk = ((Date.now() - basla) / 60000).toFixed(1);
 const kalan = satirlar.filter((s) => s.durum == "kaldı");
 let md = `# ${kip == "regresyon" ? "Regresyon" : kip == "alan" ? "Alan testi (" + dallar.join(", ") + ")" : "Duman"} raporu\n\n`;
+if (process.argv.includes("--senaryo"))
+  md += `Daraltılmış geliştirme kapsamı (tam alan/regresyon değildir): ${secili.map((s) => s.dal + "/" + s.id).join(", ")}\n\n`;
 md += `${new Date().toISOString().slice(0, 16).replace("T", " ")} UTC · ${dk} dk${ADRES ? " · " + ADRES : ""}\n\n`;
 const ILK = deger("--ilk") && JSON.parse(fs.readFileSync(deger("--ilk"), "utf8"));
 md += ILK
@@ -223,7 +257,18 @@ if (atlanan.length)
 fs.writeFileSync(path.join(CIKTI, "rapor.md"), md);
 fs.writeFileSync(
   path.join(CIKTI, "rapor.json"),
-  JSON.stringify({ kip, dallar, dk: Number(dk), ozet, senaryolar: satirlar }, null, 2),
+  JSON.stringify(
+    {
+      kip,
+      dallar,
+      daraltilmis: process.argv.includes("--senaryo"),
+      dk: Number(dk),
+      ozet,
+      senaryolar: satirlar,
+    },
+    null,
+    2,
+  ),
 );
 
 console.log("\n" + md.replace(/\*\*/g, ""));

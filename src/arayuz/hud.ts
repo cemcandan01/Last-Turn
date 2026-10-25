@@ -12,6 +12,7 @@ import { VMAX } from "../fizik/veriler";
 import { CT, gorunum } from "../oyun/ayarlar";
 import { oyun } from "../oyun/durum";
 import { I, tilt } from "../oyun/girdi";
+import { ikon } from "./ikonlar";
 import { LAP, sim } from "../oyun/surus";
 import { yaris } from "../oyun/yarislar";
 
@@ -82,6 +83,17 @@ function kadranYay(f: number) {
   E.kdV.style.visibility = y > 0 ? "" : "hidden";
 }
 
+/** süre satırının başındaki kronometre ikonu (yaziHtml HTML olarak yazar) */
+const KRONO = ikon("kronometre");
+
+/** yazi gibi, ama HTML (ikonlu satırlar için); yalnız değişince yazar */
+function yaziHtml(e: HTMLElement, h: string) {
+  if (e.dataset.h !== h) {
+    e.dataset.h = h;
+    e.innerHTML = h;
+  }
+}
+
 /** sol üst panel: büyük satır ve alt satır */
 function olayPaneli(): [string, string] {
   const EV = yaris.EV,
@@ -95,11 +107,11 @@ function olayPaneli(): [string, string] {
     const asim = EV.t > EV.limit ? " · SÜRE AŞILDI" : "";
     if (EV.ty == "dg")
       return [
-        "⏱ " + EV.t.toFixed(2),
+        KRONO + EV.t.toFixed(2),
         "Hedef " + EV.limit.toFixed(1) + " sn · %" + Math.round((100 * ipucu.ti) / (EV.TR.N - 1)) + asim,
       ];
     return [
-      "⏱ " + fmt(EV.t),
+      KRONO + fmt(EV.t),
       (EV.laps
         ? "Tur " + Math.min(EV.lap + 1, EV.laps) + "/" + EV.laps
         : "%" + Math.round((100 * ipucu.ti) / EV.TR.N)) +
@@ -110,7 +122,7 @@ function olayPaneli(): [string, string] {
   }
   if (TR && !TR.open)
     return LAP.run
-      ? ["⏱ " + fmt(LAP.t), "Son " + fmt(LAP.last) + " · En iyi " + fmt(LAP.best)]
+      ? [KRONO + fmt(LAP.t), "Son " + fmt(LAP.last) + " · En iyi " + fmt(LAP.best)]
       : ["", "Çizgiden geç, tur başlasın"];
   return ["", ""];
 }
@@ -267,7 +279,7 @@ function bonusAdimi() {
 export function hudOrnekDoldur() {
   yazi(E.hName, "Drift Parkı");
   yazi(E.ev, "2844 puan");
-  yazi(E.lap, "⏱ 48.2 sn kaldı");
+  yaziHtml(E.lap, KRONO + "48.2 sn kaldı");
   yazi(E.spd, "96");
   yazi(E.gear, "3");
   yazi(E.sf, "");
@@ -293,7 +305,7 @@ export function hudGuncelle(v: number) {
   if (gorunum.hiz == "kadran") kadranYay(kmh / (VMAX * 3.6));
   yazi(E.hName, EV ? EV.n : oyun.CURW.n);
   const [ana, alt] = olayPaneli();
-  yazi(E.ev, ana);
+  yaziHtml(E.ev, ana);
   yazi(E.lap, alt);
   // yalnız sürüşü etkileyen uyarılar (araç, zemin ve lastik zaten görünür)
   yazi(

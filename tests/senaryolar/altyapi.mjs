@@ -5,6 +5,21 @@ const C = "tests/birim/cok-arac.test.ts",
   BU = "tests/birim/bulut.test.ts";
 export default [
   {
+    id: "firebase-giris-yardimcisi",
+    ad: "iPhone yerel yardımcıda MIME doğrulanır; bozuk iframe seçilmez, eski redirect resolver korunur",
+    p: 1,
+    birim: {
+      dosya: "tests/birim/firebase-giris.test.ts",
+      grup: "Firebase giriş yardımcısı ve iPhone açılışı",
+    },
+  },
+  {
+    id: "pwa-cevrimdisi",
+    ad: "Çevrimdışı oyun açılır; hatalı yanıt saklanmaz, sürümler ve giriş yardımcısı yalıtılır",
+    p: 1,
+    birim: { dosya: "tests/birim/pwa.test.ts", grup: "PWA çevrimdışı kayıt ve sürüm yalıtımı" },
+  },
+  {
     id: "girdi-kaydi",
     ad: "Girdi kaydı iki kez oynatılınca aynı son durum (belirlenimcilik)",
     p: 1,
@@ -96,7 +111,7 @@ export default [
   },
   {
     id: "bulut-esitleme",
-    ad: "Sahte Firebase: ilerleme bir cihazda yazılıp başka cihazda aynı hesapla okunur, birleşir; çevrimdışı kuyruk; reddedilen yazma yeniden çekilir; yeni oyuncu bu cihazı sıfırlar, bulut kalır",
+    ad: "Sahte Firebase: ilerleme bir cihazda yazılıp başka cihazda aynı hesapla okunur, birleşir; çevrimdışı kuyruk; reddedilen yazma yeniden çekilir; yeni oyuncu bu cihazı sıfırlar, bulut kalır; admin (sunucuda admins/{uid}) her şeyi açık görür ve panelle XP/para/seviye/kilit/sıfırlama yapar, normal oyuncu yapamaz",
     p: 1,
     birim: { dosya: BU, grup: "sahte Firebase ile eşitleme" },
   },

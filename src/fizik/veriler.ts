@@ -77,6 +77,32 @@ export const TIRES: Lastik[] = [
     C: [1.22, 1.28],
     t: [0.9, 0.95],
   },
+  // modifiye lastikleri (src/arac/parcalar.ts): yukarıdaki dört lastiğin indeksi değişmez, yeniler sona eklenir
+  {
+    n: "Sokak",
+    d: "Günlük lastik: asfaltta yarış lastiğinden az tutar, sınırda yumuşak ve affedici",
+    g: [0.6, 0.94],
+    B: [5, 8],
+    C: [1.5, 1.5],
+    t: [0.85, 0.98],
+  },
+  {
+    n: "Spor",
+    d: "Asfaltta iyi tutuş, yarış lastiğinden biraz az; toprakta zayıf",
+    g: [0.52, 1.05],
+    B: [5.5, 9],
+    C: [1.6, 1.55],
+    t: [0.82, 1.03],
+  },
+  {
+    n: "Drag",
+    d: "Düz çizgide çok güçlü çekiş, virajda zayıf yanal tutuş",
+    lg: [1.3, 1.6],
+    g: [0.48, 0.82],
+    B: [5, 8],
+    C: [1.5, 1.5],
+    t: [0.8, 1.06],
+  },
 ];
 
 /** araç ayarları: [anahtar, ad, açıklama, en az, en çok, adım] */

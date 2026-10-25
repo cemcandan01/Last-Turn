@@ -1,5 +1,8 @@
 // Sürüş kurulumu: önayar (PK), yardım seviyesi (LK), araç ayarları (TU), yardımlar (AS), lastik.
 // Yarıştan önceki kurulum yarış bitince geri yüklenir (yarislar.ts).
+// Modifiye: takılı parçalar varsa (oyun/modifiye.ts → modifiyeUygula) kurulum.mod parçalı aracı ve parçaların ayar
+// alanlarını taşır; fizik aracı ondan alır (oyun/surus.ts), önayar seçilse de parça ayarları üstüne yazılır.
+import type { Arac } from "../arac/araclar";
 import {
   LEVELS,
   PRESETS,
@@ -17,7 +20,20 @@ export const kurulum = {
   tire: 1,
   /** önayardan sonra elle değiştirildi mi */
   custom: false,
+  /**
+   * takılı parçalar (yoksa null: stok). taban: CARS'taki araç (seçili araç o değilse yok sayılır), car: parçalı araç,
+   * tire: lastik parçası (yoksa null: önayarın lastiği), ayar: parçaların yazdığı ayar alanları
+   */
+  mod: null as ModKurulumu | null,
 };
+
+export interface ModKurulumu {
+  taban: Arac;
+  car: Arac;
+  tire: number | null;
+  ayar: Partial<Ayarlar>;
+  parcalar: string[];
+}
 
 /** önayarı ve yardım seviyesini uygula (önayarın yardım tabanı ve tavanıyla) */
 export function applyPreset() {
@@ -29,6 +45,11 @@ export function applyPreset() {
   if (p.cap) for (const k in p.cap) as[k] = Math.min(as[k], p.cap[k]!);
   kurulum.as = as;
   kurulum.custom = false;
+  const m = kurulum.mod;
+  if (m) {
+    Object.assign(kurulum.tu, m.ayar);
+    if (m.tire != null) kurulum.tire = m.tire;
+  }
 }
 
 export type KurulumKaydi = ReturnType<typeof kurulumKaydet>;
@@ -40,6 +61,7 @@ export const kurulumKaydet = () => ({
   tu: { ...kurulum.tu },
   as: { ...kurulum.as },
   custom: kurulum.custom,
+  mod: kurulum.mod,
 });
 
 export function kurulumYukle(v: KurulumKaydi) {

@@ -1,13 +1,15 @@
 // Dokunmatik kontroller: direksiyon tuşları / ekran direksiyonu / telefonu çevirme, gaz ve fren tuşları / analog pedal.
-// Analog pedal: ortası sıfır, yukarı gaz, aşağı fren.
+// Analog pedal: ortası sıfır, yukarı gaz, aşağı fren. Debriyaj fren (ya da pedal) üstünde: basılı tut, bırakınca
+// motorun devri tekerlere vurur ve arka patinaja girer (drifte giriş).
 import { $ } from "../cekirdek/dom";
 import { ad, cl } from "../cekirdek/matematik";
 import { toApp } from "../cekirdek/ekran";
 import { CT } from "../oyun/ayarlar";
 import { askTilt, girdiSifirla, I, tilt, tiltRoll } from "../oyun/girdi";
 import { note } from "./bildirim";
+import { ikon } from "./ikonlar";
 
-function bindK(id: string, k: "l" | "r" | "g" | "b") {
+function bindK(id: string, k: "l" | "r" | "g" | "b" | "dbr") {
   const e = $(id);
   e.addEventListener("pointerdown", (v) => {
     v.preventDefault();
@@ -96,21 +98,19 @@ export function kontrolleriKur() {
   app.dataset.gas = CT.gas;
   const L =
     CT.steer == "btn"
-      ? '<div class="g"><div class="k" id="l">◀</div><div class="k" id="r">▶</div></div>'
+      ? `<div class="g"><div class="k" id="l">${ikon("okSol")}</div><div class="k" id="r">${ikon("okSag")}</div></div>`
       : CT.steer == "wheel"
         ? '<div class="wz" id="wz"><div class="wheel" id="wh"></div></div>'
         : '<div class="g"><div class="k" id="cal">Ortala</div></div>';
-  const B = CT.gas == "analog" ? "" : '<div class="k pd" id="b">FREN</div>';
+  const D = '<div class="k" id="dbr">DEBRİYAJ</div>',
+    B =
+      CT.gas == "analog"
+        ? '<div class="tsut">' +
+          D +
+          '<div class="pedal" id="pd"><i></i><u></u><b>GAZ</b><s>FREN</s></div></div>'
+        : '<div class="tsut">' + D + '<div class="k pd" id="b">FREN</div></div>';
   c.innerHTML =
-    L +
-    '<div class="g">' +
-    B +
-    (CT.gas == "btn"
-      ? '<div class="k pd" id="g">GAZ</div>'
-      : CT.gas == "analog"
-        ? '<div class="pedal" id="pd"><i></i><u></u><b>GAZ</b><s>FREN</s></div>'
-        : "") +
-    "</div>";
+    L + '<div class="g">' + B + (CT.gas == "btn" ? '<div class="k pd" id="g">GAZ</div>' : "") + "</div>";
   if (CT.steer == "btn") {
     bindK("#l", "l");
     bindK("#r", "r");
@@ -124,6 +124,7 @@ export function kontrolleriKur() {
       tilt.zero = tiltRoll();
       note("Ortalandı", 30);
     };
+  bindK("#dbr", "dbr");
   if (CT.gas != "analog") bindK("#b", "b");
   if (CT.gas == "btn") bindK("#g", "g");
   else if (CT.gas == "analog") bindPedal($("#pd"));

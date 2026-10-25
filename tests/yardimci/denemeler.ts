@@ -14,9 +14,16 @@ export function duzZemin(
   arac: number,
   lk: SeviyeAnahtari,
   hiz: number,
-  o: { sn?: number; zemin?: number; g?: number; pk?: OnayarAnahtari; izle?: (t: number) => void } = {},
+  o: {
+    sn?: number;
+    zemin?: number;
+    g?: number;
+    pk?: OnayarAnahtari;
+    izle?: (t: number) => void;
+    parca?: readonly string[];
+  } = {},
 ) {
-  const s = surucuKur({ dunya: 1, arac, lk, pk: o.pk });
+  const s = surucuKur({ dunya: 1, arac, lk, pk: o.pk, parca: o.parca });
   const W = s.cx.dunya,
     h0 = W.H(30, -3550),
     zemin = o.zemin ?? 0,
@@ -64,8 +71,14 @@ export function tamKirik(yaris: number, arac: number, lk: SeviyeAnahtari, sn = 6
 }
 
 /** otomatik pilot direksiyonuyla, hiç fren yapmadan tam gaz bir tur (ralli: etap) */
-export function frensiz(yaris: number, arac: number, lk: SeviyeAnahtari, sinir = 120) {
-  const s = surucuKur({ yaris, arac, lk });
+export function frensiz(
+  yaris: number,
+  arac: number,
+  lk: SeviyeAnahtari,
+  sinir = 120,
+  parca: readonly string[] = [],
+) {
+  const s = surucuKur({ yaris, arac, lk, parca });
   const TR = s.bolge!.TR!,
     i0 = TR.open ? 4 : TR.N - 6,
     P = TR.P[i0];
@@ -104,4 +117,30 @@ export function frensiz(yaris: number, arac: number, lk: SeviyeAnahtari, sinir =
     prev = ti;
   }
   return { t, disari, spin };
+}
+
+/**
+ * sanal düz asfaltta v m/s'de st direksiyonla 1 sn az gazla viraja gir, sonra 1,5 sn tam gaz: en büyük kayma açısı
+ * (derece). Gazla arkayı kaydırma (diferansiyel, güç) ölçüsü. Gerçekçi seviye
+ */
+export function gazlaKaydir(arac: number, parca: readonly string[], v: number, st: number) {
+  const s = surucuKur({ dunya: 1, arac, lk: "real", parca });
+  const W = s.cx.dunya,
+    h0 = W.H(30, -3550);
+  W.H = () => h0;
+  W.surf = () => 1;
+  W.yakin = () => [];
+  s.reset(30, -3700, 0);
+  const S = s.sim.S;
+  for (let k = 0; k < 20 / DT && Math.hypot(S.vx, S.vz) < v; k++)
+    s.adim({ tg: 0, g: 1, b: 0, analogDireksiyon: true, analogGaz: true });
+  for (let k = 0; k < 1 / DT; k++) s.adim({ tg: st, g: 0.25, b: 0, analogDireksiyon: true, analogGaz: true });
+  let b = 0,
+    dlt = 0;
+  for (let k = 0; k < 1.5 / DT; k++) {
+    s.adim({ tg: st, g: 1, b: 0, analogDireksiyon: true, analogGaz: true });
+    b = Math.max(b, Math.abs(s.sim.d.D.beta));
+    dlt = Math.max(dlt, Math.abs(s.sim.d.delta));
+  }
+  return { kayma: b * 57.3, delta: dlt };
 }

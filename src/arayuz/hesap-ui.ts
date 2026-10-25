@@ -1,21 +1,38 @@
-// Profil ekranındaki hesap bloğu: hesap durumu satırı, "Google ile bağlan" / "E-posta ile" / "Çıkış" düğmeleri ve
-// "Yeni oyuncu olarak başla". Firebase yapılandırması yoksa hiçbir şey çizmez (bulut/hesap.ts → etkin).
+// Profil ekranındaki hesap bloğu: hesap durumu satırı, "Google ile bağlan" / "E-posta ile" düğmeleri ve "Hesap
+// değiştir" listesi (bu cihazda girilmiş hesaplar; dokununca o hesaba geçilir, "+ Başka hesap", "Misafir olarak devam
+// (yeni)", listeden kaldır). Firebase yapılandırması yoksa hiçbir şey çizmez (bulut/hesap.ts → etkin).
 // E-posta formu kendi tam ekran katmanında açılır (epostaFormuAc): iPhone yatayda klavye ekranın çoğunu kapladığı için
 // form görünür alana (visualViewport) sığdırılır ve alanlar tek tek sorulur (E-posta → Şifre → Şifre tekrar);
 // klavyenin İleri tuşu sonraki alana, son alanda gönderir.
+import { CARS } from "../arac/araclar";
+import { adminKipi, seviye } from "../oyun/ilerleme";
+import { TDEF } from "../dunya/pist-tanimlari";
+import { yildizAnahtari } from "../oyun/yildiz";
+import { ikon } from "./ikonlar";
 import {
-  cikis,
+  adminHerSeyAcik,
+  adminKilitAyarla,
+  adminParaEkle,
+  adminSeviye,
+  adminSifirla,
+  adminXpEkle,
+  bilinenHesaplar,
   epostaGiris,
   epostaOlustur,
   googleBagla,
   hesapDinle,
   hesapDurumu,
+  hesapKaldir,
   hesapOzeti,
   sifreSifirla,
   yeniOyuncu,
 } from "../bulut/hesap";
 
 let sifirSor = false,
+  adminSifirSor = false,
+  /** "Hesap değiştir" listesi açık mı; baska: "+ Başka hesap" seçenekleri açık mı */
+  liste = false,
+  baska = false,
   birak: (() => void) | null = null;
 
 const kacis = (t: string) => t.replace(/[&<>"]/g, (c) => "&#" + c.charCodeAt(0) + ";");
@@ -26,26 +43,69 @@ function ic() {
     dis = d.mesgul || !k ? " disabled" : "";
   const dugmeler = !k
     ? ""
-    : k.anonim
-      ? `<button class="hdg" id="hgoogle"${dis}>Google ile bağlan</button><button class="hdg" id="heposta"${dis}>E-posta ile</button>`
-      : `<button class="hdg" id="hcikis"${dis}>Çıkış</button>`;
-  // yeni oyuncu: iki dokunuşla (önce ne olacağı yazılır)
-  const sifir = !k
-    ? ""
-    : sifirSor
-      ? `<p class="hhata">${k.anonim ? "Bu misafir hesabın ilerlemesi silinir." : "Bu cihazdan çıkılır; ilerlemen bağlı hesabında kalır."} Bu cihazda her şey sıfırdan başlar (ayarlar kalır).</p><div class="hdugmeler"><button class="hdg" id="hsifirevet"${dis}>Evet, sıfırdan başla</button><button class="hdg" id="hsifirhayir">Vazgeç</button></div>`
-      : `<div class="hdugmeler"><button class="hdg" id="hsifir"${dis}>Yeni oyuncu olarak başla</button></div>`;
-  return `<div class="lbl">Hesap</div><p class="hsat">${kacis(hesapOzeti(d))}</p>${d.bilgi ? `<p class="hbilgi">${kacis(d.bilgi)}</p>` : ""}${d.hata && !formAcik() ? `<p class="hhata">${kacis(d.hata)}</p>` : ""}<div class="hdugmeler">${dugmeler}</div>${sifir}`;
+    : (k.anonim
+        ? `<button class="hdg" id="hgoogle"${dis}>Google ile bağlan</button><button class="hdg" id="heposta"${dis}>E-posta ile</button>`
+        : "") +
+      `<button class="hdg" id="hdegis"${dis}>${liste ? "Listeyi kapat" : "Hesap değiştir"}</button>`;
+  // hesap kimliği (uid): admin yapmak için konsola yazılır; kopyalanabilir
+  const kimlik =
+    k && !k.anonim
+      ? `<div class="hkimlik"><small>Hesap kimliği</small><input id="huid" class="inp" readonly value="${kacis(k.uid)}"><button class="hdg kucuk" id="hkopya">Kopyala</button></div>`
+      : "";
+  return `<div class="lbl">Hesap</div><p class="hsat">${kacis(hesapOzeti(d))}${d.admin ? " · <b>Admin</b>" : ""}</p>${d.bilgi ? `<p class="hbilgi">${kacis(d.bilgi)}</p>` : ""}${d.hata && !formAcik() ? `<p class="hhata">${kacis(d.hata)}</p>` : ""}<div class="hdugmeler">${dugmeler}</div>${k && liste ? listeHtml(dis) : ""}${kimlik}${d.admin ? adminHtml() : ""}`;
+}
+
+/** hesap değiştir: bu cihazda girilmiş hesaplar + başka hesap + yeni misafir */
+function listeHtml(dis: string) {
+  const k = hesapDurumu().kullanici!,
+    satirlar = bilinenHesaplar()
+      .map((h) => {
+        const su = h.uid == k.uid;
+        return `<div class="hhesap${su ? " su" : ""}"><button class="hdg hsec" data-gec="${kacis(h.uid)}"${su ? " disabled" : dis}>${ikon(h.yol)}<span class="het">${kacis(h.etiket)}</span><small>Seviye ${h.lv}${su ? " · şu an" : ""}</small>${h.admin ? `<b class="hrozet">Admin</b>` : ""}</button>${su ? "" : `<button class="hdg kucuk hkaldir" data-kaldir="${kacis(h.uid)}" aria-label="Listeden kaldır"${dis}>${ikon("kapat")}</button>`}</div>`;
+      })
+      .join(""),
+    misafir = sifirSor
+      ? `<p class="hhata">${k.anonim ? "Bu misafir hesabın ilerlemesi silinir." : "Bu hesabın ilerlemesi bulutta kalır; listeden yeniden girebilirsin."} Bu cihazda yeni bir misafirle sıfırdan başlanır (ayarlar kalır).</p><div class="hdugmeler"><button class="hdg" id="hsifirevet"${dis}>Evet, yeni misafir</button><button class="hdg" id="hsifirhayir">Vazgeç</button></div>`
+      : "";
+  return `<div class="hliste">${satirlar || `<p class="hsat">Bu cihazda girilmiş hesap yok.</p>`}
+<div class="hdugmeler"><button class="hdg kucuk" id="hbaska"${dis}>+ Başka hesap</button><button class="hdg kucuk" id="hsifir"${dis}>Misafir olarak devam (yeni)</button></div>
+${baska ? `<div class="hdugmeler"><button class="hdg kucuk" id="hbgoogle"${dis}>${ikon("google")} Google ile giriş</button><button class="hdg kucuk" id="hbeposta"${dis}>${ikon("eposta")} E-posta ile giriş</button></div>` : ""}${misafir}</div>`;
+}
+
+/** admin paneli: para/XP ekle, seviye ayarla, kilit aç-kapa, her şey açık kipi, ilerlemeyi sıfırla */
+function adminHtml() {
+  const ogeler = [
+    ...CARS.map((c, i) => [`arac_${i}`, "Araç: " + c.n]),
+    ...TDEF.map((t) => [yildizAnahtari(t.t, t.lv), "Pist: " + t.n]),
+  ];
+  return `<div class="hadmin"><div class="lbl">Admin</div>
+<div class="hdugmeler"><button class="hdg kucuk" id="hakip">Her şey açık: ${adminKipi() ? "Açık" : "Kapalı"}</button>
+<button class="hdg kucuk" data-para="1000">+1000 para</button><button class="hdg kucuk" data-para="10000">+10000 para</button>
+<button class="hdg kucuk" data-xp="100">+100 XP</button><button class="hdg kucuk" data-xp="1000">+1000 XP</button></div>
+<div class="hdugmeler"><input id="hasv" class="inp" type="number" min="1" max="99" value="${seviye().lv}" inputmode="numeric"><button class="hdg kucuk" id="hasvb">Seviyeyi ayarla</button></div>
+<div class="hdugmeler"><select id="haoge" class="inp">${ogeler.map(([k, a]) => `<option value="${k}">${kacis(a)}</option>`).join("")}</select><button class="hdg kucuk" id="haac">Aç</button><button class="hdg kucuk" id="hakapa">Kilitle</button></div>
+<div class="hdugmeler">${
+    adminSifirSor
+      ? `<button class="hdg kucuk" id="hasifevet">Evet, ilerlemeyi sıfırla</button><button class="hdg kucuk" id="hasifhayir">Vazgeç</button>`
+      : `<button class="hdg kucuk" id="hasif">İlerlemeyi sıfırla</button>`
+  }</div></div>`;
 }
 
 /** profil ekranı için hesap bloğu (yapılandırma yoksa boş) */
 export const hesapHtml = () => (hesapDurumu().etkin ? `<div id="hesap" class="hesap">${ic()}</div>` : "");
 
-/** profil ekranı çizilince düğmeleri bağlar; durum değişince yalnız blok yenilenir */
-export function hesapBagla(m: HTMLElement) {
+/**
+ * profil ekranı çizilince düğmeleri bağlar; durum değişince yalnız blok yenilenir. yenidenCiz: admin işleminden sonra
+ * bütün profil (XP, para, seviye) yeniden çizilsin
+ */
+export function hesapBagla(m: HTMLElement, yenidenCiz?: () => void) {
   birak?.();
   birak = null;
   sifirSor = false;
+  adminSifirSor = false;
+  liste = false;
+  baska = false;
+  let sonUid = hesapDurumu().kullanici?.uid;
   const kutu = m.querySelector<HTMLElement>("#hesap");
   if (!kutu) return;
   const bagla = () => {
@@ -55,7 +115,36 @@ export function hesapBagla(m: HTMLElement) {
     };
     tik("hgoogle", () => void googleBagla());
     tik("heposta", () => epostaFormuAc("olustur"));
-    tik("hcikis", () => void cikis());
+    tik("hdegis", () => {
+      liste = !liste;
+      baska = sifirSor = false;
+      yenile();
+    });
+    tik("hbaska", () => {
+      baska = !baska;
+      yenile();
+    });
+    // geçişte liste kapanır; durum satırı (Hesap değiştiriliyor… / Bağlandı / hata) sonucu söyler
+    const gec = (f: () => void) => {
+      liste = baska = false;
+      yenile();
+      f();
+    };
+    tik("hbgoogle", () => gec(() => void googleBagla()));
+    tik("hbeposta", () => gec(() => epostaFormuAc("giris")));
+    kutu.querySelectorAll<HTMLElement>("[data-gec]").forEach(
+      (e) =>
+        (e.onclick = () => {
+          const h = bilinenHesaplar().find((x) => x.uid == e.dataset.gec);
+          if (!h) return;
+          gec(() =>
+            h.yol == "google" ? void googleBagla(h.etiket) : epostaFormuAc("giris", { hep: h.etiket }),
+          );
+        }),
+    );
+    kutu
+      .querySelectorAll<HTMLElement>("[data-kaldir]")
+      .forEach((e) => (e.onclick = () => hesapKaldir(e.dataset.kaldir!)));
     tik("hsifir", () => {
       sifirSor = true;
       yenile();
@@ -65,6 +154,41 @@ export function hesapBagla(m: HTMLElement) {
       yenile();
     });
     tik("hsifirevet", () => void yeniOyuncu());
+    tik("hkopya", () => {
+      const u = kutu.querySelector<HTMLInputElement>("#huid")!;
+      u.select();
+      void navigator.clipboard?.writeText(u.value).catch(() => {});
+      const b = kutu.querySelector<HTMLElement>("#hkopya")!;
+      b.textContent = "Kopyalandı";
+    });
+    // admin: işlemden sonra profil (XP, para, seviye) yeniden çizilir
+    const sonra = () => yenidenCiz?.();
+    tik("hakip", () => adminHerSeyAcik(!adminKipi()) && sonra());
+    kutu
+      .querySelectorAll<HTMLElement>("[data-para]")
+      .forEach((e) => (e.onclick = () => adminParaEkle(+e.dataset.para!) && sonra()));
+    kutu
+      .querySelectorAll<HTMLElement>("[data-xp]")
+      .forEach((e) => (e.onclick = () => adminXpEkle(+e.dataset.xp!) && sonra()));
+    tik("hasvb", () => {
+      const lv = +kutu.querySelector<HTMLInputElement>("#hasv")!.value;
+      if (lv >= 1 && adminSeviye(lv)) sonra();
+    });
+    const oge = () => kutu.querySelector<HTMLSelectElement>("#haoge")!.value;
+    tik("haac", () => adminKilitAyarla(oge(), true));
+    tik("hakapa", () => adminKilitAyarla(oge(), false));
+    tik("hasif", () => {
+      adminSifirSor = true;
+      yenile();
+    });
+    tik("hasifhayir", () => {
+      adminSifirSor = false;
+      yenile();
+    });
+    tik("hasifevet", () => {
+      adminSifirSor = false;
+      if (adminSifirla()) sonra();
+    });
   };
   const yenile = () => {
     if (!kutu.isConnected) {
@@ -72,6 +196,13 @@ export function hesapBagla(m: HTMLElement) {
       birak = null;
       return;
     }
+    // başka hesaba geçildi: bütün profil (seviye, XP, para) o hesabın kaydıyla yeniden çizilir
+    const d = hesapDurumu();
+    if (yenidenCiz && !d.mesgul && sonUid && d.kullanici && d.kullanici.uid != sonUid) {
+      sonUid = d.kullanici.uid;
+      return yenidenCiz();
+    }
+    if (d.kullanici) sonUid = d.kullanici.uid;
     kutu.innerHTML = ic();
     bagla();
   };
@@ -117,7 +248,7 @@ export function epostaFormuAc(kip: Kip, degerler: Record<string, string> = {}) {
     .join("")}</div>
 <div class="hsag"><button type="submit" class="hdg ana" id="hileri"></button></div>
 <p class="hmsg" id="hmsg"></p>
-<div class="halt"><button type="button" class="hdg kucuk" id="hgeri">‹ Geri</button><button type="button" class="hdg kucuk" id="hkip">${kip == "olustur" ? "Zaten hesabım var → Giriş yap" : "Hesabım yok → Yeni hesap"}</button>${kip == "giris" ? `<button type="button" class="hdg kucuk" id="hunut">Şifremi unuttum</button>` : ""}<button type="button" class="hdg kucuk" id="hkapat">Kapat</button></div>
+<div class="halt"><button type="button" class="hdg kucuk" id="hgeri">${ikon("sol")} Geri</button><button type="button" class="hdg kucuk" id="hkip">${kip == "olustur" ? `Zaten hesabım var ${ikon("ok")} Giriş yap` : `Hesabım yok ${ikon("ok")} Yeni hesap`}</button>${kip == "giris" ? `<button type="button" class="hdg kucuk" id="hunut">Şifremi unuttum</button>` : ""}<button type="button" class="hdg kucuk" id="hkapat">Kapat</button></div>
 </form>`;
   document.body.appendChild(k);
   kat = k;
@@ -156,8 +287,8 @@ export function epostaFormuAc(kip: Kip, degerler: Record<string, string> = {}) {
   const goster = (odak = true) => {
     alanlar.forEach((a, i) => girdi(i).classList.toggle("gizli", i != adim));
     $("hadim").textContent = `${adim + 1}/${alanlar.length} · ${alanlar[adim].ad}`;
-    $("hileri").textContent =
-      adim < alanlar.length - 1 ? "İleri ›" : kip == "olustur" ? "Hesap oluştur" : "Giriş yap";
+    $("hileri").innerHTML =
+      adim < alanlar.length - 1 ? `İleri ${ikon("sag")}` : kip == "olustur" ? "Hesap oluştur" : "Giriş yap";
     $("hgeri").style.visibility = adim ? "" : "hidden";
     mesaj();
     if (odak) girdi(adim).focus();

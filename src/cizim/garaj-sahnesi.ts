@@ -1,4 +1,4 @@
-// Garaj sahnesi: dünyadan uzakta dönen platform, kapalı showroom odası (tavan ışıkları yanık), turuncu çizgiler.
+// Garaj sahnesi: dünyadan uzakta dönen platform, yarı karanlık beton otopark (kolonlar, tavandan ışık hüzmeleri, hafif sis).
 // Işık dünyanın saatinden ve havasından bağımsızdır: garajIsigi() açılırken dünya ışığını ezer, kapanırken ortam geri yüklenir.
 import * as THREE from "three";
 import { scene, hemi, sun, ISIK } from "./sahne";
@@ -9,57 +9,108 @@ import { lam } from "./yardimci";
 export const GX = 0,
   GZ = -9000;
 
+/** platformun yarı kenarı (kare); köşe lambaları köşelerde durur */
+const PK = 4.6;
 export const garG = new THREE.Group();
 scene.add(garG);
 garG.visible = false;
+/** beton dokusu (küçük kanvas, bir kez): koyu gri leke + ince çatlak çizgileri */
+function betonDoku(taban: string, cizgi = false) {
+  const c = document.createElement("canvas");
+  c.width = c.height = 128;
+  const x = c.getContext("2d")!;
+  x.fillStyle = taban;
+  x.fillRect(0, 0, 128, 128);
+  let r = 12345;
+  const rnd = () => (r = (r * 1664525 + 1013904223) >>> 0) / 4294967296;
+  for (let k = 0; k < 420; k++) {
+    x.fillStyle = `rgba(${rnd() < 0.5 ? "255,255,255" : "0,0,0"},${0.02 + rnd() * 0.05})`;
+    x.fillRect(rnd() * 128, rnd() * 128, 1 + rnd() * 5, 1 + rnd() * 5);
+  }
+  if (cizgi) {
+    x.strokeStyle = "rgba(0,0,0,.35)";
+    x.strokeRect(0.5, 0.5, 127, 127);
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  return t;
+}
+/** platform halkasının malzemesi: rengi mağazadaki tür süzgecine göre değişir (`garajTemasi`) */
+const halkaM = new THREE.MeshBasicMaterial({ color: 0xff8a2a });
+
+/** garaj vurgu rengi: tür rengi ya da (null) varsayılan turuncu */
+export function garajTemasi(renk: string | null) {
+  halkaM.color.set(renk ?? 0xff8a2a);
+}
+
 {
-  const fl = new THREE.Mesh(new THREE.CircleGeometry(30, 48), lam(0x4a4d53));
+  // zemin: koyu beton plakalar; ortada araç platformu (turuncu halka) ve park çizgileri
+  const zt = betonDoku("#3b4047", true);
+  zt.repeat.set(12, 12);
+  const fl = new THREE.Mesh(new THREE.CircleGeometry(30, 48), new THREE.MeshLambertMaterial({ map: zt }));
   fl.rotation.x = -Math.PI / 2;
   fl.position.set(GX, 0.01, GZ);
-  const tb = new THREE.Mesh(new THREE.CylinderGeometry(3.6, 3.8, 0.12, 48), lam(0x5d626a));
+  const tb = new THREE.Mesh(new THREE.BoxGeometry(2 * PK, 0.1, 2 * PK), lam(0x4a4f57));
   tb.position.set(GX, 0.06, GZ);
-  const rg = new THREE.Mesh(
-    new THREE.TorusGeometry(3.7, 0.05, 6, 64),
-    new THREE.MeshBasicMaterial({ color: 0xff7a3c }),
-  );
+  const rg = new THREE.Mesh(new THREE.TorusGeometry(3.7, 0.04, 6, 64), halkaM);
   rg.rotation.x = Math.PI / 2;
-  rg.position.set(GX, 0.13, GZ);
+  rg.position.set(GX, 0.12, GZ);
+  // duvar (silindir) ve alçak beton tavan
+  const dt = betonDoku("#2e3238");
+  dt.repeat.set(10, 2);
   const room = new THREE.Mesh(
-    new THREE.CylinderGeometry(30, 30, 16, 48, 1, true),
-    new THREE.MeshLambertMaterial({ color: 0x8d877e, side: THREE.BackSide }),
+    new THREE.CylinderGeometry(30, 30, 9, 48, 1, true),
+    new THREE.MeshLambertMaterial({ map: dt, side: THREE.BackSide }),
   );
-  room.position.set(GX, 8, GZ);
-  // tavan ve parlak ışık şeritleri (kapalı bina)
+  room.position.set(GX, 4.5, GZ);
   const ceil = new THREE.Mesh(
     new THREE.CircleGeometry(30, 48),
-    new THREE.MeshBasicMaterial({ color: 0xe9e3d8, side: THREE.DoubleSide }),
+    new THREE.MeshBasicMaterial({ color: 0x14171c, side: THREE.DoubleSide }),
   );
   ceil.rotation.x = Math.PI / 2;
-  ceil.position.set(GX, 16, GZ);
+  ceil.position.set(GX, 9, GZ);
   garG.add(fl, tb, rg, room, ceil);
-  for (let k = 0; k < 4; k++) {
-    const lp = new THREE.Mesh(
-      new THREE.BoxGeometry(0.9, 0.05, 22),
-      new THREE.MeshBasicMaterial({ color: 0xfff6e6 }),
-    );
-    lp.position.set(GX + (k - 1.5) * 3.2, 15.9, GZ);
-    garG.add(lp);
-  }
-  for (let k = 0; k < 12; k++) {
-    const a = (k / 12) * 6.2832,
-      st = new THREE.Mesh(
-        new THREE.BoxGeometry(0.3, 10, 0.1),
-        new THREE.MeshBasicMaterial({ color: k % 2 ? 0xff7a3c : 0x6f8c98 }),
-      );
-    st.position.set(GX + Math.sin(a) * 29.6, 5.5, GZ + Math.cos(a) * 29.6);
-    st.rotation.y = a;
-    garG.add(st);
-  }
+  // kolonlar: iki halka, tavana kadar; tabanında turuncu-sarı uyarı bandı
+  const kol = new THREE.BoxGeometry(1.1, 9, 1.1),
+    kolM = new THREE.MeshLambertMaterial({ map: betonDoku("#4b5058") }),
+    bant = new THREE.BoxGeometry(1.14, 0.5, 1.14),
+    bantM = new THREE.MeshBasicMaterial({ color: 0xd8a21c });
+  for (const [yaricap, n] of [
+    [13, 8],
+    [22, 12],
+  ] as const)
+    for (let k = 0; k < n; k++) {
+      const a = (k / n) * 6.2832 + (yaricap > 20 ? 0.26 : 0),
+        px = GX + Math.sin(a) * yaricap,
+        pz = GZ + Math.cos(a) * yaricap,
+        m = new THREE.Mesh(kol, kolM),
+        b = new THREE.Mesh(bant, bantM);
+      m.position.set(px, 4.5, pz);
+      b.position.set(px, 0.55, pz);
+      garG.add(m, b);
+    }
+  // tepede tek ışık: aracın tam üstünde geniş, yumuşak hüzme (yarı saydam, toplamalı koni; ışık kaynağı değil, ucuz)
+  const arm = new THREE.BoxGeometry(5.2, 0.14, 1.2),
+    armM = new THREE.MeshBasicMaterial({ color: 0xf4f8ff }),
+    huzme = new THREE.ConeGeometry(4.6, 8.4, 28, 1, true),
+    huzmeM = new THREE.MeshBasicMaterial({
+      color: 0x9fc4ff,
+      transparent: true,
+      opacity: 0.06,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+  const lamba = new THREE.Mesh(arm, armM),
+    hz = new THREE.Mesh(huzme, huzmeM);
+  lamba.position.set(GX, 8.7, GZ);
+  hz.position.set(GX, 4.5, GZ);
+  garG.add(lamba, hz);
   fl.receiveShadow = true;
   tb.receiveShadow = true;
-  // anahtar ışık: tek gölge atan ışık (küçük gölge haritası); sol önden, yüksekten
-  const key = new THREE.DirectionalLight(0xfff2e0, 1.0 * ISIK);
-  key.position.set(GX - 5, 9, GZ + 6);
+  // tepeden tek genel ışık: yumuşak, hafif gölgeli (küçük gölge haritası); araç altına gölge düşer
+  const key = new THREE.DirectionalLight(0xe8f0ff, 0.75 * ISIK);
+  key.position.set(GX, 11, GZ);
   key.target.position.set(GX, 0, GZ);
   key.castShadow = true;
   key.shadow.mapSize.set(512, 512);
@@ -69,26 +120,49 @@ garG.visible = false;
   sc.near = 2;
   sc.far = 24;
   key.shadow.bias = -0.0008;
-  key.shadow.radius = 4;
-  // dolgu (sağ ön, soğuk, gölgesiz) ve arka kenar ışığı (turuncu)
-  const fill = new THREE.DirectionalLight(0xe4ecff, 0.4 * ISIK);
-  fill.position.set(GX + 7, 3, GZ + 5);
-  fill.target.position.set(GX, 0.5, GZ);
-  const rim = new THREE.DirectionalLight(0xffd2a8, 0.55 * ISIK);
-  rim.position.set(GX + 2, 4, GZ - 8);
-  rim.target.position.set(GX, 0.5, GZ);
-  garG.add(key, key.target, fill, fill.target, rim, rim.target);
+  key.shadow.radius = 6;
+  garG.add(key, key.target);
+  // platformun dört köşesinde projektör: gövdeleri görünür, ışıkları araca yönelik (gölgesiz SpotLight, sayı sabit)
+  const dir = new THREE.BoxGeometry(0.34, 0.34, 0.34),
+    dirM = lam(0x2a2e35),
+    mercek = new THREE.BoxGeometry(0.26, 0.26, 0.04),
+    direk = new THREE.BoxGeometry(0.12, 0.7, 0.12);
+  const renk = [0xfff2dc, 0xdbe8ff, 0xdbe8ff, 0xfff2dc];
+  [
+    [-1, -1],
+    [1, -1],
+    [1, 1],
+    [-1, 1],
+  ].forEach(([sx, sz], k) => {
+    const px = GX + sx * (PK - 0.35),
+      pz = GZ + sz * (PK - 0.35),
+      ph = new THREE.Group();
+    ph.position.set(px, 0.1, pz);
+    const d = new THREE.Mesh(direk, dirM);
+    d.position.y = 0.35;
+    const g = new THREE.Mesh(dir, dirM);
+    g.position.y = 0.85;
+    const m = new THREE.Mesh(mercek, new THREE.MeshBasicMaterial({ color: renk[k] }));
+    m.position.set(0, 0.85, -0.19);
+    ph.add(d, g, m);
+    ph.lookAt(GX, 0.85, GZ);
+    garG.add(ph);
+    const sp = new THREE.SpotLight(renk[k], 2.1 * ISIK, 0, 0.62, 0.85, 0);
+    sp.position.set(px, 0.95, pz);
+    sp.target.position.set(GX, 0.55, GZ);
+    garG.add(sp, sp.target);
+  });
   // zemin diski üstünde yumuşak, koyu gölge lekesi (gölge haritası kapalı ya da zayıf olsa da kök oturur)
   const lc = document.createElement("canvas");
   lc.width = lc.height = 128;
   const cx = lc.getContext("2d")!,
     gr = cx.createRadialGradient(64, 64, 6, 64, 64, 64);
-  gr.addColorStop(0, "rgba(0,0,0,.55)");
+  gr.addColorStop(0, "rgba(0,0,0,.7)");
   gr.addColorStop(1, "rgba(0,0,0,0)");
   cx.fillStyle = gr;
   cx.fillRect(0, 0, 128, 128);
   const blob = new THREE.Mesh(
-    new THREE.PlaneGeometry(6.4, 3.4),
+    new THREE.PlaneGeometry(6.2, 3.2),
     new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(lc), transparent: true, depthWrite: false }),
   );
   blob.rotation.x = -Math.PI / 2;
@@ -104,12 +178,13 @@ export function garajIsigi(ac: boolean) {
     return;
   }
   sun.visible = false;
-  (scene.background as THREE.Color).setHex(0xe9e3d8);
-  // sis kapatılmaz (malzemeler yeniden derlenmesin), yalnız çok uzağa itilir
+  // koyu soğuk mavi-gri depo: sis uzak duvarları ve kolonları karanlığa gömer (araç sahnenin tek parlak şeyi)
+  (scene.background as THREE.Color).setHex(0x0a0d12);
   const fog = scene.fog as THREE.Fog;
-  fog.near = 1e5;
-  fog.far = 2e5;
-  hemi.color.setHex(0xfff4e4);
-  hemi.groundColor.setHex(0x9a9288);
-  hemi.intensity = 0.6 * ISIK;
+  fog.color.setHex(0x0a0d12);
+  fog.near = 10;
+  fog.far = 42;
+  hemi.color.setHex(0x9db4d6);
+  hemi.groundColor.setHex(0x1b1d22);
+  hemi.intensity = 0.28 * ISIK;
 }

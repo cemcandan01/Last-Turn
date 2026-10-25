@@ -3,17 +3,18 @@
   "dallar": [
     "--sure"
   ],
-  "dk": 10.3,
+  "daraltilmis": false,
+  "dk": 16,
   "ozet": {
     "altyapi": {
-      "senaryo": 17,
-      "gecti": 17,
+      "senaryo": 19,
+      "gecti": 19,
       "kaldi": 0,
       "kosulmadi": 0
     },
     "fizik": {
-      "senaryo": 10,
-      "gecti": 10,
+      "senaryo": 15,
+      "gecti": 15,
       "kaldi": 0,
       "kosulmadi": 0
     },
@@ -30,14 +31,20 @@
       "kosulmadi": 0
     },
     "menu": {
-      "senaryo": 10,
-      "gecti": 10,
+      "senaryo": 11,
+      "gecti": 11,
+      "kaldi": 0,
+      "kosulmadi": 0
+    },
+    "modifiye": {
+      "senaryo": 5,
+      "gecti": 5,
       "kaldi": 0,
       "kosulmadi": 0
     },
     "pist": {
-      "senaryo": 5,
-      "gecti": 5,
+      "senaryo": 6,
+      "gecti": 6,
       "kaldi": 0,
       "kosulmadi": 0
     },
@@ -47,20 +54,46 @@
       "kaldi": 0,
       "kosulmadi": 0
     },
+    "kurallar": {
+      "senaryo": 1,
+      "gecti": 1,
+      "kaldi": 0,
+      "kosulmadi": 0
+    },
     "ses": {
       "senaryo": 3,
       "gecti": 3,
       "kaldi": 0,
       "kosulmadi": 0
-    },
-    "kayitsiz": {
-      "senaryo": 1,
-      "gecti": 1,
-      "kaldi": 0,
-      "kosulmadi": 0
     }
   },
   "senaryolar": [
+    {
+      "id": "firebase-giris-yardimcisi",
+      "ad": "iPhone yerel yardımcıda MIME doğrulanır; bozuk iframe seçilmez, eski redirect resolver korunur",
+      "p": 1,
+      "birim": {
+        "dosya": "tests/birim/firebase-giris.test.ts",
+        "grup": "Firebase giriş yardımcısı ve iPhone açılışı"
+      },
+      "dal": "altyapi",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 0.014134957000000071
+    },
+    {
+      "id": "pwa-cevrimdisi",
+      "ad": "Çevrimdışı oyun açılır; hatalı yanıt saklanmaz, sürümler ve giriş yardımcısı yalıtılır",
+      "p": 1,
+      "birim": {
+        "dosya": "tests/birim/pwa.test.ts",
+        "grup": "PWA çevrimdışı kayıt ve sürüm yalıtımı"
+      },
+      "dal": "altyapi",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 0.04809452599999994
+    },
     {
       "id": "girdi-kaydi",
       "ad": "Girdi kaydı iki kez oynatılınca aynı son durum (belirlenimcilik)",
@@ -72,7 +105,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.869786208
+      "sure": 4.214778392
     },
     {
       "id": "ekran-yon",
@@ -82,7 +115,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 18.006
+      "sure": 18.511
     },
     {
       "id": "xp-egrisi",
@@ -95,7 +128,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.014858133999999978
+      "sure": 0.01238563000000002
     },
     {
       "id": "kilit-tablosu",
@@ -108,7 +141,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.0035980340000000125
+      "sure": 0.077655136
     },
     {
       "id": "ilerleme-gecis",
@@ -121,7 +154,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.0017051529999999957
+      "sure": 0.002772619999999989
     },
     {
       "id": "yaris-parasi",
@@ -134,7 +167,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.018013627999999983
+      "sure": 0.022230981000000014
     },
     {
       "id": "arac-satin-alma",
@@ -147,7 +180,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.005037797000000012
+      "sure": 0.009638079000000004
     },
     {
       "id": "para-gecisi",
@@ -160,7 +193,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.0019013300000000014
+      "sure": 0.004721780999999993
     },
     {
       "id": "ilerleme-kilit",
@@ -170,7 +203,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 5.888
+      "sure": 5.026
     },
     {
       "id": "bulut-kapali",
@@ -183,11 +216,11 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.003267064999999974
+      "sure": 0.0026289029999999798
     },
     {
       "id": "bulut-esitleme",
-      "ad": "Sahte Firebase: ilerleme bir cihazda yazılıp başka cihazda aynı hesapla okunur, birleşir; çevrimdışı kuyruk; reddedilen yazma yeniden çekilir; yeni oyuncu bu cihazı sıfırlar, bulut kalır",
+      "ad": "Sahte Firebase: ilerleme bir cihazda yazılıp başka cihazda aynı hesapla okunur, birleşir; çevrimdışı kuyruk; reddedilen yazma yeniden çekilir; yeni oyuncu bu cihazı sıfırlar, bulut kalır; admin (sunucuda admins/{uid}) her şeyi açık görür ve panelle XP/para/seviye/kilit/sıfırlama yapar, normal oyuncu yapamaz",
       "p": 1,
       "birim": {
         "dosya": "tests/birim/bulut.test.ts",
@@ -196,7 +229,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.05585744600000004
+      "sure": 0.14944526400000005
     },
     {
       "id": "hesap-formu",
@@ -206,7 +239,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.398
+      "sure": 0.393
     },
     {
       "id": "kararlilik",
@@ -220,7 +253,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 4.194974385
+      "sure": 8.615493667
     },
     {
       "id": "surus",
@@ -231,7 +264,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.717
+      "sure": 2.4
     },
     {
       "id": "spin",
@@ -244,7 +277,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.475340172000001
+      "sure": 1.747119616
     },
     {
       "id": "drift-denge",
@@ -257,7 +290,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.48012829599999984
+      "sure": 0.5382967809999972
     },
     {
       "id": "saglamlik",
@@ -270,7 +303,33 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 5.862858903000002
+      "sure": 7.561750958999999
+    },
+    {
+      "id": "parcalar",
+      "ad": "Modifiye: stok araç bugünkü fizikle aynı, parça ve paket etkileri tutarlı",
+      "p": 1,
+      "birim": {
+        "dosya": "tests/birim/parcalar.test.ts",
+        "grup": "parçalar"
+      },
+      "dal": "fizik",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 3.6379413100000004
+    },
+    {
+      "id": "puan",
+      "ad": "Performans puanı belirlenimci, parça tak/sök tutarlı, sınıf tablosu",
+      "p": 1,
+      "birim": {
+        "dosya": "tests/birim/parcalar.test.ts",
+        "grup": "performans puanı"
+      },
+      "dal": "fizik",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 0.5604699900000005
     },
     {
       "id": "garaj",
@@ -281,27 +340,27 @@
       "dal": "garaj",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 40.393
+      "sure": 103.949
     },
     {
       "id": "garaj-kilit",
-      "ad": "Garaj araç kilitleri: kilitli araç karartılmış gezilir, Seç devre dışı, öneri açık araca düşer",
+      "ad": "Garajda yalnız sahip olunan araçlar: kilit, fiyat ve satın alma düğmesi yok; uygun araç alınmamışsa mağaza ipucu",
       "p": 1,
       "tarayici": "garaj-kilit",
       "dal": "garaj",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 6.133
+      "sure": 6.83
     },
     {
-      "id": "garaj-satin",
-      "ad": "Garajda satın alma: sahip / seviye yok / para yok / satın alınabilir kartları, iki dokunuşla onay, başarıda araç açılır",
+      "id": "magaza",
+      "ad": "Mağaza: sahip olunmayan araçlar, seviye yok / para yok / satın alınabilir kartları, iki dokunuşla onay, kutlama, araç mağazadan düşer, Garaja git, tür süzgeci, Geri",
       "p": 1,
-      "tarayici": "garaj-satin",
+      "tarayici": "magaza",
       "dal": "garaj",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 12.584
+      "sure": 18.315
     },
     {
       "id": "hud-minimap",
@@ -311,7 +370,7 @@
       "dal": "hud",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 15.269
+      "sure": 15.79
     },
     {
       "id": "acilis",
@@ -322,7 +381,43 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.738
+      "sure": 1.71
+    },
+    {
+      "id": "modifiye-birim",
+      "ad": "Modifiye: parça fiyatları, araç başına satın alma, takılı parçaların kaydı ve sürüşe uygulanması",
+      "p": 1,
+      "birim": {
+        "dosya": "tests/birim/modifiye.test.ts",
+        "grup": "modifiye: takılı parçalar ve sürüş"
+      },
+      "dal": "modifiye",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 0.0077916030000000375
+    },
+    {
+      "id": "modifiye-bulut",
+      "ad": "Modifiye bulutta: takılı parçalar hesaba yazılır, başka cihazda gelir; eski kurallar alanı reddederse kayıt onsuz gider, kuyruk takılmaz; hesap geçişinde değişir",
+      "p": 1,
+      "birim": {
+        "dosya": "tests/birim/modifiye.test.ts",
+        "grup": "modifiye: bulut"
+      },
+      "dal": "modifiye",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 0.006795944999999989
+    },
+    {
+      "id": "modifiye-garaj",
+      "ad": "Garajda Modifiye: sınıf + puan rozeti, kategoriler ve parçalar araca binmiyor, puan farkı önizlemesi, iki dokunuşla satın alma, paket, kayıt, yarışta parçalı araç",
+      "p": 1,
+      "tarayici": "modifiye",
+      "dal": "modifiye",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 25.894
     },
     {
       "id": "yarislar",
@@ -333,7 +428,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.452
+      "sure": 3.891
     },
     {
       "id": "arac-bagimsiz",
@@ -346,7 +441,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.8491641409999997
+      "sure": 4.344517238000001
     },
     {
       "id": "uzak-arac",
@@ -359,7 +454,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.3114536839999992
+      "sure": 0.3583871880000006
     },
     {
       "id": "hayalet",
@@ -369,7 +464,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 15.964
+      "sure": 14.266
     },
     {
       "id": "cihaz-denetim",
@@ -379,7 +474,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.467
+      "sure": 0.37
     },
     {
       "id": "bulut-rekor",
@@ -392,7 +487,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.0046302960000000155
+      "sure": 0.005213253000000009
     },
     {
       "id": "toprak",
@@ -405,7 +500,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.9523881590000005
+      "sure": 2.07336573
     },
     {
       "id": "drift-yarisi",
@@ -418,7 +513,30 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 6.725406272
+      "sure": 8.118308899999999
+    },
+    {
+      "id": "debriyaj",
+      "ad": "Debriyaj vuruşu: Kızıl Ok gerçekçide drift pistinde debriyajla drifte girer, basılıyken tork yok",
+      "p": 2,
+      "birim": {
+        "dosya": "tests/birim/fizik.test.ts",
+        "grup": "debriyaj vuruşu: başlangıç aracıyla drift pistinde drifte giriş"
+      },
+      "dal": "fizik",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 0.4180920549999992
+    },
+    {
+      "id": "debriyaj-tus",
+      "ad": "Debriyaj tuşu her kontrol türünde, basılıyken devir yükselir",
+      "p": 2,
+      "tarayici": "debriyaj",
+      "dal": "fizik",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 5.859
     },
     {
       "id": "titresim",
@@ -431,7 +549,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 100.92252777400003
+      "sure": 180.06850482500002
     },
     {
       "id": "uyum",
@@ -444,7 +562,20 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 13.244415242
+      "sure": 23.730010158000002
+    },
+    {
+      "id": "parca-his",
+      "ad": "Modifiye hissedilir: lastik, süspansiyon, aero, diferansiyel, açı kiti; toprak kuralı paketle de geçerli",
+      "p": 2,
+      "birim": {
+        "dosya": "tests/birim/parcalar.test.ts",
+        "grup": "hissiyat: parçalar hissedilir, kurallar korunur"
+      },
+      "dal": "fizik",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 18.606825332
     },
     {
       "id": "cihaz-uyum",
@@ -454,7 +585,7 @@
       "dal": "garaj",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 141.9
+      "sure": 211.556
     },
     {
       "id": "govde",
@@ -467,7 +598,7 @@
       "dal": "grafik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.8957812450000002
+      "sure": 2.997397427
     },
     {
       "id": "ek-parcalar",
@@ -480,7 +611,7 @@
       "dal": "grafik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.6265786850000004
+      "sure": 0.933731854000001
     },
     {
       "id": "kokpit",
@@ -490,7 +621,7 @@
       "dal": "grafik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 10.453
+      "sure": 14.823
     },
     {
       "id": "hud-cakisma",
@@ -500,7 +631,7 @@
       "dal": "hud",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 16.723
+      "sure": 18.206
     },
     {
       "id": "hud-duzenleyici",
@@ -510,7 +641,7 @@
       "dal": "hud",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.531
+      "sure": 0.31
     },
     {
       "id": "cihaz-uyum",
@@ -523,6 +654,19 @@
       "sure": 0.001
     },
     {
+      "id": "ortak-calisma",
+      "ad": "Görev kartı korunur, yol dışına yazılmaz; başlangıç bağlamı sınırlıdır",
+      "p": 2,
+      "birim": {
+        "dosya": "tests/birim/calisma.test.ts",
+        "grup": "ortak çalışma araçları"
+      },
+      "dal": "kurallar",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 0.31781507499999984
+    },
+    {
       "id": "garaj-ses",
       "ad": "Garajda Motoru dinle butonu: olay, çalarken durum, bitince eski hâl",
       "p": 2,
@@ -530,7 +674,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.195
+      "sure": 0.223
     },
     {
       "id": "dokunma",
@@ -540,7 +684,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.931
+      "sure": 1.93
     },
     {
       "id": "arka-gorsel",
@@ -550,7 +694,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.808
+      "sure": 1.722
     },
     {
       "id": "seviyeler",
@@ -560,7 +704,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.099
+      "sure": 0.112
     },
     {
       "id": "yildiz",
@@ -570,7 +714,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.012
+      "sure": 0.01
     },
     {
       "id": "xp-gorsel",
@@ -580,7 +724,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 15.699
+      "sure": 17.63
     },
     {
       "id": "kapak",
@@ -593,6 +737,16 @@
       "sure": 2.641
     },
     {
+      "id": "magaza-panel",
+      "ad": "Ana menü Mağaza paneli: altı panel sırası, dokununca mağaza açılır, Geri ana menüye döner",
+      "p": 2,
+      "tarayici": "menu-magaza",
+      "dal": "menu",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 3.248
+    },
+    {
       "id": "cihaz-uyum",
       "ad": "Ekran uyumu: menü, yarış, pist, profil, ayarlar, duraklatma ve yarış sonu ekranları sanal cihazlarda taşmıyor, kesilmiyor, üst üste binmiyor (alanda 3 cihaz; regresyonda iPhone 13 tam + 11 temsilci cihaz 4 ekran)",
       "p": 2,
@@ -601,6 +755,32 @@
       "durum": "geçti",
       "hatalar": [],
       "sure": 0.001
+    },
+    {
+      "id": "modifiye-fiyat",
+      "ad": "Modifiye: zayıf parça ücretsiz, seviyeyle artan fiyat, para yetmezse alınmaz, iki kez ödenmez",
+      "p": 2,
+      "birim": {
+        "dosya": "tests/birim/modifiye.test.ts",
+        "grup": "modifiye: fiyat ve satın alma"
+      },
+      "dal": "modifiye",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 0.009088063999999974
+    },
+    {
+      "id": "modifiye-his",
+      "ad": "Modifiye hissiyatı: her parça kategorisi stoktan anlamlı fark verir (0-100, tepe hız, turbo gecikmesi, yalpa, patinaj, fren, tutuş, teker açısı)",
+      "p": 2,
+      "birim": {
+        "dosya": "tests/birim/modifiye-his.test.ts",
+        "grup": "modifiye: her kategori hissedilir"
+      },
+      "dal": "modifiye",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 8.317147211999998
     },
     {
       "id": "pist-duzeni",
@@ -613,7 +793,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.07370089899999999
+      "sure": 0.09010377100000011
     },
     {
       "id": "yildiz-kurallari",
@@ -626,7 +806,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.5621635260000001
+      "sure": 0.6382468449999998
     },
     {
       "id": "yildiz-yaris",
@@ -636,7 +816,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.012
+      "sure": 0.01
     },
     {
       "id": "drift-puan-formulu",
@@ -649,7 +829,20 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.0030521230000000515
+      "sure": 0.0031243679999998905
+    },
+    {
+      "id": "drift-bonuslari",
+      "ad": "drift bonusları: uzun drift, direksiyonsuz, tek yön; koşul 1 sn sürünce başlar",
+      "p": 2,
+      "birim": {
+        "dosya": "tests/birim/yildiz.test.ts",
+        "grup": "drift bonusları"
+      },
+      "dal": "pist",
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 0.0025641879999999447
     },
     {
       "id": "ses-tarayici",
@@ -659,7 +852,7 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 7.991
+      "sure": 8.681
     },
     {
       "id": "motor-sesi",
@@ -672,7 +865,7 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.8971814989999998
+      "sure": 1.700112559
     },
     {
       "id": "kerb-tarayici",
@@ -682,7 +875,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 148.482
+      "sure": 218.9
     },
     {
       "id": "gecis",
@@ -692,7 +885,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 8.376
+      "sure": 7.183
     },
     {
       "id": "efektler",
@@ -705,17 +898,7 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.4984275170000001
-    },
-    {
-      "id": "kayitsiz-birim",
-      "ad": "senaryoya bağlanmamış birim testleri (3 test)",
-      "p": 9,
-      "kayitsizBirim": true,
-      "dal": "kayitsiz",
-      "durum": "geçti",
-      "hatalar": [],
-      "sure": 0
+      "sure": 0.6920162790000001
     }
   ]
 }
