@@ -31,6 +31,8 @@ export default async function ({ p, ok }) {
       EV.score = 2844;
       EV.combo = 1240;
       EV.mult = 3;
+      // bankaya geçmemiş bonus kombo panelinde görünür
+      EV.bonus = 1450;
       // pist dalının ters yön bayrağı: GERİ DÖN diğer göstergelerle çakışmamalı
       EV.ters = true;
       // drift bonus bildirimleri (pist dalının sözleşmesi): üç farklı bonus
@@ -92,6 +94,8 @@ export default async function ({ p, ok }) {
               !document.querySelector("#drP").textContent.includes("1240")
             )
               sorun.push(ad + ": üst ortada kombo görünmüyor");
+            if (!document.querySelector("#drA").textContent.includes("+1450"))
+              sorun.push(ad + ": biriken bonus kombo panelinde görünmüyor");
           }
     }
     if (!ucBonus) sorun.push("iki drift bonusu hiç yan yana görünmedi");

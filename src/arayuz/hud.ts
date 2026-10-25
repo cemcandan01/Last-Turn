@@ -137,7 +137,8 @@ function driftGostergesi() {
   let k = "";
   if (EV && EV.ty == "dp" && EV.combo > 0) {
     k = "kombo";
-    yazi(E.drA, D.t > 0 ? "DRIFT" : "KOMBO");
+    // biriken bonus kombo bankaya geçince toplam puana eklenir; o ana dek burada görünür
+    yazi(E.drA, (D.t > 0 ? "DRIFT" : "KOMBO") + (EV.bonus > 0 ? " +" + EV.bonus + " BONUS" : ""));
     yazi(E.drP, String(Math.round(EV.combo)));
     const car = (EV as X6Alan).driftCarpan ?? EV.mult;
     yazi(E.drX, "x" + car);
