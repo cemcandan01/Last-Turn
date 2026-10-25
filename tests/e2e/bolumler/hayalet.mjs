@@ -18,7 +18,16 @@ export default async function ({ p, ok }) {
     const kurulum = H.aktif && H.cx.kurulum.car.hp === LT.CARS[10].hp;
     LT.yaris.EV.state = "run";
     LT.oyun.mode = "pause";
-    for (let n = 0; n < 120; n++) LT.surusAdimi();
+    // Ayar: kapalıyken çizilmez ama oynatma sürer; açınca kaldığı adımdan görünür.
+    const cizili = () => LT.uzak.araclar.some((a) => a.id === "hayalet");
+    for (let n = 0; n < 100; n++) LT.surusAdimi();
+    LT.set.rh = 0;
+    LT.surusAdimi();
+    const kapali = !cizili() && H.adimIndex === 101;
+    LT.set.rh = 1;
+    LT.surusAdimi();
+    const acik = cizili() && H.adimIndex === 102;
+    for (let n = 0; n < 18; n++) LT.surusAdimi();
     const ayni = H.adimIndex === 120 && Math.hypot(H.sim.S.x - beklenen.x, H.sim.S.z - beklenen.z) < 1e-6;
     const ti = LT.ipucu.ti,
       bolge = LT.dunya.cur;
@@ -39,7 +48,7 @@ export default async function ({ p, ok }) {
     LT.endEvent();
     const yarim = LT.hayaletOku(anahtar) === null;
     LT.startWorld(0);
-    return { kayit: !!kayit, kurulum, ayni, bagimsiz, donus, yarim, durdu: !H.aktif };
+    return { kayit: !!kayit, kurulum, ayni, kapali, acik, bagimsiz, donus, yarim, durdu: !H.aktif };
   });
   for (const [k, v] of Object.entries(r)) ok(v, "hayalet: " + k);
 }

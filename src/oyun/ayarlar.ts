@@ -27,6 +27,8 @@ export const set = {
   /** ses seviyeleri (0-100): oyun sesleri ve menü müziği */
   ses: 85,
   muz: 70,
+  /** rekor hayaleti: pistteki en iyi derecenin saydam aracı */
+  rh: 1,
   /** geliştirici: yerel aracı gecikmeli izleyen hayalet uzak araç (yalnız deneme sürümünde) */
   hayalet: 0,
 };
@@ -92,6 +94,7 @@ export const TOG: [keyof typeof set, string, string][] = [
   ["fov", "Hıza göre görüş açısı", "Hızlandıkça görüş genişler"],
   ["shd", "Gölgeler", "Kapatmak eski telefonlarda akıcılığı artırır"],
   ["shk", "Hız sarsıntısı", "Yüksek hızda kamera hafif titrer"],
+  ["rh", "Rekor hayaleti", "Pistteki en iyi derecen saydam araç olarak seninle yarışır"],
   ["perf", "Performans göstergesi", "Ekranın üstünde kare hızı, kare süresi ve çizim sayısı"],
   ...((GELISTIRICI
     ? [["hayalet", "Hayalet araç (geliştirici)", "Uzak araç denemesi: aracın 2 sn geriden izler"]]
