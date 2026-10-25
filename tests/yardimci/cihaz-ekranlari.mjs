@@ -16,9 +16,10 @@ const yarisAc = (tur, ek) => (p) =>
       LT.demoStop();
       LT.oyun.camMode = 0;
       const i = LT.EVENTS.findIndex((e) => e.ty == tur);
+      // temiz profilde açık araç: türün başlangıç aracı (diğerleri satın alınır)
       LT.startEvent(
         i,
-        LT.CARS.findIndex((c) => c.ty == tur),
+        LT.CARS.findIndex((c, k) => c.ty == tur && LT.aracAcikMi(k)),
       );
       const EV = LT.yaris.EV;
       EV.state = "run";
