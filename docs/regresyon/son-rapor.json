@@ -4,7 +4,7 @@
     "--sure"
   ],
   "daraltilmis": false,
-  "dk": 15.9,
+  "dk": 16,
   "ozet": {
     "altyapi": {
       "senaryo": 19,
@@ -26,14 +26,14 @@
     },
     "hud": {
       "senaryo": 4,
-      "gecti": 3,
-      "kaldi": 1,
+      "gecti": 4,
+      "kaldi": 0,
       "kosulmadi": 0
     },
     "menu": {
       "senaryo": 11,
-      "gecti": 10,
-      "kaldi": 1,
+      "gecti": 11,
+      "kaldi": 0,
       "kosulmadi": 0
     },
     "modifiye": {
@@ -79,7 +79,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.013691641000000032
+      "sure": 0.014134957000000071
     },
     {
       "id": "pwa-cevrimdisi",
@@ -92,7 +92,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.07292571599999999
+      "sure": 0.04809452599999994
     },
     {
       "id": "girdi-kaydi",
@@ -105,7 +105,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 4.007259405
+      "sure": 4.214778392
     },
     {
       "id": "ekran-yon",
@@ -115,7 +115,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 18.558
+      "sure": 18.511
     },
     {
       "id": "xp-egrisi",
@@ -128,7 +128,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.020258370999999983
+      "sure": 0.01238563000000002
     },
     {
       "id": "kilit-tablosu",
@@ -141,7 +141,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.15791948899999997
+      "sure": 0.077655136
     },
     {
       "id": "ilerleme-gecis",
@@ -154,7 +154,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.0031432810000000017
+      "sure": 0.002772619999999989
     },
     {
       "id": "yaris-parasi",
@@ -167,7 +167,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.020201285999999926
+      "sure": 0.022230981000000014
     },
     {
       "id": "arac-satin-alma",
@@ -180,7 +180,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.009032388999999967
+      "sure": 0.009638079000000004
     },
     {
       "id": "para-gecisi",
@@ -193,7 +193,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.004822345999999925
+      "sure": 0.004721780999999993
     },
     {
       "id": "ilerleme-kilit",
@@ -203,7 +203,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 5.981
+      "sure": 5.026
     },
     {
       "id": "bulut-kapali",
@@ -216,7 +216,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.0050400929999999565
+      "sure": 0.0026289029999999798
     },
     {
       "id": "bulut-esitleme",
@@ -229,7 +229,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.14760992499999986
+      "sure": 0.14944526400000005
     },
     {
       "id": "hesap-formu",
@@ -239,7 +239,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.5
+      "sure": 0.393
     },
     {
       "id": "kararlilik",
@@ -253,7 +253,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 8.365117135999999
+      "sure": 8.615493667
     },
     {
       "id": "surus",
@@ -264,7 +264,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.465
+      "sure": 2.4
     },
     {
       "id": "spin",
@@ -277,7 +277,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.787562528999997
+      "sure": 1.747119616
     },
     {
       "id": "drift-denge",
@@ -290,7 +290,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.5950137649999979
+      "sure": 0.5382967809999972
     },
     {
       "id": "saglamlik",
@@ -303,7 +303,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 7.2479224579999935
+      "sure": 7.561750958999999
     },
     {
       "id": "parcalar",
@@ -316,7 +316,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.4803692729999995
+      "sure": 3.6379413100000004
     },
     {
       "id": "puan",
@@ -329,7 +329,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.4780117450000007
+      "sure": 0.5604699900000005
     },
     {
       "id": "garaj",
@@ -340,7 +340,7 @@
       "dal": "garaj",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 102.672
+      "sure": 103.949
     },
     {
       "id": "garaj-kilit",
@@ -350,7 +350,7 @@
       "dal": "garaj",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 6.996
+      "sure": 6.83
     },
     {
       "id": "magaza",
@@ -360,7 +360,7 @@
       "dal": "garaj",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 17.96
+      "sure": 18.315
     },
     {
       "id": "hud-minimap",
@@ -370,7 +370,7 @@
       "dal": "hud",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 15.426
+      "sure": 15.79
     },
     {
       "id": "acilis",
@@ -381,7 +381,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.701
+      "sure": 1.71
     },
     {
       "id": "modifiye-birim",
@@ -394,7 +394,7 @@
       "dal": "modifiye",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.009810293000000001
+      "sure": 0.0077916030000000375
     },
     {
       "id": "modifiye-bulut",
@@ -407,7 +407,7 @@
       "dal": "modifiye",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.006916780999999958
+      "sure": 0.006795944999999989
     },
     {
       "id": "modifiye-garaj",
@@ -417,7 +417,7 @@
       "dal": "modifiye",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 25.622
+      "sure": 25.894
     },
     {
       "id": "yarislar",
@@ -428,7 +428,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.841
+      "sure": 3.891
     },
     {
       "id": "arac-bagimsiz",
@@ -441,7 +441,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 4.101078208
+      "sure": 4.344517238000001
     },
     {
       "id": "uzak-arac",
@@ -454,7 +454,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.4081242569999995
+      "sure": 0.3583871880000006
     },
     {
       "id": "hayalet",
@@ -464,7 +464,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 14.868
+      "sure": 14.266
     },
     {
       "id": "cihaz-denetim",
@@ -474,7 +474,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.362
+      "sure": 0.37
     },
     {
       "id": "bulut-rekor",
@@ -487,7 +487,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.007042553999999995
+      "sure": 0.005213253000000009
     },
     {
       "id": "toprak",
@@ -500,7 +500,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.9696327850000004
+      "sure": 2.07336573
     },
     {
       "id": "drift-yarisi",
@@ -513,7 +513,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 8.080438967
+      "sure": 8.118308899999999
     },
     {
       "id": "debriyaj",
@@ -526,7 +526,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.43168457599999965
+      "sure": 0.4180920549999992
     },
     {
       "id": "debriyaj-tus",
@@ -536,7 +536,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 5.906
+      "sure": 5.859
     },
     {
       "id": "titresim",
@@ -549,7 +549,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 178.83422204200002
+      "sure": 180.06850482500002
     },
     {
       "id": "uyum",
@@ -562,7 +562,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 23.313709133000007
+      "sure": 23.730010158000002
     },
     {
       "id": "parca-his",
@@ -575,7 +575,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 19.154081730999994
+      "sure": 18.606825332
     },
     {
       "id": "cihaz-uyum",
@@ -585,7 +585,7 @@
       "dal": "garaj",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 202.56
+      "sure": 211.556
     },
     {
       "id": "govde",
@@ -598,7 +598,7 @@
       "dal": "grafik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.0727746930000004
+      "sure": 2.997397427
     },
     {
       "id": "ek-parcalar",
@@ -611,7 +611,7 @@
       "dal": "grafik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.1926658500000016
+      "sure": 0.933731854000001
     },
     {
       "id": "kokpit",
@@ -621,7 +621,7 @@
       "dal": "grafik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 14.921
+      "sure": 14.823
     },
     {
       "id": "hud-cakisma",
@@ -631,7 +631,7 @@
       "dal": "hud",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 17.945
+      "sure": 18.206
     },
     {
       "id": "hud-duzenleyici",
@@ -641,7 +641,7 @@
       "dal": "hud",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.28
+      "sure": 0.31
     },
     {
       "id": "cihaz-uyum",
@@ -649,13 +649,8 @@
       "p": 2,
       "tarayici": "cihaz-hud",
       "dal": "hud",
-      "durum": "kaldı",
-      "hatalar": [
-        "hud: 12 cihaz × 4 ekran (15 hücre, 3 hatalı, toplam 203 sn)",
-        "hud | iphone-13 | yaris-asfalt | #hud:not(.hidden) #gs | ekran açılmadı: page.evaluate: TypeError: Cannot set properties of null (setting 'state')",
-        "hud | iphone-13 | yaris-drift | #hud:not(.hidden) #gs | ekran açılmadı: page.evaluate: TypeError: Cannot set properties of null (setting 'state')",
-        "hud | iphone-13 | yaris-drag | #hud:not(.hidden) #gs | ekran açılmadı: page.evaluate: TypeError: Cannot set properties of null (setting 'state')"
-      ],
+      "durum": "geçti",
+      "hatalar": [],
       "sure": 0.001
     },
     {
@@ -669,7 +664,7 @@
       "dal": "kurallar",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.2989161429999998
+      "sure": 0.31781507499999984
     },
     {
       "id": "garaj-ses",
@@ -679,7 +674,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.178
+      "sure": 0.223
     },
     {
       "id": "dokunma",
@@ -689,7 +684,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.927
+      "sure": 1.93
     },
     {
       "id": "arka-gorsel",
@@ -699,7 +694,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.768
+      "sure": 1.722
     },
     {
       "id": "seviyeler",
@@ -709,7 +704,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.144
+      "sure": 0.112
     },
     {
       "id": "yildiz",
@@ -719,7 +714,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.011
+      "sure": 0.01
     },
     {
       "id": "xp-gorsel",
@@ -729,7 +724,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 18.153
+      "sure": 17.63
     },
     {
       "id": "kapak",
@@ -739,7 +734,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.642
+      "sure": 2.641
     },
     {
       "id": "magaza-panel",
@@ -749,7 +744,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.091
+      "sure": 3.248
     },
     {
       "id": "cihaz-uyum",
@@ -757,18 +752,9 @@
       "p": 2,
       "tarayici": "cihaz-menu",
       "dal": "menu",
-      "durum": "kaldı",
-      "hatalar": [
-        "menu: 12 cihaz × 9 ekran (31 hücre, 3 hatalı, toplam 203 sn)",
-        "menu | iphone-13 | duraklatma | #set:not(.hidden) #cl | ekran açılmadı: page.evaluate: TypeError: Cannot set properties of null (setting 'state')",
-        "menu | iphone-13 | yaris-sonu | #res:not(.hidden) | ekran açılmadı: page.evaluate: TypeError: Cannot set properties of null (setting 'state')",
-        "menu | galaxy-z-fold-acik | menu-ana | #menu button.mk[data-nav] \"YARIŞ\" | düğmeler üst üste biniyor: #menu button.mk[data-nav] \"SERBEST SÜRÜŞ\" (16×112 px)",
-        "menu | galaxy-z-fold-acik | menu-ana | #menu button.mk[data-nav] \"SERBEST SÜRÜŞ\" | düğmeler üst üste biniyor: #menu button.mk[data-nav] \"GARAJ\" (16×112 px)",
-        "menu | galaxy-z-fold-acik | menu-ana | #menu button.mk[data-nav] \"GARAJ\" | düğmeler üst üste biniyor: #menu button.mk[data-nav] \"MAĞAZA\" (16×112 px)",
-        "menu | galaxy-z-fold-acik | menu-ana | #menu button.mk[data-nav] \"MAĞAZA\" | düğmeler üst üste biniyor: #menu button.mk[data-nav] \"PROFİL\" (16×112 px)",
-        "menu | galaxy-z-fold-acik | menu-ana | #menu button.mk[data-nav] \"PROFİL\" | düğmeler üst üste biniyor: #menu button.mk[data-nav] \"AYARLAR\" (16×112 px)"
-      ],
-      "sure": 0.004
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 0.001
     },
     {
       "id": "modifiye-fiyat",
@@ -781,7 +767,7 @@
       "dal": "modifiye",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.010521146000000044
+      "sure": 0.009088063999999974
     },
     {
       "id": "modifiye-his",
@@ -794,7 +780,7 @@
       "dal": "modifiye",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 8.336714245000001
+      "sure": 8.317147211999998
     },
     {
       "id": "pist-duzeni",
@@ -807,7 +793,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.1029709250000002
+      "sure": 0.09010377100000011
     },
     {
       "id": "yildiz-kurallari",
@@ -820,7 +806,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.72792594
+      "sure": 0.6382468449999998
     },
     {
       "id": "yildiz-yaris",
@@ -830,7 +816,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.011
+      "sure": 0.01
     },
     {
       "id": "drift-puan-formulu",
@@ -843,7 +829,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.002438044000000218
+      "sure": 0.0031243679999998905
     },
     {
       "id": "drift-bonuslari",
@@ -856,7 +842,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.002433249999999816
+      "sure": 0.0025641879999999447
     },
     {
       "id": "ses-tarayici",
@@ -866,7 +852,7 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 8.777
+      "sure": 8.681
     },
     {
       "id": "motor-sesi",
@@ -879,7 +865,7 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.8253682669999998
+      "sure": 1.700112559
     },
     {
       "id": "kerb-tarayici",
@@ -889,7 +875,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 223.756
+      "sure": 218.9
     },
     {
       "id": "gecis",
@@ -899,7 +885,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 8.267
+      "sure": 7.183
     },
     {
       "id": "efektler",
@@ -912,7 +898,7 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.6533061309999999
+      "sure": 0.6920162790000001
     }
   ]
 }
