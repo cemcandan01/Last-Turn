@@ -1,0 +1,87 @@
+/* Sürüş göstergesi: yalnız MUTANT sırasında görünür. */
+.mutant-drive-hud {
+  position: absolute;
+  z-index: 8;
+  top: calc(76px + var(--sat, 0px));
+  left: max(12px, var(--sal, 0px));
+  width: clamp(155px, 23vw, 230px);
+  padding: 9px 12px;
+  color: #f4f5f2;
+  background: #101720e6;
+  border: 1px solid #64707a;
+  border-left: 3px solid #e5da85;
+  border-radius: 3px;
+  pointer-events: none;
+  box-sizing: border-box;
+  font-size: 11px;
+}
+.mutant-drive-hud[hidden] {
+  display: none;
+}
+.mdh-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 5px;
+}
+.mdh-kicker {
+  font-size: 9px;
+  color: #b7c1c9;
+  letter-spacing: 0.04em;
+}
+.mdh-zone {
+  font-size: 16px;
+}
+.mdh-time {
+  font-size: 16px;
+  font-weight: 900;
+  color: #e5da85;
+  font-variant-numeric: tabular-nums;
+}
+.mdh-health {
+  margin-top: 7px;
+}
+.mdh-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 3px;
+  font-weight: 800;
+}
+.mdh-track {
+  height: 6px;
+  background: #58606b;
+  overflow: hidden;
+}
+.mdh-fill {
+  height: 100%;
+  width: 100%;
+  background: #83cfa4;
+}
+.mdh-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+  padding-top: 6px;
+  font-size: 9px;
+  color: #bbc3ca;
+}
+.mdh-critical {
+  border-color: #fc776b;
+  border-left-color: #fc776b;
+}
+.mdh-critical .mdh-fill {
+  background: #fc776b;
+}
+.mdh-critical .mdh-percent {
+  color: #fc776b;
+}
+@media (max-height: 440px) {
+  .mutant-drive-hud {
+    top: calc(59px + var(--sat, 0px));
+    width: 164px;
+    padding: 6px 9px;
+  }
+  .mdh-kicker {
+    font-size: 8px;
+  }
+}
