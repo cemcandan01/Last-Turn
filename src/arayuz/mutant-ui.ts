@@ -84,6 +84,15 @@ function sayfaAc(html: string) {
   const r = $("#res");
   r.classList.remove("hidden");
   r.innerHTML = `<div class="mutant-shell">${html}</div>`;
+  r.querySelectorAll<HTMLElement>(".mt-choice").forEach((kart) => {
+    kart.tabIndex = 0;
+    kart.setAttribute("role", "button");
+    kart.addEventListener("keydown", (e) => {
+      if (e.key != "Enter" && e.key != " ") return;
+      e.preventDefault();
+      kart.click();
+    });
+  });
   return r;
 }
 
@@ -204,7 +213,7 @@ function isaret(i: MutantIsaret) {
     .map((r) => {
       const R = RISKLER[r],
         h = etkinlikHedefi(E, r);
-      return `<div class="card go mt-choice mt-risk-${r}" data-risk="${r}"><small class="mt-card-tag">${"★".repeat(r + 1)} / ${R.ad}</small><b>${hedefYazi(E.ty, h.limit)}</b><span class="mt-reward">+${Math.round(o.xp * R.odul)} XP · +${Math.round(o.para * R.odul)} PARA</span><span class="mt-cost">${R.ceza ? "BAŞARISIZLIK: −" + R.ceza + " sn" : "BAŞARISIZLIK: " + Math.round(o.para * R.kacirma) + " para"}</span><strong class="mt-action">RİSKİ AL</strong></div>`;
+      return `<div class="card go mt-choice mt-risk-${r}" data-risk="${r}"><small class="mt-card-tag">${"★".repeat(r + 1)} / ${R.ad}</small><b>HEDEF ${hedefYazi(E.ty, h.limit)}</b><span class="mt-reward">+${Math.round(o.xp * R.odul)} XP · +${Math.round(o.para * R.odul)} PARA</span><span class="mt-cost">${R.ceza ? "BAŞARISIZLIK: −" + R.ceza + " sn" : "BAŞARISIZLIK: " + Math.round(o.para * R.kacirma) + " para"}</span><strong class="mt-action">RİSKİ AL</strong></div>`;
     })
     .join("");
   const s = sayfaAc(
