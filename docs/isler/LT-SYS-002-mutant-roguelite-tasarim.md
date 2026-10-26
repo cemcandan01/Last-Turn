@@ -163,3 +163,32 @@ Adrenalin (gövde < 50 güç +%15), Cam top (güç +%25, hasar ×2), Hurdacı (h
 - Yerel: `npm test` 353/353; alan mutant, menu, garaj, hud, kariyer 56/56; MUTANT e2e 11/11; iPhone 13 risk kartı/atölye/boss görüntüleri incelendi.
 - **0.8.4 denemede** (gelistirme 14b0548): Denetim 40347080656 ve 40347092291 başarılı; Yayın 40347088798 (derleme/yayın/adres kontrolü) başarılı. Canlı 0.7.8 değişmedi. Issue #16'ya teslim raporu yazıldı; PR #17 (Codex görsel) gözden geçirildi: biçim CI'ı ve iki İngilizce metin düzeltilmeli.
 - Sonraki: Cem ikinci oyuncu testi (bölge 2-3 ulaşılabilirlik, risk kademesi gerilimi, hasar bedeli); PR #17 birleşince `sayfaAc` sarmalayıcısı.
+
+## 10. A2: nitro, eklenti sandıkları, sistemik güçler (issue #19; Claude, claude/mutant-a2)
+
+### Kabul ölçütleri
+1. NİTRO tuşuyla (klavyede N) etkin yetenek: enerjiyle çalışır, süreli güç verir, sonra soğur; koşu yoksa (kariyer, ölçüm, hayalet) etkisiz; belirlenimci.
+2. Haritada tohumlu eklenti sandıkları: normal (bedava seçim) ve lanetli (nadir eklenti + bedel); eklenti koşu boyunca kalır, pasif sözleşmesine ve kombinasyon matrisine girer.
+3. En az üç oynanışı değiştiren sistemik güç ortak olaylarla (kimliğe bağlı kombo yok), sonlu tetik ve testle.
+4. Nitro hissi (görüş, alev, ses) iPhone 13 bütçesinde; HUD dalı için salt okunur `mutantDurumu()`.
+5. Ölçüm: yağmurlu boss referansı, nitronun boss'u kolaylaştırma sınırı (≥3 nitro biçimi × 29 pist); açık riskler kartta.
+
+### Uygulanan
+- **Nitro** (`oyun/mutant-enerji.ts → NITRO`): 40 enerji, güç ×1,6, 2,5 sn, sonra 4 sn soğuma; koşu 40 enerjiyle (bir nitro) başlar. `enerjiAdimi` (saf) drift gözlemcisi + bekleyen ortak olaylar + nitro isteğini yürütücüye verir; güç değişince `mutantAracGuncelle` (`kurulum.mod.car.hp`), fizik kodu değişmez. Tuş `#mnt` sol grubun üstünde, enerji dolgusu ve maliyet çizgisi.
+- **Ortak olaylar** (`cekirdek/mekanikler.ts`): `HasarAlindi` (çarpma/spin, miktar), `RiskBasladi` (etkinlik risk kademesi); değiştirici `guc` [0, 0,3], süreli güç üst sınırı ×1,9.
+- **Sistemik güçler** (seviye seçiminde): Çarpışma Pili (hasar +12 enerji), Risk Kondansatörü (riskli/ölümcül başlangıçta +40), Nitro kalkanı (nitro açıkken hasar yarı); ayrıca Drift Hasadı, Temiz Çıkış, Kayma Hafızası, Hız Dinamosu, Geniş Tüp, Verimli/Uzun/Sert Nitro, Sigorta.
+- **Eklenti sandıkları** (`sandikDiz`/`sandikAc`): bölge başına 2 normal (2 sıradan eklentiden biri: Yedek tüp, Kızgın egzoz, Takviye tampon) + 1 lanetli (nadir: Turbo kartuşu, Çift ateşleme, Hasar dönüştürücü; bedel: boss −45 sn / gövde −25 pert etmez / paranın yarısı). Bırakılan sandık kalır. Sahip olunan eklenti yeniden çıkmaz; seviye seçiminde eklenti yok.
+- **His:** nitro açıkken FOV +9 (yumuşak), egzozdan küçük turuncu/mavi alev (toz havuzunu paylaşır, 3 karede bir: ek nesne yok), açılış hışırtısı + sönüş ıslığı.
+- **HUD arayüzü:** `mutantDurumu()` (faz, bölge, boss, kalanSn, govde 0-100, riskYildiz, enerji/kapasite, nitroMaliyet/Acik/KalanSn/Hazir). Codex PR #20'nin okuduğu `mutant.kosu` alanları değişmedi.
+
+### Ölçüm (docs/denge/2026-10-26-mutant-olcum-yagmur.json, -nitro-{tek,periyodik,surekli}.json, -nitro-ozet.txt)
+- **Kombinasyon matrisi:** 696 kombinasyon (14 perk/eklenti, 1-3'lü) × 6 oyuncu biçimi kırılmasız; en kötü nitro süre payı %44 (sınır %50). Hasar dönüştürücü +20'de %49,7'ye çıktı, +15'e indirildi.
+- **Nitro, stok araç, 29 ölçülü pist:** tek nitro (başlangıç enerjisi) ort. %2,4 (drag %2-9); her fırsatta (sonsuz enerji, %38 süre) ort. %3,7; hep açık (ulaşılamaz) %6,5. Boss hedefini stok+nitro geçer: tek nitro bölge 1/2/3 = 29/5/0; her fırsatta 28/14/1; hep açık 29/22/5. Yorum: enerji build'i (kaynak perkleri) bölge 2'de dengeli/uzman parça yoluna **alternatif yol** olur; bölge 3'ü tek başına çözmez.
+- **Drift ölçümünde nitro yok:** drift pilotu nitro biçimini almıyor (sonuç %0 bir ölçüm boşluğudur, gerçek etki değildir).
+- **Yağmur (Çamur Baronu):** 8 rallikros pistinden yalnız Plaj Kros'ta (rx_7) beş build de temiz bitti; yağmurlu boss yalnız yağmurda ölçülen pistlerden seçilir (`MUTANT_REFERANS_YAGMUR`). Yağmurda stok 74,33 sn, güneşte 71,63 (%3,8 yavaş).
+
+### Açık riskler / Cem kararı
+- Nitro enerji build'iyle stok araç bölge 2 boss'unu 29 pistin 14'ünde geçebiliyor: bu "nitro build yolu" olarak kalsın mı, yoksa nitro gücü ×1,6 → ×1,4 mü? (Şimdilik değiştirilmedi.)
+- Bölge 3 `tekYolYetmez` nitroyu hesaba katmaz; nadir motor + nitro tek yol olabilir. Rallikros bölge 3 (güneş ve yağmur) hâlâ tek yolla geçilir.
+- Drift boss'unda nitro ölçülmedi. Sayılar tahmin; test geçmesi eğlencenin kanıtı değil, Cem'in telefon testi gerekir.
+- Codex PR #20 ile `hud.ts`'te aynı satıra (`pisteDonusSayaci()` sonrası) iki çağrı eklenir: birleştirmede ikisi de kalır.

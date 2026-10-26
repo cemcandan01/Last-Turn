@@ -6,3 +6,4 @@
 - A1 kararları: harita sabit, etkinlik/boss rastgele; boss kaybı koşuyu bitirir, etkinlik başarısızlığı yalnız zaman/para; koşu ekonomisi kariyerden ayrı; etkinlikler tek tur (15 dk'ya sığsın), boss tam tur.
 - Sayılar (boss süresi 15 dk, ödüller, pasif yüzdeleri, atölye fiyatları) tahmindir; Cem'in telefon testine göre ayarlanacak.
 - Sıradaki: A2 nitro + haritada eklenti sandıkları + geri bildirim; sonra A3 çarpışma + NPC yarışçı.
+- A2 (issue #19, claude/mutant-a2): nitro + ortak olaylar (hasar, risk) + eklenti sandıkları + nitro hissi + `mutantDurumu()`. Ölçüm: nitro enerji build'i bölge 2'de alternatif yol, bölge 3'ü çözmez; yağmurlu boss yalnız Plaj Kros. Açık: nitro gücü kararı (Cem), drift ölçümünde nitro yok.

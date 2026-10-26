@@ -1,0 +1,688 @@
+{
+ "yontem": "Gerçek fizik, dengeli yardım, türün başlangıç aracı, tek tur (MUTANT etkinliği). Süre: pilotun spinsiz ve pist dışı < 3 sn en iyi turu; drift: iki açıyla en iyi tek tur puanı; drag: ışıkta tam gaz. null: pilot temiz bitiremedi. Yıldızlar pistin kariyer eşiklerinin tur başına payı.",
+ "hava": "sun",
+ "nitro": "tek",
+ "pistSayisi": 40,
+ "satirlar": [
+  {
+   "ty": "gp",
+   "i": 0,
+   "pist": "Yeşil Vadi",
+   "sev": 1,
+   "tur": 3,
+   "yildizTurBasi": [
+    53.77,
+    46.73,
+    43
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 46.03,
+   "yildizSayisi": 2
+  },
+  {
+   "ty": "gp",
+   "i": 1,
+   "pist": "Kıyı Pisti",
+   "sev": 2,
+   "tur": 3,
+   "yildizTurBasi": [
+    73.17,
+    63.6,
+    58.53
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 61.68,
+   "yildizSayisi": 2
+  },
+  {
+   "ty": "gp",
+   "i": 30,
+   "pist": "Çöl Otoyolu",
+   "sev": 2,
+   "tur": 3,
+   "yildizTurBasi": [
+    87.67,
+    76.2,
+    70.13
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 73.88,
+   "yildizSayisi": 2
+  },
+  {
+   "ty": "gp",
+   "i": 2,
+   "pist": "Grand Prix",
+   "sev": 3,
+   "tur": 3,
+   "yildizTurBasi": [
+    72.53,
+    63.03,
+    58.03
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 63.95,
+   "yildizSayisi": 1
+  },
+  {
+   "ty": "gp",
+   "i": 3,
+   "pist": "Sisli Orman Pisti",
+   "sev": 4,
+   "tur": 3,
+   "yildizTurBasi": [
+    58.23,
+    50.6,
+    46.57
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 71.5,
+   "yildizSayisi": 0
+  },
+  {
+   "ty": "gp",
+   "i": 31,
+   "pist": "Kar Dağı Pisti",
+   "sev": 4,
+   "tur": 3,
+   "yildizTurBasi": [
+    44.87,
+    39,
+    35.9
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 48.32,
+   "yildizSayisi": 0
+  },
+  {
+   "ty": "gp",
+   "i": 4,
+   "pist": "Şehir Pisti",
+   "sev": 5,
+   "tur": 3,
+   "yildizTurBasi": [
+    52.07,
+    45.23,
+    41.63
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 64,
+   "yildizSayisi": 0
+  },
+  {
+   "ty": "gp",
+   "i": 5,
+   "pist": "Dağ Pisti",
+   "sev": 6,
+   "tur": 3,
+   "yildizTurBasi": [
+    69,
+    59.97,
+    55.2
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 74.48,
+   "yildizSayisi": 0
+  },
+  {
+   "ty": "rx",
+   "i": 6,
+   "pist": "Toz Tepeleri",
+   "sev": 1,
+   "tur": 3,
+   "yildizTurBasi": [
+    57.6,
+    50.07,
+    46.1
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 46.4,
+   "yildizSayisi": 2
+  },
+  {
+   "ty": "rx",
+   "i": 7,
+   "pist": "Çamur Vadisi",
+   "sev": 2,
+   "tur": 3,
+   "yildizTurBasi": [
+    65.67,
+    57.1,
+    52.53
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 32,
+   "pist": "Plaj Kros",
+   "sev": 2,
+   "tur": 3,
+   "yildizTurBasi": [
+    86.93,
+    75.57,
+    69.57
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 70.57,
+   "yildizSayisi": 2
+  },
+  {
+   "ty": "rx",
+   "i": 8,
+   "pist": "Taş Ocağı",
+   "sev": 3,
+   "tur": 3,
+   "yildizTurBasi": [
+    54.77,
+    47.6,
+    43.8
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 9,
+   "pist": "Orman Kros",
+   "sev": 4,
+   "tur": 3,
+   "yildizTurBasi": [
+    53.2,
+    46.27,
+    42.57
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 33,
+   "pist": "Kar Kros",
+   "sev": 4,
+   "tur": 3,
+   "yildizTurBasi": [
+    56.4,
+    49.03,
+    45.13
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 68.13,
+   "yildizSayisi": 0
+  },
+  {
+   "ty": "rx",
+   "i": 10,
+   "pist": "Sisli Tepe",
+   "sev": 5,
+   "tur": 3,
+   "yildizTurBasi": [
+    76.03,
+    66.1,
+    60.83
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 11,
+   "pist": "Kanyon Kros",
+   "sev": 6,
+   "tur": 3,
+   "yildizTurBasi": [
+    61.83,
+    53.77,
+    49.47
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rl",
+   "i": 18,
+   "pist": "Kır Etabı",
+   "sev": 1,
+   "tur": 1,
+   "yildizTurBasi": [
+    71.6,
+    62.3,
+    57.3
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 53.88,
+   "yildizSayisi": 3
+  },
+  {
+   "ty": "rl",
+   "i": 19,
+   "pist": "Orman Etabı",
+   "sev": 2,
+   "tur": 1,
+   "yildizTurBasi": [
+    108,
+    93.9,
+    86.4
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rl",
+   "i": 36,
+   "pist": "Kıyı Etabı",
+   "sev": 2,
+   "tur": 1,
+   "yildizTurBasi": [
+    65.9,
+    57.3,
+    52.8
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 49.67,
+   "yildizSayisi": 3
+  },
+  {
+   "ty": "rl",
+   "i": 20,
+   "pist": "Taşlı Yol",
+   "sev": 3,
+   "tur": 1,
+   "yildizTurBasi": [
+    95.4,
+    82.9,
+    76.3
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rl",
+   "i": 21,
+   "pist": "Sisli Orman",
+   "sev": 4,
+   "tur": 1,
+   "yildizTurBasi": [
+    69.8,
+    60.6,
+    55.8
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rl",
+   "i": 37,
+   "pist": "Dağ Etabı",
+   "sev": 4,
+   "tur": 1,
+   "yildizTurBasi": [
+    58.4,
+    50.8,
+    46.8
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rl",
+   "i": 22,
+   "pist": "Kanyon Etabı",
+   "sev": 5,
+   "tur": 1,
+   "yildizTurBasi": [
+    65.7,
+    57.1,
+    52.5
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rl",
+   "i": 23,
+   "pist": "Tepe Etabı",
+   "sev": 6,
+   "tur": 1,
+   "yildizTurBasi": [
+    101.1,
+    87.9,
+    80.9
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "dp",
+   "i": 12,
+   "pist": "Drift Okulu",
+   "sev": 1,
+   "tur": 2,
+   "yildizTurBasi": [
+    350,
+    675,
+    950
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 1070,
+   "yildizSayisi": 3
+  },
+  {
+   "ty": "dp",
+   "i": 13,
+   "pist": "Kıyı Drifti",
+   "sev": 2,
+   "tur": 2,
+   "yildizTurBasi": [
+    350,
+    700,
+    975
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 1177,
+   "yildizSayisi": 3
+  },
+  {
+   "ty": "dp",
+   "i": 34,
+   "pist": "Çöl Drifti",
+   "sev": 2,
+   "tur": 2,
+   "yildizTurBasi": [
+    375,
+    700,
+    975
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 1101,
+   "yildizSayisi": 3
+  },
+  {
+   "ty": "dp",
+   "i": 14,
+   "pist": "Drift Parkı",
+   "sev": 3,
+   "tur": 2,
+   "yildizTurBasi": [
+    800,
+    1550,
+    2150
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 1399,
+   "yildizSayisi": 1
+  },
+  {
+   "ty": "dp",
+   "i": 15,
+   "pist": "Liman",
+   "sev": 4,
+   "tur": 2,
+   "yildizTurBasi": [
+    2375,
+    4625,
+    6400
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 1456,
+   "yildizSayisi": 0
+  },
+  {
+   "ty": "dp",
+   "i": 35,
+   "pist": "Taş Ocağı Drifti",
+   "sev": 4,
+   "tur": 2,
+   "yildizTurBasi": [
+    2500,
+    4825,
+    6675
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 1538,
+   "yildizSayisi": 0
+  },
+  {
+   "ty": "dp",
+   "i": 16,
+   "pist": "Şehir Drifti",
+   "sev": 5,
+   "tur": 2,
+   "yildizTurBasi": [
+    3825,
+    7450,
+    10275
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 2450,
+   "yildizSayisi": 0
+  },
+  {
+   "ty": "dp",
+   "i": 17,
+   "pist": "Dağ Yolu",
+   "sev": 6,
+   "tur": 2,
+   "yildizTurBasi": [
+    2250,
+    4350,
+    6025
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 2429,
+   "yildizSayisi": 1
+  },
+  {
+   "ty": "dg",
+   "i": 24,
+   "pist": "Sekizde Bir Mil",
+   "sev": 1,
+   "tur": 1,
+   "yildizTurBasi": [
+    11.1,
+    9.8,
+    9.1
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 8.02,
+   "yildizSayisi": 3
+  },
+  {
+   "ty": "dg",
+   "i": 38,
+   "pist": "Çeyrek Kilometre",
+   "sev": 1,
+   "tur": 1,
+   "yildizTurBasi": [
+    12.8,
+    11.3,
+    10.5
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 9.37,
+   "yildizSayisi": 3
+  },
+  {
+   "ty": "dg",
+   "i": 25,
+   "pist": "Bin Fit",
+   "sev": 2,
+   "tur": 1,
+   "yildizTurBasi": [
+    14.1,
+    12.4,
+    11.6
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 10.8,
+   "yildizSayisi": 3
+  },
+  {
+   "ty": "dg",
+   "i": 26,
+   "pist": "Çeyrek Mil",
+   "sev": 3,
+   "tur": 1,
+   "yildizTurBasi": [
+    15.3,
+    13.4,
+    12.5
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 13.18,
+   "yildizSayisi": 2
+  },
+  {
+   "ty": "dg",
+   "i": 27,
+   "pist": "Yarım Kilometre",
+   "sev": 4,
+   "tur": 1,
+   "yildizTurBasi": [
+    12.6,
+    11.1,
+    10.4
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 15.48,
+   "yildizSayisi": 0
+  },
+  {
+   "ty": "dg",
+   "i": 28,
+   "pist": "Yarım Mil",
+   "sev": 5,
+   "tur": 1,
+   "yildizTurBasi": [
+    16.3,
+    14.4,
+    13.4
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 22.3,
+   "yildizSayisi": 0
+  },
+  {
+   "ty": "dg",
+   "i": 39,
+   "pist": "Bir Kilometre",
+   "sev": 5,
+   "tur": 1,
+   "yildizTurBasi": [
+    19,
+    16.8,
+    15.6
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 26.48,
+   "yildizSayisi": 0
+  },
+  {
+   "ty": "dg",
+   "i": 29,
+   "pist": "Bir Mil",
+   "sev": 6,
+   "tur": 1,
+   "yildizTurBasi": [
+    25,
+    22,
+    20.5
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 39.18,
+   "yildizSayisi": 0
+  }
+ ]
+}
