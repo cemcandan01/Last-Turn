@@ -15,6 +15,7 @@ import {
   bossPisti,
   bossaGir,
   BOSS_PAY,
+  GUC_UST,
   GOVDE,
   hasarAl,
   tamirBedeli,
@@ -289,5 +290,87 @@ describe("MUTANT koşu (A1)", () => {
     k.govde = 50;
     etkinlikBitti(k, k.etkinlikler[0].id, true, 0);
     expect(k.govde).toBe(62);
+  });
+});
+
+describe("MUTANT Mutasyon V2: kural pasifleri ve kombinasyon sınırları", () => {
+  /** 1-3 pasiflik bütün çoklu kümeler (kademe sınırıyla) */
+  function kumeler(): string[][] {
+    const r: string[][] = [];
+    const ids = PASIFLER.flatMap((p) => Array.from({ length: p.en }, () => p.id));
+    const yol = (bas: number, acc: string[]) => {
+      if (acc.length) r.push(acc);
+      if (acc.length == 3) return;
+      for (let i = bas; i < ids.length; i++)
+        if (i == bas || ids[i] != ids[i - 1]) yol(i + 1, [...acc, ids[i]]);
+    };
+    yol(0, []);
+    return r;
+  }
+  const KUMELER = kumeler();
+  it("kombinasyon sayısı makul ve her küme kademe sınırına uyar", () => {
+    expect(KUMELER.length).toBeGreaterThan(400);
+    for (const k of KUMELER)
+      for (const p of PASIFLER) expect(k.filter((q) => q == p.id).length).toBeLessThanOrEqual(p.en);
+  });
+  it("güç: hiçbir kombinasyon ve gövde düzeyinde pasif gücü GUC_UST'ü aşmaz", () => {
+    const c = CARS[0];
+    for (const pasifler of KUMELER)
+      for (const govde of [100, 49, 1]) {
+        const hp = kosuAraci(c, { pasifler, govde }).hp;
+        expect(hp / c.hp, pasifler.join("+")).toBeLessThanOrEqual(GUC_UST + 1e-9);
+        expect(hp).toBeGreaterThan(0);
+      }
+  });
+  it("hurdacı: bilerek çarpıp tamir etmek hiçbir kombinasyonda para kazandırmaz", () => {
+    for (const pasifler of KUMELER.filter((k) => k.includes("hurdaci"))) {
+      const k = basla();
+      k.pasifler = [...pasifler];
+      k.para = 1000;
+      for (let i = 0; i < 30 && k.faz != "bitti"; i++) {
+        hasarAl(k, "carpma");
+        tamirEt(k);
+      }
+      expect(k.para, pasifler.join("+")).toBeLessThanOrEqual(1000);
+    }
+  });
+  it("son nefes: her bölgede bir kez +90 sn ve boss hedefi %3 sıkı; sonsuz süre yok", () => {
+    const k = basla();
+    k.pasifler.push("sonnefes");
+    let toplam = 0;
+    for (let i = 0; i < 60 * 1200; i++) {
+      toplam += 1 / 60;
+      if (zamanAkis(k, 1 / 60) == "boss") break;
+    }
+    expect(toplam).toBeCloseTo(BOSS_SURESI(1) + 90, 0);
+    const p = { ty: "gp" as const, ys: [100, 90, 80], ref: { stok: 100, dengeli: 90, uzman: 80 } };
+    expect(bossHedefi(k, p)).toBeCloseTo(100 * BOSS_PAY[0] * 0.97, 6);
+  });
+  it("kumarbaz: ölümcülde ×5 ödül, kaçırınca iki kat süre cezası", () => {
+    const k = basla();
+    k.pasifler.push("kumarbaz");
+    const [e1, e2] = k.etkinlikler,
+      p0 = k.para;
+    etkinlikBitti(k, e1.id, true, 2);
+    expect(k.para - p0).toBe(Math.round(ETKINLIK_ODULU(e1.sev).para * 5));
+    const t = k.kalan;
+    etkinlikBitti(k, e2.id, false, 2);
+    expect(t - k.kalan).toBe(RISKLER[2].ceza * 2);
+  });
+  it("etkisiz kural pasifi yok: her biri en az bir durumda sonucu değiştirir", () => {
+    const c = CARS[0];
+    expect(kosuAraci(c, { pasifler: ["camtop"] }).hp).toBeGreaterThan(c.hp);
+    expect(kosuAraci(c, { pasifler: ["adrenalin"], govde: 40 }).hp).toBeGreaterThan(
+      kosuAraci(c, { pasifler: [], govde: 40 }).hp,
+    );
+    const h = basla();
+    h.pasifler.push("hurdaci");
+    const p = h.para;
+    hasarAl(h, "carpma");
+    expect(h.para).toBeGreaterThan(p);
+    const ct = basla();
+    ct.pasifler.push("camtop");
+    hasarAl(ct, "carpma");
+    expect(ct.govde).toBe(GOVDE.tam - 2 * GOVDE.carpma);
   });
 });

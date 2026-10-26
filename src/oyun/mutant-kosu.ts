@@ -107,6 +107,10 @@ export interface Pasif {
  * motor gücünü azaltır (en çok %30), 0 olunca araç pert ve koşu biter. Atölyede parayla tamir.
  */
 export const GOVDE = { tam: 100, carpma: 12, spin: 8, gucKaybi: 0.3, tamirFiyati: 3 };
+/** pasiflerin toplam güç çarpanı üst sınırı (OP koruması; parçalar ayrıca) */
+export const GUC_UST = 1.9;
+/** hurdacının hasar başına parası tamir bedelinin bu payı: bilerek çarpmak hiç kâr etmez */
+export const HURDACI_PAY = 0.8;
 
 export const PASIFLER: Pasif[] = [
   { id: "guc", ad: "Motor ayarı", d: "Güç +%10", en: 3, arac: (c) => void (c.hp *= 1.1) },
@@ -126,6 +130,18 @@ export const PASIFLER: Pasif[] = [
   { id: "zaman", ad: "Zaman bükücü", d: "Hedefi geçtiğin her etkinlik boss'a +20 sn", en: 2 },
   { id: "zirh", ad: "Zırh", d: "Çarpma ve spin hasarı −%35", en: 2 },
   { id: "tamirci", ad: "Seyyar tamirci", d: "Her etkinlik sonunda gövde +12", en: 2 },
+  // Mutasyon V2: kuralı değiştiren pasifler (issue #16). Ortak durumlara (gövde, hasar, risk, süre) bağlanır, başka
+  // pasifin kimliğine bağlanmaz; sınırlar GUC_UST, hurdacı ≤ tamir bedeli, son nefes bir kez.
+  { id: "adrenalin", ad: "Adrenalin", d: "Gövde %50'nin altındayken güç +%15", en: 2 },
+  { id: "camtop", ad: "Cam top", d: "Güç +%25, ama her hasar iki kat", en: 1 },
+  { id: "hurdaci", ad: "Hurdacı", d: "Her hasarda para; tamirinden fazlası değil", en: 1 },
+  { id: "kumarbaz", ad: "Kumarbaz", d: "Ölümcül ödül ×5, ama kaçırınca süre cezası iki kat", en: 1 },
+  {
+    id: "sonnefes",
+    ad: "Son nefes",
+    d: "Her bölgede süre bitince bir kez +90 sn; boss hedefi %3 sıkılaşır",
+    en: 1,
+  },
 ];
 export const pasifBul = (id: string) => PASIFLER.find((p) => p.id === id);
 
@@ -204,6 +220,8 @@ export interface Kosu {
   spin: number;
   /** pert olduysa true (koşu bitti) */
   pert: boolean;
+  /** son nefes kullanıldı mı (bir kez) */
+  sonNefes: boolean;
 }
 
 const sec = <T>(r: Rastgele, a: readonly T[]) => a[Math.floor(r() * a.length)];
@@ -284,6 +302,7 @@ export function kosuBaslat(tohum: number, pistler: readonly PistAdayi[]): Kosu {
     carpma: 0,
     spin: 0,
     pert: false,
+    sonNefes: false,
   };
   k.secenekler = pasifCek(k, 3);
   etkinlikDiz(k, pistler);
@@ -333,17 +352,24 @@ export function pasifSec(k: Kosu, id: string): boolean {
 export function kosuAraci(taban: Arac, k: Pick<Kosu, "pasifler"> & { govde?: number }): Arac {
   const c: Arac = { ...taban, gr: [taban.gr[0], taban.gr[1]] };
   for (const id of k.pasifler) pasifBul(id)?.arac?.(c);
-  const g = Math.max(0, Math.min(GOVDE.tam, k.govde ?? GOVDE.tam)) / GOVDE.tam;
-  c.hp *= 1 - GOVDE.gucKaybi * (1 - g);
+  const govde = Math.max(0, Math.min(GOVDE.tam, k.govde ?? GOVDE.tam)),
+    n = (id: string) => k.pasifler.filter((p) => p == id).length;
+  // kural pasifleri: cam top sabit, adrenalin yarı gövdenin altında; pasiflerin toplam gücü GUC_UST'ü aşmaz
+  const kural = (1 + 0.25 * n("camtop")) * (govde < GOVDE.tam / 2 ? 1 + 0.15 * n("adrenalin") : 1);
+  c.hp = Math.min(c.hp * kural, taban.hp * GUC_UST);
+  c.hp *= 1 - GOVDE.gucKaybi * (1 - govde / GOVDE.tam);
   return c;
 }
 
 /** hasar: sert çarpma ya da spin; zırh azaltır. Gövde 0 olunca pert (koşu biter). Dönen: pert oldu mu */
 export function hasarAl(k: Kosu, tur: "carpma" | "spin"): boolean {
   if (k.faz == "bitti" || k.pert) return false;
-  const h = GOVDE[tur] * (1 - 0.35 * pasifSayisi(k, "zirh"));
+  const h = GOVDE[tur] * (1 - 0.35 * pasifSayisi(k, "zirh")) * (1 + pasifSayisi(k, "camtop")),
+    alinan = Math.min(k.govde, h);
   k[tur]++;
   k.govde = Math.max(0, k.govde - h);
+  // hurdacı: hasarın tamir bedelinden az para (bilerek çarpmak kâr etmez)
+  if (pasifSayisi(k, "hurdaci")) k.para += Math.floor(alinan * GOVDE.tamirFiyati * HURDACI_PAY);
   if (k.govde <= 0) {
     k.pert = true;
     k.faz = "bitti";
@@ -369,6 +395,11 @@ export function zamanAkis(k: Kosu, dt: number): "boss" | null {
   if (k.faz == "bitti" || k.faz == "boss") return null;
   k.zaman += dt;
   k.kalan = Math.max(0, k.kalan - dt);
+  if (k.kalan <= 0 && !k.sonNefes && pasifSayisi(k, "sonnefes")) {
+    // bir kez: +90 sn, bedeli boss hedefinin %3 sıkılaşması (bossHedefi)
+    k.sonNefes = true;
+    k.kalan = 90;
+  }
   return k.kalan <= 0 ? "boss" : null;
 }
 
@@ -399,9 +430,11 @@ export function etkinlikBitti(k: Kosu, id: number, gecti: boolean, risk: Risk = 
   k.tamamlanan++;
   const R = RISKLER[risk],
     o = ETKINLIK_ODULU(e.sev),
-    pay = gecti ? R.odul : R.kacirma,
+    kumar = risk == 2 && pasifSayisi(k, "kumarbaz") > 0,
+    pay = gecti ? (kumar ? 5 : R.odul) : R.kacirma,
+    ceza = gecti ? 0 : R.ceza * (kumar ? 2 : 1),
     seviye0 = k.seviye;
-  if (!gecti) k.kalan = Math.max(0, k.kalan - R.ceza);
+  k.kalan = Math.max(0, k.kalan - ceza);
   xpEkle(k, o.xp * pay);
   const para = Math.round(o.para * pay * (1 + 0.25 * pasifSayisi(k, "tuccar")));
   k.para += para;
@@ -416,7 +449,7 @@ export function etkinlikBitti(k: Kosu, id: number, gecti: boolean, risk: Risk = 
       k.faz = "surus";
     }
   }
-  return { xp: k.xp, para, gecti, seviyeAtladi: k.seviye > seviye0, ekSure, ceza: gecti ? 0 : R.ceza };
+  return { xp: k.xp, para, gecti, seviyeAtladi: k.seviye > seviye0, ekSure, ceza };
 }
 
 export const parcaFiyati = (k: Pick<Kosu, "pasifler">, sv: number, id = "") =>
@@ -454,6 +487,7 @@ export function bossBitti(k: Kosu, kazandi: boolean, pistler: readonly PistAdayi
   const kalanlar = BOSSLAR.filter((b) => b.id != k.boss.id);
   k.boss = sec(k.rng, kalanlar);
   k.kalan = BOSS_SURESI(k.bolge);
+  k.sonNefes = false;
   k.para += 200;
   xpEkle(k, 150);
   etkinlikDiz(k, pistler);
@@ -491,9 +525,15 @@ export function bossPisti(k: Kosu, pistler: readonly PistAdayi[]): number {
 }
 
 /** boss hedefi (bütün turlar): referansın bölge kademesi; süre yarışında pay kadar uzun, driftte o kadar düşük */
-export function bossHedefi(k: Pick<Kosu, "bolge" | "boss">, p: Pick<PistAdayi, "ty" | "ref" | "ys">) {
-  const pay = BOSS_PAY[Math.min(2, k.bolge - 1)];
-  if (!p.ref) return p.ys[Math.min(2, k.bolge - 1)];
+export function bossHedefi(
+  k: Pick<Kosu, "bolge" | "boss"> & { sonNefes?: boolean },
+  p: Pick<PistAdayi, "ty" | "ref" | "ys">,
+) {
+  // son nefes kullanıldıysa hedef %3 sıkı (süre yarışında kısa, driftte yüksek)
+  const nefes = k.sonNefes ? 0.97 : 1,
+    pay = BOSS_PAY[Math.min(2, k.bolge - 1)] * nefes;
+  if (!p.ref)
+    return p.ty == "dp" ? p.ys[Math.min(2, k.bolge - 1)] / nefes : p.ys[Math.min(2, k.bolge - 1)] * nefes;
   const r = p.ref[bossKademe(k.bolge)] * k.boss.hedef;
   return p.ty == "dp" ? Math.round(r / pay) : r * pay;
 }
