@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { CARS } from "../../src/arac/araclar";
 import { TDEF } from "../../src/dunya/pist-tanimlari";
+import { Htest } from "../../src/dunya/corak";
 import {
   BOSSLAR,
+  YERLER,
+  ATOLYE,
   BOSS_SURESI,
   ETKINLIK_ODULU,
   HARITA_ETKINLIK,
@@ -147,5 +150,15 @@ describe("MUTANT koşu (A1)", () => {
     expect(etkinlikAyari(3, 240)).toEqual({ laps: 1, limit: 80 });
     expect(etkinlikAyari(undefined, 95)).toEqual({ laps: undefined, limit: 95 });
     expect(etkinlikAyari(1, 60)).toEqual({ laps: 1, limit: 60 });
+  });
+  it("etkinlik ve atölye yerleri düz: 12 m çevrede eğim %8'den az (araç kaymadan durabilir)", () => {
+    for (const [x, z] of [...YERLER, ATOLYE])
+      for (const [dx, dz] of [
+        [12, 0],
+        [0, 12],
+        [-12, 0],
+        [0, -12],
+      ])
+        expect(Math.abs(Htest(x + dx, z + dz) - Htest(x, z)) / 12, x + "," + z).toBeLessThan(0.08);
   });
 });
