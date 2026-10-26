@@ -372,7 +372,7 @@ function view(cur: string): [string, string, string] {
       e.n,
       turOf(e.ty)[1] + " yarışları",
       `<div><div class="evh"><img src="${trackThumb(r)}"><div>${seviyeRozeti(e)}<p class="lvd">${SEVIYELER[e.sev - 1].d}</p><p>${e.d}</p>
-<p class="note">Kupa sınırı: <b>${kariyerKurali(e.ty, e.lv)!.ad}</b>. Üstündeki araçla ödülsüz deneme yapılır.</p>${evSayilar(e)}${yildizEsikSatiri(e)}${paraOdulu(e)}</div></div><button class="btn" id="mgo" data-go="${i}">Araç seç ${ikon("sag")}</button></div>
+<p class="note kup">Kupa sınırı: <b>${kariyerKurali(e.ty, e.lv)!.ad}</b>.<span class="kac"> Üstündeki araçla ödülsüz deneme yapılır.</span></p>${evSayilar(e)}${yildizEsikSatiri(e)}${paraOdulu(e)}</div></div><button class="btn" id="mgo" data-go="${i}">Araç seç ${ikon("sag")}</button></div>
 <div class="evk">${condChips()}</div>`,
     ];
   }
