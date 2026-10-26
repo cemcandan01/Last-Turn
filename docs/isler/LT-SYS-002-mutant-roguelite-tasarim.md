@@ -126,3 +126,35 @@ Testler: birim `MUTANT koşu (A1)` 12; e2e `mutant.mjs` 10 kontrol; iPhone 13 g�
 Doğrulama (yerel, 0246442): `npm test` 25/25 dosya 340/340; alan mutant, menu, garaj, hud, surus, hayalet, fizik, kariyer, yarista-reset → 89 senaryo, 2 kalış: garaj ve surus alanlarının ortak "araç geçişi takılmıyor" performans ölçümü (9 alan aynı anda, boşta kare 168 ms). Aynı senaryo tek başına yeniden koşunca geçti (garaj 1/1); yük kaynaklı, kod değişikliğiyle ilgisiz (MUTANT garaj koduna dokunmaz).
 Yayın: 0.8.2 (48b26cb) Yayın 40323933491 başarılı, ama Denetim 40323915195 kaldı: e2e'de etkinlik kartı açılmadı. Neden: etkinlik yerlerinden biri tırmanış yokuşundaydı (araç kayıp işarette duramıyor). Düzeltme c6f7d20: yerler düz zemine + eğim birim testi + e2e koşul beklemesi; yerelde akış 3/3 kez 10/10. **0.8.3 denemede** (61fad1d): Denetim 40325731909 ve 40325792894 başarılı, Yayın 40325798828 (derleme/yayın/adres kontrolü) başarılı. Canlı 0.7.8 değişmedi.
 Sonraki: Cem /dev/'de oynasın (15 dk, ödüller, boss hedefi, pasif/atölye hissi); sonra A2 nitro + eklenti sandıkları.
+
+## 9. Issue #16: oyuncu testi sonrası denge (Claude, claude/mutant)
+Cem'in testi (26.10): stok araçla son boss bile yenilebilir hissi; motor değişimi 2-3 etkinlikten sonra alınıyor ve kalan modifiyeleri gereksiz kılıyor; her etkinlik kolay; başarısızlığın bedeli yok; modifiyeler yeni oynanış stili üretmiyor. İstenen: yüksek risk / yüksek ödül, LEGO tarzı kombinasyon. Codex aynı anda yalnız görsel (`codex/mutant-gorsel`, PR #17); mekanik sahibi Claude.
+
+### Ölçüm (tests/olcum/mutant.test.ts, rapor docs/denge/2026-10-26-mutant-olcum.json)
+40 pist × 6 build (stok, motor değişimi, dengeli, uzman, nadir motor = yarış motoru + büyük turbo, motor+uzman), türün başlangıç aracı, gerçek fizik + pilot, tek tur. Bulgular:
+- Kolay pistlerde stok bile 1-3★; motor değişimiyle her türde 3★ (Cem'in "her şey kolay" gözlemi ölçüldü).
+- Motor değişimi tek başına baskın (asfalt sev4: motor 55,98 sn 1★, uzman 66,88 sn 0★; drift Liman: motor 6762 puan, uzman 1758).
+- Nadir motor da uzmanı asfaltın çoğunda, rallide kolay pistlerde ve dragın hepsinde geçiyor; uzman parçalar pilotta %1-3 kazandırıyor.
+- Driftte pilot puanı güçle büyür, açı kitini kullanamaz: drift uzman referansı insan becerisini ölçmez (açık risk).
+- Pilot rallikros/rallinin zor pistlerini temiz bitiremiyor (null): bu pistler boss olmaz.
+
+### Uygulanan (aşama 1: zorluk/ekonomi)
+- **Etkinlik risk kademesi:** Güvenli 1★ ×1 (kaçırınca %30 teselli), Riskli 2★ ×2, Ölümcül 3★ ×3,5 (kaçırınca ödülsüz ve boss'a −45/−90 sn). Hedef pistin yıldızının tur başı payı; etkinlik tek tur. Temel ödül 40+20·sev XP, 60+30·sev para.
+- **Atölye:** motor değişimi MUTANT'ta satılmaz (ölçümde tek başına baskın). Bölgede 5 parçalık tohumlu stok; zayıf (sv0) yok; nadirler (yarış motoru, büyük turbo, yarış lastiği) bölge 2'den ve stokta en çok bir, ×1,4 fiyat; stok 40 parayla yenilenir. Fiyat sv1 80 / sv2 170 / sv3 380.
+- **Boss hedefi ölçülmüş referanstan:** bölge 1 stok ×1,05 (başlangıç aracıyla geçilir), bölge 2 dengeli/uzman iyisi ×1,02, bölge 3+ uzman/nadir motor iyisinden %2 iyi (tek yol yetmez; motor + boss'a uygun uzmanlık). Referans tek tur, boss tur sayısıyla çarpılır (kalkışlı turun katı: oyuncu lehine pay). Boss pisti yalnız 29 ölçülmüş pistten; bölge 1'de türün kolay yarısı. Test: tabloda bölge 1'i stok geçer, bölge 3'ü ne nadir motor ne uzman tek başına geçer.
+
+### Aşama 2: risk bedeli
+Gövde 100: sert çarpma −12, spin (|kayma| > 1,3 rad) −8; düşük gövde gücü en çok %30 düşürür; 0'da pert, koşu biter ve özet çarpma/spin dökümünü yazar. Atölyede 3 para/puan tamir. Zırh (hasar −%35/kademe), Seyyar tamirci (+12/etkinlik).
+
+### Aşama 3: Mutasyon V2 (kural pasifleri)
+Adrenalin (gövde < 50 güç +%15), Cam top (güç +%25, hasar ×2), Hurdacı (hasarda tamir bedelinin %80'i para: bilerek çarpmak kârsız), Kumarbaz (ölümcül ×5, ceza ×2), Son nefes (bölgede bir kez +90 sn, boss hedefi %3 sıkı). OP koruması: pasif gücü ≤ ×1,9. Test: 1-3'lü bütün pasif kümelerinde güç sınırı, hurdacı kârsızlığı, etkisiz pasif yok. Örnek LEGO kombinasyonları: Cam top + Adrenalin + Seyyar tamirci (hasarlı ama güçlü), Hurdacı + Zırh (çarpışmacı), Kumarbaz + Zaman bükücü (risk avcısı).
+
+### DENGE §9 dört etki
+- Performans bütçesi: MUTANT kariyer sınıf/puanından ayrı; pasif gücü ×1,9 sınırı, motor değişimi yok.
+- Başarı eşiği: boss hedefleri ölçülmüş referans; bölge 1 stokla geçilir, bölge 3 birleşik build ister (ulaşılabilirlik ölçümü aşağıda).
+- Kazanç hızı: ödül riskle ×1-×3,5; nadir parça ancak bölge 2'de ve ×1,4; para/XP kariyere geçmez.
+- Kayıt uyumu: koşu kayıtsız (oturumluk); yalnız `lt_mutant` rekoru; kariyer kaydı değişmez.
+
+### Açık riskler
+- Pilot insan değildir; özellikle driftte referans beceriyi değil gücü ölçer. Cem'in testinden sonra drift boss kademesi ayrıca ayarlanmalı.
+- Etkinlik yıldızları kariyer eşikleri; güçlü build'le güvenli/riskli kademeler kolay kalabilir (ölümcül hâlâ zor). İkinci oyuncu testinde ölçülmeli.
