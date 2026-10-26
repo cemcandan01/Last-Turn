@@ -2587,6 +2587,13 @@ details[open] > summary::after {
   .v-e .evh p.lvd {
     display: none;
   }
+  /* kupa sınırı tek satır: açıklaması alçak ekranda gizli (sınıf adı kalır) */
+  .v-e .evh p.kup {
+    margin: 0 0 4px;
+  }
+  .v-e .kup .kac {
+    display: none;
+  }
 }
 
 /* drift çarpanı x6: 1. turda drift oranı (%90 işaretli ince çubuk), 2. turda kalıcı rozet */
@@ -2839,6 +2846,14 @@ details[open] > summary::after {
 }
 .pod b {
   color: #ffd166;
+}
+.pod span {
+  white-space: nowrap;
+}
+@media (max-width: 700px) {
+  .pod {
+    gap: 6px;
+  }
 }
 #lvup .lva .fy {
   display: inline-flex;
