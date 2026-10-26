@@ -192,3 +192,9 @@ Adrenalin (gövde < 50 güç +%15), Cam top (güç +%25, hasar ×2), Hurdacı (h
 - Bölge 3 `tekYolYetmez` nitroyu hesaba katmaz; nadir motor + nitro tek yol olabilir. Rallikros bölge 3 (güneş ve yağmur) hâlâ tek yolla geçilir.
 - Drift boss'unda nitro ölçülmedi. Sayılar tahmin; test geçmesi eğlencenin kanıtı değil, Cem'in telefon testi gerekir.
 - Codex PR #20 ile `hud.ts`'te aynı satıra (`pisteDonusSayaci()` sonrası) iki çağrı eklenir: birleştirmede ikisi de kalır.
+
+### Doğrulama (A2)
+- Sahip Claude, dal claude/mutant-a2 (taban gelistirme 68b3da9), kod SHA 62c009e.
+- Yerel: tip/ESLint/biçim temiz; `npm test` 366/366; alan mutant 8/8 senaryo (MUTANT e2e 13/13 kontrol: NİTRO tuşu, sandık, lanetli sandık dahil); alan hud geçti (çakışma testleri NİTRO tuşuyla).
+- E2E'deki ara sıra boss adımı kalışı (yaklaşık 1/3): rastgele başlangıç pasifi "Son nefes" +90 sn ekliyordu; test bunu kullanılmış sayar (A1'den kalma test açığı).
+- Sonraki: PR (gelistirme); CI; Cem nitro gücü kararı ve telefon testi; birleşince deneme 0.8.5.
