@@ -1,3 +1,4 @@
+import "./mutant-theme.css";
 // MUTANT arayüzü (A1): koşu başı (boss kartı, araç, başlangıç pasifi), etkinlik kartı, atölye, yarış sonucu, seviye
 // seçimi, boss kartı, koşu özeti ve HUD metinleri. Haritadaki işaretler cizim/isaretler.ts + mini harita.
 // Kurallar oyun/mutant-kosu.ts; HUD kuralları docs/HUD.md.
@@ -75,7 +76,7 @@ function sayfaAc(html: string) {
   $("#ctl").classList.add("hidden");
   const r = $("#res");
   r.classList.remove("hidden");
-  r.innerHTML = html;
+  r.innerHTML = `<div class="mutant-shell">${html}</div>`;
   return r;
 }
 
@@ -87,7 +88,7 @@ function surusDevam() {
 }
 
 const bossKarti = (b: Boss) =>
-  `<div class="card mtb"><b>BOSS · ${b.ad}</b><span>${TUR[b.ty][0]} · ${b.d}</span><span>Yetenekleri: ${b.yetenekler.join(", ")}</span><span>İpucu: ${b.zayif}</span></div>`;
+  `<div class="card mtb"><div class="mt-eyebrow">BÖLÜM TEHDİDİ · ${TUR[b.ty][0]}</div><b>BOSS · ${b.ad}</b><span>${b.d}</span><div class="mt-risk"><span>TEHLİKELER</span><strong>${b.yetenekler.join(" / ")}</strong></div><div class="mt-counter"><span>HAZIRLIK İPUCU</span><strong>${b.zayif}</strong></div></div>`;
 
 const hedefYazi = (ty: YarisTuru, limit: number) =>
   ty == "dp" ? Math.round(limit) + " puan" : ty == "dg" ? fmt3(limit) : fmt(limit);
@@ -189,12 +190,12 @@ function isaret(i: MutantIsaret) {
     .map((r) => {
       const R = RISKLER[r],
         h = etkinlikHedefi(E, r);
-      return `<div class="card go" data-risk="${r}"><b>${R.ad} · ${"★".repeat(r + 1)}</b><span>Hedef ${hedefYazi(E.ty, h.limit)}</span><span>Ödül ${Math.round(o.xp * R.odul)} XP · ${Math.round(o.para * R.odul)} para</span><span>Kaçırırsan ${R.ceza ? "ödül yok, boss'a −" + R.ceza + " sn" : Math.round(o.para * R.kacirma) + " para teselli"}</span></div>`;
+      return `<div class="card go mt-risk-choice mt-risk-${r}" data-risk="${r}"><b>${R.ad} · ${"★".repeat(r + 1)}</b><span>Hedef ${hedefYazi(E.ty, h.limit)}</span><span>Ödül ${Math.round(o.xp * R.odul)} XP · ${Math.round(o.para * R.odul)} para</span><span>Kaçırırsan ${R.ceza ? "ödül yok, boss'a −" + R.ceza + " sn" : Math.round(o.para * R.kacirma) + " para teselli"}</span></div>`;
     })
     .join("");
   const s = sayfaAc(
     `<h1>${TUR[e.ty][0]}</h1><p>${E.n} · ${SEVIYELER[e.sev - 1].n}${E.laps ? " · 1 tur" : ""} · Boss'a ${sure(k.kalan)}</p><div class="mtp">${kademe}</div>` +
-      '<p class="note">Riski sen seç: zor hedef çok kazandırır, kaçırmak süre götürür. Etkinlik süresi de boss geri sayımından düşer.</p><button class="btn alt" id="mGec">Vazgeç</button>',
+      '<p class="note mt-warning">Riski sen seç: zor hedef çok kazandırır, kaçırmak süre götürür. Etkinlik süresi de boss geri sayımından düşer.</p><button class="btn alt" id="mGec">Vazgeç</button>',
   );
   s.querySelectorAll<HTMLElement>("[data-risk]").forEach(
     (c) =>
