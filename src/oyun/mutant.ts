@@ -1,56 +1,213 @@
-// MUTANT modu (oyun tarafı): açık dünyada roguelike koşu. Kurallar saf modülde (mutant-kurallari.ts); burası koşuyu
-// tutar, her sabit adımda ilerletir, fiziğe tek etkiyi (tutuş çarpanı) verir ve rekoru ayrı anahtarda saklar.
-// Yarışta (yaris.EV) ya da koşu yokken hiçbir şey yapmaz: tutuş çarpanı 1, kariyer/ekonomi/rekor dokunulmaz.
+// MUTANT modu (oyun tarafı, A1): açık dünyada roguelite koşu. Kurallar saf modülde (mutant-kosu.ts); burası koşuyu
+// tutar, her sabit adımda süreyi akıtır, haritadaki işaretlere girişi algılar, etkinliği (mevcut pist yarışı) koşu
+// aracıyla başlatır, sonucu ödüle çevirir ve haritaya döndürür. Kariyer ödülü, rekor ve hayalet yazılmaz; rekor
+// lt_mutant'ta. Yarışta koşu yokken hiçbir şey yapmaz.
+import { CARS } from "../arac/araclar";
+import { aracKur, parcaBul } from "../arac/parcalar";
 import { okuJson, yazJson } from "../cekirdek/depo";
-import { tutusCarpani } from "../cekirdek/mekanikler";
-import { kosuAdimi, kosuBaslat, kosuOzeti, type Kosu } from "./mutant-kurallari";
-import type { SimDurumu } from "../fizik/tipler";
+import { isaretleriKur } from "../cizim/isaretler";
+import { COND, type GununSaati, type Hava } from "../cizim/ortam";
+import { kurulum, applyPreset } from "./kurulum";
+import { setCar } from "./durum";
+import {
+  ATOLYE,
+  bossBitti,
+  bossHedefi,
+  bossPisti,
+  bossaGir,
+  etkinlikBitti,
+  kosuAraci,
+  kosuBaslat,
+  zamanAkis,
+  type EtkinlikSonucu,
+  type Kosu,
+  type PistAdayi,
+} from "./mutant-kosu";
 
-/** MUTANT rekoru: kariyer/serbest tur rekorlarından ayrı (lt_mutant) */
+/** MUTANT rekoru: kariyerden ayrı */
 const ANAHTAR = "lt_mutant";
+/** işarete giriş: yarıçap (m), en yüksek hız (m/s), içeride bekleme (sn) */
+const ISARET_R = 10,
+  ISARET_V = 5,
+  ISARET_SURE = 0.5;
+/** boss işareti: tırmanış yolunun tepesi */
+export const BOSS_YERI: [number, number] = [-40, 440];
+
+export type MutantIsaret = { tur: "etkinlik"; id: number } | { tur: "atolye" } | { tur: "boss" };
+
+export interface MutantArayuzu {
+  /** koşu başı: araç + başlangıç pasifi */
+  basla(): void;
+  /** seviye atlayınca pasif seçimi */
+  secim(): void;
+  /** işarete girildi: etkinlik kartı / atölye / boss kartı */
+  isaret(i: MutantIsaret): void;
+  /** etkinlik ya da boss bitti */
+  sonuc(r: EtkinlikSonucu | null, boss: boolean, gecti: boolean): void;
+  /** süre doldu: boss kartı (zorunlu) */
+  sureDoldu(): void;
+  bitti(): void;
+}
 
 export const mutant = {
   kosu: null as Kosu | null,
-  /** oyuncu Tutuş Darbesi'ne bastı; sonraki adımda tüketilir */
-  darbe: false,
-  /** arayüz bağlar: görev başarılınca (seçim ekranı) ve koşu bitince (özet) */
-  secimAc: null as (() => void) | null,
-  bittiAc: null as (() => void) | null,
-  /** biten koşu rekoru geçti mi (özet ekranı için) */
+  /** yarışta açık etkinlik (id) ya da boss */
+  etkinlik: null as number | "boss" | null,
+  /** etkinlikten dönüş noktası */
+  donus: null as [number, number, number] | null,
+  /** koşu dışı koşullar (boss havası/gecesi bitince geri yüklenir) */
+  kosul: null as { wx: Hava; tod: GununSaati } | null,
+  /** içinde durulan işaret ve süre (aynı işaret çıkıp yeniden girilene dek tekrar açılmaz) */
+  icinde: "",
+  bekle: 0,
+  kapali: "",
+  /** süre etkinlik içinde doldu: dönüşte boss kartı */
+  bossBekliyor: false,
   yeniRekor: false,
+  ui: null as MutantArayuzu | null,
 };
 
-export const mutantRekoru = () => okuJson(ANAHTAR, { enIyi: 0 }).enIyi;
+/** etkinliğe aday pistler (yarislar.ts'teki EVENTS; döngüsel içe aktarım çağrı anında çözülür) */
+let pistlerOnbellek: PistAdayi[] | null = null;
+let pistKaynagi: (() => PistAdayi[]) | null = null;
+export const mutantPistKaynagi = (f: () => PistAdayi[]) => {
+  pistKaynagi = f;
+  pistlerOnbellek = null;
+};
+export const mutantPistleri = () => (pistlerOnbellek ??= pistKaynagi ? pistKaynagi() : []);
 
-/** yeni koşu (tohum her koşuda değişir; aynı tohum aynı seçenek/görev dizisi) */
+export const mutantRekoru = () => okuJson(ANAHTAR, { bolge: 0, boss: 0 });
+
 export function mutantBaslat(tohum = (Date.now() ^ (Math.random() * 0x7fffffff)) >>> 0) {
-  mutant.kosu = kosuBaslat(tohum);
-  mutant.darbe = false;
+  mutant.kosu = kosuBaslat(tohum, mutantPistleri());
+  mutant.etkinlik = null;
+  mutant.donus = null;
+  mutant.icinde = mutant.kapali = "";
+  mutant.bekle = 0;
+  mutant.bossBekliyor = false;
+  mutant.yeniRekor = false;
 }
 
 export function mutantKapat() {
+  mutantKosuluGeriYukle();
+  isaretleriKur([], () => 0);
   mutant.kosu = null;
-  mutant.darbe = false;
+  mutant.etkinlik = null;
 }
 
-/** koşu açık mı (yarış dışında) */
-export const mutantAcik = (yarista: boolean) => !!mutant.kosu && !yarista;
+/** koşu aracı: seçilen stok araç + atölye parçaları + pasifler (kurulum.mod; fizik kodu değişmez) */
+export let mutantArac = -1;
+export function mutantAracSec(i: number) {
+  mutantArac = i;
+  setCar(i);
+  mutantKurulumUygula();
+}
 
-/** fiziğe giden tutuş çarpanı (dünya sorgusunun hava tutuşuyla çarpılır) */
-export const mutantTutus = (yarista: boolean) =>
-  mutantAcik(yarista) && mutant.kosu!.faz == "gorev" ? tutusCarpani(mutant.kosu!.mek) : 1;
-
-/** fizik adımından sonra: koşuyu ilerlet, başarı/bitişte arayüzü aç */
-export function mutantAdimi(d: Readonly<Pick<SimDurumu, "S" | "DR" | "D">>, dt: number, yarista: boolean) {
+export function mutantKurulumUygula() {
   const k = mutant.kosu;
-  if (!k || yarista) return;
-  const r = kosuAdimi(k, d, mutant.darbe, dt);
-  mutant.darbe = false;
-  if (r == "basari" && k.faz == "secim") mutant.secimAc?.();
-  if (r == "bitti") {
-    const o = kosuOzeti(k);
-    mutant.yeniRekor = o.tamamlanan > mutantRekoru();
-    if (mutant.yeniRekor) yazJson(ANAHTAR, { enIyi: o.tamamlanan });
-    mutant.bittiAc?.();
+  if (!k || mutantArac < 0) return;
+  const P = aracKur(mutantArac, k.parcalar),
+    lastik = P.parcalar.some((id) => parcaBul(id)!.e.lastik != null);
+  kurulum.mod = {
+    taban: CARS[mutantArac],
+    car: kosuAraci(P.car, k),
+    tire: lastik ? P.tire : null,
+    ayar: P.ayar,
+    parcalar: P.parcalar,
+  };
+  kurulum.pk = P.pk;
+  applyPreset();
+}
+
+export function mutantKosuluGeriYukle() {
+  if (!mutant.kosul) return;
+  COND.wx = mutant.kosul.wx;
+  COND.tod = mutant.kosul.tod;
+  mutant.kosul = null;
+}
+
+/** boss yarışının koşulları (hava, gece); dönüşte geri yüklenir */
+export function mutantBossKosulu() {
+  const b = mutant.kosu?.boss;
+  if (!b) return;
+  mutant.kosul = { wx: COND.wx, tod: COND.tod };
+  if (b.hava) COND.wx = b.hava;
+  if (b.gece) COND.tod = "night";
+}
+
+/** yarış başlarken: etkinliğin hedefi (boss'ta sıkılaşır) */
+export function mutantHedef(limit: number) {
+  const k = mutant.kosu;
+  return k && mutant.etkinlik == "boss" ? bossHedefi(k, limit) : limit;
+}
+
+/** boss pisti (EVENTS indeksi) */
+export const mutantBossPisti = () => (mutant.kosu ? bossPisti(mutant.kosu, mutantPistleri()) : -1);
+
+/** sabit adım (fizikten sonra): süre akar; açık dünyada işaret girişi */
+export function mutantAdimi(x: number, z: number, v: number, dt: number, yarista: boolean) {
+  const k = mutant.kosu;
+  if (!k) return;
+  if (k.faz == "surus" && zamanAkis(k, dt) == "boss") {
+    if (yarista) mutant.bossBekliyor = true;
+    else mutant.ui?.sureDoldu();
+    return;
   }
+  if (yarista || k.faz != "surus") return;
+  // en yakın işaret
+  let bulunan = "",
+    isaret: MutantIsaret | null = null;
+  const yakin = (px: number, pz: number) => Math.hypot(x - px, z - pz) < ISARET_R;
+  for (const e of k.etkinlikler)
+    if (!e.yapildi && yakin(e.x, e.z)) {
+      bulunan = "e" + e.id;
+      isaret = { tur: "etkinlik", id: e.id };
+    }
+  if (yakin(ATOLYE[0], ATOLYE[1])) {
+    bulunan = "a";
+    isaret = { tur: "atolye" };
+  }
+  if (yakin(BOSS_YERI[0], BOSS_YERI[1])) {
+    bulunan = "b";
+    isaret = { tur: "boss" };
+  }
+  if (bulunan != mutant.icinde) {
+    mutant.icinde = bulunan;
+    mutant.bekle = 0;
+    if (bulunan != mutant.kapali) mutant.kapali = "";
+  }
+  if (!isaret || bulunan == mutant.kapali || v > ISARET_V) return;
+  mutant.bekle += dt;
+  if (mutant.bekle >= ISARET_SURE) {
+    mutant.kapali = bulunan;
+    mutant.ui?.isaret(isaret);
+  }
+}
+
+/** yarış bitti (yarislar.ts endEvent): ödül/boss sonucu, rekor */
+export function mutantYarisBitti(gecti: boolean) {
+  const k = mutant.kosu,
+    et = mutant.etkinlik;
+  if (!k || et == null) return;
+  mutant.etkinlik = null;
+  if (et == "boss") {
+    bossBitti(k, gecti, mutantPistleri());
+    if (k.faz == "bitti") {
+      const r = mutantRekoru(),
+        yeni = k.bolge > r.bolge || (k.bolge == r.bolge && k.yenilenBoss > r.boss);
+      mutant.yeniRekor = yeni;
+      if (yeni) yazJson(ANAHTAR, { bolge: k.bolge, boss: k.yenilenBoss });
+    }
+    mutant.ui?.sonuc(null, true, gecti);
+    return;
+  }
+  mutant.ui?.sonuc(etkinlikBitti(k, et, gecti), false, gecti);
+}
+
+/** boss'a gir (işaretten ya da süre dolunca) */
+export function mutantBossaGir() {
+  const k = mutant.kosu;
+  if (!k) return;
+  bossaGir(k);
+  mutant.etkinlik = "boss";
 }

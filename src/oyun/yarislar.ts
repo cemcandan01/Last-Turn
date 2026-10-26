@@ -13,7 +13,7 @@ import type { OnayarAnahtari } from "../fizik/veriler";
 import { setActive } from "./bolge";
 import { carIndex, oyun, setCar } from "./durum";
 import { girdiSifirla } from "./girdi";
-import { mutantKapat } from "./mutant";
+import { mutantHedef, mutantKapat, mutantKurulumUygula, mutantPistKaynagi, mutantYarisBitti } from "./mutant";
 import { aracAcikMi, pistAcikMi, yarisBitti } from "./ilerleme";
 import { kariyereUygun, kariyerRekorAnahtari } from "./kariyer";
 import { modifiyeUygula, takiliParcalar } from "./modifiye";
@@ -96,6 +96,8 @@ export interface YarisTanimi {
 
 export interface Yaris extends YarisTanimi {
   i: number;
+  /** MUTANT etkinliği: kariyer ödülü, rekor, hayalet yok; koşu aracı ve koşu hedefi */
+  mutant?: boolean;
   pistDisi: PistDisiSayaci;
   sv: KurulumKaydi & { car: number };
   TR: Pist;
@@ -166,24 +168,29 @@ export const EVENTS: YarisTanimi[] = REG.filter((r) => r.t != "park").map((r, i)
 
 export const yaris = { EV: null as Yaris | null };
 
-/** yarışı başlat (ci: seçilen araç); pist ya da araç kilitliyse başlamaz (false) */
-export function startEvent(i: number, ci?: number) {
+mutantPistKaynagi(() => EVENTS.map((e, i) => ({ i, ty: e.ty, sev: e.sev })));
+
+/** yarışı başlat (ci: seçilen araç); pist ya da araç kilitliyse başlamaz (false). mutantEtkinligi: MUTANT koşusu
+ *  içinden (kilit/kariyer yok, koşu aracı ve hedefi, ödül ve rekor koşuya) */
+export function startEvent(i: number, ci?: number, mutantEtkinligi = false) {
   const e = EVENTS[i];
-  mutantKapat();
-  if (!pistAcikMi(e.ty, e.lv) || !aracAcikMi(ci ?? carIndex())) {
+  if (!mutantEtkinligi) mutantKapat();
+  if (!mutantEtkinligi && (!pistAcikMi(e.ty, e.lv) || !aracAcikMi(ci ?? carIndex()))) {
     note("Kilitli", 40);
     return false;
   }
-  const uygun = kariyereUygun(e.ty, e.lv, ci ?? carIndex(), takiliParcalar(ci ?? carIndex()));
+  const uygun =
+    !mutantEtkinligi && kariyereUygun(e.ty, e.lv, ci ?? carIndex(), takiliParcalar(ci ?? carIndex()));
   const EV = yaris.EV,
     sv = EV && EV.sv ? EV.sv : { ...kurulumKaydet(), car: carIndex() };
   // yarışta önayar seçilmez: aracın kendi önayarı ve oyuncunun yardım seviyesi yüklenir (önayar yalnız serbest
   // sürüşte). Böylece drift yarışı, otoparkta aynı araçla drift önayarında sürmekle birebir aynıdır.
   if (ci != null && CARS[ci] !== oyun.CAR) setCar(ci);
-  // takılı parçalarıyla (paket ağır basıyorsa o türün önayarı)
-  modifiyeUygula(carIndex());
+  // takılı parçalarıyla (paket ağır basıyorsa o türün önayarı); MUTANT'ta koşu aracı (atölye parçaları + pasifler)
+  if (mutantEtkinligi) mutantKurulumUygula();
+  else modifiyeUygula(carIndex());
   yarisLastigiTak(e.ty);
-  {
+  if (!mutantEtkinligi) {
     const u = carIndex();
     PROF.use[u] = (PROF.use[u] || 0) + 1;
   }
@@ -197,8 +204,9 @@ export function startEvent(i: number, ci?: number) {
   goster("#hud", "#mm", "#ctl");
   yaris.EV = {
     ...e,
-    k: uygun ? e.k : "deneme_" + e.k,
+    k: mutantEtkinligi ? "mutant_" + e.k : uygun ? e.k : "deneme_" + e.k,
     kariyer: uygun,
+    mutant: mutantEtkinligi,
     i,
     pistDisi: bosPistDisi(),
     sv,
@@ -232,16 +240,16 @@ export function startEvent(i: number, ci?: number) {
     yildiz: 0,
     xp: 0,
     para: 0,
-    limit: e.limit || 0,
+    limit: mutantEtkinligi ? mutantHedef(e.limit || 0) : e.limit || 0,
   };
-  rekorHayaletiBaslat(e.k, dunyaSorgusuYap({ cur: null }));
+  if (!mutantEtkinligi) rekorHayaletiBaslat(e.k, dunyaSorgusuYap({ cur: null }));
   return true;
 }
 
 /** Aynı yarış, seçili araç ve takılı parçalarla sıfırdan geri sayım. */
 export function yarisiYenidenBaslat() {
   if (!yaris.EV || (oyun.mode != "drive" && oyun.mode != "pause")) return false;
-  return startEvent(yaris.EV.i, carIndex());
+  return startEvent(yaris.EV.i, carIndex(), !!yaris.EV.mutant);
 }
 
 /** Yarış süresi/turlar/puan korunur; taşınan konum bir tur veya bitiş sayılmaz. */
@@ -352,6 +360,13 @@ export function endEvent() {
   if (!EV || EV.state != "run" || !(EV.t > 0)) return;
   EV.state = "done";
   oyun.mode = "result";
+  if (EV.mutant) {
+    // MUTANT: kariyer ödülü, yıldız, rekor ve hayalet yok; sonuç koşuya
+    girdiSifirla();
+    gizle("#ctl");
+    mutantYarisBitti(EV.ty == "dp" ? EV.score > 0 && EV.score >= EV.limit : EV.t <= EV.limit);
+    return;
+  }
   PROF.races++;
   const sureSkor = EV.ty == "dp" ? EV.score : EV.t;
   EV.yildiz = yildizSay(EV.ty, sureSkor, EV.ys);
