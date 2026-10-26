@@ -23,6 +23,7 @@ import {
   tamirEt,
   SATILMAZ,
   bossAdaylari,
+  tekYolYetmez,
   NADIR_PARCALAR,
   RISKLER,
   bossHedefi,
@@ -211,8 +212,8 @@ describe("MUTANT koşu (A1)", () => {
       return {
         ...p,
         ref: d
-          ? { stok: 1000, dengeli: 1500, uzman: 2000, nadir: 2500 }
-          : { stok: 100, dengeli: 90, uzman: 80, nadir: 75 },
+          ? { stok: 1000, dengeli: 1500, uzman: 2000, nadir: 2500, birlesik: 3000 }
+          : { stok: 100, dengeli: 90, uzman: 80, nadir: 75, birlesik: 70 },
       };
     });
     for (let t = 1; t <= 30; t++)
@@ -236,9 +237,7 @@ describe("MUTANT koşu (A1)", () => {
                 ? d
                   ? Math.max(r.dengeli, r.uzman)
                   : Math.min(r.dengeli, r.uzman)
-                : d
-                  ? Math.max(r.uzman, r.nadir)
-                  : Math.min(r.uzman, r.nadir),
+                : r.birlesik,
           tam = ref * (p.laps ?? 1),
           pay = BOSS_PAY[bolge - 1],
           h = bossHedefi(k, p);
@@ -358,7 +357,11 @@ describe("MUTANT Mutasyon V2: kural pasifleri ve kombinasyon sınırları", () =
       if (zamanAkis(k, 1 / 60) == "boss") break;
     }
     expect(toplam).toBeCloseTo(BOSS_SURESI(1) + 90, 0);
-    const p = { ty: "gp" as const, ys: [100, 90, 80], ref: { stok: 100, dengeli: 90, uzman: 80, nadir: 75 } };
+    const p = {
+      ty: "gp" as const,
+      ys: [100, 90, 80],
+      ref: { stok: 100, dengeli: 90, uzman: 80, nadir: 75, birlesik: 70 },
+    };
     expect(bossHedefi(k, p)).toBeCloseTo(100 * BOSS_PAY[0] * 0.97, 6);
   });
   it("kumarbaz: ölümcülde ×5 ödül, kaçırınca iki kat süre cezası", () => {
@@ -388,26 +391,27 @@ describe("MUTANT Mutasyon V2: kural pasifleri ve kombinasyon sınırları", () =
     hasarAl(ct, "carpma");
     expect(ct.govde).toBe(GOVDE.tam - 2 * GOVDE.carpma);
   });
-  it("ölçülmüş tablo: bölge 1 hedefini stok araç tutturur; bölge 3'ü ne nadir motor ne uzman tek başına geçer", () => {
+  it("ölçülmüş tablo: bölge 1'i stok, bölge 3'ü birleşik build geçer; bölge 3 adaylarında tek yol yetmez", () => {
     const olculen = PISTLER.map((p) => ({ ...p, ref: MUTANT_REFERANS[p.ty + "_" + TDEF[p.i].lv] }));
     expect(olculen.filter((p) => p.ref).length).toBeGreaterThanOrEqual(25);
-    for (const ty of ["gp", "rx", "rl", "dp", "dg"] as const)
-      expect(
-        olculen.some((p) => p.ty == ty && p.ref),
-        ty + " boss pisti",
-      ).toBe(true);
     const k = basla();
     for (const p of olculen.filter((q) => q.ref)) {
       const r = p.ref!,
         tur = p.laps ?? 1,
         d = p.ty == "dp",
+        ad = p.ty + "_" + TDEF[p.i].lv,
         gecer = (sonuc: number, hedef: number) => (d ? sonuc * tur >= hedef : sonuc * tur <= hedef);
       k.bolge = 1;
-      expect(gecer(r.stok, bossHedefi(k, p)), p.ty + "_" + TDEF[p.i].lv + " bölge 1 stok").toBe(true);
+      expect(gecer(r.stok, bossHedefi(k, p)), ad + " bölge 1 stok").toBe(true);
       k.bolge = 3;
-      const h3 = bossHedefi(k, p);
-      expect(gecer(r.nadir, h3), p.ty + "_" + TDEF[p.i].lv + " bölge 3 nadir motor").toBe(false);
-      expect(gecer(r.uzman, h3), p.ty + "_" + TDEF[p.i].lv + " bölge 3 uzman").toBe(false);
+      expect(gecer(r.birlesik, bossHedefi(k, p)), ad + " bölge 3 birleşik").toBe(true);
     }
+    // bölge 3 adayları: tek yolun yetmediği pistler; rallikrosta böylesi yok (açık risk, kartta)
+    for (const ty of ["gp", "dp", "dg", "rl"] as const) {
+      const aday = bossAdaylari(ty, 3, olculen);
+      expect(aday.length, ty).toBeGreaterThan(0);
+      for (const p of aday) expect(tekYolYetmez(ty, p.ref!), ty + "_" + TDEF[p.i].lv).toBe(true);
+    }
+    expect(bossAdaylari("rx", 3, olculen).length).toBeGreaterThan(0);
   });
 });

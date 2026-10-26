@@ -141,7 +141,7 @@ Cem'in testi (26.10): stok araçla son boss bile yenilebilir hissi; motor deği�
 ### Uygulanan (aşama 1: zorluk/ekonomi)
 - **Etkinlik risk kademesi:** Güvenli 1★ ×1 (kaçırınca %30 teselli), Riskli 2★ ×2, Ölümcül 3★ ×3,5 (kaçırınca ödülsüz ve boss'a −45/−90 sn). Hedef pistin yıldızının tur başı payı; etkinlik tek tur. Temel ödül 40+20·sev XP, 60+30·sev para.
 - **Atölye:** motor değişimi MUTANT'ta satılmaz (ölçümde tek başına baskın). Bölgede 5 parçalık tohumlu stok; zayıf (sv0) yok; nadirler (yarış motoru, büyük turbo, yarış lastiği) bölge 2'den ve stokta en çok bir, ×1,4 fiyat; stok 40 parayla yenilenir. Fiyat sv1 80 / sv2 170 / sv3 380.
-- **Boss hedefi ölçülmüş referanstan:** bölge 1 stok ×1,05 (başlangıç aracıyla geçilir), bölge 2 dengeli/uzman iyisi ×1,02, bölge 3+ uzman/nadir motor iyisinden %2 iyi (tek yol yetmez; motor + boss'a uygun uzmanlık). Referans tek tur, boss tur sayısıyla çarpılır (kalkışlı turun katı: oyuncu lehine pay). Boss pisti yalnız 29 ölçülmüş pistten; bölge 1'de türün kolay yarısı. Test: tabloda bölge 1'i stok geçer, bölge 3'ü ne nadir motor ne uzman tek başına geçer.
+- **Boss hedefi ölçülmüş referanstan:** bölge 1 stok ×1,05 (başlangıç aracıyla geçilir), bölge 2 dengeli/uzman iyisi ×1,02, bölge 3+ nadir motor + uzman birleşik build ×1,02. İlk deneme (bölge 3 = uzman/nadir iyisinden %2 iyi) ölçümle reddedildi: birleşik build 29 pistin 13'ünde geçemiyordu (imkânsız boss). Birleşik ölçüm docs/denge/2026-10-26-mutant-birlesik.json. Bölge 3 boss'u yalnız tek yolun yetmediği pistlerden: 16 pist (asfalt 3, drift 4, drag 8, ralli 1); nadir motor tek başına 13/29, uzman 3/29 pistte geçer. Rallikrosta tek yolun yetmediği pist yok: rallikros bölge 3 boss'u nadir motorla geçilebilir (açık risk; Çamur Baronu'nun yağmuru ölçüme girmedi). Referans tek tur, boss tur sayısıyla çarpılır (kalkışlı turun katı: oyuncu lehine pay). Test: tabloda bölge 1'i stok, bölge 3'ü birleşik geçer; bölge 3 adaylarında tek yol yetmez.
 
 ### Aşama 2: risk bedeli
 Gövde 100: sert çarpma −12, spin (|kayma| > 1,3 rad) −8; düşük gövde gücü en çok %30 düşürür; 0'da pert, koşu biter ve özet çarpma/spin dökümünü yazar. Atölyede 3 para/puan tamir. Zırh (hasar −%35/kademe), Seyyar tamirci (+12/etkinlik).
@@ -151,7 +151,7 @@ Adrenalin (gövde < 50 güç +%15), Cam top (güç +%25, hasar ×2), Hurdacı (h
 
 ### DENGE §9 dört etki
 - Performans bütçesi: MUTANT kariyer sınıf/puanından ayrı; pasif gücü ×1,9 sınırı, motor değişimi yok.
-- Başarı eşiği: boss hedefleri ölçülmüş referans; bölge 1 stokla geçilir, bölge 3 birleşik build ister (ulaşılabilirlik ölçümü aşağıda).
+- Başarı eşiği: boss hedefleri ölçülmüş referans; bölge 1 stokla geçilir, bölge 3 birleşik build ister ve ölçümle ulaşılabilir.
 - Kazanç hızı: ödül riskle ×1-×3,5; nadir parça ancak bölge 2'de ve ×1,4; para/XP kariyere geçmez.
 - Kayıt uyumu: koşu kayıtsız (oturumluk); yalnız `lt_mutant` rekoru; kariyer kaydı değişmez.
 

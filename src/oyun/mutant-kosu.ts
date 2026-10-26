@@ -26,6 +26,8 @@ export interface Referans {
   uzman: number;
   /** atölyenin en güçlü motor yolu (yarış motoru + büyük turbo), uzmanlık yok */
   nadir: number;
+  /** nadir motor + türe uzmanlık birleşik (bölge 3 hedefinin ulaşılabilirlik kanıtı) */
+  birlesik: number;
 }
 
 export interface Boss {
@@ -506,13 +508,21 @@ export function bossBitti(k: Kosu, kazandi: boolean, pistler: readonly PistAdayi
 /**
  * boss hedefi ölçülmüş referanstan (issue #16, docs/denge/2026-10-26-mutant-olcum.json): bölge 1 stok aracın sonucu
  * (+%5 pay: başlangıç aracıyla geçilir); bölge 2 dengeli ya da uzman build'in iyisi (+%2: yatırım ister); bölge 3+
- * uzman ve nadir motor yolunun iyisinden %2 iyi: ölçümde nadir motor tek başına uzmanı çoğu pistte geçtiği için tek yol
- * yetmez, motor + boss'a uygun uzmanlık birleşmeli. Referans tek tur; boss turu sayısıyla çarpılır.
+ * nadir motor + uzmanlık birleşik build'in sonucu (+%2: ölçümle ulaşılabilir). Bölge 3 boss'u yalnız tek yolun (nadir
+ * motor ya da uzman tek başına) hedefi geçemediği pistlerden seçilir. Referans tek tur; boss tur sayısıyla çarpılır.
  */
-export const BOSS_PAY = [1.05, 1.02, 0.98];
+export const BOSS_PAY = [1.05, 1.02, 1.02];
 function bossReferansi(bolge: number, r: Referans, drift: boolean) {
   const iyi = (a: number, b: number) => (drift ? Math.max(a, b) : Math.min(a, b));
-  return bolge <= 1 ? r.stok : bolge == 2 ? iyi(r.dengeli, r.uzman) : iyi(r.uzman, r.nadir);
+  return bolge <= 1 ? r.stok : bolge == 2 ? iyi(r.dengeli, r.uzman) : r.birlesik;
+}
+
+/** bölge 3 hedefini nadir motor da uzman da tek başına geçemiyor mu (tek tur, pay dahil) */
+export function tekYolYetmez(ty: YarisTuru, r: Referans) {
+  const d = ty == "dp",
+    h = d ? r.birlesik / BOSS_PAY[2] : r.birlesik * BOSS_PAY[2],
+    gecer = (v: number) => (d ? v >= h : v <= h);
+  return !gecer(r.nadir) && !gecer(r.uzman);
 }
 
 /** boss olabilen pistler: türde, referansı ölçülmüş; bölge 1'de türün kolay yarısı */
@@ -521,7 +531,11 @@ export function bossAdaylari(ty: YarisTuru, bolge: number, pistler: readonly Pis
     olculen = tur.filter((p) => p.ref),
     // ölçülmüş pist yoksa (yeni tür) türün bütün pistleri; hedef yıldızdan gelir
     l = olculen.length ? olculen : tur;
-  return bolge <= 1 ? l.slice(0, Math.max(1, Math.ceil(l.length / 2))) : l;
+  if (bolge <= 1) return l.slice(0, Math.max(1, Math.ceil(l.length / 2)));
+  if (bolge == 2) return l;
+  // bölge 3+: tek yolun yetmediği pistler (yoksa bütün ölçülenler: açık risk, ölçüm raporu)
+  const zor = l.filter((p) => p.ref && tekYolYetmez(ty, p.ref));
+  return zor.length ? zor : l;
 }
 
 /** boss yarışının pisti: aday listesinden tohumla; aynı tohum ve bölgeyle aynı */
