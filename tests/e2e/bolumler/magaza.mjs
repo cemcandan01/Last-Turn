@@ -73,7 +73,7 @@ export default async function ({ p, ok }) {
     ac.serit.kapali == 1 && ac.serit.acik == 6 && ac.serit.sonra == 1,
     "süzgeç açılır kapanır: kapalı tek düğme, açık Tümü + 5 tür: " + JSON.stringify(ac.serit),
   );
-  // seviye yok: Beyaz Kurt (4 / 3000)
+  // seviye yok: Beyaz Kurt (seviye 4; fiyat ekonomi tablosundan: LT.aracFiyati)
   const sv = await git(2);
   ok(
     sv.kilitli &&
@@ -116,7 +116,7 @@ export default async function ({ p, ok }) {
   await foto("para-yok");
   ok(!(await q.evaluate(() => LT.aracSatinAl(2))), "parasız satın alma reddedildi");
   // para yeterli
-  await q.evaluate(() => LT.paraEkle(3000, "test"));
+  await q.evaluate(() => LT.paraEkle(LT.aracFiyati(2).para, "test"));
   const sa = await git(2);
   ok(
     sa.satilik && sa.al && !sa.disabled && /Satın al/.test(sa.yazi),
@@ -200,7 +200,10 @@ export default async function ({ p, ok }) {
     "ikinci dokunuş satın aldı, kutlama ve Garaja git çıktı: " + JSON.stringify(son),
   );
   ok(!son.magazada, "satın alınan araç mağazadan düştü");
-  ok((await q.evaluate(() => LT.para())) == para0 - 3000, "bedel düştü");
+  ok(
+    (await q.evaluate(() => LT.para())) == para0 - (await q.evaluate(() => LT.aracFiyati(2).para)),
+    "bedel düştü",
+  );
   await q.waitForTimeout(1600);
   ok(!(await q.evaluate(() => !!document.querySelector(".gkutla"))), "kutlama kendiliğinden kalktı");
   // garajda artık var
