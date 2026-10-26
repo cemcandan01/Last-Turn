@@ -1,6 +1,6 @@
 # LT-SYS-001 Sistemik oynanış ve etkileşim çekirdeği
 
-Durum: MUTANT v1 hazır, `claude/mutant` dalında; 0.7.8 regresyonu canlı onayı beklediği için denemeye gönderilmedi. Aktif sahip: Claude (2026-10-26 Cem kararı: tek uygulayıcı, dal claude/sistemik-oynanis-faz1; codex/sistemik-oynanis-tasarim ve PR #15 bu dala birleştirildi, Codex bu görevde durur).
+Durum: MUTANT v1 denemede (0.8.1, /dev/); canlı 0.7.8 değişmedi. Aktif sahip: Claude (2026-10-26 Cem kararı: tek uygulayıcı, dal claude/sistemik-oynanis-faz1; codex/sistemik-oynanis-tasarim ve PR #15 bu dala birleştirildi, Codex bu görevde durur).
 Dal: claude/mutant (önceki: claude/sistemik-oynanis-faz1, codex/sistemik-oynanis-tasarim), taban: gelistirme.
 Hedef: LEGO benzeri parçalarla oyuncu kendi build kombinasyonlarını keşfetsin. Hazır kombo tarifleri veya koşulsuz üstün build üretmeyelim.
 
@@ -178,3 +178,8 @@ Kapsam: `src/cekirdek/mekanikler.ts` (taslağın yerine), `tests/birim/mekanikle
 - PR #15 açıklamayla kapatıldı.
 - **Engel:** origin/regresyon durum.json 0.7.8 "onay-bekliyor". surum-yayinla kuralı: gelistirme'ye gönderilmez. Cem 0.7.8'i canlıya onaylayınca (ya da "regresyondaki sürüme girsin" derse) `claude/mutant` → gelistirme, yama +1.
 - Tek sonraki adım: 0.7.8 kararı sonrası denemeye gönder; Cem telefonda koşu/görev zorluğu ve Tutuş Darbesi hissini söylesin.
+
+### 0.8.1 deneme yayını
+- 0.7.8 canlıya çıkıp 0.8.0 açılınca engel kalktı. claude/mutant → gelistirme çakışmasız; birleşme + sürüm d85e09e (0.8.0 → 0.8.1). gelistirme'de 6783c6a'dan beri src/tests değişmediği için önceki test sonuçları yeniden kullanıldı; sürüm artışı sonrası `npm run kontrol` temiz.
+- CI Denetim 40297645277 (d85e09e) başarılı. Yayın 40297650767: derleme, Pages yayını ve "yeni sürümler adreste göründü mü" kontrolü başarılı. Bu oturumdan github.io'ya ağ erişimi yok (403); adres kanıtı iş akışının kontrol adımıdır.
+- Sonraki: Cem /dev/'de MUTANT'ı oynasın (görev zorluğu, Tutuş Darbesi hissi); canlı çıkış gece regresyonu + Cem onayı.

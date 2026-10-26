@@ -1,9 +1,9 @@
-# Son devir: MUTANT v1 (LT-SYS-001)
+# Son devir: MUTANT v1 0.8.1 denemede (LT-SYS-001)
 
 - Claude / claude/mutant (tek sahip). Kart docs/isler/LT-SYS-001-sistemik-oynanis.md; dal notu docs/notlar/mutant.md; kural ALANLAR "MUTANT".
 - Serbest sürüş menüden kalktı, yerine MUTANT: dünya → garaj → 3 perkten 1 → süreli görevler → özet. Tutuş Darbesi tek fizik etkisi (yerel `havaTutusu` çarpanı); yarışta 1. Ödül/XP/kariyer yok, rekor lt_mutant.
 - Yerel: kontrol temiz, npm test 338/338, alan mutant+menu+garaj+hud+surus+hayalet+fizik 58/58. CI 40292640713 / 40292780668 başarılı. Matris 129 kombinasyon kırılmasız.
-- Engel: 0.7.8 regresyonda canlı onayı bekliyor → gelistirme'ye gönderilmedi, oyun sürümü artmadı. Sonraki: Cem 0.7.8 kararını verince denemeye gönder (yama +1).
+- 0.8.1 denemede: d85e09e; CI 40297645277, Yayın 40297650767 (derleme/yayın/adres kontrolü) başarılı. Canlı 0.7.8 değişmedi. Sonraki: Cem /dev/'de oynasın; zorluk/darbe hissine göre ince ayar; canlı çıkış regresyon + Cem onayı.
 
 ## Önceki iş: yakın takip kamerası 0.7.7
 
