@@ -158,3 +158,8 @@ Adrenalin (gövde < 50 güç +%15), Cam top (güç +%25, hasar ×2), Hurdacı (h
 ### Açık riskler
 - Pilot insan değildir; özellikle driftte referans beceriyi değil gücü ölçer. Cem'in testinden sonra drift boss kademesi ayrıca ayarlanmalı.
 - Etkinlik yıldızları kariyer eşikleri; güçlü build'le güvenli/riskli kademeler kolay kalabilir (ölümcül hâlâ zor). İkinci oyuncu testinde ölçülmeli.
+
+### Doğrulama ve yayın (issue #16)
+- Yerel: `npm test` 353/353; alan mutant, menu, garaj, hud, kariyer 56/56; MUTANT e2e 11/11; iPhone 13 risk kartı/atölye/boss görüntüleri incelendi.
+- **0.8.4 denemede** (gelistirme 14b0548): Denetim 40347080656 ve 40347092291 başarılı; Yayın 40347088798 (derleme/yayın/adres kontrolü) başarılı. Canlı 0.7.8 değişmedi. Issue #16'ya teslim raporu yazıldı; PR #17 (Codex görsel) gözden geçirildi: biçim CI'ı ve iki İngilizce metin düzeltilmeli.
+- Sonraki: Cem ikinci oyuncu testi (bölge 2-3 ulaşılabilirlik, risk kademesi gerilimi, hasar bedeli); PR #17 birleşince `sayfaAc` sarmalayıcısı.

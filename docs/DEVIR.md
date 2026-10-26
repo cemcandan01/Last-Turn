@@ -1,4 +1,10 @@
-# Son devir: MUTANT A1 (LT-SYS-002)
+# Son devir: MUTANT issue #16 denge 0.8.4
+
+- Claude / claude/mutant. Kart docs/isler/LT-SYS-002-mutant-roguelite-tasarim.md §9; ölçüm docs/denge/2026-10-26-mutant-olcum.json (+ birlesik); referans src/oyun/mutant-denge.ts.
+- Ölçüm (40 pist × 7 build) motor değişiminin tek başına baskın olduğunu doğruladı: MUTANT'ta satılmaz. Etkinlik risk kademesi (1★/2★/3★, ödül ×1/×2/×3,5, kaçırma süre cezası), bölge atölye stoğu, ölçülmüş boss hedefi (bölge 1 stok, 2 dengeli/uzman, 3 nadir+uzman; bölge 3 pisti tek yolun yetmediği 16 pistten), gövde hasarı/pert/tamir, kural pasifleri (Adrenalin, Cam top, Hurdacı, Kumarbaz, Son nefes).
+- 0.8.4 denemede: 14b0548; Denetim 40347092291, Yayın 40347088798 başarılı. npm test 353/353, 5 alan 56/56. Açık risk: rallikros bölge 3 nadir motorla geçilir; drift referansı beceriyi ölçmez. Sonraki: Cem testi; PR #17 (Codex görsel) birleşimi.
+
+## Önceki iş: MUTANT A1 (LT-SYS-002)
 
 - Claude / claude/mutant. Kart docs/isler/LT-SYS-002-mutant-roguelite-tasarim.md §7-8; dal notu docs/notlar/mutant.md; kural ALANLAR "MUTANT".
 - v1 (görev + Tutuş Darbesi) Cem testinde başarısız, kaldırıldı. A1: kötü araç + pasif → Çorak Topraklar'da etkinlik/atölye/boss işaretleri → boss geri sayımı (15 dk) → mevcut pistlerde tek turluk etkinlik (kariyer dışı) → XP/pasif, para/atölye → zorunlu boss (hava/gece, sıkı hedef) → bölge 2 ya da özet.
