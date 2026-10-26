@@ -48,7 +48,16 @@ export default async function ({ p, ok }) {
     r.pasif = res.querySelectorAll("[data-pasif]").length == 3;
     tik("[data-pasif]");
     const k = LT.mutant.kosu;
-    await bekle(200);
+    await bekle(700);
+    // Merkez ve atölye aynı noktada: oyuncu hareket etmeden atölye otomatik açılmamalı.
+    r.baslangicAtolye = LT.oyun.mode == "drive" && LT.mutant.kapali == "a";
+    const isaretAdlari = new Set();
+    LT.scene.traverse((o) => {
+      if (o.name.startsWith("mutant-etiket-")) isaretAdlari.add(o.name.slice(14));
+    });
+    r.isaretYazilari = ["ASFALT", "RALLİKROS", "RALLİ", "DRİFT", "DRAG", "ATÖLYE", "BOSS"].every(
+      (ad) => isaretAdlari.has(ad),
+    );
     r.surus =
       LT.oyun.mode == "drive" &&
       k.faz == "surus" &&
@@ -156,6 +165,8 @@ export default async function ({ p, ok }) {
   ok(r.menu, "ana menüde Serbest sürüş yerine MUTANT");
   ok(r.basla && r.pasif, "koşu başı: garaj yok, boss kartı, 3 kötü araç, 3 başlangıç pasifi");
   ok(r.surus, "açık dünyada 8 etkinlik, HUD'da MUTANT ve boss geri sayımı");
+  ok(r.baslangicAtolye, "başlangıç noktasında atölye kendi kendine açılmaz");
+  ok(r.isaretYazilari, "dünyadaki yarış işaretlerinin türü uzaktan yazıyla anlaşılır");
   ok(r.kart && r.etkinlik, "etkinlik işaretinde durunca kart; etkinlik koşu aracıyla, kariyer dışı");
   ok(
     r.sonuc && r.donus,
