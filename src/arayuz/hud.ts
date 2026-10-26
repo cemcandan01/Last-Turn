@@ -16,6 +16,8 @@ import { I, tilt } from "../oyun/girdi";
 import { ikon } from "./ikonlar";
 import { LAP, sim } from "../oyun/surus";
 import { yaris } from "../oyun/yarislar";
+import { mutant } from "../oyun/mutant";
+import { mutantPaneli, mutantTusuGuncelle } from "./mutant-ui";
 
 /** sahte vitesli devir göstergesi: hızdan vites ve devir (x1000) */
 const GEARS = [0, 60, 100, 145, 190, 240, 400];
@@ -122,6 +124,8 @@ function olayPaneli(): [string, string] {
         asim,
     ];
   }
+  const mp = mutantPaneli();
+  if (mp) return mp;
   if (TR && !TR.open)
     return LAP.run
       ? [KRONO + fmt(LAP.t), "Son " + fmt(LAP.last) + " · En iyi " + fmt(LAP.best)]
@@ -325,7 +329,7 @@ export function hudGuncelle(v: number) {
   if (E.hSP.style.display != gizli) E.hSP.style.display = gizli;
   yazi(E.gear, motor.GEAR < 0 ? "R" : String(motor.GEAR || "N"));
   if (gorunum.hiz == "kadran") kadranYay(kmh / (VMAX * 3.6));
-  yazi(E.hName, EV ? EV.n : oyun.CURW.n);
+  yazi(E.hName, EV ? EV.n : mutant.kosu ? "MUTANT · " + oyun.CURW.n : oyun.CURW.n);
   const [ana, alt] = olayPaneli();
   yaziHtml(E.ev, ana);
   yazi(E.lap, alt);
@@ -342,6 +346,7 @@ export function hudGuncelle(v: number) {
   );
   driftGostergesi();
   pisteDonusSayaci();
+  mutantTusuGuncelle();
   if (CT.steer == "tilt") {
     const c = document.getElementById("cal");
     if (c) yazi(c, performance.now() - tilt.t < 1500 ? "Ortala" : "Sensör izni");

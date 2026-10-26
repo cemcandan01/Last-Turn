@@ -1906,6 +1906,64 @@ details[open] > summary::after {
   display: none;
 }
 
+/* MUTANT: Tutuş Darbesi tuşu sol grubun üstünde. Enerji tuşun içinde soldan dolar (--e), ince çizgi bir darbenin
+   maliyeti (--m). Hazırken kenar turuncu, açıkken (darbe sürüyor) tuş turuncu */
+#mdb {
+  position: relative;
+  overflow: hidden;
+  width: min(96px, calc(var(--aw) * 0.22));
+  height: 44px;
+  border-radius: 14px;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  color: #dfe8e6;
+}
+#mdb i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--e, 0%);
+  background: #ff7a3c55;
+  transition: width 0.15s;
+}
+#mdb s {
+  position: absolute;
+  bottom: 0;
+  height: 7px;
+  left: var(--m, 30%);
+  width: 2px;
+  background: #ffffff88;
+}
+#mdb b {
+  position: relative;
+}
+#mdb.hazir {
+  border-color: var(--acc);
+}
+#mdb.on {
+  background: #ff7a3c88;
+  border-color: var(--acc);
+}
+#mdb:not(.hazir):not(.on) b {
+  opacity: 0.6;
+}
+/* MUTANT perk seçimi: kartlar yatay ekranda yan yana */
+.mtp {
+  display: flex;
+  gap: 10px;
+}
+.mtz {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 10px;
+}
+.mtp .card {
+  flex: 1 1 0;
+  margin: 4px 0;
+  cursor: pointer;
+}
+
 /* --- HUD düzenleyici: örnek oyun görüntüsü, ortada seçim paneli (aracın yeri) --- */
 #hdA {
   position: fixed;

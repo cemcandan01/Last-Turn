@@ -2,7 +2,13 @@
 // Oyun kodu bu dosyayı kullanmaz.
 export { CARS } from "../arac/araclar";
 export { gorunumUygula } from "../arac/gorunumler";
-export { showMenu, startWorld } from "../arayuz/menu";
+export { showMenu } from "../arayuz/menu";
+import { startWorld as dunyaBaslat } from "../arayuz/menu";
+/** test sürüşü: açık dünyada MUTANT koşusu olmadan (eski testler); MUTANT için mutantBasla */
+export const startWorld = (w: number) => dunyaBaslat(w, false);
+export const mutantBasla = (w: number) => dunyaBaslat(w, true);
+export { mutant, mutantKapat } from "./mutant";
+export { PERKLER } from "./mutant-kurallari";
 export { openGarage, closeGarage, magazaAc, magazaAc as openStore } from "../arayuz/garaj";
 export { lastikDegistir } from "../arayuz/ayarlar-ekrani";
 export { showSet } from "../arayuz/ayarlar-ekrani";

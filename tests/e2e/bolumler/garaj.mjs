@@ -19,7 +19,10 @@ export default async function ({ p, ok }) {
     const gar = !document.querySelector("#gar").classList.contains("hidden");
     document.querySelector("#gnx").click();
     document.querySelector("#gok").click();
-    const r = { gar, mod: LT.oyun.mode, w: LT.oyun.CURW.n, pk: LT.kurulum.pk, aracPk: LT.oyun.CAR.pk };
+    // MUTANT: garajdan sonra perk seçimi, seçince sürüş
+    const secim = LT.oyun.mode == "result" && !!document.querySelector("#res [data-perk]");
+    document.querySelector("#res [data-perk]")?.click();
+    const r = { gar, secim, mod: LT.oyun.mode, w: LT.oyun.CURW.n, pk: LT.kurulum.pk, aracPk: LT.oyun.CAR.pk };
     LT.showSet();
     r.serbestOnayar = !!document.querySelector("#set details[data-sec='pre']");
     LT.showMenu(["home"]);
@@ -35,12 +38,12 @@ export default async function ({ p, ok }) {
     return r;
   });
   ok(
-    sg.gar && sg.mod == "drive" && sg.w == "Boş Otopark" && sg.pk == sg.aracPk,
-    "serbest sürüşten önce garaj açılıyor, araç kendi önayarıyla başlıyor",
+    sg.gar && sg.secim && sg.mod == "drive" && sg.w == "Boş Otopark" && sg.pk == sg.aracPk,
+    "MUTANT'tan önce garaj açılıyor, perk seçimiyle başlıyor, araç kendi önayarıyla",
   );
   ok(
     sg.serbestOnayar && !sg.yarisOnayar && sg.yarisPk == "dr",
-    "önayar yalnız serbest sürüşte; drift yarışında aracın drift önayarı",
+    "önayar yalnız açık dünyada (MUTANT); drift yarışında aracın drift önayarı",
   );
   // yatay 844x390: garaj paneli kaydırmasız sığar, seç/geri butonları ekranda görünür (en uzun adlı yarış butonuyla)
   const sig = await p.evaluate(() => {
