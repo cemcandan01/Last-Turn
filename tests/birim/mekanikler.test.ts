@@ -2,8 +2,13 @@ import { describe, expect, it } from "vitest";
 import { cl } from "../../src/cekirdek/matematik";
 import {
   ADIM_ISLEM_SINIRI,
+  DEGISTIRICI_SINIRI,
+  TUTUS_DARBESI,
+  TUTUS_UST,
+  kapasiteUygula,
+  parametreler,
+  tutusCarpani,
   DRIFT_HARVESTER,
-  MEKANIK_SISTEMI_ACIK,
   NEDENSEL_DERINLIK,
   driftGozlemcisi,
   driftGozlemiBaslat,
@@ -36,8 +41,7 @@ const gir = (g: number, tg: number): FizikGirdisi => ({
 });
 
 describe("LT-SYS-001 mekanik yürütücü", () => {
-  it("bayrak kapalı; kapalı yürütücü aynı durum nesnesini döndürür", () => {
-    expect(MEKANIK_SISTEMI_ACIK).toBe(false);
+  it("kapalı yürütücü aynı durum nesnesini döndürür", () => {
     const ilk = mekanikBaslat();
     expect(mekanikAdimi(ilk, [tik(0)], [DRIFT_HARVESTER])).toBe(ilk);
   });
@@ -217,5 +221,56 @@ describe("LT-SYS-001 drift gözlemcisi (gerçek fizik, Boş Otopark, Beyaz Kurt)
       b = kos(true, "usta");
     expect(a.m).toEqual(b.m);
     expect(a.tum).toEqual(b.tum);
+  });
+});
+
+describe("LT-SYS-001 ortak kurallar: spin yakma, Tutuş Darbesi, değiştiriciler", () => {
+  const bas = (sira: number): GirisOlayi => ({ tur: "AbilityActivated", sira, yetenek: TUTUS_DARBESI.id });
+  it("spinle biten driftin enerjisi yanar, temiz bitende kalır", () => {
+    const kos = (spin: boolean) => {
+      let d = mekanikBaslat(100, 10);
+      d = mekanikAdimi(d, [{ tur: "DriftStarted", sira: 0, yon: 1 }], [DRIFT_HARVESTER], true);
+      for (let i = 1; i <= 60; i++) d = mekanikAdimi(d, [tik(i)], [DRIFT_HARVESTER], true);
+      return mekanikAdimi(d, [{ tur: "DriftEnded", sira: 61, sure: 1, spin }], [DRIFT_HARVESTER], true);
+    };
+    expect(kos(false).enerji).toBeCloseTo(16, 6);
+    const s = kos(true);
+    expect(s.enerji).toBeCloseTo(10, 6);
+    expect(s.yanan).toBeCloseTo(6, 6);
+  });
+  it("Tutuş Darbesi: maliyet, süre, açıkken ve sonrası beklemede yeniden açılmaz, sonra çarpan 1", () => {
+    let d = mekanikBaslat(100, 100);
+    expect(tutusCarpani(d)).toBe(1);
+    d = mekanikAdimi(d, [bas(0)], [TUTUS_DARBESI], true);
+    expect(d.enerji).toBe(70);
+    expect(tutusCarpani(d)).toBeCloseTo(1.2, 9);
+    d = mekanikAdimi(d, [bas(1)], [TUTUS_DARBESI], true);
+    expect(d.enerji).toBe(70);
+    for (let i = 0; i < 150; i++) d = mekanikAdimi(d, [], [TUTUS_DARBESI], true);
+    expect(tutusCarpani(d)).toBe(1);
+    d = mekanikAdimi(d, [bas(2)], [TUTUS_DARBESI], true);
+    expect(d.enerji).toBe(70);
+    for (let i = 0; i < 125; i++) d = mekanikAdimi(d, [], [TUTUS_DARBESI], true);
+    d = mekanikAdimi(d, [bas(3)], [TUTUS_DARBESI], true);
+    expect(d.enerji).toBe(40);
+  });
+  it("değiştiriciler birleşir ama sınırı aşmaz; tutuş üst sınırı korunur", () => {
+    const asiri = Array.from({ length: 6 }, (_, i) => ({
+      ...TUTUS_DARBESI,
+      id: "d" + i,
+      kategori: "passive" as const,
+      tetik: undefined,
+      etki: undefined,
+      degistir: { kapasite: 80, maliyet: 0.3, sure: 3, tutus: 0.15, yakma: 0 },
+    }));
+    const p = parametreler(asiri);
+    expect(p.kapasite).toBe(DEGISTIRICI_SINIRI.kapasite[1]);
+    expect(p.maliyet).toBe(DEGISTIRICI_SINIRI.maliyet[0]);
+    expect(p.sure).toBe(DEGISTIRICI_SINIRI.sure[1]);
+    expect(p.yakma).toBe(DEGISTIRICI_SINIRI.yakma[0]);
+    let d = kapasiteUygula(mekanikBaslat(100, 100), asiri);
+    d = mekanikAdimi(d, [bas(0)], [TUTUS_DARBESI, ...asiri], true);
+    expect(tutusCarpani(d)).toBeLessThanOrEqual(TUTUS_UST);
+    expect(d.enerji).toBe(85);
   });
 });

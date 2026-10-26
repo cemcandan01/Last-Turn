@@ -155,3 +155,16 @@ Kapsam: `src/cekirdek/mekanikler.ts` (taslağın yerine), `tests/birim/mekanikle
 5. Sürüş yardımı: yüksek drift yardımı enerji kazancını azaltsın mı, yoksa önce ölçülüp sonra mı karar verilsin (öneri)?
 6. Sıradaki adım: FAZ 2 Slide Memory mi, yoksa önce Harvester + enerji göstergesi + tek harcama yolunu yalnız /dev/ deneme sürümündeki gizli bir test alanına bağlayıp elle hissetmek mi (öneri; oyun değişikliği olduğu için deneme yaması +1)?
 7. Codex'in taslak PR #15'i kapatılsın mı (içeriği bu dala alındı)?
+
+## 2026-10-26 Cem kararları: MUTANT
+- Ad: **MUTANT** (TR/EN aynı). Gerçekçi yarış/kariyerin yanında ayrı bir ana mod; oyunun tek modu olmayacak.
+- Serbest sürüş menüden **tamamen kalkar**; yerini MUTANT alır (açık dünya seç → garajda araç → koşu). Mekaniksiz serbest dolaşma yolu kalmaz.
+- İlk sürüm (yalnız /dev/ deneme): küçük koşu döngüsü. Başta 3 perkten 1 seçim → kısa görevler → her başarıdan sonra yeni seçim → süre dolunca koşu biter, özet. Ödül/XP/para/kariyer yok.
+- Önerilerin hepsi kabul: (1) mekanikler yalnız MUTANT'ta; (2) ilk harcama Tutuş Darbesi (Traction Pulse), hız boost'u yok; (3) spinle biten driftin topladığı enerji yanar; (4) MUTANT rekoru ayrı anahtar, kariyer ödülü yok, serbest tur rekoru/hayaleti MUTANT'ta kaydedilmez; (5) yardım etkisi önce ölçülür; (6) /dev/ deneme, yama +1, canlıya yok; (7) PR #15 kapatılır; + kombinasyon matrisi testi.
+
+### MUTANT v1 kabul ölçütleri
+1. Ana menüde "Serbest sürüş" yerine "MUTANT"; dünya → araç → perk seçimi → görev akışı uçtan uca çalışır; eski serbest sürüş girişi ve sonuç ekranındaki "Açık dünyaya dön" yok.
+2. Yarış/kariyer, ekonomi, kayıt ve fizik dosyaları davranış olarak aynı: MUTANT dışında mekanik yürütücü çağrılmaz, tutuş çarpanı 1; mevcut birim + fizik testleri geçer.
+3. Tutuş Darbesi yalnız `havaTutusu` çarpanıyla (fizik koduna dokunmadan) etkiler; aktifken yeniden basılmaz, sonrası bekleme var; hiçbir kombinasyonda kalıcı tutuş yok (matris: süre payı ≤ %70).
+4. Kombinasyon matrisi: bütün ikili/üçlü perk kombinasyonları sonlu, enerji sınırlı, çift ödülsüz; sinerji raporu üretilir, sinerji hata sayılmaz.
+5. iPhone 13 yatay: enerji/darbe tuşu ve görev paneli tuşlara/göstergelere değmez; seçim ve özet ekranı okunur.
