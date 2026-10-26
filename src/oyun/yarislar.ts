@@ -13,7 +13,13 @@ import type { OnayarAnahtari } from "../fizik/veriler";
 import { setActive } from "./bolge";
 import { carIndex, oyun, setCar } from "./durum";
 import { girdiSifirla } from "./girdi";
-import { mutantHedef, mutantKapat, mutantKurulumUygula, mutantPistKaynagi, mutantYarisBitti } from "./mutant";
+import {
+  mutantYarisAyari,
+  mutantKapat,
+  mutantKurulumUygula,
+  mutantPistKaynagi,
+  mutantYarisBitti,
+} from "./mutant";
 import { aracAcikMi, pistAcikMi, yarisBitti } from "./ilerleme";
 import { kariyereUygun, kariyerRekorAnahtari } from "./kariyer";
 import { modifiyeUygula, takiliParcalar } from "./modifiye";
@@ -240,7 +246,8 @@ export function startEvent(i: number, ci?: number, mutantEtkinligi = false) {
     yildiz: 0,
     xp: 0,
     para: 0,
-    limit: mutantEtkinligi ? mutantHedef(e.limit || 0) : e.limit || 0,
+    limit: e.limit || 0,
+    ...(mutantEtkinligi ? mutantYarisAyari(e.laps, e.limit || 0) : {}),
   };
   if (!mutantEtkinligi) rekorHayaletiBaslat(e.k, dunyaSorgusuYap({ cur: null }));
   return true;

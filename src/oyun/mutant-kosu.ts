@@ -357,5 +357,9 @@ export function bossPisti(k: Kosu, pistler: readonly PistAdayi[]): number {
   return aday[Math.min(aday.length - 1, Math.floor(r * ust))].i;
 }
 
+/** harita etkinliği tek tur (geri sayıma sığsın): turlu pistte hedef tur sayısına bölünür; boss tam turdur */
+export const etkinlikAyari = (laps: number | undefined, limit: number) =>
+  laps && laps > 1 ? { laps: 1, limit: limit / laps } : { laps, limit };
+
 /** boss hedefi: drift (puan) yükselir, süre yarışında hedef süre kısalır */
 export const bossHedefi = (k: Kosu, limit: number) => limit * k.boss.hedef;

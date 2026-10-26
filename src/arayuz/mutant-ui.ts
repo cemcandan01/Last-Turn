@@ -30,6 +30,7 @@ import {
 import {
   ATOLYE,
   ETKINLIK_ODULU,
+  etkinlikAyari,
   bossHedefi,
   parcaAl,
   parcaFiyati,
@@ -153,7 +154,7 @@ function pasifSayfasi(baslik: string) {
         if (ilk) {
           isaretleriGuncelle();
           surusDevam();
-          note("Haritadaki ışıklara git: etkinlik, atölye, boss", 70);
+          note("Renkli ışıklar etkinlik, mavi atölye, kırmızı boss", 26);
           return;
         }
         devam();
@@ -173,10 +174,11 @@ function isaret(i: MutantIsaret) {
   if (i.tur == "boss") return bossSayfasi(false);
   const e = k.etkinlikler.find((q) => q.id == i.id)!,
     E = EVENTS[e.i],
+    A = etkinlikAyari(E.laps, E.limit),
     o = ETKINLIK_ODULU(e.sev);
   const s = sayfaAc(
-    `<h1>${TUR[e.ty][0]}</h1><p>${E.n} · ${SEVIYELER[e.sev - 1].n}</p>` +
-      row("Hedef", hedefYazi(E.ty, E.limit)) +
+    `<h1>${TUR[e.ty][0]}</h1><p>${E.n} · ${SEVIYELER[e.sev - 1].n}${A.laps ? " · " + A.laps + " tur" : ""}</p>` +
+      row("Hedef", hedefYazi(E.ty, A.limit)) +
       row("Ödül (hedefi geçersen)", o.xp + " XP · " + o.para + " para") +
       row("Bitirip kaçırırsan", Math.round(o.xp * 0.4) + " XP · " + Math.round(o.para * 0.4) + " para") +
       row("Boss'a kalan", sure(k.kalan)) +
@@ -342,7 +344,9 @@ export function mutantVazgec() {
 export function mutantBaslik(evAdi: string | null): string | null {
   const k = mutant.kosu;
   if (!k) return null;
-  return evAdi ? "MUTANT " + sure(k.kalan) + " · " + evAdi : "MUTANT · BÖLGE " + k.bolge;
+  if (evAdi)
+    return mutant.etkinlik == "boss" ? "BOSS · " + k.boss.ad : "MUTANT " + sure(k.kalan) + " · " + evAdi;
+  return "MUTANT · BÖLGE " + k.bolge;
 }
 export function mutantPaneli(): [string, string] | null {
   const k = mutant.kosu;

@@ -10,6 +10,7 @@ import {
   bossBitti,
   bossPisti,
   bossaGir,
+  etkinlikAyari,
   etkinlikBitti,
   kosuAraci,
   kosuBaslat,
@@ -141,5 +142,10 @@ describe("MUTANT koşu (A1)", () => {
       expect(PISTLER[bossPisti(k, PISTLER)].ty).toBe(k.boss.ty);
       expect(bossPisti(k, PISTLER)).toBe(bossPisti(basla(t), PISTLER));
     }
+  });
+  it("harita etkinliği tek tur, hedef orantılı; tursuz pist değişmez", () => {
+    expect(etkinlikAyari(3, 240)).toEqual({ laps: 1, limit: 80 });
+    expect(etkinlikAyari(undefined, 95)).toEqual({ laps: undefined, limit: 95 });
+    expect(etkinlikAyari(1, 60)).toEqual({ laps: 1, limit: 60 });
   });
 });

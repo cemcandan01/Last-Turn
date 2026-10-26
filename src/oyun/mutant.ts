@@ -15,6 +15,7 @@ import {
   bossHedefi,
   bossPisti,
   bossaGir,
+  etkinlikAyari,
   etkinlikBitti,
   kosuAraci,
   kosuBaslat,
@@ -135,10 +136,10 @@ export function mutantBossKosulu() {
   if (b.gece) COND.tod = "night";
 }
 
-/** yarış başlarken: etkinliğin hedefi (boss'ta sıkılaşır) */
-export function mutantHedef(limit: number) {
+/** yarış başlarken: tur sayısı ve hedef (etkinlik tek tur, boss tam tur ve sıkı hedef) */
+export function mutantYarisAyari(laps: number | undefined, limit: number) {
   const k = mutant.kosu;
-  return k && mutant.etkinlik == "boss" ? bossHedefi(k, limit) : limit;
+  return k && mutant.etkinlik == "boss" ? { laps, limit: bossHedefi(k, limit) } : etkinlikAyari(laps, limit);
 }
 
 /** boss pisti (EVENTS indeksi) */
