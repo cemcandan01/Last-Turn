@@ -262,7 +262,9 @@ function bossSayfasi(zorunlu: boolean) {
   const s = sayfaAc(
     `<h1>${zorunlu ? "Süre doldu!" : "Boss yarışı"}</h1><p>Bölge ${k.bolge} · ${E.n}</p>${bossKarti(k.boss)}` +
       row(
-        "Boss hedefi (bölge " + k.bolge + " · " + "★".repeat(Math.min(3, k.bolge)) + ")",
+        "Boss hedefi (" +
+          ["başlangıç aracı ölçüsü", "geliştirilmiş araç", "motor + uzmanlık"][Math.min(3, k.bolge) - 1] +
+          ")",
         hedefYazi(E.ty, bossHedefi(k, mutantPistleri()[i])),
       ) +
       row("Tur", E.laps || 1) +
