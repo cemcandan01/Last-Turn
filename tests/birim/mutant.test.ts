@@ -1,4 +1,6 @@
+import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { cl } from "../../src/cekirdek/matematik";
 import { TUTUS_DARBESI } from "../../src/cekirdek/mekanikler";
 import {
   GOREVLER,
@@ -10,6 +12,7 @@ import {
   perkSec,
   type Kosu,
 } from "../../src/oyun/mutant-kurallari";
+import { surucuKur } from "../yardimci/surucu";
 
 const DT = 1 / 60;
 type Sahte = Parameters<typeof kosuAdimi>[1];
@@ -119,4 +122,42 @@ describe("MUTANT koşu kuralları", () => {
     };
     expect(kos()).toEqual(kos());
   });
+});
+
+describe("MUTANT ölçüm: sürüş yardımının Drift Hasadı'na etkisi (gerçek fizik)", () => {
+  it(
+    "Boş Otopark, Beyaz Kurt, drift önayarı, ölçülü sürücü: üç yardım seviyesinde enerji",
+    { timeout: 60000 },
+    () => {
+      const sonuc: Record<string, { enerji: number; driftSn: number; spin: number }> = {};
+      for (const lk of ["real", "norm", "arc"] as const) {
+        const s = surucuKur({ dunya: 1, arac: 2, pk: "dr", lk });
+        s.reset(30, -3550, 0);
+        const { DR, D } = s.sim.d;
+        const k = kosuBaslat(1);
+        k.secenekler = ["drift-harvester"];
+        perkSec(k, "drift-harvester");
+        k.gorev = { tur: "drift", hedef: 1e9, sure: 1e9, kalan: 1e9, ilerleme: 0 };
+        let ph = 0;
+        for (let i = 0; i < 12 / DT; i++) {
+          if (i == Math.round(3 / DT)) ph = 1;
+          let sa = 0;
+          if (ph == 1) {
+            sa = 1;
+            if (DR.on) ph = 2;
+          } else if (ph == 2) sa = DR.dir * cl(2.2 * (0.55 - Math.abs(D.beta)), -1, 1);
+          s.adim({ tg: sa, g: 1, b: 0, analogDireksiyon: true, analogGaz: false });
+          kosuAdimi(k, s.sim.d, false, DT);
+        }
+        sonuc[lk] = {
+          enerji: +k.mek.enerji.toFixed(2),
+          driftSn: +k.gorev!.ilerleme.toFixed(2),
+          spin: s.olaylar.spin,
+        };
+        expect(k.mek.enerji, lk).toBeGreaterThan(0);
+      }
+      mkdirSync("tests/cikti", { recursive: true });
+      writeFileSync("tests/cikti/mutant-yardim.json", JSON.stringify(sonuc, null, 1));
+    },
+  );
 });
