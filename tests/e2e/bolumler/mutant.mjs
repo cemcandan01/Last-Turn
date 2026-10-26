@@ -5,6 +5,11 @@
 export default async function ({ p, ok }) {
   const r = await p.evaluate(async () => {
     const bekle = (ms) => new Promise((s) => setTimeout(s, ms));
+    // CI yavaş olabilir: koşul sağlanana dek (en çok 8 sn) bekle
+    const olana = async (f) => {
+      for (let i = 0; i < 80 && !f(); i++) await bekle(100);
+      return f();
+    };
     const res = document.querySelector("#res"),
       r = {};
     LT.demoStop();
@@ -34,8 +39,7 @@ export default async function ({ p, ok }) {
       ilerleme = localStorage.getItem("lt_ilerleme"),
       p0 = k.para;
     LT.reset(e.x, e.z, 0);
-    await bekle(1200);
-    r.kart = LT.oyun.mode == "result" && !!res.querySelector("#mBasla");
+    r.kart = await olana(() => LT.oyun.mode == "result" && !!res.querySelector("#mBasla"));
     res.querySelector("#mBasla").click();
     const EV = LT.yaris.EV;
     r.etkinlik =
@@ -58,15 +62,14 @@ export default async function ({ p, ok }) {
     // atölye
     k.para = 2000;
     LT.reset(0, -90, 0);
-    await bekle(1200);
-    r.atolye = res.textContent.includes("Atölye");
+    r.atolye = await olana(() => res.textContent.includes("Atölye") && !!res.querySelector("[data-parca]"));
     res.querySelector("[data-parca]").click();
     r.parca = k.parcalar.length == 1 && !!LT.kurulum.mod && LT.kurulum.mod.parcalar.includes(k.parcalar[0]);
     res.querySelector("#mKapat").click();
     LT.reset(140, 300, 0);
     // süre dolar: zorunlu boss
     k.kalan = 0.02;
-    await bekle(400);
+    await olana(() => !!res.querySelector("#mBoss"));
     r.boss =
       res.textContent.includes("Süre doldu") && !!res.querySelector("#mBoss") && !res.querySelector("#mGec");
     res.querySelector("#mBoss").click();

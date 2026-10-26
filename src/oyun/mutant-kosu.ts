@@ -159,7 +159,8 @@ export interface Kosu {
 
 const sec = <T>(r: Rastgele, a: readonly T[]) => a[Math.floor(r() * a.length)];
 
-/** etkinlik ve atölyenin konabileceği yerler (açık dünyada sürülebilir: oval, düz yol, rampa, tırmanış) */
+/** etkinliklerin konabileceği yerler: açık dünyada düz zemin (oval, düz yol, rampa önü, tırmanış başı, düzlük).
+ *  Tepe ve yokuş yok: orada duran araç kayar, işarete giremez */
 export const YERLER: [number, number][] = [
   [140, 0],
   [70, 78],
@@ -173,10 +174,10 @@ export const YERLER: [number, number][] = [
   [210, 600],
   [-250, -175],
   [-40, 60],
-  [-40, 300],
-  [-330, 110],
-  [330, -200],
-  [100, -300],
+  [-150, -500],
+  [450, 450],
+  [-450, -450],
+  [-550, 350],
 ];
 /** atölye sabit: merkez yakını */
 export const ATOLYE: [number, number] = [0, -90];
