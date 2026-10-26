@@ -83,6 +83,7 @@ export function isaretleriKur(liste: readonly Isaret[], H: (x: number, z: number
       const etiket = new THREE.Sprite(etiketMalzemesi(i.etiket));
       etiket.scale.set(28, 7, 1);
       etiket.position.set(i.x, y + 15, i.z);
+      etiket.name = "mutant-etiket-" + i.etiket;
       etiket.renderOrder = 10;
       grup.add(etiket);
     }
