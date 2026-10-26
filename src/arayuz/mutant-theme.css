@@ -102,3 +102,17 @@
 .mutant-shell .mt-counter>span{color:#e5da85}
 .mutant-shell .mt-risk strong,.mutant-shell .mt-counter strong{font-size:clamp(11px,1.5vw,14px);line-height:1.32;color:#f1f3f5;overflow-wrap:anywhere}
 .mutant-shell .mt-warning{border-left:3px solid #ff766e;padding:7px 10px;background:#652c344a;color:#ffe3d5}
+
+/* 0.8.4: seçilen riskin ödül/bedel kademesini görselleştir. */
+.mutant-shell .mt-risk-choice{position:relative;border-bottom-width:4px}
+.mutant-shell .mt-risk-0{border-bottom-color:#8acba5;background:linear-gradient(150deg,#203b37ed,#111722f2)}
+.mutant-shell .mt-risk-1{border-bottom-color:#f6be69;background:linear-gradient(150deg,#413422ed,#111722f2)}
+.mutant-shell .mt-risk-2{border-bottom-color:#ff7067;background:linear-gradient(150deg,#48282bed,#111722f2)}
+.mutant-shell .mt-risk-choice span:last-child{color:#ffe3d7;font-weight:750}
+.mutant-shell .mt-risk-choice:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.mutant-shell .bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.mutant-shell .bar .btn{margin:0;min-height:38px}
+.mutant-shell .mtz .rk:has(.mal){min-height:48px}
+.mutant-shell .mtz .rk span:first-child{min-width:0;overflow-wrap:anywhere}
+.mutant-shell .mtz .rk small{display:block;margin-top:2px;font-size:clamp(10px,1.2vw,12px);font-weight:400}
+@media(max-height:440px){.mutant-shell .mt-risk-choice{min-height:86px}.mutant-shell .mt-risk-choice span{margin-top:3px}}
