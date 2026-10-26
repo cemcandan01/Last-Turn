@@ -55,9 +55,9 @@ export default async function ({ p, ok }) {
     LT.scene.traverse((o) => {
       if (o.name.startsWith("mutant-etiket-")) isaretAdlari.add(o.name.slice(14));
     });
-    r.isaretYazilari = ["ASFALT", "RALLİKROS", "RALLİ", "DRİFT", "DRAG", "ATÖLYE", "BOSS"].every(
-      (ad) => isaretAdlari.has(ad),
-    );
+    const yarisTurleri = ["ASFALT", "RALLİKROS", "RALLİ", "DRİFT", "DRAG"];
+    r.isaretYazilari = yarisTurleri.every((ad) => isaretAdlari.has(ad));
+    r.isaretYazilari &&= isaretAdlari.has("ATÖLYE") && isaretAdlari.has("BOSS");
     r.surus =
       LT.oyun.mode == "drive" &&
       k.faz == "surus" &&
