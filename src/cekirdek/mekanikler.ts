@@ -95,6 +95,7 @@ export function mekanikBaslat(kapasite = 100, baslangic = 0): MekanikDurum {
 const gecerliTanim = (m: MekanikTanim) =>
   !!m.id &&
   m.versiyon >= 1 &&
+  Number.isSafeInteger(m.beklemeAdimi) &&
   m.beklemeAdimi >= 0 &&
   m.maliyet >= 0 &&
   m.kazanc >= 0 &&
@@ -117,7 +118,14 @@ function kosulUyar(m: MekanikTanim, o: MekanikOlay): boolean {
   if (m.tetik !== o.tur) return false;
   const k = m.kosul;
   if (o.tur === "DriftTickQualified") {
-    if (!(o.dt > 0) || !Number.isFinite(o.dt) || !Number.isFinite(o.hiz) || !Number.isFinite(o.aci))
+    // bir sabit adımdan (1/60 sn) uzun tek adım nitelikli sayılmaz (Codex 0b418c3 sınırı)
+    if (
+      !(o.dt > 0) ||
+      o.dt > 1 / 30 ||
+      !Number.isFinite(o.dt) ||
+      !Number.isFinite(o.hiz) ||
+      !Number.isFinite(o.aci)
+    )
       return false;
     if (k?.enAzHiz !== undefined && o.hiz < k.enAzHiz) return false;
     if (k?.enAzAci !== undefined && Math.abs(o.aci) < k.enAzAci) return false;

@@ -66,13 +66,15 @@ describe("LT-SYS-001 mekanik yürütücü", () => {
         tik(2, { aci: 0.19 }),
         tik(3, { dt: 0 }),
         tik(4, { dt: Number.NaN }),
-        { tur: "DriftEnded", sira: 5, sure: 2, spin: false },
+        tik(5, { dt: Infinity }),
+        tik(6, { dt: 1 / 20 }),
+        { tur: "DriftEnded", sira: 7, sure: 2, spin: false },
       ],
       [DRIFT_HARVESTER],
       true,
     );
     expect(d.enerji).toBe(0);
-    expect(d.sonSira).toBe(5);
+    expect(d.sonSira).toBe(7);
   });
   it("enerji 0 ile kapasite arasında kalır, uzun driftte taşmaz", () => {
     let d = mekanikBaslat(2, 1.99);

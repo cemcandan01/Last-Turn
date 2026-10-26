@@ -1,7 +1,7 @@
 # LT-SYS-001 Sistemik oynanış ve etkileşim çekirdeği
 
-Durum: FAZ 0 bağımsız değerlendirme tamam; FAZ 1 uygulamada. Aktif sahip: Claude (2026-10-25'te ChatGPT/Codex'ten devraldı; aynı görevde başka uygulayıcı yok).
-Dal: codex/sistemik-oynanis-tasarim, taban: gelistirme.
+Durum: FAZ 0 tamam; FAZ 1 yerelde doğrulandı. Aktif sahip: Claude (2026-10-26 Cem kararı: tek uygulayıcı, dal claude/sistemik-oynanis-faz1; codex/sistemik-oynanis-tasarim ve PR #15 bu dala birleştirildi, Codex bu görevde durur).
+Dal: claude/sistemik-oynanis-faz1 (eski: codex/sistemik-oynanis-tasarim), taban: gelistirme.
 Hedef: LEGO benzeri parçalarla oyuncu kendi build kombinasyonlarını keşfetsin. Hazır kombo tarifleri veya koşulsuz üstün build üretmeyelim.
 
 ## Doğrulanan mimari
@@ -72,6 +72,19 @@ Kaynak grafında pozitif döngü, otomatik tekrar, sonsuz yığınlama, hasar sp
 
 ## Claude/Codex devir talimatı
 CLAUDE.md, docs/DEVIR.md ve bu kartı oku. Önce gelistirme HEAD ve dal durumunu doğrula. Faz 0 envanterini tamamla ve ardından Faz 1 saf sözleşme/yürütücü/unit testi kodunu ayrı commit ile uygula. Fizik dengesini ve master yayınını değiştirme. Kart ve devir dosyalarına gerçek test/commit sonucunu yaz.
+
+## 2026-10-26 kullanıcı kararı: Roguelike test alanı
+- Ana menüdeki Serbest Sürüş, güvenli çekirdek doğrulandıktan sonra arcade roguelike deneme moduyla değiştirilebilir. Eski serbest sürüşün temel amacı mekanik testiydi; test alanı yeni mod içinde korunabilir.
+- Yarış/kariyer, ana menü, kayıt, ekonomi ve canlı sürüm şimdilik değiştirilmez.
+- Roguelike yapı: her denemede seçmeli perk/skill/modifiye parçaları, oyuncunun kendi build'ini yaratması, değişen rakip/pist koşulları, karşı oyun ve deneme sonu analiz. Zorunlu hazır kombo yok.
+- Öncelik: önce FAZ 1 çekirdeği ve CI; ardından ayrı deneysel menü akışı. Menüyü henüz değiştirme.
+
+## FAZ 1 ara uygulama ve doğrulama (Codex, codex/sistemik-oynanis-tasarim; Claude dalına birleştirildi, kod yerine Claude sürümü geçti)
+- src/cekirdek/mekanikler.ts bağımsız enerji ve tipli olay yürütücüsü olarak eklendi; varsayılan kapalı. tests/birim/mekanikler.test.ts eklendi.
+- PR #15 taslak; gelistirme/master ile birleştirilmedi.
+- İlk CI #40244805763: typecheck + lint başarılı, biçim (Prettier) başarısız; sonraki adımlar atlandı. Testlerin geçtiği iddia edilemez.
+- Sonraki düzeltmeler: olay kimlikleri yalnız adım içinde biriktirilir (sınırsız bellek büyümesi kaldırıldı), sayı girdileri doğrulanır. Olaylar gerçek fizik adapter'ına henüz bağlı değildir.
+- Açık engel: yeni iki dosyanın Prettier biçim uyumu ve CI doğrulaması; ardından olay kimliği ve deterministik tekrar testlerinin genişletilmesi. Code dosyaları bu durumdayken 'tamamlandı' veya 'yayında' sayılmamalıdır.
 
 ## FAZ 0 bağımsız değerlendirme (Claude, 2026-10-25)
 
