@@ -94,3 +94,11 @@
  .mutant-shell .mtp .card{min-height:70px}
 }
 @media(prefers-reduced-motion:reduce){.mutant-shell *, .mutant-shell *::before{transition:none!important;animation:none!important}}
+
+/* Boss bilgi hiyerarşisi ve risk iletişimi */
+.mutant-shell .mt-eyebrow{color:#ffb5a8;font-weight:900;letter-spacing:.16em;font-size:clamp(9px,1.3vw,12px)}
+.mutant-shell .mt-risk,.mutant-shell .mt-counter{display:grid;gap:3px;border-top:1px solid #ffffff24;padding-top:7px}
+.mutant-shell .mt-risk>span,.mutant-shell .mt-counter>span{font-size:clamp(9px,1.15vw,11px);font-weight:900;letter-spacing:.13em;color:#ff9485}
+.mutant-shell .mt-counter>span{color:#e5da85}
+.mutant-shell .mt-risk strong,.mutant-shell .mt-counter strong{font-size:clamp(11px,1.5vw,14px);line-height:1.32;color:#f1f3f5;overflow-wrap:anywhere}
+.mutant-shell .mt-warning{border-left:3px solid #ff766e;padding:7px 10px;background:#652c344a;color:#ffe3d5}
