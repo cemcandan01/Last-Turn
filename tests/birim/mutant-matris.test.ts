@@ -17,7 +17,7 @@ import {
   type GirisOlayi,
   type MekanikTanim,
 } from "../../src/cekirdek/mekanikler";
-import { PERKLER } from "../../src/oyun/mutant-kurallari";
+import { PERKLER } from "../../src/oyun/mutant-enerji";
 
 const DT = 1 / 60,
   SURE = 40;

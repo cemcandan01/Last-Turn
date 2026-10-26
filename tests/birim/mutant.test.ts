@@ -1,163 +1,151 @@
-import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { cl } from "../../src/cekirdek/matematik";
-import { TUTUS_DARBESI } from "../../src/cekirdek/mekanikler";
+import { CARS } from "../../src/arac/araclar";
+import { TDEF } from "../../src/dunya/pist-tanimlari";
 import {
-  GOREVLER,
-  PERKLER,
-  kosuAdimi,
+  BOSSLAR,
+  BOSS_SURESI,
+  ETKINLIK_ODULU,
+  HARITA_ETKINLIK,
+  PASIFLER,
+  bossBitti,
+  bossPisti,
+  bossaGir,
+  etkinlikAyari,
+  etkinlikBitti,
+  kosuAraci,
   kosuBaslat,
-  kosuOzeti,
-  perkBul,
-  perkSec,
-  type Kosu,
-} from "../../src/oyun/mutant-kurallari";
-import { surucuKur } from "../yardimci/surucu";
+  parcaAl,
+  parcaFiyati,
+  pasifSec,
+  seviyeXp,
+  zamanAkis,
+  type PistAdayi,
+} from "../../src/oyun/mutant-kosu";
 
-const DT = 1 / 60;
-type Sahte = Parameters<typeof kosuAdimi>[1];
-/** sahte fizik durumu: drift açık/kapalı, hız, spin */
-const durum = (on: boolean, hiz = 20, cool = 0): Sahte =>
-  ({
-    S: { vx: 0, vz: hiz, air: false },
-    DR: { on: on ? 1 : 0, dir: 1, cool },
-    D: { act: on ? 1 : 0, beta: on ? 0.5 : 0 },
-  }) as unknown as Sahte;
-
-/** ilk seçimde verilen perki seç, görev türünü zorla */
-function hazirla(tohum: number, perk: string, tur: keyof typeof GOREVLER): Kosu {
-  const k = kosuBaslat(tohum);
-  k.secenekler = [perk];
-  perkSec(k, perk);
-  const G = GOREVLER[tur];
-  k.gorev = { tur, hedef: G.hedef(0), sure: G.sure, kalan: G.sure, ilerleme: 0 };
+const PISTLER: PistAdayi[] = TDEF.map((t, i) => ({ i, ty: t.t, sev: t.sev ?? t.lv }));
+const basla = (t = 1) => {
+  const k = kosuBaslat(t, PISTLER);
+  pasifSec(k, k.secenekler[0]);
   return k;
-}
+};
 
-describe("MUTANT koşu kuralları", () => {
-  it("perk kimlikleri tekil, açıklamalı; ilk seçimde 3 farklı perk ve en az bir enerji kaynağı", () => {
-    expect(new Set(PERKLER.map((p) => p.m.id)).size).toBe(PERKLER.length);
-    for (let t = 1; t <= 50; t++) {
-      const k = kosuBaslat(t);
-      expect(k.faz).toBe("secim");
-      expect(new Set(k.secenekler).size).toBe(3);
-      expect(k.secenekler.some((id) => perkBul(id)!.kaynak)).toBe(true);
-    }
-  });
-  it("seçenekte olmayan perk seçilemez; seçim görevi başlatır", () => {
-    const k = kosuBaslat(3);
-    expect(perkSec(k, "yok")).toBe(false);
-    expect(perkSec(k, k.secenekler[0])).toBe(true);
-    expect(k.faz).toBe("gorev");
-    expect(k.gorev).not.toBeNull();
-  });
-  it("enerji kaynağı yokken enerji görevi gelmez", () => {
+describe("MUTANT koşu (A1)", () => {
+  it("başlangıç: boss havuzdan, geri sayım, 3 farklı pasif, her türden etkinlik", () => {
     for (let t = 1; t <= 40; t++) {
-      const k = kosuBaslat(t);
-      k.secenekler = ["genis-batarya"];
-      perkSec(k, "genis-batarya");
-      expect(k.gorev!.tur).not.toBe("enerji");
+      const k = kosuBaslat(t, PISTLER);
+      expect(BOSSLAR).toContain(k.boss);
+      expect(k.kalan).toBe(BOSS_SURESI(1));
+      expect(k.faz).toBe("basla");
+      expect(new Set(k.secenekler).size).toBe(3);
+      expect(k.etkinlikler.length).toBe(HARITA_ETKINLIK);
+      expect(new Set(k.etkinlikler.map((e) => e.ty))).toEqual(new Set(["gp", "rx", "rl", "dp", "dg"]));
+      // aynı yere iki etkinlik konmaz
+      expect(new Set(k.etkinlikler.map((e) => e.x + "," + e.z)).size).toBe(k.etkinlikler.length);
+      for (const e of k.etkinlikler) expect(PISTLER[e.i].ty).toBe(e.ty);
     }
   });
-  it("drift görevi nitelikli drift süresiyle tamamlanır, sonra yeni seçim gelir", () => {
-    const k = hazirla(5, "drift-harvester", "drift");
-    let r = null;
-    for (let i = 0; i < 60 * 10 && !r; i++) r = kosuAdimi(k, durum(true), false, DT);
-    expect(r).toBe("basari");
-    expect(k.tamamlanan).toBe(1);
-    expect(k.faz).toBe("secim");
-    expect(k.secenekler.length).toBe(3);
-    expect(k.secenekler).not.toContain("drift-harvester");
+  it("aynı tohum aynı boss, seçenek ve harita", () => {
+    const a = kosuBaslat(42, PISTLER),
+      b = kosuBaslat(42, PISTLER);
+    expect(a.boss).toBe(b.boss);
+    expect(a.secenekler).toEqual(b.secenekler);
+    expect(a.etkinlikler).toEqual(b.etkinlikler);
   });
-  it("süre dolunca koşu biter; bitmiş koşu ilerlemez", () => {
-    const k = hazirla(5, "drift-harvester", "drift");
+  it("başlangıç pasifi seçilince sürüş; seçenekte olmayan seçilemez", () => {
+    const k = kosuBaslat(3, PISTLER);
+    expect(pasifSec(k, "yok")).toBe(false);
+    expect(pasifSec(k, k.secenekler[1])).toBe(true);
+    expect(k.faz).toBe("surus");
+    expect(k.pasifler.length).toBe(1);
+  });
+  it("geri sayım biter, boss gelir; bitmiş/boss fazında süre akmaz", () => {
+    const k = basla();
     let r = null;
-    for (let i = 0; i < 60 * 40 && !r; i++) r = kosuAdimi(k, durum(false), false, DT);
-    expect(r).toBe("bitti");
+    for (let i = 0; i < 60 * 1000 && !r; i++) r = zamanAkis(k, 1 / 60);
+    expect(r).toBe("boss");
+    expect(k.kalan).toBe(0);
+    bossaGir(k);
     const z = k.zaman;
-    expect(kosuAdimi(k, durum(true), false, DT)).toBeNull();
+    zamanAkis(k, 1);
     expect(k.zaman).toBe(z);
   });
-  it("hızlı yol görevi yalnız eşik üstü hızda ilerler", () => {
-    const yavas = hazirla(9, "hiz-dinamosu", "hiz");
-    for (let i = 0; i < 600; i++) kosuAdimi(yavas, durum(false, 20), false, DT);
-    expect(yavas.gorev!.ilerleme).toBe(0);
-    const hizli = hazirla(9, "hiz-dinamosu", "hiz");
-    for (let i = 0; i < 60; i++) kosuAdimi(hizli, durum(false, 30), false, DT);
-    expect(hizli.gorev!.ilerleme).toBeCloseTo(30, 6);
-    expect(hizli.mek.enerji).toBeCloseTo(3, 6);
+  it("etkinlik ödülü: geçince tam, kaçırınca %40, ikinci kez ödül yok", () => {
+    const k = basla(),
+      [e1, e2] = k.etkinlikler,
+      p0 = k.para;
+    etkinlikBitti(k, e1.id, true);
+    expect(k.para - p0).toBe(ETKINLIK_ODULU(e1.sev).para);
+    const p1 = k.para;
+    etkinlikBitti(k, e2.id, false);
+    expect(k.para - p1).toBe(Math.round(ETKINLIK_ODULU(e2.sev).para * 0.4));
+    expect(etkinlikBitti(k, e1.id, true)).toBeNull();
   });
-  it("temiz drift görevi spinle biten drifti saymaz", () => {
-    const k = hazirla(2, "drift-harvester", "temiz");
-    const drift = (spin: boolean) => {
-      for (let i = 0; i < 90; i++) kosuAdimi(k, durum(true), false, DT);
-      kosuAdimi(k, durum(false, 20, spin ? 1.2 : 0), false, DT);
-    };
-    drift(true);
-    expect(k.gorev!.ilerleme).toBe(0);
-    drift(false);
-    expect(k.gorev!.ilerleme).toBe(1);
+  it("XP seviye atlatır, seçim gelir; birden çok seviye sırayla seçilir", () => {
+    const k = basla();
+    k.xp = seviyeXp(2) - 1;
+    etkinlikBitti(k, k.etkinlikler[0].id, true);
+    expect(k.seviye).toBeGreaterThanOrEqual(2);
+    expect(k.faz).toBe("secim");
+    const n = k.bekleyenSecim;
+    for (let i = 0; i < n; i++) expect(pasifSec(k, k.secenekler[0])).toBe(true);
+    expect(k.faz).toBe("surus");
   });
-  it("Tutuş Darbesi koşuda enerji harcar ve özet sayar", () => {
-    const k = hazirla(4, "drift-harvester", "drift");
-    k.mek = { ...k.mek, enerji: 50 };
-    kosuAdimi(k, durum(false), true, DT);
-    expect(k.mek.enerji).toBe(50 - TUTUS_DARBESI.maliyet);
-    kosuAdimi(k, durum(false), false, DT);
-    const o = kosuOzeti(k);
-    expect(o.darbe).toBe(1);
-    expect(o.darbePayi).toBeGreaterThan(0);
+  it("pasif kademe sınırı aşılmaz", () => {
+    const k = basla();
+    for (let i = 0; i < 40; i++) {
+      k.faz = "secim";
+      k.bekleyenSecim = 1;
+      k.secenekler = PASIFLER.filter((p) => k.pasifler.filter((q) => q == p.id).length < p.en).map(
+        (p) => p.id,
+      );
+      if (!k.secenekler.length) break;
+      pasifSec(k, k.secenekler[0]);
+    }
+    for (const p of PASIFLER) expect(k.pasifler.filter((q) => q == p.id).length).toBeLessThanOrEqual(p.en);
   });
-  it("aynı tohum ve girdilerle aynı koşu", () => {
-    const kos = () => {
-      const k = kosuBaslat(77);
-      const sonuc: string[] = [];
-      for (let i = 0; i < 60 * 120; i++) {
-        if (k.faz == "secim") perkSec(k, k.secenekler[0]);
-        if (k.faz == "bitti") break;
-        const r = kosuAdimi(k, durum(i % 240 < 150, 30), i % 300 == 0, DT);
-        if (r) sonuc.push(r + ":" + k.tamamlanan);
-      }
-      return { sonuc, ozet: kosuOzeti(k), perkler: k.perkler };
-    };
-    expect(kos()).toEqual(kos());
+  it("pasifler araç kopyasına işler, taban araç değişmez", () => {
+    const taban = CARS[0],
+      hp0 = taban.hp,
+      gr0 = [...taban.gr];
+    const c = kosuAraci(taban, { pasifler: ["guc", "guc", "toprak"] });
+    expect(c.hp).toBeCloseTo(hp0 * 1.21, 6);
+    expect(c.gr[0]).toBeCloseTo(gr0[0] * 1.1, 6);
+    expect(taban.hp).toBe(hp0);
+    expect(taban.gr).toEqual(gr0);
   });
-});
-
-describe("MUTANT ölçüm: sürüş yardımının Drift Hasadı'na etkisi (gerçek fizik)", () => {
-  it(
-    "Boş Otopark, Beyaz Kurt, drift önayarı, ölçülü sürücü: üç yardım seviyesinde enerji",
-    { timeout: 60000 },
-    () => {
-      const sonuc: Record<string, { enerji: number; driftSn: number; spin: number }> = {};
-      for (const lk of ["real", "norm", "arc"] as const) {
-        const s = surucuKur({ dunya: 1, arac: 2, pk: "dr", lk });
-        s.reset(30, -3550, 0);
-        const { DR, D } = s.sim.d;
-        const k = kosuBaslat(1);
-        k.secenekler = ["drift-harvester"];
-        perkSec(k, "drift-harvester");
-        k.gorev = { tur: "drift", hedef: 1e9, sure: 1e9, kalan: 1e9, ilerleme: 0 };
-        let ph = 0;
-        for (let i = 0; i < 12 / DT; i++) {
-          if (i == Math.round(3 / DT)) ph = 1;
-          let sa = 0;
-          if (ph == 1) {
-            sa = 1;
-            if (DR.on) ph = 2;
-          } else if (ph == 2) sa = DR.dir * cl(2.2 * (0.55 - Math.abs(D.beta)), -1, 1);
-          s.adim({ tg: sa, g: 1, b: 0, analogDireksiyon: true, analogGaz: false });
-          kosuAdimi(k, s.sim.d, false, DT);
-        }
-        sonuc[lk] = {
-          enerji: +k.mek.enerji.toFixed(2),
-          driftSn: +k.gorev!.ilerleme.toFixed(2),
-          spin: s.olaylar.spin,
-        };
-        expect(k.mek.enerji, lk).toBeGreaterThan(0);
-      }
-      mkdirSync("tests/cikti", { recursive: true });
-      writeFileSync("tests/cikti/mutant-yardim.json", JSON.stringify(sonuc, null, 1));
-    },
-  );
+  it("atölye: para yetmezse alınmaz, aynı parça iki kez alınmaz, pazarlıkçı ucuzlatır", () => {
+    const k = basla();
+    k.para = 100;
+    expect(parcaAl(k, "x", 1)).toBe(false);
+    k.para = 1000;
+    expect(parcaAl(k, "x", 1)).toBe(true);
+    expect(parcaAl(k, "x", 1)).toBe(false);
+    expect(parcaFiyati({ pasifler: ["tuccar"] }, 2)).toBeLessThan(parcaFiyati({ pasifler: [] }, 2));
+  });
+  it("boss: kazanınca sonraki bölge, farklı boss, yeni süre ve harita; kaybedince koşu biter", () => {
+    const k = basla(7),
+      b0 = k.boss;
+    bossaGir(k);
+    bossBitti(k, true, PISTLER);
+    expect(k.bolge).toBe(2);
+    expect(k.boss).not.toBe(b0);
+    expect(k.kalan).toBe(BOSS_SURESI(2));
+    expect(k.etkinlikler.every((e) => !e.yapildi)).toBe(true);
+    if (k.faz == "secim") while (k.faz == "secim") pasifSec(k, k.secenekler[0]);
+    bossaGir(k);
+    bossBitti(k, false, PISTLER);
+    expect(k.faz).toBe("bitti");
+  });
+  it("boss pisti boss türünde ve tohumla sabit", () => {
+    for (let t = 1; t <= 20; t++) {
+      const k = basla(t);
+      expect(PISTLER[bossPisti(k, PISTLER)].ty).toBe(k.boss.ty);
+      expect(bossPisti(k, PISTLER)).toBe(bossPisti(basla(t), PISTLER));
+    }
+  });
+  it("harita etkinliği tek tur, hedef orantılı; tursuz pist değişmez", () => {
+    expect(etkinlikAyari(3, 240)).toEqual({ laps: 1, limit: 80 });
+    expect(etkinlikAyari(undefined, 95)).toEqual({ laps: undefined, limit: 95 });
+    expect(etkinlikAyari(1, 60)).toEqual({ laps: 1, limit: 60 });
+  });
 });

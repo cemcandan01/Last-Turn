@@ -183,3 +183,5 @@ Kapsam: `src/cekirdek/mekanikler.ts` (taslağın yerine), `tests/birim/mekanikle
 - 0.7.8 canlıya çıkıp 0.8.0 açılınca engel kalktı. claude/mutant → gelistirme çakışmasız; birleşme + sürüm d85e09e (0.8.0 → 0.8.1). gelistirme'de 6783c6a'dan beri src/tests değişmediği için önceki test sonuçları yeniden kullanıldı; sürüm artışı sonrası `npm run kontrol` temiz.
 - CI Denetim 40297645277 (d85e09e) başarılı. Yayın 40297650767: derleme, Pages yayını ve "yeni sürümler adreste göründü mü" kontrolü başarılı. Bu oturumdan github.io'ya ağ erişimi yok (403); adres kanıtı iş akışının kontrol adımıdır.
 - Sonraki: Cem /dev/'de MUTANT'ı oynasın (görev zorluğu, Tutuş Darbesi hissi); canlı çıkış gece regresyonu + Cem onayı.
+
+- 2026-10-26: Cem v1 sonrası "baştan düşünelim" dedi; tasarım önerisi docs/isler/LT-SYS-002-mutant-roguelite-tasarim.md (karar bekliyor).

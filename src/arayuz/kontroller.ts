@@ -7,7 +7,6 @@ import { CT } from "../oyun/ayarlar";
 import { askTilt, girdiSifirla, I, tilt, tiltRoll } from "../oyun/girdi";
 import { note } from "./bildirim";
 import { ikon } from "./ikonlar";
-import { mutantTusuBagla, mutantTusuHtml } from "./mutant-ui";
 
 function bindK(id: string, k: "l" | "r" | "g" | "b" | "dbr") {
   const e = $(id);
@@ -109,14 +108,8 @@ export function kontrolleriKur() {
           D +
           '<div class="pedal" id="pd"><i></i><u></u><b>GAZ</b><s>FREN</s></div></div>'
         : '<div class="tsut">' + D + '<div class="k pd" id="b">FREN</div></div>';
-  // MUTANT: Tutuş Darbesi tuşu sol grubun üstünde (el freni sağ grubun üstünde olduğu gibi)
-  const M = mutantTusuHtml();
   c.innerHTML =
-    (M ? '<div class="tsut">' + M + L + "</div>" : L) +
-    '<div class="g">' +
-    B +
-    (CT.gas == "btn" ? '<div class="k pd" id="g">GAZ</div>' : "") +
-    "</div>";
+    L + '<div class="g">' + B + (CT.gas == "btn" ? '<div class="k pd" id="g">GAZ</div>' : "") + "</div>";
   if (CT.steer == "btn") {
     bindK("#l", "l");
     bindK("#r", "r");
@@ -131,7 +124,6 @@ export function kontrolleriKur() {
       note("Ortalandı", 30);
     };
   bindK("#dbr", "dbr");
-  mutantTusuBagla();
   if (CT.gas != "analog") bindK("#b", "b");
   if (CT.gas == "btn") bindK("#g", "g");
   else if (CT.gas == "analog") bindPedal($("#pd"));

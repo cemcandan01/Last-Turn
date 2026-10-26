@@ -34,6 +34,7 @@ import { sim, surusAdimi } from "./surus";
 import { HAYALET, uzak, uzakTick } from "./uzak";
 import { uzakAraclariCiz } from "../cizim/uzak-arac-modeli";
 import { yaris } from "./yarislar";
+import { mutantIsaretleri } from "../arayuz/mutant-ui";
 
 /** görsel saat (menü, garaj, yağış) */
 export let tt = 0;
@@ -119,7 +120,16 @@ function kare(ts: number) {
   parcacikTick(dt);
   if (mode != "menu" && mode != "garage" && !duzenleyici.acik) {
     hudGuncelle(v);
-    miniHaritaCiz(gx, gz, Math.sin(gh), Math.cos(gh), v, yarista ? uzak.araclar : [], HAYALET);
+    miniHaritaCiz(
+      gx,
+      gz,
+      Math.sin(gh),
+      Math.cos(gh),
+      v,
+      yarista ? uzak.araclar : [],
+      HAYALET,
+      yaris.EV ? [] : mutantIsaretleri(),
+    );
   }
   sesTick(dt);
   const t2 = performance.now();

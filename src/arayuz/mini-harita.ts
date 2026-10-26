@@ -132,6 +132,8 @@ export function miniHaritaCiz(
   v = 30,
   oteki: readonly HaritaAraci[] = [],
   hayalet = "hayalet",
+  /** MUTANT işaretleri: görüş dışındakiler kenara sabitlenir (yön gösterir) */
+  isaretler: readonly { x: number; z: number; renk: string }[] = [],
 ) {
   if (!mmc) return;
   const t = performance.now(),
@@ -238,6 +240,31 @@ export function miniHaritaCiz(
     mmc.arc(q[0], q[1], yr, 0, 7);
     mmc.fill();
     mmc.stroke();
+  }
+  for (const i of isaretler) {
+    const q = mmDonustur(i.x, i.z);
+    let kx = q[0],
+      ky = q[1];
+    if (kx < 7 || kx > W - 7 || ky < 7 || ky > W - 7) {
+      // görüş dışında: imleçten işaretin yönünde kenara (sağ = r, ileri = yukarı)
+      const dx = i.x - M.x,
+        dz = i.z - M.z,
+        r = M.fx * dz - M.fz * dx,
+        f = M.fx * dx + M.fz * dz,
+        l = Math.hypot(r, f) || 1,
+        rn = r / l,
+        fn = f / l,
+        kX = rn > 0 ? (W - 7 - OX) / rn : rn < 0 ? (OX - 7) / -rn : Infinity,
+        kY = fn > 0 ? (OY - 7) / fn : fn < 0 ? (W - 7 - OY) / -fn : Infinity,
+        k = Math.min(kX, kY);
+      kx = OX + rn * k;
+      ky = OY - fn * k;
+    }
+    mmc.fillStyle = i.renk;
+    mmc.strokeStyle = "#000c";
+    mmc.lineWidth = 1.5;
+    mmc.fillRect(kx - 5, ky - 5, 10, 10);
+    mmc.strokeRect(kx - 5, ky - 5, 10, 10);
   }
   // araç imleci: ortada sabit, hep yukarı
   mmc.fillStyle = "#fff";

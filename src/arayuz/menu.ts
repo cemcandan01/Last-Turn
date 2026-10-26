@@ -28,7 +28,7 @@ import { magazaAc, openGarage } from "./garaj";
 import { hesapBagla, hesapHtml } from "./hesap-ui";
 import { kontrolleriKur } from "./kontroller";
 import { mutant, mutantBaslat, mutantKapat, mutantRekoru } from "../oyun/mutant";
-import { mutantOzetGoster, mutantSecimGoster } from "./mutant-ui";
+import { mutantArayuzuKur } from "./mutant-ui";
 
 /** yarış türleri: anahtar, ad, açıklama, ikon, türün rengi (kapak akışı, pist listesi ve ayrıntıda tema) */
 export const TYPES: [string, string, string, IkonAdi, string][] = [
@@ -217,12 +217,12 @@ export function showMenu(v?: string[]) {
       Object.assign(COND, c);
       openGarage(ev);
     };
-  // serbest sürüş: önce garajda araç seçilir
+  // MUTANT: araç koşunun içinde seçilir (garaj yok)
   tikla("[data-w]", (e) => {
     const c = { ...COND };
     demoStop();
     Object.assign(COND, c);
-    openGarage(null, +e.dataset.w!);
+    startWorld(+e.dataset.w!);
   });
   const nm = m.querySelector<HTMLInputElement>("#pname");
   if (nm)
@@ -383,7 +383,7 @@ function view(cur: string): [string, string, string] {
     return [
       "MUTANT",
       "Dünya seç",
-      `<div class="wl">${WORLDS.map((w, i) => `<div class="card go" data-w="${i}"><b>${w.n}</b><span>${w.d}</span></div>`).join("")}</div><div class="evk">${condChips()}<p class="note">Her koşuda perk seç, açık dünyada süreli görevleri bitir, aracını görev görev değiştir. Kombinasyonları sen keşfet. En iyi: ${mutantRekoru()} görev. Kariyer ödülü vermez.</p></div>`,
+      `<div class="wl"><div class="card go" data-w="0"><b>Koşuya başla</b><span>${WORLDS[0].n}: kötü bir araçla başla, boss'a geri sayım işler. Etkinliklerden XP ve para kas, aracını boss'a göre geliştir.</span></div></div><div class="evk">${condChips()}<p class="note">En iyi: bölge ${mutantRekoru().bolge}, ${mutantRekoru().boss} boss. Kariyer ödülü vermez.</p></div>`,
     ];
   if (cur == "profile") {
     const fav = Object.entries(PROF.use).sort((a, b) => b[1] - a[1])[0];
@@ -408,15 +408,14 @@ export function startWorld(w: number, kosu = true) {
   setActive(oyun.CURW.reg);
   reset();
   document.getElementById("lvup")?.classList.remove("acik");
-  if (kosu) mutantBaslat();
-  mutant.secimAc = mutantSecimGoster;
-  mutant.bittiAc = () =>
-    mutantOzetGoster(
-      () => startWorld(w),
-      () => showMenu(["home"]),
-    );
   oyun.mode = "drive";
   kontrolleriKur();
   goster("#hud", "#mm", "#ctl");
-  mutantSecimGoster();
+  if (!kosu) return;
+  mutantBaslat();
+  mutantArayuzuKur(
+    () => startWorld(0),
+    () => showMenu(["home"]),
+  );
+  mutant.ui!.basla();
 }

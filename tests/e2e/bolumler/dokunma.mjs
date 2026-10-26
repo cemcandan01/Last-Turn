@@ -66,14 +66,13 @@ export default async function ({ p, ok }) {
     r.kaydirmaIptal =
       document.querySelector("#gar").classList.contains("hidden") &&
       !!document.querySelector("#menu [data-w]");
-    // 5) aynı yerde: üstünde bırakınca garaj açılır
-    k = document.querySelector("#menu [data-w='1']");
+    // 5) aynı yerde: üstünde bırakınca MUTANT koşusu başlar (araç seçimi)
+    k = document.querySelector("#menu [data-w='0']");
     [x, y] = orta(k);
     te("touchstart", k, x, y, 5);
     te("touchend", k, x, y, 5);
     k.click();
-    r.dunyaTiklandi = !document.querySelector("#gar").classList.contains("hidden");
-    LT.closeGarage();
+    r.dunyaTiklandi = !!document.querySelector("#res [data-arac]");
     LT.showMenu(["home"]);
     return r;
   });
