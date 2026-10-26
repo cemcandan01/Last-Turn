@@ -12,6 +12,8 @@ const DT = 1 / 60;
 export interface AracSecenegi {
   parca?: readonly string[];
   uzmanliksiz?: boolean;
+  /** MUTANT pasifleri */
+  pasif?: readonly string[];
 }
 
 /** bir tur (açık pistte A'dan B'ye; kapalı pistte istenirse tur turlar): süre, pist dışında geçen süre, spin sayısı */

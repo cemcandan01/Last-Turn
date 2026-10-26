@@ -39,11 +39,17 @@ export default async function ({ p, ok }) {
       ilerleme = localStorage.getItem("lt_ilerleme"),
       p0 = k.para;
     LT.reset(e.x, e.z, 0);
-    r.kart = await olana(() => LT.oyun.mode == "result" && !!res.querySelector("#mBasla"));
-    res.querySelector("#mBasla").click();
+    r.kart = await olana(() => LT.oyun.mode == "result" && res.querySelectorAll("[data-risk]").length == 3);
+    // ölümcül kademe: ödül ×3,5
+    res.querySelector("[data-risk='2']").click();
     const EV = LT.yaris.EV;
     r.etkinlik =
-      !!EV && EV.mutant === true && EV.kariyer === false && EV.k.startsWith("mutant_") && EV.i == e.i;
+      LT.mutant.risk == 2 &&
+      !!EV &&
+      EV.mutant === true &&
+      EV.kariyer === false &&
+      EV.k.startsWith("mutant_") &&
+      EV.i == e.i;
     // hedefi geçerek bitir
     EV.state = "run";
     EV.t = 1;
@@ -59,10 +65,19 @@ export default async function ({ p, ok }) {
       res.querySelector("[data-pasif]").click();
     await bekle(100);
     r.donus = LT.oyun.mode == "drive" && !LT.yaris.EV && Math.hypot(LT.sim.S.x - e.x, LT.sim.S.z - e.z) < 15;
+    // sert çarpma: gövde düşer, HUD'da görünür
+    const g0 = k.govde;
+    LT.sim.S.hit = LT.sim.d.zaman + 1;
+    r.hasar = await olana(() => k.govde < g0 && k.carpma == 1);
+    await bekle(150);
+    r.hasarHud = document.querySelector("#lap").textContent.includes("Gövde " + Math.round(k.govde));
     // atölye
     k.para = 2000;
     LT.reset(0, -90, 0);
     r.atolye = await olana(() => res.textContent.includes("Atölye") && !!res.querySelector("[data-parca]"));
+    r.tamir = !!res.querySelector("#mTamir");
+    res.querySelector("#mTamir").click();
+    r.tamir = r.tamir && k.govde == 100;
     res.querySelector("[data-parca]").click();
     r.parca = k.parcalar.length == 1 && !!LT.kurulum.mod && LT.kurulum.mod.parcalar.includes(k.parcalar[0]);
     res.querySelector("#mKapat").click();
@@ -98,7 +113,8 @@ export default async function ({ p, ok }) {
     r.sonuc && r.donus,
     "hedef geçilince koşu parası, kariyer ilerlemesi değişmez, haritada aynı yere dönüş",
   );
-  ok(r.atolye && r.parca, "atölyede koşu parasıyla parça alınır ve araca takılır");
+  ok(r.hasar && r.hasarHud, "sert çarpma gövdeyi düşürür, HUD'da gövde görünür");
+  ok(r.atolye && r.parca && r.tamir, "atölyede tamir ve stoktan parça alınır, araca takılır");
   ok(r.boss && r.bossYaris, "süre dolunca zorunlu boss yarışı, boss türünde pist");
   ok(r.kaybetti && r.ozet && r.kapandi, "boss kaybedilince koşu biter, özet, ana menüde koşu kapanır");
   ok(r.normal, "sonraki normal yarış MUTANT bayrağı taşımaz");

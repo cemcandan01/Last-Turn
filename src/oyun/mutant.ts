@@ -13,16 +13,18 @@ import {
   ATOLYE,
   bossBitti,
   bossHedefi,
+  etkinlikHedefi,
   bossPisti,
   bossaGir,
-  etkinlikAyari,
   etkinlikBitti,
+  hasarAl,
   kosuAraci,
   kosuBaslat,
   zamanAkis,
   type EtkinlikSonucu,
   type Kosu,
   type PistAdayi,
+  type Risk,
 } from "./mutant-kosu";
 
 /** MUTANT rekoru: kariyerden ayrı */
@@ -47,6 +49,8 @@ export interface MutantArayuzu {
   sonuc(r: EtkinlikSonucu | null, boss: boolean, gecti: boolean): void;
   /** süre doldu: boss kartı (zorunlu) */
   sureDoldu(): void;
+  /** hasar aldı (gövde düştü); pert ise koşu bitti */
+  hasar(tur: "carpma" | "spin", pert: boolean): void;
   bitti(): void;
 }
 
@@ -54,6 +58,8 @@ export const mutant = {
   kosu: null as Kosu | null,
   /** yarışta açık etkinlik (id) ya da boss */
   etkinlik: null as number | "boss" | null,
+  /** etkinlikte seçilen risk kademesi */
+  risk: 0 as Risk,
   /** etkinlikten dönüş noktası */
   donus: null as [number, number, number] | null,
   /** koşu dışı koşullar (boss havası/gecesi bitince geri yüklenir) */
@@ -64,6 +70,9 @@ export const mutant = {
   kapali: "",
   /** süre etkinlik içinde doldu: dönüşte boss kartı */
   bossBekliyor: false,
+  /** hasar algısı: son görülen sert çarpma zamanı, spin sürüyor mu */
+  sonHit: -9,
+  spinde: false,
   yeniRekor: false,
   ui: null as MutantArayuzu | null,
 };
@@ -104,6 +113,13 @@ export function mutantAracSec(i: number) {
   mutantKurulumUygula();
 }
 
+/** hasar sonrası yalnız aracın değerleri (güç kaybı) yenilenir; yarış kurulumu (lastik, önayar) değişmez */
+export function mutantAracGuncelle() {
+  const k = mutant.kosu;
+  if (!k || mutantArac < 0 || !kurulum.mod) return;
+  kurulum.mod = { ...kurulum.mod, car: kosuAraci(aracKur(mutantArac, k.parcalar).car, k) };
+}
+
 export function mutantKurulumUygula() {
   const k = mutant.kosu;
   if (!k || mutantArac < 0) return;
@@ -136,19 +152,47 @@ export function mutantBossKosulu() {
   if (b.gece) COND.tod = "night";
 }
 
-/** yarış başlarken: tur sayısı ve hedef (etkinlik tek tur, boss tam tur ve sıkı hedef) */
-export function mutantYarisAyari(laps: number | undefined, limit: number) {
-  const k = mutant.kosu;
-  return k && mutant.etkinlik == "boss" ? { laps, limit: bossHedefi(k, limit) } : etkinlikAyari(laps, limit);
+/** yarış başlarken (EVENTS indeksi): etkinlik tek tur + risk kademesinin yıldızı; boss tam tur + ölçülmüş bölge hedefi */
+export function mutantYarisAyari(i: number) {
+  const k = mutant.kosu,
+    p = mutantPistleri()[i];
+  return k && mutant.etkinlik == "boss"
+    ? { laps: p.laps, limit: bossHedefi(k, p) }
+    : etkinlikHedefi(p, mutant.risk);
 }
 
 /** boss pisti (EVENTS indeksi) */
 export const mutantBossPisti = () => (mutant.kosu ? bossPisti(mutant.kosu, mutantPistleri()) : -1);
 
-/** sabit adım (fizikten sonra): süre akar; açık dünyada işaret girişi */
-export function mutantAdimi(x: number, z: number, v: number, dt: number, yarista: boolean) {
+/** sabit adım (fizikten sonra): süre akar; hasar (sert çarpma: hit zamanı, spin: kayma açısı); işaret girişi */
+export function mutantAdimi(
+  x: number,
+  z: number,
+  v: number,
+  dt: number,
+  yarista: boolean,
+  hit = -9,
+  beta = 0,
+) {
   const k = mutant.kosu;
   if (!k) return;
+  if (k.faz == "surus" || k.faz == "boss") {
+    if (hit < mutant.sonHit) mutant.sonHit = hit;
+    let tur: "carpma" | "spin" | null = null;
+    if (hit > mutant.sonHit + 0.25) {
+      mutant.sonHit = hit;
+      tur = "carpma";
+    }
+    const spin = Math.abs(beta) > 1.3 && v > 4;
+    if (spin && !mutant.spinde) tur ??= "spin";
+    mutant.spinde = Math.abs(beta) > 0.4 && (mutant.spinde || spin);
+    if (tur) {
+      const pert = hasarAl(k, tur);
+      mutantAracGuncelle();
+      mutant.ui?.hasar(tur, pert);
+      if (pert) return;
+    }
+  }
   if (k.faz == "surus" && zamanAkis(k, dt) == "boss") {
     if (yarista) mutant.bossBekliyor = true;
     else mutant.ui?.sureDoldu();
@@ -202,7 +246,7 @@ export function mutantYarisBitti(gecti: boolean) {
     mutant.ui?.sonuc(null, true, gecti);
     return;
   }
-  mutant.ui?.sonuc(etkinlikBitti(k, et, gecti), false, gecti);
+  mutant.ui?.sonuc(etkinlikBitti(k, et, gecti, mutant.risk), false, gecti);
 }
 
 /** boss'a gir (işaretten ya da süre dolunca) */

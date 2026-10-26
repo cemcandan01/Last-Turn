@@ -11,6 +11,7 @@ import { havaTutusu } from "../../src/dunya/temalar";
 import { Simulasyon } from "../../src/fizik/simulasyon";
 import type { AdimSonucu, DunyaSorgusu, FizikBaglami, FizikGirdisi } from "../../src/fizik/tipler";
 import { LEVELS, PRESETS, type OnayarAnahtari, type SeviyeAnahtari } from "../../src/fizik/veriler";
+import { kosuAraci } from "../../src/oyun/mutant-kosu";
 
 export interface SurusAyari {
   /** açık dünya ya da yarış (bölge) */
@@ -26,6 +27,8 @@ export interface SurusAyari {
   uzmanliksiz?: boolean;
   /** Zemin/titreşim ölçümü bileşiği yalıtmak için kapatabilir; yarış ölçümlerinde varsayılan açık. */
   otomatikLastik?: boolean;
+  /** MUTANT pasifleri (src/oyun/mutant-kosu.ts): araç değerlerine koşudaki gibi işler */
+  pasif?: readonly string[];
 }
 
 /** önayar ve yardım seviyesinden sürüş kurulumu (oyundaki applyPreset ile aynı) */
@@ -66,6 +69,8 @@ export function surucuKur(a: SurusAyari) {
     rng: sim.rng,
     gorselRng: Math.random,
   };
+  if (a.pasif?.length)
+    cx.kurulum = { ...cx.kurulum, car: kosuAraci(cx.kurulum.car, { pasifler: [...a.pasif] }) };
   // Ölçüm gerçek yarışla aynı otomatik bileşiği/kaliteyi kullanmalı.
   if (a.yaris != null && a.otomatikLastik !== false && bolge && bolge.t != "park")
     cx.kurulum.tire = yarisLastigi(bolge.t, a.parca);
