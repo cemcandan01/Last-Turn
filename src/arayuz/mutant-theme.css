@@ -1,0 +1,456 @@
+/* MUTANT A2: tutarlı yarış teması, durum/ödül hiyerarşisi ve dokunmatik seçimler. */
+
+.mutant-shell {
+  --mt-accent: #ff9559;
+  --mt-soft: #f2e4ce;
+  --mt-danger: #ff746b;
+  --mt-ok: #9cdec2;
+  color: #f4f4ef;
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: clamp(12px, 2vw, 20px);
+  box-sizing: border-box;
+  font-family: inherit;
+  line-height: 1.38;
+  max-height: calc(100dvh - 20px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  font-variant-numeric: tabular-nums;
+}
+
+.mutant-shell::before {
+  content: "LAST TURN  /  MUTANT";
+  display: block;
+  margin-bottom: 7px;
+  color: var(--mt-accent);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+}
+
+.mutant-shell .mt-heading {
+  margin: 0 0 11px;
+  padding: 0 0 9px;
+  border-bottom: 1px solid #64707a6b;
+}
+
+.mutant-shell .mt-eyebrow {
+  display: block;
+  color: var(--mt-accent);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.mutant-shell h1 {
+  margin: 3px 0 4px;
+  color: #ffffff;
+  font-size: clamp(25px, 4vw, 42px);
+  font-style: italic;
+  font-weight: 950;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+  text-transform: uppercase;
+  text-shadow: 0 2px 16px #000b;
+}
+
+.mutant-shell .mt-heading p {
+  margin: 5px 0 0;
+  font-size: clamp(12px, 1.65vw, 15px);
+  color: #bdc9d4;
+}
+
+.mutant-shell > p {
+  margin: 5px 0 10px;
+  font-size: 13px;
+  color: #c9d0d7;
+}
+
+.mutant-shell .mtb {
+  display: grid;
+  gap: 5px;
+  padding: clamp(10px, 1.7vw, 16px);
+  margin: 7px 0 13px;
+  border: 1px solid #934c4b;
+  border-left: 4px solid var(--mt-danger);
+  border-radius: 5px;
+  background: linear-gradient(145deg, #312430, #141b25);
+  box-shadow: inset 0 1px 0 #ffffff16, 0 9px 28px #0005;
+}
+
+.mutant-shell .mtb-kicker {
+  color: #ffae9e;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.mutant-shell .mtb b {
+  display: block;
+  color: #ffffff;
+  font-size: clamp(20px, 3vw, 30px);
+  font-weight: 950;
+  font-style: italic;
+  text-transform: uppercase;
+  line-height: 1.03;
+}
+
+.mutant-shell .mtb-detail {
+  display: block;
+  color: #e2e7ee;
+  font-size: 13px;
+}
+
+.mutant-shell .mtb-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #ffffff2b;
+}
+
+.mutant-shell .mtb-facts > span {
+  font-size: 12px;
+  line-height: 1.35;
+  color: #dce2e9;
+}
+
+.mutant-shell .mtb-facts small {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: #ffae9e;
+}
+
+.mutant-shell .mtb-facts > span:last-child small {
+  color: #f6c47a;
+}
+
+.mutant-shell .mtp {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.mutant-shell .mtp .mt-choice {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 130px;
+  padding: 12px;
+  margin: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  border: 1px solid #667481;
+  border-bottom: 3px solid var(--mt-accent);
+  border-radius: 5px;
+  background: linear-gradient(155deg, #283746, #141c27);
+  box-shadow: inset 0 1px 0 #ffffff1e, 0 4px 14px #0004;
+  transition: background 0.12s, transform 0.12s;
+}
+
+.mutant-shell .mt-card-tag {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 10px;
+  line-height: 1.2;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+  color: #f8b487;
+  text-transform: uppercase;
+}
+
+.mutant-shell .mt-choice b {
+  display: block;
+  font-size: clamp(14px, 1.9vw, 18px);
+  font-weight: 900;
+  line-height: 1.12;
+  color: #ffffff;
+  overflow-wrap: anywhere;
+}
+
+.mutant-shell .mt-choice > span {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.3;
+  color: #cad5df;
+  overflow-wrap: anywhere;
+}
+
+.mutant-shell .mt-choice .mt-action {
+  display: block;
+  align-self: flex-start;
+  margin-top: auto;
+  padding-top: 12px;
+  color: var(--mt-accent);
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.15em;
+}
+
+.mutant-shell .mt-choice:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 3px;
+}
+
+.mutant-shell .mt-choice:active {
+  transform: scale(0.985);
+  background: #394e5c;
+}
+
+.mutant-shell .mt-risk-0 {
+  border-bottom-color: #9cdec2;
+  background: linear-gradient(160deg, #244039, #141c25);
+}
+
+.mutant-shell .mt-risk-0 .mt-card-tag {
+  color: #9cdec2;
+}
+
+.mutant-shell .mt-risk-1 {
+  border-bottom-color: #ffbb73;
+  background: linear-gradient(160deg, #443323, #161d26);
+}
+
+.mutant-shell .mt-risk-2 {
+  border-bottom-color: #ff746b;
+  background: linear-gradient(160deg, #472833, #171c26);
+}
+
+.mutant-shell .mt-risk-2 .mt-card-tag {
+  color: #ff9289;
+}
+
+.mutant-shell .mt-choice .mt-reward {
+  color: #a9e8be;
+  font-weight: 850;
+}
+
+.mutant-shell .mt-choice .mt-cost {
+  color: #ffb0a5;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mutant-shell .mt-choice.mt-car {
+  min-height: 108px;
+}
+
+.mutant-shell .mt-choice.mt-car > span:last-of-type {
+  color: #8ddaba;
+}
+
+.mutant-shell .mt-notice {
+  padding: 8px 12px;
+  border-left: 3px solid var(--mt-accent);
+  background: #25252a;
+  color: #f0d7b9;
+}
+
+.mutant-shell .mt-curse .mt-eyebrow {
+  color: #f5a8db;
+}
+
+.mutant-shell .mt-boss-heading .mt-eyebrow {
+  color: #ff9289;
+}
+
+.mutant-shell .mt-failed .mt-eyebrow {
+  color: #ff8f83;
+}
+
+.mutant-shell .mt-success .mt-eyebrow {
+  color: #9cdec2;
+}
+
+.mutant-shell .mt-wallet {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 9px;
+}
+
+.mutant-shell .mt-wallet > span {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 10px;
+  background: #17222d;
+  border: 1px solid #586675;
+  border-radius: 4px;
+}
+
+.mutant-shell .mt-wallet small {
+  color: #a8b9c7;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.mutant-shell .mt-wallet strong {
+  font-size: clamp(15px, 2vw, 20px);
+  font-weight: 900;
+  color: #fff2dc;
+}
+
+.mutant-shell .bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.mutant-shell .btn {
+  min-height: 42px;
+  padding: 8px 15px;
+  margin: 7px 7px 3px 0;
+  border: 1px solid #ffb07c;
+  border-radius: 4px;
+  background: #ff9959;
+  color: #131b24;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.mutant-shell .btn.alt {
+  color: #eff3ef;
+  background: #26313d;
+  border: 1px solid #74808c;
+}
+
+.mutant-shell .btn:disabled {
+  opacity: 0.45;
+  filter: grayscale(0.8);
+}
+
+.mutant-shell .btn:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.mutant-shell .bar .btn {
+  margin: 0;
+}
+
+.mutant-shell .mtz {
+  display: grid;
+  gap: 4px;
+  margin-top: 7px;
+}
+
+.mutant-shell .rk {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px 12px;
+  margin: 2px 0;
+  border-bottom: 1px solid #495766;
+  background: #1b2530;
+  font-size: 12px;
+}
+
+.mutant-shell .rk > span:first-child {
+  min-width: 0;
+  color: #bdc8d1;
+  overflow-wrap: anywhere;
+}
+
+.mutant-shell .rk > span:last-child {
+  color: #ffffff;
+  font-weight: 900;
+  text-align: right;
+}
+
+.mutant-shell .mt-shop-row > span:first-child b {
+  display: block;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.mutant-shell .mt-shop-row small {
+  display: block;
+  margin-top: 3px;
+  color: #b7c3d0;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.mutant-shell .mt-shop-row .btn {
+  min-width: 98px;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.mutant-shell .lbl {
+  margin: 12px 0 5px;
+  color: var(--mt-accent);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.mutant-shell .note {
+  font-size: 12px;
+  color: #e5d3b7;
+}
+
+@media (max-height: 440px) {
+  .mutant-shell {
+    padding: 8px 12px;
+  }
+  .mutant-shell::before {
+    margin-bottom: 4px;
+  }
+  .mutant-shell h1 {
+    font-size: 25px;
+  }
+  .mutant-shell .mtb {
+    gap: 4px;
+    padding: 9px 11px;
+    margin: 5px 0 9px;
+  }
+  .mutant-shell .mtb b {
+    font-size: 20px;
+  }
+  .mutant-shell .mtp .mt-choice {
+    min-height: 108px;
+    padding: 9px;
+  }
+  .mutant-shell .mt-choice > span {
+    font-size: 11px;
+  }
+  .mutant-shell .mt-wallet > span {
+    padding: 6px 8px;
+  }
+}
+
+@media (max-width: 690px) {
+  .mutant-shell .mtp {
+    gap: 6px;
+  }
+  .mutant-shell .mtp .mt-choice {
+    padding: 8px;
+  }
+  .mutant-shell .mtb-facts {
+    gap: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mutant-shell .mt-choice {
+    transition: none;
+  }
+}
