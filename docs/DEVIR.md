@@ -1,4 +1,10 @@
-# Son devir: MUTANT v1 0.8.1 denemede (LT-SYS-001)
+# Son devir: MUTANT A1 (LT-SYS-002)
+
+- Claude / claude/mutant. Kart docs/isler/LT-SYS-002-mutant-roguelite-tasarim.md §7-8; dal notu docs/notlar/mutant.md; kural ALANLAR "MUTANT".
+- v1 (görev + Tutuş Darbesi) Cem testinde başarısız, kaldırıldı. A1: kötü araç + pasif → Çorak Topraklar'da etkinlik/atölye/boss işaretleri → boss geri sayımı (15 dk) → mevcut pistlerde tek turluk etkinlik (kariyer dışı) → XP/pasif, para/atölye → zorunlu boss (hava/gece, sıkı hedef) → bölge 2 ya da özet.
+- Yerel: npm test 340/340; 9 alan 89 senaryo (garaj perf ölçümü yük kaynaklı kaldı, tek başına geçti). Sonraki: denemeye gönder, Cem oynasın; A2 nitro + eklenti sandıkları.
+
+## Önceki iş: MUTANT v1 0.8.1 denemede (LT-SYS-001)
 
 - Claude / claude/mutant (tek sahip). Kart docs/isler/LT-SYS-001-sistemik-oynanis.md; dal notu docs/notlar/mutant.md; kural ALANLAR "MUTANT".
 - Serbest sürüş menüden kalktı, yerine MUTANT: dünya → garaj → 3 perkten 1 → süreli görevler → özet. Tutuş Darbesi tek fizik etkisi (yerel `havaTutusu` çarpanı); yarışta 1. Ödül/XP/kariyer yok, rekor lt_mutant.
