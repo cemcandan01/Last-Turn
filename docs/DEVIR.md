@@ -1,4 +1,11 @@
-# Son devir: yakın takip kamerası 0.7.7
+# Son devir: LT-SYS-001 sistemik oynanış FAZ 0–1
+
+- Claude / claude/sistemik-oynanis-faz1 (tek sahip, Cem kararı 2026-10-26; Codex dalı ve PR #15 içeriği birleştirildi). Kart docs/isler/LT-SYS-001-sistemik-oynanis.md.
+- FAZ 0 entegrasyon/risk değerlendirmesi kartta. FAZ 1: saf `src/cekirdek/mekanikler.ts` (bayrak kapalı, oyun çağırmaz), drift gözlemcisi yalnız `DR.on`, Drift Harvester v1 (ölçülmüş denge değil). Oyun davranışı değişmedi, sürüm artmadı.
+- Yerel: kontrol temiz, npm test 323/323, build, fizik alanı (tarayıcı 16/16). CI koşulmadı. gelistirme/master/denge ölçümleri dokunulmadı.
+- Sonraki: Cem karttaki 7 kararı versin; sonra seçilen FAZ 2 adımı.
+
+## Önceki iş: yakın takip kamerası 0.7.7
 
 - Codex / codex/kamera; kart docs/isler/2026-10-26-yakin-takip.md. Taban mesafe 9 → 6,8 m, hız eki 3 → 2 m; yükseklik 1,7 m, açı 0,25 rad. Uzak/garaj/menü/kaput/kokpit korunur.
 - Kaynak ef5803f; CI: https://github.com/cemcandan01/Last-Turn/actions/runs/40238496618. Yalnız kamera alanı ve iPhone 13 yatay görsel kanıtı; tam regresyon değil.

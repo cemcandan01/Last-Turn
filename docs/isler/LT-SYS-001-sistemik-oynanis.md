@@ -142,3 +142,16 @@ Kapsam: `src/cekirdek/mekanikler.ts` (taslağın yerine), `tests/birim/mekanikle
 - `npm run kontrol` (tip + ESLint + Prettier) başarılı. `npm test` 23/23 dosya, 323/323 test başarılı (mekanikler 17). `npm run build` başarılı (Firebase yardımcı indirme uyarısı ağ kaynaklı, derlemeyi bozmadı).
 - `npm run alan -- fizik`: 47 vitest geçti, 35 alan seçimiyle atlandı (fizik.test 28, parcalar.test 7; aynı testler tam `npm test`te geçti), tarayıcı 16/16.
 - Durum: kod `claude/sistemik-oynanis-faz1` dalında. `codex/sistemik-oynanis-tasarim`a eşzamanlı Codex commit'leri (0b418c3, 08551ed, 5748895, PR #15) geldiği için o dala push edilmedi; tek sahip kararı Cem'de. gelistirme/master'a birleştirilmedi.
+
+### 2026-10-26 birleştirme
+- Cem kararı: Claude dalı tek sahip. codex/sistemik-oynanis-tasarim (5748895) merge commit ile alındı; kodda Claude sürümü korundu, Codex'in "adım süresi ≤ 1/30 sn" ve "bekleme tamsayı" sınırları eklendi (test kapsamında). origin/gelistirme 6783c6a (0.7.8) de birleştirildi.
+- Yeniden doğrulama: `npm run kontrol` temiz, mekanikler 17/17. gelistirme birleşmesi mekanik modülüne ve onu çağıran koda dokunmadığı için önceki tam `npm test` 323/323 sonucu mekanik kapsamı için yeniden kullanıldı; birleşik HEAD'de tam koşu CI'da yapılacak.
+
+### Cem'in vereceği kararlar (FAZ 2 öncesi)
+1. İlk deneme yeri: mekanikler yalnız yeni roguelike/deneme modunda mı açılsın (öneri; kariyer, sınıf, rekor ve ekonomi hiç etkilenmez) yoksa kariyerde de mi?
+2. Enerjinin ilk harcama yolu: kısa boost (hız) mı, Traction Pulse (geçici tutuş) mu? Öneri: Traction Pulse; düz hız avantajı drag/zamanlı yarışlarda sınıf bütçesini en çabuk deler.
+3. Spinle biten drift: o drift boyunca toplanan enerji kalsın mı, yansın mı (yarış kombosu yanıyor)? Öneri: yansın, abartma cezası tutarlı olsun.
+4. Mekanikli koşuların rekor/hayaleti: ayrı anahtarda, kariyer ödülü vermeden (öneri) mi?
+5. Sürüş yardımı: yüksek drift yardımı enerji kazancını azaltsın mı, yoksa önce ölçülüp sonra mı karar verilsin (öneri)?
+6. Sıradaki adım: FAZ 2 Slide Memory mi, yoksa önce Harvester + enerji göstergesi + tek harcama yolunu yalnız /dev/ deneme sürümündeki gizli bir test alanına bağlayıp elle hissetmek mi (öneri; oyun değişikliği olduğu için deneme yaması +1)?
+7. Codex'in taslak PR #15'i kapatılsın mı (içeriği bu dala alındı)?
