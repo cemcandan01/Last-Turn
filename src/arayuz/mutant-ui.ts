@@ -1,3 +1,4 @@
+import "./mutant-theme.css";
 // MUTANT arayüzü (A1): koşu başı (boss kartı, araç, başlangıç pasifi), etkinlik kartı, atölye, yarış sonucu, seviye
 // seçimi, boss kartı, koşu özeti ve HUD metinleri. Haritadaki işaretler cizim/isaretler.ts + mini harita.
 // Kurallar oyun/mutant-kosu.ts; HUD kuralları docs/HUD.md.
@@ -66,7 +67,7 @@ function sayfaAc(html: string) {
   $("#ctl").classList.add("hidden");
   const r = $("#res");
   r.classList.remove("hidden");
-  r.innerHTML = html;
+  r.innerHTML = `<div class="mutant-shell">${html}</div>`;
   return r;
 }
 
