@@ -13,6 +13,7 @@ import type { OnayarAnahtari } from "../fizik/veriler";
 import { setActive } from "./bolge";
 import { carIndex, oyun, setCar } from "./durum";
 import { girdiSifirla } from "./girdi";
+import { MUTANT_REFERANS } from "./mutant-denge";
 import {
   mutantYarisAyari,
   mutantKapat,
@@ -174,7 +175,16 @@ export const EVENTS: YarisTanimi[] = REG.filter((r) => r.t != "park").map((r, i)
 
 export const yaris = { EV: null as Yaris | null };
 
-mutantPistKaynagi(() => EVENTS.map((e, i) => ({ i, ty: e.ty, sev: e.sev })));
+mutantPistKaynagi(() =>
+  EVENTS.map((e, i) => ({
+    i,
+    ty: e.ty,
+    sev: e.sev,
+    ys: e.ys,
+    laps: e.laps,
+    ref: MUTANT_REFERANS[e.ty + "_" + e.lv],
+  })),
+);
 
 /** yarışı başlat (ci: seçilen araç); pist ya da araç kilitliyse başlamaz (false). mutantEtkinligi: MUTANT koşusu
  *  içinden (kilit/kariyer yok, koşu aracı ve hedefi, ödül ve rekor koşuya) */
@@ -247,7 +257,7 @@ export function startEvent(i: number, ci?: number, mutantEtkinligi = false) {
     xp: 0,
     para: 0,
     limit: e.limit || 0,
-    ...(mutantEtkinligi ? mutantYarisAyari(e.laps, e.limit || 0) : {}),
+    ...(mutantEtkinligi ? mutantYarisAyari(i) : {}),
   };
   if (!mutantEtkinligi) rekorHayaletiBaslat(e.k, dunyaSorgusuYap({ cur: null }));
   return true;

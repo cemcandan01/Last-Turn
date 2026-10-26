@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { CARS } from "../../src/arac/araclar";
 import { TDEF } from "../../src/dunya/pist-tanimlari";
 import { Htest } from "../../src/dunya/corak";
+import { DRIFT_TUR, yildizEsikleri } from "../../src/oyun/yildiz";
 import {
   BOSSLAR,
   YERLER,
@@ -13,7 +14,15 @@ import {
   bossBitti,
   bossPisti,
   bossaGir,
-  etkinlikAyari,
+  BOSS_PAY,
+  SATILMAZ,
+  bossAdaylari,
+  NADIR_PARCALAR,
+  RISKLER,
+  bossHedefi,
+  etkinlikHedefi,
+  stokDiz,
+  stokYenile,
   etkinlikBitti,
   kosuAraci,
   kosuBaslat,
@@ -25,7 +34,14 @@ import {
   type PistAdayi,
 } from "../../src/oyun/mutant-kosu";
 
-const PISTLER: PistAdayi[] = TDEF.map((t, i) => ({ i, ty: t.t, sev: t.sev ?? t.lv }));
+const TUR = { gp: 3, rx: 3, dp: DRIFT_TUR, rl: undefined, dg: undefined } as const;
+const PISTLER: PistAdayi[] = TDEF.map((t, i) => ({
+  i,
+  ty: t.t,
+  sev: t.sev ?? t.lv,
+  ys: yildizEsikleri(t.t, t.lv),
+  laps: TUR[t.t],
+}));
 const basla = (t = 1) => {
   const k = kosuBaslat(t, PISTLER);
   pasifSec(k, k.secenekler[0]);
@@ -72,16 +88,40 @@ describe("MUTANT koşu (A1)", () => {
     zamanAkis(k, 1);
     expect(k.zaman).toBe(z);
   });
-  it("etkinlik ödülü: geçince tam, kaçırınca %40, ikinci kez ödül yok", () => {
+  it("risk kademesi: güvenli geçince ×1, kaçırınca %30; riskli/ölümcül ×2/×3,5, kaçırınca ödülsüz ve süre cezası", () => {
     const k = basla(),
-      [e1, e2] = k.etkinlikler,
-      p0 = k.para;
-    etkinlikBitti(k, e1.id, true);
-    expect(k.para - p0).toBe(ETKINLIK_ODULU(e1.sev).para);
-    const p1 = k.para;
-    etkinlikBitti(k, e2.id, false);
-    expect(k.para - p1).toBe(Math.round(ETKINLIK_ODULU(e2.sev).para * 0.4));
+      [e1, e2, e3, e4] = k.etkinlikler,
+      O = (e: typeof e1) => ETKINLIK_ODULU(e.sev).para;
+    let p = k.para;
+    etkinlikBitti(k, e1.id, true, 0);
+    expect(k.para - p).toBe(O(e1));
+    p = k.para;
+    etkinlikBitti(k, e2.id, false, 0);
+    expect(k.para - p).toBe(Math.round(O(e2) * 0.3));
+    p = k.para;
+    etkinlikBitti(k, e3.id, true, 2);
+    expect(k.para - p).toBe(Math.round(O(e3) * 3.5));
+    p = k.para;
+    const t = k.kalan,
+      r = etkinlikBitti(k, e4.id, false, 1)!;
+    expect(k.para).toBe(p);
+    expect(t - k.kalan).toBe(RISKLER[1].ceza);
+    expect(r.ceza).toBe(RISKLER[1].ceza);
     expect(etkinlikBitti(k, e1.id, true)).toBeNull();
+  });
+  it("etkinlik hedefi: seçilen kademenin yıldızı, tek tur (tur başına); tursuz pistte tam", () => {
+    for (const p of PISTLER) {
+      const tur = p.laps ?? 1;
+      for (const r of [0, 1, 2] as const) {
+        const h = etkinlikHedefi(p, r);
+        expect(h.limit).toBeCloseTo(p.ys[r] / tur, p.ty == "dp" ? -1 : 6);
+        if (p.laps) expect(h.laps).toBe(1);
+      }
+      // kademe zorlaşır: süre kısalır, drift puanı artar
+      const [a, b, c] = [0, 1, 2].map((r) => etkinlikHedefi(p, r as 0 | 1 | 2).limit);
+      if (p.ty == "dp") expect(a <= b && b <= c).toBe(true);
+      else expect(a >= b && b >= c).toBe(true);
+    }
   });
   it("XP seviye atlatır, seçim gelir; birden çok seviye sırayla seçilir", () => {
     const k = basla();
@@ -116,14 +156,32 @@ describe("MUTANT koşu (A1)", () => {
     expect(taban.hp).toBe(hp0);
     expect(taban.gr).toEqual(gr0);
   });
-  it("atölye: para yetmezse alınmaz, aynı parça iki kez alınmaz, pazarlıkçı ucuzlatır", () => {
-    const k = basla();
-    k.para = 100;
-    expect(parcaAl(k, "x", 1)).toBe(false);
-    k.para = 1000;
-    expect(parcaAl(k, "x", 1)).toBe(true);
-    expect(parcaAl(k, "x", 1)).toBe(false);
+  it("atölye: yalnız stoktaki parça, para yetmezse alınmaz, aynı parça iki kez alınmaz, pazarlıkçı ucuzlatır", () => {
+    const k = basla(),
+      id = k.stok[0];
+    k.para = 10;
+    expect(parcaAl(k, id, 1)).toBe(false);
+    k.para = 2000;
+    expect(parcaAl(k, "stokta-yok", 1)).toBe(false);
+    expect(parcaAl(k, id, 1)).toBe(true);
+    expect(k.stok).not.toContain(id);
+    expect(parcaAl(k, id, 1)).toBe(false);
     expect(parcaFiyati({ pasifler: ["tuccar"] }, 2)).toBeLessThan(parcaFiyati({ pasifler: [] }, 2));
+    expect(parcaFiyati({ pasifler: [] }, 3, "turbo-buyuk")).toBeGreaterThan(
+      parcaFiyati({ pasifler: [] }, 3),
+    );
+  });
+  it("atölye stoğu: bölge 1'de nadir parça yok, sonra en çok bir; yenileme para ister", () => {
+    for (let t = 1; t <= 60; t++) {
+      const k = basla(t);
+      expect(k.stok.length).toBe(5);
+      expect(k.stok.some((id) => NADIR_PARCALAR.includes(id))).toBe(false);
+      k.bolge = 2;
+      stokDiz(k);
+      expect(k.stok.filter((id) => NADIR_PARCALAR.includes(id)).length).toBeLessThanOrEqual(1);
+      k.para = 0;
+      expect(stokYenile(k)).toBe(false);
+    }
   });
   it("boss: kazanınca sonraki bölge, farklı boss, yeni süre ve harita; kaybedince koşu biter", () => {
     const k = basla(7),
@@ -139,17 +197,47 @@ describe("MUTANT koşu (A1)", () => {
     bossBitti(k, false, PISTLER);
     expect(k.faz).toBe("bitti");
   });
-  it("boss pisti boss türünde ve tohumla sabit", () => {
-    for (let t = 1; t <= 20; t++) {
-      const k = basla(t);
-      expect(PISTLER[bossPisti(k, PISTLER)].ty).toBe(k.boss.ty);
-      expect(bossPisti(k, PISTLER)).toBe(bossPisti(basla(t), PISTLER));
-    }
+  it("boss pisti yalnız ölçülmüş pistlerden (bölge 1'de kolay yarı), tohumla sabit; hedef bölgenin referans kademesi", () => {
+    // her türün ilk 4 pisti ölçülmüş say: stok > dengeli > uzman (süre), driftte tersi
+    const say: Record<string, number> = {};
+    const olculen = PISTLER.map((p) => {
+      say[p.ty] = (say[p.ty] ?? 0) + 1;
+      if (say[p.ty] > 4) return p;
+      const d = p.ty == "dp";
+      return {
+        ...p,
+        ref: d ? { stok: 1000, dengeli: 1500, uzman: 2000 } : { stok: 100, dengeli: 90, uzman: 80 },
+      };
+    });
+    for (let t = 1; t <= 30; t++)
+      for (const bolge of [1, 2, 3]) {
+        const k = basla(t);
+        k.bolge = bolge;
+        const i = bossPisti(k, olculen),
+          p = olculen[i],
+          aday = bossAdaylari(k.boss.ty, bolge, olculen);
+        expect(p.ty).toBe(k.boss.ty);
+        expect(p.ref).toBeTruthy();
+        expect(aday.map((q) => q.i)).toContain(i);
+        if (bolge == 1) expect(aday.length).toBeLessThanOrEqual(2);
+        expect(bossPisti(k, olculen)).toBe(i);
+        const kademe = bolge == 1 ? "stok" : bolge == 2 ? "dengeli" : "uzman",
+          pay = BOSS_PAY[bolge - 1],
+          h = bossHedefi(k, p);
+        if (p.ty == "dp") expect(h).toBe(Math.round(p.ref![kademe] / pay));
+        else expect(h).toBeCloseTo(p.ref![kademe] * pay, 6);
+      }
   });
-  it("harita etkinliği tek tur, hedef orantılı; tursuz pist değişmez", () => {
-    expect(etkinlikAyari(3, 240)).toEqual({ laps: 1, limit: 80 });
-    expect(etkinlikAyari(undefined, 95)).toEqual({ laps: undefined, limit: 95 });
-    expect(etkinlikAyari(1, 60)).toEqual({ laps: 1, limit: 60 });
+  it("motor değişimi MUTANT atölyesinde hiç satılmaz", () => {
+    expect(SATILMAZ).toContain("motor-degisim");
+    for (let t = 1; t <= 40; t++) {
+      const k = basla(t);
+      for (const b of [1, 2, 3]) {
+        k.bolge = b;
+        stokDiz(k);
+        expect(k.stok).not.toContain("motor-degisim");
+      }
+    }
   });
   it("etkinlik ve atölye yerleri düz: 12 m çevrede eğim %8'den az (araç kaymadan durabilir)", () => {
     for (const [x, z] of [...YERLER, ATOLYE])

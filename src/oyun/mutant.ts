@@ -13,9 +13,9 @@ import {
   ATOLYE,
   bossBitti,
   bossHedefi,
+  etkinlikHedefi,
   bossPisti,
   bossaGir,
-  etkinlikAyari,
   etkinlikBitti,
   kosuAraci,
   kosuBaslat,
@@ -23,6 +23,7 @@ import {
   type EtkinlikSonucu,
   type Kosu,
   type PistAdayi,
+  type Risk,
 } from "./mutant-kosu";
 
 /** MUTANT rekoru: kariyerden ayrı */
@@ -54,6 +55,8 @@ export const mutant = {
   kosu: null as Kosu | null,
   /** yarışta açık etkinlik (id) ya da boss */
   etkinlik: null as number | "boss" | null,
+  /** etkinlikte seçilen risk kademesi */
+  risk: 0 as Risk,
   /** etkinlikten dönüş noktası */
   donus: null as [number, number, number] | null,
   /** koşu dışı koşullar (boss havası/gecesi bitince geri yüklenir) */
@@ -136,10 +139,13 @@ export function mutantBossKosulu() {
   if (b.gece) COND.tod = "night";
 }
 
-/** yarış başlarken: tur sayısı ve hedef (etkinlik tek tur, boss tam tur ve sıkı hedef) */
-export function mutantYarisAyari(laps: number | undefined, limit: number) {
-  const k = mutant.kosu;
-  return k && mutant.etkinlik == "boss" ? { laps, limit: bossHedefi(k, limit) } : etkinlikAyari(laps, limit);
+/** yarış başlarken (EVENTS indeksi): etkinlik tek tur + risk kademesinin yıldızı; boss tam tur + ölçülmüş bölge hedefi */
+export function mutantYarisAyari(i: number) {
+  const k = mutant.kosu,
+    p = mutantPistleri()[i];
+  return k && mutant.etkinlik == "boss"
+    ? { laps: p.laps, limit: bossHedefi(k, p) }
+    : etkinlikHedefi(p, mutant.risk);
 }
 
 /** boss pisti (EVENTS indeksi) */
@@ -202,7 +208,7 @@ export function mutantYarisBitti(gecti: boolean) {
     mutant.ui?.sonuc(null, true, gecti);
     return;
   }
-  mutant.ui?.sonuc(etkinlikBitti(k, et, gecti), false, gecti);
+  mutant.ui?.sonuc(etkinlikBitti(k, et, gecti, mutant.risk), false, gecti);
 }
 
 /** boss'a gir (işaretten ya da süre dolunca) */

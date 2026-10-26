@@ -3,6 +3,7 @@
 // XP seviye atlatır (3 pasiften 1), para atölyede parça alır. Süre bitince ya da oyuncu isterse boss yarışı:
 // kazanırsa sonraki bölge (daha zor boss), kaybederse koşu biter. Ekonomi kariyerden ayrıdır.
 import type { Arac, YarisTuru } from "../arac/araclar";
+import { PARCALAR } from "../arac/parcalar";
 import { mulberry32, type Rastgele } from "../cekirdek/rastgele";
 
 /** etkinliğe aday pist: oyundaki EVENTS'in özeti (saf modül oyun verisine bağlanmasın diye) */
@@ -10,6 +11,19 @@ export interface PistAdayi {
   i: number;
   ty: YarisTuru;
   sev: number;
+  /** yıldız eşikleri [1★, 2★, 3★] (bütün turlar için; süre ya da drift puanı) ve tur sayısı */
+  ys: number[];
+  laps?: number;
+  /** ölçülmüş referans (tests/olcum/mutant.test.ts, bütün turlar): stok / dengeli / uzman build sonucu. Yoksa pist
+   *  boss olamaz (pilot temiz bitiremedi ya da ölçülmedi) */
+  ref?: Referans;
+}
+
+/** referans sonuç: süre yarışında saniye, driftte puan */
+export interface Referans {
+  stok: number;
+  dengeli: number;
+  uzman: number;
 }
 
 export interface Boss {
@@ -21,7 +35,7 @@ export interface Boss {
   yetenekler: string[];
   /** zayıf yanı: build ipucu */
   zayif: string;
-  /** boss yarışında hedef çarpanı: süre yarışında hedef süre × bu (küçük = zor), driftte hedef puan × bu */
+  /** boss hedefine ek çarpan (bölgenin yıldız eşiğinin üstüne; 1 = eşiğin kendisi) */
   hedef: number;
   hava?: "rain" | "snow";
   gece?: boolean;
@@ -33,47 +47,47 @@ export const BOSSLAR: Boss[] = [
     id: "toprak-kurdu",
     ad: "Toprak Kurdu",
     ty: "rl",
-    d: "Ralli etabında hedef süresi pistin %92'si",
+    d: "Ralli etabı; toprakta çok hızlı",
     yetenekler: ["Toprakta çok hızlı", "Çamurda yavaşlamaz"],
     zayif: "Toprak tutuşu, dört çeker, süspansiyon kazandırır",
-    hedef: 0.92,
+    hedef: 1,
   },
   {
     id: "drift-kralicesi",
     ad: "Drift Kraliçesi",
     ty: "dp",
-    d: "Drift pistinde hedef puanın 1,3 katı",
+    d: "Drift düellosu; uzun kombolar ister",
     yetenekler: ["Uzun kombolar", "Çarpanı hiç düşmez"],
     zayif: "Açı kiti, güç, kombo pasifleri kazandırır",
-    hedef: 1.3,
+    hedef: 1,
   },
   {
     id: "drag-canavari",
     ad: "Drag Canavarı",
     ty: "dg",
-    d: "Drag pistinde hedef süresinin %94'ü",
+    d: "Drag; kalkış ve son hız ister",
     yetenekler: ["Kalkışta patinaj yapmaz", "Son metrede nitro"],
     zayif: "Motor, turbo, hafiflik kazandırır",
-    hedef: 0.94,
+    hedef: 1,
   },
   {
     id: "gece-sahini",
     ad: "Gece Şahini",
     ty: "gp",
-    d: "Gece asfalt yarışı, hedef sürenin %93'ü",
+    d: "Gece asfalt yarışı; fren ve viraj ister",
     yetenekler: ["Karanlıkta virajı ezbere bilir", "Frene geç basar"],
     zayif: "Fren, asfalt tutuşu kazandırır",
-    hedef: 0.93,
+    hedef: 1,
     gece: true,
   },
   {
     id: "camur-baronu",
     ad: "Çamur Baronu",
     ty: "rx",
-    d: "Yağmurda rallikros, hedef sürenin %94'ü",
+    d: "Yağmurda rallikros; ıslak toprak ister",
     yetenekler: ["Islakta tutunur", "Su birikintisinde yavaşlamaz"],
     zayif: "Toprak tutuşu, fren, dört çeker kazandırır",
-    hedef: 0.94,
+    hedef: 1,
     hava: "rain",
   },
 ];
@@ -109,10 +123,29 @@ export const pasifBul = (id: string) => PASIFLER.find((p) => p.id === id);
 
 /** XP eşikleri: seviye n için toplam XP */
 export const seviyeXp = (n: number) => 80 * n + 30 * n * (n - 1);
-/** etkinlik ödülü (pist zorluğu sev 1-6): geçince tam, bitirip kaçırınca %40 */
-export const ETKINLIK_ODULU = (sev: number) => ({ xp: 50 + 25 * sev, para: 90 + 45 * sev });
-/** atölye fiyatı (parça seviyesi 0-3) */
-export const PARCA_FIYAT = [60, 140, 260, 420];
+/** etkinlik temel ödülü (pist zorluğu sev 1-6); risk kademesi çarpar */
+export const ETKINLIK_ODULU = (sev: number) => ({ xp: 40 + 20 * sev, para: 60 + 30 * sev });
+
+/**
+ * risk kademesi (issue #16: yüksek risk / yüksek ödül): hedef pistin 1★/2★/3★ eşiği (tur başına). Güvenli kaçırınca
+ * küçük teselli; riskli ve ölümcülde kaçırmak ödülsüz ve boss geri sayımından süre götürür (fırsat kaybı).
+ */
+export const RISKLER = [
+  { ad: "Güvenli", odul: 1, kacirma: 0.3, ceza: 0 },
+  { ad: "Riskli", odul: 2, kacirma: 0, ceza: 45 },
+  { ad: "Ölümcül", odul: 3.5, kacirma: 0, ceza: 90 },
+] as const;
+export type Risk = 0 | 1 | 2;
+
+/** atölye fiyatı (parça seviyesi 0-3); nadir parçalar ayrıca pahalı */
+export const PARCA_FIYAT = [40, 80, 170, 380];
+/** MUTANT atölyesinde hiç satılmaz: ölçümde tek başına bütün türlerde en iyi build'i geçti (issue #16) */
+export const SATILMAZ = ["motor-degisim"];
+/** güçlü parçalar: ilk bölgede satılmaz, stokta en çok bir tane */
+export const NADIR_PARCALAR = ["motor-yaris", "turbo-buyuk", "lastik-yaris"];
+export const NADIR_EK = 1.4;
+export const ATOLYE_STOK = 5;
+export const STOK_YENILE = 40;
 /** boss'a geri sayım (sn) bölgeye göre */
 export const BOSS_SURESI = (bolge: number) => (bolge == 1 ? 900 : 780);
 export const HARITA_ETKINLIK = 8;
@@ -147,6 +180,8 @@ export interface Kosu {
   pasifler: string[];
   /** atölyede alınan parçalar */
   parcalar: string[];
+  /** atölyede satıştaki parçalar (bölgede bir kez dizilir; parayla yenilenebilir) */
+  stok: string[];
   /** seçim ekranındaki pasifler */
   secenekler: string[];
   etkinlikler: Etkinlik[];
@@ -225,6 +260,7 @@ export function kosuBaslat(tohum: number, pistler: readonly PistAdayi[]): Kosu {
     para: 150,
     pasifler: [],
     parcalar: [],
+    stok: [],
     secenekler: [],
     etkinlikler: [],
     tamamlanan: 0,
@@ -233,7 +269,31 @@ export function kosuBaslat(tohum: number, pistler: readonly PistAdayi[]): Kosu {
   };
   k.secenekler = pasifCek(k, 3);
   etkinlikDiz(k, pistler);
+  stokDiz(k);
   return k;
+}
+
+/** atölye stoğu: zayıf (sv0) parçalar yok; nadirler bölge 2'den itibaren ve en çok bir tane */
+export function stokDiz(k: Kosu) {
+  const aday = PARCALAR.filter((p) => p.sv > 0 && !k.parcalar.includes(p.id) && !SATILMAZ.includes(p.id)).map(
+      (p) => p.id,
+    ),
+    r: string[] = [];
+  let nadir = 0;
+  while (r.length < ATOLYE_STOK && aday.length) {
+    const id = aday.splice(Math.floor(k.rng() * aday.length), 1)[0];
+    if (NADIR_PARCALAR.includes(id) && (k.bolge < 2 || nadir++ >= 1)) continue;
+    r.push(id);
+  }
+  k.stok = r;
+}
+
+/** atölyede stoğu parayla yenile */
+export function stokYenile(k: Kosu): boolean {
+  if (k.para < STOK_YENILE) return false;
+  k.para -= STOK_YENILE;
+  stokDiz(k);
+  return true;
 }
 
 /** başlangıç ya da seviye seçimi: pasifi al; bekleyen seçim varsa yeni seçenekler, yoksa sürüşe dön */
@@ -281,17 +341,21 @@ export interface EtkinlikSonucu {
   gecti: boolean;
   seviyeAtladi: boolean;
   ekSure: number;
+  /** kaçırınca boss süresinden düşen (sn) */
+  ceza: number;
 }
 
-/** etkinlik bitti: geçti (hedef) ya da bitirdi ama kaçırdı; ödül ve seviye. Etkinlik bir kez ödül verir */
-export function etkinlikBitti(k: Kosu, id: number, gecti: boolean): EtkinlikSonucu | null {
+/** etkinlik bitti: seçilen risk kademesinde geçti ya da kaçırdı; ödül, ceza ve seviye. Etkinlik bir kez oynanır */
+export function etkinlikBitti(k: Kosu, id: number, gecti: boolean, risk: Risk = 0): EtkinlikSonucu | null {
   const e = k.etkinlikler.find((q) => q.id == id);
   if (!e || e.yapildi) return null;
   e.yapildi = true;
   k.tamamlanan++;
-  const o = ETKINLIK_ODULU(e.sev),
-    pay = gecti ? 1 : 0.4,
+  const R = RISKLER[risk],
+    o = ETKINLIK_ODULU(e.sev),
+    pay = gecti ? R.odul : R.kacirma,
     seviye0 = k.seviye;
+  if (!gecti) k.kalan = Math.max(0, k.kalan - R.ceza);
   xpEkle(k, o.xp * pay);
   const para = Math.round(o.para * pay * (1 + 0.25 * pasifSayisi(k, "tuccar")));
   k.para += para;
@@ -305,16 +369,21 @@ export function etkinlikBitti(k: Kosu, id: number, gecti: boolean): EtkinlikSonu
       k.faz = "surus";
     }
   }
-  return { xp: k.xp, para, gecti, seviyeAtladi: k.seviye > seviye0, ekSure };
+  return { xp: k.xp, para, gecti, seviyeAtladi: k.seviye > seviye0, ekSure, ceza: gecti ? 0 : R.ceza };
 }
 
-export const parcaFiyati = (k: Pick<Kosu, "pasifler">, sv: number) =>
-  Math.round(PARCA_FIYAT[sv] * (1 - 0.1 * pasifSayisi(k as Kosu, "tuccar")));
+export const parcaFiyati = (k: Pick<Kosu, "pasifler">, sv: number, id = "") =>
+  Math.round(
+    PARCA_FIYAT[sv] *
+      (NADIR_PARCALAR.includes(id) ? NADIR_EK : 1) *
+      (1 - 0.1 * pasifSayisi(k as Kosu, "tuccar")),
+  );
 
-/** atölyede parça al (aynı kategorideki eski parçanın yerine geçme oyun tarafında parcalariDuzenle ile) */
+/** atölyede stoktaki parçayı al (aynı kategorideki eski parçanın yerine geçme oyun tarafında parcalariDuzenle ile) */
 export function parcaAl(k: Kosu, id: string, sv: number): boolean {
-  const f = parcaFiyati(k, sv);
-  if (k.para < f || k.parcalar.includes(id)) return false;
+  const f = parcaFiyati(k, sv, id);
+  if (k.para < f || k.parcalar.includes(id) || !k.stok.includes(id)) return false;
+  k.stok = k.stok.filter((q) => q != id);
   k.para -= f;
   k.parcalar.push(id);
   return true;
@@ -341,6 +410,7 @@ export function bossBitti(k: Kosu, kazandi: boolean, pistler: readonly PistAdayi
   k.para += 200;
   xpEkle(k, 150);
   etkinlikDiz(k, pistler);
+  stokDiz(k);
   if (k.bekleyenSecim > 0) {
     k.faz = "secim";
     k.secenekler = pasifCek(k, 3);
@@ -350,17 +420,40 @@ export function bossBitti(k: Kosu, kazandi: boolean, pistler: readonly PistAdayi
   k.faz = "surus";
 }
 
-/** boss yarışının pisti: boss türünde, bölgeye göre zorlaşan; aynı tohumla aynı */
-export function bossPisti(k: Kosu, pistler: readonly PistAdayi[]): number {
-  const aday = pistler.filter((p) => p.ty == k.boss.ty).sort((a, b) => a.sev - b.sev);
-  const r = mulberry32(k.tohum + k.bolge * 977)();
-  const ust = Math.min(aday.length, 2 + 2 * k.bolge);
-  return aday[Math.min(aday.length - 1, Math.floor(r * ust))].i;
+/**
+ * boss hedefi ölçülmüş referanstan (issue #16): bölge 1 stok aracın, bölge 2 dengeli build'in, bölge 3+ türe uzman
+ * build'in sonucu; pay insanın pisti ilk kez sürmesi için. İlk boss başlangıç aracıyla geçilir, sonrakiler yatırım ve
+ * boss'a uygun parça ister; tek motor parçası uzman hedefini geçemez (ölçüm raporu).
+ */
+export const BOSS_PAY = [1.05, 1.02, 1];
+const bossKademe = (bolge: number) => (bolge <= 1 ? "stok" : bolge == 2 ? "dengeli" : "uzman");
+
+/** boss olabilen pistler: türde, referansı ölçülmüş; bölge 1'de türün kolay yarısı */
+export function bossAdaylari(ty: YarisTuru, bolge: number, pistler: readonly PistAdayi[]) {
+  const tur = pistler.filter((p) => p.ty == ty).sort((a, b) => a.sev - b.sev || a.i - b.i),
+    olculen = tur.filter((p) => p.ref),
+    // ölçülmüş pist yoksa (yeni tür) türün bütün pistleri; hedef yıldızdan gelir
+    l = olculen.length ? olculen : tur;
+  return bolge <= 1 ? l.slice(0, Math.max(1, Math.ceil(l.length / 2))) : l;
 }
 
-/** harita etkinliği tek tur (geri sayıma sığsın): turlu pistte hedef tur sayısına bölünür; boss tam turdur */
-export const etkinlikAyari = (laps: number | undefined, limit: number) =>
-  laps && laps > 1 ? { laps: 1, limit: limit / laps } : { laps, limit };
+/** boss yarışının pisti: aday listesinden tohumla; aynı tohum ve bölgeyle aynı */
+export function bossPisti(k: Kosu, pistler: readonly PistAdayi[]): number {
+  const aday = bossAdaylari(k.boss.ty, k.bolge, pistler);
+  return aday[Math.floor(mulberry32(k.tohum + k.bolge * 977)() * aday.length)].i;
+}
 
-/** boss hedefi: drift (puan) yükselir, süre yarışında hedef süre kısalır */
-export const bossHedefi = (k: Kosu, limit: number) => limit * k.boss.hedef;
+/** boss hedefi (bütün turlar): referansın bölge kademesi; süre yarışında pay kadar uzun, driftte o kadar düşük */
+export function bossHedefi(k: Pick<Kosu, "bolge" | "boss">, p: Pick<PistAdayi, "ty" | "ref" | "ys">) {
+  const pay = BOSS_PAY[Math.min(2, k.bolge - 1)];
+  if (!p.ref) return p.ys[Math.min(2, k.bolge - 1)];
+  const r = p.ref[bossKademe(k.bolge)] * k.boss.hedef;
+  return p.ty == "dp" ? Math.round(r / pay) : r * pay;
+}
+
+/** harita etkinliği tek tur (geri sayıma sığsın): hedef seçilen risk kademesinin yıldızı, tur başına */
+export function etkinlikHedefi(p: Pick<PistAdayi, "ty" | "ys" | "laps">, risk: Risk) {
+  const tur = p.laps && p.laps > 1 ? p.laps : 1,
+    y = p.ys[risk] / tur;
+  return { laps: p.laps ? 1 : p.laps, limit: p.ty == "dp" ? Math.round(y) : y };
+}

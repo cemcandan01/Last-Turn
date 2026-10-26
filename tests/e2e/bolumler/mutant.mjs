@@ -39,11 +39,17 @@ export default async function ({ p, ok }) {
       ilerleme = localStorage.getItem("lt_ilerleme"),
       p0 = k.para;
     LT.reset(e.x, e.z, 0);
-    r.kart = await olana(() => LT.oyun.mode == "result" && !!res.querySelector("#mBasla"));
-    res.querySelector("#mBasla").click();
+    r.kart = await olana(() => LT.oyun.mode == "result" && res.querySelectorAll("[data-risk]").length == 3);
+    // ölümcül kademe: ödül ×3,5
+    res.querySelector("[data-risk='2']").click();
     const EV = LT.yaris.EV;
     r.etkinlik =
-      !!EV && EV.mutant === true && EV.kariyer === false && EV.k.startsWith("mutant_") && EV.i == e.i;
+      LT.mutant.risk == 2 &&
+      !!EV &&
+      EV.mutant === true &&
+      EV.kariyer === false &&
+      EV.k.startsWith("mutant_") &&
+      EV.i == e.i;
     // hedefi geçerek bitir
     EV.state = "run";
     EV.t = 1;

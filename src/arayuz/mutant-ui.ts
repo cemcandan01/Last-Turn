@@ -23,6 +23,7 @@ import {
   mutantKapat,
   mutantKosuluGeriYukle,
   mutantKurulumUygula,
+  mutantPistleri,
   mutantRekoru,
   mutantYarisBitti,
   type MutantIsaret,
@@ -30,7 +31,11 @@ import {
 import {
   ATOLYE,
   ETKINLIK_ODULU,
-  etkinlikAyari,
+  etkinlikHedefi,
+  RISKLER,
+  STOK_YENILE,
+  stokYenile,
+  type Risk,
   bossHedefi,
   parcaAl,
   parcaFiyati,
@@ -174,17 +179,26 @@ function isaret(i: MutantIsaret) {
   if (i.tur == "boss") return bossSayfasi(false);
   const e = k.etkinlikler.find((q) => q.id == i.id)!,
     E = EVENTS[e.i],
-    A = etkinlikAyari(E.laps, E.limit),
     o = ETKINLIK_ODULU(e.sev);
+  // risk kademesi: hedef 1★/2★/3★ (tek tur); ödül çarpanı ve kaçırmanın bedeli kartta açık
+  const kademe = ([0, 1, 2] as Risk[])
+    .map((r) => {
+      const R = RISKLER[r],
+        h = etkinlikHedefi(E, r);
+      return `<div class="card go" data-risk="${r}"><b>${R.ad} · ${"★".repeat(r + 1)}</b><span>Hedef ${hedefYazi(E.ty, h.limit)}</span><span>Ödül ${Math.round(o.xp * R.odul)} XP · ${Math.round(o.para * R.odul)} para</span><span>Kaçırırsan ${R.ceza ? "ödül yok, boss'a −" + R.ceza + " sn" : Math.round(o.para * R.kacirma) + " para teselli"}</span></div>`;
+    })
+    .join("");
   const s = sayfaAc(
-    `<h1>${TUR[e.ty][0]}</h1><p>${E.n} · ${SEVIYELER[e.sev - 1].n}${A.laps ? " · " + A.laps + " tur" : ""}</p>` +
-      row("Hedef", hedefYazi(E.ty, A.limit)) +
-      row("Ödül (hedefi geçersen)", o.xp + " XP · " + o.para + " para") +
-      row("Bitirip kaçırırsan", Math.round(o.xp * 0.4) + " XP · " + Math.round(o.para * 0.4) + " para") +
-      row("Boss'a kalan", sure(k.kalan)) +
-      '<p class="note">Etkinlik süresi boss geri sayımından düşer.</p><button class="btn" id="mBasla">Başla</button><button class="btn alt" id="mGec">Vazgeç</button>',
+    `<h1>${TUR[e.ty][0]}</h1><p>${E.n} · ${SEVIYELER[e.sev - 1].n}${E.laps ? " · 1 tur" : ""} · Boss'a ${sure(k.kalan)}</p><div class="mtp">${kademe}</div>` +
+      '<p class="note">Riski sen seç: zor hedef çok kazandırır, kaçırmak süre götürür. Etkinlik süresi de boss geri sayımından düşer.</p><button class="btn alt" id="mGec">Vazgeç</button>',
   );
-  s.querySelector<HTMLElement>("#mBasla")!.onclick = () => etkinlikBaslat(e.id, e.i);
+  s.querySelectorAll<HTMLElement>("[data-risk]").forEach(
+    (c) =>
+      (c.onclick = () => {
+        mutant.risk = +c.dataset.risk! as Risk;
+        etkinlikBaslat(e.id, e.i);
+      }),
+  );
   s.querySelector<HTMLElement>("#mGec")!.onclick = surusDevam;
 }
 
@@ -200,24 +214,25 @@ function etkinlikBaslat(id: number | "boss", i: number) {
   startEvent(i, mutantArac, true);
 }
 
-/** atölye: koşu parasıyla parça (aynı kategoride son alınan geçer) */
+/** atölye: bölgenin stoğundan koşu parasıyla parça (aynı kategoride son alınan geçer); stok parayla yenilenir */
 function atolye() {
-  const k = mutant.kosu!;
+  const k = mutant.kosu!,
+    kat = (id: string) => KATEGORILER.find((q) => q[0] == PARCALAR.find((p) => p.id == id)!.kat)![1];
   const s = sayfaAc(
-    `<div class="bar"><button class="btn" id="mKapat">Haritaya dön</button></div><h1>Atölye</h1><p>Para: <b>${k.para}</b>. Parça aracına hemen takılır; aynı kategoride sonuncusu geçerli.</p>` +
-      KATEGORILER.map(([kat, ad]) => {
-        const l = PARCALAR.filter((p) => p.kat == kat);
-        if (!l.length) return "";
-        return `<div class="lbl">${ad}</div><div class="mtz">${l
-          .map((p) => {
-            const f = parcaFiyati(k, p.sv),
-              var_ = k.parcalar.includes(p.id);
-            return `<div class="rk"><span>${p.n}<small> · ${p.d}</small></span><span>${var_ ? "Takılı" : `<button class="btn mal" data-parca="${p.id}" ${k.para < f ? "disabled" : ""}>${f}</button>`}</span></div>`;
-          })
-          .join("")}</div>`;
-      }).join(""),
+    `<div class="bar"><button class="btn" id="mKapat">Haritaya dön</button><button class="btn alt" id="mYenile" ${k.para < STOK_YENILE ? "disabled" : ""}>Stoğu yenile · ${STOK_YENILE}</button></div><h1>Atölye</h1><p>Para: <b>${k.para}</b>. Bu bölgede satılan ${k.stok.length} parça. Takılan aynı kategorideki parçanın yerine geçer.</p><div class="mtz">` +
+      k.stok
+        .map((id) => {
+          const p = PARCALAR.find((q) => q.id == id)!,
+            f = parcaFiyati(k, p.sv, p.id);
+          return `<div class="rk"><span>${p.n}<small> · ${kat(id)} · ${p.d}</small></span><span><button class="btn mal" data-parca="${p.id}" ${k.para < f ? "disabled" : ""}>${f}</button></span></div>`;
+        })
+        .join("") +
+      `</div>${k.parcalar.length ? `<div class="lbl">Takılı</div><p>${k.parcalar.map((id) => PARCALAR.find((p) => p.id == id)!.n).join(", ")}</p>` : ""}`,
   );
   s.querySelector<HTMLElement>("#mKapat")!.onclick = surusDevam;
+  s.querySelector<HTMLElement>("#mYenile")!.onclick = () => {
+    if (stokYenile(k)) atolye();
+  };
   s.querySelectorAll<HTMLButtonElement>("[data-parca]").forEach(
     (b) =>
       (b.onclick = () => {
@@ -236,7 +251,11 @@ function bossSayfasi(zorunlu: boolean) {
     E = EVENTS[i];
   const s = sayfaAc(
     `<h1>${zorunlu ? "Süre doldu!" : "Boss yarışı"}</h1><p>Bölge ${k.bolge} · ${E.n}</p>${bossKarti(k.boss)}` +
-      row("Boss hedefi", hedefYazi(E.ty, bossHedefi(k, E.limit))) +
+      row(
+        "Boss hedefi (bölge " + k.bolge + " · " + "★".repeat(Math.min(3, k.bolge)) + ")",
+        hedefYazi(E.ty, bossHedefi(k, mutantPistleri()[i])),
+      ) +
+      row("Tur", E.laps || 1) +
       row("Seviye", k.seviye + " · " + k.pasifler.length + " yetenek · " + k.parcalar.length + " parça") +
       '<p class="note">Kaybedersen koşu biter. Kazanırsan sonraki bölge ve yeni bir boss.</p><button class="btn" id="mBoss">Boss yarışına gir</button>' +
       (zorunlu ? "" : '<button class="btn alt" id="mGec">Henüz değil</button>'),
@@ -277,7 +296,8 @@ function sonuc(r: EtkinlikSonucu | null, boss: boolean, gecti: boolean) {
           : "<p>Koşu bitti.</p>"
         : row("Kazanılan para", "+" + (r?.para ?? 0)) +
           row("Seviye", k.seviye + " · " + k.xp + " / " + seviyeXp(k.seviye + 1) + " XP") +
-          (r?.ekSure ? row("Zaman bükücü", "+" + r.ekSure + " sn") : "")) +
+          (r?.ekSure ? row("Zaman bükücü", "+" + r.ekSure + " sn") : "") +
+          (r?.ceza ? row(RISKLER[mutant.risk].ad + " hedef kaçtı", "Boss'a −" + r.ceza + " sn") : "")) +
       row("Boss'a kalan", sure(k.kalan)) +
       `<button class="btn" id="mDevam">${bitti ? "Özet" : "Haritaya dön"}</button>`,
   );
