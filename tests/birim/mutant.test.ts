@@ -167,9 +167,7 @@ describe("MUTANT koşu (A1)", () => {
     expect(k.stok).not.toContain(id);
     expect(parcaAl(k, id, 1)).toBe(false);
     expect(parcaFiyati({ pasifler: ["tuccar"] }, 2)).toBeLessThan(parcaFiyati({ pasifler: [] }, 2));
-    expect(parcaFiyati({ pasifler: [] }, 3, "turbo-buyuk")).toBeGreaterThan(
-      parcaFiyati({ pasifler: [] }, 3),
-    );
+    expect(parcaFiyati({ pasifler: [] }, 3, "turbo-buyuk")).toBeGreaterThan(parcaFiyati({ pasifler: [] }, 3));
   });
   it("atölye stoğu: bölge 1'de nadir parça yok, sonra en çok bir; yenileme para ister", () => {
     for (let t = 1; t <= 60; t++) {
