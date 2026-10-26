@@ -79,7 +79,7 @@ function surusDevam() {
 }
 
 const bossKarti = (b: Boss) =>
-  `<div class="card mtb"><b>BOSS · ${b.ad}</b><span>${TUR[b.ty][0]} · ${b.d}</span><span>Yetenekleri: ${b.yetenekler.join(", ")}</span><span>İpucu: ${b.zayif}</span></div>`;
+  `<div class="card mtb"><div class="mt-eyebrow">BÖLÜM TEHDİDİ · ${TUR[b.ty][0]}</div><b>BOSS · ${b.ad}</b><span>${b.d}</span><div class="mt-risk"><span>TEHLİKELER</span><strong>${b.yetenekler.join(" / ")}</strong></div><div class="mt-counter"><span>HAZIRLIK İPUCU</span><strong>${b.zayif}</strong></div></div>`;
 
 const hedefYazi = (ty: YarisTuru, limit: number) =>
   ty == "dp" ? Math.round(limit) + " puan" : ty == "dg" ? fmt3(limit) : fmt(limit);
@@ -183,7 +183,7 @@ function isaret(i: MutantIsaret) {
       row("Ödül (hedefi geçersen)", o.xp + " XP · " + o.para + " para") +
       row("Bitirip kaçırırsan", Math.round(o.xp * 0.4) + " XP · " + Math.round(o.para * 0.4) + " para") +
       row("Boss'a kalan", sure(k.kalan)) +
-      '<p class="note">Etkinlik süresi boss geri sayımından düşer.</p><button class="btn" id="mBasla">Başla</button><button class="btn alt" id="mGec">Vazgeç</button>',
+      '<p class="note mt-warning">RİSK · Etkinlik boss hazırlık süresini tüketir. Hedef kaçarsa ödül azalır.</p><button class="btn" id="mBasla">Başla</button><button class="btn alt" id="mGec">Vazgeç</button>',
   );
   s.querySelector<HTMLElement>("#mBasla")!.onclick = () => etkinlikBaslat(e.id, e.i);
   s.querySelector<HTMLElement>("#mGec")!.onclick = surusDevam;
