@@ -1,3 +1,5 @@
+import "./mutant-theme.css";
+
 // MUTANT arayüzü (A1): koşu başı (boss kartı, araç, başlangıç pasifi), etkinlik kartı, atölye, yarış sonucu, seviye
 // seçimi, boss kartı, koşu özeti ve HUD metinleri. Haritadaki işaretler cizim/isaretler.ts + mini harita.
 // Kurallar oyun/mutant-kosu.ts; HUD kuralları docs/HUD.md.
@@ -81,7 +83,7 @@ function sayfaAc(html: string) {
   $("#ctl").classList.add("hidden");
   const r = $("#res");
   r.classList.remove("hidden");
-  r.innerHTML = html;
+  r.innerHTML = `<div class="mutant-shell">${html}</div>`;
   return r;
 }
 
@@ -93,7 +95,7 @@ function surusDevam() {
 }
 
 const bossKarti = (b: Boss) =>
-  `<div class="card mtb"><b>BOSS · ${b.ad}</b><span>${TUR[b.ty][0]} · ${b.d}</span><span>Yetenekleri: ${b.yetenekler.join(", ")}</span><span>İpucu: ${b.zayif}</span></div>`;
+  `<div class="card mtb"><span class="mtb-kicker">HEDEF / ${TUR[b.ty][0]}</span><b>${b.ad}</b><span class="mtb-detail">${b.d}</span><div class="mtb-facts"><span><small>TEHLİKE</small>${b.yetenekler.join(" · ")}</span><span><small>ZAYIF NOKTA</small>${b.zayif}</span></div></div>`;
 
 const hedefYazi = (ty: YarisTuru, limit: number) =>
   ty == "dp" ? Math.round(limit) + " puan" : ty == "dg" ? fmt3(limit) : fmt(limit);
@@ -135,10 +137,10 @@ function basla() {
     araclar: number[] = [];
   while (araclar.length < 3 && aday.length) araclar.push(aday.splice(Math.floor(r() * aday.length), 1)[0]);
   const s = sayfaAc(
-    `<h1>MUTANT</h1><p>Boss'a ${sure(k.kalan)} var. Önce aracını seç: hepsi zayıf, koşuda güçlenecek.</p>${bossKarti(k.boss)}<div class="mtp">${araclar
+    `<div class="mt-heading"><span class="mt-eyebrow">YENİ KOŞU / ${sure(k.kalan)} HAZIRLIK</span><h1>MUTANT</h1><p>Aracını seç. Gücünü yolda kazanacaksın.</p></div>${bossKarti(k.boss)}<div class="mtp">${araclar
       .map(
         (i) =>
-          `<div class="card go" data-arac="${i}"><b>${CARS[i].n}</b><span>${CARS[i].hp} HP · ${Math.round(CARS[i].kg)} kg · ${CARS[i].awd > 0.5 ? "4×4" : "arkadan itiş"}</span></div>`,
+          `<div class="card go mt-choice mt-car" data-arac="${i}"><small class="mt-card-tag">BAŞLANGIÇ ARACI</small><b>${CARS[i].n}</b><span>${CARS[i].hp} HP · ${Math.round(CARS[i].kg)} kg</span><span>${CARS[i].awd > 0.5 ? "4×4" : "Arkadan itiş"}</span><strong class="mt-action">SEÇ</strong></div>`,
       )
       .join("")}</div>`,
   );
@@ -154,14 +156,14 @@ function basla() {
 function pasifSayfasi(baslik: string) {
   const k = mutant.kosu!;
   const s = sayfaAc(
-    `<h1>MUTANT</h1><p>${baslik}</p>${
+    `<div class="mt-heading"><span class="mt-eyebrow">YENİ MUTASYON</span><h1>GÜCÜNÜ SEÇ</h1><p>${baslik}</p></div>${
       k.pasifler.length
         ? `<p class="note">Takılı: ${k.pasifler.map((id) => pasifBul(id)!.ad).join(", ")}</p>`
         : ""
     }<div class="mtp">${k.secenekler
       .map((id) => {
         const p = pasifBul(id)!;
-        return `<div class="card go" data-pasif="${id}"><b>${p.ad}</b><span>${p.d}</span></div>`;
+        return `<div class="card go mt-choice mt-skill" data-pasif="${id}"><small class="mt-card-tag">MUTASYON</small><b>${p.ad}</b><span>${p.d}</span><strong class="mt-action">KUŞAN</strong></div>`;
       })
       .join("")}</div>`,
   );
@@ -202,12 +204,12 @@ function isaret(i: MutantIsaret) {
     .map((r) => {
       const R = RISKLER[r],
         h = etkinlikHedefi(E, r);
-      return `<div class="card go" data-risk="${r}"><b>${R.ad} · ${"★".repeat(r + 1)}</b><span>Hedef ${hedefYazi(E.ty, h.limit)}</span><span>Ödül ${Math.round(o.xp * R.odul)} XP · ${Math.round(o.para * R.odul)} para</span><span>Kaçırırsan ${R.ceza ? "ödül yok, boss'a −" + R.ceza + " sn" : Math.round(o.para * R.kacirma) + " para teselli"}</span></div>`;
+      return `<div class="card go mt-choice mt-risk-${r}" data-risk="${r}"><small class="mt-card-tag">${"★".repeat(r + 1)} / ${R.ad}</small><b>${hedefYazi(E.ty, h.limit)}</b><span class="mt-reward">+${Math.round(o.xp * R.odul)} XP · +${Math.round(o.para * R.odul)} PARA</span><span class="mt-cost">${R.ceza ? "BAŞARISIZLIK: −" + R.ceza + " sn" : "BAŞARISIZLIK: " + Math.round(o.para * R.kacirma) + " para"}</span><strong class="mt-action">RİSKİ AL</strong></div>`;
     })
     .join("");
   const s = sayfaAc(
-    `<h1>${TUR[e.ty][0]}</h1><p>${E.n} · ${SEVIYELER[e.sev - 1].n}${E.laps ? " · 1 tur" : ""} · Boss'a ${sure(k.kalan)}</p><div class="mtp">${kademe}</div>` +
-      '<p class="note">Riski sen seç: zor hedef çok kazandırır, kaçırmak süre götürür. Etkinlik süresi de boss geri sayımından düşer.</p><button class="btn alt" id="mGec">Vazgeç</button>',
+    `<div class="mt-heading"><span class="mt-eyebrow">ETKİNLİK / ${SEVIYELER[e.sev - 1].n}</span><h1>${TUR[e.ty][0]}</h1><p>${E.n}${E.laps ? " · 1 tur" : ""} · ${sure(k.kalan)} kaldı</p></div><div class="mtp">${kademe}</div>` +
+      '<p class="note mt-notice">Zor hedef, yüksek ödül. Süren her koşulda azalır.</p><button class="btn alt" id="mGec">Vazgeç</button>',
   );
   s.querySelectorAll<HTMLElement>("[data-risk]").forEach(
     (c) =>
@@ -240,12 +242,12 @@ function atolye() {
   const k = mutant.kosu!,
     kat = (id: string) => KATEGORILER.find((q) => q[0] == PARCALAR.find((p) => p.id == id)!.kat)![1];
   const s = sayfaAc(
-    `<div class="bar"><button class="btn" id="mKapat">Haritaya dön</button><button class="btn alt" id="mYenile" ${k.para < STOK_YENILE ? "disabled" : ""}>Stoğu yenile · ${STOK_YENILE}</button>${k.govde < GOVDE.tam ? `<button class="btn alt" id="mTamir" ${k.para < GOVDE.tamirFiyati ? "disabled" : ""}>Tamir · ${tamirBedeli(k)}</button>` : ""}</div><h1>Atölye</h1><p>Para: <b>${k.para}</b> · Gövde <b>${Math.round(k.govde)}</b> (güç −%${Math.round(GOVDE.gucKaybi * (100 - k.govde))}). Bu bölgede satılan ${k.stok.length} parça. Takılan aynı kategorideki parçanın yerine geçer.</p><div class="mtz">` +
+    `<div class="bar"><button class="btn" id="mKapat">Haritaya dön</button><button class="btn alt" id="mYenile" ${k.para < STOK_YENILE ? "disabled" : ""}>Stoğu yenile · ${STOK_YENILE}</button>${k.govde < GOVDE.tam ? `<button class="btn alt" id="mTamir" ${k.para < GOVDE.tamirFiyati ? "disabled" : ""}>Tamir · ${tamirBedeli(k)}</button>` : ""}</div><div class="mt-heading"><span class="mt-eyebrow">GARAJ / BÖLGE ${k.bolge}</span><h1>ATÖLYE</h1><div class="mt-wallet"><span><small>PARA</small><strong>${k.para}</strong></span><span><small>GÖVDE</small><strong>${Math.round(k.govde)}%</strong></span><span><small>GÜÇ KAYBI</small><strong>−${Math.round(GOVDE.gucKaybi * (100 - k.govde))}%</strong></span></div></div><div class="mtz">` +
       k.stok
         .map((id) => {
           const p = PARCALAR.find((q) => q.id == id)!,
             f = parcaFiyati(k, p.sv, p.id);
-          return `<div class="rk"><span>${p.n}<small> · ${kat(id)} · ${p.d}</small></span><span><button class="btn mal" data-parca="${p.id}" ${k.para < f ? "disabled" : ""}>${f}</button></span></div>`;
+          return `<div class="rk mt-shop-row"><span><b>${p.n}</b><small>${kat(id)} · ${p.d}</small></span><span><button class="btn mal" data-parca="${p.id}" ${k.para < f ? "disabled" : ""}>${f} PARA</button></span></div>`;
         })
         .join("") +
       `</div>${k.parcalar.length ? `<div class="lbl">Takılı</div><p>${k.parcalar.map((id) => PARCALAR.find((p) => p.id == id)!.n).join(", ")}</p>` : ""}`,
@@ -278,11 +280,11 @@ function sandikSayfasi(id: number) {
     q = k.sandiklar.find((x) => x.id == id)!,
     L = q.lanet ? LANETLER[q.lanet] : null;
   const s = sayfaAc(
-    `<h1>${q.lanetli ? "Lanetli sandık" : "Eklenti sandığı"}</h1><p>${q.lanetli ? "Nadir bir eklenti, ama bedeli var. Almazsan sandık kalır, sonra dönebilirsin." : "Bir eklenti seç: koşu boyunca araçta kalır."}</p><div class="mtp">` +
+    `<div class="mt-heading ${q.lanetli ? "mt-curse" : ""}"><span class="mt-eyebrow">${q.lanetli ? "YÜKSEK RİSK / NADİR ÖDÜL" : "KEŞİF / EKLENTİ"}</span><h1>${q.lanetli ? "Lanetli sandık" : "Eklenti sandığı"}</h1><p>${q.lanetli ? "Gücünü al, bedelini öde." : "Bir eklenti seç. Koşu sonuna kadar senin."}</p></div><div class="mtp">` +
       q.secenekler
         .map((e) => {
           const p = pasifBul(e)!;
-          return `<div class="card go" data-eklenti="${e}"><b>${p.ad}</b><span>${p.d}</span>${L ? `<span>Bedel · ${L.ad}: ${L.d}</span>` : ""}</div>`;
+          return `<div class="card go mt-choice ${L ? "mt-risk-2" : "mt-skill"}" data-eklenti="${e}"><small class="mt-card-tag">${L ? "LANETLİ EKLENTİ" : "EKLENTİ"}</small><b>${p.ad}</b><span>${p.d}</span>${L ? `<span class="mt-cost">BEDEL · ${L.ad}: ${L.d}</span>` : ""}<strong class="mt-action">AL</strong></div>`;
         })
         .join("") +
       '</div><button class="btn alt" id="mGec">Bırak</button>',
@@ -305,7 +307,7 @@ function bossSayfasi(zorunlu: boolean) {
     i = mutantBossPisti(),
     E = EVENTS[i];
   const s = sayfaAc(
-    `<h1>${zorunlu ? "Süre doldu!" : "Boss yarışı"}</h1><p>Bölge ${k.bolge} · ${E.n}</p>${bossKarti(k.boss)}` +
+    `<div class="mt-heading mt-boss-heading"><span class="mt-eyebrow">BÖLGE ${k.bolge} / ${zorunlu ? "SON ŞANS" : "MEYDAN OKUMA"}</span><h1>${zorunlu ? "SÜRE DOLDU" : "BOSS YARIŞI"}</h1><p>${E.n}</p></div>${bossKarti(k.boss)}` +
       row(
         "Boss hedefi (" +
           ["başlangıç aracı ölçüsü", "geliştirilmiş araç", "motor + uzmanlık"][Math.min(3, k.bolge) - 1] +
@@ -346,7 +348,7 @@ function sonuc(r: EtkinlikSonucu | null, boss: boolean, gecti: boolean) {
   const bitti = k.faz == "bitti";
   const baslik = boss ? (gecti ? "Boss yenildi!" : "Boss kazandı") : gecti ? "Hedef geçildi" : "Hedef kaçtı";
   const s = sayfaAc(
-    `<h1>${baslik}</h1>` +
+    `<div class="mt-heading ${gecti ? "mt-success" : "mt-failed"}"><span class="mt-eyebrow">${boss ? "BOSS SONUCU" : "ETKİNLİK SONUCU"}</span><h1>${baslik}</h1></div>` +
       (boss
         ? gecti
           ? `<p>Bölge ${k.bolge} açıldı. Yeni boss: ${k.boss.ad}. +200 para, +150 XP.</p>`
@@ -376,7 +378,7 @@ function ozet() {
   const rek = mutantRekoru();
   const s = sayfaAc(
     '<div class="bar"><button class="btn" id="mYeni">Yeni koşu</button><button class="btn alt" id="mMenu">Ana menü</button></div>' +
-      `<h1>${k.pert ? "Araç pert oldu" : "Koşu bitti"}</h1><p>${mutant.yeniRekor ? "Yeni rekor! " : ""}${k.pert ? "Gövde sıfırlandı: " + k.carpma + " sert çarpma, " + k.spin + " spin. " : ""}Ulaşılan bölge ${k.bolge}, yenilen boss ${k.yenilenBoss}.</p><div class="mtz">` +
+      `<div class="mt-heading ${k.pert ? "mt-failed" : "mt-success"}"><span class="mt-eyebrow">KOŞU RAPORU</span><h1>${k.pert ? "Araç pert oldu" : "Koşu bitti"}</h1></div><p>${mutant.yeniRekor ? "Yeni rekor! " : ""}${k.pert ? "Gövde sıfırlandı: " + k.carpma + " sert çarpma, " + k.spin + " spin. " : ""}Ulaşılan bölge ${k.bolge}, yenilen boss ${k.yenilenBoss}.</p><div class="mtz">` +
       row("Hasar", k.carpma + " çarpma · " + k.spin + " spin · gövde " + Math.round(k.govde)) +
       row("Araç", mutantArac >= 0 ? CARS[mutantArac].n : "—") +
       row("Seviye", k.seviye) +
