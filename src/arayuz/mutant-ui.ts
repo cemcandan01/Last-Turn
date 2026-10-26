@@ -120,18 +120,19 @@ export function mutantIsaretleri(): { x: number; z: number; renk: string }[] {
   ];
 }
 
+/** Yarış tipini işaretin sahip olduğu oyun verisinden üret; renk kodunu tersine çözmeyiz. */
+const etkinlikTabelasi = (e: { x: number; z: number; ty: YarisTuru }): Isaret => ({
+  x: e.x,
+  z: e.z,
+  renk: TUR[e.ty][1],
+  etiket: TUR_ETIKET[e.ty],
+});
+
 function isaretleriGuncelle() {
   const k = mutant.kosu;
   const l: Isaret[] = k
     ? [
-        ...k.etkinlikler
-          .filter((e) => !e.yapildi)
-          .map((e) => ({
-            x: e.x,
-            z: e.z,
-            renk: TUR[e.ty][1],
-            etiket: TUR_ETIKET[e.ty],
-          })),
+        ...k.etkinlikler.filter((e) => !e.yapildi).map(etkinlikTabelasi),
         ...k.sandiklar
           .filter((q) => !q.acildi)
           .map((q) => ({
