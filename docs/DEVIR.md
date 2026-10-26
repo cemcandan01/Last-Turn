@@ -1,9 +1,10 @@
-# Son devir: MUTANT A2 (issue #19) PR'da
+# Son devir: MUTANT A2 (issue #19) 0.8.5 denemede
 
 - Claude / claude/mutant-a2 (taban gelistirme 68b3da9). Kart docs/isler/LT-SYS-002-mutant-roguelite-tasarim.md §10; ölçümler docs/denge/2026-10-26-mutant-olcum-yagmur.json, -nitro-*.json, -nitro-ozet.txt.
 - Nitro (NİTRO tuşu/N: 40 enerji, güç ×1,6, 2,5 sn, 4 sn soğuma), ortak olaylar HasarAlindi/RiskBasladi, sistemik güçler (Çarpışma Pili, Risk Kondansatörü, Nitro kalkanı), eklenti sandıkları (2 normal + 1 lanetli/bölge), nitro hissi (FOV, alev, ses), salt okunur mutantDurumu() (Codex HUD PR #20 için), yağmurlu boss referansı (yalnız Plaj Kros).
 - Yerel: npm test 366/366; alan mutant 8/8, hud geçti; matris 696 kombinasyon, nitro payı ≤ %44. Açık: nitro enerji build'i bölge 2'de 14/29 pistte stok araçla geçer (Cem: kalsın mı, ×1,4 mü); drift ölçümünde nitro yok; rallikros bölge 3 tek yolla geçilir.
-- Sonraki: PR CI → Cem onayıyla gelistirme (0.8.5 deneme). Canlı değişmedi.
+- 0.8.5 denemede: gelistirme 2358ab9; PR #21 birleşti (CI denetim 40410660885 başarılı; ilk kalış ölçüm JSON biçimiydi, af6de67'de düzeldi); Yayın 40410828298 (derleme/yayın/adres kontrolü) başarılı. Canlı 0.7.8 değişmedi.
+- Codex PR #23 (UI V2, taslak, taban claude/mutant-a2) `mutantDurumu()` sözleşmesine uyuyor; atölye başlığını "ATÖLYE" yaptığı için e2e'deki `includes("Atölye")` denetimi o dalda güncellenmeli. Sonraki Claude işi: issue #22 (A2 denge kapanışı + A3 tek NPC düello).
 
 ## Önceki iş: MUTANT issue #16 denge 0.8.4
 
