@@ -16,7 +16,7 @@ import { I, tilt } from "../oyun/girdi";
 import { ikon } from "./ikonlar";
 import { LAP, sim } from "../oyun/surus";
 import { yaris } from "../oyun/yarislar";
-import { mutantBaslik, mutantPaneli } from "./mutant-ui";
+import { mutantBaslik, mutantPaneli, mutantTusuGuncelle } from "./mutant-ui";
 
 /** sahte vitesli devir göstergesi: hızdan vites ve devir (x1000) */
 const GEARS = [0, 60, 100, 145, 190, 240, 400];
@@ -345,6 +345,7 @@ export function hudGuncelle(v: number) {
   );
   driftGostergesi();
   pisteDonusSayaci();
+  mutantTusuGuncelle();
   if (CT.steer == "tilt") {
     const c = document.getElementById("cal");
     if (c) yazi(c, performance.now() - tilt.t < 1500 ? "Ortala" : "Sensör izni");

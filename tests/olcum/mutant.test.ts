@@ -1,7 +1,10 @@
 // MUTANT ölçümü (issue #16): her türün kolay/orta/zor pistinde (tek tur) başlangıç aracıyla beş build gerçek fizikle
 // sürülür; sonuç pistin yıldız eşikleriyle (tur başına) karşılaştırılır. Amaç: etkinlik/boss hedeflerini ve atölye
 // ekonomisini ölçüme dayandırmak; "tek motor her şeyi çözer" durumunu görünür kılmak. Pilot insan değildir:
-// sonuçlar oran olarak okunur. Rapor: tests/cikti/mutant-olcum.json
+// sonuçlar oran olarak okunur. Rapor: tests/cikti/mutant-olcum[-<hava>][-nitro-<biçim>].json
+// HAVA=rain: yağmurda (Çamur Baronu boss'u). NITRO=tek|periyodik|surekli (A2): tek = başlangıç enerjisiyle ilk 2,5 sn;
+// periyodik = sonsuz enerjiyle her fırsatta (2,5 sn açık + 4 sn soğuma, en çok %38); surekli = hep açık (ulaşılamaz üst
+// sınır). Nitro güç çarpanı NITRO.etki.guc.
 import { it } from "vitest";
 import { mkdirSync, writeFileSync } from "node:fs";
 import type { YarisTuru } from "../../src/arac/araclar";
@@ -10,6 +13,18 @@ import { BASLANGIC } from "../../src/oyun/kariyer";
 import { DRIFT_TUR, yildizEsikleri } from "../../src/oyun/yildiz";
 import { dragSur, enIyiTur } from "../yardimci/uyum";
 import { DRIFT_PILOT, driftTuru } from "../yardimci/drift-pilot";
+import { NITRO } from "../../src/oyun/mutant-enerji";
+
+const HAVA = process.env.HAVA,
+  NG = NITRO.etki!.guc!,
+  ACIK = NITRO.etki!.sure!,
+  DONGU = ACIK + NITRO.etki!.sonraBekleme!;
+const NITRO_BICIMI: Record<string, (t: number) => number> = {
+  tek: (t) => (t < ACIK ? NG : 1),
+  periyodik: (t) => (t % DONGU < ACIK ? NG : 1),
+  surekli: () => NG,
+};
+const nitro = process.env.NITRO ? NITRO_BICIMI[process.env.NITRO] : undefined;
 
 const LASTIK: Record<YarisTuru, string> = {
   gp: "lastik-spor",
@@ -79,8 +94,8 @@ it("MUTANT build ölçümü", () => {
                 driftTuru(i, "norm", { ...DRIFT_PILOT, aci }, 400, false, arac, 1, false, b.parca).puan,
             ),
           );
-        else if (ty == "dg") sonuc = dragSur(i, arac, 0, { parca: b.parca, pasif: b.pasif });
-        else sonuc = enIyiTur(i, arac, CESARET, { parca: b.parca, pasif: b.pasif }, 1).t;
+        else if (ty == "dg") sonuc = dragSur(i, arac, 0, { parca: b.parca, pasif: b.pasif, wx: HAVA, nitro });
+        else sonuc = enIyiTur(i, arac, CESARET, { parca: b.parca, pasif: b.pasif, wx: HAVA, nitro }, 1).t;
         // kaç yıldız: süre yarışında eşikten kısa, driftte eşikten yüksek
         const kac = yildiz.filter((y) => (ty == "dp" ? sonuc >= y : sonuc <= y)).length;
         satirlar.push({
@@ -101,11 +116,16 @@ it("MUTANT build ölçümü", () => {
   }
   mkdirSync("tests/cikti", { recursive: true });
   writeFileSync(
-    "tests/cikti/mutant-olcum.json",
+    "tests/cikti/mutant-olcum" +
+      (HAVA ? "-" + HAVA : "") +
+      (process.env.NITRO ? "-nitro-" + process.env.NITRO : "") +
+      ".json",
     JSON.stringify(
       {
         yontem:
           "Gerçek fizik, dengeli yardım, türün başlangıç aracı, tek tur (MUTANT etkinliği). Süre: pilotun spinsiz ve pist dışı < 3 sn en iyi turu; drift: iki açıyla en iyi tek tur puanı; drag: ışıkta tam gaz. null: pilot temiz bitiremedi. Yıldızlar pistin kariyer eşiklerinin tur başına payı.",
+        hava: HAVA ?? "sun",
+        nitro: process.env.NITRO ?? "yok",
         pistSayisi: TDEF.length,
         satirlar,
       },

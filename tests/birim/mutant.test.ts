@@ -3,7 +3,7 @@ import { CARS } from "../../src/arac/araclar";
 import { TDEF } from "../../src/dunya/pist-tanimlari";
 import { Htest } from "../../src/dunya/corak";
 import { DRIFT_TUR, yildizEsikleri } from "../../src/oyun/yildiz";
-import { MUTANT_REFERANS } from "../../src/oyun/mutant-denge";
+import { MUTANT_REFERANS, MUTANT_REFERANS_YAGMUR } from "../../src/oyun/mutant-denge";
 import {
   BOSSLAR,
   YERLER,
@@ -38,8 +38,19 @@ import {
   pasifSec,
   seviyeXp,
   zamanAkis,
+  enerjiAdimi,
+  nitroDurumu,
+  EKLENTILER,
+  LANETLER,
+  SANDIK_SAYISI,
+  sandikAc,
+  pistReferansi,
+  takiliMekanikler,
+  type Kosu,
   type PistAdayi,
 } from "../../src/oyun/mutant-kosu";
+import { gucCarpani, kapasiteUygula } from "../../src/cekirdek/mekanikler";
+import { BASLANGIC_ENERJI, NITRO } from "../../src/oyun/mutant-enerji";
 
 const TUR = { gp: 3, rx: 3, dp: DRIFT_TUR, rl: undefined, dg: undefined } as const;
 const PISTLER: PistAdayi[] = TDEF.map((t, i) => ({
@@ -413,5 +424,224 @@ describe("MUTANT Mutasyon V2: kural pasifleri ve kombinasyon sınırları", () =
       for (const p of aday) expect(tekYolYetmez(ty, p.ref!), ty + "_" + TDEF[p.i].lv).toBe(true);
     }
     expect(bossAdaylari("rx", 3, olculen).length).toBeGreaterThan(0);
+  });
+});
+
+/** sahte sürüş anı: düz giden araç (drift yok) */
+const SURUS = {
+  S: { vx: 0, vz: 20, air: false },
+  DR: { on: false, dir: 0, cool: 0 },
+  D: { beta: 0 },
+} as unknown as Parameters<typeof enerjiAdimi>[1];
+const perkli = (...pasifler: string[]) => {
+  const k = basla();
+  k.pasifler = pasifler;
+  k.mek = kapasiteUygula(k.mek, takiliMekanikler(k));
+  return k;
+};
+/** n sabit adım sür (nitro: hangi adımlarda basıldı); güç değişen adımları döndürür */
+const sur = (k: Kosu, n: number, nitro: (i: number) => boolean = () => false) => {
+  const degisen: number[] = [];
+  for (let i = 0; i < n; i++) if (enerjiAdimi(k, SURUS, 1 / 60, nitro(i))) degisen.push(i);
+  return degisen;
+};
+
+describe("MUTANT A2: nitro ve sistemik güçler", () => {
+  it("nitro: başlangıç enerjisiyle bir kez çalışır, gücü 2,5 sn artırır, sonra söner ve soğur", () => {
+    const k = perkli();
+    expect(k.mek.enerji).toBe(BASLANGIC_ENERJI);
+    expect(nitroDurumu(k).hazir).toBe(true);
+    const taban = CARS[0],
+      once = kosuAraci(taban, k).hp;
+    const degisen = sur(k, 1, () => true);
+    expect(degisen).toEqual([0]);
+    expect(gucCarpani(k.mek)).toBeCloseTo(NITRO.etki!.guc!, 6);
+    expect(kosuAraci(taban, k).hp).toBeCloseTo(once * NITRO.etki!.guc!, 6);
+    expect(k.mek.enerji).toBe(BASLANGIC_ENERJI - NITRO.maliyet);
+    expect(nitroDurumu(k).acik).toBe(true);
+    // 2,5 sn sonra söner (tek değişim), basmak enerji olmadan bir şey yapmaz
+    const sonra = sur(k, 200, () => true);
+    expect(sonra.length).toBe(1);
+    expect(sonra[0]).toBeGreaterThanOrEqual(147);
+    expect(sonra[0]).toBeLessThanOrEqual(150);
+    expect(gucCarpani(k.mek)).toBe(1);
+    expect(kosuAraci(taban, k).hp).toBeCloseTo(once, 6);
+    expect(nitroDurumu(k).hazir).toBe(false);
+  });
+  it("nitro soğuması: enerji olsa da etki bitince 4 sn yeniden çalışmaz", () => {
+    const k = perkli("risk-kondansatoru");
+    k.bekleyenRisk = 2;
+    sur(k, 1);
+    expect(k.mek.enerji).toBe(80);
+    const degisen = sur(k, 60 * 8, () => true);
+    // aç (0) → sön (~150) → soğuma 4 sn → yeniden aç (~390)
+    expect(degisen.length).toBe(3);
+    expect(degisen[2] - degisen[1]).toBeGreaterThanOrEqual(239);
+    expect(degisen[2] - degisen[1]).toBeLessThanOrEqual(241);
+  });
+  it("Çarpışma Pili: her hasar +12 enerji; perk yoksa hasar enerji vermez", () => {
+    for (const [pasif, beklenen] of [
+      ["carpisma-pili", 12],
+      ["zirh", 0],
+    ] as const) {
+      const k = perkli(pasif);
+      k.mek = { ...k.mek, enerji: 0 };
+      hasarAl(k, "carpma");
+      sur(k, 1);
+      expect(k.mek.enerji, pasif).toBe(beklenen);
+      hasarAl(k, "spin");
+      sur(k, 1);
+      expect(k.mek.enerji, pasif).toBe(beklenen * 2);
+    }
+  });
+  it("Risk Kondansatörü: yalnız riskli/ölümcül etkinlik başında +40, kapasiteyi aşmaz", () => {
+    const k = perkli("risk-kondansatoru");
+    k.mek = { ...k.mek, enerji: 0 };
+    k.bekleyenRisk = 0;
+    sur(k, 1);
+    expect(k.mek.enerji).toBe(0);
+    for (const r of [1, 2, 2]) {
+      k.bekleyenRisk = r;
+      sur(k, 1);
+    }
+    expect(k.mek.enerji).toBe(k.mek.kapasite);
+    expect(k.bekleyenRisk).toBeNull();
+  });
+  it("Nitro kalkanı: nitro açıkken hasar yarıya iner, kapalıyken tam", () => {
+    const k = perkli("nitro-kalkani");
+    hasarAl(k, "carpma");
+    expect(k.govde).toBe(GOVDE.tam - GOVDE.carpma);
+    sur(k, 1, () => true);
+    hasarAl(k, "carpma");
+    expect(k.govde).toBe(GOVDE.tam - GOVDE.carpma * 1.5);
+  });
+  it("verimli/sert nitro maliyeti tuş durumuna yansır; aynı girdiler aynı sonucu verir (belirlenimci)", () => {
+    expect(nitroDurumu(perkli("verimli-nitro")).maliyet).toBeCloseTo(28, 6);
+    expect(nitroDurumu(perkli("sert-nitro")).maliyet).toBeCloseTo(52, 6);
+    expect(nitroDurumu(perkli("sert-nitro")).hazir).toBe(false);
+    const a = perkli("carpisma-pili", "uzun-nitro"),
+      b = perkli("carpisma-pili", "uzun-nitro");
+    for (const k of [a, b])
+      for (let i = 0; i < 600; i++) {
+        if (i % 97 == 0) hasarAl(k, "carpma");
+        enerjiAdimi(k, SURUS, 1 / 60, i % 50 == 0);
+      }
+    expect(a.mek).toEqual(b.mek);
+    expect(a.govde).toBe(b.govde);
+  });
+  it("kariyer/ölçüm yalıtımı: koşu durumu (mek) olmadan araç değerleri nitrodan etkilenmez", () => {
+    const k = perkli();
+    sur(k, 1, () => true);
+    expect(gucCarpani(k.mek)).toBeGreaterThan(1);
+    expect(kosuAraci(CARS[0], { pasifler: [] }).hp).toBe(CARS[0].hp);
+  });
+});
+
+describe("MUTANT A2: eklenti sandıkları", () => {
+  const eklenti = (id: string) => EKLENTILER.find((e) => e.id == id)!;
+  it("her bölgede 2 normal + 1 lanetli sandık, etkinliklerden ayrı düz yerde; tohumla aynı", () => {
+    for (let t = 1; t <= 40; t++) {
+      const k = basla(t);
+      expect(k.sandiklar.length).toBe(SANDIK_SAYISI);
+      const [a, b, c] = k.sandiklar;
+      for (const q of [a, b]) {
+        expect(q.lanetli).toBe(false);
+        expect(q.lanet).toBeNull();
+        expect(q.secenekler.length).toBe(2);
+        for (const e of q.secenekler) expect(eklenti(e).nadir).toBe(false);
+      }
+      expect(c.lanetli).toBe(true);
+      expect(Object.keys(LANETLER)).toContain(c.lanet);
+      expect(c.secenekler.length).toBe(1);
+      expect(eklenti(c.secenekler[0]).nadir).toBe(true);
+      const yerler = [...k.etkinlikler, ...k.sandiklar].map((q) => q.x + "," + q.z);
+      expect(new Set(yerler).size).toBe(yerler.length);
+      for (const q of k.sandiklar) expect(YERLER.some(([x, z]) => x == q.x && z == q.z)).toBe(true);
+      expect(basla(t).sandiklar).toEqual(k.sandiklar);
+    }
+  });
+  it("normal sandık: seçilen eklenti koşuda kalır, sandık bir kez açılır; seviye seçiminde eklenti çıkmaz", () => {
+    const k = basla(3),
+      q = k.sandiklar[0],
+      e = q.secenekler[0];
+    expect(sandikAc(k, q.id, "olmayan")).toBe(false);
+    const para = k.para,
+      kalan = k.kalan,
+      govde = k.govde;
+    expect(sandikAc(k, q.id, e)).toBe(true);
+    expect(k.pasifler).toContain(e);
+    expect([k.para, k.kalan, k.govde]).toEqual([para, kalan, govde]);
+    expect(sandikAc(k, q.id, q.secenekler[1])).toBe(false);
+    for (let t = 1; t <= 30; t++) expect(basla(t).secenekler.some((id) => id.startsWith("ek-"))).toBe(false);
+    expect(PASIFLER.some((p) => p.id.startsWith("ek-"))).toBe(false);
+  });
+  it("lanetli sandık: nadir eklenti + bedel hemen (süre −45, gövde −25 pert etmez, para yarı)", () => {
+    for (const lanet of ["sure", "govde", "para"] as const) {
+      const k = basla(5),
+        q = k.sandiklar[2];
+      q.lanet = lanet;
+      k.govde = 20;
+      k.para = 301;
+      const kalan = k.kalan;
+      expect(sandikAc(k, q.id, q.secenekler[0])).toBe(true);
+      if (lanet == "sure") expect(k.kalan).toBe(kalan - 45);
+      if (lanet == "govde") expect([k.govde, k.pert]).toEqual([1, false]);
+      if (lanet == "para") expect(k.para).toBe(150);
+    }
+  });
+  it("eklentiler sözleşmeye katılır: yedek tüp kapasite/enerji, çift ateşleme maliyet, tampon yalnız çarpma", () => {
+    const k = basla();
+    k.sandiklar[0].secenekler = ["ek-yedek-tup", "ek-kizgin-egzoz"];
+    sandikAc(k, 0, "ek-yedek-tup");
+    expect([k.mek.kapasite, k.mek.enerji]).toEqual([130, BASLANGIC_ENERJI + 30]);
+    k.sandiklar[2].secenekler = ["ek-cift-atesleme"];
+    sandikAc(k, 2, "ek-cift-atesleme");
+    expect(nitroDurumu(k).maliyet).toBeCloseTo(NITRO.maliyet * 0.6, 6);
+    k.sandiklar[1].secenekler = ["ek-takviye-tampon", "ek-kizgin-egzoz"];
+    const g = k.govde;
+    sandikAc(k, 1, "ek-takviye-tampon");
+    hasarAl(k, "carpma");
+    expect(g - k.govde).toBeCloseTo(GOVDE.carpma * 0.6, 6);
+    const g2 = k.govde;
+    hasarAl(k, "spin");
+    expect(g2 - k.govde).toBeCloseTo(GOVDE.spin, 6);
+  });
+  it("boss sonrası yeni sandıklar; sahip olunan eklenti yeniden çıkmaz", () => {
+    const k = basla(9),
+      e = k.sandiklar[2].secenekler[0];
+    sandikAc(k, 2, e);
+    bossaGir(k);
+    bossBitti(k, true, PISTLER);
+    expect(k.sandiklar.length).toBe(SANDIK_SAYISI);
+    expect(k.sandiklar.every((q) => !q.acildi)).toBe(true);
+    expect(k.sandiklar.flatMap((q) => q.secenekler)).not.toContain(e);
+  });
+});
+
+describe("MUTANT A2: yağmurlu boss referansı", () => {
+  it("yağmurlu boss yağmur referansını, güneşli boss güneş referansını kullanır; yağmur ölçümü yoksa güneşe düşer", () => {
+    const ref = { stok: 100, dengeli: 95, uzman: 94, nadir: 93, birlesik: 90 },
+      refYagmur = { stok: 120, dengeli: 112, uzman: 110, nadir: 111, birlesik: 105 },
+      p = { ty: "rx" as const, ys: [400, 350, 300], laps: 3, ref, refYagmur },
+      camur = BOSSLAR.find((b) => b.hava == "rain")!,
+      gunes = BOSSLAR.find((b) => !b.hava && b.ty != "dp")!;
+    expect(pistReferansi(p, "rain")).toBe(refYagmur);
+    expect(pistReferansi({ ref }, "rain")).toBe(ref);
+    expect(bossHedefi({ bolge: 1, boss: camur }, p)).toBeCloseTo(120 * 3 * camur.hedef * BOSS_PAY[0], 6);
+    expect(bossHedefi({ bolge: 1, boss: gunes }, p)).toBeCloseTo(100 * 3 * gunes.hedef * BOSS_PAY[0], 6);
+  });
+  it("yağmurlu boss yalnız yağmurda ölçülen pistlerden; ölçülmüş yağmur referansı bölge 3'e kadar geçilir", () => {
+    const pistler = PISTLER.map((p) => ({
+      ...p,
+      ref: MUTANT_REFERANS[p.ty + "_" + TDEF[p.i].lv],
+      refYagmur: MUTANT_REFERANS_YAGMUR[p.ty + "_" + TDEF[p.i].lv],
+    }));
+    for (const b of [1, 2, 3]) {
+      const aday = bossAdaylari("rx", b, pistler, "rain");
+      expect(aday.length).toBeGreaterThan(0);
+      for (const p of aday) expect(p.refYagmur).toBeDefined();
+    }
+    // güneşli rallikros boss'u yağmur tablosundan etkilenmez
+    expect(bossAdaylari("rx", 2, pistler).length).toBe(pistler.filter((p) => p.ty == "rx" && p.ref).length);
   });
 });

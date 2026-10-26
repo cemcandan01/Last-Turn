@@ -76,8 +76,13 @@ bilgi konmaz), Steven Hoober'ın başparmak bölgeleri ve oyuncuların "HUD ekra
   solunda (`.tsut`). Tuşlarla gazda sağ grup yükselir (`--cR` 136 px), hız onun üstüne oturur.
 
 - **MUTANT:** Açık dünyada sol üst panel boss geri sayımıdır (büyük satır "BOSS 12:34", alt satır boss adı, seviye,
-  para); etkinlikte başlık "MUTANT 12:34 · pist", boss yarışında "BOSS · ad". Yeni tuş yok. İşaretler mini haritada
-  renkli kare; görüş dışındakiler kenara sabitlenir. Denetim: `tests/e2e/bolumler/mutant.mjs`.
+  para); etkinlikte başlık "MUTANT 12:34 · pist", boss yarışında "BOSS · ad". İşaretler mini haritada
+  renkli kare (sarı sandık, eflatun lanetli sandık); görüş dışındakiler kenara sabitlenir.
+  NİTRO tuşu (`#mnt`, A2) yalnız koşuda, sol grubun üstünde (`.tsut`); enerji tuşun içinde soldan dolar (`--e`),
+  ince çizgi bir nitronun maliyeti (`--m`), hazırken kenar vurgulu (`.hazir`), açıkken turuncu (`.on`). Klavyede N.
+  HUD dalları MUTANT değerlerini yalnız `mutantDurumu()` (salt okunur: faz, bölge, boss, kalanSn, govde 0-100,
+  riskYildiz, enerji/kapasite, nitroMaliyet/Acik/KalanSn/Hazir) üzerinden okur; ekonomi/fizik yazmaz.
+  Denetim: `tests/e2e/bolumler/mutant.mjs`.
 
 ## 6. Göstergeleri seçme
 

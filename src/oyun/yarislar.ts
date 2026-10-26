@@ -13,7 +13,7 @@ import type { OnayarAnahtari } from "../fizik/veriler";
 import { setActive } from "./bolge";
 import { carIndex, oyun, setCar } from "./durum";
 import { girdiSifirla } from "./girdi";
-import { MUTANT_REFERANS } from "./mutant-denge";
+import { MUTANT_REFERANS, MUTANT_REFERANS_YAGMUR } from "./mutant-denge";
 import {
   mutantYarisAyari,
   mutantKapat,
@@ -183,6 +183,7 @@ mutantPistKaynagi(() =>
     ys: e.ys,
     laps: e.laps,
     ref: MUTANT_REFERANS[e.ty + "_" + e.lv],
+    refYagmur: MUTANT_REFERANS_YAGMUR[e.ty + "_" + e.lv],
   })),
 );
 

@@ -5,6 +5,21 @@
 import type { Arac, YarisTuru } from "../arac/araclar";
 import { PARCALAR } from "../arac/parcalar";
 import { mulberry32, type Rastgele } from "../cekirdek/rastgele";
+import {
+  driftGozlemcisi,
+  driftGozlemiBaslat,
+  gucCarpani,
+  kapasiteUygula,
+  mekanikAdimi,
+  mekanikBaslat,
+  parametreler,
+  type DriftGozlemi,
+  type GirisOlayi,
+  type MekanikDurum,
+  type MekanikTanim,
+} from "../cekirdek/mekanikler";
+import type { SimDurumu } from "../fizik/tipler";
+import { BASLANGIC_ENERJI, EKLENTI_PERKLERI, NITRO, PERKLER } from "./mutant-enerji";
 
 /** etkinliğe aday pist: oyundaki EVENTS'in özeti (saf modül oyun verisine bağlanmasın diye) */
 export interface PistAdayi {
@@ -17,7 +32,13 @@ export interface PistAdayi {
   /** ölçülmüş referans (tests/olcum/mutant.test.ts, tek tur): stok / dengeli / uzman / nadir motor build sonucu.
    *  Yoksa pist boss olamaz (pilot temiz bitiremedi ya da ölçülmedi) */
   ref?: Referans;
+  /** yağmurda ölçülmüş referans (yağmurlu boss: Çamur Baronu); yoksa güneşli referans kullanılır */
+  refYagmur?: Referans;
 }
+
+/** boss'un havasına göre pistin referansı */
+export const pistReferansi = (p: Pick<PistAdayi, "ref" | "refYagmur">, hava?: string) =>
+  hava == "rain" && p.refYagmur ? p.refYagmur : p.ref;
 
 /** referans sonuç: süre yarışında saniye, driftte puan */
 export interface Referans {
@@ -104,6 +125,8 @@ export interface Pasif {
   en: number;
   /** araç değerlerine etkisi (her kademe) */
   arac?: (c: Arac) => void;
+  /** enerji mekaniği (kaynak perki ya da nitro değiştiricisi; mekanikler.ts yürütücüsünde çalışır) */
+  m?: MekanikTanim;
 }
 
 /**
@@ -146,8 +169,54 @@ export const PASIFLER: Pasif[] = [
     d: "Her bölgede süre bitince bir kez +90 sn; boss hedefi %3 sıkılaşır",
     en: 1,
   },
+  { id: "nitro-kalkani", ad: "Nitro kalkanı", d: "Nitro açıkken hasar yarıya iner", en: 1 },
+  // enerji perkleri (A2): nitro enerjisi oyun tarzından gelir
+  ...PERKLER.map((p) => ({ id: p.m.id, ad: p.ad, d: p.d, en: 1, m: p.m })),
 ];
-export const pasifBul = (id: string) => PASIFLER.find((p) => p.id === id);
+/**
+ * eklenti (A2): haritadaki sandıktan çıkan, koşu boyunca kalan parça. Pasifle aynı sözleşme (k.pasifler'e eklenir,
+ * araç/mekanik/kural etkisi aynı yoldan); seviye seçiminde çıkmaz. nadir: yalnız lanetli sandıkta
+ */
+export interface Eklenti extends Pasif {
+  nadir: boolean;
+  /** alındığı an bir kez */
+  al?: (k: Kosu) => void;
+}
+
+export const EKLENTILER: Eklenti[] = [
+  ...EKLENTI_PERKLERI.map((p) => ({
+    id: p.m.id,
+    ad: p.ad,
+    d: p.d,
+    en: 1,
+    m: p.m,
+    nadir: p.nadir,
+    al:
+      p.m.id == "ek-yedek-tup"
+        ? (k: Kosu) => void (k.mek = { ...k.mek, enerji: Math.min(k.mek.kapasite, k.mek.enerji + 30) })
+        : undefined,
+  })),
+  {
+    id: "ek-takviye-tampon",
+    ad: "Takviye tampon",
+    d: "Çarpma hasarı −%40 (spin değil)",
+    en: 1,
+    nadir: false,
+  },
+];
+
+/** lanetli sandığın bedeli: nadir eklenti karşılığı hemen ödenir */
+export type Lanet = "sure" | "govde" | "para";
+export const LANETLER: Record<Lanet, { ad: string; d: string }> = {
+  sure: { ad: "Zaman laneti", d: "Boss'a −45 sn" },
+  govde: { ad: "Pas laneti", d: "Gövde −25 (pert etmez)" },
+  para: { ad: "Açgözlülük laneti", d: "Paranın yarısı gider" },
+};
+/** bölge başına sandık: 2 normal (2 sıradan eklentiden biri, bedava), 1 lanetli (nadir eklenti + lanet) */
+export const SANDIK_SAYISI = 3;
+
+export const pasifBul = (id: string): Pasif | undefined =>
+  PASIFLER.find((p) => p.id === id) ?? EKLENTILER.find((p) => p.id === id);
 
 /** XP eşikleri: seviye n için toplam XP */
 export const seviyeXp = (n: number) => 80 * n + 30 * n * (n - 1);
@@ -190,6 +259,17 @@ export interface Etkinlik {
   yapildi: boolean;
 }
 
+export interface Sandik {
+  id: number;
+  x: number;
+  z: number;
+  lanetli: boolean;
+  /** sunulan eklentiler (normal: 2 sıradan; lanetli: 1 nadir) ve lanetli sandığın bedeli */
+  secenekler: string[];
+  lanet: Lanet | null;
+  acildi: boolean;
+}
+
 export type KosuFazi = "basla" | "surus" | "secim" | "boss" | "bitti";
 
 export interface Kosu {
@@ -213,6 +293,7 @@ export interface Kosu {
   /** seçim ekranındaki pasifler */
   secenekler: string[];
   etkinlikler: Etkinlik[];
+  sandiklar: Sandik[];
   /** biten etkinlik / boss sayısı (özet) */
   tamamlanan: number;
   yenilenBoss: number;
@@ -226,6 +307,12 @@ export interface Kosu {
   pert: boolean;
   /** son nefes kullanıldı mı (bir kez) */
   sonNefes: boolean;
+  /** nitro enerjisi: mekanik yürütücü durumu ve drift gözlemcisi */
+  mek: MekanikDurum;
+  gozlem: DriftGozlemi;
+  /** sonraki enerji adımında yayılacak ortak olaylar (hasar puanı, başlayan risk kademesi) */
+  bekleyenHasar: { tur: "carpma" | "spin"; miktar: number } | null;
+  bekleyenRisk: number | null;
 }
 
 const sec = <T>(r: Rastgele, a: readonly T[]) => a[Math.floor(r() * a.length)];
@@ -280,6 +367,42 @@ function etkinlikDiz(k: Kosu, pistler: readonly PistAdayi[]) {
   }
 }
 
+/** bölgenin sandıkları: etkinliklerin kullanmadığı düz yerlere (tohumlu); sahip olunan eklenti yeniden çıkmaz */
+function sandikDiz(k: Kosu) {
+  const yerler = YERLER.filter(([x, z]) => !k.etkinlikler.some((e) => e.x == x && e.z == z)),
+    sahip = (id: string) => k.pasifler.includes(id);
+  k.sandiklar = [];
+  for (let n = 0; n < SANDIK_SAYISI && yerler.length; n++) {
+    const lanetli = n == SANDIK_SAYISI - 1,
+      aday = EKLENTILER.filter((e) => e.nadir == lanetli && !sahip(e.id)).map((e) => e.id),
+      secenekler: string[] = [];
+    while (secenekler.length < (lanetli ? 1 : 2) && aday.length)
+      secenekler.push(aday.splice(Math.floor(k.rng() * aday.length), 1)[0]);
+    if (!secenekler.length) continue;
+    const [x, z] = yerler.splice(Math.floor(k.rng() * yerler.length), 1)[0],
+      lanet = lanetli ? sec(k.rng, Object.keys(LANETLER) as Lanet[]) : null;
+    k.sandiklar.push({ id: n, x, z, lanetli, secenekler, lanet, acildi: false });
+  }
+}
+
+/**
+ * sandığı aç: seçilen eklenti koşuya eklenir (lanetliyse bedel hemen ödenir). Bırakılan sandık kapalı kalır, sonra
+ * dönülebilir. Dönen: alındı mı
+ */
+export function sandikAc(k: Kosu, id: number, eklenti: string): boolean {
+  const s = k.sandiklar.find((q) => q.id == id);
+  if (!s || s.acildi || k.faz != "surus" || !s.secenekler.includes(eklenti) || k.pasifler.includes(eklenti))
+    return false;
+  s.acildi = true;
+  k.pasifler.push(eklenti);
+  k.mek = kapasiteUygula(k.mek, takiliMekanikler(k));
+  EKLENTILER.find((e) => e.id == eklenti)?.al?.(k);
+  if (s.lanet == "sure") k.kalan = Math.max(1, k.kalan - 45);
+  else if (s.lanet == "govde") k.govde = Math.max(1, k.govde - 25);
+  else if (s.lanet == "para") k.para = Math.floor(k.para / 2);
+  return true;
+}
+
 /** yeni koşu: 3 aday araç ve 3 başlangıç pasifi sunulur (faz "basla") */
 export function kosuBaslat(tohum: number, pistler: readonly PistAdayi[]): Kosu {
   const rng = mulberry32(tohum);
@@ -299,6 +422,7 @@ export function kosuBaslat(tohum: number, pistler: readonly PistAdayi[]): Kosu {
     stok: [],
     secenekler: [],
     etkinlikler: [],
+    sandiklar: [],
     tamamlanan: 0,
     yenilenBoss: 0,
     zaman: 0,
@@ -307,9 +431,14 @@ export function kosuBaslat(tohum: number, pistler: readonly PistAdayi[]): Kosu {
     spin: 0,
     pert: false,
     sonNefes: false,
+    mek: mekanikBaslat(100, BASLANGIC_ENERJI),
+    gozlem: driftGozlemiBaslat(),
+    bekleyenHasar: null,
+    bekleyenRisk: null,
   };
   k.secenekler = pasifCek(k, 3);
   etkinlikDiz(k, pistler);
+  sandikDiz(k);
   stokDiz(k);
   return k;
 }
@@ -342,6 +471,7 @@ export function pasifSec(k: Kosu, id: string): boolean {
   if ((k.faz != "basla" && k.faz != "secim") || !k.secenekler.includes(id)) return false;
   k.pasifler.push(id);
   if (k.faz == "secim") k.bekleyenSecim = Math.max(0, k.bekleyenSecim - 1);
+  k.mek = kapasiteUygula(k.mek, takiliMekanikler(k));
   if (k.bekleyenSecim > 0) {
     k.faz = "secim";
     k.secenekler = pasifCek(k, 3);
@@ -352,8 +482,62 @@ export function pasifSec(k: Kosu, id: string): boolean {
   return true;
 }
 
-/** aracın koşu değerleri: (parçalı) araç kopyası + pasif kademeleri + gövde hasarının güç kaybı */
-export function kosuAraci(taban: Arac, k: Pick<Kosu, "pasifler"> & { govde?: number }): Arac {
+/** takılı enerji mekanikleri: her koşuda NITRO + pasiflerin mekanikleri */
+export const takiliMekanikler = (k: Pick<Kosu, "pasifler">): MekanikTanim[] => [
+  NITRO,
+  ...k.pasifler.flatMap((id) => {
+    const m = pasifBul(id)?.m;
+    return m ? [m] : [];
+  }),
+];
+
+/**
+ * enerji adımı (fizikten sonra): drift/sürüş gözlemcisi + bekleyen ortak olaylar (risk, hasar) + nitro isteği tek
+ * artan sıra uzayında yürütücüye gider. Saf ve belirlenimci; dönen: nitro güç çarpanı değişti mi
+ */
+export function enerjiAdimi(
+  k: Kosu,
+  d: Readonly<Pick<SimDurumu, "S" | "DR" | "D">>,
+  dt: number,
+  nitro: boolean,
+): boolean {
+  const g0 = gucCarpani(k.mek),
+    r = driftGozlemcisi(k.gozlem, d, dt, true),
+    olaylar: GirisOlayi[] = r.olaylar;
+  k.gozlem = r.g;
+  const ekle = (o: GirisOlayi) => {
+    olaylar.push({ ...o, sira: k.gozlem.sira });
+    k.gozlem = { ...k.gozlem, sira: k.gozlem.sira + 1 };
+  };
+  if (k.bekleyenRisk != null) ekle({ tur: "RiskBasladi", sira: 0, risk: k.bekleyenRisk });
+  if (k.bekleyenHasar)
+    ekle({ tur: "HasarAlindi", sira: 0, hasar: k.bekleyenHasar.tur, miktar: k.bekleyenHasar.miktar });
+  if (nitro) ekle({ tur: "AbilityActivated", sira: 0, yetenek: NITRO.id });
+  k.bekleyenRisk = null;
+  k.bekleyenHasar = null;
+  k.mek = mekanikAdimi(k.mek, olaylar, takiliMekanikler(k), true, dt);
+  return gucCarpani(k.mek) != g0;
+}
+
+/** nitro tuşunun durumu (HUD ve tuş için salt okunur): enerji, maliyet, açık mı, basılınca çalışır mı */
+export function nitroDurumu(k: Kosu) {
+  const m = k.mek,
+    maliyet = NITRO.maliyet * parametreler(takiliMekanikler(k)).maliyet;
+  return {
+    enerji: m.enerji,
+    kapasite: m.kapasite,
+    maliyet,
+    acik: m.etkiKalan > 0,
+    kalan: Math.max(0, m.etkiKalan),
+    hazir: m.etkiKalan <= 0 && m.etkiBekleme <= 0 && m.enerji >= maliyet,
+  };
+}
+
+/** aracın koşu değerleri: (parçalı) araç kopyası + pasif kademeleri + gövde hasarının güç kaybı + nitro */
+export function kosuAraci(
+  taban: Arac,
+  k: Pick<Kosu, "pasifler"> & { govde?: number; mek?: Pick<MekanikDurum, "etkiKalan" | "etkiGuc"> },
+): Arac {
   const c: Arac = { ...taban, gr: [taban.gr[0], taban.gr[1]] };
   for (const id of k.pasifler) pasifBul(id)?.arac?.(c);
   const govde = Math.max(0, Math.min(GOVDE.tam, k.govde ?? GOVDE.tam)),
@@ -362,14 +546,20 @@ export function kosuAraci(taban: Arac, k: Pick<Kosu, "pasifler"> & { govde?: num
   const kural = (1 + 0.25 * n("camtop")) * (govde < GOVDE.tam / 2 ? 1 + 0.15 * n("adrenalin") : 1);
   c.hp = Math.min(c.hp * kural, taban.hp * GUC_UST);
   c.hp *= 1 - GOVDE.gucKaybi * (1 - govde / GOVDE.tam);
+  // nitro: süreli güç (enerjiyle sınırlı; süre payı matris testinde ≤ %50)
+  if (k.mek) c.hp *= gucCarpani(k.mek);
   return c;
 }
 
 /** hasar: sert çarpma ya da spin; zırh azaltır. Gövde 0 olunca pert (koşu biter). Dönen: pert oldu mu */
 export function hasarAl(k: Kosu, tur: "carpma" | "spin"): boolean {
   if (k.faz == "bitti" || k.pert) return false;
-  const h = GOVDE[tur] * (1 - 0.35 * pasifSayisi(k, "zirh")) * (1 + pasifSayisi(k, "camtop")),
+  const kalkan = gucCarpani(k.mek) > 1 ? 1 - 0.5 * pasifSayisi(k, "nitro-kalkani") : 1,
+    tampon = tur == "carpma" ? 1 - 0.4 * pasifSayisi(k, "ek-takviye-tampon") : 1,
+    h = GOVDE[tur] * (1 - 0.35 * pasifSayisi(k, "zirh")) * (1 + pasifSayisi(k, "camtop")) * kalkan * tampon,
     alinan = Math.min(k.govde, h);
+  // ortak olay: enerji perkleri (Çarpışma Pili) sonraki enerji adımında tepki verir
+  if (alinan > 0) k.bekleyenHasar = { tur, miktar: alinan };
   k[tur]++;
   k.govde = Math.max(0, k.govde - h);
   // hurdacı: hasarın tamir bedelinden az para (bilerek çarpmak kâr etmez)
@@ -495,6 +685,7 @@ export function bossBitti(k: Kosu, kazandi: boolean, pistler: readonly PistAdayi
   k.para += 200;
   xpEkle(k, 150);
   etkinlikDiz(k, pistler);
+  sandikDiz(k);
   stokDiz(k);
   if (k.bekleyenSecim > 0) {
     k.faz = "secim";
@@ -526,38 +717,44 @@ export function tekYolYetmez(ty: YarisTuru, r: Referans) {
 }
 
 /** boss olabilen pistler: türde, referansı ölçülmüş; bölge 1'de türün kolay yarısı */
-export function bossAdaylari(ty: YarisTuru, bolge: number, pistler: readonly PistAdayi[]) {
+export function bossAdaylari(ty: YarisTuru, bolge: number, pistler: readonly PistAdayi[], hava?: string) {
   const tur = pistler.filter((p) => p.ty == ty).sort((a, b) => a.sev - b.sev || a.i - b.i),
-    olculen = tur.filter((p) => p.ref),
+    // yağmurlu boss: yağmurda ölçülmüş pist varsa yalnız onlar (güneş referansı yağmurda geçilemeyebilir)
+    yagmurlu = hava == "rain" ? tur.filter((p) => p.refYagmur) : [],
+    olculen = yagmurlu.length ? yagmurlu : tur.filter((p) => pistReferansi(p, hava)),
     // ölçülmüş pist yoksa (yeni tür) türün bütün pistleri; hedef yıldızdan gelir
     l = olculen.length ? olculen : tur;
   if (bolge <= 1) return l.slice(0, Math.max(1, Math.ceil(l.length / 2)));
   if (bolge == 2) return l;
   // bölge 3+: tek yolun yetmediği pistler (yoksa bütün ölçülenler: açık risk, ölçüm raporu)
-  const zor = l.filter((p) => p.ref && tekYolYetmez(ty, p.ref));
+  const zor = l.filter((p) => {
+    const r = pistReferansi(p, hava);
+    return r && tekYolYetmez(ty, r);
+  });
   return zor.length ? zor : l;
 }
 
 /** boss yarışının pisti: aday listesinden tohumla; aynı tohum ve bölgeyle aynı */
 export function bossPisti(k: Kosu, pistler: readonly PistAdayi[]): number {
-  const aday = bossAdaylari(k.boss.ty, k.bolge, pistler);
+  const aday = bossAdaylari(k.boss.ty, k.bolge, pistler, k.boss.hava);
   return aday[Math.floor(mulberry32(k.tohum + k.bolge * 977)() * aday.length)].i;
 }
 
 /** boss hedefi (bütün turlar): referansın bölge kademesi; süre yarışında pay kadar uzun, driftte o kadar düşük */
 export function bossHedefi(
   k: Pick<Kosu, "bolge" | "boss"> & { sonNefes?: boolean },
-  p: Pick<PistAdayi, "ty" | "ref" | "ys" | "laps">,
+  p: Pick<PistAdayi, "ty" | "ref" | "refYagmur" | "ys" | "laps">,
 ) {
   // son nefes kullanıldıysa hedef %3 sıkı (süre yarışında kısa, driftte yüksek)
   const nefes = k.sonNefes ? 0.97 : 1,
     pay = BOSS_PAY[Math.min(2, k.bolge - 1)] * nefes,
     drift = p.ty == "dp";
-  if (!p.ref) {
+  const ref = pistReferansi(p, k.boss.hava);
+  if (!ref) {
     const y = p.ys[Math.min(2, k.bolge - 1)];
     return drift ? y / nefes : y * nefes;
   }
-  const r = bossReferansi(k.bolge, p.ref, drift) * (p.laps ?? 1) * k.boss.hedef;
+  const r = bossReferansi(k.bolge, ref, drift) * (p.laps ?? 1) * k.boss.hedef;
   return drift ? Math.round(r / pay) : r * pay;
 }
 

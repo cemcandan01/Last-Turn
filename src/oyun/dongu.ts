@@ -17,7 +17,7 @@ import { aynaCiz } from "../cizim/ayna";
 import { cock, gauges, kokpit } from "../cizim/kokpit";
 import { glassQM } from "../cizim/malzemeler";
 import { precipTick, shadowTick } from "../cizim/ortam";
-import { parcacikTick } from "../cizim/parcaciklar";
+import { nitroAlevi, parcacikTick } from "../cizim/parcaciklar";
 import { cam, R, scene } from "../cizim/sahne";
 import { V3 } from "../cizim/yardimci";
 import { zeminTasi } from "../cizim/zemin";
@@ -35,6 +35,7 @@ import { HAYALET, uzak, uzakTick } from "./uzak";
 import { uzakAraclariCiz } from "../cizim/uzak-arac-modeli";
 import { yaris } from "./yarislar";
 import { mutantIsaretleri } from "../arayuz/mutant-ui";
+import { nitroAcik } from "./mutant";
 
 /** görsel saat (menü, garaj, yağış) */
 export let tt = 0;
@@ -117,6 +118,7 @@ function kare(ts: number) {
   if (yarista) uzakTick(dt);
   if (uzak.araclar.length || yarista) uzakAraclariCiz(uzak.araclar, yarista, (u) => u.id == HAYALET);
   if (mode == "menu" && CINE) cineCam();
+  if (mode == "drive" && nitroAcik()) nitroAlevi(gx, gy, gz, gh, S.vx, S.vz);
   parcacikTick(dt);
   if (mode != "menu" && mode != "garage" && !duzenleyici.acik) {
     hudGuncelle(v);
@@ -300,7 +302,8 @@ function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h
   }
   const port = ekran.aw < ekran.ah,
     bf = camMode == 3 && inCar ? (port ? 64 : 54) : (port ? 78 : 62) + (inCar ? 6 : 0),
-    tf = bf + (set.fov ? spn * 24 : 0);
+    // MUTANT nitrosu açıkken görüş genişler (hız hissi; yumuşak geçiş aşağıda)
+    tf = bf + (set.fov ? spn * 24 : 0) + (nitroAcik() ? 9 : 0);
   kamera.fovC += (tf - kamera.fovC) * Math.min(1, dt * 3);
   if (Math.abs(cam.fov - kamera.fovC) > 0.05) {
     cam.fov = kamera.fovC;

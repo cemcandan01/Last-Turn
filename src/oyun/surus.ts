@@ -122,7 +122,7 @@ export function surusAdimi() {
     yerel.kayit.kesik = true;
   const gi = fizikGirdisi(),
     son = aracAdimi(yerel, gi);
-  mutantAdimi(S.x, S.z, son.v, ADIM, !!yaris.EV, S.hit, sim.d.D.beta);
+  mutantAdimi(S.x, S.z, son.v, ADIM, !!yaris.EV, S.hit, sim.d.D.beta, sim.d);
   if (sim.d.zaman % 20 < ADIM) saveProf();
   turSayaci(ADIM);
   if (yaris.EV) evTick(ADIM, son, gi.tg);

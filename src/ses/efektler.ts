@@ -225,6 +225,28 @@ export const arayuzSesi = {
     ton(ctx, h, t, 988, 0.12, 0.08, "sine");
     ton(ctx, h, t + 0.06, 1319, 0.35, 0.08, "sine");
   },
+  /** MUTANT nitrosu ateşlendi: yükselen hava hışırtısı + alçak gümleme */
+  nitro(ctx: BaseAudioContext, h: AudioNode, t: number) {
+    const s = ctx.createBufferSource(),
+      f = ctx.createBiquadFilter(),
+      g = ctx.createGain();
+    s.buffer = gurultuTampon(ctx);
+    f.type = "bandpass";
+    f.Q.value = 1.2;
+    f.frequency.setValueAtTime(300, t);
+    f.frequency.exponentialRampToValueAtTime(2600, t + 0.4);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.32, t + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 1);
+    s.connect(f).connect(g).connect(h);
+    s.start(t);
+    s.stop(t + 1.05);
+    ton(ctx, h, t, 95, 0.3, 0.22, "sine", 45);
+  },
+  /** nitro söndü: kısa düşen ıslık */
+  nitroBitti(ctx: BaseAudioContext, h: AudioNode, t: number) {
+    ton(ctx, h, t, 900, 0.25, 0.05, "triangle", 380);
+  },
   /** kombo yandı */
   yandi(ctx: BaseAudioContext, h: AudioNode, t: number) {
     ton(ctx, h, t, 220, 0.35, 0.12, "sawtooth", 110);

@@ -7,6 +7,7 @@ import { aracKur, parcaBul } from "../arac/parcalar";
 import { okuJson, yazJson } from "../cekirdek/depo";
 import { isaretleriKur } from "../cizim/isaretler";
 import { COND, type GununSaati, type Hava } from "../cizim/ortam";
+import type { SimDurumu } from "../fizik/tipler";
 import { kurulum, applyPreset } from "./kurulum";
 import { setCar } from "./durum";
 import {
@@ -16,10 +17,12 @@ import {
   etkinlikHedefi,
   bossPisti,
   bossaGir,
+  enerjiAdimi,
   etkinlikBitti,
   hasarAl,
   kosuAraci,
   kosuBaslat,
+  nitroDurumu,
   zamanAkis,
   type EtkinlikSonucu,
   type Kosu,
@@ -36,7 +39,8 @@ const ISARET_R = 10,
 /** boss işareti: tırmanış yolunun tepesi */
 export const BOSS_YERI: [number, number] = [-40, 440];
 
-export type MutantIsaret = { tur: "etkinlik"; id: number } | { tur: "atolye" } | { tur: "boss" };
+export type MutantIsaret =
+  { tur: "etkinlik"; id: number } | { tur: "sandik"; id: number } | { tur: "atolye" } | { tur: "boss" };
 
 export interface MutantArayuzu {
   /** koşu başı: araç + başlangıç pasifi */
@@ -73,6 +77,8 @@ export const mutant = {
   /** hasar algısı: son görülen sert çarpma zamanı, spin sürüyor mu */
   sonHit: -9,
   spinde: false,
+  /** NİTRO tuşuna basıldı: bir sonraki sabit adımda yetenek olayı olur */
+  nitro: false,
   yeniRekor: false,
   ui: null as MutantArayuzu | null,
 };
@@ -173,8 +179,11 @@ export function mutantAdimi(
   yarista: boolean,
   hit = -9,
   beta = 0,
+  d: Readonly<Pick<SimDurumu, "S" | "DR" | "D">> | null = null,
 ) {
-  const k = mutant.kosu;
+  const k = mutant.kosu,
+    nitro = mutant.nitro;
+  mutant.nitro = false;
   if (!k) return;
   if (k.faz == "surus" || k.faz == "boss") {
     if (hit < mutant.sonHit) mutant.sonHit = hit;
@@ -192,6 +201,8 @@ export function mutantAdimi(
       mutant.ui?.hasar(tur, pert);
       if (pert) return;
     }
+    // enerji ve nitro: güç değişince (nitro başladı/bitti) araç değerleri yenilenir
+    if (d && enerjiAdimi(k, d, dt, nitro)) mutantAracGuncelle();
   }
   if (k.faz == "surus" && zamanAkis(k, dt) == "boss") {
     if (yarista) mutant.bossBekliyor = true;
@@ -207,6 +218,11 @@ export function mutantAdimi(
     if (!e.yapildi && yakin(e.x, e.z)) {
       bulunan = "e" + e.id;
       isaret = { tur: "etkinlik", id: e.id };
+    }
+  for (const q of k.sandiklar)
+    if (!q.acildi && yakin(q.x, q.z)) {
+      bulunan = "s" + q.id;
+      isaret = { tur: "sandik", id: q.id };
     }
   if (yakin(ATOLYE[0], ATOLYE[1])) {
     bulunan = "a";
@@ -255,4 +271,50 @@ export function mutantBossaGir() {
   if (!k) return;
   bossaGir(k);
   mutant.etkinlik = "boss";
+}
+
+/** nitro şu an açık mı (kamera, alev, ses için; koşu yoksa false) */
+export const nitroAcik = () => (mutant.kosu?.mek.etkiKalan ?? 0) > 0;
+
+/** HUD için salt okunur MUTANT durumu (Codex HUD dalı bu arayüzü okur; ekonomi/fizik yazmaz). Koşu yoksa null */
+export interface MutantDurumu {
+  faz: Kosu["faz"];
+  bolge: number;
+  /** boss adı ve geri sayımın kalan saniyesi */
+  boss: string;
+  kalanSn: number;
+  /** gövde 0-100 */
+  govde: number;
+  /** açık etkinliğin risk kademesi (1-3 yıldız); etkinlik yoksa 0, boss'ta 3 */
+  riskYildiz: number;
+  etkinlik: number | "boss" | null;
+  /** nitro: enerji/kapasite, bir basışın maliyeti, açık mı (kalan sn), basılınca çalışır mı */
+  enerji: number;
+  kapasite: number;
+  nitroMaliyet: number;
+  nitroAcik: boolean;
+  nitroKalanSn: number;
+  nitroHazir: boolean;
+}
+
+export function mutantDurumu(): Readonly<MutantDurumu> | null {
+  const k = mutant.kosu;
+  if (!k) return null;
+  const n = nitroDurumu(k),
+    et = mutant.etkinlik;
+  return {
+    faz: k.faz,
+    bolge: k.bolge,
+    boss: k.boss.ad,
+    kalanSn: Math.max(0, k.kalan),
+    govde: Math.max(0, Math.min(100, k.govde)),
+    riskYildiz: et == "boss" ? 3 : et == null ? 0 : mutant.risk + 1,
+    etkinlik: et,
+    enerji: n.enerji,
+    kapasite: n.kapasite,
+    nitroMaliyet: n.maliyet,
+    nitroAcik: n.acik,
+    nitroKalanSn: n.kalan,
+    nitroHazir: n.hazir,
+  };
 }

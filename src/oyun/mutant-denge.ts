@@ -35,3 +35,12 @@ export const MUTANT_REFERANS: Record<string, Referans> = {
   dg_7: { stok: 10.22, dengeli: 9.67, uzman: 9.17, nadir: 8.43, birlesik: 7.95 },
   dg_8: { stok: 27.42, dengeli: 26.43, uzman: 24.87, nadir: 24.17, birlesik: 22.58 },
 };
+
+/**
+ * yağmurda ölçülmüş referanslar (A2; HAVA=rain TUR=rx TAM=1, docs/denge/2026-10-26-mutant-olcum-yagmur.json): yağmurlu
+ * boss (Çamur Baronu) yalnız bunlardan seçilir. Yalnız beş build'i de temiz bitirilen pist girer: Toz Tepeleri
+ * (dengeli/birleşik) ve Kar Kros (stok/nadir) yağmurda pilotla temiz bitmedi, öteki rallikros pistleri hiç bitmedi.
+ */
+export const MUTANT_REFERANS_YAGMUR: Record<string, Referans> = {
+  rx_7: { stok: 74.33, dengeli: 70.45, uzman: 69.38, nadir: 69.5, birlesik: 68.5 },
+};

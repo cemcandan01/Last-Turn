@@ -14,6 +14,10 @@ export interface AracSecenegi {
   uzmanliksiz?: boolean;
   /** MUTANT pasifleri */
   pasif?: readonly string[];
+  /** hava (yoksa güneşli) */
+  wx?: string;
+  /** MUTANT nitrosu: sürüş zamanına (sn) göre motor gücü çarpanı (1 = kapalı) */
+  nitro?: (t: number) => number;
 }
 
 /** bir tur (açık pistte A'dan B'ye; kapalı pistte istenirse tur turlar): süre, pist dışında geçen süre, spin sayısı */
@@ -43,6 +47,7 @@ export function turSur(
     durdu = 0;
   const sinir = TR.open ? 200 : 300 * tur;
   while (t < sinir) {
+    if (ek.nitro) s.guc(ek.nitro(t));
     s.adim(pl(S));
     t += DT;
     durdu = Math.hypot(S.vx, S.vz) < 0.5 ? durdu + DT : 0;
@@ -109,6 +114,7 @@ export function dragSur(yaris: number, arac: number, gecikme = 0, ek: AracSecene
     z1 = TR.P[TR.N - 1][1];
   s.reset(TR.P[0][0], TR.P[0][1], 0);
   for (let k = 0; k < 60 / DT; k++) {
+    if (ek.nitro) s.guc(ek.nitro(k * DT));
     s.adim({ tg: 0, g: k * DT < gecikme ? 0 : 1, b: 0, analogDireksiyon: false, analogGaz: false });
     if (S.z >= z1) return k * DT;
   }
