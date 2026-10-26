@@ -65,6 +65,19 @@ function etiketMalzemesi(ad: string): THREE.SpriteMaterial {
   return m;
 }
 
+/** MUTANT'ın mevcut işaret renkleriyle eşleşen işlevsel yarış tabelaları. */
+const renkYazisi = new Map<number, string>([
+  [0xff5a3c, "ASFALT"],
+  [0xd08a48, "RALLİKROS"],
+  [0x4fbf74, "RALLİ"],
+  [0xb67cff, "DRİFT"],
+  [0xffd23c, "DRAG"],
+  [0x3cc8ff, "ATÖLYE"],
+  [0xff2a2a, "BOSS"],
+  [0xfff0a8, "SANDIK"],
+  [0xff3cc8, "LANETLİ"],
+]);
+
 /** işaretleri yeniden kur (boş liste: gizle) */
 export function isaretleriKur(liste: readonly Isaret[], H: (x: number, z: number) => number) {
   grup.clear();
@@ -79,11 +92,12 @@ export function isaretleriKur(liste: readonly Isaret[], H: (x: number, z: number
     h.rotation.x = -Math.PI / 2;
     h.position.set(i.x, y + 0.15, i.z);
     grup.add(s, h);
-    if (i.etiket) {
-      const etiket = new THREE.Sprite(etiketMalzemesi(i.etiket));
+    const ad = i.etiket ?? renkYazisi.get(i.renk);
+    if (ad) {
+      const etiket = new THREE.Sprite(etiketMalzemesi(ad));
       etiket.scale.set(28, 7, 1);
       etiket.position.set(i.x, y + 15, i.z);
-      etiket.name = "mutant-etiket-" + i.etiket;
+      etiket.name = "mutant-etiket-" + ad;
       etiket.renderOrder = 10;
       grup.add(etiket);
     }
