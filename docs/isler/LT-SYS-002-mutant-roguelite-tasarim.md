@@ -70,3 +70,43 @@ git add -A && git commit -qm "docs: LT-SYS-002 MUTANT roguelite yarış tasarım
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01Dgmbee5u5JseJE1UzquuUi" && git push -q 2>&1|tail -1; git log --oneline -1
+## 7. 2026-10-26 Cem'in vizyonu (yön budur; §3 etap zinciri önerisinin yerini alır)
+Açık haritada çarpışmalı, kovalamacalı roguelite. Slay the Spire'ın açık dünya + araba hâli:
+- Kötü bir araç seç → başlangıç yeteneklerini seç → haritaya atıl. **Boss'a geri sayım (ör. 15 dk)** başlar; gelecek **boss koşu başında rastgele** seçilir, yetenekleri ve oynanış tarzı bilinir.
+- Haritada etkinlikler görünür: turlu yarış, drift yarışı, polis kovalamacası, drag, toprak yarışı; serbest alanlar: drift alanı, uçuş/rampa alanı vb. Sokakta polisten kaçılır, NPC'lerle yarışılır.
+- **XP** → seviye → skill ya da pasif seçimi. **Para** → araç modifiyesi. **Haritada bulunan eklentiler** → aracı o boss'u yenmeye uyarlama.
+- Gerilim: süre her şeye yetmez; boss'a göre neyi yapacağını seçersin. Plan çoğu zaman hayaldeki gibi gitmez, şans + seçimlerle bir oynanış stili doğar.
+
+### Tasarım iskeleti
+| Öğe | Karşılık | Kaynak/benzer |
+|---|---|---|
+| Boss baştan görünür | Boss kartı: tür (ralli/drift/drag/kovalamaca), 2-3 yeteneği, zayıf yanı | Slay the Spire bölüm boss ikonu |
+| Geri sayım | Her etkinlik süre yer (1-2 dk); hepsine yetmez | Risk of Rain zaman baskısı |
+| Etkinlik ikonu | Tür + ödül önizlemesi (XP, para, eklenti) + risk | Hades kapı ödülü |
+| Seviye atlama | 3 skill/pasiften 1, slot sınırlı | Hades boon, Vampire Survivors |
+| Para | Haritadaki atölye/dükkânda mevcut parça sistemiyle modifiye + tamir | Road Redemption mağazası |
+| Eklenti | Haritada sandık/drop: aktif alet (nitro, EMP, çarpma kalkanı, çivi) ya da benzersiz parça | Isaac eşyaları |
+| Polis | Aranma seviyesi; kaçış XP/para çarpanı, yakalanma süre/para/hasar kaybı | GTA aranma, Burnout |
+| Hasar | Çarpışma dayanıklılığı düşürür; tamir parayla | Road Redemption canı |
+| Koşu sonu | Boss'u yen → sonraki bölge (daha zor boss) ya da kaybet → koşu biter; meta birim yeni araç/skill/boss açar | Hades, StS |
+
+### Örnek bosslar (taslak)
+- **Toprak Kurdu** (ralli): toprakta çok hızlı, asfaltta yavaş; parkurun %60'ı toprak → toprak lastiği, AWD, süspansiyon eklentisi kazandırır.
+- **Drift Kraliçesi** (drift düellosu): aynı pistte kombo yarışı; kombonu bozmak için seni sıkıştırır → açı kiti, drift skilleri.
+- **Şerif** (kovalamaca boss): 3 dk yakalanmadan kaç, barikat ve spike kurar → nitro, çarpma kalkanı, yol bilgisi.
+- **Drag Canavarı**: düz çizgi, nitrolu; vites/turbo/kalkış skilleri.
+
+### Teknik bağımlılıklar (büyükten küçüğe, dürüst)
+1. **Araç-araç çarpışma** fiziği (çoklu araç yapısı `AracOrnegi` hazır; araçlar arası temas çözümü yok). Belirlenimci kalmalı.
+2. **NPC yarışçı YZ**: test pilotları (`tests/yardimci/pilot.ts`, `drift-pilot.ts`) pistte araç sürebiliyor → yarışçı YZ'nin tabanı olur.
+3. **Polis YZ**: sokaklarda takip için yol ağı/rota bulma gerekir; en büyük iş.
+4. **Şehir haritası**: bugün açık dünya Çorak Topraklar + Boş Otopark; sokak/şehir yok. Rastgelelik önce etkinlik/eklenti/hava yerleşiminde, sonra modüler sokak blokları.
+5. **iPhone 13 performansı**: her fizik aracı 480 Hz alt adım; uzak NPC'ler için sadeleştirilmiş fizik gerekir.
+6. Koşu mantığı (geri sayım, XP/seviye, para, eklenti, boss seçimi): saf, ucuz; mevcut yürütücü + matris testi kullanılır.
+
+### Aşamalar (her biri /dev/'de oynanır)
+- **A1 Koşu iskeleti (YZ'siz):** mevcut açık dünya + pist bölgeleri; geri sayım, boss kartı, harita etkinlik ikonları (mevcut yarış türleri, hedef süre/hayalet), XP/seviye skill seçimi, para + atölye modifiye, boss etkinliği (özel kural + hedef).
+- **A2 Eklentiler + nitro + aktif aletler**, geri bildirim (FOV, ses, alev).
+- **A3 Çarpışma + NPC yarışçılar** (pilot tabanlı YZ); boss gerçek rakip olur.
+- **A4 Polis + aranma + kovalamaca**, yol ağı; şehir/sokak haritası.
+- **A5 Modüler rastgele harita, daha çok boss, meta ilerleme.**
