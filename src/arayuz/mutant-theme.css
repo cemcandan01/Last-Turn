@@ -1,0 +1,263 @@
+/* MUTANT arayüz kimliği. Yalnızca Mutant ekranlarında etkindir. */
+
+.mutant-shell {
+  --mt-accent: #e5da85;
+  --mt-danger: #fb7469;
+  color: #f2f4ef;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 14px;
+  box-sizing: border-box;
+  line-height: 1.35;
+}
+
+.mutant-shell::before {
+  content: "MUTANT // RUN PROTOCOL";
+  display: block;
+  margin-bottom: 8px;
+  color: var(--mt-accent);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+}
+
+.mutant-shell h1 {
+  margin: 0 0 7px;
+  color: #ffffff;
+  font-size: 28px;
+  font-style: italic;
+  font-weight: 900;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.mutant-shell > p {
+  margin: 6px 0 10px;
+  color: #bec7d1;
+  font-size: 13px;
+}
+
+.mutant-shell .mtb {
+  display: grid;
+  gap: 6px;
+  position: relative;
+  margin: 8px 0 12px;
+  padding: 12px;
+  background: #211d2a;
+  border: 1px solid #824941;
+  border-left: 4px solid var(--mt-danger);
+  border-radius: 4px;
+}
+
+.mutant-shell .mtb b {
+  display: block;
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.mutant-shell .mtb span {
+  display: block;
+  font-size: 12px;
+  color: #cdd2dc;
+}
+
+.mutant-shell .mt-eyebrow {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  color: #ffa194;
+}
+
+.mutant-shell .mt-risk {
+  display: grid;
+  gap: 4px;
+  padding-top: 6px;
+  border-top: 1px solid #61656f;
+}
+
+.mutant-shell .mt-counter {
+  display: grid;
+  gap: 4px;
+  padding-top: 6px;
+  border-top: 1px solid #61656f;
+}
+
+.mutant-shell .mt-risk > span {
+  font-size: 10px;
+  font-weight: 900;
+  color: #ff9888;
+}
+
+.mutant-shell .mt-counter > span {
+  font-size: 10px;
+  font-weight: 900;
+  color: #e5da85;
+}
+
+.mutant-shell .mt-risk strong {
+  font-size: 12px;
+  color: #f1f3f5;
+}
+
+.mutant-shell .mt-counter strong {
+  font-size: 12px;
+  color: #f1f3f5;
+}
+
+.mutant-shell .mtp {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.mutant-shell .mtp .card {
+  display: block;
+  min-width: 0;
+  min-height: 76px;
+  padding: 10px;
+  margin: 0;
+  cursor: pointer;
+  background: #222b37;
+  border: 1px solid #61707e;
+  border-bottom: 3px solid var(--mt-accent);
+  border-radius: 4px;
+}
+
+.mutant-shell .mtp .card b {
+  display: block;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.1;
+  color: #ffffff;
+  overflow-wrap: anywhere;
+}
+
+.mutant-shell .mtp .card span {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+  color: #c1c9d2;
+  overflow-wrap: anywhere;
+}
+
+.mutant-shell .mtp .card:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.mutant-shell .mtp .card:active {
+  background: #3e4854;
+}
+
+.mutant-shell .mt-risk-0 {
+  border-bottom-color: #85cea5;
+  background: #1f3732;
+}
+
+.mutant-shell .mt-risk-1 {
+  border-bottom-color: #f4bc68;
+  background: #383023;
+}
+
+.mutant-shell .mt-risk-2 {
+  border-bottom-color: #ff746b;
+  background: #43252b;
+}
+
+.mutant-shell .mt-risk-choice span:last-child {
+  color: #ffe4dc;
+  font-weight: 700;
+}
+
+.mutant-shell .rk {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 10px;
+  margin: 2px 0;
+  background: #1a222e;
+  border-bottom: 1px solid #47505c;
+  font-size: 12px;
+}
+
+.mutant-shell .rk span:first-child {
+  min-width: 0;
+  color: #c0c8d1;
+  overflow-wrap: anywhere;
+}
+
+.mutant-shell .rk span:last-child {
+  font-weight: 800;
+  color: #ffffff;
+  text-align: right;
+}
+
+.mutant-shell .note {
+  color: #e9dca5;
+  font-size: 11px;
+}
+
+.mutant-shell .mt-warning {
+  padding: 7px 10px;
+  border-left: 3px solid #ff766e;
+  background: #482a34;
+  color: #ffe1d9;
+}
+
+.mutant-shell .btn {
+  min-height: 40px;
+  margin: 5px 6px 3px 0;
+  padding: 8px 15px;
+  background: #e5da85;
+  border: 1px solid #fff3b7;
+  border-radius: 3px;
+  color: #19212a;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.mutant-shell .btn.alt {
+  background: #27303c;
+  color: #ffffff;
+  border: 1px solid #697582;
+}
+
+.mutant-shell .btn:disabled {
+  opacity: 0.45;
+}
+
+.mutant-shell .lbl {
+  margin: 10px 0 5px;
+  color: #e5da85;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.mutant-shell .mtz {
+  display: grid;
+  gap: 3px;
+}
+
+.mutant-shell .mtz .rk small {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 400;
+  color: #aebbc9;
+}
+
+.mutant-shell .bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.mutant-shell .bar .btn {
+  margin: 0;
+}
