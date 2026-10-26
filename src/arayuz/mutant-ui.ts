@@ -124,7 +124,14 @@ function isaretleriGuncelle() {
   const k = mutant.kosu;
   const l: Isaret[] = k
     ? [
-        ...k.etkinlikler.filter((e) => !e.yapildi).map((e) => ({ x: e.x, z: e.z, renk: TUR[e.ty][1], etiket: TUR_ETIKET[e.ty] })),
+        ...k.etkinlikler
+          .filter((e) => !e.yapildi)
+          .map((e) => ({
+            x: e.x,
+            z: e.z,
+            renk: TUR[e.ty][1],
+            etiket: TUR_ETIKET[e.ty],
+          })),
         ...k.sandiklar
           .filter((q) => !q.acildi)
           .map((q) => ({
@@ -189,7 +196,7 @@ function pasifSayfasi(baslik: string) {
         if (ilk) {
           isaretleriGuncelle();
           surusDevam();
-          note("Işıkların üzerinde yarış türleri yazıyor. Sarı: sandık · Mor: lanet · Mavi: atölye · Kırmızı: boss", 30);
+          note("Işıkların üstünde yarış türü yazıyor. Sarı sandık · Mor lanet · Mavi atölye · Kırmızı boss", 30);
           return;
         }
         devam();
