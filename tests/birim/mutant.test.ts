@@ -3,7 +3,7 @@ import { CARS } from "../../src/arac/araclar";
 import { TDEF } from "../../src/dunya/pist-tanimlari";
 import { Htest } from "../../src/dunya/corak";
 import { DRIFT_TUR, yildizEsikleri } from "../../src/oyun/yildiz";
-import { MUTANT_REFERANS } from "../../src/oyun/mutant-denge";
+import { MUTANT_REFERANS, MUTANT_REFERANS_YAGMUR } from "../../src/oyun/mutant-denge";
 import {
   BOSSLAR,
   YERLER,
@@ -40,6 +40,11 @@ import {
   zamanAkis,
   enerjiAdimi,
   nitroDurumu,
+  EKLENTILER,
+  LANETLER,
+  SANDIK_SAYISI,
+  sandikAc,
+  pistReferansi,
   takiliMekanikler,
   type Kosu,
   type PistAdayi,
@@ -529,5 +534,114 @@ describe("MUTANT A2: nitro ve sistemik güçler", () => {
     sur(k, 1, () => true);
     expect(gucCarpani(k.mek)).toBeGreaterThan(1);
     expect(kosuAraci(CARS[0], { pasifler: [] }).hp).toBe(CARS[0].hp);
+  });
+});
+
+describe("MUTANT A2: eklenti sandıkları", () => {
+  const eklenti = (id: string) => EKLENTILER.find((e) => e.id == id)!;
+  it("her bölgede 2 normal + 1 lanetli sandık, etkinliklerden ayrı düz yerde; tohumla aynı", () => {
+    for (let t = 1; t <= 40; t++) {
+      const k = basla(t);
+      expect(k.sandiklar.length).toBe(SANDIK_SAYISI);
+      const [a, b, c] = k.sandiklar;
+      for (const q of [a, b]) {
+        expect(q.lanetli).toBe(false);
+        expect(q.lanet).toBeNull();
+        expect(q.secenekler.length).toBe(2);
+        for (const e of q.secenekler) expect(eklenti(e).nadir).toBe(false);
+      }
+      expect(c.lanetli).toBe(true);
+      expect(Object.keys(LANETLER)).toContain(c.lanet);
+      expect(c.secenekler.length).toBe(1);
+      expect(eklenti(c.secenekler[0]).nadir).toBe(true);
+      const yerler = [...k.etkinlikler, ...k.sandiklar].map((q) => q.x + "," + q.z);
+      expect(new Set(yerler).size).toBe(yerler.length);
+      for (const q of k.sandiklar) expect(YERLER.some(([x, z]) => x == q.x && z == q.z)).toBe(true);
+      expect(basla(t).sandiklar).toEqual(k.sandiklar);
+    }
+  });
+  it("normal sandık: seçilen eklenti koşuda kalır, sandık bir kez açılır; seviye seçiminde eklenti çıkmaz", () => {
+    const k = basla(3),
+      q = k.sandiklar[0],
+      e = q.secenekler[0];
+    expect(sandikAc(k, q.id, "olmayan")).toBe(false);
+    const para = k.para,
+      kalan = k.kalan,
+      govde = k.govde;
+    expect(sandikAc(k, q.id, e)).toBe(true);
+    expect(k.pasifler).toContain(e);
+    expect([k.para, k.kalan, k.govde]).toEqual([para, kalan, govde]);
+    expect(sandikAc(k, q.id, q.secenekler[1])).toBe(false);
+    for (let t = 1; t <= 30; t++) expect(basla(t).secenekler.some((id) => id.startsWith("ek-"))).toBe(false);
+    expect(PASIFLER.some((p) => p.id.startsWith("ek-"))).toBe(false);
+  });
+  it("lanetli sandık: nadir eklenti + bedel hemen (süre −45, gövde −25 pert etmez, para yarı)", () => {
+    for (const lanet of ["sure", "govde", "para"] as const) {
+      const k = basla(5),
+        q = k.sandiklar[2];
+      q.lanet = lanet;
+      k.govde = 20;
+      k.para = 301;
+      const kalan = k.kalan;
+      expect(sandikAc(k, q.id, q.secenekler[0])).toBe(true);
+      if (lanet == "sure") expect(k.kalan).toBe(kalan - 45);
+      if (lanet == "govde") expect([k.govde, k.pert]).toEqual([1, false]);
+      if (lanet == "para") expect(k.para).toBe(150);
+    }
+  });
+  it("eklentiler sözleşmeye katılır: yedek tüp kapasite/enerji, çift ateşleme maliyet, tampon yalnız çarpma", () => {
+    const k = basla();
+    k.sandiklar[0].secenekler = ["ek-yedek-tup", "ek-kizgin-egzoz"];
+    sandikAc(k, 0, "ek-yedek-tup");
+    expect([k.mek.kapasite, k.mek.enerji]).toEqual([130, BASLANGIC_ENERJI + 30]);
+    k.sandiklar[2].secenekler = ["ek-cift-atesleme"];
+    sandikAc(k, 2, "ek-cift-atesleme");
+    expect(nitroDurumu(k).maliyet).toBeCloseTo(NITRO.maliyet * 0.6, 6);
+    k.sandiklar[1].secenekler = ["ek-takviye-tampon", "ek-kizgin-egzoz"];
+    const g = k.govde;
+    sandikAc(k, 1, "ek-takviye-tampon");
+    hasarAl(k, "carpma");
+    expect(g - k.govde).toBeCloseTo(GOVDE.carpma * 0.6, 6);
+    const g2 = k.govde;
+    hasarAl(k, "spin");
+    expect(g2 - k.govde).toBeCloseTo(GOVDE.spin, 6);
+  });
+  it("boss sonrası yeni sandıklar; sahip olunan eklenti yeniden çıkmaz", () => {
+    const k = basla(9),
+      e = k.sandiklar[2].secenekler[0];
+    sandikAc(k, 2, e);
+    bossaGir(k);
+    bossBitti(k, true, PISTLER);
+    expect(k.sandiklar.length).toBe(SANDIK_SAYISI);
+    expect(k.sandiklar.every((q) => !q.acildi)).toBe(true);
+    expect(k.sandiklar.flatMap((q) => q.secenekler)).not.toContain(e);
+  });
+});
+
+describe("MUTANT A2: yağmurlu boss referansı", () => {
+  it("yağmurlu boss yağmur referansını, güneşli boss güneş referansını kullanır; yağmur ölçümü yoksa güneşe düşer", () => {
+    const ref = { stok: 100, dengeli: 95, uzman: 94, nadir: 93, birlesik: 90 },
+      refYagmur = { stok: 120, dengeli: 112, uzman: 110, nadir: 111, birlesik: 105 },
+      p = { ty: "rx" as const, ys: [400, 350, 300], laps: 3, ref, refYagmur },
+      camur = BOSSLAR.find((b) => b.hava == "rain")!,
+      gunes = BOSSLAR.find((b) => !b.hava && b.ty != "dp")!;
+    expect(pistReferansi(p, "rain")).toBe(refYagmur);
+    expect(pistReferansi({ ref }, "rain")).toBe(ref);
+    expect(bossHedefi({ bolge: 1, boss: camur }, p)).toBeCloseTo(120 * 3 * camur.hedef * BOSS_PAY[0], 6);
+    expect(bossHedefi({ bolge: 1, boss: gunes }, p)).toBeCloseTo(100 * 3 * gunes.hedef * BOSS_PAY[0], 6);
+  });
+  it("yağmurlu boss yalnız yağmurda ölçülen pistlerden; ölçülmüş yağmur referansı bölge 3'e kadar geçilir", () => {
+    const pistler = PISTLER.map((p) => ({
+      ...p,
+      ref: MUTANT_REFERANS[p.ty + "_" + TDEF[p.i].lv],
+      refYagmur: MUTANT_REFERANS_YAGMUR[p.ty + "_" + TDEF[p.i].lv],
+    }));
+    for (const b of [1, 2, 3]) {
+      const aday = bossAdaylari("rx", b, pistler, "rain");
+      expect(aday.length).toBeGreaterThan(0);
+      for (const p of aday) expect(p.refYagmur).toBeDefined();
+    }
+    // güneşli rallikros boss'u yağmur tablosundan etkilenmez
+    expect(bossAdaylari("rx", 2, pistler).length).toBe(pistler.filter((p) => p.ty == "rx" && p.ref).length);
   });
 });

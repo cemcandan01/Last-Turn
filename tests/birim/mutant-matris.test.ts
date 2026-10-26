@@ -1,11 +1,13 @@
-// MUTANT kombinasyon matrisi: bütün 1'li, 2'li ve 3'lü perk kombinasyonları altı sürüş/oyuncu biçiminde, nitroyu her fırsatta
+// MUTANT kombinasyon matrisi: bütün 1'li, 2'li ve 3'lü perk + eklenti kombinasyonları altı sürüş/oyuncu biçiminde, nitroyu her fırsatta
 // kullanan (en kötü durum) oyuncuyla koşulur. Kırılma (sınır dışı enerji, kesilen olay, kalıcı tutuş, etkisiz perk)
 // hatadır. Sinerji (kombinasyonun parçalarının toplamından iyi olması) hata değildir: rapora yazılır, oyuncu keşfeder.
 // Rapor: tests/cikti/mutant-matris.json
 import { mkdirSync, writeFileSync } from "node:fs";
 import { beforeAll, describe, expect, it } from "vitest";
 import {
+  GUC_ETKI_UST,
   TUTUS_UST,
+  gucCarpani,
   driftGozlemcisi,
   driftGozlemiBaslat,
   kapasiteUygula,
@@ -16,7 +18,10 @@ import {
   type GirisOlayi,
   type MekanikTanim,
 } from "../../src/cekirdek/mekanikler";
-import { NITRO, PERKLER } from "../../src/oyun/mutant-enerji";
+import { EKLENTI_PERKLERI, NITRO, PERKLER as YALNIZ_PERKLER } from "../../src/oyun/mutant-enerji";
+
+/** sözleşme: seviye perkleri ve sandık eklentileri aynı kurallarla birlikte denenir */
+const PERKLER = [...YALNIZ_PERKLER, ...EKLENTI_PERKLERI];
 
 const DT = 1 / 60,
   SURE = 40;
@@ -45,13 +50,19 @@ interface Sonuc {
   enerjiMax: number;
   kesilen: number;
   yanan: number;
+  /** koşu boyunca ortalama nitro güç çarpanı (güç perkleri bununla görünür) */
+  gucOrt: number;
+  /** sınır ihlali (sonlu değil, negatif, kapasite üstü enerji ya da tutuş üst sınırı aşıldı) */
+  bozuk: string;
 }
 
 function kos(perkler: MekanikTanim[], bicim: (i: number) => [boolean, number, number]): Sonuc {
   const takili = [NITRO, ...perkler];
   let m = kapasiteUygula(mekanikBaslat(), takili),
     g = driftGozlemiBaslat(),
-    enerjiMax = 0;
+    enerjiMax = 0,
+    bozuk = "",
+    gucToplam = 0;
   const d = { S: { vx: 0, vz: 0, air: false }, DR: { on: 0, dir: 1, cool: 0 }, D: { act: 0, beta: 0 } };
   for (let i = 0; i < SURE / DT; i++) {
     const [on, hiz, cool] = bicim(i);
@@ -80,11 +91,18 @@ function kos(perkler: MekanikTanim[], bicim: (i: number) => [boolean, number, nu
       g = { ...g, sira: g.sira + 1 };
     }
     m = mekanikAdimi(m, olaylar, takili, true, DT);
-    expect(Number.isFinite(m.enerji)).toBe(true);
-    expect(m.enerji).toBeGreaterThanOrEqual(0);
-    expect(m.enerji).toBeLessThanOrEqual(m.kapasite + 1e-9);
-    expect(tutusCarpani(m)).toBeLessThanOrEqual(TUTUS_UST + 1e-12);
+    // adım başına expect yavaş: ilk ihlal kaydedilir, testte bir kez denetlenir
+    if (
+      !bozuk &&
+      (!Number.isFinite(m.enerji) ||
+        m.enerji < 0 ||
+        m.enerji > m.kapasite + 1e-9 ||
+        tutusCarpani(m) > TUTUS_UST + 1e-12 ||
+        gucCarpani(m) > GUC_ETKI_UST + 1e-12)
+    )
+      bozuk = "adım " + i + " enerji " + m.enerji + "/" + m.kapasite;
     enerjiMax = Math.max(enerjiMax, m.enerji);
+    gucToplam += gucCarpani(m);
   }
   const kazanc = Object.entries(m.telemetri)
     .filter(([id]) => id != NITRO.id)
@@ -96,6 +114,8 @@ function kos(perkler: MekanikTanim[], bicim: (i: number) => [boolean, number, nu
     enerjiMax,
     kesilen: m.kesilen,
     yanan: m.yanan,
+    gucOrt: +(gucToplam / (SURE / DT)).toFixed(6),
+    bozuk,
   };
 }
 
@@ -144,6 +164,7 @@ describe("MUTANT kombinasyon matrisi", () => {
           const ids = kombo.map((p) => p.m.id),
             r = SONUC.get(anahtar(ids, ad))!,
             ad2 = ids.join("+") + " " + ad;
+          expect(r.bozuk, ad2).toBe("");
           expect(r.kesilen, ad2).toBe(0);
           expect(r.darbePayi, ad2).toBeLessThanOrEqual(DARBE_PAYI_UST);
           expect(r.kazanc / SURE, ad2).toBeLessThanOrEqual(KAZANC_HIZI_UST);

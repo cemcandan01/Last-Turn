@@ -1,0 +1,1280 @@
+{
+ "yontem": "Gerçek fizik, dengeli yardım, türün başlangıç aracı, tek tur (MUTANT etkinliği). Süre: pilotun spinsiz ve pist dışı < 3 sn en iyi turu; drift: iki açıyla en iyi tek tur puanı; drag: ışıkta tam gaz. null: pilot temiz bitiremedi. Yıldızlar pistin kariyer eşiklerinin tur başına payı.",
+ "hava": "rain",
+ "nitro": "yok",
+ "pistSayisi": 40,
+ "satirlar": [
+  {
+   "ty": "rx",
+   "i": 6,
+   "pist": "Toz Tepeleri",
+   "sev": 1,
+   "tur": 3,
+   "yildizTurBasi": [
+    57.6,
+    50.07,
+    46.1
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 48.95,
+   "yildizSayisi": 2
+  },
+  {
+   "ty": "rx",
+   "i": 6,
+   "pist": "Toz Tepeleri",
+   "sev": 1,
+   "tur": 3,
+   "yildizTurBasi": [
+    57.6,
+    50.07,
+    46.1
+   ],
+   "build": "motor",
+   "parca": [
+    "motor-degisim"
+   ],
+   "pasif": [],
+   "sonuc": 41.83,
+   "yildizSayisi": 3
+  },
+  {
+   "ty": "rx",
+   "i": 6,
+   "pist": "Toz Tepeleri",
+   "sev": 1,
+   "tur": 3,
+   "yildizTurBasi": [
+    57.6,
+    50.07,
+    46.1
+   ],
+   "build": "nadir-motor",
+   "parca": [
+    "motor-yaris",
+    "turbo-buyuk",
+    "lastik-karisik"
+   ],
+   "pasif": [
+    "guc"
+   ],
+   "sonuc": 46.53,
+   "yildizSayisi": 2
+  },
+  {
+   "ty": "rx",
+   "i": 6,
+   "pist": "Toz Tepeleri",
+   "sev": 1,
+   "tur": 3,
+   "yildizTurBasi": [
+    57.6,
+    50.07,
+    46.1
+   ],
+   "build": "dengeli",
+   "parca": [
+    "motor-sokak",
+    "lastik-karisik",
+    "fren-spor"
+   ],
+   "pasif": [
+    "guc"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 6,
+   "pist": "Toz Tepeleri",
+   "sev": 1,
+   "tur": 3,
+   "yildizTurBasi": [
+    57.6,
+    50.07,
+    46.1
+   ],
+   "build": "uzman",
+   "parca": [
+    "motor-spor",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren"
+   ],
+   "sonuc": 45.82,
+   "yildizSayisi": 3
+  },
+  {
+   "ty": "rx",
+   "i": 6,
+   "pist": "Toz Tepeleri",
+   "sev": 1,
+   "tur": 3,
+   "yildizTurBasi": [
+    57.6,
+    50.07,
+    46.1
+   ],
+   "build": "motor+uzman",
+   "parca": [
+    "motor-degisim",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren"
+   ],
+   "sonuc": 39.97,
+   "yildizSayisi": 3
+  },
+  {
+   "ty": "rx",
+   "i": 6,
+   "pist": "Toz Tepeleri",
+   "sev": 1,
+   "tur": 3,
+   "yildizTurBasi": [
+    57.6,
+    50.07,
+    46.1
+   ],
+   "build": "nadir+uzman",
+   "parca": [
+    "motor-yaris",
+    "turbo-buyuk",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren",
+    "guc"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 7,
+   "pist": "Çamur Vadisi",
+   "sev": 2,
+   "tur": 3,
+   "yildizTurBasi": [
+    65.67,
+    57.1,
+    52.53
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 7,
+   "pist": "Çamur Vadisi",
+   "sev": 2,
+   "tur": 3,
+   "yildizTurBasi": [
+    65.67,
+    57.1,
+    52.53
+   ],
+   "build": "motor",
+   "parca": [
+    "motor-degisim"
+   ],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 7,
+   "pist": "Çamur Vadisi",
+   "sev": 2,
+   "tur": 3,
+   "yildizTurBasi": [
+    65.67,
+    57.1,
+    52.53
+   ],
+   "build": "nadir-motor",
+   "parca": [
+    "motor-yaris",
+    "turbo-buyuk",
+    "lastik-karisik"
+   ],
+   "pasif": [
+    "guc"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 7,
+   "pist": "Çamur Vadisi",
+   "sev": 2,
+   "tur": 3,
+   "yildizTurBasi": [
+    65.67,
+    57.1,
+    52.53
+   ],
+   "build": "dengeli",
+   "parca": [
+    "motor-sokak",
+    "lastik-karisik",
+    "fren-spor"
+   ],
+   "pasif": [
+    "guc"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 7,
+   "pist": "Çamur Vadisi",
+   "sev": 2,
+   "tur": 3,
+   "yildizTurBasi": [
+    65.67,
+    57.1,
+    52.53
+   ],
+   "build": "uzman",
+   "parca": [
+    "motor-spor",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 7,
+   "pist": "Çamur Vadisi",
+   "sev": 2,
+   "tur": 3,
+   "yildizTurBasi": [
+    65.67,
+    57.1,
+    52.53
+   ],
+   "build": "motor+uzman",
+   "parca": [
+    "motor-degisim",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 7,
+   "pist": "Çamur Vadisi",
+   "sev": 2,
+   "tur": 3,
+   "yildizTurBasi": [
+    65.67,
+    57.1,
+    52.53
+   ],
+   "build": "nadir+uzman",
+   "parca": [
+    "motor-yaris",
+    "turbo-buyuk",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren",
+    "guc"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 32,
+   "pist": "Plaj Kros",
+   "sev": 2,
+   "tur": 3,
+   "yildizTurBasi": [
+    86.93,
+    75.57,
+    69.57
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": 74.33,
+   "yildizSayisi": 2
+  },
+  {
+   "ty": "rx",
+   "i": 32,
+   "pist": "Plaj Kros",
+   "sev": 2,
+   "tur": 3,
+   "yildizTurBasi": [
+    86.93,
+    75.57,
+    69.57
+   ],
+   "build": "motor",
+   "parca": [
+    "motor-degisim"
+   ],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 32,
+   "pist": "Plaj Kros",
+   "sev": 2,
+   "tur": 3,
+   "yildizTurBasi": [
+    86.93,
+    75.57,
+    69.57
+   ],
+   "build": "nadir-motor",
+   "parca": [
+    "motor-yaris",
+    "turbo-buyuk",
+    "lastik-karisik"
+   ],
+   "pasif": [
+    "guc"
+   ],
+   "sonuc": 69.5,
+   "yildizSayisi": 3
+  },
+  {
+   "ty": "rx",
+   "i": 32,
+   "pist": "Plaj Kros",
+   "sev": 2,
+   "tur": 3,
+   "yildizTurBasi": [
+    86.93,
+    75.57,
+    69.57
+   ],
+   "build": "dengeli",
+   "parca": [
+    "motor-sokak",
+    "lastik-karisik",
+    "fren-spor"
+   ],
+   "pasif": [
+    "guc"
+   ],
+   "sonuc": 70.45,
+   "yildizSayisi": 2
+  },
+  {
+   "ty": "rx",
+   "i": 32,
+   "pist": "Plaj Kros",
+   "sev": 2,
+   "tur": 3,
+   "yildizTurBasi": [
+    86.93,
+    75.57,
+    69.57
+   ],
+   "build": "uzman",
+   "parca": [
+    "motor-spor",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren"
+   ],
+   "sonuc": 69.38,
+   "yildizSayisi": 3
+  },
+  {
+   "ty": "rx",
+   "i": 32,
+   "pist": "Plaj Kros",
+   "sev": 2,
+   "tur": 3,
+   "yildizTurBasi": [
+    86.93,
+    75.57,
+    69.57
+   ],
+   "build": "motor+uzman",
+   "parca": [
+    "motor-degisim",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren"
+   ],
+   "sonuc": 60.1,
+   "yildizSayisi": 3
+  },
+  {
+   "ty": "rx",
+   "i": 32,
+   "pist": "Plaj Kros",
+   "sev": 2,
+   "tur": 3,
+   "yildizTurBasi": [
+    86.93,
+    75.57,
+    69.57
+   ],
+   "build": "nadir+uzman",
+   "parca": [
+    "motor-yaris",
+    "turbo-buyuk",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren",
+    "guc"
+   ],
+   "sonuc": 68.5,
+   "yildizSayisi": 3
+  },
+  {
+   "ty": "rx",
+   "i": 8,
+   "pist": "Taş Ocağı",
+   "sev": 3,
+   "tur": 3,
+   "yildizTurBasi": [
+    54.77,
+    47.6,
+    43.8
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 8,
+   "pist": "Taş Ocağı",
+   "sev": 3,
+   "tur": 3,
+   "yildizTurBasi": [
+    54.77,
+    47.6,
+    43.8
+   ],
+   "build": "motor",
+   "parca": [
+    "motor-degisim"
+   ],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 8,
+   "pist": "Taş Ocağı",
+   "sev": 3,
+   "tur": 3,
+   "yildizTurBasi": [
+    54.77,
+    47.6,
+    43.8
+   ],
+   "build": "nadir-motor",
+   "parca": [
+    "motor-yaris",
+    "turbo-buyuk",
+    "lastik-karisik"
+   ],
+   "pasif": [
+    "guc"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 8,
+   "pist": "Taş Ocağı",
+   "sev": 3,
+   "tur": 3,
+   "yildizTurBasi": [
+    54.77,
+    47.6,
+    43.8
+   ],
+   "build": "dengeli",
+   "parca": [
+    "motor-sokak",
+    "lastik-karisik",
+    "fren-spor"
+   ],
+   "pasif": [
+    "guc"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 8,
+   "pist": "Taş Ocağı",
+   "sev": 3,
+   "tur": 3,
+   "yildizTurBasi": [
+    54.77,
+    47.6,
+    43.8
+   ],
+   "build": "uzman",
+   "parca": [
+    "motor-spor",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 8,
+   "pist": "Taş Ocağı",
+   "sev": 3,
+   "tur": 3,
+   "yildizTurBasi": [
+    54.77,
+    47.6,
+    43.8
+   ],
+   "build": "motor+uzman",
+   "parca": [
+    "motor-degisim",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 8,
+   "pist": "Taş Ocağı",
+   "sev": 3,
+   "tur": 3,
+   "yildizTurBasi": [
+    54.77,
+    47.6,
+    43.8
+   ],
+   "build": "nadir+uzman",
+   "parca": [
+    "motor-yaris",
+    "turbo-buyuk",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren",
+    "guc"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 9,
+   "pist": "Orman Kros",
+   "sev": 4,
+   "tur": 3,
+   "yildizTurBasi": [
+    53.2,
+    46.27,
+    42.57
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 9,
+   "pist": "Orman Kros",
+   "sev": 4,
+   "tur": 3,
+   "yildizTurBasi": [
+    53.2,
+    46.27,
+    42.57
+   ],
+   "build": "motor",
+   "parca": [
+    "motor-degisim"
+   ],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 9,
+   "pist": "Orman Kros",
+   "sev": 4,
+   "tur": 3,
+   "yildizTurBasi": [
+    53.2,
+    46.27,
+    42.57
+   ],
+   "build": "nadir-motor",
+   "parca": [
+    "motor-yaris",
+    "turbo-buyuk",
+    "lastik-karisik"
+   ],
+   "pasif": [
+    "guc"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 9,
+   "pist": "Orman Kros",
+   "sev": 4,
+   "tur": 3,
+   "yildizTurBasi": [
+    53.2,
+    46.27,
+    42.57
+   ],
+   "build": "dengeli",
+   "parca": [
+    "motor-sokak",
+    "lastik-karisik",
+    "fren-spor"
+   ],
+   "pasif": [
+    "guc"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 9,
+   "pist": "Orman Kros",
+   "sev": 4,
+   "tur": 3,
+   "yildizTurBasi": [
+    53.2,
+    46.27,
+    42.57
+   ],
+   "build": "uzman",
+   "parca": [
+    "motor-spor",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 9,
+   "pist": "Orman Kros",
+   "sev": 4,
+   "tur": 3,
+   "yildizTurBasi": [
+    53.2,
+    46.27,
+    42.57
+   ],
+   "build": "motor+uzman",
+   "parca": [
+    "motor-degisim",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 9,
+   "pist": "Orman Kros",
+   "sev": 4,
+   "tur": 3,
+   "yildizTurBasi": [
+    53.2,
+    46.27,
+    42.57
+   ],
+   "build": "nadir+uzman",
+   "parca": [
+    "motor-yaris",
+    "turbo-buyuk",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren",
+    "guc"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 33,
+   "pist": "Kar Kros",
+   "sev": 4,
+   "tur": 3,
+   "yildizTurBasi": [
+    56.4,
+    49.03,
+    45.13
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 33,
+   "pist": "Kar Kros",
+   "sev": 4,
+   "tur": 3,
+   "yildizTurBasi": [
+    56.4,
+    49.03,
+    45.13
+   ],
+   "build": "motor",
+   "parca": [
+    "motor-degisim"
+   ],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 33,
+   "pist": "Kar Kros",
+   "sev": 4,
+   "tur": 3,
+   "yildizTurBasi": [
+    56.4,
+    49.03,
+    45.13
+   ],
+   "build": "nadir-motor",
+   "parca": [
+    "motor-yaris",
+    "turbo-buyuk",
+    "lastik-karisik"
+   ],
+   "pasif": [
+    "guc"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 33,
+   "pist": "Kar Kros",
+   "sev": 4,
+   "tur": 3,
+   "yildizTurBasi": [
+    56.4,
+    49.03,
+    45.13
+   ],
+   "build": "dengeli",
+   "parca": [
+    "motor-sokak",
+    "lastik-karisik",
+    "fren-spor"
+   ],
+   "pasif": [
+    "guc"
+   ],
+   "sonuc": 67.97,
+   "yildizSayisi": 0
+  },
+  {
+   "ty": "rx",
+   "i": 33,
+   "pist": "Kar Kros",
+   "sev": 4,
+   "tur": 3,
+   "yildizTurBasi": [
+    56.4,
+    49.03,
+    45.13
+   ],
+   "build": "uzman",
+   "parca": [
+    "motor-spor",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren"
+   ],
+   "sonuc": 66.25,
+   "yildizSayisi": 0
+  },
+  {
+   "ty": "rx",
+   "i": 33,
+   "pist": "Kar Kros",
+   "sev": 4,
+   "tur": 3,
+   "yildizTurBasi": [
+    56.4,
+    49.03,
+    45.13
+   ],
+   "build": "motor+uzman",
+   "parca": [
+    "motor-degisim",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren"
+   ],
+   "sonuc": 60.77,
+   "yildizSayisi": 0
+  },
+  {
+   "ty": "rx",
+   "i": 33,
+   "pist": "Kar Kros",
+   "sev": 4,
+   "tur": 3,
+   "yildizTurBasi": [
+    56.4,
+    49.03,
+    45.13
+   ],
+   "build": "nadir+uzman",
+   "parca": [
+    "motor-yaris",
+    "turbo-buyuk",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren",
+    "guc"
+   ],
+   "sonuc": 64.55,
+   "yildizSayisi": 0
+  },
+  {
+   "ty": "rx",
+   "i": 10,
+   "pist": "Sisli Tepe",
+   "sev": 5,
+   "tur": 3,
+   "yildizTurBasi": [
+    76.03,
+    66.1,
+    60.83
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 10,
+   "pist": "Sisli Tepe",
+   "sev": 5,
+   "tur": 3,
+   "yildizTurBasi": [
+    76.03,
+    66.1,
+    60.83
+   ],
+   "build": "motor",
+   "parca": [
+    "motor-degisim"
+   ],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 10,
+   "pist": "Sisli Tepe",
+   "sev": 5,
+   "tur": 3,
+   "yildizTurBasi": [
+    76.03,
+    66.1,
+    60.83
+   ],
+   "build": "nadir-motor",
+   "parca": [
+    "motor-yaris",
+    "turbo-buyuk",
+    "lastik-karisik"
+   ],
+   "pasif": [
+    "guc"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 10,
+   "pist": "Sisli Tepe",
+   "sev": 5,
+   "tur": 3,
+   "yildizTurBasi": [
+    76.03,
+    66.1,
+    60.83
+   ],
+   "build": "dengeli",
+   "parca": [
+    "motor-sokak",
+    "lastik-karisik",
+    "fren-spor"
+   ],
+   "pasif": [
+    "guc"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 10,
+   "pist": "Sisli Tepe",
+   "sev": 5,
+   "tur": 3,
+   "yildizTurBasi": [
+    76.03,
+    66.1,
+    60.83
+   ],
+   "build": "uzman",
+   "parca": [
+    "motor-spor",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 10,
+   "pist": "Sisli Tepe",
+   "sev": 5,
+   "tur": 3,
+   "yildizTurBasi": [
+    76.03,
+    66.1,
+    60.83
+   ],
+   "build": "motor+uzman",
+   "parca": [
+    "motor-degisim",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 10,
+   "pist": "Sisli Tepe",
+   "sev": 5,
+   "tur": 3,
+   "yildizTurBasi": [
+    76.03,
+    66.1,
+    60.83
+   ],
+   "build": "nadir+uzman",
+   "parca": [
+    "motor-yaris",
+    "turbo-buyuk",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren",
+    "guc"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 11,
+   "pist": "Kanyon Kros",
+   "sev": 6,
+   "tur": 3,
+   "yildizTurBasi": [
+    61.83,
+    53.77,
+    49.47
+   ],
+   "build": "stok",
+   "parca": [],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 11,
+   "pist": "Kanyon Kros",
+   "sev": 6,
+   "tur": 3,
+   "yildizTurBasi": [
+    61.83,
+    53.77,
+    49.47
+   ],
+   "build": "motor",
+   "parca": [
+    "motor-degisim"
+   ],
+   "pasif": [],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 11,
+   "pist": "Kanyon Kros",
+   "sev": 6,
+   "tur": 3,
+   "yildizTurBasi": [
+    61.83,
+    53.77,
+    49.47
+   ],
+   "build": "nadir-motor",
+   "parca": [
+    "motor-yaris",
+    "turbo-buyuk",
+    "lastik-karisik"
+   ],
+   "pasif": [
+    "guc"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 11,
+   "pist": "Kanyon Kros",
+   "sev": 6,
+   "tur": 3,
+   "yildizTurBasi": [
+    61.83,
+    53.77,
+    49.47
+   ],
+   "build": "dengeli",
+   "parca": [
+    "motor-sokak",
+    "lastik-karisik",
+    "fren-spor"
+   ],
+   "pasif": [
+    "guc"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 11,
+   "pist": "Kanyon Kros",
+   "sev": 6,
+   "tur": 3,
+   "yildizTurBasi": [
+    61.83,
+    53.77,
+    49.47
+   ],
+   "build": "uzman",
+   "parca": [
+    "motor-spor",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 11,
+   "pist": "Kanyon Kros",
+   "sev": 6,
+   "tur": 3,
+   "yildizTurBasi": [
+    61.83,
+    53.77,
+    49.47
+   ],
+   "build": "motor+uzman",
+   "parca": [
+    "motor-degisim",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  },
+  {
+   "ty": "rx",
+   "i": 11,
+   "pist": "Kanyon Kros",
+   "sev": 6,
+   "tur": 3,
+   "yildizTurBasi": [
+    61.83,
+    53.77,
+    49.47
+   ],
+   "build": "nadir+uzman",
+   "parca": [
+    "motor-yaris",
+    "turbo-buyuk",
+    "lastik-karisik",
+    "suspansiyon-rallikros",
+    "diferansiyel-ralli"
+   ],
+   "pasif": [
+    "toprak",
+    "fren",
+    "guc"
+   ],
+   "sonuc": null,
+   "yildizSayisi": null
+  }
+ ]
+}

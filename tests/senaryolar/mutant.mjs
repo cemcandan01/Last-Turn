@@ -2,7 +2,7 @@
 export default [
   {
     id: "mutant-akis",
-    ad: "MUTANT A1: menü, boss kartı, araç/pasif seçimi, etkinlik işareti → kariyer dışı yarış → koşu parası, atölye, zorunlu boss, özet; normal yarış etkilenmez",
+    ad: "MUTANT A1/A2: menü, boss kartı, araç/pasif seçimi, etkinlik işareti → kariyer dışı yarış → koşu parası, NİTRO tuşu, eklenti sandığı (normal/lanetli), atölye, zorunlu boss, özet; normal yarış etkilenmez",
     p: 1,
     tarayici: "mutant",
   },
@@ -37,8 +37,20 @@ export default [
     birim: { dosya: "tests/birim/mutant.test.ts", grup: "MUTANT koşu (A1)" },
   },
   {
+    id: "nitro-sistemik",
+    ad: "MUTANT A2 nitro: enerji, süre/soğuma, güç; Çarpışma Pili, Risk Kondansatörü, Nitro kalkanı; belirlenimcilik, kariyer yalıtımı",
+    p: 1,
+    birim: { dosya: "tests/birim/mutant.test.ts", grup: "MUTANT A2: nitro ve sistemik güçler" },
+  },
+  {
+    id: "eklenti-sandiklari",
+    ad: "MUTANT A2 eklenti sandıkları: tohumlu yerleşim, normal/lanetli seçim, bedel, sözleşmeye katılım",
+    p: 1,
+    birim: { dosya: "tests/birim/mutant.test.ts", grup: "MUTANT A2: eklenti sandıkları" },
+  },
+  {
     id: "kombinasyon-matrisi",
-    ad: "Enerji perkleri (A2 için): 1-3'lü bütün kombinasyonlar kırılmaz; etkisiz perk yok; sinerji raporu",
+    ad: "Enerji perkleri + sandık eklentileri: 1-3'lü bütün kombinasyonlar kırılmaz; etkisiz perk yok; sinerji raporu",
     p: 2,
     birim: { dosya: "tests/birim/mutant-matris.test.ts", grup: "MUTANT kombinasyon matrisi" },
   },

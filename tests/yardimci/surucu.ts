@@ -80,5 +80,13 @@ export function surucuKur(a: SurusAyari) {
     if (dunya.cur && dunya.cur.TR) ipucu.ti = nearest(dunya.cur.TR, x, z, 0, true)[0];
   };
   const adim = (gi: FizikGirdisi): AdimSonucu => sim.adim(gi, cx);
-  return { sim, cx, olaylar, reset, adim, bolge };
+  // MUTANT nitrosu: oyundaki gibi yalnız aracın gücü çarpılır (kurulum.mod.car); fizik kodu değişmez
+  const tabanGuc = cx.kurulum.car.hp;
+  let sonGuc = 1;
+  const guc = (x: number) => {
+    if (x == sonGuc) return;
+    sonGuc = x;
+    cx.kurulum = { ...cx.kurulum, car: { ...cx.kurulum.car, hp: tabanGuc * x } };
+  };
+  return { sim, cx, olaylar, reset, adim, bolge, guc };
 }

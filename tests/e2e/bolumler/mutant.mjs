@@ -1,7 +1,7 @@
 /* global LT */
-// MUTANT A1: menüde Serbest sürüş yerine MUTANT; koşu başı boss kartı + 3 kötü araç + 3 pasif; açık dünyada etkinlik
+// MUTANT A1/A2: menüde Serbest sürüş yerine MUTANT; koşu başı boss kartı + 3 kötü araç + 3 pasif; açık dünyada etkinlik
 // işaretine girince kart, etkinlik koşu aracıyla ve kariyer ödülü/rekor olmadan; sonuçta koşu parası; atölyede parça;
-// süre dolunca zorunlu boss; boss kaybedilince özet ve koşu kapanır; sonra normal yarış etkilenmez.
+// NİTRO tuşu gücü süreli artırır; eklenti sandığı (normal/lanetli); süre dolunca zorunlu boss; boss kaybedilince özet ve koşu kapanır; sonra normal yarış etkilenmez.
 export default async function ({ p, ok }) {
   const r = await p.evaluate(async () => {
     const bekle = (ms) => new Promise((s) => setTimeout(s, ms));
@@ -12,6 +12,27 @@ export default async function ({ p, ok }) {
     };
     const res = document.querySelector("#res"),
       r = {};
+    // eksik düğme hangi adımda: hata iletisinde seçici görünür
+    const tik = (sec) => {
+      const e = res.querySelector(sec);
+      if (!e)
+        throw new Error(
+          "düğme yok: " +
+            sec +
+            " · " +
+            JSON.stringify({
+              mod: LT.oyun.mode,
+              x: LT.sim.S.x,
+              z: LT.sim.S.z,
+              faz: LT.mutant.kosu?.faz,
+              kalan: LT.mutant.kosu?.kalan,
+              icinde: LT.mutant.icinde,
+              kapali: LT.mutant.kapali,
+            }) +
+            res.textContent.slice(0, 60),
+        );
+      e.click();
+    };
     LT.demoStop();
     LT.showMenu(["home"]);
     const menu = document.querySelector("#menu").textContent;
@@ -23,9 +44,9 @@ export default async function ({ p, ok }) {
       !!res.querySelector(".mtb") &&
       res.querySelectorAll("[data-arac]").length == 3 &&
       document.querySelector("#gar").classList.contains("hidden");
-    res.querySelector("[data-arac]").click();
+    tik("[data-arac]");
     r.pasif = res.querySelectorAll("[data-pasif]").length == 3;
-    res.querySelector("[data-pasif]").click();
+    tik("[data-pasif]");
     const k = LT.mutant.kosu;
     await bekle(200);
     r.surus =
@@ -41,7 +62,7 @@ export default async function ({ p, ok }) {
     LT.reset(e.x, e.z, 0);
     r.kart = await olana(() => LT.oyun.mode == "result" && res.querySelectorAll("[data-risk]").length == 3);
     // ölümcül kademe: ödül ×3,5
-    res.querySelector("[data-risk='2']").click();
+    tik("[data-risk='2']");
     const EV = LT.yaris.EV;
     r.etkinlik =
       LT.mutant.risk == 2 &&
@@ -60,9 +81,8 @@ export default async function ({ p, ok }) {
       k.para > p0 &&
       e.yapildi &&
       localStorage.getItem("lt_ilerleme") === ilerleme;
-    res.querySelector("#mDevam").click();
-    while (LT.oyun.mode == "result" && res.querySelector("[data-pasif]"))
-      res.querySelector("[data-pasif]").click();
+    tik("#mDevam");
+    while (LT.oyun.mode == "result" && res.querySelector("[data-pasif]")) tik("[data-pasif]");
     await bekle(100);
     r.donus = LT.oyun.mode == "drive" && !LT.yaris.EV && Math.hypot(LT.sim.S.x - e.x, LT.sim.S.z - e.z) < 15;
     // sert çarpma: gövde düşer, HUD'da görünür
@@ -71,23 +91,51 @@ export default async function ({ p, ok }) {
     r.hasar = await olana(() => k.govde < g0 && k.carpma == 1);
     await bekle(150);
     r.hasarHud = document.querySelector("#lap").textContent.includes("Gövde " + Math.round(k.govde));
+    // NİTRO: başlangıç enerjisiyle tuş hazır; basınca güç artar, durum arayüzü açık gösterir, süre bitince söner
+    const tus = document.querySelector("#mnt"),
+      hp0 = LT.kurulum.mod.car.hp;
+    r.nitroTus =
+      !!tus && (await olana(() => tus.classList.contains("hazir"))) && LT.mutantDurumu().nitroHazir;
+    const e0 = LT.mutantDurumu().enerji;
+    tus.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true }));
+    r.nitro =
+      (await olana(() => LT.mutantDurumu().nitroAcik && LT.kurulum.mod.car.hp > hp0 * 1.5)) &&
+      LT.mutantDurumu().enerji < e0;
+    r.nitroBitti = await olana(
+      () => !LT.mutantDurumu().nitroAcik && Math.abs(LT.kurulum.mod.car.hp - hp0) < 1e-6,
+    );
+    // eklenti sandığı: iki seçenek, seçilen koşuya eklenir
+    const s0 = k.sandiklar[0];
+    LT.reset(s0.x, s0.z, 0);
+    r.sandik = await olana(() => res.querySelectorAll("[data-eklenti]").length == 2);
+    const ek = res.querySelector("[data-eklenti]")?.dataset.eklenti;
+    res.querySelector("[data-eklenti]")?.click();
+    r.sandik = r.sandik && s0.acildi && k.pasifler.includes(ek) && LT.oyun.mode == "drive";
+    // lanetli sandık: bedel yazılı, bırakılınca kapalı kalır
+    const s2 = k.sandiklar[2];
+    LT.reset(s2.x, s2.z, 0);
+    r.lanetli = await olana(() => res.textContent.includes("Lanetli") && res.textContent.includes("Bedel"));
+    res.querySelector("#mGec")?.click();
+    r.lanetli = r.lanetli && !s2.acildi && LT.oyun.mode == "drive";
     // atölye
     k.para = 2000;
     LT.reset(0, -90, 0);
     r.atolye = await olana(() => res.textContent.includes("Atölye") && !!res.querySelector("[data-parca]"));
     r.tamir = !!res.querySelector("#mTamir");
-    res.querySelector("#mTamir").click();
+    tik("#mTamir");
     r.tamir = r.tamir && k.govde == 100;
-    res.querySelector("[data-parca]").click();
+    tik("[data-parca]");
     r.parca = k.parcalar.length == 1 && !!LT.kurulum.mod && LT.kurulum.mod.parcalar.includes(k.parcalar[0]);
-    res.querySelector("#mKapat").click();
+    tik("#mKapat");
     LT.reset(140, 300, 0);
     // süre dolar: zorunlu boss
+    // başlangıç pasifi rastgele "Son nefes" olabilir (+90 sn): bu adımda kullanılmış say
+    k.sonNefes = true;
     k.kalan = 0.02;
     await olana(() => !!res.querySelector("#mBoss"));
     r.boss =
       res.textContent.includes("Süre doldu") && !!res.querySelector("#mBoss") && !res.querySelector("#mGec");
-    res.querySelector("#mBoss").click();
+    tik("#mBoss");
     const B = LT.yaris.EV;
     r.bossYaris = !!B && B.mutant && B.ty == k.boss.ty && LT.mutant.etkinlik == "boss";
     B.state = "run";
@@ -95,9 +143,9 @@ export default async function ({ p, ok }) {
     B.score = 0;
     LT.endEvent();
     r.kaybetti = res.textContent.includes("Boss kazandı") && k.faz == "bitti";
-    res.querySelector("#mDevam").click();
+    tik("#mDevam");
     r.ozet = res.textContent.includes("Koşu bitti") && !!res.querySelector("#mYeni");
-    res.querySelector("#mMenu").click();
+    tik("#mMenu");
     r.kapandi = LT.oyun.mode == "menu" && LT.mutant.kosu === null;
     // normal yarış etkilenmez
     LT.startEvent(0, 0);
@@ -114,6 +162,14 @@ export default async function ({ p, ok }) {
     "hedef geçilince koşu parası, kariyer ilerlemesi değişmez, haritada aynı yere dönüş",
   );
   ok(r.hasar && r.hasarHud, "sert çarpma gövdeyi düşürür, HUD'da gövde görünür");
+  ok(
+    r.nitroTus && r.nitro && r.nitroBitti,
+    "NİTRO tuşu hazır; basınca güç artar, enerji harcanır, süre bitince söner ",
+  );
+  ok(
+    r.sandik && r.lanetli,
+    "eklenti sandığı seçilen eklentiyi koşuya ekler; lanetli sandık bedeli gösterir, bırakılabilir",
+  );
   ok(r.atolye && r.parca && r.tamir, "atölyede tamir ve stoktan parça alınır, araca takılır");
   ok(r.boss && r.bossYaris, "süre dolunca zorunlu boss yarışı, boss türünde pist");
   ok(r.kaybetti && r.ozet && r.kapandi, "boss kaybedilince koşu biter, özet, ana menüde koşu kapanır");

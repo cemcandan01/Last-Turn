@@ -111,3 +111,45 @@ export const PERKLER: Perk[] = [
 ];
 
 export const perkBul = (id: string) => PERKLER.find((p) => p.m.id === id);
+
+/**
+ * eklenti sandıklarının enerji mekanikleri (A2): koşu boyunca kalır, perklerle aynı sözleşmeye (ortak olay, ortak
+ * parametre, sınırlar) uyar ve matris testinde perklerle birlikte denenir. nadir: yalnız lanetli sandıkta çıkar
+ */
+export const EKLENTI_PERKLERI: (Perk & { nadir: boolean })[] = [
+  {
+    ad: "Yedek tüp",
+    d: "Enerji kapasitesi +30; alınca depo 30 dolar",
+    kaynak: false,
+    nadir: false,
+    m: pasif("ek-yedek-tup", { degistir: { kapasite: 30 } }),
+  },
+  {
+    ad: "Kızgın egzoz",
+    d: "Her drift başında +4 enerji (1,5 sn'de bir)",
+    kaynak: true,
+    nadir: false,
+    m: pasif("ek-kizgin-egzoz", { tetik: "DriftStarted", beklemeAdimi: 90, kazanc: 4 }),
+  },
+  {
+    ad: "Turbo kartuşu",
+    d: "Nitro gücü +%20",
+    kaynak: false,
+    nadir: true,
+    m: pasif("ek-turbo-kartusu", { degistir: { guc: 0.2 } }),
+  },
+  {
+    ad: "Çift ateşleme",
+    d: "Nitro %40 daha az enerji harcar",
+    kaynak: false,
+    nadir: true,
+    m: pasif("ek-cift-atesleme", { degistir: { maliyet: 0.6 } }),
+  },
+  {
+    ad: "Hasar dönüştürücü",
+    d: "Her hasarda +15 enerji",
+    kaynak: true,
+    nadir: true,
+    m: pasif("ek-hasar-donusturucu", { tetik: "HasarAlindi", kazanc: 15 }),
+  },
+];

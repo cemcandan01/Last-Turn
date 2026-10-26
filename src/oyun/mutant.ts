@@ -39,7 +39,8 @@ const ISARET_R = 10,
 /** boss işareti: tırmanış yolunun tepesi */
 export const BOSS_YERI: [number, number] = [-40, 440];
 
-export type MutantIsaret = { tur: "etkinlik"; id: number } | { tur: "atolye" } | { tur: "boss" };
+export type MutantIsaret =
+  { tur: "etkinlik"; id: number } | { tur: "sandik"; id: number } | { tur: "atolye" } | { tur: "boss" };
 
 export interface MutantArayuzu {
   /** koşu başı: araç + başlangıç pasifi */
@@ -218,6 +219,11 @@ export function mutantAdimi(
       bulunan = "e" + e.id;
       isaret = { tur: "etkinlik", id: e.id };
     }
+  for (const q of k.sandiklar)
+    if (!q.acildi && yakin(q.x, q.z)) {
+      bulunan = "s" + q.id;
+      isaret = { tur: "sandik", id: q.id };
+    }
   if (yakin(ATOLYE[0], ATOLYE[1])) {
     bulunan = "a";
     isaret = { tur: "atolye" };
@@ -266,6 +272,9 @@ export function mutantBossaGir() {
   bossaGir(k);
   mutant.etkinlik = "boss";
 }
+
+/** nitro şu an açık mı (kamera, alev, ses için; koşu yoksa false) */
+export const nitroAcik = () => (mutant.kosu?.mek.etkiKalan ?? 0) > 0;
 
 /** HUD için salt okunur MUTANT durumu (Codex HUD dalı bu arayüzü okur; ekonomi/fizik yazmaz). Koşu yoksa null */
 export interface MutantDurumu {

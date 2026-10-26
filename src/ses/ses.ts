@@ -6,6 +6,7 @@ import { CARS } from "../arac/araclar";
 import { oyun } from "../oyun/durum";
 import { I } from "../oyun/girdi";
 import { kurulum } from "../oyun/kurulum";
+import { nitroAcik } from "../oyun/mutant";
 import { sim } from "../oyun/surus";
 import { yaris } from "../oyun/yarislar";
 import { sesDurumu, sesKilidiKur } from "./baglam";
@@ -31,6 +32,7 @@ const once = {
   sessiz: 0,
   ilkMuzik: true,
   arac: "",
+  nitro: false,
 };
 /** son 0,2 sn'nin hızları (çarpma şiddeti) */
 const hizlar: number[] = [];
@@ -235,6 +237,11 @@ export function sesTick(dt: number) {
     once.durum = "";
     once.sayi = 0;
   }
+  // MUTANT nitrosu: açılış hışırtısı, sönüş ıslığı
+  const nitro = mod == "drive" && nitroAcik();
+  if (nitro && !once.nitro) arayuzSesi.nitro(ctx, k.efekt, t);
+  else if (!nitro && once.nitro && mod == "drive") arayuzSesi.nitroBitti(ctx, k.efekt, t);
+  once.nitro = nitro;
   if (mod == "result" && once.mod == "drive" && EV)
     arayuzSesi.bitis(ctx, k.efekt, t, EV.ty == "dp" ? EV.score > 0 : EV.t <= EV.limit);
   once.mod = mod;

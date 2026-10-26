@@ -33,6 +33,8 @@ import {
 import {
   ATOLYE,
   ETKINLIK_ODULU,
+  LANETLER,
+  sandikAc,
   etkinlikHedefi,
   RISKLER,
   STOK_YENILE,
@@ -64,7 +66,10 @@ const TUR: Record<YarisTuru, [string, number, string]> = {
   dg: ["Drag", 0xffd23c, "#ffd23c"],
 };
 const ATOLYE_RENK: [number, string] = [0x3cc8ff, "#3cc8ff"],
-  BOSS_RENK: [number, string] = [0xff2a2a, "#ff2a2a"];
+  BOSS_RENK: [number, string] = [0xff2a2a, "#ff2a2a"],
+  /** sandık: normal açık sarı, lanetli eflatun */
+  SANDIK_RENK: [number, string] = [0xfff0a8, "#fff0a8"],
+  LANET_RENK: [number, string] = [0xff3cc8, "#ff3cc8"];
 
 const row = (a: string, b: string | number) => `<div class="rk"><span>${a}</span><span>${b}</span></div>`;
 const sure = (s: number) => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
@@ -99,6 +104,9 @@ export function mutantIsaretleri(): { x: number; z: number; renk: string }[] {
   if (!k) return [];
   return [
     ...k.etkinlikler.filter((e) => !e.yapildi).map((e) => ({ x: e.x, z: e.z, renk: TUR[e.ty][2] })),
+    ...k.sandiklar
+      .filter((q) => !q.acildi)
+      .map((q) => ({ x: q.x, z: q.z, renk: (q.lanetli ? LANET_RENK : SANDIK_RENK)[1] })),
     { x: ATOLYE[0], z: ATOLYE[1], renk: ATOLYE_RENK[1] },
     { x: BOSS_YERI[0], z: BOSS_YERI[1], renk: BOSS_RENK[1] },
   ];
@@ -109,6 +117,9 @@ function isaretleriGuncelle() {
   const l: Isaret[] = k
     ? [
         ...k.etkinlikler.filter((e) => !e.yapildi).map((e) => ({ x: e.x, z: e.z, renk: TUR[e.ty][1] })),
+        ...k.sandiklar
+          .filter((q) => !q.acildi)
+          .map((q) => ({ x: q.x, z: q.z, renk: (q.lanetli ? LANET_RENK : SANDIK_RENK)[0], boy: 24 })),
         { x: ATOLYE[0], z: ATOLYE[1], renk: ATOLYE_RENK[0], boy: 40 },
         { x: BOSS_YERI[0], z: BOSS_YERI[1], renk: BOSS_RENK[0], boy: 140 },
       ]
@@ -164,7 +175,7 @@ function pasifSayfasi(baslik: string) {
         if (ilk) {
           isaretleriGuncelle();
           surusDevam();
-          note("Renkli ışıklar etkinlik, mavi atölye, kırmızı boss", 26);
+          note("Renkli ışıklar etkinlik, sarı sandık, eflatun lanetli sandık, mavi atölye, kırmızı boss", 30);
           return;
         }
         devam();
@@ -182,6 +193,7 @@ function isaret(i: MutantIsaret) {
   const k = mutant.kosu!;
   if (i.tur == "atolye") return atolye();
   if (i.tur == "boss") return bossSayfasi(false);
+  if (i.tur == "sandik") return sandikSayfasi(i.id);
   const e = k.etkinlikler.find((q) => q.id == i.id)!,
     E = EVENTS[e.i],
     o = ETKINLIK_ODULU(e.sev);
@@ -258,6 +270,34 @@ function atolye() {
         atolye();
       }),
   );
+}
+
+/** eklenti sandığı: normalde iki sıradan eklentiden biri bedava; lanetlide nadir eklenti, bedeli lanet */
+function sandikSayfasi(id: number) {
+  const k = mutant.kosu!,
+    q = k.sandiklar.find((x) => x.id == id)!,
+    L = q.lanet ? LANETLER[q.lanet] : null;
+  const s = sayfaAc(
+    `<h1>${q.lanetli ? "Lanetli sandık" : "Eklenti sandığı"}</h1><p>${q.lanetli ? "Nadir bir eklenti, ama bedeli var. Almazsan sandık kalır, sonra dönebilirsin." : "Bir eklenti seç: koşu boyunca araçta kalır."}</p><div class="mtp">` +
+      q.secenekler
+        .map((e) => {
+          const p = pasifBul(e)!;
+          return `<div class="card go" data-eklenti="${e}"><b>${p.ad}</b><span>${p.d}</span>${L ? `<span>Bedel · ${L.ad}: ${L.d}</span>` : ""}</div>`;
+        })
+        .join("") +
+      '</div><button class="btn alt" id="mGec">Bırak</button>',
+  );
+  s.querySelectorAll<HTMLElement>("[data-eklenti]").forEach(
+    (c) =>
+      (c.onclick = () => {
+        if (!sandikAc(k, id, c.dataset.eklenti!)) return;
+        mutantAracGuncelle();
+        isaretleriGuncelle();
+        note(pasifBul(c.dataset.eklenti!)!.ad + " takıldı" + (L ? " · " + L.d : ""), 40);
+        surusDevam();
+      }),
+  );
+  s.querySelector<HTMLElement>("#mGec")!.onclick = surusDevam;
 }
 
 function bossSayfasi(zorunlu: boolean) {
