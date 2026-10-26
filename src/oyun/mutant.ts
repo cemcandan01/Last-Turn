@@ -98,7 +98,8 @@ export function mutantBaslat(tohum = (Date.now() ^ (Math.random() * 0x7fffffff))
   mutant.kosu = kosuBaslat(tohum, mutantPistleri());
   mutant.etkinlik = null;
   mutant.donus = null;
-  mutant.icinde = mutant.kapali = "";
+  // Başlangıç noktası atölye halkasının içindedir: kullanıcı alandan çıkıp geri dönmeden açma.
+  mutant.icinde = mutant.kapali = "a";
   mutant.bekle = 0;
   mutant.bossBekliyor = false;
   mutant.yeniRekor = false;
