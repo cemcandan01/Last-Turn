@@ -17,6 +17,8 @@ import { ikon } from "./ikonlar";
 import { LAP, sim } from "../oyun/surus";
 import { yaris } from "../oyun/yarislar";
 import { mutantBaslik, mutantPaneli } from "./mutant-ui";
+import { mutantHudGuncelle } from "./mutant-hud";
+import "./mutant-hud.css";
 
 /** sahte vitesli devir göstergesi: hızdan vites ve devir (x1000) */
 const GEARS = [0, 60, 100, 145, 190, 240, 400];
@@ -345,6 +347,7 @@ export function hudGuncelle(v: number) {
   );
   driftGostergesi();
   pisteDonusSayaci();
+  mutantHudGuncelle();
   if (CT.steer == "tilt") {
     const c = document.getElementById("cal");
     if (c) yazi(c, performance.now() - tilt.t < 1500 ? "Ortala" : "Sensör izni");
