@@ -1,11 +1,10 @@
-// MUTANT kombinasyon matrisi: bütün 1'li, 2'li ve 3'lü perk kombinasyonları dört sürüş biçiminde, darbeyi her fırsatta
+// MUTANT kombinasyon matrisi: bütün 1'li, 2'li ve 3'lü perk kombinasyonları altı sürüş/oyuncu biçiminde, nitroyu her fırsatta
 // kullanan (en kötü durum) oyuncuyla koşulur. Kırılma (sınır dışı enerji, kesilen olay, kalıcı tutuş, etkisiz perk)
 // hatadır. Sinerji (kombinasyonun parçalarının toplamından iyi olması) hata değildir: rapora yazılır, oyuncu keşfeder.
 // Rapor: tests/cikti/mutant-matris.json
 import { mkdirSync, writeFileSync } from "node:fs";
 import { beforeAll, describe, expect, it } from "vitest";
 import {
-  TUTUS_DARBESI,
   TUTUS_UST,
   driftGozlemcisi,
   driftGozlemiBaslat,
@@ -17,7 +16,7 @@ import {
   type GirisOlayi,
   type MekanikTanim,
 } from "../../src/cekirdek/mekanikler";
-import { PERKLER } from "../../src/oyun/mutant-enerji";
+import { NITRO, PERKLER } from "../../src/oyun/mutant-enerji";
 
 const DT = 1 / 60,
   SURE = 40;
@@ -33,6 +32,10 @@ const BICIMLER: Record<string, (i: number) => [boolean, number, number]> = {
   hizci: () => [false, 30, 0],
   // 4 sn hız, 4 sn temiz drift
   karisik: (i) => (i % 480 < 240 ? [false, 30, 0] : [i % 120 < 90, 22, 0]),
+  // çarpışmacı: 3 sn'de bir sert çarpma (HasarAlindi), arada hız
+  carpisan: () => [false, 26, 0],
+  // biriktiren oyuncu: karışık sürüş, nitroyu yalnız depo neredeyse doluyken kullanır (düzlüğe saklar)
+  biriktiren: (i) => (i % 480 < 240 ? [false, 30, 0] : [i % 120 < 90, 22, 0]),
 };
 
 interface Sonuc {
@@ -45,7 +48,7 @@ interface Sonuc {
 }
 
 function kos(perkler: MekanikTanim[], bicim: (i: number) => [boolean, number, number]): Sonuc {
-  const takili = [TUTUS_DARBESI, ...perkler];
+  const takili = [NITRO, ...perkler];
   let m = kapasiteUygula(mekanikBaslat(), takili),
     g = driftGozlemiBaslat(),
     enerjiMax = 0;
@@ -59,9 +62,21 @@ function kos(perkler: MekanikTanim[], bicim: (i: number) => [boolean, number, nu
     const r = driftGozlemcisi(g, d as unknown as Durum, DT, true);
     g = r.g;
     const olaylar: GirisOlayi[] = r.olaylar;
-    // açgözlü oyuncu: enerji yettiği her an darbeye basar
-    if (m.enerji >= TUTUS_DARBESI.maliyet * parametreler(takili).maliyet) {
-      olaylar.push({ tur: "AbilityActivated", sira: g.sira, yetenek: TUTUS_DARBESI.id });
+    // ortak olaylar: koşu riskli etkinlikle başlar; çarpışmacı biçimde 3 sn'de bir hasar
+    if (i == 0) {
+      olaylar.push({ tur: "RiskBasladi", sira: g.sira, risk: 1 });
+      g = { ...g, sira: g.sira + 1 };
+    }
+    if (bicim === BICIMLER.carpisan && i % 180 == 90) {
+      olaylar.push({ tur: "HasarAlindi", sira: g.sira, hasar: "carpma", miktar: 12 });
+      g = { ...g, sira: g.sira + 1 };
+    }
+    // açgözlü oyuncu enerji yettiği her an nitroya basar; biriktiren depo dolunca
+    if (
+      m.enerji >= NITRO.maliyet * parametreler(takili).maliyet &&
+      (bicim !== BICIMLER.biriktiren || m.enerji >= m.kapasite * 0.95)
+    ) {
+      olaylar.push({ tur: "AbilityActivated", sira: g.sira, yetenek: NITRO.id });
       g = { ...g, sira: g.sira + 1 };
     }
     m = mekanikAdimi(m, olaylar, takili, true, DT);
@@ -72,11 +87,11 @@ function kos(perkler: MekanikTanim[], bicim: (i: number) => [boolean, number, nu
     enerjiMax = Math.max(enerjiMax, m.enerji);
   }
   const kazanc = Object.entries(m.telemetri)
-    .filter(([id]) => id != TUTUS_DARBESI.id)
+    .filter(([id]) => id != NITRO.id)
     .reduce((a, [, t]) => a + t.kazanc, 0);
   return {
     kazanc,
-    darbe: m.telemetri[TUTUS_DARBESI.id]?.tetik ?? 0,
+    darbe: m.telemetri[NITRO.id]?.tetik ?? 0,
     darbePayi: m.etkiAdim / m.adim,
     enerjiMax,
     kesilen: m.kesilen,
@@ -90,7 +105,7 @@ function kombinasyonlar<T>(a: T[], n: number): T[][] {
 }
 
 /** kalıcı tutuşa izin yok: en kötü durumda darbe süresinin koşuya oranı */
-const DARBE_PAYI_UST = 0.7;
+const DARBE_PAYI_UST = 0.5;
 /** enerji üretimi üst sınırı (enerji/sn, dört biçimin en iyisinde): kaynak yığınının kaçak sinyali */
 const KAZANC_HIZI_UST = 15;
 
@@ -151,7 +166,7 @@ describe("MUTANT kombinasyon matrisi", () => {
       "tests/cikti/mutant-matris.json",
       JSON.stringify(
         {
-          kombinasyon: satirlar.length / 4,
+          kombinasyon: satirlar.length / Object.keys(BICIMLER).length,
           sinirlar: { DARBE_PAYI_UST, KAZANC_HIZI_UST },
           sinerjiler,
           satirlar,
@@ -160,7 +175,10 @@ describe("MUTANT kombinasyon matrisi", () => {
         1,
       ),
     );
-    expect(satirlar.length).toBe((9 + 36 + 84) * 4);
+    const n = PERKLER.length;
+    expect(satirlar.length).toBe(
+      (n + (n * (n - 1)) / 2 + (n * (n - 1) * (n - 2)) / 6) * Object.keys(BICIMLER).length,
+    );
   });
 
   it("etkisiz perk yok: her perk en az bir kombinasyonda (yanında en çok 2 perk) sonucu değiştirir", () => {

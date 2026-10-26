@@ -1,16 +1,33 @@
-// MUTANT enerji perkleri (A2 nitrosu için saklanır; A1 koşusu kullanmaz). Perkler başka perklerin kimliğine bağlı
-// değildir: ortak olaylara (drift, sürüş) ve ortak parametrelere işler. Sınırlar mekanikler.ts'te; kombinasyonları
-// tests/birim/mutant-matris.test.ts denetler.
+// MUTANT enerjisi ve nitro (A2, issue #19). Enerji yalnız oyun tarzından (drift, hız, temiz çıkış, hasar, risk) gelir;
+// tek harcama yolu NITRO: kısa süre güç verir, sonra soğur. Perkler başka perklerin kimliğine bağlı değildir: ortak
+// olaylara ve ortak parametrelere işler. Sınırlar mekanikler.ts'te; kombinasyonları tests/birim/mutant-matris.test.ts
+// denetler (sonlu tetik, enerji sınırı, nitro süre payı ≤ %70, etkisiz perk yok).
 import { DRIFT_HARVESTER, type MekanikTanim } from "../cekirdek/mekanikler";
 
 export interface Perk {
   /** oyuncunun gördüğü ad ve kısa açıklama */
   ad: string;
   d: string;
-  /** enerji kaynağı mı (ilk seçimde en az bir kaynak sunulur; enerji görevi yalnız kaynak varken gelir) */
+  /** enerji kaynağı mı */
   kaynak: boolean;
   m: MekanikTanim;
 }
+
+/** NITRO: her koşuda takılı etkin yetenek. Güç ×1,6, 2,5 sn; bitince 4 sn soğuma; 40 enerji. Süre payı en kötü
+ *  durumda (sonsuz enerji) %38; Uzun Nitro ile %47 (matris sınırı %50) */
+export const NITRO: MekanikTanim = {
+  id: "nitro",
+  versiyon: 1,
+  kategori: "active",
+  tetik: "AbilityActivated",
+  maliyet: 40,
+  beklemeAdimi: 0,
+  kazanc: 0,
+  kazancBirimi: "olay",
+  etki: { tutus: 1, guc: 1.6, sure: 2.5, sonraBekleme: 4 },
+};
+/** koşu başında enerji: bir nitroluk (kaynak perki olmadan tekrar dolmaz) */
+export const BASLANGIC_ENERJI = 40;
 
 const pasif = (id: string, ek: Partial<MekanikTanim>): MekanikTanim => ({
   id,
@@ -23,7 +40,7 @@ const pasif = (id: string, ek: Partial<MekanikTanim>): MekanikTanim => ({
   ...ek,
 });
 
-/** perk havuzu. Sayılar ilk sürüm tahminidir, ölçülmüş denge değildir (matris testi kırılmayı denetler) */
+/** enerji perkleri. Sayılar tahmindir, ölçülmüş denge değildir (matris testi kırılmayı denetler) */
 export const PERKLER: Perk[] = [
   { ad: "Drift Hasadı", d: "Bilinçli driftte saniyede 6 enerji", kaynak: true, m: DRIFT_HARVESTER },
   {
@@ -50,28 +67,40 @@ export const PERKLER: Perk[] = [
     }),
   },
   {
-    ad: "Geniş Batarya",
+    ad: "Çarpışma Pili",
+    d: "Her hasarda +12 enerji: çarpmak nitro doldurur",
+    kaynak: true,
+    m: pasif("carpisma-pili", { tetik: "HasarAlindi", kazanc: 12 }),
+  },
+  {
+    ad: "Risk Kondansatörü",
+    d: "Riskli ya da ölümcül etkinlik başlarken +40 enerji",
+    kaynak: true,
+    m: pasif("risk-kondansatoru", { tetik: "RiskBasladi", kosul: { enAzRisk: 1 }, kazanc: 40 }),
+  },
+  {
+    ad: "Geniş Tüp",
     d: "Enerji kapasitesi +50",
     kaynak: false,
-    m: pasif("genis-batarya", { degistir: { kapasite: 50 } }),
+    m: pasif("genis-tup", { degistir: { kapasite: 50 } }),
   },
   {
-    ad: "Verimli Darbe",
-    d: "Tutuş Darbesi %30 daha az enerji harcar",
+    ad: "Verimli Nitro",
+    d: "Nitro %30 daha az enerji harcar",
     kaynak: false,
-    m: pasif("verimli-darbe", { degistir: { maliyet: 0.7 } }),
+    m: pasif("verimli-nitro", { degistir: { maliyet: 0.7 } }),
   },
   {
-    ad: "Uzun Darbe",
-    d: "Tutuş Darbesi %50 daha uzun sürer",
+    ad: "Uzun Nitro",
+    d: "Nitro %40 daha uzun sürer",
     kaynak: false,
-    m: pasif("uzun-darbe", { degistir: { sure: 1.5 } }),
+    m: pasif("uzun-nitro", { degistir: { sure: 1.4 } }),
   },
   {
-    ad: "Sert Darbe",
-    d: "Darbede tutuş +%10, ama maliyet %30 fazla",
+    ad: "Sert Nitro",
+    d: "Nitro gücü +%15, ama maliyet %30 fazla",
     kaynak: false,
-    m: pasif("sert-darbe", { degistir: { tutus: 0.1, maliyet: 1.3 } }),
+    m: pasif("sert-nitro", { degistir: { guc: 0.15, maliyet: 1.3 } }),
   },
   {
     ad: "Sigorta",

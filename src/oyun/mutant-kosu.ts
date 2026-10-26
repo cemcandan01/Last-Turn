@@ -5,6 +5,21 @@
 import type { Arac, YarisTuru } from "../arac/araclar";
 import { PARCALAR } from "../arac/parcalar";
 import { mulberry32, type Rastgele } from "../cekirdek/rastgele";
+import {
+  driftGozlemcisi,
+  driftGozlemiBaslat,
+  gucCarpani,
+  kapasiteUygula,
+  mekanikAdimi,
+  mekanikBaslat,
+  parametreler,
+  type DriftGozlemi,
+  type GirisOlayi,
+  type MekanikDurum,
+  type MekanikTanim,
+} from "../cekirdek/mekanikler";
+import type { SimDurumu } from "../fizik/tipler";
+import { BASLANGIC_ENERJI, NITRO, PERKLER } from "./mutant-enerji";
 
 /** etkinliğe aday pist: oyundaki EVENTS'in özeti (saf modül oyun verisine bağlanmasın diye) */
 export interface PistAdayi {
@@ -104,6 +119,8 @@ export interface Pasif {
   en: number;
   /** araç değerlerine etkisi (her kademe) */
   arac?: (c: Arac) => void;
+  /** enerji mekaniği (kaynak perki ya da nitro değiştiricisi; mekanikler.ts yürütücüsünde çalışır) */
+  m?: MekanikTanim;
 }
 
 /**
@@ -146,6 +163,9 @@ export const PASIFLER: Pasif[] = [
     d: "Her bölgede süre bitince bir kez +90 sn; boss hedefi %3 sıkılaşır",
     en: 1,
   },
+  { id: "nitro-kalkani", ad: "Nitro kalkanı", d: "Nitro açıkken hasar yarıya iner", en: 1 },
+  // enerji perkleri (A2): nitro enerjisi oyun tarzından gelir
+  ...PERKLER.map((p) => ({ id: p.m.id, ad: p.ad, d: p.d, en: 1, m: p.m })),
 ];
 export const pasifBul = (id: string) => PASIFLER.find((p) => p.id === id);
 
@@ -226,6 +246,12 @@ export interface Kosu {
   pert: boolean;
   /** son nefes kullanıldı mı (bir kez) */
   sonNefes: boolean;
+  /** nitro enerjisi: mekanik yürütücü durumu ve drift gözlemcisi */
+  mek: MekanikDurum;
+  gozlem: DriftGozlemi;
+  /** sonraki enerji adımında yayılacak ortak olaylar (hasar puanı, başlayan risk kademesi) */
+  bekleyenHasar: { tur: "carpma" | "spin"; miktar: number } | null;
+  bekleyenRisk: number | null;
 }
 
 const sec = <T>(r: Rastgele, a: readonly T[]) => a[Math.floor(r() * a.length)];
@@ -307,6 +333,10 @@ export function kosuBaslat(tohum: number, pistler: readonly PistAdayi[]): Kosu {
     spin: 0,
     pert: false,
     sonNefes: false,
+    mek: mekanikBaslat(100, BASLANGIC_ENERJI),
+    gozlem: driftGozlemiBaslat(),
+    bekleyenHasar: null,
+    bekleyenRisk: null,
   };
   k.secenekler = pasifCek(k, 3);
   etkinlikDiz(k, pistler);
@@ -342,6 +372,7 @@ export function pasifSec(k: Kosu, id: string): boolean {
   if ((k.faz != "basla" && k.faz != "secim") || !k.secenekler.includes(id)) return false;
   k.pasifler.push(id);
   if (k.faz == "secim") k.bekleyenSecim = Math.max(0, k.bekleyenSecim - 1);
+  k.mek = kapasiteUygula(k.mek, takiliMekanikler(k));
   if (k.bekleyenSecim > 0) {
     k.faz = "secim";
     k.secenekler = pasifCek(k, 3);
@@ -353,7 +384,61 @@ export function pasifSec(k: Kosu, id: string): boolean {
 }
 
 /** aracın koşu değerleri: (parçalı) araç kopyası + pasif kademeleri + gövde hasarının güç kaybı */
-export function kosuAraci(taban: Arac, k: Pick<Kosu, "pasifler"> & { govde?: number }): Arac {
+/** takılı enerji mekanikleri: her koşuda NITRO + pasiflerin mekanikleri */
+export const takiliMekanikler = (k: Pick<Kosu, "pasifler">): MekanikTanim[] => [
+  NITRO,
+  ...k.pasifler.flatMap((id) => {
+    const m = pasifBul(id)?.m;
+    return m ? [m] : [];
+  }),
+];
+
+/**
+ * enerji adımı (fizikten sonra): drift/sürüş gözlemcisi + bekleyen ortak olaylar (risk, hasar) + nitro isteği tek
+ * artan sıra uzayında yürütücüye gider. Saf ve belirlenimci; dönen: nitro güç çarpanı değişti mi
+ */
+export function enerjiAdimi(
+  k: Kosu,
+  d: Readonly<Pick<SimDurumu, "S" | "DR" | "D">>,
+  dt: number,
+  nitro: boolean,
+): boolean {
+  const g0 = gucCarpani(k.mek),
+    r = driftGozlemcisi(k.gozlem, d, dt, true),
+    olaylar: GirisOlayi[] = r.olaylar;
+  k.gozlem = r.g;
+  const ekle = (o: GirisOlayi) => {
+    olaylar.push({ ...o, sira: k.gozlem.sira });
+    k.gozlem = { ...k.gozlem, sira: k.gozlem.sira + 1 };
+  };
+  if (k.bekleyenRisk != null) ekle({ tur: "RiskBasladi", sira: 0, risk: k.bekleyenRisk });
+  if (k.bekleyenHasar)
+    ekle({ tur: "HasarAlindi", sira: 0, hasar: k.bekleyenHasar.tur, miktar: k.bekleyenHasar.miktar });
+  if (nitro) ekle({ tur: "AbilityActivated", sira: 0, yetenek: NITRO.id });
+  k.bekleyenRisk = null;
+  k.bekleyenHasar = null;
+  k.mek = mekanikAdimi(k.mek, olaylar, takiliMekanikler(k), true, dt);
+  return gucCarpani(k.mek) != g0;
+}
+
+/** nitro tuşunun durumu (HUD ve tuş için salt okunur): enerji, maliyet, açık mı, basılınca çalışır mı */
+export function nitroDurumu(k: Kosu) {
+  const m = k.mek,
+    maliyet = NITRO.maliyet * parametreler(takiliMekanikler(k)).maliyet;
+  return {
+    enerji: m.enerji,
+    kapasite: m.kapasite,
+    maliyet,
+    acik: m.etkiKalan > 0,
+    kalan: Math.max(0, m.etkiKalan),
+    hazir: m.etkiKalan <= 0 && m.etkiBekleme <= 0 && m.enerji >= maliyet,
+  };
+}
+
+export function kosuAraci(
+  taban: Arac,
+  k: Pick<Kosu, "pasifler"> & { govde?: number; mek?: Pick<MekanikDurum, "etkiKalan" | "etkiGuc"> },
+): Arac {
   const c: Arac = { ...taban, gr: [taban.gr[0], taban.gr[1]] };
   for (const id of k.pasifler) pasifBul(id)?.arac?.(c);
   const govde = Math.max(0, Math.min(GOVDE.tam, k.govde ?? GOVDE.tam)),
@@ -362,14 +447,19 @@ export function kosuAraci(taban: Arac, k: Pick<Kosu, "pasifler"> & { govde?: num
   const kural = (1 + 0.25 * n("camtop")) * (govde < GOVDE.tam / 2 ? 1 + 0.15 * n("adrenalin") : 1);
   c.hp = Math.min(c.hp * kural, taban.hp * GUC_UST);
   c.hp *= 1 - GOVDE.gucKaybi * (1 - govde / GOVDE.tam);
+  // nitro: süreli güç (enerjiyle sınırlı; süre payı matris testinde ≤ %50)
+  if (k.mek) c.hp *= gucCarpani(k.mek);
   return c;
 }
 
 /** hasar: sert çarpma ya da spin; zırh azaltır. Gövde 0 olunca pert (koşu biter). Dönen: pert oldu mu */
 export function hasarAl(k: Kosu, tur: "carpma" | "spin"): boolean {
   if (k.faz == "bitti" || k.pert) return false;
-  const h = GOVDE[tur] * (1 - 0.35 * pasifSayisi(k, "zirh")) * (1 + pasifSayisi(k, "camtop")),
+  const kalkan = gucCarpani(k.mek) > 1 ? 1 - 0.5 * pasifSayisi(k, "nitro-kalkani") : 1,
+    h = GOVDE[tur] * (1 - 0.35 * pasifSayisi(k, "zirh")) * (1 + pasifSayisi(k, "camtop")) * kalkan,
     alinan = Math.min(k.govde, h);
+  // ortak olay: enerji perkleri (Çarpışma Pili) sonraki enerji adımında tepki verir
+  if (alinan > 0) k.bekleyenHasar = { tur, miktar: alinan };
   k[tur]++;
   k.govde = Math.max(0, k.govde - h);
   // hurdacı: hasarın tamir bedelinden az para (bilerek çarpmak kâr etmez)

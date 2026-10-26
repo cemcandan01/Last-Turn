@@ -21,7 +21,11 @@ export type GirisOlayi =
   | { tur: "DriftEnded"; sira: number; sure: number; spin: boolean }
   | { tur: "AbilityActivated"; sira: number; yetenek: string }
   /** her sabit adımda sürüş durumu (yalnız istenirse üretilir): hiz m/s */
-  | { tur: "SurusTick"; sira: number; dt: number; hiz: number; havada: boolean };
+  | { tur: "SurusTick"; sira: number; dt: number; hiz: number; havada: boolean }
+  /** araç hasar aldı (sert çarpma ya da spin); miktar gövde puanı */
+  | { tur: "HasarAlindi"; sira: number; hasar: "carpma" | "spin"; miktar: number }
+  /** risk kademesi seçilen etkinlik başladı (0 güvenli, 1 riskli, 2 ölümcül) */
+  | { tur: "RiskBasladi"; sira: number; risk: number };
 
 /** yürütücünün kendi ürettiği olay: enerji değişti (kaynak: mekanik kimliği) */
 export type TurevOlay = { tur: "EnergyGained"; miktar: number; kaynak: string };
@@ -43,6 +47,8 @@ export interface MekanikKosulu {
   zincirAdim?: number;
   /** SurusTick: yerde olmalı */
   yerde?: boolean;
+  /** RiskBasladi: en az bu risk kademesi */
+  enAzRisk?: number;
 }
 
 /** perk değiştiricileri: başka perk kimliğine değil, ortak parametrelere işler. Birleşim sınırlıdır (DEGISTIRICI_SINIRI) */
@@ -54,6 +60,8 @@ export interface Degistirici {
   sure?: number;
   /** tutuş çarpanına eklenen */
   tutus?: number;
+  /** güç (nitro) çarpanına eklenen */
+  guc?: number;
   /** spinde yanan enerji oranı çarpanı */
   yakma?: number;
 }
@@ -62,6 +70,8 @@ export interface Degistirici {
 export interface YetenekEtkisi {
   /** tutuş çarpanı (1,2: %20 fazla) */
   tutus: number;
+  /** güç çarpanı (nitro; yoksa 1) */
+  guc?: number;
   /** etki süresi (sn) */
   sure: number;
   /** etki bittikten sonra yeniden kullanılamaz süre (sn) */
@@ -92,6 +102,7 @@ export interface Parametreler {
   maliyet: number;
   sure: number;
   tutus: number;
+  guc: number;
   yakma: number;
 }
 
@@ -101,10 +112,13 @@ export const DEGISTIRICI_SINIRI = {
   maliyet: [0.5, 2],
   sure: [0.5, 2],
   tutus: [0, 0.2],
+  guc: [0, 0.3],
   yakma: [0.2, 1],
 } as const;
 /** tutuş çarpanının mutlak üst sınırı (etki + değiştirici) */
 export const TUTUS_UST = 1.4;
+/** nitro güç çarpanının mutlak üst sınırı */
+export const GUC_ETKI_UST = 1.9;
 
 export interface MekanikTelemetri {
   tetik: number;
@@ -134,6 +148,8 @@ export interface MekanikDurum {
   etkiKalan: number;
   etkiBekleme: number;
   etkiTutus: number;
+  /** etkin güç çarpanı (nitro) */
+  etkiGuc: number;
   /** etkinin açık olduğu adım sayısı (süre payı ölçümü) */
   etkiAdim: number;
 }
@@ -167,7 +183,7 @@ const sinirla = (v: number, [a, b]: readonly [number, number]) => Math.min(b, Ma
 
 /** takılı perklerin değiştiricilerini birleştir (kapasite ve tutuş toplanır, çarpanlar çarpılır), sınırla */
 export function parametreler(takili: readonly MekanikTanim[]): Parametreler {
-  const p = { kapasite: TEMEL_KAPASITE, maliyet: 1, sure: 1, tutus: 0, yakma: 1 };
+  const p = { kapasite: TEMEL_KAPASITE, maliyet: 1, sure: 1, tutus: 0, guc: 0, yakma: 1 };
   for (const m of takiliDuzenle(takili)) {
     const d = m.degistir;
     if (!d) continue;
@@ -175,6 +191,7 @@ export function parametreler(takili: readonly MekanikTanim[]): Parametreler {
     if (Number.isFinite(d.maliyet) && d.maliyet! > 0) p.maliyet *= d.maliyet!;
     if (Number.isFinite(d.sure) && d.sure! > 0) p.sure *= d.sure!;
     if (Number.isFinite(d.tutus)) p.tutus += d.tutus!;
+    if (Number.isFinite(d.guc)) p.guc += d.guc!;
     if (Number.isFinite(d.yakma) && d.yakma! >= 0) p.yakma *= d.yakma!;
   }
   const S = DEGISTIRICI_SINIRI;
@@ -183,6 +200,7 @@ export function parametreler(takili: readonly MekanikTanim[]): Parametreler {
     maliyet: sinirla(p.maliyet, S.maliyet),
     sure: sinirla(p.sure, S.sure),
     tutus: sinirla(p.tutus, S.tutus),
+    guc: sinirla(p.guc, S.guc),
     yakma: sinirla(p.yakma, S.yakma),
   };
 }
@@ -195,6 +213,9 @@ export function kapasiteUygula(d: MekanikDurum, takili: readonly MekanikTanim[])
 
 /** fiziğe giden tek değer: süreli etki açıkken tutuş çarpanı, değilse 1 */
 export const tutusCarpani = (d: MekanikDurum) => (d.etkiKalan > 0 ? d.etkiTutus : 1);
+/** güç çarpanı (nitro): süreli etki açıkken, değilse 1 */
+export const gucCarpani = (d: Pick<MekanikDurum, "etkiKalan" | "etkiGuc">) =>
+  d.etkiKalan > 0 ? (d.etkiGuc ?? 1) : 1;
 
 export function mekanikBaslat(kapasite = TEMEL_KAPASITE, baslangic = 0): MekanikDurum {
   if (!Number.isFinite(kapasite) || kapasite <= 0 || !Number.isFinite(baslangic))
@@ -214,6 +235,7 @@ export function mekanikBaslat(kapasite = TEMEL_KAPASITE, baslangic = 0): Mekanik
     etkiKalan: 0,
     etkiBekleme: 0,
     etkiTutus: 1,
+    etkiGuc: 1,
     etkiAdim: 0,
   };
 }
@@ -260,6 +282,8 @@ function kosulUyar(m: MekanikTanim, o: MekanikOlay, d: MekanikDurum): boolean {
     if (k?.spinsiz && o.spin) return false;
     if (k?.enAzSure !== undefined && !(o.sure >= k.enAzSure)) return false;
   }
+  if (o.tur === "RiskBasladi" && k?.enAzRisk !== undefined && !(o.risk >= k.enAzRisk)) return false;
+  if (o.tur === "HasarAlindi" && !(o.miktar > 0)) return false;
   if (o.tur === "DriftStarted" && k?.zincirAdim !== undefined)
     if (d.sonTemizBitis < 0 || d.adim - d.sonTemizBitis > k.zincirAdim) return false;
   if (o.tur === "DriftTickQualified") {
@@ -306,7 +330,10 @@ export function mekanikAdimi(
   if (yeni.etkiKalan > 0) {
     yeni.etkiAdim++;
     yeni.etkiKalan = Math.max(0, yeni.etkiKalan - adimDt);
-    if (yeni.etkiKalan <= 0) yeni.etkiTutus = 1;
+    if (yeni.etkiKalan <= 0) {
+      yeni.etkiTutus = 1;
+      yeni.etkiGuc = 1;
+    }
   } else if (yeni.etkiBekleme > 0) yeni.etkiBekleme = Math.max(0, yeni.etkiBekleme - adimDt);
   const liste = takiliDuzenle(takili),
     P = parametreler(liste);
@@ -348,6 +375,7 @@ export function mekanikAdimi(
         yeni.etkiKalan = m.etki.sure * P.sure;
         yeni.etkiBekleme = m.etki.sonraBekleme;
         yeni.etkiTutus = Math.min(TUTUS_UST, m.etki.tutus + P.tutus);
+        yeni.etkiGuc = m.etki.guc ? Math.min(GUC_ETKI_UST, m.etki.guc + P.guc) : 1;
       }
       const kazanilan = Math.max(0, yeni.enerji - once + maliyet);
       if (yeni.driftAcik) yeni.driftKazanci += kazanilan;

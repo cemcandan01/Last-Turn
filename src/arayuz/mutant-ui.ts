@@ -26,6 +26,7 @@ import {
   mutantAracGuncelle,
   mutantPistleri,
   mutantRekoru,
+  mutantDurumu,
   mutantYarisBitti,
   type MutantIsaret,
 } from "../oyun/mutant";
@@ -212,7 +213,11 @@ function etkinlikBaslat(id: number | "boss", i: number) {
   if (id == "boss") {
     mutantBossaGir();
     mutantBossKosulu();
-  } else mutant.etkinlik = id;
+  } else {
+    mutant.etkinlik = id;
+    // Risk Kondansatörü gibi perkler etkinlik başında tetiklenir
+    if (mutant.kosu) mutant.kosu.bekleyenRisk = mutant.risk;
+  }
   isaretlerGorunur(false);
   $("#res").classList.add("hidden");
   startEvent(i, mutantArac, true);
@@ -353,6 +358,10 @@ function ozet() {
 export function mutantArayuzuKur(yeni: () => void, menu: () => void) {
   yeniKosu = yeni;
   anaMenu = menu;
+  // klavyede nitro: N
+  addEventListener("keydown", (e) => {
+    if ((e.key == "n" || e.key == "N") && mutant.kosu && oyun.mode == "drive") mutant.nitro = true;
+  });
   mutant.ui = {
     hasar: (tur, pert) => {
       const k = mutant.kosu!;
@@ -396,4 +405,30 @@ export function mutantPaneli(): [string, string] | null {
     "BOSS " + sure(k.kalan),
     k.boss.ad + " · Sv " + k.seviye + " · " + k.para + " para · Gövde " + Math.round(k.govde),
   ];
+}
+
+/** NİTRO tuşu (koşuda; kontroller.ts sol grubun üstüne koyar) */
+export const mutantTusuHtml = () =>
+  mutant.kosu ? '<div class="k" id="mnt"><i></i><b>NİTRO</b><s></s></div>' : "";
+
+export function mutantTusuBagla() {
+  const e = document.getElementById("mnt");
+  if (!e) return;
+  e.addEventListener("pointerdown", (v) => {
+    v.preventDefault();
+    mutant.nitro = true;
+  });
+}
+
+/** her karede: tuşun enerji dolgusu, maliyet çizgisi, açık/hazır durumu */
+export function mutantTusuGuncelle() {
+  const e = document.getElementById("mnt"),
+    d = mutantDurumu();
+  if (!e || !d) return;
+  const dolu = Math.round((100 * d.enerji) / d.kapasite) + "%",
+    cizgi = Math.min(100, Math.round((100 * d.nitroMaliyet) / d.kapasite)) + "%",
+    sinif = d.nitroAcik ? "k on" : d.nitroHazir ? "k hazir" : "k";
+  if (e.style.getPropertyValue("--e") != dolu) e.style.setProperty("--e", dolu);
+  if (e.style.getPropertyValue("--m") != cizgi) e.style.setProperty("--m", cizgi);
+  if (e.className != sinif) e.className = sinif;
 }

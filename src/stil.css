@@ -4228,3 +4228,46 @@ details[open] > summary::after {
 #app[data-steer="wheel"] #bon b {
   font-size: clamp(12px, calc(var(--aw) * 0.019), 16px);
 }
+
+/* MUTANT: NİTRO tuşu sol grubun üstünde. Enerji tuşun içinde soldan dolar (--e), ince çizgi bir nitronun maliyeti
+   (--m). Hazırken kenar vurgulu, nitro açıkken tuş turuncu */
+#mnt {
+  position: relative;
+  overflow: hidden;
+  width: min(96px, calc(var(--aw) * 0.22));
+  height: 44px;
+  border-radius: 14px;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  color: #dfe8e6;
+}
+#mnt i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--e, 0%);
+  background: #ff7a3c55;
+  transition: width 0.15s;
+}
+#mnt s {
+  position: absolute;
+  bottom: 0;
+  height: 7px;
+  left: var(--m, 30%);
+  width: 2px;
+  background: #ffffff88;
+}
+#mnt b {
+  position: relative;
+}
+#mnt.hazir {
+  border-color: var(--acc);
+}
+#mnt.on {
+  background: #ff7a3c88;
+  border-color: var(--acc);
+}
+#mnt:not(.hazir):not(.on) b {
+  opacity: 0.6;
+}

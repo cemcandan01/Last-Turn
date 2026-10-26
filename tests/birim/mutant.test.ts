@@ -38,8 +38,14 @@ import {
   pasifSec,
   seviyeXp,
   zamanAkis,
+  enerjiAdimi,
+  nitroDurumu,
+  takiliMekanikler,
+  type Kosu,
   type PistAdayi,
 } from "../../src/oyun/mutant-kosu";
+import { gucCarpani, kapasiteUygula } from "../../src/cekirdek/mekanikler";
+import { BASLANGIC_ENERJI, NITRO } from "../../src/oyun/mutant-enerji";
 
 const TUR = { gp: 3, rx: 3, dp: DRIFT_TUR, rl: undefined, dg: undefined } as const;
 const PISTLER: PistAdayi[] = TDEF.map((t, i) => ({
@@ -413,5 +419,115 @@ describe("MUTANT Mutasyon V2: kural pasifleri ve kombinasyon sınırları", () =
       for (const p of aday) expect(tekYolYetmez(ty, p.ref!), ty + "_" + TDEF[p.i].lv).toBe(true);
     }
     expect(bossAdaylari("rx", 3, olculen).length).toBeGreaterThan(0);
+  });
+});
+
+/** sahte sürüş anı: düz giden araç (drift yok) */
+const SURUS = {
+  S: { vx: 0, vz: 20, air: false },
+  DR: { on: false, dir: 0, cool: 0 },
+  D: { beta: 0 },
+} as unknown as Parameters<typeof enerjiAdimi>[1];
+const perkli = (...pasifler: string[]) => {
+  const k = basla();
+  k.pasifler = pasifler;
+  k.mek = kapasiteUygula(k.mek, takiliMekanikler(k));
+  return k;
+};
+/** n sabit adım sür (nitro: hangi adımlarda basıldı); güç değişen adımları döndürür */
+const sur = (k: Kosu, n: number, nitro: (i: number) => boolean = () => false) => {
+  const degisen: number[] = [];
+  for (let i = 0; i < n; i++) if (enerjiAdimi(k, SURUS, 1 / 60, nitro(i))) degisen.push(i);
+  return degisen;
+};
+
+describe("MUTANT A2: nitro ve sistemik güçler", () => {
+  it("nitro: başlangıç enerjisiyle bir kez çalışır, gücü 2,5 sn artırır, sonra söner ve soğur", () => {
+    const k = perkli();
+    expect(k.mek.enerji).toBe(BASLANGIC_ENERJI);
+    expect(nitroDurumu(k).hazir).toBe(true);
+    const taban = CARS[0],
+      once = kosuAraci(taban, k).hp;
+    const degisen = sur(k, 1, () => true);
+    expect(degisen).toEqual([0]);
+    expect(gucCarpani(k.mek)).toBeCloseTo(NITRO.etki!.guc!, 6);
+    expect(kosuAraci(taban, k).hp).toBeCloseTo(once * NITRO.etki!.guc!, 6);
+    expect(k.mek.enerji).toBe(BASLANGIC_ENERJI - NITRO.maliyet);
+    expect(nitroDurumu(k).acik).toBe(true);
+    // 2,5 sn sonra söner (tek değişim), basmak enerji olmadan bir şey yapmaz
+    const sonra = sur(k, 200, () => true);
+    expect(sonra.length).toBe(1);
+    expect(sonra[0]).toBeGreaterThanOrEqual(147);
+    expect(sonra[0]).toBeLessThanOrEqual(150);
+    expect(gucCarpani(k.mek)).toBe(1);
+    expect(kosuAraci(taban, k).hp).toBeCloseTo(once, 6);
+    expect(nitroDurumu(k).hazir).toBe(false);
+  });
+  it("nitro soğuması: enerji olsa da etki bitince 4 sn yeniden çalışmaz", () => {
+    const k = perkli("risk-kondansatoru");
+    k.bekleyenRisk = 2;
+    sur(k, 1);
+    expect(k.mek.enerji).toBe(80);
+    const degisen = sur(k, 60 * 8, () => true);
+    // aç (0) → sön (~150) → soğuma 4 sn → yeniden aç (~390)
+    expect(degisen.length).toBe(3);
+    expect(degisen[2] - degisen[1]).toBeGreaterThanOrEqual(239);
+    expect(degisen[2] - degisen[1]).toBeLessThanOrEqual(241);
+  });
+  it("Çarpışma Pili: her hasar +12 enerji; perk yoksa hasar enerji vermez", () => {
+    for (const [pasif, beklenen] of [
+      ["carpisma-pili", 12],
+      ["zirh", 0],
+    ] as const) {
+      const k = perkli(pasif);
+      k.mek = { ...k.mek, enerji: 0 };
+      hasarAl(k, "carpma");
+      sur(k, 1);
+      expect(k.mek.enerji, pasif).toBe(beklenen);
+      hasarAl(k, "spin");
+      sur(k, 1);
+      expect(k.mek.enerji, pasif).toBe(beklenen * 2);
+    }
+  });
+  it("Risk Kondansatörü: yalnız riskli/ölümcül etkinlik başında +40, kapasiteyi aşmaz", () => {
+    const k = perkli("risk-kondansatoru");
+    k.mek = { ...k.mek, enerji: 0 };
+    k.bekleyenRisk = 0;
+    sur(k, 1);
+    expect(k.mek.enerji).toBe(0);
+    for (const r of [1, 2, 2]) {
+      k.bekleyenRisk = r;
+      sur(k, 1);
+    }
+    expect(k.mek.enerji).toBe(k.mek.kapasite);
+    expect(k.bekleyenRisk).toBeNull();
+  });
+  it("Nitro kalkanı: nitro açıkken hasar yarıya iner, kapalıyken tam", () => {
+    const k = perkli("nitro-kalkani");
+    hasarAl(k, "carpma");
+    expect(k.govde).toBe(GOVDE.tam - GOVDE.carpma);
+    sur(k, 1, () => true);
+    hasarAl(k, "carpma");
+    expect(k.govde).toBe(GOVDE.tam - GOVDE.carpma * 1.5);
+  });
+  it("verimli/sert nitro maliyeti tuş durumuna yansır; aynı girdiler aynı sonucu verir (belirlenimci)", () => {
+    expect(nitroDurumu(perkli("verimli-nitro")).maliyet).toBeCloseTo(28, 6);
+    expect(nitroDurumu(perkli("sert-nitro")).maliyet).toBeCloseTo(52, 6);
+    expect(nitroDurumu(perkli("sert-nitro")).hazir).toBe(false);
+    const a = perkli("carpisma-pili", "uzun-nitro"),
+      b = perkli("carpisma-pili", "uzun-nitro");
+    for (const k of [a, b])
+      for (let i = 0; i < 600; i++) {
+        if (i % 97 == 0) hasarAl(k, "carpma");
+        enerjiAdimi(k, SURUS, 1 / 60, i % 50 == 0);
+      }
+    expect(a.mek).toEqual(b.mek);
+    expect(a.govde).toBe(b.govde);
+  });
+  it("kariyer/ölçüm yalıtımı: koşu durumu (mek) olmadan araç değerleri nitrodan etkilenmez", () => {
+    const k = perkli();
+    sur(k, 1, () => true);
+    expect(gucCarpani(k.mek)).toBeGreaterThan(1);
+    expect(kosuAraci(CARS[0], { pasifler: [] }).hp).toBe(CARS[0].hp);
   });
 });
