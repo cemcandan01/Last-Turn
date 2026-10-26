@@ -13,6 +13,7 @@ import type { OnayarAnahtari } from "../fizik/veriler";
 import { setActive } from "./bolge";
 import { carIndex, oyun, setCar } from "./durum";
 import { girdiSifirla } from "./girdi";
+import { mutantKapat } from "./mutant";
 import { aracAcikMi, pistAcikMi, yarisBitti } from "./ilerleme";
 import { kariyereUygun, kariyerRekorAnahtari } from "./kariyer";
 import { modifiyeUygula, takiliParcalar } from "./modifiye";
@@ -168,6 +169,7 @@ export const yaris = { EV: null as Yaris | null };
 /** yarışı başlat (ci: seçilen araç); pist ya da araç kilitliyse başlamaz (false) */
 export function startEvent(i: number, ci?: number) {
   const e = EVENTS[i];
+  mutantKapat();
   if (!pistAcikMi(e.ty, e.lv) || !aracAcikMi(ci ?? carIndex())) {
     note("Kilitli", 40);
     return false;

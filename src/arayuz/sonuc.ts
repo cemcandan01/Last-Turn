@@ -1,14 +1,13 @@
 // Sonuç ekranı: süre, yıldız ve eşikleri, hedef, rekor; tekrar, açık dünya, ana menü
 import { fmt, fmt3 } from "../cekirdek/bicim";
 import { $ } from "../cekirdek/dom";
-import { WORLDS } from "../dunya/dunya";
 import { oyun } from "../oyun/durum";
 import { best, saveBest } from "../oyun/profil";
 import { leaveEvent, startEvent, yaris, type Yaris } from "../oyun/yarislar";
 import { adimXp, seviye, seviyeTabani, xpSeviyesi } from "../oyun/ilerleme";
 import { enIyiYildiz } from "../oyun/yildiz";
 import { ikon, yildizSerit } from "./ikonlar";
-import { showMenu, startWorld } from "./menu";
+import { showMenu } from "./menu";
 import {
   kutlamaGoster,
   paraSonucAnimasyonu,
@@ -80,7 +79,7 @@ export function sonucGoster(EV: Yaris) {
   const r = $("#res"),
     k = EV.i;
   r.classList.remove("hidden");
-  r.innerHTML = `<h1>${EV.kariyer ? h : "Serbest deneme"}</h1>${EV.kariyer ? "" : '<p class="note">Puan sınırı aşıldı. Bu koşu kupa yıldızı, para veya XP vermez.</p>'}${p}<button class="btn" id="again">Tekrar</button><button class="btn alt" id="free">Açık dünyaya dön</button><button class="btn alt" id="rm">Ana menü</button>`;
+  r.innerHTML = `<h1>${EV.kariyer ? h : "Serbest deneme"}</h1>${EV.kariyer ? "" : '<p class="note">Puan sınırı aşıldı. Bu koşu kupa yıldızı, para veya XP vermez.</p>'}${p}<button class="btn" id="again">Tekrar</button><button class="btn alt" id="rm">Ana menü</button>`;
   xpSonucAnimasyonu(r);
   paraSonucAnimasyonu(r);
   // seviye atladıysa kutlama, çubuk dolduktan sonra sonuç ekranının üstünde
@@ -89,10 +88,6 @@ export function sonucGoster(EV: Yaris) {
       if (oyun.mode == "result" && yaris.EV === EV) kutlamaGoster();
     }, 2300);
   $("#again").onclick = () => startEvent(k);
-  $("#free").onclick = () => {
-    r.classList.add("hidden");
-    startWorld(WORLDS.indexOf(oyun.CURW));
-  };
   $("#rm").onclick = () => {
     r.classList.add("hidden");
     leaveEvent();

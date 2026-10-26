@@ -48,6 +48,7 @@ const BOLUMLER = [
   "ekran-yon",
   "menu-magaza",
   "hesap-formu",
+  "mutant",
   "cihaz-dogrulama",
   "cihaz-menu",
   "cihaz-garaj",

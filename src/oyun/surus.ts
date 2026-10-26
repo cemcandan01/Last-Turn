@@ -19,6 +19,7 @@ import { kurulum } from "./kurulum";
 import { PROF, saveProf } from "./profil";
 import { yaris, evTick } from "./yarislar";
 import { rekorHayaletiBaslat, rekorHayaletiDurdur, uzakAdimi, uzakSifirla } from "./uzak";
+import { mutant, mutantAdimi, mutantTutus } from "./mutant";
 
 /** serbest sürüşte tur sayacı (kapalı pistlerde) */
 export const LAP = {
@@ -54,7 +55,8 @@ export function dunyaSorgusuYap(b: { cur: Bolge | null }): DunyaSorgusu {
     yakin: (x, z) => dunya.cols.yakin(x, z),
     kutu: () => (yaris.EV ? REG[yaris.EV.reg].box : oyun.CURW.box),
     kerb: (x, z) => (b.cur && b.cur.Hk ? b.cur.Hk(x, z) : 0),
-    havaTutusu: () => ortam.g,
+    // MUTANT'ta Tutuş Darbesi yalnız yerel aracın tutuşunu çarpar (fizik kodu değişmez); başka her yerde 1
+    havaTutusu: () => (b === dunya ? ortam.g * mutantTutus(!!yaris.EV) : ortam.g),
     karli: () => ortam.k == "snow",
     yolTuru: () => (b.cur ? b.cur.t : null),
   };
@@ -116,10 +118,12 @@ export function surusAdimi() {
   const S = sim.S;
   PROF.km += (Math.hypot(S.vx, S.vz) * ADIM) / 1000;
   yerel.cx.kurulum = surusKurulumu();
-  if (JSON.stringify(yerel.cx.kurulum) !== kayitImza || ortam.g !== kayitHavasi.tutus)
+  // MUTANT koşusu girdi kaydına yazılmayan tutuş değişikliği içerir: kayıt hayalet/rekor için güvenilmez
+  if (JSON.stringify(yerel.cx.kurulum) !== kayitImza || ortam.g !== kayitHavasi.tutus || mutant.kosu)
     yerel.kayit.kesik = true;
   const gi = fizikGirdisi(),
     son = aracAdimi(yerel, gi);
+  mutantAdimi(sim.d, ADIM, !!yaris.EV);
   if (sim.d.zaman % 20 < ADIM) saveProf();
   turSayaci(ADIM);
   if (yaris.EV) evTick(ADIM, son, gi.tg);
@@ -160,7 +164,8 @@ function turSayaci(dt: number) {
           );
         }
       }
-      if (cur) rekorHayaletiBaslat("lap_" + (cur.n || "pist"), dunyaSorgusuYap({ cur: null }));
+      if (cur && !mutant.kosu)
+        rekorHayaletiBaslat("lap_" + (cur.n || "pist"), dunyaSorgusuYap({ cur: null }));
       LAP.kayitBas = yerel.kayit.n;
       LAP.run = 1;
       LAP.t = 0;

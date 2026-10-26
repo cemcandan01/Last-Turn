@@ -27,6 +27,8 @@ import { bindSettings, chipsOf, settingsHTML } from "./ayarlar-ekrani";
 import { magazaAc, openGarage } from "./garaj";
 import { hesapBagla, hesapHtml } from "./hesap-ui";
 import { kontrolleriKur } from "./kontroller";
+import { mutant, mutantBaslat, mutantKapat, mutantRekoru } from "../oyun/mutant";
+import { mutantOzetGoster, mutantSecimGoster } from "./mutant-ui";
 
 /** yarış türleri: anahtar, ad, açıklama, ikon, türün rengi (kapak akışı, pist listesi ve ayrıntıda tema) */
 export const TYPES: [string, string, string, IkonAdi, string][] = [
@@ -42,7 +44,7 @@ let TUR_I = 0;
 /** ana menü panelleri: anahtar, ikon, başlık */
 const NAV: [string, IkonAdi, string][] = [
   ["race", "yaris", "Yarış"],
-  ["free", "harita", "Serbest sürüş"],
+  ["free", "harita", "MUTANT"],
   ["garage", "araba", "Garaj"],
   ["store", "magaza", "Mağaza"],
   ["profile", "kask", "Profil"],
@@ -139,6 +141,7 @@ function trackThumb(r: Bolge) {
 export function showMenu(v?: string[]) {
   oyun.mode = "menu";
   leaveEvent();
+  mutantKapat();
   gizle("#hud", "#mm", "#ctl", "#set", "#res", "#gar");
   $("#big").textContent = "";
   if (v) MV = v;
@@ -378,9 +381,9 @@ function view(cur: string): [string, string, string] {
   }
   if (cur == "free")
     return [
-      "Serbest sürüş",
+      "MUTANT",
       "Dünya seç",
-      `<div class="wl">${WORLDS.map((w, i) => `<div class="card go" data-w="${i}"><b>${w.n}</b><span>${w.d}</span></div>`).join("")}</div><div class="evk">${condChips()}<p class="note">Dünyayı seçince garajda aracını seçersin. Önayarı sürüşte duraklatma menüsünden değiştirebilirsin.</p></div>`,
+      `<div class="wl">${WORLDS.map((w, i) => `<div class="card go" data-w="${i}"><b>${w.n}</b><span>${w.d}</span></div>`).join("")}</div><div class="evk">${condChips()}<p class="note">Her koşuda perk seç, açık dünyada süreli görevleri bitir, aracını görev görev değiştir. Kombinasyonları sen keşfet. En iyi: ${mutantRekoru()} görev. Kariyer ödülü vermez.</p></div>`,
     ];
   if (cur == "profile") {
     const fav = Object.entries(PROF.use).sort((a, b) => b[1] - a[1])[0];
@@ -396,15 +399,24 @@ function view(cur: string): [string, string, string] {
   return ["", "", ""];
 }
 
-/** açık dünyada serbest sürüş */
-export function startWorld(w: number) {
+/** açık dünyada MUTANT koşusu: perk seçimiyle başlar. kosu=false yalnız test API'sinin koşusuz sürüşüdür
+ *  (menüden ulaşılamaz; fizik/HUD testleri açık dünyada mekaniksiz sürer) */
+export function startWorld(w: number, kosu = true) {
   leaveEvent();
   gizle("#menu", "#res", "#set");
   oyun.CURW = WORLDS[w || 0];
   setActive(oyun.CURW.reg);
   reset();
   document.getElementById("lvup")?.classList.remove("acik");
+  if (kosu) mutantBaslat();
+  mutant.secimAc = mutantSecimGoster;
+  mutant.bittiAc = () =>
+    mutantOzetGoster(
+      () => startWorld(w),
+      () => showMenu(["home"]),
+    );
   oyun.mode = "drive";
   kontrolleriKur();
   goster("#hud", "#mm", "#ctl");
+  mutantSecimGoster();
 }

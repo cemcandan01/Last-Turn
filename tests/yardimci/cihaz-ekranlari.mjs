@@ -49,7 +49,7 @@ export const EKRANLAR = [
     ac: menu(["race", "t:gp", "e:0"]),
     bekle: "[data-go]",
   },
-  { id: "serbest-surus", dal: "menu", ad: "Serbest sürüş", ac: menu(["free"]), bekle: "[data-w]" },
+  { id: "serbest-surus", dal: "menu", ad: "MUTANT", ac: menu(["free"]), bekle: "[data-w]" },
   { id: "profil", dal: "menu", ad: "Profil", ac: menu(["profile"]), bekle: "#pname", dikeyKaydirma: true },
   {
     id: "ayarlar",
