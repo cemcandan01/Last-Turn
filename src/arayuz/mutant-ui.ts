@@ -65,14 +65,6 @@ const TUR: Record<YarisTuru, [string, number, string]> = {
   dp: ["Drift", 0xb67cff, "#b67cff"],
   dg: ["Drag", 0xffd23c, "#ffd23c"],
 };
-/** Renk tek başına yön bulmak için yetmez; sütunların üzerinde yarış türü yazıyor. */
-const TUR_ETIKET: Record<YarisTuru, string> = {
-  gp: "ASFALT",
-  rx: "RALLİKROS",
-  rl: "RALLİ",
-  dp: "DRİFT",
-  dg: "DRAG",
-};
 const ATOLYE_RENK: [number, string] = [0x3cc8ff, "#3cc8ff"],
   BOSS_RENK: [number, string] = [0xff2a2a, "#ff2a2a"],
   /** sandık: normal açık sarı, lanetli eflatun */
@@ -120,30 +112,16 @@ export function mutantIsaretleri(): { x: number; z: number; renk: string }[] {
   ];
 }
 
-/** Yarış tipini işaretin sahip olduğu oyun verisinden üret; renk kodunu tersine çözmeyiz. */
-const etkinlikTabelasi = (e: { x: number; z: number; ty: YarisTuru }): Isaret => ({
-  x: e.x,
-  z: e.z,
-  renk: TUR[e.ty][1],
-  etiket: TUR_ETIKET[e.ty],
-});
-
 function isaretleriGuncelle() {
   const k = mutant.kosu;
   const l: Isaret[] = k
     ? [
-        ...k.etkinlikler.filter((e) => !e.yapildi).map(etkinlikTabelasi),
+        ...k.etkinlikler.filter((e) => !e.yapildi).map((e) => ({ x: e.x, z: e.z, renk: TUR[e.ty][1] })),
         ...k.sandiklar
           .filter((q) => !q.acildi)
-          .map((q) => ({
-            x: q.x,
-            z: q.z,
-            renk: (q.lanetli ? LANET_RENK : SANDIK_RENK)[0],
-            boy: 24,
-            etiket: q.lanetli ? "LANETLİ" : "SANDIK",
-          })),
-        { x: ATOLYE[0], z: ATOLYE[1], renk: ATOLYE_RENK[0], boy: 40, etiket: "ATÖLYE" },
-        { x: BOSS_YERI[0], z: BOSS_YERI[1], renk: BOSS_RENK[0], boy: 140, etiket: "BOSS" },
+          .map((q) => ({ x: q.x, z: q.z, renk: (q.lanetli ? LANET_RENK : SANDIK_RENK)[0], boy: 24 })),
+        { x: ATOLYE[0], z: ATOLYE[1], renk: ATOLYE_RENK[0], boy: 40 },
+        { x: BOSS_YERI[0], z: BOSS_YERI[1], renk: BOSS_RENK[0], boy: 140 },
       ]
     : [];
   isaretleriKur(l, Hw);
@@ -197,7 +175,7 @@ function pasifSayfasi(baslik: string) {
         if (ilk) {
           isaretleriGuncelle();
           surusDevam();
-          note("Işıkların üstünde yarış türü yazıyor. Sarı sandık · Mor lanet · Mavi atölye · Kırmızı boss", 30);
+          note("Renkli ışıklar etkinlik, sarı sandık, eflatun lanetli sandık, mavi atölye, kırmızı boss", 30);
           return;
         }
         devam();
