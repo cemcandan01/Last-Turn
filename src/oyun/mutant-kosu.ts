@@ -14,8 +14,8 @@ export interface PistAdayi {
   /** yıldız eşikleri [1★, 2★, 3★] (bütün turlar için; süre ya da drift puanı) ve tur sayısı */
   ys: number[];
   laps?: number;
-  /** ölçülmüş referans (tests/olcum/mutant.test.ts, bütün turlar): stok / dengeli / uzman build sonucu. Yoksa pist
-   *  boss olamaz (pilot temiz bitiremedi ya da ölçülmedi) */
+  /** ölçülmüş referans (tests/olcum/mutant.test.ts, tek tur): stok / dengeli / uzman / nadir motor build sonucu.
+   *  Yoksa pist boss olamaz (pilot temiz bitiremedi ya da ölçülmedi) */
   ref?: Referans;
 }
 
@@ -24,6 +24,8 @@ export interface Referans {
   stok: number;
   dengeli: number;
   uzman: number;
+  /** atölyenin en güçlü motor yolu (yarış motoru + büyük turbo), uzmanlık yok */
+  nadir: number;
 }
 
 export interface Boss {
@@ -502,12 +504,16 @@ export function bossBitti(k: Kosu, kazandi: boolean, pistler: readonly PistAdayi
 }
 
 /**
- * boss hedefi ölçülmüş referanstan (issue #16): bölge 1 stok aracın, bölge 2 dengeli build'in, bölge 3+ türe uzman
- * build'in sonucu; pay insanın pisti ilk kez sürmesi için. İlk boss başlangıç aracıyla geçilir, sonrakiler yatırım ve
- * boss'a uygun parça ister; tek motor parçası uzman hedefini geçemez (ölçüm raporu).
+ * boss hedefi ölçülmüş referanstan (issue #16, docs/denge/2026-10-26-mutant-olcum.json): bölge 1 stok aracın sonucu
+ * (+%5 pay: başlangıç aracıyla geçilir); bölge 2 dengeli ya da uzman build'in iyisi (+%2: yatırım ister); bölge 3+
+ * uzman ve nadir motor yolunun iyisinden %2 iyi: ölçümde nadir motor tek başına uzmanı çoğu pistte geçtiği için tek yol
+ * yetmez, motor + boss'a uygun uzmanlık birleşmeli. Referans tek tur; boss turu sayısıyla çarpılır.
  */
-export const BOSS_PAY = [1.05, 1.02, 1];
-const bossKademe = (bolge: number) => (bolge <= 1 ? "stok" : bolge == 2 ? "dengeli" : "uzman");
+export const BOSS_PAY = [1.05, 1.02, 0.98];
+function bossReferansi(bolge: number, r: Referans, drift: boolean) {
+  const iyi = (a: number, b: number) => (drift ? Math.max(a, b) : Math.min(a, b));
+  return bolge <= 1 ? r.stok : bolge == 2 ? iyi(r.dengeli, r.uzman) : iyi(r.uzman, r.nadir);
+}
 
 /** boss olabilen pistler: türde, referansı ölçülmüş; bölge 1'de türün kolay yarısı */
 export function bossAdaylari(ty: YarisTuru, bolge: number, pistler: readonly PistAdayi[]) {
@@ -527,15 +533,18 @@ export function bossPisti(k: Kosu, pistler: readonly PistAdayi[]): number {
 /** boss hedefi (bütün turlar): referansın bölge kademesi; süre yarışında pay kadar uzun, driftte o kadar düşük */
 export function bossHedefi(
   k: Pick<Kosu, "bolge" | "boss"> & { sonNefes?: boolean },
-  p: Pick<PistAdayi, "ty" | "ref" | "ys">,
+  p: Pick<PistAdayi, "ty" | "ref" | "ys" | "laps">,
 ) {
   // son nefes kullanıldıysa hedef %3 sıkı (süre yarışında kısa, driftte yüksek)
   const nefes = k.sonNefes ? 0.97 : 1,
-    pay = BOSS_PAY[Math.min(2, k.bolge - 1)] * nefes;
-  if (!p.ref)
-    return p.ty == "dp" ? p.ys[Math.min(2, k.bolge - 1)] / nefes : p.ys[Math.min(2, k.bolge - 1)] * nefes;
-  const r = p.ref[bossKademe(k.bolge)] * k.boss.hedef;
-  return p.ty == "dp" ? Math.round(r / pay) : r * pay;
+    pay = BOSS_PAY[Math.min(2, k.bolge - 1)] * nefes,
+    drift = p.ty == "dp";
+  if (!p.ref) {
+    const y = p.ys[Math.min(2, k.bolge - 1)];
+    return drift ? y / nefes : y * nefes;
+  }
+  const r = bossReferansi(k.bolge, p.ref, drift) * (p.laps ?? 1) * k.boss.hedef;
+  return drift ? Math.round(r / pay) : r * pay;
 }
 
 /** harita etkinliği tek tur (geri sayıma sığsın): hedef seçilen risk kademesinin yıldızı, tur başına */

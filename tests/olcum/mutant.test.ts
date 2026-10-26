@@ -60,7 +60,13 @@ it("MUTANT build ölçümü", () => {
       { ad: "dengeli", parca: ["motor-sokak", LASTIK[ty], "fren-spor"], pasif: ["guc"] },
       { ad: "uzman", parca: ["motor-spor", LASTIK[ty], ...UZMAN[ty]], pasif: UZMAN_PASIF[ty] },
       { ad: "motor+uzman", parca: ["motor-degisim", LASTIK[ty], ...UZMAN[ty]], pasif: UZMAN_PASIF[ty] },
-    ];
+      // bölge 3 boss'unun ulaşılabilirlik kanıtı: atölyede alınabilir motor yolu + uzmanlık birleşik
+      {
+        ad: "nadir+uzman",
+        parca: ["motor-yaris", "turbo-buyuk", LASTIK[ty], ...UZMAN[ty]],
+        pasif: [...UZMAN_PASIF[ty], "guc"],
+      },
+    ].filter((b) => !process.env.BUILD || b.ad == process.env.BUILD);
     for (const { e, i } of secilen) {
       const tur = e.laps || 1,
         yildiz = e.ys.map((y) => (ty == "dp" ? Math.round(y / tur) : +(y / tur).toFixed(2)));

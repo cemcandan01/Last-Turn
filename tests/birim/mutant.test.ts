@@ -3,6 +3,7 @@ import { CARS } from "../../src/arac/araclar";
 import { TDEF } from "../../src/dunya/pist-tanimlari";
 import { Htest } from "../../src/dunya/corak";
 import { DRIFT_TUR, yildizEsikleri } from "../../src/oyun/yildiz";
+import { MUTANT_REFERANS } from "../../src/oyun/mutant-denge";
 import {
   BOSSLAR,
   YERLER,
@@ -209,7 +210,9 @@ describe("MUTANT koşu (A1)", () => {
       const d = p.ty == "dp";
       return {
         ...p,
-        ref: d ? { stok: 1000, dengeli: 1500, uzman: 2000 } : { stok: 100, dengeli: 90, uzman: 80 },
+        ref: d
+          ? { stok: 1000, dengeli: 1500, uzman: 2000, nadir: 2500 }
+          : { stok: 100, dengeli: 90, uzman: 80, nadir: 75 },
       };
     });
     for (let t = 1; t <= 30; t++)
@@ -224,11 +227,23 @@ describe("MUTANT koşu (A1)", () => {
         expect(aday.map((q) => q.i)).toContain(i);
         if (bolge == 1) expect(aday.length).toBeLessThanOrEqual(2);
         expect(bossPisti(k, olculen)).toBe(i);
-        const kademe = bolge == 1 ? "stok" : bolge == 2 ? "dengeli" : "uzman",
+        const r = p.ref!,
+          d = p.ty == "dp",
+          ref =
+            bolge == 1
+              ? r.stok
+              : bolge == 2
+                ? d
+                  ? Math.max(r.dengeli, r.uzman)
+                  : Math.min(r.dengeli, r.uzman)
+                : d
+                  ? Math.max(r.uzman, r.nadir)
+                  : Math.min(r.uzman, r.nadir),
+          tam = ref * (p.laps ?? 1),
           pay = BOSS_PAY[bolge - 1],
           h = bossHedefi(k, p);
-        if (p.ty == "dp") expect(h).toBe(Math.round(p.ref![kademe] / pay));
-        else expect(h).toBeCloseTo(p.ref![kademe] * pay, 6);
+        if (d) expect(h).toBe(Math.round(tam / pay));
+        else expect(h).toBeCloseTo(tam * pay, 6);
       }
   });
   it("motor değişimi MUTANT atölyesinde hiç satılmaz", () => {
@@ -343,7 +358,7 @@ describe("MUTANT Mutasyon V2: kural pasifleri ve kombinasyon sınırları", () =
       if (zamanAkis(k, 1 / 60) == "boss") break;
     }
     expect(toplam).toBeCloseTo(BOSS_SURESI(1) + 90, 0);
-    const p = { ty: "gp" as const, ys: [100, 90, 80], ref: { stok: 100, dengeli: 90, uzman: 80 } };
+    const p = { ty: "gp" as const, ys: [100, 90, 80], ref: { stok: 100, dengeli: 90, uzman: 80, nadir: 75 } };
     expect(bossHedefi(k, p)).toBeCloseTo(100 * BOSS_PAY[0] * 0.97, 6);
   });
   it("kumarbaz: ölümcülde ×5 ödül, kaçırınca iki kat süre cezası", () => {
@@ -372,5 +387,27 @@ describe("MUTANT Mutasyon V2: kural pasifleri ve kombinasyon sınırları", () =
     ct.pasifler.push("camtop");
     hasarAl(ct, "carpma");
     expect(ct.govde).toBe(GOVDE.tam - 2 * GOVDE.carpma);
+  });
+  it("ölçülmüş tablo: bölge 1 hedefini stok araç tutturur; bölge 3'ü ne nadir motor ne uzman tek başına geçer", () => {
+    const olculen = PISTLER.map((p) => ({ ...p, ref: MUTANT_REFERANS[p.ty + "_" + TDEF[p.i].lv] }));
+    expect(olculen.filter((p) => p.ref).length).toBeGreaterThanOrEqual(25);
+    for (const ty of ["gp", "rx", "rl", "dp", "dg"] as const)
+      expect(
+        olculen.some((p) => p.ty == ty && p.ref),
+        ty + " boss pisti",
+      ).toBe(true);
+    const k = basla();
+    for (const p of olculen.filter((q) => q.ref)) {
+      const r = p.ref!,
+        tur = p.laps ?? 1,
+        d = p.ty == "dp",
+        gecer = (sonuc: number, hedef: number) => (d ? sonuc * tur >= hedef : sonuc * tur <= hedef);
+      k.bolge = 1;
+      expect(gecer(r.stok, bossHedefi(k, p)), p.ty + "_" + TDEF[p.i].lv + " bölge 1 stok").toBe(true);
+      k.bolge = 3;
+      const h3 = bossHedefi(k, p);
+      expect(gecer(r.nadir, h3), p.ty + "_" + TDEF[p.i].lv + " bölge 3 nadir motor").toBe(false);
+      expect(gecer(r.uzman, h3), p.ty + "_" + TDEF[p.i].lv + " bölge 3 uzman").toBe(false);
+    }
   });
 });
