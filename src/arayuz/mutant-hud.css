@@ -1,0 +1,30 @@
+/* MUTANT sürüş bilgisi: mevcut sol üst HUD'a yeni satır eklemez. */
+
+.hTL.mt-hud-active {
+  position: absolute;
+  border-top: 2px solid #ff9559;
+}
+
+.hTL.mt-hud-active .mt-hud-health {
+  position: absolute;
+  height: 3px;
+  left: 0;
+  top: -3px;
+  max-width: 100%;
+  pointer-events: none;
+  background: #9cdec2;
+  box-shadow: 0 0 8px #9cdec269;
+}
+
+.hTL.mt-hud-critical {
+  border-top-color: #ff746b;
+}
+
+.hTL.mt-hud-critical .mt-hud-health {
+  background: #ff746b;
+  box-shadow: 0 0 10px #ff746b88;
+}
+
+.hTL .mt-hud-health[hidden] {
+  display: none;
+}
