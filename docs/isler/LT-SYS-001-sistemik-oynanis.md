@@ -1,7 +1,7 @@
 # LT-SYS-001 Sistemik oynanış ve etkileşim çekirdeği
 
-Durum: FAZ 0 tamam; FAZ 1 yerelde doğrulandı. Aktif sahip: Claude (2026-10-26 Cem kararı: tek uygulayıcı, dal claude/sistemik-oynanis-faz1; codex/sistemik-oynanis-tasarim ve PR #15 bu dala birleştirildi, Codex bu görevde durur).
-Dal: claude/sistemik-oynanis-faz1 (eski: codex/sistemik-oynanis-tasarim), taban: gelistirme.
+Durum: MUTANT v1 hazır, `claude/mutant` dalında; 0.7.8 regresyonu canlı onayı beklediği için denemeye gönderilmedi. Aktif sahip: Claude (2026-10-26 Cem kararı: tek uygulayıcı, dal claude/sistemik-oynanis-faz1; codex/sistemik-oynanis-tasarim ve PR #15 bu dala birleştirildi, Codex bu görevde durur).
+Dal: claude/mutant (önceki: claude/sistemik-oynanis-faz1, codex/sistemik-oynanis-tasarim), taban: gelistirme.
 Hedef: LEGO benzeri parçalarla oyuncu kendi build kombinasyonlarını keşfetsin. Hazır kombo tarifleri veya koşulsuz üstün build üretmeyelim.
 
 ## Doğrulanan mimari
@@ -168,3 +168,13 @@ Kapsam: `src/cekirdek/mekanikler.ts` (taslağın yerine), `tests/birim/mekanikle
 3. Tutuş Darbesi yalnız `havaTutusu` çarpanıyla (fizik koduna dokunmadan) etkiler; aktifken yeniden basılmaz, sonrası bekleme var; hiçbir kombinasyonda kalıcı tutuş yok (matris: süre payı ≤ %70).
 4. Kombinasyon matrisi: bütün ikili/üçlü perk kombinasyonları sonlu, enerji sınırlı, çift ödülsüz; sinerji raporu üretilir, sinerji hata sayılmaz.
 5. iPhone 13 yatay: enerji/darbe tuşu ve görev paneli tuşlara/göstergelere değmez; seçim ve özet ekranı okunur.
+
+### MUTANT v1 sonucu (Claude, claude/mutant)
+- Kod: e309da0 (oyun), 6bee2c8 (belgeler). Perk havuzu 9 (4 enerji kaynağı: Drift Hasadı, Temiz Çıkış, Kayma Hafızası, Hız Dinamosu; 5 değiştirici: Geniş Batarya, Verimli/Uzun/Sert Darbe, Sigorta). Görevler: drift süresi, enerji, 90 km/sa üstü yol, temiz drift; hedef her görevde artar.
+- Matris: 129 kombinasyon × 4 sürüş biçimi (usta/abartan/hızcı/karışık), açgözlü darbe oyuncusu. Kırılma yok; en yüksek darbe payı %60 (sınır %70), en güçlü sinerji Drift Hasadı + Temiz Çıkış + Uzun Darbe (usta). Geniş Batarya tek kaynakla etkisiz, çok kaynakla etkili (durumsal). Rapor `tests/cikti/mutant-matris.json` (CI çıktısı, depoda değil).
+- Yardım ölçümü (gerçek fizik, Boş Otopark, Beyaz Kurt, drift önayarı, ölçülü sürücü 12 sn): gerçekçi 51,1 / dengeli 51,3 / arcade 51,5 enerji → yardım cezası gerekmedi (kural: önce ölç).
+- Doğrulama: `npm run kontrol` temiz; `npm test` 25/25 dosya 338/338; `alan mutant,menu,garaj,hud,surus,hayalet,fizik` 58/58 senaryo, 0 hata (16 dk, yerel, e309da0). CI Denetim 40292640713 (e309da0) ve 40292780668 (6bee2c8) başarılı. iPhone 13 yatay görüntüleri (seçim, sürüş, darbe, özet) incelendi; özet düğmeleri üste alındı, maliyet çizgisi yazının altına indi.
+- Eski testler: `LT.startWorld` koşusuz test sürüşü olarak kaldı (menüden ulaşılamaz); garaj e2e'si perk seçimine uyarlandı; kosucu `claude/` önekini tanır.
+- PR #15 açıklamayla kapatıldı.
+- **Engel:** origin/regresyon durum.json 0.7.8 "onay-bekliyor". surum-yayinla kuralı: gelistirme'ye gönderilmez. Cem 0.7.8'i canlıya onaylayınca (ya da "regresyondaki sürüme girsin" derse) `claude/mutant` → gelistirme, yama +1.
+- Tek sonraki adım: 0.7.8 kararı sonrası denemeye gönder; Cem telefonda koşu/görev zorluğu ve Tutuş Darbesi hissini söylesin.

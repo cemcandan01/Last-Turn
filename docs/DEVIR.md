@@ -1,9 +1,9 @@
-# Son devir: LT-SYS-001 sistemik oynanış FAZ 0–1
+# Son devir: MUTANT v1 (LT-SYS-001)
 
-- Claude / claude/sistemik-oynanis-faz1 (tek sahip, Cem kararı 2026-10-26; Codex dalı ve PR #15 içeriği birleştirildi). Kart docs/isler/LT-SYS-001-sistemik-oynanis.md.
-- FAZ 0 entegrasyon/risk değerlendirmesi kartta. FAZ 1: saf `src/cekirdek/mekanikler.ts` (bayrak kapalı, oyun çağırmaz), drift gözlemcisi yalnız `DR.on`, Drift Harvester v1 (ölçülmüş denge değil). Oyun davranışı değişmedi, sürüm artmadı.
-- Yerel: kontrol temiz, npm test 323/323, build, fizik alanı (tarayıcı 16/16). CI koşulmadı. gelistirme/master/denge ölçümleri dokunulmadı.
-- Sonraki: Cem karttaki 7 kararı versin; sonra seçilen FAZ 2 adımı.
+- Claude / claude/mutant (tek sahip). Kart docs/isler/LT-SYS-001-sistemik-oynanis.md; dal notu docs/notlar/mutant.md; kural ALANLAR "MUTANT".
+- Serbest sürüş menüden kalktı, yerine MUTANT: dünya → garaj → 3 perkten 1 → süreli görevler → özet. Tutuş Darbesi tek fizik etkisi (yerel `havaTutusu` çarpanı); yarışta 1. Ödül/XP/kariyer yok, rekor lt_mutant.
+- Yerel: kontrol temiz, npm test 338/338, alan mutant+menu+garaj+hud+surus+hayalet+fizik 58/58. CI 40292640713 / 40292780668 başarılı. Matris 129 kombinasyon kırılmasız.
+- Engel: 0.7.8 regresyonda canlı onayı bekliyor → gelistirme'ye gönderilmedi, oyun sürümü artmadı. Sonraki: Cem 0.7.8 kararını verince denemeye gönder (yama +1).
 
 ## Önceki iş: yakın takip kamerası 0.7.7
 
