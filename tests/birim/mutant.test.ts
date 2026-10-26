@@ -15,6 +15,10 @@ import {
   bossPisti,
   bossaGir,
   BOSS_PAY,
+  GOVDE,
+  hasarAl,
+  tamirBedeli,
+  tamirEt,
   SATILMAZ,
   bossAdaylari,
   NADIR_PARCALAR,
@@ -246,5 +250,44 @@ describe("MUTANT koşu (A1)", () => {
         [0, -12],
       ])
         expect(Math.abs(Htest(x + dx, z + dz) - Htest(x, z)) / 12, x + "," + z).toBeLessThan(0.08);
+  });
+  it("gövde: çarpma/spin düşürür, zırh azaltır, düşük gövde gücü en çok %30 düşürür, 0'da pert ve koşu biter", () => {
+    const k = basla();
+    hasarAl(k, "carpma");
+    hasarAl(k, "spin");
+    expect(k.govde).toBe(GOVDE.tam - GOVDE.carpma - GOVDE.spin);
+    expect([k.carpma, k.spin]).toEqual([1, 1]);
+    const z = basla();
+    z.pasifler.push("zirh");
+    hasarAl(z, "carpma");
+    expect(z.govde).toBeCloseTo(GOVDE.tam - GOVDE.carpma * 0.65, 6);
+    const c = CARS[0];
+    expect(kosuAraci(c, { pasifler: [], govde: 100 }).hp).toBeCloseTo(c.hp, 6);
+    expect(kosuAraci(c, { pasifler: [], govde: 0 }).hp).toBeCloseTo(c.hp * 0.7, 6);
+    let pert = false;
+    for (let i = 0; i < 20 && !pert; i++) pert = hasarAl(k, "carpma");
+    expect(pert).toBe(true);
+    expect(k.faz).toBe("bitti");
+    expect(hasarAl(k, "carpma")).toBe(false);
+  });
+  it("tamir: bedel kayıp gövdeyle orantılı, para yettiği kadar", () => {
+    const k = basla();
+    k.govde = 40;
+    expect(tamirBedeli(k)).toBe(60 * GOVDE.tamirFiyati);
+    k.para = 30;
+    expect(tamirEt(k)).toBe(true);
+    expect(k.govde).toBe(50);
+    expect(k.para).toBe(0);
+    k.para = 10000;
+    tamirEt(k);
+    expect(k.govde).toBe(GOVDE.tam);
+    expect(tamirEt(k)).toBe(false);
+  });
+  it("seyyar tamirci her etkinlik sonunda gövdeyi onarır", () => {
+    const k = basla();
+    k.pasifler.push("tamirci");
+    k.govde = 50;
+    etkinlikBitti(k, k.etkinlikler[0].id, true, 0);
+    expect(k.govde).toBe(62);
   });
 });

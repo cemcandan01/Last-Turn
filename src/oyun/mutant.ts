@@ -17,6 +17,7 @@ import {
   bossPisti,
   bossaGir,
   etkinlikBitti,
+  hasarAl,
   kosuAraci,
   kosuBaslat,
   zamanAkis,
@@ -48,6 +49,8 @@ export interface MutantArayuzu {
   sonuc(r: EtkinlikSonucu | null, boss: boolean, gecti: boolean): void;
   /** süre doldu: boss kartı (zorunlu) */
   sureDoldu(): void;
+  /** hasar aldı (gövde düştü); pert ise koşu bitti */
+  hasar(tur: "carpma" | "spin", pert: boolean): void;
   bitti(): void;
 }
 
@@ -67,6 +70,9 @@ export const mutant = {
   kapali: "",
   /** süre etkinlik içinde doldu: dönüşte boss kartı */
   bossBekliyor: false,
+  /** hasar algısı: son görülen sert çarpma zamanı, spin sürüyor mu */
+  sonHit: -9,
+  spinde: false,
   yeniRekor: false,
   ui: null as MutantArayuzu | null,
 };
@@ -105,6 +111,13 @@ export function mutantAracSec(i: number) {
   mutantArac = i;
   setCar(i);
   mutantKurulumUygula();
+}
+
+/** hasar sonrası yalnız aracın değerleri (güç kaybı) yenilenir; yarış kurulumu (lastik, önayar) değişmez */
+export function mutantAracGuncelle() {
+  const k = mutant.kosu;
+  if (!k || mutantArac < 0 || !kurulum.mod) return;
+  kurulum.mod = { ...kurulum.mod, car: kosuAraci(aracKur(mutantArac, k.parcalar).car, k) };
 }
 
 export function mutantKurulumUygula() {
@@ -151,10 +164,35 @@ export function mutantYarisAyari(i: number) {
 /** boss pisti (EVENTS indeksi) */
 export const mutantBossPisti = () => (mutant.kosu ? bossPisti(mutant.kosu, mutantPistleri()) : -1);
 
-/** sabit adım (fizikten sonra): süre akar; açık dünyada işaret girişi */
-export function mutantAdimi(x: number, z: number, v: number, dt: number, yarista: boolean) {
+/** sabit adım (fizikten sonra): süre akar; hasar (sert çarpma: hit zamanı, spin: kayma açısı); işaret girişi */
+export function mutantAdimi(
+  x: number,
+  z: number,
+  v: number,
+  dt: number,
+  yarista: boolean,
+  hit = -9,
+  beta = 0,
+) {
   const k = mutant.kosu;
   if (!k) return;
+  if (k.faz == "surus" || k.faz == "boss") {
+    if (hit < mutant.sonHit) mutant.sonHit = hit;
+    let tur: "carpma" | "spin" | null = null;
+    if (hit > mutant.sonHit + 0.25) {
+      mutant.sonHit = hit;
+      tur = "carpma";
+    }
+    const spin = Math.abs(beta) > 1.3 && v > 4;
+    if (spin && !mutant.spinde) tur ??= "spin";
+    mutant.spinde = Math.abs(beta) > 0.4 && (mutant.spinde || spin);
+    if (tur) {
+      const pert = hasarAl(k, tur);
+      mutantAracGuncelle();
+      mutant.ui?.hasar(tur, pert);
+      if (pert) return;
+    }
+  }
   if (k.faz == "surus" && zamanAkis(k, dt) == "boss") {
     if (yarista) mutant.bossBekliyor = true;
     else mutant.ui?.sureDoldu();

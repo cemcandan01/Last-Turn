@@ -23,6 +23,7 @@ import {
   mutantKapat,
   mutantKosuluGeriYukle,
   mutantKurulumUygula,
+  mutantAracGuncelle,
   mutantPistleri,
   mutantRekoru,
   mutantYarisBitti,
@@ -35,6 +36,9 @@ import {
   RISKLER,
   STOK_YENILE,
   stokYenile,
+  tamirBedeli,
+  tamirEt,
+  GOVDE,
   type Risk,
   bossHedefi,
   parcaAl,
@@ -219,7 +223,7 @@ function atolye() {
   const k = mutant.kosu!,
     kat = (id: string) => KATEGORILER.find((q) => q[0] == PARCALAR.find((p) => p.id == id)!.kat)![1];
   const s = sayfaAc(
-    `<div class="bar"><button class="btn" id="mKapat">Haritaya dön</button><button class="btn alt" id="mYenile" ${k.para < STOK_YENILE ? "disabled" : ""}>Stoğu yenile · ${STOK_YENILE}</button></div><h1>Atölye</h1><p>Para: <b>${k.para}</b>. Bu bölgede satılan ${k.stok.length} parça. Takılan aynı kategorideki parçanın yerine geçer.</p><div class="mtz">` +
+    `<div class="bar"><button class="btn" id="mKapat">Haritaya dön</button><button class="btn alt" id="mYenile" ${k.para < STOK_YENILE ? "disabled" : ""}>Stoğu yenile · ${STOK_YENILE}</button>${k.govde < GOVDE.tam ? `<button class="btn alt" id="mTamir" ${k.para < GOVDE.tamirFiyati ? "disabled" : ""}>Tamir · ${tamirBedeli(k)}</button>` : ""}</div><h1>Atölye</h1><p>Para: <b>${k.para}</b> · Gövde <b>${Math.round(k.govde)}</b> (güç −%${Math.round(GOVDE.gucKaybi * (100 - k.govde))}). Bu bölgede satılan ${k.stok.length} parça. Takılan aynı kategorideki parçanın yerine geçer.</p><div class="mtz">` +
       k.stok
         .map((id) => {
           const p = PARCALAR.find((q) => q.id == id)!,
@@ -233,6 +237,12 @@ function atolye() {
   s.querySelector<HTMLElement>("#mYenile")!.onclick = () => {
     if (stokYenile(k)) atolye();
   };
+  s.querySelector<HTMLElement>("#mTamir")?.addEventListener("click", () => {
+    if (!tamirEt(k)) return;
+    mutantAracGuncelle();
+    note("Tamir: gövde " + Math.round(k.govde), 30);
+    atolye();
+  });
   s.querySelectorAll<HTMLButtonElement>("[data-parca]").forEach(
     (b) =>
       (b.onclick = () => {
@@ -319,7 +329,8 @@ function ozet() {
   const rek = mutantRekoru();
   const s = sayfaAc(
     '<div class="bar"><button class="btn" id="mYeni">Yeni koşu</button><button class="btn alt" id="mMenu">Ana menü</button></div>' +
-      `<h1>Koşu bitti</h1><p>${mutant.yeniRekor ? "Yeni rekor! " : ""}Ulaşılan bölge ${k.bolge}, yenilen boss ${k.yenilenBoss}.</p><div class="mtz">` +
+      `<h1>${k.pert ? "Araç pert oldu" : "Koşu bitti"}</h1><p>${mutant.yeniRekor ? "Yeni rekor! " : ""}${k.pert ? "Gövde sıfırlandı: " + k.carpma + " sert çarpma, " + k.spin + " spin. " : ""}Ulaşılan bölge ${k.bolge}, yenilen boss ${k.yenilenBoss}.</p><div class="mtz">` +
+      row("Hasar", k.carpma + " çarpma · " + k.spin + " spin · gövde " + Math.round(k.govde)) +
       row("Araç", mutantArac >= 0 ? CARS[mutantArac].n : "—") +
       row("Seviye", k.seviye) +
       row("Etkinlik", k.tamamlanan) +
@@ -341,6 +352,14 @@ export function mutantArayuzuKur(yeni: () => void, menu: () => void) {
   yeniKosu = yeni;
   anaMenu = menu;
   mutant.ui = {
+    hasar: (tur, pert) => {
+      const k = mutant.kosu!;
+      if (!pert) return note((tur == "carpma" ? "Çarpma" : "Spin") + " · Gövde " + Math.round(k.govde), 34);
+      // pert: yarış sürüyorsa bitir, özet
+      const EV = yaris.EV;
+      if (EV) EV.state = "done";
+      ozet();
+    },
     basla,
     secim: () => pasifSayfasi("Seviye atladın: bir yetenek seç."),
     isaret,
@@ -371,5 +390,8 @@ export function mutantBaslik(evAdi: string | null): string | null {
 export function mutantPaneli(): [string, string] | null {
   const k = mutant.kosu;
   if (!k || yaris.EV) return null;
-  return ["BOSS " + sure(k.kalan), k.boss.ad + " · Sv " + k.seviye + " · " + k.para + " para"];
+  return [
+    "BOSS " + sure(k.kalan),
+    k.boss.ad + " · Sv " + k.seviye + " · " + k.para + " para · Gövde " + Math.round(k.govde),
+  ];
 }

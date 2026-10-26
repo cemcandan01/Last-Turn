@@ -102,6 +102,12 @@ export interface Pasif {
   arac?: (c: Arac) => void;
 }
 
+/**
+ * gövde (issue #16 risk bedeli): sürüş hatası aracı gerçekten yıpratır. Sert çarpma ve spin gövdeden düşer; düşük gövde
+ * motor gücünü azaltır (en çok %30), 0 olunca araç pert ve koşu biter. Atölyede parayla tamir.
+ */
+export const GOVDE = { tam: 100, carpma: 12, spin: 8, gucKaybi: 0.3, tamirFiyati: 3 };
+
 export const PASIFLER: Pasif[] = [
   { id: "guc", ad: "Motor ayarı", d: "Güç +%10", en: 3, arac: (c) => void (c.hp *= 1.1) },
   { id: "hafif", ad: "Hafifletme", d: "Ağırlık −%6", en: 3, arac: (c) => void (c.kg *= 0.94) },
@@ -118,6 +124,8 @@ export const PASIFLER: Pasif[] = [
   { id: "ogrenci", ad: "Hızlı öğrenen", d: "XP +%25", en: 2 },
   { id: "tuccar", ad: "Pazarlıkçı", d: "Para +%25, atölye %10 ucuz", en: 2 },
   { id: "zaman", ad: "Zaman bükücü", d: "Hedefi geçtiğin her etkinlik boss'a +20 sn", en: 2 },
+  { id: "zirh", ad: "Zırh", d: "Çarpma ve spin hasarı −%35", en: 2 },
+  { id: "tamirci", ad: "Seyyar tamirci", d: "Her etkinlik sonunda gövde +12", en: 2 },
 ];
 export const pasifBul = (id: string) => PASIFLER.find((p) => p.id === id);
 
@@ -190,6 +198,12 @@ export interface Kosu {
   yenilenBoss: number;
   /** koşu sürüşte geçen toplam süre */
   zaman: number;
+  /** gövde (0-100) ve hasar dökümü (özet: koşu neden kaybedildi) */
+  govde: number;
+  carpma: number;
+  spin: number;
+  /** pert olduysa true (koşu bitti) */
+  pert: boolean;
 }
 
 const sec = <T>(r: Rastgele, a: readonly T[]) => a[Math.floor(r() * a.length)];
@@ -266,6 +280,10 @@ export function kosuBaslat(tohum: number, pistler: readonly PistAdayi[]): Kosu {
     tamamlanan: 0,
     yenilenBoss: 0,
     zaman: 0,
+    govde: GOVDE.tam,
+    carpma: 0,
+    spin: 0,
+    pert: false,
   };
   k.secenekler = pasifCek(k, 3);
   etkinlikDiz(k, pistler);
@@ -311,11 +329,39 @@ export function pasifSec(k: Kosu, id: string): boolean {
   return true;
 }
 
-/** aracın koşu değerleri: (parçalı) araç kopyası + pasif kademeleri */
-export function kosuAraci(taban: Arac, k: Pick<Kosu, "pasifler">): Arac {
+/** aracın koşu değerleri: (parçalı) araç kopyası + pasif kademeleri + gövde hasarının güç kaybı */
+export function kosuAraci(taban: Arac, k: Pick<Kosu, "pasifler"> & { govde?: number }): Arac {
   const c: Arac = { ...taban, gr: [taban.gr[0], taban.gr[1]] };
   for (const id of k.pasifler) pasifBul(id)?.arac?.(c);
+  const g = Math.max(0, Math.min(GOVDE.tam, k.govde ?? GOVDE.tam)) / GOVDE.tam;
+  c.hp *= 1 - GOVDE.gucKaybi * (1 - g);
   return c;
+}
+
+/** hasar: sert çarpma ya da spin; zırh azaltır. Gövde 0 olunca pert (koşu biter). Dönen: pert oldu mu */
+export function hasarAl(k: Kosu, tur: "carpma" | "spin"): boolean {
+  if (k.faz == "bitti" || k.pert) return false;
+  const h = GOVDE[tur] * (1 - 0.35 * pasifSayisi(k, "zirh"));
+  k[tur]++;
+  k.govde = Math.max(0, k.govde - h);
+  if (k.govde <= 0) {
+    k.pert = true;
+    k.faz = "bitti";
+    return true;
+  }
+  return false;
+}
+
+export const tamirBedeli = (k: Pick<Kosu, "govde">) => Math.ceil((GOVDE.tam - k.govde) * GOVDE.tamirFiyati);
+
+/** atölyede tam tamir (para yetmezse yettiği kadar) */
+export function tamirEt(k: Kosu): boolean {
+  if (k.govde >= GOVDE.tam || k.para <= 0) return false;
+  const puan = Math.min(GOVDE.tam - k.govde, Math.floor(k.para / GOVDE.tamirFiyati));
+  if (puan <= 0) return false;
+  k.govde += puan;
+  k.para -= puan * GOVDE.tamirFiyati;
+  return true;
 }
 
 /** sürüş süresi akar (etkinlik içinde de); boss süresi dolunca "boss" döner */
@@ -360,6 +406,7 @@ export function etkinlikBitti(k: Kosu, id: number, gecti: boolean, risk: Risk = 
   const para = Math.round(o.para * pay * (1 + 0.25 * pasifSayisi(k, "tuccar")));
   k.para += para;
   const ekSure = gecti ? 20 * pasifSayisi(k, "zaman") : 0;
+  k.govde = Math.min(GOVDE.tam, k.govde + 12 * pasifSayisi(k, "tamirci"));
   k.kalan += ekSure;
   if (k.bekleyenSecim > 0) {
     k.faz = "secim";
