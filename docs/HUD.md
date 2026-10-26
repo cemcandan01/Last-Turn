@@ -75,10 +75,9 @@ bilgi konmaz), Steven Hoober'ın başparmak bölgeleri ve oyuncuların "HUD ekra
 - El freni tuşu (`#dbr`, 76 × 44 px) sağ grupta frenin (analogda pedalın) üstünde, telefonu çevirmede frenin
   solunda (`.tsut`). Tuşlarla gazda sağ grup yükselir (`--cR` 136 px), hız onun üstüne oturur.
 
-- **MUTANT Tutuş Darbesi tuşu** (`#mdb`, 96 × 44 px): sol tuş grubunun üstünde (el freninin sağda durduğu gibi).
-  Enerji ayrı gösterge değil, tuşun içinde soldan dolar; alttaki kısa çizgi bir darbenin maliyetidir. Hazırken kenar,
-  darbe sürerken tuş turuncu. Görev ilerlemesi sol üst panelde (büyük satır ilerleme / hedef, alt satır görev ve kalan
-  süre). Denetim: `tests/e2e/bolumler/mutant.mjs` (3 kontrol türünde çakışma/taşma).
+- **MUTANT:** Açık dünyada sol üst panel boss geri sayımıdır (büyük satır "BOSS 12:34", alt satır boss adı, seviye,
+  para); etkinlikte başlık "MUTANT 12:34 · pist", boss yarışında "BOSS · ad". Yeni tuş yok. İşaretler mini haritada
+  renkli kare; görüş dışındakiler kenara sabitlenir. Denetim: `tests/e2e/bolumler/mutant.mjs`.
 
 ## 6. Göstergeleri seçme
 

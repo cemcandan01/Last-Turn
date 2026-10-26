@@ -110,3 +110,16 @@ Açık haritada çarpışmalı, kovalamacalı roguelite. Slay the Spire'ın aç�
 - **A3 Çarpışma + NPC yarışçılar** (pilot tabanlı YZ); boss gerçek rakip olur.
 - **A4 Polis + aranma + kovalamaca**, yol ağı; şehir/sokak haritası.
 - **A5 Modüler rastgele harita, daha çok boss, meta ilerleme.**
+
+## 8. A1 uygulaması (Claude, claude/mutant)
+Cem kararları (2026-10-26): A1 ile başla; boss kaybı koşuyu bitirir, etkinlik başarısızlığı zaman/para kaybı; koşu ekonomisi kariyerden ayrı, kalıcı ilerleme ayrı birimle (A5); harita sabit, etkinlik/sandık/hava/boss rastgele. "Yol aldıkça başka fikirler oluşur."
+
+Kabul ölçütleri:
+1. Menüde MUTANT → boss kartı + 3 kötü araç + 3 pasif; garaj yok.
+2. Çorak Topraklar'da 8 etkinlik (5 türün hepsi) + atölye + boss işareti; 3B sütun ve mini haritada yön.
+3. İşarette durunca kart; etkinlik mevcut pistte tek tur, kariyer ödülü/yıldız/rekor/hayalet/PROF yazılmaz; sonuç koşu parası/XP, aynı noktaya dönüş.
+4. XP seviyede 3 pasiften 1; atölyede koşu parasıyla parça hemen takılır.
+5. Süre dolunca zorunlu boss (boss türü, hava/gece, sıkı hedef); kazan → bölge 2 + yeni boss; kaybet → özet, koşu kapanır; normal yarış etkilenmez.
+
+Yapılanlar: `oyun/mutant-kosu.ts` (saf kurallar), `oyun/mutant.ts`, `arayuz/mutant-ui.ts`, `cizim/isaretler.ts`, mini harita işaretleri, `startEvent(i, ci, true)` + `endEvent` MUTANT dalı, duraklatmada "Etkinlikten vazgeç". v1 görev döngüsü ve Tutuş Darbesi kaldırıldı (fizik yolu gelistirme ile aynı); enerji perkleri `oyun/mutant-enerji.ts`'te A2 için.
+Testler: birim `MUTANT koşu (A1)` 12; e2e `mutant.mjs` 10 kontrol; iPhone 13 görüntüleri (başla, pasif, harita, kart, atölye, boss, boss yarışı) incelendi; büyük açılış yazısı küçültüldü, etkinlikler 3 turdan tek tura indi (Amatör asfalt hedefi 3:39 → ~1:13).

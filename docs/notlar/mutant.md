@@ -1,8 +1,8 @@
 # mutant dal notu
 
-- 2026-10-26: Cem serbest sürüşü kaldırıp yerine MUTANT'ı (TR/EN aynı imza ad) istedi; gerçekçi yarış ana mod olarak kalır. İlk sürüm küçük koşu döngüsü, yalnız deneme.
-- Önerilerin hepsi kabul: mekanik yalnız MUTANT'ta; tek harcama Tutuş Darbesi (hız boost'u yok, sınıf bütçesini deler); spinde drift enerjisi yanar; rekor `lt_mutant`, ödül yok.
-- Tutuş Darbesi fiziğe `havaTutusu` çarpanıyla girer: fizik koduna dokunmadan bütün tekerlerde aynı tutuş. Taban x1,2 / 2,5 sn / 30 enerji / 2 sn sonra bekleme; açıkken yeniden basılmaz.
-- Matris (129 kombinasyon × 4 biçim) ilk turda Geniş Batarya'nın tek kaynakla etkisiz olduğunu buldu: durumsal perk, kural "en az bir kombinasyonda etkili" olarak kondu.
-- Yardım ölçümü: ölçülü sürücüde gerçekçi/dengeli/arcade Hasat enerjisi 51,1/51,3/51,5 → yardıma ceza gerekmedi.
-- Açık: sayılar ölçülmüş denge değil; Cem telefonda koşu süresi/görev zorluğu hissini söylemeli. Rakip/temas perkleri (Side Ram, Close Call) FAZ 4 altyapısı olmadan yok.
+- 2026-10-26: Cem serbest sürüşü kaldırıp MUTANT'ı (TR/EN aynı imza ad) istedi; gerçekçi yarış ana mod olarak kalır.
+- v1 (0.8.1, görev döngüsü + Tutuş Darbesi) Cem'in testinde başarısız: Darbe hissedilmedi (ölçüm: düz yolda +0,3 km/sa, virajda x1,2 tutuş spin attırdı), görevler ana dinamik olmamalı. İkisi de kaldırıldı.
+- Yön (Cem, LT-SYS-002 §7): kötü araç + başlangıç yeteneği → açık haritaya atıl → rastgele boss'a geri sayım; etkinliklerden XP/para; XP pasif, para modifiye, haritadan eklenti; Slay the Spire gibi boss'a göre build. Polis, NPC yarışçı, çarpışma sonraki aşamalar.
+- A1 kararları: harita sabit, etkinlik/boss rastgele; boss kaybı koşuyu bitirir, etkinlik başarısızlığı yalnız zaman/para; koşu ekonomisi kariyerden ayrı; etkinlikler tek tur (15 dk'ya sığsın), boss tam tur.
+- Sayılar (boss süresi 15 dk, ödüller, pasif yüzdeleri, atölye fiyatları) tahmindir; Cem'in telefon testine göre ayarlanacak.
+- Sıradaki: A2 nitro + haritada eklenti sandıkları + geri bildirim; sonra A3 çarpışma + NPC yarışçı.
