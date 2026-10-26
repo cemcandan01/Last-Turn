@@ -35,3 +35,11 @@
 ## Ses
 
 - **Ses:** Ses dosyası yok, hepsi oyunda üretilir (`src/ses/`). Motor sesi fizikten okunur (`sim.yeni.rpm`, `vitesT`, `S.gas`), lastik sesi tekerlerin kaymasından (`tk.tanA`, `tk.kap`, `tk.zemin`). Ses ilk dokunuşta açılır (iOS). Seviyeler `set.ses`, `set.muz`. Ses değişikliğinde `npm run build && npm run ses`, sonra `tests/cikti/ses/` kayıtlarını kullanıcıya dinlet (kendin dinleyemezsin; spektrum ve seviye ölçümüne bak). Motor tınısı gerçek motor seslerinin ölçümüne uydurulur: `SES_KAYNAK=<wav klasörü> npm run olcum -- ses-uydur` (`tests/olcum/ses-uydur.test.ts`, ölçüm `tests/yardimci/ses-analiz.ts`) yalnız sayıları `src/ses/hedefler.ts`'e yazar; kayıtlar depoya ve oyuna girmez. Ölçülen kaynak: Stunt Rally 3 motor sesleri (`data/sounds/engines`, engine-sim ile kaydedilmiş).
+
+## Kariyer ve ekonomi
+
+- Temel `docs/DENGE.md`; uygulama `oyun/kariyer.ts`, ödül oranları `ekonomi.ts`, net kategori alımı ve erişim `ilerleme.ts`. Sınıf bütçeleri D200/D250/D400/C500/B600/açık999; zorluk ile pist kimliği karıştırılmaz.
+- Yeni pist: hedef kurulumu `kariyerKurulumu` ile seç; `TUR=<tür> LV=<no> npm run olcum -- kariyer.test` ile gerçek runtime lastiği/kalitesiyle ölç; `tg/hp/ys/odulSn` ve `docs/denge/2026-10-25-kariyer-olcum.json` kaydını birlikte güncelle. `kariyer.test.ts` kurulum/fizik/geometri imzası eskiyse CI'ı durdurur. `pistler`/`drift-puan` eski tanı ölçümleridir; kariyer hedefini onlardan körlemesine kopyalama.
+- Lastiğin türünü yarış otomatik seçer (rallikros toprak); takılı lastik parçasının seviyesi K1/K2/K3 tutuş kalitesidir. Sabit 0–6 bileşik indeksleri ve sınıfın lastikten bağımsız olması korunur.
+- Üst puanlı araç ödülsüz denemeye girer (`deneme_` rekor/hayalet anahtarı); kariyer yıldızı, XP, para veya galibiyet yazılmaz. `endEvent` yalnız pozitif süreli run durumunda bir kez sonuçlandırır.
+- Kategori kredisi geçmiş alımı silerek verilmez; yeni alımın net bedeli kaydedilir. Tek türde 2★ ile bütün aşamalar erişilebilir; XP yolu da açıktır. Yeni fiyat/fizik değişikliğinde edinme dakikası ve iki yatırım rotası yeniden karşılaştırılır.

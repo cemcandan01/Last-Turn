@@ -44,3 +44,17 @@ jobs:
         with:
           name: garaj-duzen-iphone13
           path: tests/cikti/garaj-duzen-iphone13.png
+
+      - name: Kariyer görsel kanıtı
+        if: always() && hashFiles('tests/cikti/kariyer-kupa-iphone13.png') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: kariyer-kupa-iphone13
+          path: tests/cikti/kariyer-kupa-iphone13.png
+
+      - name: Yakın takip görsel kanıtı
+        if: always() && hashFiles('tests/cikti/kamera-yakin-iphone13.png') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: kamera-yakin-iphone13
+          path: tests/cikti/kamera-yakin-iphone13.png

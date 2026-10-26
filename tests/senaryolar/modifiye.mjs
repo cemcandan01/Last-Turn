@@ -1,3 +1,4 @@
+import { kariyerSozlesmesi } from "../yardimci/kariyer-senaryosu.mjs";
 // Modifiye dalının senaryoları (tests/senaryolar/BENIOKU.md)
 export default [
   {
@@ -30,4 +31,5 @@ export default [
     p: 1,
     tarayici: "modifiye",
   },
+  kariyerSozlesmesi,
 ];

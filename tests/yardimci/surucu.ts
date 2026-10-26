@@ -1,6 +1,7 @@
 // Test sürücüsü (Node): gerçek pistte ve gerçek çarpışma nesneleriyle, otomatik pilotla sürüş.
 // Oyunun sürüş katmanını (oyun/surus.ts) kullanmaz; aynı fizik bağlamını burada kurar.
 import "./sahte-tuval";
+import { yarisLastigi } from "../../src/arac/yaris-lastigi";
 import { CARS } from "../../src/arac/araclar";
 import { parcaliKurulum } from "../../src/arac/parcalar";
 import { REG, regAt } from "../../src/dunya/bolgeler";
@@ -23,6 +24,8 @@ export interface SurusAyari {
   parca?: readonly string[];
   /** tür uyumu (uzmanlık) kapalı: puan kalibrasyonu için */
   uzmanliksiz?: boolean;
+  /** Zemin/titreşim ölçümü bileşiği yalıtmak için kapatabilir; yarış ölçümlerinde varsayılan açık. */
+  otomatikLastik?: boolean;
 }
 
 /** önayar ve yardım seviyesinden sürüş kurulumu (oyundaki applyPreset ile aynı) */
@@ -63,6 +66,9 @@ export function surucuKur(a: SurusAyari) {
     rng: sim.rng,
     gorselRng: Math.random,
   };
+  // Ölçüm gerçek yarışla aynı otomatik bileşiği/kaliteyi kullanmalı.
+  if (a.yaris != null && a.otomatikLastik !== false && bolge && bolge.t != "park")
+    cx.kurulum.tire = yarisLastigi(bolge.t, a.parca);
   const reset = (x: number, z: number, h: number) => {
     sim.sifirla(x, z, h, Hw(x, z));
     dunya.cur = regAt(x, z);

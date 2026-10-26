@@ -18,7 +18,7 @@ export { REG } from "../dunya/bolgeler";
 export { WORLDS, dunya } from "../dunya/dunya";
 export { ipucu } from "../dunya/pist";
 export { set, CT, gorunum, HUDLAR, HUD_PARCALARI } from "./ayarlar";
-export { hudDuzeniUygula } from "../arayuz/hud";
+export { hudDuzeniUygula, hudGuncelle } from "../arayuz/hud";
 export { hudDuzenleyiciAc, hudDuzenleyiciKapat, duzenleyici } from "../arayuz/hud-duzenleyici";
 export { epostaFormuAc, epostaFormuKapat } from "../arayuz/hesap-ui";
 export { oyun, setCar } from "./durum";
@@ -31,7 +31,7 @@ export { sim, reset, yerel, surusAdimi } from "./surus";
 export { uzak, hayalet, uzakAracEkle, uzakAracSil, uzakAnlikEkle } from "./uzak";
 export { aracAnligi } from "../fizik/arac-ornegi";
 export { kaydiSerilestir, kaydiCoz, kaydiOynat } from "../fizik/girdi-kaydi";
-export { EVENTS, startEvent, endEvent, yaris, evTick, yarisiYenidenBaslat } from "./yarislar";
+export { EVENTS, startEvent, leaveEvent, endEvent, yaris, evTick, yarisiYenidenBaslat } from "./yarislar";
 import { tt } from "./dongu";
 
 /** görsel saat */
@@ -46,6 +46,7 @@ export {
   xpEkle,
   ilerlemeVerisi,
   ilerlemeYukle,
+  ilerlemeSifirla,
   ilerlemeyiSifirla,
   kilitTablosu,
   para,
@@ -59,6 +60,7 @@ export {
 } from "./ilerleme";
 export {
   takiliParcalar,
+  takiliYukle,
   parcaTak,
   parcaSok,
   paketiTak,

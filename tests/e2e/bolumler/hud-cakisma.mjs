@@ -22,6 +22,8 @@ export default async function ({ p, ok }) {
     LT.demoStop();
     const dp = LT.EVENTS.findIndex((e) => e.ty == "dp"),
       P = LT.HUD_PARCALARI;
+    // üç bonustan son ikisi en az bir düzende yan yana (tek satırda) görülmeli
+    let ucBonus = 0;
     for (const c of ctl) {
       Object.assign(LT.CT, c);
       LT.startEvent(dp, 2);
@@ -29,6 +31,8 @@ export default async function ({ p, ok }) {
       EV.score = 2844;
       EV.combo = 1240;
       EV.mult = 3;
+      // bankaya geçmemiş bonus kombo panelinde görünür
+      EV.bonus = 1450;
       // pist dalının ters yön bayrağı: GERİ DÖN diğer göstergelerle çakışmamalı
       EV.ters = true;
       // drift bonus bildirimleri (pist dalının sözleşmesi): üç farklı bonus
@@ -59,6 +63,11 @@ export default async function ({ p, ok }) {
             const kutular = [".hTL", ".hBt", "#dr", ".hSP", "#mm", "#ters", "#bon", "#ctl > *"]
               .flatMap((q) => [...document.querySelectorAll(q)].map((e) => [q, e.getBoundingClientRect()]))
               .filter(([, r]) => r.width > 0 && r.height > 0);
+            // bonuslar alt alta birikip yolu kapatmaz: üçü tek satırda
+            const bon = document.querySelector("#bon");
+            if (bon.children.length && bon.getBoundingClientRect().height > 30)
+              sorun.push(ad + ": drift bonusları tek satırda değil");
+            if (bon.children.length === 2) ucBonus++;
             for (const [q, r] of kutular)
               if (r.left < 0 || r.top < 0 || r.right > W || r.bottom > H)
                 sorun.push(ad + ": " + q + " ekrandan taşıyor");
@@ -85,8 +94,11 @@ export default async function ({ p, ok }) {
               !document.querySelector("#drP").textContent.includes("1240")
             )
               sorun.push(ad + ": üst ortada kombo görünmüyor");
+            if (!document.querySelector("#drA").textContent.includes("+1450"))
+              sorun.push(ad + ": biriken bonus kombo panelinde görünmüyor");
           }
     }
+    if (!ucBonus) sorun.push("iki drift bonusu hiç yan yana görünmedi");
     // x6 kazanıldı: animasyon tetiklenir, bonus satırı çıkmaz, 2. turda rozet; sonra animasyon biter
     for (const hiz of ["kose", "bant"]) {
       Object.assign(LT.CT, { steer: "btn", gas: "btn" });

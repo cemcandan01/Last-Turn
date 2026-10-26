@@ -20,7 +20,8 @@ import {
 } from "../oyun/ilerleme";
 import { takiliVerisi, takiliYukle } from "../oyun/modifiye";
 import { best, saveBest } from "../oyun/profil";
-import { TUR_ANAHTARI } from "../oyun/yildiz";
+import { kariyerRekorAnahtari, KARIYER_SURUM } from "../oyun/kariyer";
+import { DRIFT_REKOR_ON_EKI, TUR_ANAHTARI } from "../oyun/yildiz";
 import type { YarisTuru } from "../arac/araclar";
 
 /** Firestore belgesi (users/{uid}); alanlar firestore.rules'ta denetlenir */
@@ -75,11 +76,25 @@ export type EsitlemeDurumu = "yok" | "esitleniyor" | "tamam" | "bekliyor" | "hat
 const TURLER: YarisTuru[] = ["gp", "rx", "dp", "rl", "dg"];
 const BEKLEYEN = "lt_bulut";
 
-/** bütün pistlerin rekor anahtarları (tür_pist) */
-const rekorAnahtarlari = () =>
-  TURLER.flatMap((ty) => ACILMA.pist[ty].map((_, i) => TUR_ANAHTARI[ty] + "_" + (i + 1)));
+/** bütün pistlerin rekor anahtarları (tür_pist; driftte eski kural rekoru da eşitlenir, yeni kural ayrı ön ekte) */
+const eskiRekorAnahtarlari = () => [
+  ...TURLER.flatMap((ty) => ACILMA.pist[ty].map((_, i) => TUR_ANAHTARI[ty] + "_" + (i + 1))),
+  ...ACILMA.pist.dp.map((_, i) => DRIFT_REKOR_ON_EKI + "_" + (i + 1)),
+];
 
-const driftMi = (k: string) => k.startsWith(TUR_ANAHTARI.dp + "_");
+const rekorAnahtarlari = () => {
+  const eski = eskiRekorAnahtarlari();
+  return [
+    ...eski,
+    ...Array.from({ length: KARIYER_SURUM }, (_, i) =>
+      eski.map((k) => kariyerRekorAnahtari(k, i + 1)),
+    ).flat(),
+  ];
+};
+const driftMi = (k: string) => {
+  const a = k.replace(/^kariyer\d+_/, "");
+  return a.startsWith(TUR_ANAHTARI.dp + "_") || a.startsWith(DRIFT_REKOR_ON_EKI + "_");
+};
 
 const surum = () => (typeof __APP_VERSION__ == "string" ? __APP_VERSION__ : "");
 

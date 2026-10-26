@@ -815,7 +815,9 @@ export function yeniAdim(
   S.spin = kMaxArka > 0.3 && v2 < 25 ? 1 : 0;
   const dri = driftSkoru(d, v2, vl2, vt2, dt);
   tozVeDuman(d, cx, si, v2, !S.air && v2 > 5 && (kMaxArka > 0.25 || aMaxArka > 0.3 || dri));
-  return { Sf: SURF[si], T, v: v2, si };
+  let cimTeker = 0;
+  for (let i = 0; i < 4; i++) if (Y.tk[i].zemin == 2) cimTeker++;
+  return { Sf: SURF[si], T, v: v2, si, cimTeker };
 }
 
 /** gövdenin zemine değebilecek noktaları (model koordinatı) */

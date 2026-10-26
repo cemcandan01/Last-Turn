@@ -45,6 +45,8 @@ export const HAYALET = "hayalet";
 /** Rekor hayaletinin oynatma durumu */
 export const rekorHayaleti = {
   aktif: false,
+  /** kayıttaki araç: ayar kapatılıp açılınca çizim yeniden eklenir */
+  arac: 0,
   kayit: null as GirdiKaydi | null,
   sim: null as Simulasyon | null,
   cx: null as FizikBaglami | null,
@@ -57,7 +59,6 @@ export function rekorHayaletiBaslat(pistAnahtari: string, dunyaSorgusu: DunyaSor
   const veri = hayaletGirdiKaydiOku(pistAnahtari);
   if (!veri) return false;
 
-  uzakAracEkle(HAYALET, veri.arac);
   const ghostSim = new Simulasyon(veri.kayit.tohum);
   ghostSim.sifirla(veri.kayit.bas.x, veri.kayit.bas.z, veri.kayit.bas.h, veri.kayit.bas.y);
   Object.assign(ghostSim.d.S, veri.kayit.bas);
@@ -75,14 +76,14 @@ export function rekorHayaletiBaslat(pistAnahtari: string, dunyaSorgusu: DunyaSor
   };
 
   rekorHayaleti.aktif = true;
+  rekorHayaleti.arac = veri.arac;
   rekorHayaleti.kayit = veri.kayit;
   rekorHayaleti.sim = ghostSim;
   rekorHayaleti.cx = cx;
   // Serbest sürüş turu öncesindeki girdiler başlangıç fiziğini aynı duruma getirir.
   for (let n = 0; n < veri.baslangicAdimi; n++) ghostSim.adim(kayitGirdisi(veri.kayit, n), cx);
   rekorHayaleti.adimIndex = veri.baslangicAdimi;
-  const u = uzak.araclar.find((a) => a.id === HAYALET)!;
-  uzakAnlikEkle(u, anlikAl(ghostSim.d, ghostSim.yeni));
+  if (set.rh) uzakAnlikEkle(uzakAracEkle(HAYALET, veri.arac), anlikAl(ghostSim.d, ghostSim.yeni));
   return true;
 }
 
@@ -92,6 +93,7 @@ export function rekorHayaletiDurdur() {
   rekorHayaleti.sim = null;
   rekorHayaleti.cx = null;
   rekorHayaleti.adimIndex = 0;
+  rekorHayaleti.arac = 0;
   uzakAracSil(HAYALET);
 }
 
@@ -111,16 +113,19 @@ export const hayaletAcik = () => hayalet.zorla || (GELISTIRICI && !!set.hayalet)
 export function uzakAdimi() {
   const H = rekorHayaleti;
   if (H.aktif && H.kayit && H.sim && H.cx) {
-    const u = uzak.araclar.find((a) => a.id == HAYALET);
-    if (!u) return;
+    // Ayar kapalıyken de simülasyon sürer; açılınca hayalet kaldığı yerden görünür.
+    let u = uzak.araclar.find((a) => a.id == HAYALET);
+    if (!set.rh) {
+      if (u) uzakAracSil(HAYALET);
+      u = undefined;
+    } else if (!u) u = uzakAracEkle(HAYALET, H.arac);
     const kayit = H.kayit;
     const gSim = H.sim;
     const gCx = H.cx;
     if (H.adimIndex < kayit.n) {
       const gi = kayitGirdisi(kayit, H.adimIndex);
       gSim.adim(gi, gCx);
-      const anlik = anlikAl(gSim.d, gSim.yeni);
-      uzakAnlikEkle(u, anlik);
+      if (u) uzakAnlikEkle(u, anlikAl(gSim.d, gSim.yeni));
       H.adimIndex++;
     }
     return;

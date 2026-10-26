@@ -81,10 +81,11 @@ npm run dev           # geliştirme sunucusu (bilgisayarda: anında yenileme)
 ## Kullanıcının kararları (bozma, değiştirmeden önce sor)
 
 - Yönetmen sohbeti yönlendirdiği işleri kullanıcıya önceden anlatmaz (maliyet); yalnız işler bitince kısa özet ve görsel kanıtla yazar. Yönetmenin açtığı konu sohbetleri kullanıcıya hiçbir şey göndermez (`SendUserFile` dahil): işi bitirince yönetmene `mcp__claude-code-remote__send_message` (`@parent`) ile "<dal>: <sürüm> denemede" ve kanıt tarifini yazar; görsel kanıtı yönetmen alır ve kendi sohbetinde gösterir.
-- Drift puanı açı × hız (birimden bağımsız iç hız); puan açısı en az 10° (drift sürerken; yön değiştirirken kayma sürdükçe ≤0,6 sn kombo taban açıyla akar), en fazla 60°; drift yarışında 1. turun ≥%90'ı driftle geçilirse 2. turda çarpan x6; bonuslar (uzun drift +100/sn, direksiyonsuz +100/sn, tek yön +250/sn; koşul 1 sn sürünce başlar).
+- Drift puanı açı × hız (birimden bağımsız iç hız); puan açısı en az 10° (drift sürerken; yön değiştirirken kayma sürdükçe ≤0,6 sn kombo taban açıyla akar), en fazla 60°; drift yarışında 1. turun ≥%90'ı driftle geçilirse 2. turda çarpan x6; bonuslar (0.7.4, Cem onayı: uzun drift 3 sn'den sonra her saniye artan +100, +200, +300…; tek yön 3 sn'den sonra +150/sn; direksiyonsuz 2 sn'den sonra +100/sn). Bankaya geçmemiş bonus kombo panelinde görünür. Drift rekoru/hayaleti kural sürümlü anahtarda (`drift2_<lv>`); eski kural rekoru profilde "eski kural" diye kalır.
 - Oyun yalnız yatay ekranda; dikey düzen için emek harcanmaz.
 - Direksiyon tuşu hassasiyeti varsayılan 0,5 (tüm önayarlarda `sens:.5`).
 - Gerçek marka adı ve logo yok; araçlar gerçek araçlardan esinlenir, kendi adları vardır (Kızıl Ok, Kor RX, Beyaz Kurt, Mavi Yıldız, Gece Mavisi).
+- Pist sınırı (0.7.5, Cem): kerbli pistte (asfalt, drift) kerb pisttir. Drift kombosu yalnız dört teker de çimdeyken yanar. Pist dışında ilk 1 sn sayım yok, sonra ekran ortasında 5…1 geri sayım ve ilk çıkış noktasına dönüş.
 - Drift ile kayma ayrı: küçük kaymalar drift duruşuna geçmez. Drift yarışında ayrı bir drift ayarı yoktur: aracın kendi önayarıyla, otoparktaki driftle aynı çalışır.
 - Gerçekçi seviyede drift zor ama mümkün olmalı. Arcade'de bile denge kurmak gerekir; abartan ya da direksiyonu bırakan spin atar.
 - Kalkış patinajı hızı az düşürür. Tuşla gazda patinaj araca özgü sabit ve düşüktür; analog pedalda gazın ne kadar açıldığına bağlıdır.

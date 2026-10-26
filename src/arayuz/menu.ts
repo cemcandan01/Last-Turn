@@ -1,6 +1,7 @@
 // Ana menü: altta soldan sağa eğik yarış panelleri, her birinde ikon ve başlık (Yarış, Serbest sürüş, Garaj,
 // Profil, Ayarlar); Yarış öne çıkan turuncu ana düğme. Arkada menü videosu ya da canlı sinematik çekimler.
 // Yarış türü → pist listesi (şekil, uzunluk, ortalama süre, rekor) → günün saati ve hava → garajda araç seçimi.
+import { kariyerKurali, kariyerYildizKapisi } from "../oyun/kariyer";
 import { CARS } from "../arac/araclar";
 import { fmt, fmt3 } from "../cekirdek/bicim";
 import { gizle, goster, $ } from "../cekirdek/dom";
@@ -17,7 +18,7 @@ import { demoStart, demoStop } from "../oyun/sinematik";
 import { reset } from "../oyun/surus";
 import { EVENTS, leaveEvent, TYP, type YarisTanimi } from "../oyun/yarislar";
 import { gorselOynuyor } from "./arka-gorsel";
-import { enIyiYildiz, yildizEsikleri } from "../oyun/yildiz";
+import { TUR_ANAHTARI, enIyiYildiz, yildizEsikleri } from "../oyun/yildiz";
 import { ikon, yildizSerit, type IkonAdi } from "./ikonlar";
 import { aracSatinAlinabilirMi, acilmaSeviyesi, pistAcikMi, yarisSonuPara } from "../oyun/ilerleme";
 import { kilitNotu, bakiyeHtml, kutlamaGoster, seviyeRozetiHtml, xpCubuguHtml } from "./seviye-ui";
@@ -67,7 +68,7 @@ const evSayilar = (e: YarisTanimi, kart = false) =>
   }<span>PR<b>${prOf(e)}</b></span></div>`;
 /** pist ayrıntısında para ödülü: ilk kez (1★-3★) ve tekrar */
 const paraOdulu = (e: YarisTanimi) =>
-  `<div class="pod">${ikon("para")}<span>İlk kez <b>${yarisSonuPara(e.ty, e.sev, 1, 0)}–${yarisSonuPara(e.ty, e.sev, 3, 0)}</b></span><span>Tekrar <b>~${yarisSonuPara(e.ty, e.sev, 0, 0)}</b></span></div>`;
+  `<div class="pod">${ikon("para")}<span>İlk kez <b>${yarisSonuPara(e.ty, e.lv, 1, 0)}–${yarisSonuPara(e.ty, e.lv, 3, 0)}</b></span><span>Tekrar <b>~${yarisSonuPara(e.ty, e.lv, 0, 0)}</b></span></div>`;
 /** yarış ayrıntısında 1★/2★/3★ eşikleri (alınanlar dolu) */
 const yildizEsikSatiri = (e: YarisTanimi) => {
   const es = yildizEsikleri(e.ty, e.lv),
@@ -80,9 +81,12 @@ const yildizEsikSatiri = (e: YarisTanimi) => {
     )
     .join("")}</div>`;
 };
-const prOf = (e: YarisTanimi) => {
-  const b = best(e.k);
-  return b ? (e.ty == "dp" ? b + " puan" : e.ty == "dg" ? fmt3(+b) : fmt(+b)) : "—";
+const prOf = (e: YarisTanimi, eskiKural = false) => {
+  const b = best(e.k),
+    onceki = eskiKural ? best(e.k.replace(/^kariyer\d+_/, "")) : 0,
+    eski = eskiKural && e.ty == "dp" ? best(TUR_ANAHTARI.dp + "_" + e.lv) : 0;
+  const s = b ? (e.ty == "dp" ? b + " puan" : e.ty == "dg" ? fmt3(+b) : fmt(+b)) : "—";
+  return s + (onceki ? " · önceki kupa " + onceki : "") + (eski ? " · eski kural " + eski : "");
 };
 const condChips = () =>
   '<div class="lbl">Günün saati</div>' +
@@ -355,7 +359,7 @@ function view(cur: string): [string, string, string] {
       `<p>${y.d}</p><div class="rlist">${pl
         .map(
           ([e, i]) =>
-            `<div class="rc${pistAcikMi(e.ty, e.lv) ? "" : " kilitli"}" data-ev="${i}"><div class="rcu"><img src="${trackThumb(REG[e.reg])}"><div class="rcm">${seviyeRozeti(e)}<em>${evLen(e)}</em>${pistAcikMi(e.ty, e.lv) ? yildizSerit(enIyiYildiz(e.ty, e.lv), "kucuk") : ""}</div>${pistAcikMi(e.ty, e.lv) ? "" : `<div class="kilit">${ikon("kilit")}<b>Seviye ${acilmaSeviyesi({ ty: e.ty, lv: e.lv })}'de açılır</b></div>`}</div><div class="rci"><b>${e.n}</b><small>${SEVIYELER[e.sev - 1].d}</small>${evSayilar(e, true)}</div></div>`,
+            `<div class="rc${pistAcikMi(e.ty, e.lv) ? "" : " kilitli"}" data-ev="${i}"><div class="rcu"><img src="${trackThumb(REG[e.reg])}"><div class="rcm">${seviyeRozeti(e)}<em>${evLen(e)}</em>${pistAcikMi(e.ty, e.lv) ? yildizSerit(enIyiYildiz(e.ty, e.lv), "kucuk") : ""}</div>${pistAcikMi(e.ty, e.lv) ? "" : `<div class="kilit">${ikon("kilit")}<b>Seviye ${acilmaSeviyesi({ ty: e.ty, lv: e.lv })} veya önceki aşamada ${kariyerYildizKapisi(e.ty, e.lv, enIyiYildiz).gereken} yıldız</b></div>`}</div><div class="rci"><b>${e.n}</b><small>${kariyerKurali(e.ty, e.lv)!.ad} · ${SEVIYELER[e.sev - 1].d}</small>${evSayilar(e, true)}</div></div>`,
         )
         .join("")}</div>`,
     ];
@@ -368,7 +372,7 @@ function view(cur: string): [string, string, string] {
       e.n,
       turOf(e.ty)[1] + " yarışları",
       `<div><div class="evh"><img src="${trackThumb(r)}"><div>${seviyeRozeti(e)}<p class="lvd">${SEVIYELER[e.sev - 1].d}</p><p>${e.d}</p>
-${evSayilar(e)}${yildizEsikSatiri(e)}${paraOdulu(e)}</div></div><button class="btn" id="mgo" data-go="${i}">Araç seç ${ikon("sag")}</button></div>
+<p class="note kup">Kupa sınırı: <b>${kariyerKurali(e.ty, e.lv)!.ad}</b>.<span class="kac"> Üstündeki araçla ödülsüz deneme yapılır.</span></p>${evSayilar(e)}${yildizEsikSatiri(e)}${paraOdulu(e)}</div></div><button class="btn" id="mgo" data-go="${i}">Araç seç ${ikon("sag")}</button></div>
 <div class="evk">${condChips()}</div>`,
     ];
   }
@@ -385,7 +389,7 @@ ${evSayilar(e)}${yildizEsikSatiri(e)}${paraOdulu(e)}</div></div><button class="b
       "Sürücü",
       `<div class="pcol"><div class="pseviye">${seviyeRozetiHtml(seviye().lv, "b")}<div><b>Seviye ${seviye().lv}</b>${xpCubuguHtml("b")}<small>Toplam ${seviye().toplamXp} XP</small>${bakiyeHtml("b")}</div></div>${hesapHtml()}<div class="lbl">Sürücü adı</div><input id="pname" class="inp" value="${PROF.name.replace(/"/g, "")}" maxlength="20">
 <div class="pst"><span>Yarış<b>${PROF.races}</b></span><span>Hedef geçildi<b>${PROF.wins}</b></span><span>Toplam yol<b>${PROF.km.toFixed(1)} km</b></span><span>En çok kullanılan<b>${fav ? CARS[+fav[0]].n : "—"}</b></span></div></div>
-<div class="pcol"><div class="lbl">Kişisel rekorlar</div>${EVENTS.map((e) => `<div class="rk"><span>${e.n}</span><span>${prOf(e)}</span></div>`).join("")}</div>`,
+<div class="pcol"><div class="lbl">Kişisel rekorlar</div>${EVENTS.map((e) => `<div class="rk"><span>${e.n}</span><span>${prOf(e, true)}</span></div>`).join("")}</div>`,
     ];
   }
   if (cur == "settings") return ["Ayarlar", "", settingsHTML()];
@@ -399,6 +403,7 @@ export function startWorld(w: number) {
   oyun.CURW = WORLDS[w || 0];
   setActive(oyun.CURW.reg);
   reset();
+  document.getElementById("lvup")?.classList.remove("acik");
   oyun.mode = "drive";
   kontrolleriKur();
   goster("#hud", "#mm", "#ctl");

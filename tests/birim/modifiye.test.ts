@@ -62,13 +62,13 @@ describe("modifiye: fiyat ve satın alma", () => {
   it("parça araç başına alınır, para yetmezse alınmaz, iki kez ödenmez", () => {
     expect(parcaSahipMi(A, "motor-spor")).toBe(false);
     expect(parcaSatinAl(A, ["motor-spor"])).toBe(false);
-    paraEkle(5000, "test");
+    paraEkle(10000, "test");
     expect(parcaSatinAl(A, ["motor-spor"])).toBe(true);
-    expect(para()).toBe(5000 - parcaFiyati("motor-spor"));
+    expect(para()).toBe(10000 - parcaFiyati("motor-spor"));
     expect(parcaSahipMi(A, "motor-spor")).toBe(true);
     expect(parcaSahipMi(A2, "motor-spor")).toBe(false);
     expect(parcaSatinAl(A, ["motor-spor"])).toBe(true);
-    expect(para()).toBe(5000 - parcaFiyati("motor-spor"));
+    expect(para()).toBe(10000 - parcaFiyati("motor-spor"));
     // paket: yalnız alınmamışların toplamı
     const pk = PAKETLER.find((p) => p.id == "asfalt")!;
     const once = para();
@@ -104,7 +104,7 @@ describe("modifiye: takılı parçalar ve sürüş", () => {
     parcaTak(A, "motor-yaris");
     modifiyeUygula(A);
     expect(kurulum.mod!.taban).toBe(CARS[A]);
-    expect(kurulum.mod!.car.hp).toBeCloseTo(CARS[A].hp * 1.75, 5);
+    expect(kurulum.mod!.car.hp).toBeCloseTo(CARS[A].hp * 1.28, 5);
     expect(kurulum.pk).toBe("dr");
     expect(kurulum.tire).toBe(kurulum.mod!.tire);
   });

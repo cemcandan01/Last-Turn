@@ -35,3 +35,10 @@ Hayaletin kayıt/kurulum/konum/bölge bağımsızlığı/piste dönüş/yarım k
 - Garaj 4× CPU ölçümü: senkron tıklama 118 ms → 6 ms; program/geometri sayısı değişmez. Test eşikleri gevşetilmedi.
 - Node22/Ubuntu/Chromium ortamı; bağımlılık kilidi son kaynakla aynı. Deneme 0.6.8, merge e92fe898bc70b0c32a4b03d41b09f64a42725a78, Yayın 40198851372 adreste sürüm kontrolü geçti.
 - Kullanıcı “regresyon başlatıp canlıya geçelim” diyerek test sonrası canlı çıkışını açıkça yetkilendirdi. Aynı onay yeniden istenmeden, test edilen oyun kodu ve sürüm canlıya taşınır; son ekler yalnız README/kanıt/devir belgeleridir. Canlı dumanı ayrıca izlenecek; bu adım geçmiş sayılmadı.
+
+## Canlı çıkışı ve kapanış
+
+- Yayın 0.6.8 commit `147ea038eaf81eab10511c222b358402eb60586f`; master'a kullanıcı onayı ve geçmiş korunarak gönderildi. Canlı/deneme `src`, test ve bağımlılık kilidi ağaçları aynıydı.
+- Yayın CI 40201273989: master ve dev 0.6.8 adreste doğrulandı; canlı adreste duman 10/10 geçti. Böylece yalnız derleme değil gerçek yayın adresi de doğrulandı.
+- Regresyon durumu tamamlandi; rapor/devir belgeleri oyun kodunu değiştirmez ve yeni tam koşum tetiklemez. Gelistirme 0.7.0, aynı oyun koduyla sonraki sürüme açılır; canlı 0.6.8 kalır. Canlıda olup denemede olmayan hayalet özelliği kalmadı.
+- Uygulayıcı 1; kullanıcı revizesi 0, hata tekrarları ve düzeltmeler yukarıda kaydedildi. Aynı başarılı oyun kodu için kaynak kanıtı kullanıldı; sürüm/devir eklerinde fizik regresyonu tekrar edilmedi. Platform token/TL telemetrisi yok; süreler CI raporlarında.

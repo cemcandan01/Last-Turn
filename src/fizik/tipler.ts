@@ -138,4 +138,6 @@ export interface AdimSonucu {
   T: Lastik;
   v: number;
   si: number;
+  /** çimde (zemin 2) duran teker sayısı (0-4): araç tamamen pist dışında mı */
+  cimTeker: number;
 }

@@ -164,6 +164,24 @@ describe("yapılandırma yokken", () => {
 });
 
 describe("rekor ve belge", () => {
+  it("yeni sınırlı kariyer rekorları eskilerden ayrı eşitlenir ve drift puanında büyüğü seçer", () => {
+    saveBest("asphalt_1", 60);
+    saveBest("kariyer1_asphalt_1", 130);
+    saveBest("drift2_1", 50000);
+    saveBest("kariyer1_drift2_1", 10000);
+    rekorBirlestir({ kariyer1_asphalt_1: 120, kariyer1_drift2_1: 11000, deneme_kariyer1_asphalt_1: 1 });
+    expect(best("asphalt_1")).toBe(60);
+    expect(best("kariyer1_asphalt_1")).toBe(120);
+    expect(best("drift2_1")).toBe(50000);
+    expect(best("kariyer1_drift2_1")).toBe(11000);
+    expect(best("deneme_kariyer1_asphalt_1")).toBe(0);
+    expect(belgeOlustur().rekor).toMatchObject({
+      asphalt_1: 60,
+      kariyer1_asphalt_1: 120,
+      drift2_1: 50000,
+      kariyer1_drift2_1: 11000,
+    });
+  });
   it("drift puanında büyüğü, sürede küçüğü alınır; bilinmeyen anahtar alınmaz", () => {
     saveBest("asphalt_1", "70.5");
     saveBest("drift_1", "5000");
@@ -175,8 +193,15 @@ describe("rekor ve belge", () => {
     rekorBirlestir({ asphalt_1: 80, drift_1: 6000 });
     expect(best("asphalt_1")).toBe(65.2);
     expect(best("drift_1")).toBe(6000);
+    // yeni drift kuralının rekoru ayrı anahtarda: eskisiyle karışmaz, o da büyüğü alır
+    saveBest("drift2_1", "1500");
+    rekorBirlestir({ drift2_1: 1200 });
+    expect(best("drift2_1")).toBe(1500);
+    rekorBirlestir({ drift2_1: 1800 });
+    expect(best("drift2_1")).toBe(1800);
+    expect(best("drift_1")).toBe(6000);
     const b = belgeOlustur();
-    expect(b.rekor).toMatchObject({ asphalt_1: 65.2, drift_1: 6000, rally_2: 90 });
+    expect(b.rekor).toMatchObject({ asphalt_1: 65.2, drift_1: 6000, drift2_1: 1800, rally_2: 90 });
     expect(Object.keys(b).sort()).toEqual(
       ["alimlar", "ekAcik", "kazanilan", "oyunSurum", "rekor", "surum", "updatedAt", "xp", "yildiz"].sort(),
     );

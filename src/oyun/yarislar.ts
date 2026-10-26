@@ -14,7 +14,8 @@ import { setActive } from "./bolge";
 import { carIndex, oyun, setCar } from "./durum";
 import { girdiSifirla } from "./girdi";
 import { aracAcikMi, pistAcikMi, yarisBitti } from "./ilerleme";
-import { modifiyeUygula } from "./modifiye";
+import { kariyereUygun, kariyerRekorAnahtari } from "./kariyer";
+import { modifiyeUygula, takiliParcalar } from "./modifiye";
 import { kurulumKaydet, kurulumYukle, yarisLastigiTak, type KurulumKaydi } from "./kurulum";
 import { hayaletKaydet } from "./hayalet-kayit";
 import { PROF, saveProf } from "./profil";
@@ -22,7 +23,7 @@ import { dunyaSorgusuYap, kayitKurulumu, kayitHavasi, reset, sim, yerel } from "
 import { rekorHayaletiBaslat, rekorHayaletiDurdur } from "./uzak";
 import { X6_CARPAN, X6_ORAN, driftAdimi, driftBankala, tersAdimi, type DriftOlay } from "./yaris-kurallari";
 import { bosPistDisi, pistDisiAdimi, type DonusNoktasi, type PistDisiSayaci } from "./piste-donus";
-import { DRIFT_TUR, TUR_ANAHTARI, yildizEsikleri, yildizSay } from "./yildiz";
+import { DRIFT_REKOR_ON_EKI, DRIFT_TUR, TUR_ANAHTARI, yildizEsikleri, yildizSay } from "./yildiz";
 
 /** yarış türleri: hedef süre, pist uzunluğundan ve ilk pistlerin ayarlı hızından (v, m/s) hesaplanır */
 export const TYP: Record<
@@ -46,13 +47,14 @@ export const TYP: Record<
     d: "3 tur, asfalt ve toprak karışık: çamur, su ve rampalar. Hedef süreyi geç.",
   },
   dp: {
-    k: TUR_ANAHTARI.dp,
+    // 0.7.4 drift bonus kuralı değişti: rekor ve hayalet yeni anahtarda (eski kural rekoru drift_<lv>'de kalır)
+    k: DRIFT_REKOR_ON_EKI,
     pk: "dr",
     laps: DRIFT_TUR,
     n: "Drift yarışmaları",
     d:
       DRIFT_TUR +
-      " turda hedef puanları topla. Drift uzadıkça çarpan x5’e çıkar; çime çıkmak, çarpmak ya da spin komboyu yakar. Drift ayarları otomatik gelir.",
+      " turda hedef puanları topla. Drift uzadıkça çarpan x5’e çıkar; tamamen çime çıkmak, çarpmak ya da spin komboyu yakar. Drift ayarları otomatik gelir.",
   },
   rl: {
     k: TUR_ANAHTARI.rl,
@@ -97,6 +99,8 @@ export interface Yaris extends YarisTanimi {
   sv: KurulumKaydi & { car: number };
   TR: Pist;
   state: "count" | "run" | "done";
+  /** Puan bütçesine uymayan araçla serbest deneme: kariyer ödülü/rekoru yok. */
+  kariyer: boolean;
   /** geri sayım */
   cd: number;
   t: number;
@@ -144,7 +148,7 @@ export const EVENTS: YarisTanimi[] = REG.filter((r) => r.t != "park").map((r, i)
     TR = r.TR!;
   return {
     // rekor anahtarı türe ve seviyeye bağlı (pistler 0.2'de yenilendi: eski rekorlar yeni pistlere taşınmaz)
-    k: y.k + "_" + r.lv,
+    k: kariyerRekorAnahtari(y.k + "_" + r.lv),
     ty,
     lv: r.lv!,
     sev: r.sev ?? r.lv!,
@@ -168,6 +172,7 @@ export function startEvent(i: number, ci?: number) {
     note("Kilitli", 40);
     return false;
   }
+  const uygun = kariyereUygun(e.ty, e.lv, ci ?? carIndex(), takiliParcalar(ci ?? carIndex()));
   const EV = yaris.EV,
     sv = EV && EV.sv ? EV.sv : { ...kurulumKaydet(), car: carIndex() };
   // yarışta önayar seçilmez: aracın kendi önayarı ve oyuncunun yardım seviyesi yüklenir (önayar yalnız serbest
@@ -184,11 +189,14 @@ export function startEvent(i: number, ci?: number) {
   setActive(REG[e.reg]);
   girdiSifirla();
   reset(e.g[1], e.g[2], e.g[3]);
+  document.getElementById("lvup")?.classList.remove("acik");
   oyun.mode = "drive";
   kontrolleriKur();
   goster("#hud", "#mm", "#ctl");
   yaris.EV = {
     ...e,
+    k: uygun ? e.k : "deneme_" + e.k,
+    kariyer: uygun,
     i,
     pistDisi: bosPistDisi(),
     sv,
@@ -291,7 +299,8 @@ export function evTick(dt: number, o: AdimSonucu, tg = 0.5) {
   const T = EV.TR.T[ti],
     geri = tersAdimi(EV, S.vx, S.vz, T[0], T[1], dt);
   if (EV.ty == "dp") {
-    const lost = o.si == 2 || sim.d.zaman - S.hit < 0.05 || Math.abs(D.beta) > 1.4,
+    // kombo araç tamamen çime çıkınca yanar (tek teker ya da kerb yakmaz)
+    const lost = o.cimTeker == 4 || sim.d.zaman - S.hit < 0.05 || Math.abs(D.beta) > 1.4,
       r = driftAdimi(EV, !!D.act, D.beta, lost, o.v, EV.ters || geri, dt, tg, sim.d.zaman, EV.x6);
     if (EV.lap == 0 && D.act && !lost && !EV.ters && !geri) {
       // orta çizgi ilerlemesi (pist uzunluğuyla aynı ölçü; dış çizgiden giden fazla yol sayılmaz)
@@ -337,7 +346,8 @@ export function evTick(dt: number, o: AdimSonucu, tg = 0.5) {
 
 /** yarış bitti: profil, yıldız, rekor, sonuç ekranı */
 export function endEvent() {
-  const EV = yaris.EV!;
+  const EV = yaris.EV;
+  if (!EV || EV.state != "run" || !(EV.t > 0)) return;
   EV.state = "done";
   oyun.mode = "result";
   PROF.races++;
@@ -345,10 +355,10 @@ export function endEvent() {
   EV.yildiz = yildizSay(EV.ty, sureSkor, EV.ys);
   hayaletKaydet(EV.k, carIndex(), sureSkor, yerel.kayit, EV.ty == "dp", kayitKurulumu, 0, kayitHavasi);
   rekorHayaletiDurdur();
-  const odul = yarisBitti(EV.ty, EV.lv, EV.yildiz);
+  const odul = EV.kariyer ? yarisBitti(EV.ty, EV.lv, EV.yildiz) : { xp: 0, para: 0 };
   EV.xp = odul.xp;
   EV.para = odul.para;
-  if (EV.ty == "dp" ? EV.score > 0 && EV.score >= EV.limit : EV.t <= EV.limit) PROF.wins++;
+  if (EV.kariyer && (EV.ty == "dp" ? EV.score > 0 && EV.score >= EV.limit : EV.t <= EV.limit)) PROF.wins++;
   saveProf();
   girdiSifirla();
   gizle("#ctl");

@@ -1474,16 +1474,16 @@ details[open] > summary::after {
   font-size: 14px;
 }
 
-/* drift bonus bildirimleri: kombonun altında, en fazla 3 satır; GERİ DÖN varsa onun altına iner */
+/* drift bonus bildirimleri: kombonun altında tek satır, en fazla 2 yan yana (alt alta birikip yolu kapatmaz); GERİ DÖN varsa onun altına iner */
 #bon {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   top: calc(var(--hy) + 80px + var(--oR, 0px));
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 10px;
   pointer-events: none;
 }
 #app:has(#ters:not(.hidden)) #bon {
@@ -1495,7 +1495,7 @@ details[open] > summary::after {
   gap: 6px;
   font-size: 12px;
   font-weight: 800;
-  letter-spacing: 1.2px;
+  letter-spacing: 0.6px;
   color: #fff;
   text-shadow: 0 1px 3px #000c;
   white-space: nowrap;
@@ -1566,6 +1566,37 @@ details[open] > summary::after {
   stroke-linejoin: round;
 }
 #ters.hidden {
+  display: none;
+}
+
+/* pist dışı: ekranın ortasında (aracın biraz üstünde) piste dönüşe kalan saniye */
+#gsy {
+  position: absolute;
+  left: 50%;
+  top: 43%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #fff;
+  text-shadow: 0 2px 8px #000c;
+  pointer-events: none;
+}
+#gsy b {
+  font-size: 72px;
+  font-weight: 900;
+  line-height: 1;
+  color: #ffc070;
+}
+#gsy small {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+#gsy.pop b {
+  animation: bonPop 0.3s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+#gsy.hidden {
   display: none;
 }
 @keyframes tersYan {
@@ -2556,6 +2587,13 @@ details[open] > summary::after {
   .v-e .evh p.lvd {
     display: none;
   }
+  /* kupa sınırı tek satır: açıklaması alçak ekranda gizli (sınıf adı kalır) */
+  .v-e .evh p.kup {
+    margin: 0 0 4px;
+  }
+  .v-e .kup .kac {
+    display: none;
+  }
 }
 
 /* drift çarpanı x6: 1. turda drift oranı (%90 işaretli ince çubuk), 2. turda kalıcı rozet */
@@ -2808,6 +2846,14 @@ details[open] > summary::after {
 }
 .pod b {
   color: #ffd166;
+}
+.pod span {
+  white-space: nowrap;
+}
+@media (max-width: 700px) {
+  .pod {
+    gap: 6px;
+  }
 }
 #lvup .lva .fy {
   display: inline-flex;
@@ -4127,4 +4173,23 @@ details[open] > summary::after {
 #gar .gdinle {
   margin-top: calc(8px * var(--gs, 1));
   width: max-content;
+}
+
+/* Direksiyonun geniş dokunma alanıyla bonus satırı çakışmasın: kalan üst koridorun ortası. */
+#app[data-steer="wheel"] #bon {
+  left: calc(
+    (
+        var(--cx) + min(calc(var(--aw) * 0.5), 250px) + var(--aw) - var(--cxr) -
+          min(96px, calc(var(--aw) * 0.24))
+      ) /
+      2
+  );
+  gap: 6px;
+}
+#app[data-steer="wheel"] #bon div {
+  font-size: clamp(9px, calc(var(--aw) * 0.014), 12px);
+  gap: 4px;
+}
+#app[data-steer="wheel"] #bon b {
+  font-size: clamp(12px, calc(var(--aw) * 0.019), 16px);
 }

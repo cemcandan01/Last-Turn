@@ -34,7 +34,7 @@ export function titresimOlc(
   sn = 25,
   cesaret = PILOT_CESARET[(TDEF[yaris].sev ?? TDEF[yaris].lv) - 1],
 ): TitresimSonucu {
-  const s = surucuKur({ yaris, arac, lk: "norm" });
+  const s = surucuKur({ yaris, arac, lk: "norm", otomatikLastik: false });
   const TR = s.bolge!.TR!,
     i0 = TR.open ? 2 : TR.N - 6,
     P = TR.P[i0];

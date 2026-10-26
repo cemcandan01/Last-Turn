@@ -16,6 +16,7 @@ export const ALANLAR = Object.freeze([
   "pist",
   "ses",
   "kurallar",
+  "kariyer",
   "regresyon",
 ]);
 

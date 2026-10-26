@@ -192,6 +192,25 @@ describe("drift yarışı (Drift Parkı, Beyaz Kurt, drift önayarı)", () => {
   });
 });
 
+describe("çimdeki teker sayısı (drift komboyu yalnız tamamen çimde yakar)", () => {
+  it("dört teker çimde 4, araç yarı yarıya çimdeyken 1-3, asfaltta 0", () => {
+    const s = surucuKur({ dunya: 1, arac: 2, lk: "norm" }),
+      W = s.cx.dunya,
+      x0 = s.sim.S.x;
+    const gi = { tg: 0, g: 0, b: 0, analogDireksiyon: false, analogGaz: false };
+    W.surf = () => 0;
+    expect(s.adim(gi).cimTeker).toBe(0);
+    W.surf = () => 2;
+    expect(s.adim(gi).cimTeker).toBe(4);
+    // aracın sol yarısı çimde: sınır tam aracın ortasından geçer
+    const sinir = x0;
+    W.surf = (x: number) => (x < sinir ? 2 : 0);
+    const n = s.adim(gi).cimTeker;
+    expect(n).toBeGreaterThan(0);
+    expect(n).toBeLessThan(4);
+  });
+});
+
 describe("el freni: arka kilit ve kontrollü drift girişi", () => {
   for (const ad of ["Kızıl Ok", "Gümüş Serçe"])
     it(`${ad}: kısa el freni darbesi arkayı açar`, () => {

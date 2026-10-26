@@ -24,7 +24,7 @@ export function aracOrnegiYap(cx: Omit<FizikBaglami, "rng">, tohum = 1): AracOrn
     sim,
     cx: { ...cx, rng: sim.rng },
     kayit: kayitBaslat(tohum, sim.S),
-    son: { Sf: SURF[0], T: TIRES[1], v: 0, si: 0 },
+    son: { Sf: SURF[0], T: TIRES[1], v: 0, si: 0, cimTeker: 0 },
   };
 }
 
