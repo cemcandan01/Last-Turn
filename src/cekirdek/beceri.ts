@@ -426,14 +426,15 @@ export const RISK_TAKER: BeceriTanim = {
         }
       return;
     }
-    if (y.bekleme > 0 || !c.dunya.yarista) return;
+    // Kontrollü drift açık dünyada da risk üretir; yakın takip ve near-miss yalnız yarışta doğrulanır.
+    if (y.bekleme > 0) return;
     let ek = 0;
     for (const e of c.olaylar) {
       if (e.tur == "DriftTickQualified" && Math.abs(e.aci) >= RISK_BAR.driftAci && e.hiz >= RISK_BAR.driftHiz)
         ek += RISK_BAR.drift * e.dt;
       // hayalet fazında yakın temas riski yok: takip/near-miss biriktirmez
-      else if (e.tur == "YakinTakip" && !c.bayrak.hayalet) ek += RISK_BAR.takip * e.dt;
-      else if (e.tur == "NearMiss" && !c.bayrak.hayalet) ek += RISK_BAR.nearMiss;
+      else if (e.tur == "YakinTakip" && c.dunya.yarista && !c.bayrak.hayalet) ek += RISK_BAR.takip * e.dt;
+      else if (e.tur == "NearMiss" && c.dunya.yarista && !c.bayrak.hayalet) ek += RISK_BAR.nearMiss;
     }
     y.deger = Math.min(RISK_BAR.tam, y.deger + ek * c.p.kazanc);
     if (y.deger >= RISK_BAR.tam) {
