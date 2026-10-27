@@ -74,4 +74,4 @@
 
 ## Durum
 
-- 2026-10-27 Claude: uygulama + testler + ölçüm tamam; PR açıldı (bkz. DEVIR). Sonraki tek adım: Cem /dev/'de düelloyu oynasın; geri bildirime göre kişilik ayarı, sonra geçiş/savunma taktiği (LT-SYS-004).
+- 2026-10-27 Claude: uygulama + testler + ölçüm tamam; PR #26 birleşti (gelistirme 3cf10af), Denetim 40427125277/40427117424 ve Yayın 40427799983 başarılı: 0.8.6 /dev/'de. Gerçek iPhone ölçümü yok. Sonraki tek adım: Cem /dev/'de düelloyu oynasın; geri bildirime göre kişilik ayarı, sonra geçiş/savunma taktiği (LT-SYS-004).
