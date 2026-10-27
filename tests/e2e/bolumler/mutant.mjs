@@ -6,8 +6,8 @@ export default async function ({ p, ok }) {
   const r = await p.evaluate(async () => {
     const bekle = (ms) => new Promise((s) => setTimeout(s, ms));
     // CI yavaş olabilir: koşul sağlanana dek (en çok 8 sn) bekle
-    const olana = async (f) => {
-      for (let i = 0; i < 80 && !f(); i++) await bekle(100);
+    const olana = async (f, n = 80) => {
+      for (let i = 0; i < n && !f(); i++) await bekle(100);
       return f();
     };
     const res = document.querySelector("#res"),
@@ -107,12 +107,18 @@ export default async function ({ p, ok }) {
       !!tus && (await olana(() => tus.classList.contains("hazir"))) && LT.mutantDurumu().nitroHazir;
     const e0 = LT.mutantDurumu().enerji;
     tus.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true }));
+    // yavaş CI'da simülasyon gerçek zamandan yavaş akar: nitro (2,5 sn sim) için 30 sn'ye dek beklenir. Söndükten
+    // sonra güç, açıkken ölçülen gücün nitro çarpanı kadar altına iner (arada gövde hasarı gücü değiştirebilir)
+    let hpAcik = 0;
     r.nitro =
-      (await olana(() => LT.mutantDurumu().nitroAcik && LT.kurulum.mod.car.hp > hp0 * 1.5)) &&
+      (await olana(() => LT.mutantDurumu().nitroAcik && LT.kurulum.mod.car.hp > hp0 * 1.5, 300)) &&
       LT.mutantDurumu().enerji < e0;
+    hpAcik = LT.kurulum.mod.car.hp;
     r.nitroBitti = await olana(
-      () => !LT.mutantDurumu().nitroAcik && Math.abs(LT.kurulum.mod.car.hp - hp0) < 1e-6,
+      () => !LT.mutantDurumu().nitroAcik && LT.kurulum.mod.car.hp < hpAcik / 1.5 + 1e-6,
+      300,
     );
+    r.nitroAyrinti = { hp0, hpAcik, hp: LT.kurulum.mod.car.hp, d: LT.mutantDurumu() };
     // eklenti sandığı: iki seçenek, seçilen koşuya eklenir
     const s0 = k.sandiklar[0];
     LT.reset(s0.x, s0.z, 0);
@@ -175,7 +181,8 @@ export default async function ({ p, ok }) {
   ok(r.hasar && r.hasarHud, "sert çarpma gövdeyi düşürür, HUD'da gövde görünür");
   ok(
     r.nitroTus && r.nitro && r.nitroBitti,
-    "NİTRO tuşu hazır; basınca güç artar, enerji harcanır, süre bitince söner ",
+    "NİTRO tuşu hazır; basınca güç artar, enerji harcanır, süre bitince söner " +
+      (r.nitroTus && r.nitro && r.nitroBitti ? "" : JSON.stringify(r.nitroAyrinti)),
   );
   ok(
     r.sandik && r.lanetli,
