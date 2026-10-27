@@ -80,6 +80,10 @@ bilgi konmaz), Steven Hoober'ın başparmak bölgeleri ve oyuncuların "HUD ekra
   renkli kare (sarı sandık, eflatun lanetli sandık); görüş dışındakiler kenara sabitlenir.
   NİTRO tuşu (`#mnt`, A2) yalnız koşuda, sol grubun üstünde (`.tsut`); enerji tuşun içinde soldan dolar (`--e`),
   ince çizgi bir nitronun maliyeti (`--m`), hazırken kenar vurgulu (`.hazir`), açıkken turuncu (`.on`). Klavyede N.
+  Skill yuvaları (`.mbk`, LT-SYS-005) NİTRO'nun sağında, aynı yükseklikte (52 px): solda ikon + seviye çentiği, sağda
+  kısa ad + durum (maliyet, kalan süre, bekleme, `enerji/maliyet` ya da neden: HEDEF YOK, FAZDA, RAKİP YOK, BAŞLANGIÇ);
+  açıkken dolu renk (Risk Taker turuncu), reddedilen istekte kısa kırmızı kenar. Sol grup aracın solunda kalır (≈ 363 px).
+  Denetim: `tests/e2e/bolumler/beceri-his.mjs`.
   HUD dalları MUTANT değerlerini yalnız `mutantDurumu()` (salt okunur: faz, bölge, boss, kalanSn, govde 0-100,
   riskYildiz, enerji/kapasite, nitroMaliyet/Acik/KalanSn/Hazir) üzerinden okur; ekonomi/fizik yazmaz.
   Denetim: `tests/e2e/bolumler/mutant.mjs`.
