@@ -246,7 +246,7 @@ export const NADIR_EK = 1.4;
 export const ATOLYE_STOK = 5;
 export const STOK_YENILE = 40;
 /** boss'a geri sayım (sn) bölgeye göre */
-export const BOSS_SURESI = (bolge: number) => (bolge == 1 ? 900 : 780);
+export const BOSS_SURESI = (bolge: number) => (bolge <= 1 ? 330 : bolge === 2 ? 390 : 450);
 export const HARITA_ETKINLIK = 8;
 
 export interface Etkinlik {
