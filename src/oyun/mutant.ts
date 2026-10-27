@@ -7,13 +7,17 @@ import { aracKur, parcaBul } from "../arac/parcalar";
 import { okuJson, yazJson } from "../cekirdek/depo";
 import { isaretleriKur } from "../cizim/isaretler";
 import { COND, type GununSaati, type Hava } from "../cizim/ortam";
-import type { SimDurumu } from "../fizik/tipler";
-import { rakip, rakipSirasi, type RakipAyari } from "./rakip";
+import type { DunyaSorgusu, SimDurumu } from "../fizik/tipler";
+import type { Pist } from "../dunya/pist";
+import { rakip, rakipEtkisi, rakipGovdesi, rakipSirasi, RAKIP, type RakipAyari } from "./rakip";
+import { beceriDunyasiYap, engelListesi } from "./mutant-beceri";
 import { KISILIKLER } from "../yz/kisilik";
 import { kurulum, applyPreset } from "./kurulum";
 import { setCar } from "./durum";
 import {
   ATOLYE,
+  beceriGorunumu,
+  beceriYarisBasi,
   bossBitti,
   bossHedefi,
   etkinlikHedefi,
@@ -23,6 +27,7 @@ import {
   enerjiAdimi,
   etkinlikBitti,
   hasarAl,
+  kaporaBelirle,
   kosuAraci,
   kosuBaslat,
   nitroDurumu,
@@ -82,6 +87,8 @@ export const mutant = {
   spinde: false,
   /** NİTRO tuşuna basıldı: bir sonraki sabit adımda yetenek olayı olur */
   nitro: false,
+  /** basılan skill tuşları (skill kimliği): bir sonraki sabit adımda istek olur */
+  beceriIstek: [] as string[],
   yeniRekor: false,
   ui: null as MutantArayuzu | null,
 };
@@ -166,6 +173,11 @@ export function mutantBossKosulu() {
 export function mutantYarisAyari(i: number) {
   const k = mutant.kosu,
     p = mutantPistleri()[i];
+  if (k) {
+    beceriYarisBasi(k);
+    // drift kaporası girişte de kilitlenir (kart açılmadan girilse bile aynı belirlenimci seçim)
+    if (typeof mutant.etkinlik == "number") kaporaBelirle(k, mutant.etkinlik);
+  }
   if (mutantRakibi()) return { laps: DUELLO.tur, limit: 0 };
   return k && mutant.etkinlik == "boss"
     ? { laps: p.laps, limit: bossHedefi(k, p) }
@@ -200,10 +212,14 @@ export function mutantAdimi(
   hit = -9,
   beta = 0,
   d: Readonly<Pick<SimDurumu, "S" | "DR" | "D">> | null = null,
+  /** skill dünyası: bulunulan pist, çarpışma sorgusu ve yarış başladı mı (geri sayımda skill çalışmaz) */
+  cevre: { TR: Pist | null; dunya: Pick<DunyaSorgusu, "yakin">; kosuyor: boolean } | null = null,
 ) {
   const k = mutant.kosu,
-    nitro = mutant.nitro;
+    nitro = mutant.nitro,
+    istekler = mutant.beceriIstek;
   mutant.nitro = false;
+  mutant.beceriIstek = [];
   if (!k) return;
   if (k.faz == "surus" || k.faz == "boss") {
     if (hit < mutant.sonHit) mutant.sonHit = hit;
@@ -221,8 +237,31 @@ export function mutantAdimi(
       mutant.ui?.hasar(tur, pert);
       if (pert) return;
     }
-    // enerji ve nitro: güç değişince (nitro başladı/bitti) araç değerleri yenilenir
-    if (d && enerjiAdimi(k, d, dt, nitro)) mutantAracGuncelle();
+    // enerji, nitro ve skill'ler: güç/tutuş değişince (nitro, hayalet, dönüşüm) araç değerleri yenilenir
+    if (d) {
+      // geri sayımda (yarış var, başlamadı) skill isteği düşer: kalkıştan önce çekiş/avantaj yok
+      const kosuyor = yarista && (cevre?.kosuyor ?? true),
+        S = d.S,
+        R = kosuyor ? rakipGovdesi() : null,
+        dunya = beceriDunyasiYap(
+          { x: S.x, z: S.z, h: S.h, vx: S.vx, vz: S.vz },
+          R ? [R] : [],
+          cevre?.TR ?? null,
+          kosuyor,
+        );
+      if (
+        enerjiAdimi(k, d, dt, nitro, {
+          dunya,
+          istekler: yarista && !kosuyor ? [] : istekler,
+          engeller: cevre ? engelListesi(cevre.dunya, S.x, S.z) : [],
+          carpti: tur == "carpma",
+        })
+      )
+        mutantAracGuncelle();
+      // rakip varken her adım yazılır: yarış durunca çekiş kalkar (takılı kalmaz)
+      if (rakip.y)
+        rakipEtkisi(R ? (k.becCikti?.hedefIvme[RAKIP] ?? null) : null, k.bec.hedefler[RAKIP]?.govde ?? 100);
+    }
   }
   if (k.faz == "surus" && zamanAkis(k, dt) == "boss") {
     if (yarista) mutant.bossBekliyor = true;
@@ -293,6 +332,12 @@ export function mutantBossaGir() {
   mutant.etkinlik = "boss";
 }
 
+/** skill'lerin oyuncuya çekme/itme ivmesi (sonraki fizik adımında kuvvet; koşu yoksa null) */
+export function mutantOyuncuIvmesi(): { x: number; z: number } | undefined {
+  const a = mutant.kosu?.becCikti?.oyuncuIvme;
+  return a && (a.x || a.z) ? { x: a.x, z: a.z } : undefined;
+}
+
 /** nitro şu an açık mı (kamera, alev, ses için; koşu yoksa false) */
 export const nitroAcik = () => (mutant.kosu?.mek.etkiKalan ?? 0) > 0;
 
@@ -318,6 +363,11 @@ export interface MutantDurumu {
   /** düello (A3, sözleşmeye eklendi; eski alanlar aynı): sıra 1/2, pist boyunca fark (m, + oyuncu önde), rakibin
    *  kişiliği, rakip bitirdi mi. Düello yoksa null */
   rakip: { sira: number; farkM: number; kisilik: string; bitti: boolean } | null;
+  /** skill'ler (LT-SYS-004, sözleşmeye eklendi; eski alanlar aynı): yuva sırasıyla. bar: tetikli skill'in barı
+   *  (0-100), aktifte null. hayalet: faz açık. rakipGovde: düelloda skill hasarı sonrası rakip gövdesi */
+  beceriler: ReturnType<typeof beceriGorunumu>;
+  hayalet: boolean;
+  rakipGovde: number | null;
 }
 
 export function mutantDurumu(): Readonly<MutantDurumu> | null {
@@ -340,6 +390,9 @@ export function mutantDurumu(): Readonly<MutantDurumu> | null {
     nitroKalanSn: n.kalan,
     nitroHazir: n.hazir,
     rakip: rakipDurumu(),
+    beceriler: beceriGorunumu(k),
+    hayalet: !!k.becCikti?.hayalet,
+    rakipGovde: rakip.y ? (k.bec.hedefler[RAKIP]?.govde ?? 100) : null,
   };
 }
 

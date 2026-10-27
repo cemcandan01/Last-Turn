@@ -117,6 +117,12 @@ export interface FizikBaglami {
   rng: Rastgele;
   /** görsel rastgelelik (toz parçacıkları). Fizik sonucunu etkilemez */
   gorselRng: Rastgele;
+  /**
+   * dış yatay ivme (m/s², dünya ekseninde): MUTANT skill'lerinin çekme/itme etkisi kütle merkezine kuvvet olarak
+   * uygulanır (konum yazılmaz). Yoksa ya da sıfırsa fizik birebir aynı. Girdi kaydına girmez: kullanan, kaydı kesik
+   * işaretler
+   */
+  dis?: { x: number; z: number };
 }
 
 /** bir fizik adımının durumu: araç, drift, direksiyon ve simülasyon saati */

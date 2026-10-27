@@ -78,6 +78,30 @@ export const PERKLER: Perk[] = [
     kaynak: true,
     m: pasif("risk-kondansatoru", { tetik: "RiskBasladi", kosul: { enAzRisk: 1 }, kazanc: 40 }),
   },
+  // skill olaylarına bağlı kaynaklar (LT-SYS-004): hangi skill'in ürettiğini bilmezler, yalnız ortak olayı dinlerler
+  {
+    ad: "Hasar Bataryası",
+    d: "Rakibe verdiğin her hasarın yarısı kadar enerji (0,25 sn'de bir)",
+    kaynak: true,
+    m: pasif("hasar-bataryasi", {
+      tetik: "HasarVerildi",
+      kazanc: 0.5,
+      kazancBirimi: "miktar",
+      beklemeAdimi: 15,
+    }),
+  },
+  {
+    ad: "Kalkan Bataryası",
+    d: "Korumanın engellediği her hasar kadar enerji",
+    kaynak: true,
+    m: pasif("kalkan-bataryasi", { tetik: "KorumaEngelledi", kazanc: 1, kazancBirimi: "miktar" }),
+  },
+  {
+    ad: "Takip Dinamosu",
+    d: "Yarışta rakibi yakından takip ederken saniyede 5 enerji",
+    kaynak: true,
+    m: pasif("takip-dinamosu", { tetik: "YakinTakip", kazanc: 5, kazancBirimi: "saniye" }),
+  },
   {
     ad: "Geniş Tüp",
     d: "Enerji kapasitesi +50",

@@ -5,6 +5,7 @@ import { CARS, type YarisTuru } from "../arac/araclar";
 import { KATEGORILER, PARCALAR } from "../arac/parcalar";
 import { fmt, fmt3 } from "../cekirdek/bicim";
 import { $ } from "../cekirdek/dom";
+import { SKILL_YUVASI, beceriBul, beceriEklentisiBul, type BeceriOrnegi } from "../cekirdek/beceri";
 import { isaretleriKur, isaretlerGorunur, type Isaret } from "../cizim/isaretler";
 import { Hw, WORLDS } from "../dunya/dunya";
 import { SEVIYELER } from "../dunya/pist-tanimlari";
@@ -43,6 +44,9 @@ import {
   tamirBedeli,
   tamirEt,
   GOVDE,
+  KAPORA,
+  kaporaBelirle,
+  secenekTuru,
   type Risk,
   bossHedefi,
   parcaAl,
@@ -154,6 +158,63 @@ function basla() {
   );
 }
 
+/** skill'in kısa adı (tuş) ve seviyeli tam adı */
+const BECERI_KISA: Record<string, string> = {
+  "grappling-hook": "KANCA",
+  "flying-dutchman": "HAYALET",
+  "risk-taker": "RİSK",
+  "slipstream-engine": "AKIM",
+};
+const beceriAdi = (o: BeceriOrnegi) => {
+  const t = beceriBul(o.id)!,
+    v = o.evrim && t.evrimler.find((q) => q.id == o.evrim);
+  return t.ad + " Sv" + o.seviye + (v ? " · " + v.ad : "");
+};
+const beceriListesi = (l: BeceriOrnegi[]) =>
+  l.length
+    ? l
+        .map(
+          (o) =>
+            beceriAdi(o) +
+            (o.eklentiler.length
+              ? " (" + o.eklentiler.map((e) => beceriEklentisiBul(e)!.ad).join(", ") + ")"
+              : ""),
+        )
+        .join(" · ")
+    : "yok";
+
+/** seçim kartı: pasif ya da skill teklifi (yeni skill, seviye, evrim, skill eklentisi) */
+function secenekKarti(id: string): [string, string, string] {
+  const tur = secenekTuru(id);
+  if (tur == "pasif") {
+    const p = pasifBul(id)!;
+    return ["Pasif", p.ad, p.d];
+  }
+  const [, a, b] = id.split(":");
+  if (tur == "beceri") {
+    const t = beceriBul(a)!;
+    return ["Skill · " + (t.tur == "aktif" ? "tuşla" : "kendiliğinden"), t.ad, t.d];
+  }
+  if (tur == "seviye") {
+    const t = beceriBul(a)!,
+      o = mutant.kosu!.beceriler.find((q) => q.id == a)!,
+      p0 = t.seviyeler[o.seviye - 1],
+      p1 = t.seviyeler[o.seviye];
+    const fark = Object.keys(p1)
+      .filter((x) => p1[x] != p0[x])
+      .map((x) => x + " " + p0[x] + " → " + p1[x])
+      .join(", ");
+    return ["Skill seviyesi", t.ad + " Sv" + (o.seviye + 1), fark];
+  }
+  if (tur == "evrim") {
+    const t = beceriBul(a)!,
+      v = t.evrimler.find((q) => q.id == b)!;
+    return ["Evrim · " + t.ad, v.ad, v.d];
+  }
+  const e = beceriEklentisiBul(a)!;
+  return ["Skill eklentisi → " + beceriBul(b)!.ad, e.ad, e.d];
+}
+
 function pasifSayfasi(baslik: string) {
   const k = mutant.kosu!;
   const s = sayfaAc(
@@ -161,29 +222,66 @@ function pasifSayfasi(baslik: string) {
       k.pasifler.length
         ? `<p class="note">Takılı: ${k.pasifler.map((id) => pasifBul(id)!.ad).join(", ")}</p>`
         : ""
-    }<div class="mtp">${k.secenekler
+    }<p class="note">Skill (${k.beceriler.length}/${SKILL_YUVASI}): ${beceriListesi(k.beceriler)}</p><div class="mtp">${k.secenekler
       .map((id) => {
-        const p = pasifBul(id)!;
-        return `<div class="card go" data-pasif="${id}"><b>${p.ad}</b><span>${p.d}</span></div>`;
+        const [tur, ad, d] = secenekKarti(id);
+        return `<div class="card go" data-pasif="${id}"><b>${ad}</b><span>${tur}</span><span>${d}</span></div>`;
       })
       .join("")}</div>`,
   );
   s.querySelectorAll<HTMLElement>("[data-pasif]").forEach(
     (e) =>
       (e.onclick = () => {
-        const ilk = k.faz == "basla";
-        if (!pasifSec(k, e.dataset.pasif!)) return;
-        mutantKurulumUygula();
-        if (k.faz == "secim") return pasifSayfasi("Seviye atladın: bir yetenek daha seç.");
-        if (ilk) {
-          isaretleriGuncelle();
-          surusDevam();
-          note("Renkli ışıklar etkinlik, sarı sandık, eflatun lanetli sandık, mavi atölye, kırmızı boss", 30);
-          return;
-        }
-        devam();
+        const id = e.dataset.pasif!;
+        // yuvalar dolu: yeni skill ancak biri bırakılınca alınır
+        if (secenekTuru(id) == "beceri" && k.beceriler.length >= SKILL_YUVASI)
+          return birakSayfasi(id, () => pasifSayfasi(baslik));
+        secimYap(id);
       }),
   );
+}
+
+/** seçimi uygula; bekleyen seçim varsa sonraki sayfa, yoksa sürüşe */
+function secimYap(id: string, birak?: string) {
+  const k = mutant.kosu!,
+    ilk = k.faz == "basla";
+  if (!pasifSec(k, id, birak)) return;
+  mutantKurulumUygula();
+  if (k.faz == "secim") return pasifSayfasi("Seviye atladın: bir yetenek daha seç.");
+  if (ilk) {
+    isaretleriGuncelle();
+    surusDevam();
+    note("Renkli ışıklar etkinlik, sarı sandık, eflatun lanetli sandık, mavi atölye, kırmızı boss", 30);
+    return;
+  }
+  devam();
+}
+
+/** yuvalar dolu: yeni skill için hangisinin bırakılacağı (seviyesi, eklentileri ve evrimiyle gider) */
+function birakSayfasi(id: string, geri: () => void) {
+  const k = mutant.kosu!,
+    t = beceriBul(id.split(":")[1])!;
+  const s = sayfaAc(
+    `<h1>Yuvalar dolu</h1><p>${t.ad} için bir skill bırak. Bırakılan skill seviyesi, eklentileri ve evrimiyle gider.</p><div class="mtp">${k.beceriler
+      .map((o) => `<div class="card go" data-birak="${o.id}"><b>${beceriAdi(o)}</b><span>Bırak</span></div>`)
+      .join("")}</div><button class="btn alt" id="mGec">Geri</button>`,
+  );
+  s.querySelectorAll<HTMLElement>("[data-birak]").forEach(
+    (c) => (c.onclick = () => secimYap(id, c.dataset.birak!)),
+  );
+  s.querySelector<HTMLElement>("#mGec")!.onclick = geri;
+}
+
+/** drift kaporası satırı (kart ilk açılınca kilitlenir; kart yeniden açılınca aynı) */
+function kaporaYazi(id: number) {
+  const k = mutant.kosu!,
+    q = kaporaBelirle(k, id);
+  if (!q) return "";
+  if (!q.beceri)
+    return `<div class="card mtb"><b>Kapora · ${KAPORA.govde} gövde</b><span>Skill'in yok. Kazanırsan yeni bir skill alırsın; kaybedersen ${KAPORA.govde} gövde gider.</span></div>`;
+  const o = k.beceriler.find((b) => b.id == q.beceri)!,
+    tavan = o.seviye >= 3;
+  return `<div class="card mtb"><b>Kapora · ${beceriAdi(o)}</b><span>Kazanırsan ${tavan ? "+" + KAPORA.tavanPara + " para (skill tavanda)" : "Sv" + (o.seviye + 1)}. Kaybedersen bu skill eklentileri ve evrimiyle kalıcı olarak gider.</span><span>Kapora rastgele seçildi ve bu etkinliğe kilitli; girmezsen bir şey kaybetmezsin.</span></div>`;
 }
 
 /** seçim/sonuç sonrası: bekleyen boss varsa onu, yoksa sürüşe */
@@ -210,7 +308,7 @@ function isaret(i: MutantIsaret) {
     })
     .join("");
   const s = sayfaAc(
-    `<h1>${TUR[e.ty][0]}</h1><p>${E.n} · ${SEVIYELER[e.sev - 1].n}${E.laps ? " · 1 tur" : ""} · Boss'a ${sure(k.kalan)}</p><div class="mtp">${kademe}</div>` +
+    `<h1>${TUR[e.ty][0]}</h1><p>${E.n} · ${SEVIYELER[e.sev - 1].n}${E.laps ? " · 1 tur" : ""} · Boss'a ${sure(k.kalan)}</p>${e.ty == "dp" ? kaporaYazi(e.id) : ""}<div class="mtp">${kademe}</div>` +
       '<p class="note">Riski sen seç: zor hedef çok kazandırır, kaçırmak süre götürür. Etkinlik süresi de boss geri sayımından düşer.</p><button class="btn alt" id="mGec">Vazgeç</button>',
   );
   s.querySelectorAll<HTMLElement>("[data-risk]").forEach(
@@ -405,6 +503,7 @@ function sonuc(r: EtkinlikSonucu | null, boss: boolean, gecti: boolean) {
           row("Kazanılan para", "+" + (r?.para ?? 0)) +
           row("Seviye", k.seviye + " · " + k.xp + " / " + seviyeXp(k.seviye + 1) + " XP") +
           (r?.ekSure ? row("Zaman bükücü", "+" + r.ekSure + " sn") : "") +
+          (r?.kapora ? row("Kapora", kaporaSonucYazi(r.kapora)) : "") +
           (r?.ceza
             ? row(
                 RISKLER[mutant.risk].ad + (R ? " düello kaybedildi" : " hedef kaçtı"),
@@ -420,6 +519,19 @@ function sonuc(r: EtkinlikSonucu | null, boss: boolean, gecti: boolean) {
     if (k.faz == "secim") return pasifSayfasi("Seviye atladın: bir yetenek seç.");
     devam();
   };
+}
+
+function kaporaSonucYazi(q: NonNullable<EtkinlikSonucu["kapora"]>) {
+  const ad = q.beceri ? beceriBul(q.beceri)!.ad : "";
+  return q.sonuc == "seviye"
+    ? ad + " seviye atladı"
+    : q.sonuc == "kayip"
+      ? ad + " kaybedildi"
+      : q.sonuc == "yeni"
+        ? "Yeni skill: " + ad
+        : q.sonuc == "govde"
+          ? "Gövde −" + KAPORA.govde
+          : "+" + KAPORA.tavanPara + " para";
 }
 
 let yeniKosu: () => void = () => {},
@@ -456,7 +568,11 @@ export function mutantArayuzuKur(yeni: () => void, menu: () => void) {
   anaMenu = menu;
   // klavyede nitro: N
   addEventListener("keydown", (e) => {
-    if ((e.key == "n" || e.key == "N") && mutant.kosu && oyun.mode == "drive") mutant.nitro = true;
+    if (!mutant.kosu || oyun.mode != "drive") return;
+    if (e.key == "n" || e.key == "N") mutant.nitro = true;
+    // skill tuşları: 1/2/3 yuva sırasıyla
+    const o = mutant.kosu.beceriler[+e.key - 1];
+    if (o && "123".includes(e.key)) mutant.beceriIstek.push(o.id);
   });
   mutant.ui = {
     hasar: (tur, pert) => {
@@ -503,9 +619,18 @@ export function mutantPaneli(): [string, string] | null {
   ];
 }
 
-/** NİTRO tuşu (koşuda; kontroller.ts sol grubun üstüne koyar) */
+/** NİTRO ve skill tuşları (koşuda; kontroller.ts sol grubun üstüne koyar). Tetiklenen skill tuşu barını gösterir */
 export const mutantTusuHtml = () =>
-  mutant.kosu ? '<div class="k" id="mnt"><i></i><b>NİTRO</b><s></s></div>' : "";
+  mutant.kosu
+    ? '<div class="mbr"><div class="k" id="mnt"><i></i><b>NİTRO</b><s></s></div>' +
+      mutant.kosu.beceriler
+        .map(
+          (o) =>
+            `<div class="k mbk${beceriBul(o.id)!.tur == "tetikli" ? " mbo" : ""}" data-beceri="${o.id}"><i></i><b>${BECERI_KISA[o.id] ?? o.id}</b></div>`,
+        )
+        .join("") +
+      "</div>"
+    : "";
 
 export function mutantTusuBagla() {
   const e = document.getElementById("mnt");
@@ -514,6 +639,12 @@ export function mutantTusuBagla() {
     v.preventDefault();
     mutant.nitro = true;
   });
+  document.querySelectorAll<HTMLElement>("[data-beceri]").forEach((b) =>
+    b.addEventListener("pointerdown", (v) => {
+      v.preventDefault();
+      mutant.beceriIstek.push(b.dataset.beceri!);
+    }),
+  );
 }
 
 /** her karede: tuşun enerji dolgusu, maliyet çizgisi, açık/hazır durumu */
@@ -527,4 +658,23 @@ export function mutantTusuGuncelle() {
   if (e.style.getPropertyValue("--e") != dolu) e.style.setProperty("--e", dolu);
   if (e.style.getPropertyValue("--m") != cizgi) e.style.setProperty("--m", cizgi);
   if (e.className != sinif) e.className = sinif;
+  // skill tuşları: aktifte bekleme/etki dolgusu, tetiklenende risk barı
+  for (const b of d.beceriler) {
+    const t = document.querySelector<HTMLElement>(`[data-beceri="${b.id}"]`);
+    if (!t) continue;
+    const T = beceriBul(b.id)!,
+      p = T.seviyeler[b.seviye - 1],
+      dolgu =
+        b.bar != null
+          ? b.bar
+          : b.acik
+            ? (100 * b.kalan) / (p.sure || 1)
+            : b.bekleme > 0
+              ? 100 - (100 * b.bekleme) / (p.bekleme || 1)
+              : 100,
+      w = Math.round(Math.max(0, Math.min(100, dolgu))) + "%",
+      c = "k mbk" + (b.tur == "tetikli" ? " mbo" : "") + (b.acik ? " on" : b.hazir ? " hazir" : "");
+    if (t.style.getPropertyValue("--e") != w) t.style.setProperty("--e", w);
+    if (t.className != c) t.className = c;
+  }
 }

@@ -3,6 +3,7 @@
 export { CARS } from "../arac/araclar";
 export { gorunumUygula } from "../arac/gorunumler";
 export { showMenu } from "../arayuz/menu";
+export { kontrolleriKur } from "../arayuz/kontroller";
 import { startWorld as dunyaBaslat } from "../arayuz/menu";
 /** test sürüşü: açık dünyada MUTANT koşusu olmadan (eski testler); MUTANT için mutantBasla */
 export const startWorld = (w: number) => dunyaBaslat(w, false);

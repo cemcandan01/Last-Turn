@@ -29,7 +29,15 @@ export interface RakipAyari {
   tohum: number;
 }
 
-export const rakip = { y: null as Yarisci | null, ayar: null as RakipAyari | null };
+export const rakip = {
+  y: null as Yarisci | null,
+  ayar: null as RakipAyari | null,
+  /** rakibin stok gücü (skill hasarı bunun üstünden güç düşürür) */
+  tabanHp: 0,
+};
+
+/** skill hasarının rakip gücüne etkisi: gövde 0'da en çok %30 güç kaybı (oyuncunun gövde kuralıyla aynı) */
+export const RAKIP_GUC_KAYBI = 0.3;
 
 /** yarış başlarken (startEvent, oyuncu ızgaraya konduktan sonra): rakibi oyuncunun yanına koy */
 export function rakipBaslat(
@@ -42,15 +50,13 @@ export function rakipBaslat(
     x = x0 + TR.T[i][1] * IZGARA_YAN,
     z = z0 - TR.T[i][0] * IZGARA_YAN;
   rakip.ayar = r;
-  rakip.y = yarisciYap(
-    dunyaSorgusuYap({ cur: null }),
-    rakipKurulumu(r.arac, EV.ty, kurulum.lk, set.ss, set.sm),
-    TR,
-    EV.laps ?? 1,
-    r.kisilik,
-    r.tohum,
-    { x, z, h },
-  );
+  const kur = rakipKurulumu(r.arac, EV.ty, kurulum.lk, set.ss, set.sm);
+  rakip.tabanHp = kur.car.hp;
+  rakip.y = yarisciYap(dunyaSorgusuYap({ cur: null }), kur, TR, EV.laps ?? 1, r.kisilik, r.tohum, {
+    x,
+    z,
+    h,
+  });
   // yerel simülasyon: ağ gecikmesi yok, bir adım geriden ara değer (oyuncunun çizimi gibi)
   uzakAnlikEkle(uzakAracEkle(RAKIP, r.arac, ADIM), aracAnligi(rakip.y.ornek));
 }
@@ -58,6 +64,7 @@ export function rakipBaslat(
 export function rakipDurdur() {
   rakip.y = null;
   rakip.ayar = null;
+  rakip.tabanHp = 0;
   uzakAracSil(RAKIP);
 }
 
@@ -68,6 +75,27 @@ export function rakipAdimi(basla: boolean) {
   yarisciAdimi(y, basla);
   const u = uzak.araclar.find((a) => a.id == RAKIP);
   if (u) uzakAnlikEkle(u, aracAnligi(y.ornek));
+}
+
+/**
+ * MUTANT skill etkisi (sonraki sabit adımda): çekme/itme ivmesi kütle merkezine kuvvet olarak (konum yazılmaz) ve
+ * skill hasarından gövdeye göre güç kaybı. Rakibin pilotu yine yalnız gaz/fren/direksiyon üretir
+ */
+export function rakipEtkisi(ivme: { x: number; z: number } | null, govde: number) {
+  const y = rakip.y;
+  if (!y) return;
+  y.ornek.cx.dis = ivme && (ivme.x || ivme.z) ? { x: ivme.x, z: ivme.z } : undefined;
+  const hp = rakip.tabanHp * (1 - RAKIP_GUC_KAYBI * (1 - Math.max(0, Math.min(100, govde)) / 100)),
+    K = y.ornek.cx.kurulum;
+  if (K.car.hp != hp) y.ornek.cx.kurulum = { ...K, car: { ...K.car, hp } };
+}
+
+/** skill dünyası için rakibin gövdesi (yarışta yoksa null) */
+export function rakipGovdesi() {
+  const y = rakip.y;
+  if (!y) return null;
+  const S = y.ornek.sim.S;
+  return { id: RAKIP, x: S.x, z: S.z, h: S.h, vx: S.vx, vz: S.vz };
 }
 
 /** sıra ve fark (m; pozitif oyuncu önde). Rakip yoksa null */

@@ -1,4 +1,12 @@
-# Son devir: MUTANT A3 ilk YZ rakip (issue #22) — 0.8.6 denemede
+# Son devir: MUTANT sistemik skill mimarisi (LT-SYS-004) — 0.8.7, PR açık
+
+- Claude / claude/mutant-skill-mimarisi (taban gelistirme 8b036df). Kart docs/isler/LT-SYS-004-mutant-skill-mimarisi.md; kural ALANLAR "MUTANT → Skill sistemi".
+- En çok 3 skill; skill'ler ortak olaylarla (HasarVerildi, YakinTakip, NearMiss, KonumEtkisi, DurumUygulandi, KorumaEngelledi) birbirini tanımadan çalışır: saf yürütücü src/cekirdek/beceri.ts, enerji yine mekanikler.ts. Grappling Hook, Flying Dutchman, Risk Taker, Slipstream Engine; seviye/skill eklentisi/evrim ayrı; 3 yeni enerji pasifi. Drift kaporası kilitli (tohum+etkinlik+deneme). Fiziğe tek isteğe bağlı giriş FizikBaglami.dis (yokken birebir aynı; kariyer imzası ayıklar).
+- Yerel: kontrol temiz; npm test (sonuç PR'da); alan mutant birim 80/80 + matris/plan; tarayıcı mutant 14/14, rakip 11/11, beceri 6/6; görüntü tests/cikti/beceri-hud.png (844×390). Ölçüm: kanca Sv3 1,5 sn'de farkı 28,3→15,8 m kapatır, ışınlanma 0; ekonomi döngüsü kendini beslemiyor (tests/cikti/beceri-ekonomi.json). iPhone 13 gerçek cihazda denenmedi.
+- Açık: araç-araç çarpışması (Carpisma olayı/çarpışma hasarı hazır, üretici yok), YZ'nin skill kullanması, havuzun kalanı, ralli/drag zaman aşımı gövde erimesi (Codex dalındaki Cem kararı), kaporada drift puanına bağlı ek para. Cem'in mesajı §10'da kesik geldi.
+- Sonraki tek adım: PR CI'ı yeşilse gelistirme'ye birleşip /dev/ 0.8.7'de Cem oynasın (kanca düelloda, Risk Taker drift etkinliğinde, kapora kartı).
+
+## Önceki iş: MUTANT A3 ilk YZ rakip (issue #22) — 0.8.6 denemede
 
 - Claude / claude/mutant-a3-rakip (taban gelistirme 9f92589, PR #24 dahil). Kart docs/isler/LT-SYS-003-a3-rakip-yz.md; ölçüm docs/denge/2026-10-27-rakip-olcum.json.
 - Bölge 1 asfalt etkinliği = Yeşil Vadi'de 2 turluk düello; tek YZ rakip (src/yz: çizgi/hız planı, kişilik, pilot, yarışçı; oyun bağı oyun/rakip.ts) oyuncunun stok başlangıç aracıyla, aynı fizikte yalnız gaz/fren/direksiyonla. Güvenli→Çaylak, Riskli→Deneyimli. Çarpışma yok; ışınlanma/rubber-band yok.
