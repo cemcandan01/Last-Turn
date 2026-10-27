@@ -29,9 +29,9 @@ export interface BeceriEfektGirdisi {
   ruzgar: boolean;
 }
 
-const halatMat = new THREE.MeshBasicMaterial({ color: 0xffd23c }),
-  halat = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 1, 6, 1, true), halatMat),
-  ucMat = new THREE.MeshBasicMaterial({ color: 0xffd23c }),
+const halatMat = new THREE.MeshBasicMaterial({ color: 0x40e0ff }),
+  halat = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 1, 6, 1, true), halatMat),
+  ucMat = new THREE.MeshBasicMaterial({ color: 0x40e0ff }),
   uc = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.14, 6, 14), ucMat),
   halkaMat = new THREE.MeshBasicMaterial({
     color: 0x9fe8ff,
@@ -46,24 +46,53 @@ const halatMat = new THREE.MeshBasicMaterial({ color: 0xffd23c }),
     opacity: 0.32,
     depthWrite: false,
   }),
-  korGeo = new THREE.ConeGeometry(0.45, 1.3, 6),
-  korMat = new THREE.MeshBasicMaterial({
-    color: 0xff6a1f,
+  // kor alevi: dışta turuncu, içte sarı; toplamalı karışım (koni/trafik konisiyle karışmasın diye ışık gibi parlar)
+  korGeo = new THREE.ConeGeometry(0.5, 1.5, 5),
+  korDis = new THREE.MeshBasicMaterial({
+    color: 0xff5a14,
     transparent: true,
-    opacity: 0.85,
+    opacity: 0.75,
     depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  }),
+  korIc = new THREE.MeshBasicMaterial({
+    color: 0xffd23c,
+    transparent: true,
+    opacity: 0.9,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
   }),
   KOR_SAYI = 26,
-  korlar: THREE.Mesh[] = [];
+  korlar: THREE.Group[] = [];
 halat.visible = uc.visible = halka.visible = false;
 halka.rotation.x = -Math.PI / 2;
 scene.add(halat, uc, halka);
 for (let i = 0; i < KOR_SAYI; i++) {
-  const m = new THREE.Mesh(korGeo, korMat);
-  m.visible = false;
-  scene.add(m);
-  korlar.push(m);
+  const g = new THREE.Group(),
+    ic = new THREE.Mesh(korGeo, korIc);
+  ic.scale.set(0.5, 0.6, 0.5);
+  ic.position.y = -0.2;
+  g.add(new THREE.Mesh(korGeo, korDis), ic);
+  g.rotation.y = i * 1.3;
+  g.visible = false;
+  scene.add(g);
+  korlar.push(g);
 }
+
+// dönüşümde araçtan geriye fışkıran iki alev dili (arka köşelerde, aracın yönünde)
+const egzoz = new THREE.Group();
+for (const x of [-0.6, 0.6]) {
+  const g = new THREE.Group(),
+    ic = new THREE.Mesh(korGeo, korIc);
+  ic.scale.set(0.5, 0.6, 0.5);
+  ic.position.y = -0.2;
+  g.add(new THREE.Mesh(korGeo, korDis), ic);
+  g.rotation.x = -Math.PI / 2;
+  g.position.set(x, 0.45, -2.6);
+  egzoz.add(g);
+}
+egzoz.visible = false;
+scene.add(egzoz);
 
 const once = { kanca: false, hayalet: false, donusum: false };
 let halkaT = 0,
@@ -117,8 +146,8 @@ export function beceriEfektleri(
     uc.position.set(k[0], k[1], k[2]);
     uc.rotation.y += dt * 9;
     // halat gerilir: hafif titreşen parlaklık
-    halatMat.color.setHSL(0.13, 1, 0.55 + 0.12 * Math.sin(t * 40));
-    if (!once.kanca) halkaBaslat(0xffd23c);
+    halatMat.color.setHSL(0.53, 1, 0.6 + 0.12 * Math.sin(t * 40));
+    if (!once.kanca) halkaBaslat(0x40e0ff);
   }
   halat.visible = uc.visible = !!(e && k);
   once.kanca = !!(e && k);
@@ -167,6 +196,15 @@ export function beceriEfektleri(
       yan = sayac % 2 ? 1.3 : -1.3;
     puff(e.x + yx * yan, e.y + 0.4, e.z + yz * yan, -e.vx * 0.5, -e.vz * 0.5, 0x8fd0ff, 0.3);
   }
+  egzoz.visible = !!e && don;
+  if (e && don) {
+    egzoz.position.set(e.x, e.y, e.z);
+    egzoz.rotation.y = e.h;
+    egzoz.children.forEach((g, i) => {
+      const f = 1 + 0.35 * Math.sin(t * 37 + i * 2.1);
+      g.scale.set(f * 0.9, f * 1.8, f * 0.9);
+    });
+  }
   const iz = e?.iz ?? [];
   for (let i = 0; i < KOR_SAYI; i++) {
     const m = korlar[i],
@@ -188,9 +226,12 @@ export function beceriEfektleri(
   } else halka.visible = false;
 }
 
-/** sürüş dışında (menü, garaj) her şeyi gizle ve hayaleti geri al */
-export function beceriEfektleriSifirla(govde: readonly (THREE.Object3D | null)[]) {
-  beceriEfektleri(0, null, govde);
-  halkaT = 0;
-  halka.visible = false;
+/** testler için: hangi efekt görünüyor, gövdede kaç mesh hayalet malzemesinde */
+export function beceriEfektBilgisi(govde: readonly (THREE.Object3D | null)[]) {
+  let hayalet = 0;
+  for (const g of govde)
+    g?.traverse((o) => {
+      if ((o as THREE.Mesh).isMesh && (o as THREE.Mesh).material === hayaletMat) hayalet++;
+    });
+  return { halat: halat.visible, hayalet, kor: korlar.filter((m) => m.visible).length };
 }
