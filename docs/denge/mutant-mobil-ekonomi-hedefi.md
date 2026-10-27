@@ -47,3 +47,11 @@
 - **Örnek skill:** Piston Gatling seviye 1: 15 m içindeki en yakın rakibe 5 saniye boyunca saniyede 5 hasar (toplam teorik 25); tetik koşulu, cooldown, hedef görüşü ve seviye eğrisi henüz tanımlanmadı. Driftte rakip yoksa skill kapora olarak konabilir; ateş etme işlevi zorunlu değildir.
 - **Karar adaleti:** Drift başlangıcında kaybedilecek skill ve kazanılacak upgrade açıkça gösterilir; oyuncu onay verir. Skill yoksa erişim için başlangıç/alternatif seçenek tanımlanır. Rastgele yarış kaybı yerine beceriyle erişilebilir hedef; bonus puan için üst sınır/azalan getiri, AFK farm yok.
 - **Uygulama ayrımı:** Önce tür bazlı sonuç sözleşmesi ve skill envanterinde kayıp/yükseltme atomik testi; ardından AI savaş/engel/çarpışma ayrı entegrasyon. Bu not kodun uygulandığı anlamına gelmez.
+
+## Cem kararı — drift kaporası oyuncu tarafından seçilmez
+- Oyuncunun birden fazla skilli varsa drift etkinliğinin kaporası **rastgele bir skill** olur; oyuncu seçim yapamaz.
+- Kapora yarışa giriş onayından **önce açıkça gösterilir**. Oyuncu riskli etkinliği kabul edebilir veya vazgeçebilir. Kapora sonuç belli olana kadar korunur.
+- Kapora, etkinlik için ilk teklif oluşturulduğunda koşu seed'ine bağlı deterministik seçilir ve etkinlik kimliğine sabitlenir; kartı aç/kapat, UI yeniden oluşturma veya aynı etkinliğe dönme yeniden zar atmaz.
+- Kazanma: seçili skill +1 seviye (seviye tavanı için önceden tanımlı alternatif ödül gerekir) ve sınırlı drift puanı bonusu. Kaybetme: seçili skill tüm seviyeleriyle envanterden silinir; ona bağlı sinerjiler doğal olarak devre dışı kalır.
+- Tek skill varsa o otomatik kaporadır. Sıfır skill varsa yarış erişimi/başlangıç skill'i için açık bir kural gerekli; oyuncuya sessizce bedava giriş verilmemeli.
+- Kabul testleri: aynı seed + etkinlik + envanter → aynı kapora; UI tekrar açılması kaporayı değiştirmez; yarışa girmemek skill kaybettirmez; kazanma yalnız kaporayı yükseltir; kaybetme yalnız kaporayı siler; sonuç bir kez uygulanır; envanter değişince exploit önlenir.
