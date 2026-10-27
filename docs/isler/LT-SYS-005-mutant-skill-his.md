@@ -64,3 +64,7 @@ Grafik: oyunda ayrı "grafik kalitesi" ayarı yok; tek görüntü ayarı Gölgel
 - Sonuçlar: aşağıda "Doğrulama".
 
 ## Doğrulama
+
+- Yerel: `npm run kontrol` temiz; `npm test` 30 dosya 415/415; tarayıcı `beceri-his` 7/7, `beceri` 6/6.
+- Regresyon (Cem'in isteğiyle yarıda kesildi, "yalnız gerekli alanlar"): kesilene dek 392 madde geçti, MUTANT/rakip/skill bölümleri dahil; 2 kalış garajın 4x yavaş araç geçişi kare süresi (yük kaynaklı; garaj bölümü tek başına koşunca geçti, bu iş garaja dokunmuyor).
+- iPhone 13 gerçek cihazda denenmedi. Sürüm numarası denemeye birleştirmede artar (0.8.7 → 0.8.8).

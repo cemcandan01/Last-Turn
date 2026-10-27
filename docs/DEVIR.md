@@ -1,4 +1,12 @@
-# Son devir: MUTANT sistemik skill mimarisi (LT-SYS-004) — 0.8.7 denemede
+# Son devir: MUTANT skill hissi + açık dünya yol ağı (LT-SYS-005) — PR'da
+
+- Claude / claude/mutant-skill-his (taban gelistirme 8817dd3 + Codex PR #29). Kart docs/isler/LT-SYS-005-mutant-skill-his.md.
+- Denetim: kanca pist noktasında 100 km/sa'te 0,57 sn'de kopuyordu, açık dünyada hiç çalışmıyordu; Dutchman 1,5 sn yolda 0 m fark; perksiz koşuda enerji hiç dolmuyordu. Düzeltme: halat kayması + yol ağına tutunma, temel sürüş enerjisi (drift 2,5/sn), Dutchman 2,5/3/3,5 sn; efekt+ses (cizim/beceri-efekt.ts); 3 yuvalı HUD + neden; Çorak'a 8 asfalt yol (dunya/yollar.ts).
+- Yerel: kontrol temiz, npm test 415/415, tarayıcı beceri-his 7/7, beceri 6/6. Regresyon Cem isteğiyle kesildi (392 geçti; 2 garaj perf kalışı yük kaynaklı, tek başına geçti).
+- Açık: nitro sıklığı temel enerjiyle arttı (Cem), Dutchman engel içinden geçsin mi (Cem), iPhone 13 gerçek cihaz.
+- Sonraki tek adım: Cem PR'ı incelesin; birleşince denemeye 0.8.8.
+
+## Önceki iş: MUTANT sistemik skill mimarisi (LT-SYS-004) — 0.8.7 denemede
 
 - Claude / claude/mutant-skill-mimarisi (taban gelistirme 8b036df). Kart docs/isler/LT-SYS-004-mutant-skill-mimarisi.md; kural ALANLAR "MUTANT → Skill sistemi".
 - En çok 3 skill; skill'ler ortak olaylarla (HasarVerildi, YakinTakip, NearMiss, KonumEtkisi, DurumUygulandi, KorumaEngelledi) birbirini tanımadan çalışır: saf yürütücü src/cekirdek/beceri.ts, enerji yine mekanikler.ts. Grappling Hook, Flying Dutchman, Risk Taker, Slipstream Engine; seviye/skill eklentisi/evrim ayrı; 3 yeni enerji pasifi. Drift kaporası kilitli (tohum+etkinlik+deneme). Fiziğe tek isteğe bağlı giriş FizikBaglami.dis (yokken birebir aynı; kariyer imzası ayıklar).
