@@ -5,6 +5,7 @@ import { CARS, type YarisTuru } from "../arac/araclar";
 import { KATEGORILER, PARCALAR } from "../arac/parcalar";
 import { fmt, fmt3 } from "../cekirdek/bicim";
 import { $ } from "../cekirdek/dom";
+import { ikon, type IkonAdi } from "./ikonlar";
 import { SKILL_YUVASI, beceriBul, beceriEklentisiBul, type BeceriOrnegi } from "../cekirdek/beceri";
 import { isaretleriKur, isaretlerGorunur, type Isaret } from "../cizim/isaretler";
 import { Hw, WORLDS } from "../dunya/dunya";
@@ -619,18 +620,40 @@ export function mutantPaneli(): [string, string] | null {
   ];
 }
 
-/** NİTRO ve skill tuşları (koşuda; kontroller.ts sol grubun üstüne koyar). Tetiklenen skill tuşu barını gösterir */
+/** skill yuvasının ikonu */
+const BECERI_IKON: Record<string, IkonAdi> = {
+  "grappling-hook": "kanca",
+  "flying-dutchman": "hayalet",
+  "risk-taker": "alev",
+  "slipstream-engine": "ruzgar",
+};
+
+/**
+ * NİTRO ve skill yuvaları (koşuda; kontroller.ts sol grubun üstüne koyar). Yuva: solda ikon ve seviye (1-3 çentik),
+ * sağda kısa ad ve durum (maliyet, kalan süre, bekleme ya da kullanılamama nedeni); dolgu: etki/bekleme/enerji/bar
+ */
 export const mutantTusuHtml = () =>
   mutant.kosu
     ? '<div class="mbr"><div class="k" id="mnt"><i></i><b>NİTRO</b><s></s></div>' +
       mutant.kosu.beceriler
         .map(
           (o) =>
-            `<div class="k mbk${beceriBul(o.id)!.tur == "tetikli" ? " mbo" : ""}" data-beceri="${o.id}"><i></i><b>${BECERI_KISA[o.id] ?? o.id}</b></div>`,
+            `<div class="k mbk${beceriBul(o.id)!.tur == "tetikli" ? " mbo" : ""}" data-beceri="${o.id}"><i></i>` +
+            `<span class="mbi">${ikon(BECERI_IKON[o.id] ?? "bilgi")}<em data-sv="${o.seviye}" aria-label="Seviye ${o.seviye}"><s></s><s></s><s></s></em></span>` +
+            `<span class="mbt"><b>${BECERI_KISA[o.id] ?? o.id}</b><u></u></span></div>`,
         )
         .join("") +
       "</div>"
     : "";
+
+/** kullanılamama nedeninin yuvadaki kısa yazısı */
+const ENGEL_YAZISI: Record<string, string> = {
+  hedef: "HEDEF YOK",
+  faz: "FAZDA",
+  rakip: "RAKİP YOK",
+  basla: "BAŞLANGIÇ",
+};
+const sn = (x: number) => x.toFixed(1).replace(".", ",") + " sn";
 
 export function mutantTusuBagla() {
   const e = document.getElementById("mnt");
@@ -647,6 +670,9 @@ export function mutantTusuBagla() {
   );
 }
 
+/** son reddedilen skill isteği: yuvası kısa süre kırmızı yanar (neden alt satırda) */
+let redSon = { n: 0, id: "", bitis: 0 };
+
 /** her karede: tuşun enerji dolgusu, maliyet çizgisi, açık/hazır durumu */
 export function mutantTusuGuncelle() {
   const e = document.getElementById("mnt"),
@@ -658,23 +684,51 @@ export function mutantTusuGuncelle() {
   if (e.style.getPropertyValue("--e") != dolu) e.style.setProperty("--e", dolu);
   if (e.style.getPropertyValue("--m") != cizgi) e.style.setProperty("--m", cizgi);
   if (e.className != sinif) e.className = sinif;
-  // skill tuşları: aktifte bekleme/etki dolgusu, tetiklenende risk barı
+  // skill yuvaları: dolgu (etki kalan / bekleme ilerlemesi / enerji ya da bar), alt satır durum ya da neden
+  const simdi = performance.now();
+  if (mutant.red.n != redSon.n) redSon = { n: mutant.red.n, id: mutant.red.id, bitis: simdi + 900 };
   for (const b of d.beceriler) {
     const t = document.querySelector<HTMLElement>(`[data-beceri="${b.id}"]`);
     if (!t) continue;
-    const T = beceriBul(b.id)!,
-      p = T.seviyeler[b.seviye - 1],
-      dolgu =
-        b.bar != null
-          ? b.bar
-          : b.acik
-            ? (100 * b.kalan) / (p.sure || 1)
-            : b.bekleme > 0
-              ? 100 - (100 * b.bekleme) / (p.bekleme || 1)
-              : 100,
-      w = Math.round(Math.max(0, Math.min(100, dolgu))) + "%",
-      c = "k mbk" + (b.tur == "tetikli" ? " mbo" : "") + (b.acik ? " on" : b.hazir ? " hazir" : "");
+    const red = redSon.id == b.id && simdi < redSon.bitis,
+      engel = red && mutant.red.engel == "basla" ? "basla" : b.engel;
+    let dolgu: number, yazi: string, durum: string;
+    if (b.acik) {
+      dolgu = b.kalan / Math.max(b.sure, b.kalan, 0.01);
+      yazi = sn(b.kalan);
+      durum = "on";
+    } else if (engel == "bekleme" || engel == "etkin") {
+      dolgu = 1 - b.bekleme / Math.max(b.beklemeTam, 0.01);
+      yazi = sn(b.bekleme);
+      durum = "bekle";
+    } else if (b.bar != null) {
+      dolgu = b.bar / 100;
+      yazi = engel ? ENGEL_YAZISI[engel] : "%" + b.bar;
+      durum = engel ? "engel" : b.bar >= 75 ? "hazir" : "";
+    } else if (engel == "enerji") {
+      dolgu = Math.min(1, d.enerji / Math.max(b.maliyet, 1));
+      yazi = Math.floor(d.enerji) + "/" + Math.round(b.maliyet);
+      durum = "engel";
+    } else if (engel) {
+      dolgu = 1;
+      yazi = ENGEL_YAZISI[engel];
+      durum = "engel";
+    } else {
+      dolgu = 1;
+      yazi = String(Math.round(b.maliyet));
+      durum = "hazir";
+    }
+    const w = Math.round(100 * Math.max(0, Math.min(1, dolgu))) + "%",
+      c = "k mbk" + (b.tur == "tetikli" ? " mbo" : "") + (durum ? " " + durum : "") + (red ? " red" : ""),
+      u = t.querySelector("u")!,
+      html = b.bar == null && !b.acik && durum != "bekle" && !engel ? yazi + ikon("enerji") : yazi;
     if (t.style.getPropertyValue("--e") != w) t.style.setProperty("--e", w);
     if (t.className != c) t.className = c;
+    if (u.dataset.h != html) {
+      u.dataset.h = html;
+      u.innerHTML = html;
+    }
+    const sv = t.querySelector("em")!;
+    if (sv.dataset.sv != String(b.seviye)) sv.dataset.sv = String(b.seviye);
   }
 }

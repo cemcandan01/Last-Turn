@@ -4271,21 +4271,30 @@ details[open] > summary::after {
 #mnt:not(.hazir):not(.on) b {
   opacity: 0.6;
 }
-/* MUTANT skill tuşları (LT-SYS-004): NİTRO'nun yanında, yuva sırasıyla; tetiklenen skill barı gösterir */
+/* MUTANT skill yuvaları (LT-SYS-004/005): NİTRO'nun yanında, yuva sırasıyla. Üst satır ikon + kısa ad + seviye,
+   alt satır durum (maliyet, kalan süre, bekleme ya da kullanılamama nedeni). Dolgu: etki kalanı, bekleme ilerlemesi,
+   enerji ya da tetiklenen skill'in barı. Hazır: turuncu kenar; açık: dolu renk; neden: sarı yazı; ret: kırmızı kenar */
 .mbr {
   display: flex;
   gap: 6px;
   align-items: flex-end;
 }
+#app .mbr #mnt {
+  height: 52px;
+  width: min(78px, calc(var(--aw) * 0.092));
+}
 .mbk {
   position: relative;
   overflow: hidden;
-  width: min(66px, calc(var(--aw) * 0.15));
-  height: 44px;
+  width: min(78px, calc(var(--aw) * 0.092));
+  height: 52px;
   border-radius: 14px;
-  font-size: 10px;
-  letter-spacing: 1px;
   color: #dfe8e6;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  padding: 0 5px;
 }
 .mbk i {
   position: absolute;
@@ -4293,22 +4302,95 @@ details[open] > summary::after {
   top: 0;
   bottom: 0;
   width: var(--e, 0%);
-  background: #3cc8ff44;
-  transition: width 0.15s;
+  background: #3cc8ff40;
+  transition: width 0.12s;
 }
 .mbk.mbo i {
-  background: #ff3c5a55;
+  background: #ff3c5a50;
 }
-.mbk b {
+/* sol sütun: ikon ve seviye çentikleri */
+.mbk .mbi {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+.mbk .mbi .ik {
+  width: 18px;
+  height: 18px;
+}
+.mbk em {
+  display: flex;
+  gap: 2px;
+}
+.mbk em s {
+  width: 4px;
+  height: 4px;
+  border-radius: 2px;
+  background: #ffffff40;
+}
+.mbk em[data-sv="1"] s:nth-child(-n + 1),
+.mbk em[data-sv="2"] s:nth-child(-n + 2),
+.mbk em[data-sv="3"] s {
+  background: var(--acc);
+}
+/* sağ sütun: kısa ad, durum */
+.mbk .mbt {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
+}
+.mbk .mbt b {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.mbk u {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.mbk u .ik {
+  width: 12px;
+  height: 12px;
 }
 .mbk.hazir {
   border-color: var(--acc);
 }
 .mbk.on {
   background: #3cc8ff66;
-  border-color: var(--acc);
+  border-color: #9fe8ff;
 }
-.mbk:not(.hazir):not(.on) b {
+.mbk.mbo.on {
+  background: #ff7a1f99;
+  border-color: #ffc23c;
+}
+.mbk.bekle .mbi,
+.mbk.engel .mbi,
+.mbk.bekle b,
+.mbk.engel b {
   opacity: 0.6;
+}
+.mbk.engel u {
+  color: #ffd27a;
+}
+.mbk.red {
+  border-color: #ff4d4d;
+  animation: mbkRed 0.3s 2;
+}
+@keyframes mbkRed {
+  50% {
+    transform: translateX(2px);
+  }
 }
