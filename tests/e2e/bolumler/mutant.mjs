@@ -12,6 +12,9 @@ export default async function ({ p, ok }) {
     };
     const res = document.querySelector("#res"),
       r = {};
+    // koşu tohumu rastgele: NİTRO denetimi başlangıç enerjisine (40) güvenir, nitro maliyetini artıran pasif
+    // (Sert Nitro ×1,3) ya da skill teklifi seçilmez
+    const PASIF = "[data-pasif]:not([data-pasif='sert-nitro']):not([data-pasif^='b:'])";
     // eksik düğme hangi adımda: hata iletisinde seçici görünür
     const tik = (sec) => {
       const e = res.querySelector(sec);
@@ -46,7 +49,7 @@ export default async function ({ p, ok }) {
       document.querySelector("#gar").classList.contains("hidden");
     tik("[data-arac]");
     r.pasif = res.querySelectorAll("[data-pasif]").length == 3;
-    tik("[data-pasif]");
+    tik(PASIF);
     const k = LT.mutant.kosu;
     await bekle(700);
     // Merkez ve atölye aynı noktada: oyuncu hareket etmeden atölye otomatik açılmamalı.
@@ -91,7 +94,7 @@ export default async function ({ p, ok }) {
       e.yapildi &&
       localStorage.getItem("lt_ilerleme") === ilerleme;
     tik("#mDevam");
-    while (LT.oyun.mode == "result" && res.querySelector("[data-pasif]")) tik("[data-pasif]");
+    while (LT.oyun.mode == "result" && res.querySelector("[data-pasif]")) tik(PASIF);
     await bekle(100);
     r.donus = LT.oyun.mode == "drive" && !LT.yaris.EV && Math.hypot(LT.sim.S.x - e.x, LT.sim.S.z - e.z) < 15;
     // sert çarpma: gövde düşer, HUD'da görünür
