@@ -356,6 +356,8 @@ export interface Kosu {
   govde: number;
   carpma: number;
   spin: number;
+  /** pist kesme sayısı */
+  kesme?: number;
   /** pert olduysa true (koşu bitti) */
   pert: boolean;
   /** son nefes kullanıldı mı (bir kez) */
@@ -876,6 +878,21 @@ export function kosuAraci(
 
 /** skill'lerin birleşik tutuş çarpanı üst sınırı */
 export const BECERI_TUTUS_UST = 1.3;
+
+/** pist kesme cezası (LT-SYS-006): atlanan pist mesafesinin onda biri kadar gövde. Hayalet fazı ve zırh korumaz,
+ *  enerji/para pasifleri tepki vermez (kesmek hiçbir şey kazandırmaz). Gövde 0'da pert. Dönen: düşen gövde */
+export const KESME_CEZASI = 0.1;
+export function kesmeCezasi(k: Kosu, metre: number): number {
+  if (k.faz == "bitti" || k.pert || !(metre > 0)) return 0;
+  const h = Math.min(k.govde, metre * KESME_CEZASI);
+  k.govde = Math.max(0, k.govde - metre * KESME_CEZASI);
+  k.kesme = (k.kesme ?? 0) + 1;
+  if (k.govde <= 0) {
+    k.pert = true;
+    k.faz = "bitti";
+  }
+  return h;
+}
 
 /** hasar: sert çarpma ya da spin; zırh azaltır. Gövde 0 olunca pert (koşu biter). Dönen: pert oldu mu */
 export function hasarAl(k: Kosu, tur: "carpma" | "spin"): boolean {

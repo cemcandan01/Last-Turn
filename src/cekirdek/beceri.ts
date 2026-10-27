@@ -354,7 +354,7 @@ export const GRAPPLING_HOOK: BeceriTanim = {
 export const FLYING_DUTCHMAN: BeceriTanim = {
   id: "flying-dutchman",
   ad: "Flying Dutchman",
-  d: "Kısa hayalet fazı: hasar almazsın, tutuş artar, spin hasarı işlemez. Faz boyunca hasar veremez, saldırı ve kanca kullanamazsın.",
+  d: "Kısa hayalet fazı: tam dokunulmazsın, hiç hasar almaz, ağaç ve kaya gibi engellerin içinden geçersin; tutuş artar. Duvarlar ve pist kesme cezası geçerli. Faz boyunca hasar veremez, saldırı ve kanca kullanamazsın.",
   tur: "aktif",
   etiketler: ["savunma", "hareket"],
   maliyet: 30,

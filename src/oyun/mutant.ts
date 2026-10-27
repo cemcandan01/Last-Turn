@@ -29,6 +29,7 @@ import {
   etkinlikBitti,
   hasarAl,
   kaporaBelirle,
+  kesmeCezasi,
   kosuAraci,
   kosuBaslat,
   nitroDurumu,
@@ -369,6 +370,19 @@ export function beceriEfektDurumu() {
     ruzgar: acik("slipstream-engine"),
   };
 }
+
+/** yarışta pist kesildi (yarislar.ts): atlanan mesafeye göre gövde cezası; pert olursa koşu biter. Dönen: düşen gövde */
+export function mutantKesme(metre: number): number {
+  const k = mutant.kosu;
+  if (!k) return 0;
+  const h = kesmeCezasi(k, metre);
+  if (h > 0) mutantAracGuncelle();
+  if (k.pert) mutant.ui?.hasar("carpma", true);
+  return h;
+}
+
+/** Flying Dutchman fazı açık mı: oyuncu ağaç/kaya gibi katı nesnelerin içinden geçer (duvarlar ve pist kuralı aynı) */
+export const mutantHayalet = () => !!mutant.kosu?.becCikti?.hayalet;
 
 /** nitro şu an açık mı (kamera, alev, ses için; koşu yoksa false) */
 export const nitroAcik = () => (mutant.kosu?.mek.etkiKalan ?? 0) > 0;

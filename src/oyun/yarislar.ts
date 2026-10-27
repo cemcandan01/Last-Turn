@@ -19,6 +19,7 @@ import {
   mutantRakibi,
   mutantYarisKaynagi,
   mutantKapat,
+  mutantKesme,
   mutantKurulumUygula,
   mutantPistKaynagi,
   mutantYarisBitti,
@@ -33,7 +34,15 @@ import { dunyaSorgusuYap, kayitKurulumu, kayitHavasi, reset, sim, yerel } from "
 import { rekorHayaletiBaslat, rekorHayaletiDurdur } from "./uzak";
 import { rakibiGecti, rakipBaslat, rakipDurdur } from "./rakip";
 import { X6_CARPAN, X6_ORAN, driftAdimi, driftBankala, tersAdimi, type DriftOlay } from "./yaris-kurallari";
-import { bosPistDisi, pistDisiAdimi, type DonusNoktasi, type PistDisiSayaci } from "./piste-donus";
+import {
+  bosKesme,
+  bosPistDisi,
+  kesmeAdimi,
+  pistDisiAdimi,
+  type DonusNoktasi,
+  type KesmeSayaci,
+  type PistDisiSayaci,
+} from "./piste-donus";
 import { DRIFT_REKOR_ON_EKI, DRIFT_TUR, TUR_ANAHTARI, yildizEsikleri, yildizSay } from "./yildiz";
 
 /** yarış türleri: hedef süre, pist uzunluğundan ve ilk pistlerin ayarlı hızından (v, m/s) hesaplanır */
@@ -109,6 +118,8 @@ export interface Yaris extends YarisTanimi {
   /** MUTANT etkinliği: kariyer ödülü, rekor, hayalet yok; koşu aracı ve koşu hedefi */
   mutant?: boolean;
   pistDisi: PistDisiSayaci;
+  /** pist kesme algısı (LT-SYS-006) */
+  kesme: KesmeSayaci;
   sv: KurulumKaydi & { car: number };
   TR: Pist;
   state: "count" | "run" | "done";
@@ -232,6 +243,7 @@ export function startEvent(i: number, ci?: number, mutantEtkinligi = false) {
     mutant: mutantEtkinligi,
     i,
     pistDisi: bosPistDisi(),
+    kesme: bosKesme(),
     sv,
     TR: REG[e.reg].TR!,
     state: "count",
@@ -289,6 +301,7 @@ export function yaristaPisteDon(p: DonusNoktasi) {
   yerel.kayit.kesik = true;
   EV.prev = ipucu.ti;
   EV.pistDisi = bosPistDisi();
+  EV.kesme = bosKesme();
   EV.ters = false;
   EV.tersT = 0;
   driftAdimi(EV, false, 0, true, 0, false, 0);
@@ -323,6 +336,12 @@ export function evTick(dt: number, o: AdimSonucu, tg = 0.5) {
     D = sim.d.D,
     ti = ipucu.ti;
   EV.t += dt;
+  // pist kesme: kısa yoldan piste dönünce ceza (MUTANT: atlanan mesafe / 10 gövde; hayalet fazı da korumaz)
+  const kesme = kesmeAdimi(EV.kesme, EV.TR, S.x, S.z, ti);
+  if (kesme > 0) {
+    const h = EV.mutant ? mutantKesme(kesme) : 0;
+    note("PİST KESME" + (h > 0 ? " · −" + Math.round(h) + " GÖVDE" : ""), 34);
+  }
   const donus = pistDisiAdimi(EV.pistDisi, EV.TR, S.x, S.z, ti, dt);
   if (donus) {
     yaristaPisteDon(donus);

@@ -114,4 +114,16 @@ export default [
     p: 1,
     birim: { dosya: "tests/birim/yol-agi.test.ts", grup: "LT-SYS-005 açık dünya asfalt yol ağı" },
   },
+  {
+    id: "pist-kesme",
+    ad: "LT-SYS-006 pist kesme: kısa yoldan dönüş algılanır, geniş almak/paralel gitmek/geri dönmek değil; gerçek pistlerde YZ'ye yanlış alarm yok; ceza atlanan/10 gövde, hayalet korumaz",
+    p: 1,
+    birim: { dosya: "tests/birim/kesme.test.ts", grup: "LT-SYS-006 pist kesme gerçek pistte" },
+  },
+  {
+    id: "pist-kesme-kural",
+    ad: "LT-SYS-006 pist kesme kuralı (saf): çapraz kestirme, dışarıdan geniş alma, paralel sapma, geri dönme, ceza",
+    p: 1,
+    birim: { dosya: "tests/birim/piste-donus.test.ts", grup: "LT-SYS-006 pist kesme" },
+  },
 ];

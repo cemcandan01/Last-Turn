@@ -53,7 +53,7 @@ Grafik: oyunda ayrı "grafik kalitesi" ayarı yok; tek görüntü ayarı Gölgel
 
 ## Kapsam dışı / açık
 
-- Flying Dutchman'ın engellerin (ağaç/kaya) içinden geçmesi tasarıma aykırı ("duvar dışına çıkma yok") olduğu için yapılmadı; faz daha "hayalet" hissettirsin istenirse Cem karar verir.
+- Flying Dutchman engel geçişi: Cem kararıyla yapıldı (revize 1, aşağıda).
 - Kancanın engel görüş hattıyla kesilmesi (havuz taslağı) yok. Araç-araç çarpışması, YZ'nin skill kullanması hâlâ yok.
 - iPhone 13 gerçek cihazda denenmedi (başsız tarayıcı 844 × 390).
 
@@ -68,3 +68,11 @@ Grafik: oyunda ayrı "grafik kalitesi" ayarı yok; tek görüntü ayarı Gölgel
 - Yerel: `npm run kontrol` temiz; `npm test` 30 dosya 415/415; tarayıcı `beceri-his` 7/7, `beceri` 6/6.
 - Regresyon (Cem'in isteğiyle yarıda kesildi, "yalnız gerekli alanlar"): kesilene dek 392 madde geçti, MUTANT/rakip/skill bölümleri dahil; 2 kalış garajın 4x yavaş araç geçişi kare süresi (yük kaynaklı; garaj bölümü tek başına koşunca geçti, bu iş garaja dokunmuyor).
 - iPhone 13 gerçek cihazda denenmedi. Sürüm numarası denemeye birleştirmede artar (0.8.7 → 0.8.8).
+
+## Revize 1 (Cem, 27 Ekim): pist kesme cezası, Dutchman tam dokunulmaz
+
+- **İstenen:** Pistten çıkıp 5 sn dolmadan kısa yoldan dönmek ödülsüz kalmalı; pist dışına çıkmak engellenmez, oyun F1 oyunları gibi kesmeyi anlar. Ceza ağır: kesmede pistte atlanan mesafe / 10 hasar. Dutchman tam dokunulmaz, ama kesme cezası ona da işler.
+- **Yorum:** "Kesme sonrası pistte katedilen mesafe" = çıkış ile dönüş arasında atlanan pist mesafesi (m). Ceza gövdeye, MUTANT'ta; kariyer yarışında gövde olmadığı için yalnız "PİST KESME" uyarısı (açık soru: kariyerde süre cezası?).
+- **Çıkan:** `oyun/piste-donus.ts → kesmeAdimi`: çıkışta pist ilerlemesi kilitlenir, dışarıda gidilen yol toplanır; dönüşte atlanan (ileri yönde) ≥ 15 m ve atlanan − dışarıdaki yol > 10 m ise kesme. Virajı dışarıdan geniş almak, pist yanında paralel gitmek, geriye dönmek kesme değil. Ceza `kesmeCezasi`: atlanan × 0,1 gövde; hayalet fazı, zırh korumaz; enerji/para pasifleri tepki vermez; gövde 0'da pert. Mevcut 1+5 sn piste döndürme aynı.
+- **Dutchman:** fazda oyuncu ağaç/kaya/direk gibi katı nesnelerin içinden geçer (yalnız oyuncunun dünya sorgusu, `surus.ts`); duvarlar (kutu), dünya sınırı, pist kuralları aynı. Hasar zaten tamamen engelleniyordu.
+- **Kanıt:** `tests/birim/piste-donus.test.ts` (grup "LT-SYS-006 pist kesme", 3), `tests/birim/kesme.test.ts` (32 pistte deneyimli YZ 1 tur, taşmalar dahil 0 yanlış kesme; gerçek pistte iç sahadan kestirme algılanır), tarayıcı `beceri-his` (ağacın içinden geçer, fazsız çarpar). `npm run kontrol` temiz; alan mutant 19/19, yarista-reset 3/3.

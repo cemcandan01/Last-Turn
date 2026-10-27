@@ -157,6 +157,40 @@ export default async function ({ p, ok }) {
     return r;
   });
 
+  // Flying Dutchman tam dokunulmaz: fazda ağacın içinden geçer (çarpma yok); faz yokken aynı ağaca çarpar
+  const r5 = await deger(async () => {
+    const bekle = (ms) => new Promise((s) => setTimeout(s, ms));
+    const k = LT.mutant.kosu;
+    let agac = null;
+    for (let x = -700; x < 700 && !agac; x += 20)
+      for (let z = 150; z < 700 && !agac; z += 20)
+        for (const o of LT.dunya.cols.yakin(x, z))
+          if (o.t == "solid" && o.r > 1 && Math.abs(o.x - -40) > 60) {
+            // önündeki 40 m boş olsun (başka engel yok)
+            let bos = true;
+            for (let d = 4; d < 40; d += 2)
+              for (const q of LT.dunya.cols.yakin(o.x, o.z - d)) if (q !== o && q.t == "solid") bos = false;
+            if (bos) agac = o;
+            break;
+          }
+    const kos = async (hayalet) => {
+      LT.reset(agac.x, agac.z - 16, 0);
+      await bekle(300);
+      if (hayalet)
+        k.bec.yerel["flying-dutchman"] = { ...k.bec.yerel["flying-dutchman"], kalan: 6, bekleme: 0 };
+      const hit0 = LT.sim.S.hit;
+      LT.I.g = 1;
+      for (let i = 0; i < 40 && LT.sim.S.z < agac.z + 6; i++) await bekle(50);
+      LT.I.g = 0;
+      return { carpti: LT.sim.S.hit > hit0 + 0.01, gecti: LT.sim.S.z > agac.z + 3 };
+    };
+    return { agac: !!agac, hayalet: await kos(true), normal: await kos(false), govde: k.govde };
+  });
+  ok(
+    r5.agac && !r5.hayalet.carpti && r5.hayalet.gecti && r5.normal.carpti,
+    "Flying Dutchman fazında ağacın içinden geçer, faz yokken çarpar: " + JSON.stringify(r5),
+  );
+
   ok(r.yuvalar && r.seviye, "üç skill yuvası ikon, seviye çentiği ve durum yazısıyla");
   ok(r.red, "yolsuz arazide kanca reddedilir: enerji gitmez, yuva kırmızı ve 'HEDEF YOK'");
   ok(

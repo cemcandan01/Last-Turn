@@ -4,7 +4,8 @@
 - Denetim: kanca pist noktasında 100 km/sa'te 0,57 sn'de kopuyordu, açık dünyada hiç çalışmıyordu; Dutchman 1,5 sn yolda 0 m fark; perksiz koşuda enerji hiç dolmuyordu. Düzeltme: halat kayması + yol ağına tutunma, temel sürüş enerjisi (drift 2,5/sn), Dutchman 2,5/3/3,5 sn; efekt+ses (cizim/beceri-efekt.ts); 3 yuvalı HUD + neden; Çorak'a 8 asfalt yol (dunya/yollar.ts).
 - Yerel: kontrol temiz, npm test 415/415, tarayıcı beceri-his 7/7, beceri 6/6. Regresyon Cem isteğiyle kesildi (392 geçti; 2 garaj perf kalışı yük kaynaklı, tek başına geçti).
 - Açık: nitro sıklığı temel enerjiyle arttı (Cem), Dutchman engel içinden geçsin mi (Cem), iPhone 13 gerçek cihaz.
-- Sonraki tek adım: Cem PR'ı incelesin; birleşince denemeye 0.8.8.
+- Revize 1: pist kesme cezası (atlanan/10 gövde, hayalet de yer) + Dutchman katı nesnelerden geçer. Alan mutant 19/19, yarista-reset 3/3. Açık: kariyerde kesme cezası (şimdi yalnız uyarı).
+- Sonraki tek adım: Cem PR #30'u incelesin; birleşince denemeye 0.8.8.
 
 ## Önceki iş: MUTANT sistemik skill mimarisi (LT-SYS-004) — 0.8.7 denemede
 
