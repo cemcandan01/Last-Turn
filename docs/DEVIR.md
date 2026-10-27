@@ -1,10 +1,11 @@
-# Son devir: MUTANT sistemik skill mimarisi (LT-SYS-004) — 0.8.7, PR açık
+# Son devir: MUTANT sistemik skill mimarisi (LT-SYS-004) — 0.8.7 denemede
 
 - Claude / claude/mutant-skill-mimarisi (taban gelistirme 8b036df). Kart docs/isler/LT-SYS-004-mutant-skill-mimarisi.md; kural ALANLAR "MUTANT → Skill sistemi".
 - En çok 3 skill; skill'ler ortak olaylarla (HasarVerildi, YakinTakip, NearMiss, KonumEtkisi, DurumUygulandi, KorumaEngelledi) birbirini tanımadan çalışır: saf yürütücü src/cekirdek/beceri.ts, enerji yine mekanikler.ts. Grappling Hook, Flying Dutchman, Risk Taker, Slipstream Engine; seviye/skill eklentisi/evrim ayrı; 3 yeni enerji pasifi. Drift kaporası kilitli (tohum+etkinlik+deneme). Fiziğe tek isteğe bağlı giriş FizikBaglami.dis (yokken birebir aynı; kariyer imzası ayıklar).
-- Yerel: kontrol temiz; npm test (sonuç PR'da); alan mutant birim 80/80 + matris/plan; tarayıcı mutant 14/14, rakip 11/11, beceri 6/6; görüntü tests/cikti/beceri-hud.png (844×390). Ölçüm: kanca Sv3 1,5 sn'de farkı 28,3→15,8 m kapatır, ışınlanma 0; ekonomi döngüsü kendini beslemiyor (tests/cikti/beceri-ekonomi.json). iPhone 13 gerçek cihazda denenmedi.
+- Yerel: kontrol temiz; npm test 402/402; alan mutant birim 80/80 + matris/plan; tarayıcı mutant 14/14, rakip 11/11, beceri 6/6; görüntü tests/cikti/beceri-hud.png (844×390). Ölçüm: kanca Sv3 1,5 sn'de farkı 28,3→15,8 m kapatır, ışınlanma 0; ekonomi döngüsü kendini beslemiyor (tests/cikti/beceri-ekonomi.json). iPhone 13 gerçek cihazda denenmedi.
 - Açık: araç-araç çarpışması (Carpisma olayı/çarpışma hasarı hazır, üretici yok), YZ'nin skill kullanması, havuzun kalanı, ralli/drag zaman aşımı gövde erimesi (Codex dalındaki Cem kararı), kaporada drift puanına bağlı ek para. Cem'in mesajı §10'da kesik geldi.
-- Sonraki tek adım: PR CI'ı yeşilse gelistirme'ye birleşip /dev/ 0.8.7'de Cem oynasın (kanca düelloda, Risk Taker drift etkinliğinde, kapora kartı).
+- PR #28 birleşti (gelistirme d86bd72; kaynak 22af3a4). Denetim 40558110357 + 40558096290 başarılı (ilk koşu 40556618708: MUTANT e2e NİTRO denetimi rastgele tohumda Sert Nitro seçince enerji yetmiyordu; 22af3a4'te test o kartı seçmez). Yayın 40558864694 (derleme, /dev/ yayını, adres kontrolü) başarılı. Canlı 0.7.8 değişmedi. Bu ortamdan github.io'ya erişim yok (proxy 403); adres denetimi CI'da.
+- Sonraki tek adım: Cem /dev/ 0.8.7'de PR #28'deki 5 deneme kabul maddesiyle oynasın (kanca düelloda, hayalet, Risk Taker drift etkinliğinde, kapora kartı).
 
 ## Önceki iş: MUTANT A3 ilk YZ rakip (issue #22) — 0.8.6 denemede
 

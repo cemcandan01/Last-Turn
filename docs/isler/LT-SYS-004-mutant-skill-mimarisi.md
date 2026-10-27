@@ -72,3 +72,9 @@ Skill eklentileri (seviye seçiminde, en çok 2/skill, etikete göre): **Şok bo
 - Havuzdaki diğer skill'ler (Piston Gatling, Spike Strip, EMP Pulse, Ricochet Shield, Nitro Leech, Overheat Cannon, Handbrake Reversal, Salvage Plating, Last Stand): ısı kaynağı ve mermi/tuzak varlıkları gerektirenler için yürütücüye "varlık" (iz gibi) genellemesi.
 - Ralli/drag zaman aşımı gövde erimesi ve asfalt/GP risk modeli (Codex dalındaki Cem kararı) bu işte uygulanmadı; ayrı kart.
 - iPhone 13 gerçek cihazda tuş yerleşimi ve hissi ölçülmedi.
+
+## Doğrulama
+
+- Yerel: `npm run kontrol` temiz; `npm test` 28 dosya 402/402; tarayıcı mutant 14/14, rakip 11/11, beceri 6/6.
+- PR #28 → gelistirme d86bd72 (kaynak 22af3a4). Denetim 40558110357 + 40558096290 başarılı; ilk koşu 40556618708 MUTANT e2e NİTRO denetiminde kaldı (rastgele tohumda Sert Nitro seçilince maliyet 52 > başlangıç enerjisi 40; test o kartı seçmeyecek biçimde sağlamlaştırıldı). Yayın 40558864694 (derleme, /dev/ yayını, adres kontrolü) başarılı; /dev/ 0.8.7, canlı 0.7.8.
+- iPhone 13 gerçek cihazda ölçülmedi.
