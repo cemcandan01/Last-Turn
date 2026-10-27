@@ -8,6 +8,8 @@ import { okuJson, yazJson } from "../cekirdek/depo";
 import { isaretleriKur } from "../cizim/isaretler";
 import { COND, type GununSaati, type Hava } from "../cizim/ortam";
 import type { SimDurumu } from "../fizik/tipler";
+import { rakip, rakipSirasi, type RakipAyari } from "./rakip";
+import { KISILIKLER } from "../yz/kisilik";
 import { kurulum, applyPreset } from "./kurulum";
 import { setCar } from "./durum";
 import {
@@ -17,6 +19,7 @@ import {
   etkinlikHedefi,
   bossPisti,
   bossaGir,
+  DUELLO,
   enerjiAdimi,
   etkinlikBitti,
   hasarAl,
@@ -163,9 +166,25 @@ export function mutantBossKosulu() {
 export function mutantYarisAyari(i: number) {
   const k = mutant.kosu,
     p = mutantPistleri()[i];
+  if (mutantRakibi()) return { laps: DUELLO.tur, limit: 0 };
   return k && mutant.etkinlik == "boss"
     ? { laps: p.laps, limit: bossHedefi(k, p) }
     : etkinlikHedefi(p, mutant.risk);
+}
+
+/** açık etkinlik düelloysa rakibin ayarı: kişilik risk kademesinden, araç oyuncunun başlangıç aracı (stok), tohum
+ *  koşudan ve etkinlikten (aynı koşuda yeniden başlatınca rakip aynı sürer). Düello değilse null */
+export function mutantRakibi(): RakipAyari | null {
+  const k = mutant.kosu,
+    et = mutant.etkinlik;
+  if (!k || typeof et != "number" || mutantArac < 0) return null;
+  const e = k.etkinlikler.find((q) => q.id == et);
+  if (!e?.rakip) return null;
+  return {
+    kisilik: DUELLO.kisilikler[Math.min(mutant.risk, DUELLO.kisilikler.length - 1)],
+    arac: mutantArac,
+    tohum: (Math.imul(k.tohum ^ 0x5bd1e995, 31) + e.id * 7919) >>> 0 || 1,
+  };
 }
 
 /** boss pisti (EVENTS indeksi) */
@@ -296,6 +315,9 @@ export interface MutantDurumu {
   nitroAcik: boolean;
   nitroKalanSn: number;
   nitroHazir: boolean;
+  /** düello (A3, sözleşmeye eklendi; eski alanlar aynı): sıra 1/2, pist boyunca fark (m, + oyuncu önde), rakibin
+   *  kişiliği, rakip bitirdi mi. Düello yoksa null */
+  rakip: { sira: number; farkM: number; kisilik: string; bitti: boolean } | null;
 }
 
 export function mutantDurumu(): Readonly<MutantDurumu> | null {
@@ -317,5 +339,19 @@ export function mutantDurumu(): Readonly<MutantDurumu> | null {
     nitroAcik: n.acik,
     nitroKalanSn: n.kalan,
     nitroHazir: n.hazir,
+    rakip: rakipDurumu(),
   };
 }
+
+function rakipDurumu(): MutantDurumu["rakip"] {
+  const EV = yarisDurumu();
+  if (!rakip.ayar || !EV) return null;
+  const r = rakipSirasi(EV.lap, EV.ti, EV.kurulu);
+  return r
+    ? { sira: r.sira, farkM: r.fark, kisilik: KISILIKLER[rakip.ayar.kisilik].ad, bitti: r.bitti }
+    : null;
+}
+
+/** açık yarışın tur/konum bilgisi (yarislar.ts kaydeder; döngüsel içe aktarım olmasın diye kaynakla) */
+let yarisDurumu: () => { lap: number; ti: number; kurulu: boolean } | null = () => null;
+export const mutantYarisKaynagi = (f: typeof yarisDurumu) => (yarisDurumu = f);

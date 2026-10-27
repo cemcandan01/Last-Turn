@@ -32,6 +32,7 @@ import {
 } from "../oyun/mutant";
 import {
   ATOLYE,
+  DUELLO,
   ETKINLIK_ODULU,
   LANETLER,
   sandikAc,
@@ -54,6 +55,8 @@ import {
 } from "../oyun/mutant-kosu";
 import { reset, sim } from "../oyun/surus";
 import { EVENTS, leaveEvent, startEvent, yaris } from "../oyun/yarislar";
+import { KISILIKLER } from "../yz/kisilik";
+import { rakip } from "../oyun/rakip";
 import { mulberry32 } from "../cekirdek/rastgele";
 import { note } from "./bildirim";
 import { kontrolleriKur } from "./kontroller";
@@ -197,6 +200,7 @@ function isaret(i: MutantIsaret) {
   const e = k.etkinlikler.find((q) => q.id == i.id)!,
     E = EVENTS[e.i],
     o = ETKINLIK_ODULU(e.sev);
+  if (e.rakip) return duelloKarti(e.id, e.i, e.sev);
   // risk kademesi: hedef 1★/2★/3★ (tek tur); ödül çarpanı ve kaçırmanın bedeli kartta açık
   const kademe = ([0, 1, 2] as Risk[])
     .map((r) => {
@@ -214,6 +218,35 @@ function isaret(i: MutantIsaret) {
       (c.onclick = () => {
         mutant.risk = +c.dataset.risk! as Risk;
         etkinlikBaslat(e.id, e.i);
+      }),
+  );
+  s.querySelector<HTMLElement>("#mGec")!.onclick = surusDevam;
+}
+
+/** düello kartı (A3): hedef süre yok, rakipten önce bitir. Kademe rakibin kişiliğidir */
+const DUELLO_YAZI = {
+  caylak: "Erken fren, geniş pay; bazı virajlarda tutarsız",
+  deneyimli: "Geç fren, çizgiyi sonuna kadar kullanır, tutarlı",
+};
+function duelloKarti(id: number, i: number, sev: number) {
+  const k = mutant.kosu!,
+    E = EVENTS[i],
+    o = ETKINLIK_ODULU(sev);
+  const kademe = DUELLO.kisilikler
+    .map((ad, r) => {
+      const R = RISKLER[r];
+      return `<div class="card go" data-risk="${r}"><b>${R.ad} · Rakip: ${KISILIKLER[ad].ad}</b><span>${DUELLO_YAZI[ad]}</span><span>Ödül ${Math.round(o.xp * R.odul)} XP · ${Math.round(o.para * R.odul)} para</span><span>Kaybedersen ${R.ceza ? "ödül yok, boss'a −" + R.ceza + " sn" : Math.round(o.para * R.kacirma) + " para teselli"}</span></div>`;
+    })
+    .join("");
+  const s = sayfaAc(
+    `<h1>Düello</h1><p>${E.n} · ${DUELLO.tur} tur · Rakipten önce bitir · Boss'a ${sure(k.kalan)}</p><div class="mtp">${kademe}</div>` +
+      '<p class="note">Rakip senin başlangıç aracının stok hâliyle, aynı fizikle sürer: hız ya da tutuş hilesi yok. Araçlar birbirinin içinden geçer.</p><button class="btn alt" id="mGec">Vazgeç</button>',
+  );
+  s.querySelectorAll<HTMLElement>("[data-risk]").forEach(
+    (c) =>
+      (c.onclick = () => {
+        mutant.risk = +c.dataset.risk! as Risk;
+        etkinlikBaslat(id, i);
       }),
   );
   s.querySelector<HTMLElement>("#mGec")!.onclick = surusDevam;
@@ -344,17 +377,40 @@ function haritayaDon() {
 function sonuc(r: EtkinlikSonucu | null, boss: boolean, gecti: boolean) {
   const k = mutant.kosu!;
   const bitti = k.faz == "bitti";
-  const baslik = boss ? (gecti ? "Boss yenildi!" : "Boss kazandı") : gecti ? "Hedef geçildi" : "Hedef kaçtı";
+  const R = rakip.y,
+    baslik = boss
+      ? gecti
+        ? "Boss yenildi!"
+        : "Boss kazandı"
+      : R
+        ? gecti
+          ? "Rakibi yendin"
+          : "Rakip önde bitirdi"
+        : gecti
+          ? "Hedef geçildi"
+          : "Hedef kaçtı";
+  const rakipSatiri = R
+    ? row(
+        "Rakip (" + KISILIKLER[rakip.ayar!.kisilik].ad + ")",
+        R.bitis != null ? fmt(R.bitis) : "bitirmedi",
+      ) + row("Sen", fmt(yaris.EV?.t ?? 0))
+    : "";
   const s = sayfaAc(
     `<h1>${baslik}</h1>` +
       (boss
         ? gecti
           ? `<p>Bölge ${k.bolge} açıldı. Yeni boss: ${k.boss.ad}. +200 para, +150 XP.</p>`
           : "<p>Koşu bitti.</p>"
-        : row("Kazanılan para", "+" + (r?.para ?? 0)) +
+        : rakipSatiri +
+          row("Kazanılan para", "+" + (r?.para ?? 0)) +
           row("Seviye", k.seviye + " · " + k.xp + " / " + seviyeXp(k.seviye + 1) + " XP") +
           (r?.ekSure ? row("Zaman bükücü", "+" + r.ekSure + " sn") : "") +
-          (r?.ceza ? row(RISKLER[mutant.risk].ad + " hedef kaçtı", "Boss'a −" + r.ceza + " sn") : "")) +
+          (r?.ceza
+            ? row(
+                RISKLER[mutant.risk].ad + (R ? " düello kaybedildi" : " hedef kaçtı"),
+                "Boss'a −" + r.ceza + " sn",
+              )
+            : "")) +
       row("Boss'a kalan", sure(k.kalan)) +
       `<button class="btn" id="mDevam">${bitti ? "Özet" : "Haritaya dön"}</button>`,
   );

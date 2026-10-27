@@ -26,6 +26,8 @@ export interface PistAdayi {
   i: number;
   ty: YarisTuru;
   sev: number;
+  /** türdeki pist numarası (düello pisti bununla seçilir) */
+  lv?: number;
   /** yıldız eşikleri [1★, 2★, 3★] (bütün turlar için; süre ya da drift puanı) ve tur sayısı */
   ys: number[];
   laps?: number;
@@ -257,7 +259,18 @@ export interface Etkinlik {
   x: number;
   z: number;
   yapildi: boolean;
+  /** düello (A3): hedef süre yerine YZ rakipten önce bitirmek */
+  rakip?: boolean;
 }
+
+/** A3 düellosu: bölge 1'in asfalt etkinliği kısa asfalt pistte (Yeşil Vadi) tek YZ rakibe karşı, 2 tur. Risk kademesi
+ *  rakibin kişiliğidir: Güvenli → Çaylak, Riskli → Deneyimli (ödül/ceza RISKLER'den) */
+export const DUELLO = {
+  bolge: 1,
+  pist: { ty: "gp" as YarisTuru, lv: 1 },
+  tur: 2,
+  kisilikler: ["caylak", "deneyimli"] as const,
+};
 
 export interface Sandik {
   id: number;
@@ -365,6 +378,10 @@ function etkinlikDiz(k: Kosu, pistler: readonly PistAdayi[]) {
       [x, z] = yerler.splice(Math.floor(k.rng() * yerler.length), 1)[0];
     k.etkinlikler.push({ id: n, i: p.i, ty, sev: p.sev, x, z, yapildi: false });
   }
+  // düello: türün etkinliği sabit pistte (rastgelelik aynı sırayla tüketilir: diğer etkinlikler değişmez)
+  const dp = pistler.find((p) => p.ty == DUELLO.pist.ty && p.lv == DUELLO.pist.lv),
+    de = k.etkinlikler.find((e) => e.ty == DUELLO.pist.ty);
+  if (k.bolge == DUELLO.bolge && dp && de) Object.assign(de, { i: dp.i, sev: dp.sev, rakip: true });
 }
 
 /** bölgenin sandıkları: etkinliklerin kullanmadığı düz yerlere (tohumlu); sahip olunan eklenti yeniden çıkmaz */

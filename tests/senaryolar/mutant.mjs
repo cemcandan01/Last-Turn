@@ -54,4 +54,28 @@ export default [
     p: 2,
     birim: { dosya: "tests/birim/mutant-matris.test.ts", grup: "MUTANT kombinasyon matrisi" },
   },
+  {
+    id: "rakip-yz",
+    ad: "A3 rakip YZ: yarış çizgisi/hız profili, kişilik, stok kurulum (gizli çarpan yok), 5 araç × 2 kişilik 2 tur, ışınlanma yok, tohum tekrarı, zorlanmadan toparlanma",
+    p: 1,
+    birim: {
+      dosya: "tests/birim/rakip.test.ts",
+      grup: "A3 rakip YZ: düello pistinde gerçek fizik (Yeşil Vadi, 2 tur)",
+    },
+  },
+  {
+    id: "rakip-plan",
+    ad: "A3 rakip YZ (saf): çizgi pist içinde ve düz, hız profili sınırlı, tohumlu sapma, geri sayım/kalkış",
+    p: 2,
+    birim: {
+      dosya: "tests/birim/rakip.test.ts",
+      grup: "A3 rakip YZ: yarış çizgisi, hız profili ve kişilik (saf)",
+    },
+  },
+  {
+    id: "rakip-duello",
+    ad: "A3 düello: kart (Çaylak/Deneyimli), rakip aynı fizikle kalkar ve çizilir, HUD sıra/fark, yeniden başlatma, kazan/kaybet sonucu, 4x yavaş işlemcide maliyet",
+    p: 1,
+    tarayici: "rakip",
+  },
 ];

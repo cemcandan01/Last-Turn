@@ -7,3 +7,4 @@
 - Sayılar (boss süresi 15 dk, ödüller, pasif yüzdeleri, atölye fiyatları) tahmindir; Cem'in telefon testine göre ayarlanacak.
 - Sıradaki: A2 nitro + haritada eklenti sandıkları + geri bildirim; sonra A3 çarpışma + NPC yarışçı.
 - A2 (issue #19, claude/mutant-a2): nitro + ortak olaylar (hasar, risk) + eklenti sandıkları + nitro hissi + `mutantDurumu()`. Ölçüm: nitro enerji build'i bölge 2'de alternatif yol, bölge 3'ü çözmez; yağmurlu boss yalnız Plaj Kros. Açık: nitro gücü kararı (Cem), drift ölçümünde nitro yok.
+- A3 (issue #22, claude/mutant-a3-rakip, LT-SYS-003): bölge 1 asfalt etkinliği Yeşil Vadi'de 2 turluk düello; tek YZ rakip aynı fizikle, yalnız girdiyle (src/yz). Çaylak/Deneyimli = Güvenli/Riskli. Çarpışma yok. Açık: rakibe pist dışı geri dönüş kuralı (Cem); sonra geçiş/savunma, ikinci kişilik ayrımı, mini-boss.

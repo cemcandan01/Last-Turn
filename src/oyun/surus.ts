@@ -20,6 +20,7 @@ import { PROF, saveProf } from "./profil";
 import { yaris, evTick } from "./yarislar";
 import { rekorHayaletiBaslat, rekorHayaletiDurdur, uzakAdimi, uzakSifirla } from "./uzak";
 import { mutant, mutantAdimi } from "./mutant";
+import { rakipAdimi } from "./rakip";
 
 /** serbest sürüşte tur sayacı (kapalı pistlerde) */
 export const LAP = {
@@ -126,6 +127,8 @@ export function surusAdimi() {
   if (sim.d.zaman % 20 < ADIM) saveProf();
   turSayaci(ADIM);
   if (yaris.EV) evTick(ADIM, son, gi.tg);
+  // rakip oyuncudan sonra, aynı adımda (yarış bitince oyuncu adımı durur, rakip de)
+  rakipAdimi(yaris.EV?.state == "run");
   uzakAdimi();
 }
 
