@@ -6,7 +6,7 @@ import { CARS } from "../arac/araclar";
 import { oyun } from "../oyun/durum";
 import { I } from "../oyun/girdi";
 import { kurulum } from "../oyun/kurulum";
-import { nitroAcik } from "../oyun/mutant";
+import { beceriEfektDurumu, mutant, nitroAcik } from "../oyun/mutant";
 import { sim } from "../oyun/surus";
 import { yaris } from "../oyun/yarislar";
 import { sesDurumu, sesKilidiKur } from "./baglam";
@@ -20,6 +20,12 @@ let M: MotorSesi | null = null,
 
 /** son durumlar (olay yakalamak için) */
 const once = {
+  /** MUTANT skill durumları (geçişte ses) */
+  kanca: false,
+  hayalet: false,
+  donusum: false,
+  ruzgar: false,
+  red: 0,
   mod: "",
   hit: -9,
   hava: 0,
@@ -242,6 +248,19 @@ export function sesTick(dt: number) {
   if (nitro && !once.nitro) arayuzSesi.nitro(ctx, k.efekt, t);
   else if (!nitro && once.nitro && mod == "drive") arayuzSesi.nitroBitti(ctx, k.efekt, t);
   once.nitro = nitro;
+  // MUTANT skill'leri: kanca atılınca, faz/dönüşüm giriş-çıkışında, rüzgâr boşalınca, reddedilen istekte
+  const bd = mod == "drive" ? beceriEfektDurumu() : null,
+    kanca = !!bd?.kanca,
+    hay = !!bd?.hayalet,
+    don = !!bd?.donusum,
+    ruz = !!bd?.ruzgar;
+  if (kanca && !once.kanca) arayuzSesi.kanca(ctx, k.efekt, t);
+  if (bd && hay != once.hayalet) arayuzSesi.hayalet(ctx, k.efekt, t, hay);
+  if (bd && don != once.donusum) arayuzSesi.donusum(ctx, k.efekt, t, don);
+  if (ruz && !once.ruzgar) arayuzSesi.ruzgar(ctx, k.efekt, t);
+  if (bd && mutant.red.n != once.red) arayuzSesi.red(ctx, k.efekt, t);
+  once.red = mutant.red.n;
+  Object.assign(once, { kanca, hayalet: hay, donusum: don, ruzgar: ruz });
   if (mod == "result" && once.mod == "drive" && EV)
     arayuzSesi.bitis(ctx, k.efekt, t, EV.ty == "dp" ? EV.score > 0 : EV.t <= EV.limit);
   once.mod = mod;
