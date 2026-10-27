@@ -1,8 +1,10 @@
-// Çorak Topraklar: açık dünya test arazisi. Asfalt oval, uzun düz yol, zıplama rampası, tırmanış yolu, tepeler.
+// Çorak Topraklar: açık dünya test arazisi. Asfalt oval, uzun düz yol, onları ve etkinlik yerlerini bağlayan asfalt
+// yol ağı (yollar.ts), zıplama rampası, tırmanış yolu, tepeler.
 import * as THREE from "three";
 import { cl, sm } from "../cekirdek/matematik";
 import { ctex } from "../cizim/dokular";
 import { add, cone, plane, puddle, rnd, terrain, tree, bush } from "./kurucu";
+import { YOLLAR, YOL_YARI, yolMesafesi, yoldaMi } from "./yollar";
 
 /** oval yarı eksenleri, yol yarı genişliği, düz yolun x konumu */
 export const EA = 140,
@@ -38,14 +40,14 @@ export function Htest(x: number, z: number): number {
   return h;
 }
 
-/** zemin: oval ve düz yol asfalt (1), geri kalan toprak (0) */
+/** zemin: oval, düz yol ve yol ağı asfalt (1), geri kalan toprak (0) */
 export function surfTest(x: number, z: number): number {
   const q = Math.hypot(x / EA, z / EB);
   if (q > 0) {
     const g = Math.hypot(x / (EA * EA), z / (EB * EB)) / q;
     if (Math.abs(q - 1) / g < RW) return 1;
   }
-  return Math.abs(x - SX) < RW && Math.abs(z) < 800 ? 1 : 0;
+  return (Math.abs(x - SX) < RW && Math.abs(z) < 800) || yoldaMi(x, z) ? 1 : 0;
 }
 
 /** ışınlanma noktaları [ad, x, z, yön] */
@@ -84,6 +86,60 @@ function oval(o1: number, o2: number, col: number, y: number) {
   add(new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color: col, side: THREE.DoubleSide })));
 }
 
+/** yol ağı: araziyi izleyen asfalt şerit (yükseklik Htest'ten; ovalin boya çizgileri üstte kalır) */
+function yolAgi() {
+  const mat = new THREE.MeshLambertMaterial({
+      color: 0x363b46,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+      polygonOffsetUnits: -2,
+    }),
+    serit = new THREE.MeshLambertMaterial({ color: 0xe8c84a, polygonOffset: true, polygonOffsetFactor: -3 });
+  for (const y of YOLLAR)
+    for (let i = 0; i + 1 < y.length; i++) {
+      const [ax, az] = y[i],
+        [bx, bz] = y[i + 1],
+        L = Math.hypot(bx - ax, bz - az),
+        ux = (bx - ax) / L,
+        uz = (bz - az) / L,
+        // köşede bir sonraki parçayla boşluk kalmasın: parça yarı genişlik kadar uzatılır
+        bas = i == 0 ? 0 : -YOL_YARI,
+        son = L + (i + 2 < y.length ? YOL_YARI : 0),
+        n = Math.max(1, Math.ceil((son - bas) / 4)),
+        pos: number[] = [],
+        idx: number[] = [];
+      for (let k = 0; k <= n; k++) {
+        const s0 = bas + ((son - bas) * k) / n,
+          cx = ax + ux * s0,
+          cz = az + uz * s0;
+        for (const yan of [-1, 1]) {
+          const px = cx + uz * YOL_YARI * yan,
+            pz = cz - ux * YOL_YARI * yan;
+          pos.push(px, Htest(px, pz) + 0.05, pz);
+        }
+        if (k < n) {
+          const a = k * 2;
+          idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
+        }
+        // orta şerit: 20 m'de bir sarı çizgi
+        if (k % 5 == 2) {
+          const m = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 4), serit);
+          m.rotation.set(-Math.PI / 2, 0, Math.atan2(ux, uz));
+          m.position.set(cx, Htest(cx, cz) + 0.09, cz);
+          add(m);
+        }
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+      g.setIndex(idx);
+      g.computeVertexNormals();
+      add(new THREE.Mesh(g, mat));
+    }
+}
+
+/** çalı, koni ve ağaç yolun üstüne konmaz (yol kenarında 2 m pay) */
+const yolKenari = (x: number, z: number, pay: number) => yolMesafesi(x, z) < YOL_YARI + pay;
+
 export function buildTest() {
   terrain(1800, 320, ctex("#8c6b45", "#7d5f3c", "#9a7a52", 144));
   oval(-RW, RW, 0x363b46, 0.06);
@@ -93,6 +149,7 @@ export function buildTest() {
   plane(0.7, 1600, SX - RW + 0.35, 0, 0xffffff, 0.08);
   plane(0.7, 1600, SX + RW - 0.35, 0, 0xffffff, 0.08);
   for (let z = -790; z <= 790; z += 20) plane(1.2, 6, SX, z, 0xe8c84a, 0.08);
+  yolAgi();
   for (let i = 0; i < 300; i++) {
     const x = (rnd() - 0.5) * 1700,
       z = (rnd() - 0.5) * 1700,
@@ -101,28 +158,31 @@ export function buildTest() {
       q < 1.35 ||
       Math.abs(x - SX) < 24 ||
       (Math.abs(x + 250) < 20 && z > -190 && z < -90) ||
-      (Math.abs(x + 40) < 30 && z > 110 && z < 500)
+      (Math.abs(x + 40) < 30 && z > 110 && z < 500) ||
+      yolKenari(x, z, 9)
     )
       continue;
     tree(x, z);
   }
+  // koni: yol ağının kesiştiği yerde konmaz (bağlantı ağzı açık)
+  const koni = (x: number, z: number) => void (yolKenari(x, z, 2) || cone(x, z));
   for (let z = -790; z <= 790; z += 40) {
-    cone(SX - RW - 2, z);
-    cone(SX + RW + 2, z);
+    koni(SX - RW - 2, z);
+    koni(SX + RW + 2, z);
   }
   for (let i = 0; i < 36; i++) {
     const t = (i / 36) * 6.2832;
-    cone(Math.cos(t) * (EA + RW + 3), Math.sin(t) * (EB + RW + 3));
+    koni(Math.cos(t) * (EA + RW + 3), Math.sin(t) * (EB + RW + 3));
   }
   for (let z = 140; z <= 400; z += 40) {
-    cone(-61, z);
-    cone(-19, z);
+    koni(-61, z);
+    koni(-19, z);
   }
   for (let i = 0; i < 60; i++) {
     const x = (rnd() - 0.5) * 700,
       z = (rnd() - 0.5) * 700,
       q = Math.hypot(x / EA, z / EB);
-    if (surfTest(x, z) || (q > 0.75 && q < 1.3)) continue;
+    if (surfTest(x, z) || (q > 0.75 && q < 1.3) || yolKenari(x, z, 3)) continue;
     bush(x, z);
   }
   for (const [x, z, r] of [
