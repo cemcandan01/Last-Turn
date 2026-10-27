@@ -39,3 +39,11 @@
 - Süre hedefi ile boss geri sayımı farklıdır. Bölge boss sayacı bittiğinde boss'a geçiş kuralı korunur; yarışın kendi süresi aşıldığında gövde baskısı işler.
 - Drift puanı hedefi ve rakibi önce bitirme düellosu için süre sınırı/sonlandırma kuralı ayrı tanımlanmalı; doğrudan zaman bazlı yarış kodu bütün türlere uygulanmamalı.
 - Testler: 0,99 sn hasarsız; 1,00 sn −1; 10 sn −10; 60/120 FPS aynı; gövde 0'da pert; yarıştan çıkınca hasar durur; pasif kaynak farmı yok; kırmızı ekran yalnız zaman aşımında.
+
+## Cem kararı — yarış türlerine özgü risk ve drift skill kaporası
+- **Asfalt/GP:** AI rakiplere karşı fiziksel çarpışma, saldırı, yola engel bırakma, savunma ve taktik geçiş; tek başına süre hedefi / zaman aşımı gövde erimesi uygulanmaz.
+- **Ralli ve drag:** tek kişilik zamana karşı yarış; hedef süre aşıldıktan sonra her tam saniyede 1 gövde kaybı ve artan kırmızı ekran. Çarpışma/hasar ayrı hesaplanır.
+- **Drift:** yarışa girerken oyuncu sahip olduğu *bir skill'i* kapora olarak seçer; yarış boyunca kullanılabilirliği tasarım/test kararıyla kesinleştirilecek. Başarıda o skill +1 seviye, hedefin üstündeki drift puanına bağlı sınırlı ek para. Başarısızlıkta kapora skill tamamen silinir; yeniden ancak oyun içi skill havuzundan bulunur.
+- **Örnek skill:** Piston Gatling seviye 1: 15 m içindeki en yakın rakibe 5 saniye boyunca saniyede 5 hasar (toplam teorik 25); tetik koşulu, cooldown, hedef görüşü ve seviye eğrisi henüz tanımlanmadı. Driftte rakip yoksa skill kapora olarak konabilir; ateş etme işlevi zorunlu değildir.
+- **Karar adaleti:** Drift başlangıcında kaybedilecek skill ve kazanılacak upgrade açıkça gösterilir; oyuncu onay verir. Skill yoksa erişim için başlangıç/alternatif seçenek tanımlanır. Rastgele yarış kaybı yerine beceriyle erişilebilir hedef; bonus puan için üst sınır/azalan getiri, AFK farm yok.
+- **Uygulama ayrımı:** Önce tür bazlı sonuç sözleşmesi ve skill envanterinde kayıp/yükseltme atomik testi; ardından AI savaş/engel/çarpışma ayrı entegrasyon. Bu not kodun uygulandığı anlamına gelmez.
