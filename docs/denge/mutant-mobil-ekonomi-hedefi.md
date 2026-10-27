@@ -31,3 +31,11 @@
 - **E4:** AI temas, savunma, geçiş; ödül ve hasar ekonomisini rakipli yarışa bağla.
 
 > Bu belge bir denge hedefidir; kazanma oranı veya oynanabilirlik henüz kanıtlanmış değildir.
+
+## Cem kararı — 2026-10-27: zaman cezası yerine gövde baskısı
+- Riskli/ölümcül yarış başarısızlığında boss sayacından 45/90 saniye silinmesi **kaldırılacak**; önceki tablo artık hedef tasarım değildir.
+- Süre hedefli yarışta hedef süre aşıldığı anda görsel kırmızı tehlike durumu başlar; hedefin üzerindeki **her tam saniye için 1 gövde** kaybı (delta-time tabanlı, FPS bağımsız). Yarış bitene veya araç pert olana kadar sürer.
+- Zarar doğrudan koşu gövdesine işlenir, sonraki yarışa taşınır ve tamir ekonomisine girer. Hasar tetikleyen pasifler/para/enerji ile sonsuz kaynak üretimi engellenir; zaman aşımı hasarı çarpışma sayılmaz.
+- Süre hedefi ile boss geri sayımı farklıdır. Bölge boss sayacı bittiğinde boss'a geçiş kuralı korunur; yarışın kendi süresi aşıldığında gövde baskısı işler.
+- Drift puanı hedefi ve rakibi önce bitirme düellosu için süre sınırı/sonlandırma kuralı ayrı tanımlanmalı; doğrudan zaman bazlı yarış kodu bütün türlere uygulanmamalı.
+- Testler: 0,99 sn hasarsız; 1,00 sn −1; 10 sn −10; 60/120 FPS aynı; gövde 0'da pert; yarıştan çıkınca hasar durur; pasif kaynak farmı yok; kırmızı ekran yalnız zaman aşımında.
