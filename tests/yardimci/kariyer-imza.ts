@@ -7,6 +7,13 @@ import { parcaliKurulum } from "../../src/arac/parcalar";
 import { yarisLastigi } from "../../src/arac/yaris-lastigi";
 import { SURF, TIRES, YERCEKIMI } from "../../src/fizik/veriler";
 import { kariyerKurulumu } from "../../src/oyun/kariyer";
+// LT-SYS-004 dış ivme (MUTANT skill çekişi) yalnız cx.dis verilince kuvvet ekler; kariyer/ölçüm onu hiç vermez ve
+// yokken fizik birebir aynıdır (tests/birim/beceri-fizik.test.ts). İmzadan ayıklanır.
+const disSiz = (s: string) =>
+  s.replace(
+    / {4}\/\/ dış ivme \(MUTANT çekme\/itme\): kütle merkezine yatay kuvvet\n {4}if \(cx\.dis\) \{\n {6}Fx \+= m \* cx\.dis\.x;\n {6}Fz \+= m \* cx\.dis\.z;\n {4}\}\n/,
+    "",
+  );
 const MODEL = [
   "src/fizik/yeni/model.ts",
   "src/fizik/yeni/arac-fizigi.ts",
@@ -15,7 +22,7 @@ const MODEL = [
   "src/dunya/pist-ciz.ts",
 ]
   .map((f) => {
-    let s = readFileSync(f, "utf8");
+    let s = disSiz(readFileSync(f, "utf8"));
     // 0.7.5'te eklenen çıktı sayacı kuvvet/konum hesabını değiştirmez; driftte aşağıda ayrıca imzalanır.
     if (f == "src/fizik/yeni/model.ts")
       s = s
@@ -45,7 +52,7 @@ export function kariyerOlcumImzasi(d: PistTanimi, aday?: { arac: number; parca: 
         DRIFT:
           t == "dp"
             ? readFileSync("src/oyun/yaris-kurallari.ts", "utf8").replace(/\s+/g, "") +
-              readFileSync("src/fizik/yeni/model.ts", "utf8").replace(/\s+/g, "")
+              disSiz(readFileSync("src/fizik/yeni/model.ts", "utf8")).replace(/\s+/g, "")
             : undefined,
         YERCEKIMI,
         SURF,

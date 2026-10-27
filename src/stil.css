@@ -4271,3 +4271,44 @@ details[open] > summary::after {
 #mnt:not(.hazir):not(.on) b {
   opacity: 0.6;
 }
+/* MUTANT skill tuşları (LT-SYS-004): NİTRO'nun yanında, yuva sırasıyla; tetiklenen skill barı gösterir */
+.mbr {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+}
+.mbk {
+  position: relative;
+  overflow: hidden;
+  width: min(66px, calc(var(--aw) * 0.15));
+  height: 44px;
+  border-radius: 14px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #dfe8e6;
+}
+.mbk i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--e, 0%);
+  background: #3cc8ff44;
+  transition: width 0.15s;
+}
+.mbk.mbo i {
+  background: #ff3c5a55;
+}
+.mbk b {
+  position: relative;
+}
+.mbk.hazir {
+  border-color: var(--acc);
+}
+.mbk.on {
+  background: #3cc8ff66;
+  border-color: var(--acc);
+}
+.mbk:not(.hazir):not(.on) b {
+  opacity: 0.6;
+}

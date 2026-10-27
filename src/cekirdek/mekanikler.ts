@@ -25,7 +25,25 @@ export type GirisOlayi =
   /** araç hasar aldı (sert çarpma ya da spin); miktar gövde puanı */
   | { tur: "HasarAlindi"; sira: number; hasar: "carpma" | "spin"; miktar: number }
   /** risk kademesi seçilen etkinlik başladı (0 güvenli, 1 riskli, 2 ölümcül) */
-  | { tur: "RiskBasladi"; sira: number; risk: number };
+  | { tur: "RiskBasladi"; sira: number; risk: number }
+  // ---- MUTANT skill sözlüğü (LT-SYS-004): skill'ler birbirini tanımaz, yalnız bu ortak olayları üretir/dinler
+  /** oyuncu bir hedefe hasar verdi (kaynak: üreten skill ya da durum, ör. "ates") */
+  | { tur: "HasarVerildi"; sira: number; hedef: string; miktar: number; hasar: HasarTuru; kaynak: string }
+  /** oyuncu hedefin arkasında tehlikeli yakın takipte (dt sn, mesafe m); hedef başına kredi beceri.ts'te */
+  | { tur: "YakinTakip"; sira: number; hedef: string; dt: number; mesafe: number }
+  /** hedefe (rakip ya da engel) çarpmadan çok yakından geçildi; hedef başına bekleme beceri.ts'te */
+  | { tur: "NearMiss"; sira: number; hedef: string; hiz: number }
+  /** bir etki hedefin konumunu/hızını değiştirdi (çekme, itme) */
+  | { tur: "KonumEtkisi"; sira: number; hedef: string; etki: "cekme" | "itme"; kaynak: string }
+  /** hedefe durum etkisi uygulandı (yenileme sayılmaz) */
+  | { tur: "DurumUygulandi"; sira: number; hedef: string; durum: DurumTuru; kaynak: string }
+  /** oyuncuya gelecek hasar koruma (hayalet fazı) yüzünden engellendi; miktar engellenen gövde puanı */
+  | { tur: "KorumaEngelledi"; sira: number; miktar: number; kaynak: string }
+  /** araçlar arası çarpışma (siddet m/s). Üreticisi henüz yok: araç-araç çarpışması gelince bağlanır */
+  | { tur: "Carpisma"; sira: number; hedef: string; siddet: number };
+
+export type HasarTuru = "carpma" | "ates" | "elektrik" | "kinetik";
+export type DurumTuru = "ates" | "elektrik";
 
 /** yürütücünün kendi ürettiği olay: enerji değişti (kaynak: mekanik kimliği) */
 export type TurevOlay = { tur: "EnergyGained"; miktar: number; kaynak: string };
@@ -49,6 +67,10 @@ export interface MekanikKosulu {
   yerde?: boolean;
   /** RiskBasladi: en az bu risk kademesi */
   enAzRisk?: number;
+  /** HasarVerildi: yalnız bu hasar türü */
+  hasar?: HasarTuru;
+  /** DurumUygulandi: yalnız bu durum */
+  durum?: DurumTuru;
 }
 
 /** perk değiştiricileri: başka perk kimliğine değil, ortak parametrelere işler. Birleşim sınırlıdır (DEGISTIRICI_SINIRI) */
@@ -89,9 +111,10 @@ export interface MekanikTanim {
   maliyet: number;
   /** son tetikten sonra bu kadar yürütücü adımı boyunca tekrar tetiklenmez (0: her adımda en çok bir kez) */
   beklemeAdimi: number;
-  /** enerji kazancı: "saniye" ise olay dt'si ile çarpılır (DriftTickQualified, SurusTick), "olay" ise sabit */
+  /** enerji kazancı: "saniye" ise olay dt'si ile çarpılır (DriftTickQualified, SurusTick, YakinTakip), "olay" ise
+   *  sabit, "miktar" ise olayın miktarıyla (HasarVerildi, HasarAlindi, KorumaEngelledi) çarpılır */
   kazanc: number;
-  kazancBirimi: "saniye" | "olay";
+  kazancBirimi: "saniye" | "olay" | "miktar";
   degistir?: Degistirici;
   etki?: YetenekEtkisi;
 }
@@ -284,6 +307,12 @@ function kosulUyar(m: MekanikTanim, o: MekanikOlay, d: MekanikDurum): boolean {
   }
   if (o.tur === "RiskBasladi" && k?.enAzRisk !== undefined && !(o.risk >= k.enAzRisk)) return false;
   if (o.tur === "HasarAlindi" && !(o.miktar > 0)) return false;
+  if (o.tur === "HasarVerildi" || o.tur === "KorumaEngelledi") {
+    if (!(o.miktar > 0) || !Number.isFinite(o.miktar)) return false;
+    if (o.tur === "HasarVerildi" && k?.hasar !== undefined && o.hasar !== k.hasar) return false;
+  }
+  if (o.tur === "YakinTakip" && !gecerliDt(o.dt)) return false;
+  if (o.tur === "DurumUygulandi" && k?.durum !== undefined && o.durum !== k.durum) return false;
   if (o.tur === "DriftStarted" && k?.zincirAdim !== undefined)
     if (d.sonTemizBitis < 0 || d.adim - d.sonTemizBitis > k.zincirAdim) return false;
   if (o.tur === "DriftTickQualified") {
@@ -303,6 +332,18 @@ function kosulUyar(m: MekanikTanim, o: MekanikOlay, d: MekanikDurum): boolean {
   // kendi ürettiği enerji olayına tepki vermez (doğrudan öz döngü yok)
   if (o.tur === "EnergyGained" && o.kaynak === m.id) return false;
   return true;
+}
+
+/** olay başına enerji kazancı (birimine göre); olayda ilgili alan yoksa 0 */
+function kazancHesapla(m: MekanikTanim, o: MekanikOlay): number {
+  if (m.kazancBirimi === "olay") return m.kazanc;
+  if (m.kazancBirimi === "saniye")
+    return o.tur === "DriftTickQualified" || o.tur === "SurusTick" || o.tur === "YakinTakip"
+      ? m.kazanc * o.dt
+      : 0;
+  return o.tur === "HasarVerildi" || o.tur === "HasarAlindi" || o.tur === "KorumaEngelledi"
+    ? m.kazanc * o.miktar
+    : 0;
 }
 
 /**
@@ -362,12 +403,7 @@ export function mekanikAdimi(
       if (m.etki && (yeni.etkiKalan > 0 || yeni.etkiBekleme > 0)) continue;
       const maliyet = m.kategori === "active" ? m.maliyet * P.maliyet : m.maliyet;
       if (yeni.enerji < maliyet) continue;
-      const kazanc =
-        m.kazancBirimi === "saniye"
-          ? o.tur === "DriftTickQualified" || o.tur === "SurusTick"
-            ? m.kazanc * o.dt
-            : 0
-          : m.kazanc;
+      const kazanc = kazancHesapla(m, o);
       const once = yeni.enerji;
       yeni.enerji = Math.min(yeni.kapasite, Math.max(0, once - maliyet + kazanc));
       yeni.sonTetik[m.id] = yeni.adim;

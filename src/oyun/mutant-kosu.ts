@@ -6,6 +6,30 @@ import type { Arac, YarisTuru } from "../arac/araclar";
 import { PARCALAR } from "../arac/parcalar";
 import { mulberry32, type Rastgele } from "../cekirdek/rastgele";
 import {
+  BECERI_EKLENTILERI,
+  BECERILER,
+  SEVIYE_UST,
+  SKILL_EKLENTI_UST,
+  SKILL_YUVASI,
+  bayraklar,
+  beceriAdimi,
+  beceriBul,
+  beceriDurumuBaslat,
+  beceriEklentisiBul,
+  beceriIstekleri,
+  beceriMekanigi,
+  eklentiUyar,
+  parametre,
+  yakinlikGozlemi,
+  type BeceriCiktisi,
+  type BeceriDunyasi,
+  type BeceriDurumu,
+  type BeceriOlayi,
+  type BeceriOrnegi,
+  type Engel,
+} from "../cekirdek/beceri";
+import {
+  GUC_ETKI_UST,
   driftGozlemcisi,
   driftGozlemiBaslat,
   gucCarpani,
@@ -261,7 +285,21 @@ export interface Etkinlik {
   yapildi: boolean;
   /** düello (A3): hedef süre yerine YZ rakipten önce bitirmek */
   rakip?: boolean;
+  /** drift skill kaporası (LT-SYS-004): kart ilk açılınca kilitlenir */
+  kapora?: Kapora;
 }
+
+/**
+ * drift etkinliğinin kaporası: sahip olunan skill'lerden biri, koşu tohumu + etkinlik + deneme sayısıyla belirlenimci
+ * seçilir ve etkinliğe kilitlenir (kartı aç/kapa yeniden zar atmaz). Kilitli skill bir sebeple elden çıktıysa deneme
+ * bir artar (oyuncu kaporayı seçemez). beceri null: skill yok, kapora gövdedir (KAPORA.govde)
+ */
+export interface Kapora {
+  beceri: string | null;
+  deneme: number;
+}
+/** skill yokken kapora: kaybedince gövde; kazanınca yeni skill. Skill tavandaysa kazanç para */
+export const KAPORA = { govde: 15, tavanPara: 100 };
 
 /** A3 düellosu: bölge 1'in asfalt etkinliği kısa asfalt pistte (Yeşil Vadi) tek YZ rakibe karşı, 2 tur. Risk kademesi
  *  rakibin kişiliğidir: Güvenli → Çaylak, Riskli → Deneyimli (ödül/ceza RISKLER'den) */
@@ -326,6 +364,14 @@ export interface Kosu {
   /** sonraki enerji adımında yayılacak ortak olaylar (hasar puanı, başlayan risk kademesi) */
   bekleyenHasar: { tur: "carpma" | "spin"; miktar: number } | null;
   bekleyenRisk: number | null;
+  /** skill'ler (en çok SKILL_YUVASI; etkin + tetiklenen). Seviye, skill eklentisi ve evrim skill'in içinde durur */
+  beceriler: BeceriOrnegi[];
+  /** skill yürütücüsünün durumu, son çıktısı ve sonraki enerji adımına giden skill olayları */
+  bec: BeceriDurumu;
+  becCikti: BeceriCiktisi | null;
+  bekleyenBeceri: BeceriOlayi[];
+  /** yapılan seçim sayısı (skill teklifinin tohumu; ana rastgelelik sırası değişmesin diye ayrı) */
+  secimNo: number;
 }
 
 const sec = <T>(r: Rastgele, a: readonly T[]) => a[Math.floor(r() * a.length)];
@@ -452,8 +498,13 @@ export function kosuBaslat(tohum: number, pistler: readonly PistAdayi[]): Kosu {
     gozlem: driftGozlemiBaslat(),
     bekleyenHasar: null,
     bekleyenRisk: null,
+    beceriler: [],
+    bec: beceriDurumuBaslat(),
+    becCikti: null,
+    bekleyenBeceri: [],
+    secimNo: 0,
   };
-  k.secenekler = pasifCek(k, 3);
+  k.secenekler = secenekCek(k);
   etkinlikDiz(k, pistler);
   sandikDiz(k);
   stokDiz(k);
@@ -483,15 +534,20 @@ export function stokYenile(k: Kosu): boolean {
   return true;
 }
 
-/** başlangıç ya da seviye seçimi: pasifi al; bekleyen seçim varsa yeni seçenekler, yoksa sürüşe dön */
-export function pasifSec(k: Kosu, id: string): boolean {
+/**
+ * başlangıç ya da seviye seçimi: pasifi ya da skill teklifini al; bekleyen seçim varsa yeni seçenekler, yoksa sürüşe
+ * dön. Yeni skill yuvalar doluyken ancak bırakılacak skill (birak) verilirse alınır: bırakılanın seviyesi,
+ * eklentileri ve evrimi onunla gider
+ */
+export function pasifSec(k: Kosu, id: string, birak?: string): boolean {
   if ((k.faz != "basla" && k.faz != "secim") || !k.secenekler.includes(id)) return false;
-  k.pasifler.push(id);
+  if (secenekTuru(id) == "pasif") k.pasifler.push(id);
+  else if (!beceriTeklifiUygula(k, id, birak)) return false;
   if (k.faz == "secim") k.bekleyenSecim = Math.max(0, k.bekleyenSecim - 1);
   k.mek = kapasiteUygula(k.mek, takiliMekanikler(k));
   if (k.bekleyenSecim > 0) {
     k.faz = "secim";
-    k.secenekler = pasifCek(k, 3);
+    k.secenekler = secenekCek(k);
     if (k.secenekler.length) return true;
   }
   k.faz = "surus";
@@ -499,14 +555,183 @@ export function pasifSec(k: Kosu, id: string): boolean {
   return true;
 }
 
-/** takılı enerji mekanikleri: her koşuda NITRO + pasiflerin mekanikleri */
-export const takiliMekanikler = (k: Pick<Kosu, "pasifler">): MekanikTanim[] => [
+/** takılı enerji mekanikleri: her koşuda NITRO + pasiflerin mekanikleri + etkin skill'lerin enerji tanımı */
+export const takiliMekanikler = (
+  k: Pick<Kosu, "pasifler"> & { beceriler?: BeceriOrnegi[] },
+): MekanikTanim[] => [
   NITRO,
   ...k.pasifler.flatMap((id) => {
     const m = pasifBul(id)?.m;
     return m ? [m] : [];
   }),
+  ...(k.beceriler ?? []).flatMap((o) => {
+    const m = beceriMekanigi(o);
+    return m ? [m] : [];
+  }),
 ];
+
+// ---------------------------------------------------------------- skill seçimi, kapora (LT-SYS-004)
+
+export type SecenekTuru = "pasif" | "beceri" | "seviye" | "evrim" | "eklenti";
+/** seçenek kimliği: pasif id'si ya da "b:<skill>", "y:<skill>", "v:<skill>:<evrim>", "e:<eklenti>:<skill>" */
+export const secenekTuru = (id: string): SecenekTuru =>
+  id.startsWith("b:")
+    ? "beceri"
+    : id.startsWith("y:")
+      ? "seviye"
+      : id.startsWith("v:")
+        ? "evrim"
+        : id.startsWith("e:")
+          ? "eklenti"
+          : "pasif";
+
+export const beceriSahip = (k: Pick<Kosu, "beceriler">, id: string) => k.beceriler.find((o) => o.id == id);
+
+/** şu an alınabilecek skill teklifleri: yeni skill, seviye, evrim (tavanda), uyumlu skill eklentisi */
+export function beceriTeklifleri(k: Pick<Kosu, "beceriler">): string[] {
+  const r: string[] = [];
+  for (const t of BECERILER) {
+    const o = beceriSahip(k, t.id);
+    if (!o) {
+      r.push("b:" + t.id);
+      continue;
+    }
+    if (o.seviye < SEVIYE_UST) r.push("y:" + t.id);
+    else if (!o.evrim) for (const v of t.evrimler) r.push("v:" + t.id + ":" + v.id);
+    if (o.eklentiler.length < SKILL_EKLENTI_UST)
+      for (const e of BECERI_EKLENTILERI)
+        if (eklentiUyar(t, e) && !o.eklentiler.includes(e.id)) r.push("e:" + e.id + ":" + t.id);
+  }
+  return r;
+}
+
+const turet = (k: Pick<Kosu, "tohum">, tuz: number, n: number) =>
+  mulberry32((Math.imul(k.tohum ^ tuz, 31) + n * 7919) >>> 0 || 1);
+
+/** seçim ekranı: 3 pasif (eski sıra korunur); skill teklifi varsa üçüncünün yerine bir skill teklifi (ayrı tohum) */
+function secenekCek(k: Kosu): string[] {
+  const r = pasifCek(k, 3),
+    t = beceriTeklifleri(k);
+  k.secimNo++;
+  if (t.length) {
+    const s = t[Math.floor(turet(k, 0x51ed27, k.secimNo)() * t.length)];
+    if (r.length >= 3) r[2] = s;
+    else r.push(s);
+  }
+  return r;
+}
+
+/** skill teklifini uygula (seçim geçerliyse); bırakılan skill tamamen silinir */
+function beceriTeklifiUygula(k: Kosu, id: string, birak?: string): boolean {
+  const [tur, a, b] = id.split(":");
+  if (tur == "b") {
+    if (!beceriBul(a) || beceriSahip(k, a)) return false;
+    if (k.beceriler.length >= SKILL_YUVASI) {
+      if (!birak || !beceriSahip(k, birak)) return false;
+      beceriSil(k, birak);
+    }
+    k.beceriler.push({ id: a, seviye: 1, eklentiler: [], evrim: null });
+    return true;
+  }
+  if (tur == "y") {
+    const o = beceriSahip(k, a);
+    if (!o || o.seviye >= SEVIYE_UST) return false;
+    o.seviye++;
+    return true;
+  }
+  if (tur == "v") {
+    const o = beceriSahip(k, a);
+    if (!o || o.seviye < SEVIYE_UST || o.evrim || !beceriBul(a)!.evrimler.some((v) => v.id == b))
+      return false;
+    o.evrim = b;
+    return true;
+  }
+  if (tur == "e") {
+    const o = beceriSahip(k, b),
+      e = beceriEklentisiBul(a);
+    if (!o || !e || !eklentiUyar(beceriBul(b)!, e) || o.eklentiler.includes(a)) return false;
+    if (o.eklentiler.length >= SKILL_EKLENTI_UST) return false;
+    o.eklentiler.push(a);
+    return true;
+  }
+  return false;
+}
+
+/** skill'i (seviyesi, eklentileri, evrimiyle) envanterden sil; yürütücü durumu sonraki adımda temizlenir */
+export function beceriSil(k: Kosu, id: string) {
+  k.beceriler = k.beceriler.filter((o) => o.id != id);
+  k.mek = kapasiteUygula(k.mek, takiliMekanikler(k));
+}
+
+/** drift etkinliğinin kaporasını belirle/kilitle (kart açılınca ve girişte). Drift değilse ya da yapıldıysa null */
+export function kaporaBelirle(k: Kosu, id: number): Kapora | null {
+  const e = k.etkinlikler.find((q) => q.id == id);
+  if (!e || e.ty != "dp" || e.yapildi) return null;
+  const sec = (deneme: number): Kapora => {
+    if (!k.beceriler.length) return { beceri: null, deneme };
+    const r = turet(k, 0x27d4eb2d, e.id * 131 + deneme * 977)();
+    return { beceri: k.beceriler[Math.floor(r * k.beceriler.length)].id, deneme };
+  };
+  const q = e.kapora;
+  if (!q) e.kapora = sec(0);
+  else if (q.beceri && !beceriSahip(k, q.beceri)) e.kapora = sec(q.deneme + 1);
+  else if (!q.beceri && k.beceriler.length) e.kapora = sec(q.deneme);
+  return e.kapora!;
+}
+
+export interface KaporaSonucu {
+  beceri: string | null;
+  sonuc: "seviye" | "para" | "kayip" | "yeni" | "govde";
+}
+
+/** drift sonucu kaporaya işler (bir kez, etkinlikBitti içinde): kazan → +1 seviye (tavanda para) ya da yeni skill,
+ *  kaybet → skill tamamen silinir ya da gövde gider */
+function kaporaUygula(k: Kosu, e: Etkinlik, gecti: boolean): KaporaSonucu | null {
+  const q = e.kapora;
+  if (e.ty != "dp" || !q) return null;
+  if (q.beceri) {
+    const o = beceriSahip(k, q.beceri);
+    if (!o) return null;
+    if (!gecti) {
+      beceriSil(k, o.id);
+      return { beceri: o.id, sonuc: "kayip" };
+    }
+    if (o.seviye < SEVIYE_UST) {
+      o.seviye++;
+      return { beceri: o.id, sonuc: "seviye" };
+    }
+    k.para += KAPORA.tavanPara;
+    return { beceri: o.id, sonuc: "para" };
+  }
+  if (!gecti) {
+    k.govde = Math.max(1, k.govde - KAPORA.govde);
+    return { beceri: null, sonuc: "govde" };
+  }
+  const aday = BECERILER.filter((t) => !beceriSahip(k, t.id));
+  if (!aday.length || k.beceriler.length >= SKILL_YUVASI) {
+    k.para += KAPORA.tavanPara;
+    return { beceri: null, sonuc: "para" };
+  }
+  const t = aday[Math.floor(turet(k, 0x165667b1, e.id)() * aday.length)];
+  k.beceriler.push({ id: t.id, seviye: 1, eklentiler: [], evrim: null });
+  k.mek = kapasiteUygula(k.mek, takiliMekanikler(k));
+  return { beceri: t.id, sonuc: "yeni" };
+}
+
+/** yarış başında skill yürütücüsünün hedef kayıtları sıfırlanır (rakip gövdesi, takip kredisi, near-miss) */
+export function beceriYarisBasi(k: Kosu) {
+  k.bec = { ...k.bec, hedefler: {}, sonVurus: {}, takipKredi: {}, yakin: {}, sonNearMiss: {} };
+}
+
+/** enerji adımının dünya bilgisi (oyun verir; yoksa yalnız oyuncu, rakipsiz, yarış dışı) */
+export interface EnerjiDunyasi {
+  dunya: BeceriDunyasi;
+  /** basılan skill tuşları (skill kimliği) */
+  istekler: readonly string[];
+  engeller: readonly Engel[];
+  /** bu adımda sert çarpma oldu mu */
+  carpti: boolean;
+}
 
 /**
  * enerji adımı (fizikten sonra): drift/sürüş gözlemcisi + bekleyen ortak olaylar (risk, hasar) + nitro isteği tek
@@ -517,10 +742,19 @@ export function enerjiAdimi(
   d: Readonly<Pick<SimDurumu, "S" | "DR" | "D">>,
   dt: number,
   nitro: boolean,
+  ed?: EnerjiDunyasi,
 ): boolean {
   const g0 = gucCarpani(k.mek),
+    c0 = k.becCikti,
     r = driftGozlemcisi(k.gozlem, d, dt, true),
-    olaylar: GirisOlayi[] = r.olaylar;
+    olaylar: GirisOlayi[] = r.olaylar,
+    S = d.S,
+    dunya: BeceriDunyasi = ed?.dunya ?? {
+      oyuncu: { x: S.x, z: S.z, h: S.h, vx: S.vx, vz: S.vz },
+      hedefler: [],
+      baglanti: () => null,
+      yarista: false,
+    };
   k.gozlem = r.g;
   const ekle = (o: GirisOlayi) => {
     olaylar.push({ ...o, sira: k.gozlem.sira });
@@ -530,10 +764,55 @@ export function enerjiAdimi(
   if (k.bekleyenHasar)
     ekle({ tur: "HasarAlindi", sira: 0, hasar: k.bekleyenHasar.tur, miktar: k.bekleyenHasar.miktar });
   if (nitro) ekle({ tur: "AbilityActivated", sira: 0, yetenek: NITRO.id });
+  // skill katmanı: önceki adımın skill olayları, yakınlık olayları, hazır skill tuşları aynı sıra uzayına girer
+  const yg = yakinlikGozlemi(k.bec, dunya, ed?.engeller ?? [], dt, ed?.carpti ?? false);
+  k.bec = yg.d;
+  for (const o of [...k.bekleyenBeceri, ...yg.olaylar]) ekle({ ...o, sira: 0 } as GirisOlayi);
+  for (const y of beceriIstekleri(k.bec, k.beceriler, dunya, ed?.istekler ?? []))
+    ekle({ tur: "AbilityActivated", sira: 0, yetenek: y });
   k.bekleyenRisk = null;
   k.bekleyenHasar = null;
+  k.bekleyenBeceri = [];
+  const once = k.mek;
   k.mek = mekanikAdimi(k.mek, olaylar, takiliMekanikler(k), true, dt);
-  return gucCarpani(k.mek) != g0;
+  // enerjisi bu adımda harcanan etkin skill'ler başlar
+  const tetiklenen = Object.keys(k.mek.sonTetik).filter(
+    (id) => id.startsWith("beceri:") && k.mek.sonTetik[id] == k.mek.adim && once.sonTetik[id] != k.mek.adim,
+  );
+  const b = beceriAdimi(k.bec, k.beceriler, dunya, tetiklenen, olaylar, dt);
+  k.bec = b.d;
+  k.becCikti = b.cikti;
+  k.bekleyenBeceri = b.cikti.olaylar;
+  return gucCarpani(k.mek) != g0 || (c0?.guc ?? 1) != b.cikti.guc || (c0?.tutus ?? 1) != b.cikti.tutus;
+}
+
+/** skill tuşunun ve barının durumu (HUD için salt okunur) */
+export function beceriGorunumu(k: Kosu) {
+  const mekP = parametreler(takiliMekanikler(k)).maliyet;
+  return k.beceriler.map((o) => {
+    const t = beceriBul(o.id)!,
+      y = k.bec.yerel[o.id],
+      maliyet = (t.maliyet ?? 0) * mekP;
+    return {
+      id: o.id,
+      ad: t.ad,
+      tur: t.tur,
+      seviye: o.seviye,
+      evrim: o.evrim,
+      eklentiler: o.eklentiler,
+      acik: (y?.kalan ?? 0) > 0,
+      kalan: y?.kalan ?? 0,
+      bekleme: y?.bekleme ?? 0,
+      bar: t.bar ? Math.round(100 * Math.max(0, Math.min(1, y ? t.bar(y, parametre(t, o)) : 0))) : null,
+      maliyet,
+      hazir:
+        t.tur == "aktif" &&
+        (y?.kalan ?? 0) <= 0 &&
+        (y?.bekleme ?? 0) <= 0 &&
+        k.mek.enerji >= maliyet &&
+        !(bayraklar(k.bec, k.beceriler).saldiriKapali && t.etiketler.includes("konum")),
+    };
+  });
 }
 
 /** nitro tuşunun durumu (HUD ve tuş için salt okunur): enerji, maliyet, açık mı, basılınca çalışır mı */
@@ -553,7 +832,11 @@ export function nitroDurumu(k: Kosu) {
 /** aracın koşu değerleri: (parçalı) araç kopyası + pasif kademeleri + gövde hasarının güç kaybı + nitro */
 export function kosuAraci(
   taban: Arac,
-  k: Pick<Kosu, "pasifler"> & { govde?: number; mek?: Pick<MekanikDurum, "etkiKalan" | "etkiGuc"> },
+  k: Pick<Kosu, "pasifler"> & {
+    govde?: number;
+    mek?: Pick<MekanikDurum, "etkiKalan" | "etkiGuc">;
+    becCikti?: Pick<BeceriCiktisi, "guc" | "tutus"> | null;
+  },
 ): Arac {
   const c: Arac = { ...taban, gr: [taban.gr[0], taban.gr[1]] };
   for (const id of k.pasifler) pasifBul(id)?.arac?.(c);
@@ -563,14 +846,28 @@ export function kosuAraci(
   const kural = (1 + 0.25 * n("camtop")) * (govde < GOVDE.tam / 2 ? 1 + 0.15 * n("adrenalin") : 1);
   c.hp = Math.min(c.hp * kural, taban.hp * GUC_UST);
   c.hp *= 1 - GOVDE.gucKaybi * (1 - govde / GOVDE.tam);
-  // nitro: süreli güç (enerjiyle sınırlı; süre payı matris testinde ≤ %50)
-  if (k.mek) c.hp *= gucCarpani(k.mek);
+  // nitro ve skill dönüşümü: süreli güç; ikisi birlikte de GUC_ETKI_UST'ü aşmaz (nitro süre payı matriste ≤ %50)
+  const etki = Math.min(GUC_ETKI_UST, (k.mek ? gucCarpani(k.mek) : 1) * (k.becCikti?.guc ?? 1));
+  c.hp *= etki;
+  const tutus = Math.min(BECERI_TUTUS_UST, k.becCikti?.tutus ?? 1);
+  c.gr = [c.gr[0] * tutus, c.gr[1] * tutus];
   return c;
 }
+
+/** skill'lerin birleşik tutuş çarpanı üst sınırı */
+export const BECERI_TUTUS_UST = 1.3;
 
 /** hasar: sert çarpma ya da spin; zırh azaltır. Gövde 0 olunca pert (koşu biter). Dönen: pert oldu mu */
 export function hasarAl(k: Kosu, tur: "carpma" | "spin"): boolean {
   if (k.faz == "bitti" || k.pert) return false;
+  // hayalet fazı: hasar işlemez; ortak olay KorumaEngelledi (pasifler tepki verebilir)
+  if (bayraklar(k.bec, k.beceriler).hayalet) {
+    k.bekleyenBeceri = [
+      ...k.bekleyenBeceri,
+      { tur: "KorumaEngelledi", miktar: Math.min(k.govde, GOVDE[tur]), kaynak: tur },
+    ];
+    return false;
+  }
   const kalkan = gucCarpani(k.mek) > 1 ? 1 - 0.5 * pasifSayisi(k, "nitro-kalkani") : 1,
     tampon = tur == "carpma" ? 1 - 0.4 * pasifSayisi(k, "ek-takviye-tampon") : 1,
     h = GOVDE[tur] * (1 - 0.35 * pasifSayisi(k, "zirh")) * (1 + pasifSayisi(k, "camtop")) * kalkan * tampon,
@@ -631,6 +928,8 @@ export interface EtkinlikSonucu {
   ekSure: number;
   /** kaçırınca boss süresinden düşen (sn) */
   ceza: number;
+  /** drift kaporasının sonucu (drift değilse null) */
+  kapora: KaporaSonucu | null;
 }
 
 /** etkinlik bitti: seçilen risk kademesinde geçti ya da kaçırdı; ödül, ceza ve seviye. Etkinlik bir kez oynanır */
@@ -652,15 +951,16 @@ export function etkinlikBitti(k: Kosu, id: number, gecti: boolean, risk: Risk = 
   const ekSure = gecti ? 20 * pasifSayisi(k, "zaman") : 0;
   k.govde = Math.min(GOVDE.tam, k.govde + 12 * pasifSayisi(k, "tamirci"));
   k.kalan += ekSure;
+  const kapora = kaporaUygula(k, e, gecti);
   if (k.bekleyenSecim > 0) {
     k.faz = "secim";
-    k.secenekler = pasifCek(k, 3);
+    k.secenekler = secenekCek(k);
     if (!k.secenekler.length) {
       k.bekleyenSecim = 0;
       k.faz = "surus";
     }
   }
-  return { xp: k.xp, para, gecti, seviyeAtladi: k.seviye > seviye0, ekSure, ceza };
+  return { xp: k.xp, para, gecti, seviyeAtladi: k.seviye > seviye0, ekSure, ceza, kapora };
 }
 
 export const parcaFiyati = (k: Pick<Kosu, "pasifler">, sv: number, id = "") =>
@@ -706,7 +1006,7 @@ export function bossBitti(k: Kosu, kazandi: boolean, pistler: readonly PistAdayi
   stokDiz(k);
   if (k.bekleyenSecim > 0) {
     k.faz = "secim";
-    k.secenekler = pasifCek(k, 3);
+    k.secenekler = secenekCek(k);
     if (k.secenekler.length) return;
     k.bekleyenSecim = 0;
   }

@@ -78,4 +78,22 @@ export default [
     p: 1,
     tarayici: "rakip",
   },
+  {
+    id: "skill-akis",
+    ad: "LT-SYS-004 skill: başlangıçta skill teklifi, tuş/bar, drift kaporası kilitli ve kaybedince skill gider, düelloda kanca enerji harcar ve bağlanır",
+    p: 1,
+    tarayici: "beceri",
+  },
+  {
+    id: "skill-yurutucu",
+    ad: "LT-SYS-004 skill yürütücüsü: belirlenimcilik, sonlu zincir, Grappling Hook, Flying Dutchman, Risk Taker, Slipstream, anti-farm",
+    p: 1,
+    birim: { dosya: "tests/birim/beceri.test.ts", grup: "LT-SYS-004 skill sistemi" },
+  },
+  {
+    id: "skill-fizik",
+    ad: "LT-SYS-004 skill kuvvetleri gerçek fizikte: dış ivme yokken birebir aynı, kanca yaklaştırır, ışınlanma yok",
+    p: 1,
+    birim: { dosya: "tests/birim/beceri-fizik.test.ts", grup: "LT-SYS-004 skill kuvvetleri gerçek fizikte" },
+  },
 ];

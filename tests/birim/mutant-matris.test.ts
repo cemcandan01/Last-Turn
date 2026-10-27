@@ -41,6 +41,9 @@ const BICIMLER: Record<string, (i: number) => [boolean, number, number]> = {
   carpisan: () => [false, 26, 0],
   // biriktiren oyuncu: karışık sürüş, nitroyu yalnız depo neredeyse doluyken kullanır (düzlüğe saklar)
   biriktiren: (i) => (i % 480 < 240 ? [false, 30, 0] : [i % 120 < 90, 22, 0]),
+  // savaşçı (LT-SYS-004 skill olayları): 0,5 sn'de bir 4 hasar verir, 4 sn takip / 6 sn serbest, 3 sn'de bir
+  // hayalet fazı 12 hasarı engeller
+  savasci: () => [false, 26, 0],
 };
 
 interface Sonuc {
@@ -77,6 +80,23 @@ function kos(perkler: MekanikTanim[], bicim: (i: number) => [boolean, number, nu
     if (i == 0) {
       olaylar.push({ tur: "RiskBasladi", sira: g.sira, risk: 1 });
       g = { ...g, sira: g.sira + 1 };
+    }
+    if (bicim === BICIMLER.savasci) {
+      const ekle = (o: GirisOlayi) => {
+        olaylar.push({ ...o, sira: g.sira });
+        g = { ...g, sira: g.sira + 1 };
+      };
+      if (i % 30 == 0)
+        ekle({
+          tur: "HasarVerildi",
+          sira: 0,
+          hedef: "rakip",
+          miktar: 4,
+          hasar: "ates",
+          kaynak: "risk-taker",
+        });
+      if (i % 600 < 240) ekle({ tur: "YakinTakip", sira: 0, hedef: "rakip", dt: DT, mesafe: 8 });
+      if (i % 180 == 45) ekle({ tur: "KorumaEngelledi", sira: 0, miktar: 12, kaynak: "carpma" });
     }
     if (bicim === BICIMLER.carpisan && i % 180 == 90) {
       olaylar.push({ tur: "HasarAlindi", sira: g.sira, hasar: "carpma", miktar: 12 });

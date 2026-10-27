@@ -19,7 +19,7 @@ import { kurulum } from "./kurulum";
 import { PROF, saveProf } from "./profil";
 import { yaris, evTick } from "./yarislar";
 import { rekorHayaletiBaslat, rekorHayaletiDurdur, uzakAdimi, uzakSifirla } from "./uzak";
-import { mutant, mutantAdimi } from "./mutant";
+import { mutant, mutantAdimi, mutantOyuncuIvmesi } from "./mutant";
 import { rakipAdimi } from "./rakip";
 
 /** serbest sürüşte tur sayacı (kapalı pistlerde) */
@@ -123,7 +123,13 @@ export function surusAdimi() {
     yerel.kayit.kesik = true;
   const gi = fizikGirdisi(),
     son = aracAdimi(yerel, gi);
-  mutantAdimi(S.x, S.z, son.v, ADIM, !!yaris.EV, S.hit, sim.d.D.beta, sim.d);
+  mutantAdimi(S.x, S.z, son.v, ADIM, !!yaris.EV, S.hit, sim.d.D.beta, sim.d, {
+    TR: yaris.EV?.TR ?? dunya.TR,
+    dunya: yerel.cx.dunya,
+    kosuyor: yaris.EV?.state == "run",
+  });
+  // MUTANT skill çekişi sonraki adımda kütle merkezine kuvvet (koşu yoksa yok: fizik birebir aynı)
+  yerel.cx.dis = mutantOyuncuIvmesi();
   if (sim.d.zaman % 20 < ADIM) saveProf();
   turSayaci(ADIM);
   if (yaris.EV) evTick(ADIM, son, gi.tg);
