@@ -35,7 +35,9 @@ import { HAYALET, uzak, uzakTick } from "./uzak";
 import { uzakAraclariCiz } from "../cizim/uzak-arac-modeli";
 import { yaris } from "./yarislar";
 import { mutantIsaretleri } from "../arayuz/mutant-ui";
-import { nitroAcik } from "./mutant";
+import { beceriEfektDurumu, nitroAcik } from "./mutant";
+import { beceriEfektleri } from "../cizim/beceri-efekt";
+import { RAKIP } from "./rakip";
 
 /** görsel saat (menü, garaj, yağış) */
 export let tt = 0;
@@ -119,6 +121,7 @@ function kare(ts: number) {
   if (uzak.araclar.length || yarista) uzakAraclariCiz(uzak.araclar, yarista, (u) => u.id == HAYALET);
   if (mode == "menu" && CINE) cineCam();
   if (mode == "drive" && nitroAcik()) nitroAlevi(gx, gy, gz, gh, S.vx, S.vz);
+  skillEfektleri(dt, mode == "drive" || mode == "pause", gx, gy, gz, gh);
   parcacikTick(dt);
   if (mode != "menu" && mode != "garage" && !duzenleyici.acik) {
     hudGuncelle(v);
@@ -303,7 +306,7 @@ function sahneGuncelle(dt: number, v: number, x: number, y: number, z: number, h
   const port = ekran.aw < ekran.ah,
     bf = camMode == 3 && inCar ? (port ? 64 : 54) : (port ? 78 : 62) + (inCar ? 6 : 0),
     // MUTANT nitrosu açıkken görüş genişler (hız hissi; yumuşak geçiş aşağıda)
-    tf = bf + (set.fov ? spn * 24 : 0) + (nitroAcik() ? 9 : 0);
+    tf = bf + (set.fov ? spn * 24 : 0) + (nitroAcik() ? 9 : 0) + skillGorusu();
   kamera.fovC += (tf - kamera.fovC) * Math.min(1, dt * 3);
   if (Math.abs(cam.fov - kamera.fovC) > 0.05) {
     cam.fov = kamera.fovC;
@@ -358,4 +361,41 @@ const ustY = { arac: null as unknown, y: 1.3 };
 
 export function donguBaslat() {
   requestAnimationFrame(kare);
+}
+
+/** MUTANT skill efektleri (cizim/beceri-efekt.ts): kanca ucu rakibin çizilen konumuna, yol noktasında zemine */
+function skillEfektleri(dt: number, surus: boolean, x: number, y: number, z: number, h: number) {
+  const d = surus ? beceriEfektDurumu() : null,
+    govde = [model.carM?.g ?? null, ...(model.carM?.ws.map((w) => w.pv) ?? [])];
+  if (!d) return beceriEfektleri(dt, null, govde);
+  let kanca: [number, number, number] | null = null;
+  if (d.kanca == "rakip") {
+    const u = uzak.araclar.find((q) => q.id == RAKIP);
+    if (u) kanca = [u.goster.x, u.goster.y + 0.8, u.goster.z];
+  } else if (d.kanca) kanca = [d.kanca[0], Hw(d.kanca[0], d.kanca[1]) + 0.5, d.kanca[1]];
+  beceriEfektleri(
+    dt,
+    {
+      x,
+      y,
+      z,
+      h,
+      vx: sim.S.vx,
+      vz: sim.S.vz,
+      kanca,
+      hayalet: d.hayalet,
+      donusum: d.donusum,
+      iz: d.iz,
+      zemin: Hw,
+      ruzgar: d.ruzgar,
+    },
+    govde,
+  );
+}
+
+/** skill açıkken görüş genişler (nitro gibi hız hissi): kanca çekişi, dönüşüm, rüzgâr */
+function skillGorusu() {
+  const d = beceriEfektDurumu();
+  if (!d) return 0;
+  return (d.kanca ? 6 : 0) + (d.donusum ? 5 : 0) + (d.ruzgar ? 4 : 0);
 }

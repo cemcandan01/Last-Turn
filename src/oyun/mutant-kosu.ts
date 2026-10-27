@@ -15,6 +15,7 @@ import {
   beceriAdimi,
   beceriBul,
   beceriDurumuBaslat,
+  beceriEngeli,
   beceriEklentisiBul,
   beceriIstekleri,
   beceriMekanigi,
@@ -24,6 +25,7 @@ import {
   type BeceriCiktisi,
   type BeceriDunyasi,
   type BeceriDurumu,
+  type BeceriEngeli,
   type BeceriOlayi,
   type BeceriOrnegi,
   type Engel,
@@ -43,7 +45,7 @@ import {
   type MekanikTanim,
 } from "../cekirdek/mekanikler";
 import type { SimDurumu } from "../fizik/tipler";
-import { BASLANGIC_ENERJI, EKLENTI_PERKLERI, NITRO, PERKLER } from "./mutant-enerji";
+import { BASLANGIC_ENERJI, EKLENTI_PERKLERI, NITRO, PERKLER, SURUS_ENERJISI } from "./mutant-enerji";
 
 /** etkinliğe aday pist: oyundaki EVENTS'in özeti (saf modül oyun verisine bağlanmasın diye) */
 export interface PistAdayi {
@@ -354,6 +356,8 @@ export interface Kosu {
   govde: number;
   carpma: number;
   spin: number;
+  /** pist kesme sayısı */
+  kesme?: number;
   /** pert olduysa true (koşu bitti) */
   pert: boolean;
   /** son nefes kullanıldı mı (bir kez) */
@@ -370,6 +374,8 @@ export interface Kosu {
   bec: BeceriDurumu;
   becCikti: BeceriCiktisi | null;
   bekleyenBeceri: BeceriOlayi[];
+  /** son adımda skill'in kullanılamama/dolmama nedeni (HUD; enerji ayrıca beceriGorunumu'nde) */
+  becEngel: Record<string, BeceriEngeli | null>;
   /** yapılan seçim sayısı (skill teklifinin tohumu; ana rastgelelik sırası değişmesin diye ayrı) */
   secimNo: number;
 }
@@ -398,6 +404,8 @@ export const YERLER: [number, number][] = [
 ];
 /** atölye sabit: merkez yakını */
 export const ATOLYE: [number, number] = [0, -90];
+/** boss işareti: tırmanış yolunun tepesi */
+export const BOSS_YERI: [number, number] = [-40, 440];
 
 export const pasifSayisi = (k: Kosu, id: string) => k.pasifler.filter((p) => p == id).length;
 
@@ -502,6 +510,7 @@ export function kosuBaslat(tohum: number, pistler: readonly PistAdayi[]): Kosu {
     bec: beceriDurumuBaslat(),
     becCikti: null,
     bekleyenBeceri: [],
+    becEngel: {},
     secimNo: 0,
   };
   k.secenekler = secenekCek(k);
@@ -555,11 +564,12 @@ export function pasifSec(k: Kosu, id: string, birak?: string): boolean {
   return true;
 }
 
-/** takılı enerji mekanikleri: her koşuda NITRO + pasiflerin mekanikleri + etkin skill'lerin enerji tanımı */
+/** takılı enerji mekanikleri: her koşuda NITRO + temel sürüş enerjisi + pasiflerin mekanikleri + etkin skill'lerin enerji tanımı */
 export const takiliMekanikler = (
   k: Pick<Kosu, "pasifler"> & { beceriler?: BeceriOrnegi[] },
 ): MekanikTanim[] => [
   NITRO,
+  SURUS_ENERJISI,
   ...k.pasifler.flatMap((id) => {
     const m = pasifBul(id)?.m;
     return m ? [m] : [];
@@ -783,16 +793,26 @@ export function enerjiAdimi(
   k.bec = b.d;
   k.becCikti = b.cikti;
   k.bekleyenBeceri = b.cikti.olaylar;
+  k.becEngel = Object.fromEntries(
+    k.beceriler.map((o) => [o.id, beceriEngeli(k.bec, k.beceriler, dunya, o.id)]),
+  );
   return gucCarpani(k.mek) != g0 || (c0?.guc ?? 1) != b.cikti.guc || (c0?.tutus ?? 1) != b.cikti.tutus;
 }
 
-/** skill tuşunun ve barının durumu (HUD için salt okunur) */
+/** skill'in HUD'da gösterilen kullanılamama nedeni: skill'in kendi engeli ya da enerji */
+export type BeceriHudEngeli = BeceriEngeli | "enerji";
+
+/** skill tuşunun ve barının durumu (HUD ve efektler için salt okunur) */
 export function beceriGorunumu(k: Kosu) {
   const mekP = parametreler(takiliMekanikler(k)).maliyet;
   return k.beceriler.map((o) => {
     const t = beceriBul(o.id)!,
       y = k.bec.yerel[o.id],
-      maliyet = (t.maliyet ?? 0) * mekP;
+      p = parametre(t, o),
+      maliyet = (t.maliyet ?? 0) * mekP,
+      engel0 = k.becEngel[o.id] ?? null,
+      engel: BeceriHudEngeli | null =
+        engel0 ?? (t.tur == "aktif" && k.mek.enerji < maliyet ? "enerji" : null);
     return {
       id: o.id,
       ad: t.ad,
@@ -803,14 +823,16 @@ export function beceriGorunumu(k: Kosu) {
       acik: (y?.kalan ?? 0) > 0,
       kalan: y?.kalan ?? 0,
       bekleme: y?.bekleme ?? 0,
-      bar: t.bar ? Math.round(100 * Math.max(0, Math.min(1, y ? t.bar(y, parametre(t, o)) : 0))) : null,
+      /** bu seviyede etki süresi ve bekleme (sn): dolgu oranı için */
+      sure: p.sure ?? 0,
+      beklemeTam: p.bekleme ?? 0,
+      bar: t.bar ? Math.round(100 * Math.max(0, Math.min(1, y ? t.bar(y, p) : 0))) : null,
       maliyet,
-      hazir:
-        t.tur == "aktif" &&
-        (y?.kalan ?? 0) <= 0 &&
-        (y?.bekleme ?? 0) <= 0 &&
-        k.mek.enerji >= maliyet &&
-        !(bayraklar(k.bec, k.beceriler).saldiriKapali && t.etiketler.includes("konum")),
+      engel,
+      /** etki sürerken bağlantı (kanca): rakibin kimliği ya da yol noktası */
+      hedef: (y?.kalan ?? 0) > 0 ? (y?.hedef ?? null) : null,
+      nokta: (y?.kalan ?? 0) > 0 ? (y?.nokta ?? null) : null,
+      hazir: t.tur == "aktif" && engel == null,
     };
   });
 }
@@ -856,6 +878,21 @@ export function kosuAraci(
 
 /** skill'lerin birleşik tutuş çarpanı üst sınırı */
 export const BECERI_TUTUS_UST = 1.3;
+
+/** pist kesme cezası (LT-SYS-006): atlanan pist mesafesinin onda biri kadar gövde. Hayalet fazı ve zırh korumaz,
+ *  enerji/para pasifleri tepki vermez (kesmek hiçbir şey kazandırmaz). Gövde 0'da pert. Dönen: düşen gövde */
+export const KESME_CEZASI = 0.1;
+export function kesmeCezasi(k: Kosu, metre: number): number {
+  if (k.faz == "bitti" || k.pert || !(metre > 0)) return 0;
+  const h = Math.min(k.govde, metre * KESME_CEZASI);
+  k.govde = Math.max(0, k.govde - metre * KESME_CEZASI);
+  k.kesme = (k.kesme ?? 0) + 1;
+  if (k.govde <= 0) {
+    k.pert = true;
+    k.faz = "bitti";
+  }
+  return h;
+}
 
 /** hasar: sert çarpma ya da spin; zırh azaltır. Gövde 0 olunca pert (koşu biter). Dönen: pert oldu mu */
 export function hasarAl(k: Kosu, tur: "carpma" | "spin"): boolean {

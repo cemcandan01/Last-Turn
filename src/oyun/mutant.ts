@@ -16,6 +16,7 @@ import { kurulum, applyPreset } from "./kurulum";
 import { setCar } from "./durum";
 import {
   ATOLYE,
+  BOSS_YERI,
   beceriGorunumu,
   beceriYarisBasi,
   bossBitti,
@@ -28,6 +29,7 @@ import {
   etkinlikBitti,
   hasarAl,
   kaporaBelirle,
+  kesmeCezasi,
   kosuAraci,
   kosuBaslat,
   nitroDurumu,
@@ -35,6 +37,7 @@ import {
   type EtkinlikSonucu,
   type Kosu,
   type PistAdayi,
+  type BeceriHudEngeli,
   type Risk,
 } from "./mutant-kosu";
 
@@ -44,8 +47,7 @@ const ANAHTAR = "lt_mutant";
 const ISARET_R = 10,
   ISARET_V = 5,
   ISARET_SURE = 0.5;
-/** boss işareti: tırmanış yolunun tepesi */
-export const BOSS_YERI: [number, number] = [-40, 440];
+export { BOSS_YERI };
 
 export type MutantIsaret =
   { tur: "etkinlik"; id: number } | { tur: "sandik"; id: number } | { tur: "atolye" } | { tur: "boss" };
@@ -89,6 +91,8 @@ export const mutant = {
   nitro: false,
   /** basılan skill tuşları (skill kimliği): bir sonraki sabit adımda istek olur */
   beceriIstek: [] as string[],
+  /** son reddedilen skill isteği ve nedeni (HUD yuvada kısa uyarı, ses); n her retle artar */
+  red: { id: "", engel: "" as BeceriHudEngeli | "basla" | "", n: 0 },
   yeniRekor: false,
   ui: null as MutantArayuzu | null,
 };
@@ -243,12 +247,22 @@ export function mutantAdimi(
       const kosuyor = yarista && (cevre?.kosuyor ?? true),
         S = d.S,
         R = kosuyor ? rakipGovdesi() : null,
+        // kanca bağlantısı: yarışta pist, açık dünyada (serbest sürüş) yol ağı
         dunya = beceriDunyasiYap(
           { x: S.x, z: S.z, h: S.h, vx: S.vx, vz: S.vz },
           R ? [R] : [],
-          cevre?.TR ?? null,
+          yarista ? (cevre?.TR ?? null) : null,
           kosuyor,
+          !yarista && !!cevre,
         );
+      // hazır olmayan istek: neden yuvada gösterilir (enerji harcanmaz)
+      if (istekler.length) {
+        const g = beceriGorunumu(k);
+        for (const id of istekler) {
+          const engel = yarista && !kosuyor ? "basla" : (g.find((b) => b.id == id)?.engel ?? null);
+          if (engel) mutant.red = { id, engel, n: mutant.red.n + 1 };
+        }
+      }
       if (
         enerjiAdimi(k, d, dt, nitro, {
           dunya,
@@ -337,6 +351,38 @@ export function mutantOyuncuIvmesi(): { x: number; z: number } | undefined {
   const a = mutant.kosu?.becCikti?.oyuncuIvme;
   return a && (a.x || a.z) ? { x: a.x, z: a.z } : undefined;
 }
+
+/**
+ * skill efektleri için salt okunur durum (cizim/beceri-efekt.ts, ses, kamera). Efekt skill'e göre seçilir; etkisi
+ * yalnız görüntü/ses. Koşu yoksa null. kanca: bağlı uç ("rakip" ya da yol noktası)
+ */
+export function beceriEfektDurumu() {
+  const k = mutant.kosu;
+  if (!k) return null;
+  const y = k.bec.yerel,
+    acik = (id: string) => (y[id]?.kalan ?? 0) > 0,
+    kanca = acik("grappling-hook") ? y["grappling-hook"] : null;
+  return {
+    kanca: kanca ? (kanca.hedef ? ("rakip" as const) : kanca.nokta) : null,
+    hayalet: !!k.becCikti?.hayalet,
+    donusum: acik("risk-taker"),
+    iz: y["risk-taker"]?.iz ?? [],
+    ruzgar: acik("slipstream-engine"),
+  };
+}
+
+/** yarışta pist kesildi (yarislar.ts): atlanan mesafeye göre gövde cezası; pert olursa koşu biter. Dönen: düşen gövde */
+export function mutantKesme(metre: number): number {
+  const k = mutant.kosu;
+  if (!k) return 0;
+  const h = kesmeCezasi(k, metre);
+  if (h > 0) mutantAracGuncelle();
+  if (k.pert) mutant.ui?.hasar("carpma", true);
+  return h;
+}
+
+/** Flying Dutchman fazı açık mı: oyuncu ağaç/kaya gibi katı nesnelerin içinden geçer (duvarlar ve pist kuralı aynı) */
+export const mutantHayalet = () => !!mutant.kosu?.becCikti?.hayalet;
 
 /** nitro şu an açık mı (kamera, alev, ses için; koşu yoksa false) */
 export const nitroAcik = () => (mutant.kosu?.mek.etkiKalan ?? 0) > 0;

@@ -115,6 +115,18 @@ const IKON = {
     '<path d="M12 16h4v4"/><path d="M19.458 11.042c.86 -2.366 .722 -4.58 -.6 -5.9c-2.272 -2.274 -7.185 -1.045 -10.973 2.743c-3.788 3.788 -5.017 8.701 -2.744 10.974c2.227 2.226 6.987 1.093 10.74 -2.515"/>',
   /** drag, tabler: traffic-lights */
   isik: '<path d="M7 7a5 5 0 0 1 5 -5a5 5 0 0 1 5 5v10a5 5 0 0 1 -5 5a5 5 0 0 1 -5 -5l0 -10"/><path d="M11 7a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M11 17a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>',
+  /** MUTANT skill ikonları (oyunun çizimi, aynı stil): kanca */
+  kanca: '<path d="M12 3v9"/><path d="M12 12a5 5 0 1 0 5 5"/><path d="M17 17l2 -3"/><path d="M10 3h4"/>',
+  /** hayalet (Flying Dutchman) */
+  hayalet:
+    '<path d="M5 20v-9a7 7 0 0 1 14 0v9l-2.3 -1.6l-2.4 1.6l-2.3 -1.6l-2.3 1.6l-2.4 -1.6z"/><path d="M10 10h.01"/><path d="M14 10h.01"/>',
+  /** alev (Risk Taker) */
+  alev: '<path d="M12 21c-3.9 0 -6.5 -2.6 -6.5 -6c0 -4 3.5 -5.5 4 -10c3 2 5 5 5 8c1 -1 1.5 -2.4 1.5 -3.5c2 1.5 2.5 3.6 2.5 5.5c0 3.4 -2.6 6 -6.5 6z"/><path d="M12 21c-1.7 0 -2.8 -1.2 -2.8 -2.7c0 -1.8 1.6 -2.6 2.3 -4.3c1.6 1.3 3.3 2.4 3.3 4.3c0 1.5 -1.1 2.7 -2.8 2.7z"/>',
+  /** rüzgâr (Slipstream) */
+  ruzgar:
+    '<path d="M3 8h10a2.5 2.5 0 1 0 -2.5 -2.5"/><path d="M3 12h15a2.5 2.5 0 1 1 -2.5 2.5"/><path d="M3 16h7"/>',
+  /** enerji şimşeği */
+  enerji: '<path d="M13 3l-7 11h5l-1 7l7 -11h-5z"/>',
 };
 export type IkonAdi = keyof typeof IKON;
 

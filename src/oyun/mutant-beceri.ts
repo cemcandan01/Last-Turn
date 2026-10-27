@@ -4,6 +4,8 @@ import type { BeceriDunyasi, Engel, Govde, Hedef } from "../cekirdek/beceri";
 import type { CarpismaIzgarasi } from "../fizik/carpisma";
 import type { DunyaSorgusu } from "../fizik/tipler";
 import { nearest, type Pist } from "../dunya/pist";
+import { EA, EB, SX } from "../dunya/corak";
+import { yolBaglantisi, yolNoktalari } from "../dunya/yollar";
 
 /**
  * pistte oyuncunun gittiği yönde, yol boyunca ve düz çizgide enAz–enCok m ilerideki, önündeki konide (±0,6 rad) ilk
@@ -49,16 +51,30 @@ export function engelListesi(
   return r;
 }
 
+/** açık dünyanın yol orta çizgi noktaları (bir kez) */
+let yolOnbellek: [number, number][] | null = null;
+const acikDunyaYollari = () => (yolOnbellek ??= yolNoktalari(EA, EB, SX));
+
+/**
+ * skill dünyası. Kanca bağlantısı: yarışta (TR verilince) pistin merkez çizgisi; açık dünyada (acikDunya) asfalt yol
+ * ağı; ikisi de yoksa (bölge içinde serbest sürüş, geri sayım) yok
+ */
 export function beceriDunyasiYap(
   P: Govde,
   hedefler: readonly Hedef[],
   TR: Pist | null,
   yarista: boolean,
+  acikDunya = false,
 ): BeceriDunyasi {
   return {
     oyuncu: P,
     hedefler,
-    baglanti: (enAz, enCok) => pistBaglantisi(TR, P, enAz, enCok),
+    baglanti: (enAz, enCok) =>
+      TR
+        ? pistBaglantisi(TR, P, enAz, enCok)
+        : acikDunya
+          ? yolBaglantisi(acikDunyaYollari(), P, enAz, enCok)
+          : null,
     yarista,
   };
 }

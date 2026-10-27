@@ -96,4 +96,34 @@ export default [
     p: 1,
     birim: { dosya: "tests/birim/beceri-fizik.test.ts", grup: "LT-SYS-004 skill kuvvetleri gerçek fizikte" },
   },
+  {
+    id: "skill-his",
+    ad: "LT-SYS-005 skill'ler hissedilir: kanca rakibe/pist/yol noktasına bütün süre çeker, dönüşüm yol kazandırır, Dutchman 2,5 sn, temel sürüş enerjisi, Risk Taker açık dünyada dolar, kullanılamama nedenleri",
+    p: 1,
+    birim: { dosya: "tests/birim/beceri-his.test.ts", grup: "LT-SYS-005 skill'ler hissedilir" },
+  },
+  {
+    id: "skill-efekt-hud",
+    ad: "LT-SYS-005 açık dünyada üç skill yuvası (ikon, seviye, durum), reddedilen istekte neden, kanca halatı yola, hayalet gövde, Risk Taker alevi ve kalan süre, gölgeler kapalıyken de",
+    p: 1,
+    tarayici: "beceri-his",
+  },
+  {
+    id: "yol-agi",
+    ad: "LT-SYS-005 açık dünya asfalt yol ağı: bütün etkinlikler/atölye/boss bağlı, yolda engel yok, asfalt araç pilotla varır, ralli aracı toprakta hızlı",
+    p: 1,
+    birim: { dosya: "tests/birim/yol-agi.test.ts", grup: "LT-SYS-005 açık dünya asfalt yol ağı" },
+  },
+  {
+    id: "pist-kesme",
+    ad: "LT-SYS-006 pist kesme: kısa yoldan dönüş algılanır, geniş almak/paralel gitmek/geri dönmek değil; gerçek pistlerde YZ'ye yanlış alarm yok; ceza atlanan/10 gövde, hayalet korumaz",
+    p: 1,
+    birim: { dosya: "tests/birim/kesme.test.ts", grup: "LT-SYS-006 pist kesme gerçek pistte" },
+  },
+  {
+    id: "pist-kesme-kural",
+    ad: "LT-SYS-006 pist kesme kuralı (saf): çapraz kestirme, dışarıdan geniş alma, paralel sapma, geri dönme, ceza",
+    p: 1,
+    birim: { dosya: "tests/birim/piste-donus.test.ts", grup: "LT-SYS-006 pist kesme" },
+  },
 ];

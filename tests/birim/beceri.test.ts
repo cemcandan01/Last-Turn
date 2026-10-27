@@ -12,12 +12,14 @@ import {
   GRAPPLING_HOOK,
   HASAR_ADIM_UST,
   IVME_UST,
+  RISK_BAR,
   RISK_TAKER,
   SKILL_YUVASI,
   SLIPSTREAM_ENGINE,
   TAKIP,
   beceriAdimi,
   beceriDurumuBaslat,
+  beceriEngeli,
   beceriIstekleri,
   beceriYetenegi,
   eklentiUyar,
@@ -147,9 +149,12 @@ describe("LT-SYS-004 skill sistemi", () => {
       adim(k, P, dunya(P, [], true, null), ["grappling-hook"]);
       expect(k.mek.enerji).toBe(100);
       expect(k.bec.yerel["grappling-hook"]?.kalan ?? 0).toBe(0);
-      // yarış dışında pist noktasına da tutunmaz
-      const W = dunya(P, [], false, [0, 30]);
-      expect(beceriIstekleri(k.bec, k.beceriler, W, ["grappling-hook"])).toEqual([]);
+      // yarış dışında da dünyanın verdiği bağlantıya (açık dünyada yol ağı) tutunur; bağlantı yoksa düşer
+      expect(beceriIstekleri(k.bec, k.beceriler, dunya(P, [], false, [0, 30]), ["grappling-hook"])).toEqual([
+        beceriYetenegi("grappling-hook"),
+      ]);
+      expect(beceriIstekleri(k.bec, k.beceriler, dunya(P, [], false, null), ["grappling-hook"])).toEqual([]);
+      expect(beceriEngeli(k.bec, k.beceriler, dunya(P, [], false, null), "grappling-hook")).toBe("hedef");
     });
 
     it("öndeki rakibe bağlanır: enerji 25, oyuncu ona, rakip oyuncuya doğru ivmelenir; KonumEtkisi", () => {
@@ -234,7 +239,7 @@ describe("LT-SYS-004 skill sistemi", () => {
       // araç değerleri: hayalet fazında tutuş yüksek, gücü değiştirmez
       const a = kosuAraci(CARS[0], k);
       expect(a.gr[1]).toBeCloseTo(CARS[0].gr[1] * FLYING_DUTCHMAN.seviyeler[0].tutus, 9);
-      for (let i = 0; i < 100; i++) adim(k, P, W);
+      for (let i = 0; i < 60 * FLYING_DUTCHMAN.seviyeler[0].sure + 5; i++) adim(k, P, W);
       expect(k.becCikti!.hayalet).toBe(false);
       expect(k.bec.yerel["flying-dutchman"].bekleme).toBeGreaterThan(0);
       expect(hasarAl(k, "carpma")).toBe(false);
@@ -303,7 +308,18 @@ describe("LT-SYS-004 skill sistemi", () => {
       expect(r.cikti.guc).toBeCloseTo(P.guc, 9);
       expect(r.cikti.tutus).toBeCloseTo(P.tutus, 9);
       expect(riskKos(0.33, 20).d.yerel["risk-taker"].deger).toBe(0);
-      expect(riskKos(0.5, 20, false).d.yerel["risk-taker"].deger).toBe(0);
+      // açık dünyada (yarış dışı) kontrollü drift de doldurur (PR #29)
+      expect(riskKos(0.5, 5, false).d.yerel["risk-taker"].deger).toBeCloseTo(RISK_BAR.drift * 5, 6);
+    });
+
+    it("yarış dışında yakın takip ve near-miss barı doldurmaz (yalnız drift)", () => {
+      const takip = (i: number): BeceriOlayi[] => [
+        { tur: "YakinTakip", hedef: "rakip", dt: DT, mesafe: 6 },
+        ...(i % 60 == 0 ? [{ tur: "NearMiss" as const, hedef: "rakip", hiz: 25 }] : []),
+      ];
+      // 19° drift barı doldurmaz: fark yalnız takip/near-miss'ten gelebilir
+      expect(riskKos(0.3, 3, false, [sb("risk-taker")], takip).d.yerel["risk-taker"].deger).toBe(0);
+      expect(riskKos(0.3, 3, true, [sb("risk-taker")], takip).d.yerel["risk-taker"].deger).toBeGreaterThan(0);
     });
 
     it("dönüşüm süresi hasarla uzar ama uzatma tavanını aşmaz (sonsuz dönüşüm yok)", () => {

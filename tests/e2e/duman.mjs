@@ -51,6 +51,7 @@ const BOLUMLER = [
   "mutant",
   "rakip",
   "beceri",
+  "beceri-his",
   "cihaz-dogrulama",
   "cihaz-menu",
   "cihaz-garaj",

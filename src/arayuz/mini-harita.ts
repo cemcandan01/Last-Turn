@@ -5,6 +5,7 @@ import type { V2 } from "../cekirdek/matematik";
 import type { Bolge } from "../dunya/bolgeler";
 import type { Pist } from "../dunya/pist";
 import { EA, EB, SX } from "../dunya/corak";
+import { YOLLAR } from "../dunya/yollar";
 
 const W = 240;
 /** imlecin yeri: ortada, yüksekliğin ~%68'i (önü daha çok görünsün) */
@@ -111,6 +112,17 @@ export function mmDraw(r?: Bolge | null, gecici = false) {
     x.moveTo(a[0], a[1]);
     x.lineTo(b[0], b[1]);
     x.stroke();
+    // asfalt yol ağı: ince çizgi (oval ve düz yolla aynı renk)
+    x.lineWidth = 2.6 * k;
+    for (const y of YOLLAR) {
+      x.beginPath();
+      y.forEach(([px, pz], i) => {
+        const q = mmP(px, pz);
+        if (i) x.lineTo(q[0], q[1]);
+        else x.moveTo(q[0], q[1]);
+      });
+      x.stroke();
+    }
   }
 }
 

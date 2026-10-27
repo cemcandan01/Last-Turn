@@ -19,7 +19,7 @@ import { kurulum } from "./kurulum";
 import { PROF, saveProf } from "./profil";
 import { yaris, evTick } from "./yarislar";
 import { rekorHayaletiBaslat, rekorHayaletiDurdur, uzakAdimi, uzakSifirla } from "./uzak";
-import { mutant, mutantAdimi, mutantOyuncuIvmesi } from "./mutant";
+import { mutant, mutantAdimi, mutantHayalet, mutantOyuncuIvmesi } from "./mutant";
 import { rakipAdimi } from "./rakip";
 
 /** serbest sürüşte tur sayacı (kapalı pistlerde) */
@@ -39,7 +39,7 @@ export const LAP = {
  * türü ona göre). Yerel araçta bu dunya'nın kendisidir (HUD ve tur sayacı dunya.cur'u okur), diğer araçlarda kendi
  * nesneleri: araçlar birbirinin bölgesini bozmaz
  */
-export function dunyaSorgusuYap(b: { cur: Bolge | null }): DunyaSorgusu {
+export function dunyaSorgusuYap(b: { cur: Bolge | null }, oyuncu = false): DunyaSorgusu {
   return {
     H: Hw,
     surf: (x, z) => {
@@ -53,13 +53,19 @@ export function dunyaSorgusuYap(b: { cur: Bolge | null }): DunyaSorgusu {
       }
       return r;
     },
-    yakin: (x, z) => dunya.cols.yakin(x, z),
+    // oyuncu Flying Dutchman fazında katı nesnelerin (ağaç, kaya, direk) içinden geçer; duvarlar (kutu) kalır
+    yakin: (x, z) =>
+      oyuncu && mutantHayalet() ? katiOlmayan(dunya.cols.yakin(x, z)) : dunya.cols.yakin(x, z),
     kutu: () => (yaris.EV ? REG[yaris.EV.reg].box : oyun.CURW.box),
     kerb: (x, z) => (b.cur && b.cur.Hk ? b.cur.Hk(x, z) : 0),
     havaTutusu: () => ortam.g,
     karli: () => ortam.k == "snow",
     yolTuru: () => (b.cur ? b.cur.t : null),
   };
+}
+
+function* katiOlmayan<T extends { t: string }>(l: Iterable<T>) {
+  for (const o of l) if (o.t != "solid") yield o;
 }
 
 const surusKurulumu = (): SurusKurulumu => ({
@@ -76,7 +82,7 @@ const surusKurulumu = (): SurusKurulumu => ({
 /** yerel oyuncunun aracı: kamera, ses, HUD ve yarış buna bakar */
 export const yerel = aracOrnegiYap(
   {
-    dunya: dunyaSorgusuYap(dunya),
+    dunya: dunyaSorgusuYap(dunya, true),
     kurulum: surusKurulumu(),
     olay: { spin: () => note("SPİN", 40), puf: puff, caliRengi: () => mB.color.getHex() },
     gorselRng: Math.random,
