@@ -63,7 +63,8 @@ export interface Engel {
 export interface BeceriDunyasi {
   oyuncu: Govde;
   hedefler: readonly Hedef[];
-  /** pistte oyuncunun önünde (yol boyunca) enAz–enCok m ilerideki bağlantı noktası; pist yoksa null */
+  /** oyuncunun önünde (yol boyunca) enAz–enCok m ilerideki bağlantı noktası: yarışta pist, serbest sürüşte açık
+   *  dünyanın yol ağı; uygun nokta yoksa null */
   baglanti(enAz: number, enCok: number): [number, number] | null;
   /** yarışta mı (risk/takip yalnız yarışta birikir; serbest sürüşte farm yok) */
   yarista: boolean;
@@ -187,6 +188,8 @@ export interface BeceriTanim {
   basla?(c: BeceriBaglami): void;
   /** tetiklenen skill'in dolum barı (0-1; HUD) */
   bar?(y: BeceriYerel, p: Readonly<Record<string, number>>): number;
+  /** tetiklenen: şu an dolamıyorsa oyuncuya gösterilecek neden (ör. rakip yok); dolabiliyorsa null */
+  dolmaEngeli?(c: BeceriBaglami): BeceriEngeli | null;
   /** etki açıkken koruma/saldırı bayrakları */
   bayrak?(y: BeceriYerel): Partial<Bayraklar>;
   /** her adım */
@@ -276,11 +279,13 @@ function koniHedefi(c: BeceriBaglami, menzil: number, koni: number, ters: boolea
 
 /** pist noktasına kancanın çektiği en yüksek oyuncu hızı (m/s; üstünde çekiş yok) */
 export const KANCA_HIZ_UST = 50;
+/** yol noktasına bu kadar (m) yaklaşınca halat ilerideki noktaya kayar */
+export const KANCA_KAYMA = 14;
 
 export const GRAPPLING_HOOK: BeceriTanim = {
   id: "grappling-hook",
   ad: "Grappling Hook",
-  d: "Öndeki rakibe kanca atar: sen ona doğru çekilirsin, o yavaşlar. Rakip yoksa pistte ilerideki bir noktaya tutunur.",
+  d: "Öndeki rakibe kanca atar: sen ona doğru çekilirsin, o yavaşlar. Rakip yoksa yolda ilerideki bir noktaya tutunup seni öne çeker (yarışta pist, açık dünyada asfalt yol).",
   tur: "aktif",
   etiketler: ["hareket", "kontrol", "konum"],
   maliyet: 25,
@@ -299,7 +304,8 @@ export const GRAPPLING_HOOK: BeceriTanim = {
   kullanilabilir(c) {
     const ters = c.o.evrim == "ters-kanca";
     if (koniHedefi(c, c.p.menzil, ters ? 0.6 : 0.45, ters)) return true;
-    return !ters && c.dunya.yarista && !!c.dunya.baglanti(c.p.menzil * 0.6, c.p.menzil);
+    // rakip yoksa yarışta pistin, serbest sürüşte yol ağının ilerideki bir noktasına tutunur
+    return !ters && !!c.dunya.baglanti(c.p.menzil * 0.6, c.p.menzil);
   },
   basla(c) {
     const ters = c.o.evrim == "ters-kanca";
@@ -315,9 +321,19 @@ export const GRAPPLING_HOOK: BeceriTanim = {
       H = c.y.hedef ? c.dunya.hedefler.find((h) => h.id == c.y.hedef) : null,
       hedefNokta = H ? [H.x, H.z] : c.y.nokta;
     if (!hedefNokta) return void (c.y.kalan = 0);
-    const dx = hedefNokta[0] - P.x,
+    let dx = hedefNokta[0] - P.x,
       dz = hedefNokta[1] - P.z,
       d = Math.hypot(dx, dz);
+    // yol noktasına yaklaşınca halat ilerideki noktaya kayar: hızlıyken çekiş sürenin sonuna dek sürer (eskiden
+    // 100 km/sa'te 0,6 sn'de kopuyordu). Nokta yine yalnız ileride ve menzilde; ışınlanma yok
+    if (!H && d < KANCA_KAYMA) {
+      const n = c.dunya.baglanti(c.p.menzil * 0.6, c.p.menzil);
+      if (!n) return void (c.y.kalan = 0);
+      c.y.nokta = n;
+      dx = n[0] - P.x;
+      dz = n[1] - P.z;
+      d = Math.hypot(dx, dz);
+    }
     // kanca kopar: çok yaklaştı ya da menzilden çok uzaklaştı
     if (d < 7 || d > c.p.menzil * 1.3) return void (c.y.kalan = 0);
     const ux = dx / d,
@@ -343,9 +359,11 @@ export const FLYING_DUTCHMAN: BeceriTanim = {
   etiketler: ["savunma", "hareket"],
   maliyet: 30,
   seviyeler: [
-    { sure: 1.5, tutus: 1.12, bekleme: 9 },
-    { sure: 2, tutus: 1.15, bekleme: 8 },
-    { sure: 2.5, tutus: 1.18, bekleme: 7 },
+    // 1,5 sn'lik ilk seviye ölçümde fiziksel iz bırakmıyordu (tutuş ×1,12 yolda ~0 m); faz değeri hasar
+    // bağışıklığı ve görünür hayalet hâli: süre 1 sn uzadı, bekleme de 1 sn uzadı (kullanım payı %14 → %20)
+    { sure: 2.5, tutus: 1.12, bekleme: 10 },
+    { sure: 3, tutus: 1.15, bekleme: 9 },
+    { sure: 3.5, tutus: 1.18, bekleme: 8 },
   ],
   evrimler: [
     {
@@ -372,7 +390,7 @@ export const FLYING_DUTCHMAN: BeceriTanim = {
   },
 };
 
-/** Risk Taker barı: ≥20° kontrollü drift (en az 11 m/s), yakın takip ve near-miss doldurur */
+/** Risk Taker barı: ≥20° kontrollü drift (en az 11 m/s; açık dünyada da), yarışta yakın takip ve near-miss doldurur */
 export const RISK_BAR = {
   driftAci: 0.35,
   driftHiz: 11,
@@ -386,7 +404,7 @@ export const RISK_BAR = {
 export const RISK_TAKER: BeceriTanim = {
   id: "risk-taker",
   ad: "Risk Taker",
-  d: "Yarışta 20° üstü kontrollü drift, yakın takip ve kıl payı geçiş risk barını doldurur. Bar dolunca dönüşürsün: güç ve tutuş artar, arkanda yakan alev izi kalır; rakibe hasar vermek dönüşümü biraz uzatır.",
+  d: "20° üstü kontrollü drift (açık dünyada da), yarışta yakın takip ve kıl payı geçiş risk barını doldurur. Bar dolunca dönüşürsün: güç ve tutuş artar, arkanda yakan alev izi kalır; rakibe hasar vermek dönüşümü biraz uzatır.",
   tur: "tetikli",
   etiketler: ["risk", "hasar", "hareket"],
   bar: (y) => y.deger / RISK_BAR.tam,
@@ -453,6 +471,8 @@ export const SLIPSTREAM_ENGINE: BeceriTanim = {
   tur: "tetikli",
   etiketler: ["hareket"],
   bar: (y, p) => y.deger / p.enCok,
+  // yalnız rakibin arkasında dolar: açık dünyada ve rakipsiz etkinlikte rakip yok
+  dolmaEngeli: (c) => (c.dunya.hedefler.length ? null : "rakip"),
   seviyeler: [
     { enCok: 2, guc: 1.2, bekleme: 3 },
     { enCok: 2.5, guc: 1.25, bekleme: 3 },
@@ -574,6 +594,32 @@ export function bayraklar(d: BeceriDurumu, takili: readonly BeceriOrnegi[]): Bay
 
 const SALDIRI_ETIKETI: readonly Etiket[] = ["saldiri", "konum"];
 
+/**
+ * skill şimdi neden kullanılamıyor / dolmuyor (HUD; enerji ayrıca). null: hazır (aktif) ya da doluyor (tetikli).
+ * etkin: etki sürüyor · bekleme: etki sonrası bekleme · faz: hayalet fazında saldırı/konum skill'i kapalı ·
+ * hedef: menzilde rakip ya da yol noktası yok · rakip: tetikli skill rakip olmadan dolmaz
+ */
+export type BeceriEngeli = "etkin" | "bekleme" | "faz" | "hedef" | "rakip";
+
+export function beceriEngeli(
+  d: BeceriDurumu,
+  takili: readonly BeceriOrnegi[],
+  dunya: BeceriDunyasi,
+  id: string,
+): BeceriEngeli | null {
+  const o = takiliBeceriler(takili).find((q) => q.id == id),
+    t = o && beceriBul(o.id);
+  if (!o || !t) return null;
+  const y = d.yerel[o.id] ?? yerelBaslat();
+  if (y.kalan > 0) return "etkin";
+  if (y.bekleme > 0) return "bekleme";
+  const b = bayraklar(d, takili),
+    c = () => baglamYap(d, t, o, y, dunya, 0, [], b, bosCikti(), [], []);
+  if (t.tur == "tetikli") return t.dolmaEngeli?.(c()) ?? null;
+  if (b.saldiriKapali && t.etiketler.some((e) => SALDIRI_ETIKETI.includes(e))) return "faz";
+  return t.kullanilabilir && !t.kullanilabilir(c()) ? "hedef" : null;
+}
+
 /** skill'in tuşu şimdi çalışır mı (etki/bekleme yok, saldırı kapalı değil, hedef var). Enerji ayrıca denetlenir */
 export function beceriHazir(
   d: BeceriDurumu,
@@ -581,14 +627,8 @@ export function beceriHazir(
   dunya: BeceriDunyasi,
   id: string,
 ): boolean {
-  const o = takiliBeceriler(takili).find((q) => q.id == id),
-    t = o && beceriBul(o.id);
-  if (!o || !t || t.tur != "aktif") return false;
-  const y = d.yerel[o.id] ?? yerelBaslat();
-  if (y.kalan > 0 || y.bekleme > 0) return false;
-  const b = bayraklar(d, takili);
-  if (b.saldiriKapali && t.etiketler.some((e) => SALDIRI_ETIKETI.includes(e))) return false;
-  return !t.kullanilabilir || t.kullanilabilir(baglamYap(d, t, o, y, dunya, 0, [], b, bosCikti(), [], []));
+  const o = takiliBeceriler(takili).find((q) => q.id == id);
+  return !!o && beceriBul(o.id)!.tur == "aktif" && beceriEngeli(d, takili, dunya, id) == null;
 }
 
 /** tuş istekleri → mekanik yürütücüsüne gidecek yetenek kimlikleri (hazır olmayan istek enerji harcamaz) */

@@ -26,8 +26,24 @@ export const NITRO: MekanikTanim = {
   kazancBirimi: "olay",
   etki: { tutus: 1, guc: 1.6, sure: 2.5, sonraBekleme: 4 },
 };
-/** koşu başında enerji: bir nitroluk (kaynak perki olmadan tekrar dolmaz) */
+/** koşu başında enerji: bir nitroluk */
 export const BASLANGIC_ENERJI = 40;
+/**
+ * temel sürüş enerjisi (LT-SYS-005): her koşuda takılı, kontrollü driftte (≥ 20°, ≥ 11 m/s) saniyede 2,5. Önceden
+ * kaynak perki olmayan koşuda enerji hiç dolmuyordu: ilk seçimde skill alan oyuncu bir iki kullanımdan sonra skill'ini
+ * bütün koşu boyunca kullanamıyordu. Kaynak perkleri bunun üstüne eklenir (Drift Hasadı 6/sn ayrı).
+ */
+export const SURUS_ENERJISI: MekanikTanim = {
+  id: "surus-enerjisi",
+  versiyon: 1,
+  kategori: "passive",
+  tetik: "DriftTickQualified",
+  kosul: { enAzHiz: 11, enAzAci: 0.35 },
+  maliyet: 0,
+  beklemeAdimi: 0,
+  kazanc: 2.5,
+  kazancBirimi: "saniye",
+};
 
 const pasif = (id: string, ek: Partial<MekanikTanim>): MekanikTanim => ({
   id,
