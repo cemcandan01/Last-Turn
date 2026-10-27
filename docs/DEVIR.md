@@ -1,9 +1,10 @@
-# Son devir: MUTANT A3 ilk YZ rakip (issue #22) — 0.8.6 PR
+# Son devir: MUTANT A3 ilk YZ rakip (issue #22) — 0.8.6 denemede
 
 - Claude / claude/mutant-a3-rakip (taban gelistirme 9f92589, PR #24 dahil). Kart docs/isler/LT-SYS-003-a3-rakip-yz.md; ölçüm docs/denge/2026-10-27-rakip-olcum.json.
 - Bölge 1 asfalt etkinliği = Yeşil Vadi'de 2 turluk düello; tek YZ rakip (src/yz: çizgi/hız planı, kişilik, pilot, yarışçı; oyun bağı oyun/rakip.ts) oyuncunun stok başlangıç aracıyla, aynı fizikte yalnız gaz/fren/direksiyonla. Güvenli→Çaylak, Riskli→Deneyimli. Çarpışma yok; ışınlanma/rubber-band yok.
 - Yerel: kontrol temiz, npm test 376/376, alan mutant 11/11 + hud 4/4. Ölçüm: 50/50 düello bitti, 0 takılma/pist dışı/spin; deneyimli 44,0 / çaylak 49,0 sn uçan tur; tohum tekrarı birebir; sert taşma 16/20 (açık soru: rakibe pist dışı dönüş kuralı). iPhone 13 gerçek cihazda ölçülmedi.
-- Sonraki tek adım: CI + /dev/ 0.8.6; Cem kartlardaki deneme kabul kriterleriyle oynasın. Sonra issue #25 ya da geçiş/savunma taktiği (Cem'in sırası).
+- PR #26 birleşti (gelistirme 3cf10af; kaynak 82727a7). Denetim 40427125277 + 40427117424 başarılı (ilk koşu 40426397044 MUTANT e2e NİTRO beklemesi yavaş CI'da kaldı, 82727a7'de sağlamlaştı). Yayın 40427799983 (derleme, /dev/ yayını, adres kontrolü) başarılı. Canlı 0.7.8 değişmedi.
+- Sonraki tek adım: Cem /dev/ 0.8.6'da kart/PR'daki 5 deneme kabul kriteriyle oynasın; sonra issue #25 ya da geçiş/savunma taktiği (Cem'in sırası).
 
 ## Önceki iş: MUTANT A2 (issue #19) 0.8.5 denemede
 
