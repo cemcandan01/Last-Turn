@@ -1,4 +1,11 @@
-# Son devir: MUTANT A2 (issue #19) 0.8.5 denemede
+# Son devir: MUTANT A3 ilk YZ rakip (issue #22) — 0.8.6 PR
+
+- Claude / claude/mutant-a3-rakip (taban gelistirme 9f92589, PR #24 dahil). Kart docs/isler/LT-SYS-003-a3-rakip-yz.md; ölçüm docs/denge/2026-10-27-rakip-olcum.json.
+- Bölge 1 asfalt etkinliği = Yeşil Vadi'de 2 turluk düello; tek YZ rakip (src/yz: çizgi/hız planı, kişilik, pilot, yarışçı; oyun bağı oyun/rakip.ts) oyuncunun stok başlangıç aracıyla, aynı fizikte yalnız gaz/fren/direksiyonla. Güvenli→Çaylak, Riskli→Deneyimli. Çarpışma yok; ışınlanma/rubber-band yok.
+- Yerel: kontrol temiz, npm test 376/376, alan mutant 11/11 + hud 4/4. Ölçüm: 50/50 düello bitti, 0 takılma/pist dışı/spin; deneyimli 44,0 / çaylak 49,0 sn uçan tur; tohum tekrarı birebir; sert taşma 16/20 (açık soru: rakibe pist dışı dönüş kuralı). iPhone 13 gerçek cihazda ölçülmedi.
+- Sonraki tek adım: CI + /dev/ 0.8.6; Cem kartlardaki deneme kabul kriterleriyle oynasın. Sonra issue #25 ya da geçiş/savunma taktiği (Cem'in sırası).
+
+## Önceki iş: MUTANT A2 (issue #19) 0.8.5 denemede
 
 - Claude / claude/mutant-a2 (taban gelistirme 68b3da9). Kart docs/isler/LT-SYS-002-mutant-roguelite-tasarim.md §10; ölçümler docs/denge/2026-10-26-mutant-olcum-yagmur.json, -nitro-*.json, -nitro-ozet.txt.
 - Nitro (NİTRO tuşu/N: 40 enerji, güç ×1,6, 2,5 sn, 4 sn soğuma), ortak olaylar HasarAlindi/RiskBasladi, sistemik güçler (Çarpışma Pili, Risk Kondansatörü, Nitro kalkanı), eklenti sandıkları (2 normal + 1 lanetli/bölge), nitro hissi (FOV, alev, ses), salt okunur mutantDurumu() (Codex HUD PR #20 için), yağmurlu boss referansı (yalnız Plaj Kros).

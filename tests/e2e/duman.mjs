@@ -49,6 +49,7 @@ const BOLUMLER = [
   "menu-magaza",
   "hesap-formu",
   "mutant",
+  "rakip",
   "cihaz-dogrulama",
   "cihaz-menu",
   "cihaz-garaj",

@@ -64,8 +64,8 @@ export default async function ({ p, ok }) {
       k.etkinlikler.length == 8 &&
       document.querySelector("#hName").textContent.startsWith("MUTANT") &&
       document.querySelector("#ev").textContent.includes("BOSS");
-    // etkinlik işaretine dur: kart
-    const e = k.etkinlikler[0],
+    // etkinlik işaretine dur: kart (düello ayrı bölümde: tests/e2e/bolumler/rakip.mjs)
+    const e = k.etkinlikler.find((q) => !q.rakip),
       ilerleme = localStorage.getItem("lt_ilerleme"),
       p0 = k.para;
     LT.reset(e.x, e.z, 0);

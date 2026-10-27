@@ -16,6 +16,7 @@ import { I, tilt } from "../oyun/girdi";
 import { ikon } from "./ikonlar";
 import { LAP, sim } from "../oyun/surus";
 import { yaris } from "../oyun/yarislar";
+import { rakipSirasi } from "../oyun/rakip";
 import { mutantBaslik, mutantPaneli, mutantTusuGuncelle } from "./mutant-ui";
 
 /** sahte vitesli devir göstergesi: hızdan vites ve devir (x1000) */
@@ -113,14 +114,19 @@ function olayPaneli(): [string, string] {
         KRONO + EV.t.toFixed(2),
         "Hedef " + EV.limit.toFixed(1) + " sn · %" + Math.round((100 * ipucu.ti) / (EV.TR.N - 1)) + asim,
       ];
+    // düello: hedef yerine sıra ve rakiple fark (pist boyunca metre)
+    const rs = rakipSirasi(EV.lap, ipucu.ti, !!EV.armed);
     return [
       KRONO + fmt(EV.t),
       (EV.laps
         ? "Tur " + Math.min(EV.lap + 1, EV.laps) + "/" + EV.laps
         : "%" + Math.round((100 * ipucu.ti) / EV.TR.N)) +
-        " · Hedef " +
-        fmt(EV.limit) +
-        asim,
+        (rs
+          ? " · " +
+            rs.sira +
+            "." +
+            (rs.bitti ? " · Rakip bitirdi" : " · " + Math.round(Math.abs(rs.fark)) + " m")
+          : " · Hedef " + fmt(EV.limit) + asim),
     ];
   }
   const mp = mutantPaneli();

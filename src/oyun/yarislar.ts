@@ -16,6 +16,8 @@ import { girdiSifirla } from "./girdi";
 import { MUTANT_REFERANS, MUTANT_REFERANS_YAGMUR } from "./mutant-denge";
 import {
   mutantYarisAyari,
+  mutantRakibi,
+  mutantYarisKaynagi,
   mutantKapat,
   mutantKurulumUygula,
   mutantPistKaynagi,
@@ -29,6 +31,7 @@ import { hayaletKaydet } from "./hayalet-kayit";
 import { PROF, saveProf } from "./profil";
 import { dunyaSorgusuYap, kayitKurulumu, kayitHavasi, reset, sim, yerel } from "./surus";
 import { rekorHayaletiBaslat, rekorHayaletiDurdur } from "./uzak";
+import { rakibiGecti, rakipBaslat, rakipDurdur } from "./rakip";
 import { X6_CARPAN, X6_ORAN, driftAdimi, driftBankala, tersAdimi, type DriftOlay } from "./yaris-kurallari";
 import { bosPistDisi, pistDisiAdimi, type DonusNoktasi, type PistDisiSayaci } from "./piste-donus";
 import { DRIFT_REKOR_ON_EKI, DRIFT_TUR, TUR_ANAHTARI, yildizEsikleri, yildizSay } from "./yildiz";
@@ -175,11 +178,14 @@ export const EVENTS: YarisTanimi[] = REG.filter((r) => r.t != "park").map((r, i)
 
 export const yaris = { EV: null as Yaris | null };
 
+mutantYarisKaynagi(() => (yaris.EV ? { lap: yaris.EV.lap, ti: ipucu.ti, kurulu: !!yaris.EV.armed } : null));
+
 mutantPistKaynagi(() =>
   EVENTS.map((e, i) => ({
     i,
     ty: e.ty,
     sev: e.sev,
+    lv: e.lv,
     ys: e.ys,
     laps: e.laps,
     ref: MUTANT_REFERANS[e.ty + "_" + e.lv],
@@ -260,6 +266,10 @@ export function startEvent(i: number, ci?: number, mutantEtkinligi = false) {
     limit: e.limit || 0,
     ...(mutantEtkinligi ? mutantYarisAyari(i) : {}),
   };
+  // MUTANT düellosu: oyuncunun yanına YZ rakip (yeniden başlatmada da aynı tohumla baştan)
+  const r = mutantEtkinligi ? mutantRakibi() : null;
+  if (r) rakipBaslat(yaris.EV, r);
+  else rakipDurdur();
   if (!mutantEtkinligi) rekorHayaletiBaslat(e.k, dunyaSorgusuYap({ cur: null }));
   return true;
 }
@@ -293,6 +303,7 @@ export function leaveEvent() {
   if (CARS[sv.car] !== oyun.CAR) setCar(sv.car);
   kurulumYukle(sv);
   rekorHayaletiDurdur();
+  rakipDurdur();
   yaris.EV = null;
   goster("#ts");
   $("#ev").textContent = "";
@@ -382,7 +393,14 @@ export function endEvent() {
     // MUTANT: kariyer ödülü, yıldız, rekor ve hayalet yok; sonuç koşuya
     girdiSifirla();
     gizle("#ctl");
-    mutantYarisBitti(EV.ty == "dp" ? EV.score > 0 && EV.score >= EV.limit : EV.t <= EV.limit);
+    // düelloda hedef rakipten önce bitirmek; diğer etkinliklerde süre/puan hedefi
+    mutantYarisBitti(
+      mutantRakibi()
+        ? rakibiGecti(EV.t)
+        : EV.ty == "dp"
+          ? EV.score > 0 && EV.score >= EV.limit
+          : EV.t <= EV.limit,
+    );
     return;
   }
   PROF.races++;

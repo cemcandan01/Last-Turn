@@ -145,3 +145,12 @@ Her sayı değişikliği için önce/sonra fiyat, edinme dakikası, puan ve ger�
 5. **Koruma:** veri sözleşmesi/ölçüm raporu CI kontrolü; yeni içerik görevlerinin bu belgeye bağlanması; deneme yayını ve kullanıcı geri bildirimi, ardından onaylı regresyon/canlı.
 
 Bu araştırmanın bitmesi 1–5'in uygulandığı anlamına gelmez. Sonraki somut iş, mevcut sayıları körlemesine değiştirmek yerine ilk D kupası üzerinde iki yatırım rotasının ve üç yıldız basamağının birlikte doğrulandığı ölçülebilir örnektir.
+
+## 11. Rakip YZ (MUTANT A3) kalibrasyonu
+
+Rakip yalnız sürüş kararı verir; araç, lastik ve yardım seviyesi oyuncunun başlangıç aracının **stok** hâlidir. Bu yüzden zorluğu fiyat/ödül değil, pilotun fiziksel kararları belirler: virajda kullandığı yanal ivme, fren noktası, pist kenarına bıraktığı pay, viraj başına tutarlılık. Rubber-band, gizli güç/tutuş, oyuncuya göre hız ayarı yoktur; oyuncu öne geçince rakip hızlanmaz, geride kalınca yavaşlamaz.
+
+- **Rol:** bölge 1 düellosu (Yeşil Vadi, 2 tur). Güvenli kademe Çaylak, Riskli kademe Deneyimli; ödül/ceza mevcut `RISKLER` (ekonomi değişmedi).
+- **Hedef tempo:** pistin tur başına yıldız eşikleri 1★ 53,8 / 2★ 46,7 / 3★ 43,0 sn. Çaylak 1★–2★ arası, Deneyimli 2★–3★ arası. Oyuncunun aynı araçta parça/pasif/nitro avantajı vardır; ölçüm insan başarısını kanıtlamaz, Cem'in telefon denemesiyle ayarlanır.
+- **Ölçüm:** `npm run olcum -- rakip` → `docs/denge/2026-10-27-rakip-olcum.json` (5 başlangıç aracı × 2 kişilik × 5 tohum; zorlanma; yardım seviyeleri; iki YZ yan yana; işlemci maliyeti). Kişilik ya da fizik/araç/lastik değişince yenilenir.
+- **Sonraki kişilik/boss:** yeni davranış önce bu ölçüme bir satır ekler (rol, hedef tempo, hata oranı); boss farkı yalnız süre/hedef değil gözlenebilir davranış (ör. savunma çizgisi, geç fren) olarak tanımlanır.

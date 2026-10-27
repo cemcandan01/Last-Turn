@@ -21,9 +21,9 @@ import { sim, yerel } from "./surus";
 
 export const uzak = { araclar: [] as UzakArac[] };
 
-export function uzakAracEkle(id: string, arac: number): UzakArac {
+export function uzakAracEkle(id: string, arac: number, gecikme?: number): UzakArac {
   uzakAracSil(id);
-  const u = uzakAracYap(id, arac);
+  const u = uzakAracYap(id, arac, gecikme);
   uzak.araclar.push(u);
   return u;
 }
