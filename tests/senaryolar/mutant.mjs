@@ -49,6 +49,12 @@ export default [
     birim: { dosya: "tests/birim/mutant.test.ts", grup: "MUTANT A2: nitro ve sistemik güçler" },
   },
   {
+    id: "mutant-drift-tanisi",
+    ad: "DEV drift tanısı: stok/modifiye eşikleri, giriş hazırlığı, karşı direksiyon ve spin sınırı salt okunur",
+    p: 1,
+    birim: { dosya: "tests/birim/mutant-drift-tani.test.ts", grup: "MUTANT DEV drift tanısı" },
+  },
+  {
     id: "mutant-drift-laboratuvari",
     ad: "MUTANT yarışa özel drift: açı girişi, modifiye açı tavanı, spin sınırı, test modu ve laboratuvar yalıtımı",
     p: 1,

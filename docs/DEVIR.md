@@ -1,3 +1,10 @@
+# Son Codex işi: 0.8.13 MUTANT DEV drift ölçümü — PR #33
+
+- **Sahip:** Codex; dal `codex/mutant-drift-telemetri`; görev `docs/isler/LT-SYS-007-mutant-dev-drift-tanisi.md`; PR [#33](https://github.com/cemcandan01/Last-Turn/pull/33).
+- **Kapsam:** Fizik değiştirmeden DEV drift yarışında giriş açısı, kontrol edilebilir açı, karşı direksiyon, hazırlık ve spin soğuması görünür; DEV atölyesinden aç/kapat. Normal HUD'da drift açısı gösterilmez.
+- **Test:** Hedefli birim + Playwright başarılı (GitHub Actions 40720719293); tam MUTANT alanı, tip/lint/biçim başarılı (40721212555). iPhone gerçek sürüş hissi ve görsel uyum manuel test gerektirir.
+- **Sınırlar:** Normal MUTANT, kariyer drift, serbest sürüş ve `master` aynı. **Sonraki tek adım:** iPhone'da stok araç ile drift paketli aynı aracın giriş/limit ve kontrol hissini karşılaştır.
+
 # Son devir: 0.8.12 denemede — MUTANT drift yarışında her araç drift yapabilir
 
 - Claude / gelistirme. Cem: her araç drift yarışında drift yapabilmeli; driftte kalmak upgrade'le kolaylaşmalı, uygunsuz araçta zor ama mümkün. Kart LT-SYS-006 Revize 2; ölçüm `docs/denge/2026-10-28-mutant-drift-tutma.md`.
