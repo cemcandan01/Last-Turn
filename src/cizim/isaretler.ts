@@ -9,6 +9,8 @@ export interface Isaret {
   renk: number;
   /** sütun yüksekliği (m); boss daha uzun */
   boy?: number;
+  /** Oyuncunun haritada keşfedeceği 3B sandık: ışık sütunu ve tabela çizilmez. */
+  sandik?: boolean;
   /** Her tür haritaya gitmeden okunabilsin: renk tek başına kimlik değildir. */
   etiket?: string;
 }
@@ -78,10 +80,44 @@ const renkYazisi = new Map<number, string>([
   [0xff3cc8, "LANETLİ"],
 ]);
 
+/** Tekrar kullanılan düşük poligonlu sandık. Çevrede ışıktan kule veya etiket üretmez. */
+const sandikAlt = new THREE.BoxGeometry(3.2, 1.2, 2.2),
+  sandikKapak = new THREE.BoxGeometry(3.45, 0.5, 2.45),
+  sandikSerit = new THREE.BoxGeometry(0.35, 1.85, 2.5),
+  sandikKilit = new THREE.BoxGeometry(0.65, 0.6, 0.15),
+  sandikAhsap = new THREE.MeshStandardMaterial({ color: 0x51301c, roughness: 0.85 }),
+  sandikKilitli = new Map<number, THREE.MeshStandardMaterial>();
+function sandikCiz(x: number, y: number, z: number, renk: number) {
+  const g = new THREE.Group();
+  let m = sandikKilitli.get(renk);
+  if (!m) {
+    m = new THREE.MeshStandardMaterial({ color: renk, metalness: 0.7, roughness: 0.32 });
+    sandikKilitli.set(renk, m);
+  }
+  const alt = new THREE.Mesh(sandikAlt, sandikAhsap);
+  alt.position.y = 0.85;
+  const kapak = new THREE.Mesh(sandikKapak, sandikAhsap);
+  kapak.position.y = 1.68;
+  const sol = new THREE.Mesh(sandikSerit, m);
+  sol.position.set(-1.1, 1.05, 0);
+  const sag = new THREE.Mesh(sandikSerit, m);
+  sag.position.set(1.1, 1.05, 0);
+  const kilit = new THREE.Mesh(sandikKilit, m);
+  kilit.position.set(0, 1.3, 1.28);
+  g.add(alt, kapak, sol, sag, kilit);
+  g.position.set(x, y + 0.05, z);
+  g.name = "mutant-sandik";
+  return g;
+}
+
 /** işaretleri yeniden kur (boş liste: gizle) */
 export function isaretleriKur(liste: readonly Isaret[], H: (x: number, z: number) => number) {
   grup.clear();
   for (const i of liste) {
+    if (i.sandik) {
+      grup.add(sandikCiz(i.x, H(i.x, i.z), i.z, i.renk));
+      continue;
+    }
     const [ms, mh] = malzeme(i.renk),
       boy = i.boy ?? 70,
       y = H(i.x, i.z);
