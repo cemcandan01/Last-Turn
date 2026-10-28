@@ -820,7 +820,7 @@ function driftDevGuncelle() {
   const ipucu = el.querySelector<HTMLElement>("#mdtIpucu");
   const dolum = el.querySelector<HTMLElement>("#mdtDolum");
   if (baslik) baslik.textContent = t.mesaj;
-  if (acilar) acilar.textContent = `AÇI ${t.aci}° · GİR ${t.giris}° · SIN ${t.azami}°`;
+  if (acilar) acilar.textContent = `AÇI ${t.aci}° · GİR ${t.giris}° · KONT ${t.azami}°`;
   if (ipucu) ipucu.textContent = t.ipucu;
   if (dolum) dolum.style.width = t.ilerleme + "%";
 }
