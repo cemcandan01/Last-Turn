@@ -634,6 +634,25 @@ export function testKurulumu(k: Kosu, tur: "pasif" | "beceri" | "parca", id: str
   return true;
 }
 
+/** Deneme atölyesinde kurulumun sıfırdan karşılaştırılması: sadece test koşusunda kullanılabilir. */
+export function testKurulumunuSifirla(k: Kosu): boolean {
+  if (!k.test || k.faz != "surus") return false;
+  k.pasifler = [];
+  k.parcalar = [];
+  k.beceriler = [];
+  k.mek = mekanikBaslat(100, BASLANGIC_ENERJI);
+  k.gozlem = driftGozlemiBaslat();
+  k.bec = beceriDurumuBaslat();
+  k.becCikti = null;
+  k.becEngel = {};
+  k.bekleyenBeceri = [];
+  k.bekleyenHasar = null;
+  k.bekleyenRisk = null;
+  k.govde = GOVDE.tam;
+  k.pert = false;
+  return true;
+}
+
 /** Testte istediği bölgeye geç; normal ilerleme yalnız boss zaferiyle mümkündür. */
 export function testBolgeyeGec(k: Kosu, bolge: number, pistler: readonly PistAdayi[]): boolean {
   if (!k.test || bolge < 1 || bolge > 3 || bolge < k.bolge) return false;
