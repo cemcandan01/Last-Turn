@@ -1,3 +1,9 @@
+# Son devir: 0.8.17 denemede — DEV panelinden Kule Şehri'ne doğrudan geçiş
+
+- Claude / claude/mutant-sehir-dev. DEV atölyesinde "KULE ŞEHRİ'NE GİT" (bölge 2, şehrin girişi, sürüş). Kovalamaca rakibi pist boyunca 45 m önde (aralıklı e2e kalışı düzeldi).
+- Yerel: kontrol temiz, npm test geçti, alan mutant 26/26 (iki koşu).
+- Sonraki tek adım: Cem /dev/?mutantTest=1 → DEV → Kule Şehri'ne git.
+
 # Son devir: 0.8.16 denemede — MUTANT Kule Şehri: sokak yarışları, Volt Kanat, kanca sarkacı (LT-SYS-008)
 
 - Claude / claude/mutant-sehir (taban gelistirme 17b6828). Kart `docs/isler/LT-SYS-008-mutant-sehir.md`; ölçüm `docs/denge/2026-10-28-mutant-sokak-olcum.md`.
