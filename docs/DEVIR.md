@@ -1,4 +1,11 @@
-# Son devir: 0.8.11 denemede — MUTANT drift yarışında yön kilidi düzeltmesi
+# Son devir: 0.8.12 denemede — MUTANT drift yarışında her araç drift yapabilir
+
+- Claude / gelistirme. Cem: her araç drift yarışında drift yapabilmeli; driftte kalmak upgrade'le kolaylaşmalı, uygunsuz araçta zor ama mümkün. Kart LT-SYS-006 Revize 2; ölçüm `docs/denge/2026-10-28-mutant-drift-tutma.md`.
+- `src/fizik/ortak.ts` (yalnız `driftYarisi`): tam direksiyon + gaz tutma girişi (`zorlama`), destek gücü drift uygunluğuna bağlı (`destek`). Kariyer/serbest sürüş değişmedi (kariyer testi geçti).
+- Yerel: kontrol temiz (2 eski uyarı), npm test 435/435, alan mutant 21/21. Açık: güçlü dört çeker ralli araçları stokta kolay; cihazda his.
+- Sonraki tek adım: Cem /dev/ 0.8.12'de uygunsuz bir araçla (ör. Gümüş Serçe, Haki Keçi) stok ve drift paketli drifti karşılaştırsın.
+
+# Önceki devir: 0.8.11 denemede — MUTANT drift yarışında yön kilidi düzeltmesi
 
 - Claude / gelistirme. Cem: "drifte girdikten sonra yön değiştiremiyorum, araba o açıda sabitleniyor". Neden: `driftPenceresi` yarış dalında hedef açı `giris` altına inemiyor, drift yönü girişte kilitleniyordu; yardım direksiyonu bu açıya çekiyordu. Düzeltme (`src/fizik/ortak.ts`, yalnız `driftYarisi`): alt sınır 0, `bt < giris/2` drifti bitirir, kıç öbür yana geçince yön döner. Kariyer/serbest sürüş değişmedi.
 - Test: `mutant-drift-test.test.ts` tam fizikle ters direksiyon senaryosu (düzeltmesiz kalıyor, düzeltmeyle geçiyor). npm test 434/434, alan mutant 21/21. Açık: cihazda his; açı/yardım dengesi ölçülmedi.

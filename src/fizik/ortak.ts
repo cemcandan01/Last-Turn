@@ -45,10 +45,15 @@ export function driftYarisProfili(K: FizikBaglami["kurulum"]) {
     0.3 * pay(c.dmax ?? 0.8, 0.55, 1.06) +
     0.15 * (1 - cl(c.awd, 0, 1)) +
     0.1 * pay(K.as.ini ?? 0, 0, 1);
+  // Driftte kalma kolaylığı: drifte uygun araç/parça yardımı güçlü tutar, uygunsuz araçta denge daha çok oyuncuda.
+  const kontrol = cl((derece - 19) / 36, 0, 1);
   return {
     giris: (cl(17 - 7 * girisYatkini, 9, 17) * Math.PI) / 180,
     hazirlik: 0.2 - 0.1 * girisYatkini,
     azami: (cl(derece, 22, 58) * Math.PI) / 180,
+    // Kayma eşiğine ulaşamayan araç (dört çeker, güçsüz) tam direksiyon + gazı bu süre tutarak kıçı kaydırır.
+    zorlama: 0.25 + 0.35 * (1 - girisYatkini),
+    destek: 0.3 + 0.7 * Math.pow(kontrol, 1.5),
   };
 }
 
@@ -75,15 +80,21 @@ export function driftPenceresi(
     const p = driftYarisProfili(K);
     if (!S.air) {
       if (!DR.on && DR.cool <= 0) {
-        // Gaz ve lastik kaymasıyla giriş. Düşük güçlü, dört çeker araçlarda da ulaşılabilir.
+        // Gaz ve lastik kaymasıyla giriş; kayamayan her araç tam direksiyon + gazı tutarak da girer.
         DR.nc = ab >= p.giris && v >= 7 && gi.g > 0.2 ? DR.nc + dt : 0;
+        DR.hold = Math.abs(st) > 0.6 && gi.g > 0.5 && v >= 10 ? DR.hold + dt : 0;
         if (DR.nc >= p.hazirlik) {
           DR.on = 1;
           DR.t = 0;
-          DR.nc = 0;
           DR.dir = -Math.sign(be);
           DR.bt = cl(ab, p.giris, p.azami);
+        } else if (DR.hold >= p.zorlama) {
+          DR.on = 1;
+          DR.t = 0;
+          DR.dir = Math.sign(st);
+          DR.bt = p.giris;
         }
+        if (DR.on) DR.nc = DR.hold = 0;
       } else if (DR.on) {
         DR.t += dt;
         // Kıç öbür yana savrulduysa (geçiş) drift o yönde sürer; yön ilk girişe kilitli kalmaz.
@@ -103,10 +114,10 @@ export function driftPenceresi(
           DR.cool = 0.9;
           DR.nc = 0;
           cx.olay.spin();
-        } else if (v < 5 || DR.bt < p.giris * 0.5 || (ab < p.giris * 0.6 && DR.t > 0.2)) DR.on = 0;
+        } else if (v < 5 || DR.bt < p.giris * 0.5 || (ab < p.giris * 0.6 && DR.t > 0.6)) DR.on = 0;
       }
     } else DR.on = 0;
-    DR.k += ((DR.on ? 1 : 0) - DR.k) * Math.min(1, dt * (DR.on ? 7 : 3));
+    DR.k += ((DR.on ? p.destek : 0) - DR.k) * Math.min(1, dt * (DR.on ? 7 : 3));
     return;
   }
   if (!S.air) {

@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { CARS } from "../../src/arac/araclar";
+import { cl } from "../../src/cekirdek/matematik";
 import { driftPenceresi, driftSiniri, driftSkoru, driftYarisProfili } from "../../src/fizik/ortak";
-import type { FizikBaglami, FizikGirdisi, SimDurumu, SurusKurulumu } from "../../src/fizik/tipler";
+import type {
+  DunyaSorgusu,
+  FizikBaglami,
+  FizikGirdisi,
+  SimDurumu,
+  SurusKurulumu,
+} from "../../src/fizik/tipler";
 import {
   BOSS_SURESI,
   kosuBaslat,
@@ -30,7 +37,80 @@ const sim = () =>
 
 const gi = { g: 0.8, b: 0, tg: 0.4, analogDireksiyon: true, analogGaz: true } as FizikGirdisi;
 
+// Düz asfalt: duvarsız, pistten bağımsız drift tutma ölçümü
+const DUZ: DunyaSorgusu = {
+  H: () => 0,
+  surf: () => 1,
+  yakin: () => [],
+  kutu: () => [-1e5, 1e5, -1e5, 1e5],
+  kerb: () => 0,
+  havaTutusu: () => 1,
+  karli: () => false,
+  yolTuru: () => "dp",
+};
+// Drift paketi + önerilen arkadan itiş (dört çekerde paketin önerisi)
+const DRIFT_PAKETI = ["lastik-drift", "diferansiyel-kilitli", "aci-kiti", "suspansiyon-drift", "cekis-arka"];
+
+/** düz zeminde hızlan, tam direksiyon + gazla gir, 0,2 sn gecikmeli tuşla 25° drifti tut: driftte geçen pay */
+function driftTut(arac: number, parca: readonly string[]) {
+  const s = surucuKur({ dunya: 1, arac, lk: "norm", parca });
+  s.cx.dunya = DUZ;
+  s.cx.driftYarisi = true;
+  s.reset(0, 0, 0);
+  const d = s.sim.d,
+    S = s.sim.S,
+    kuyruk: FizikGirdisi[] = [],
+    tus = (tg: number, g: number): FizikGirdisi => ({
+      tg,
+      g,
+      b: 0,
+      analogDireksiyon: false,
+      analogGaz: false,
+    });
+  let girdi = -1,
+    on = 0,
+    hedefte = 0;
+  for (let k = 0; k < 16 * 60; k++) {
+    const t = k / 60,
+      v = Math.hypot(S.vx, S.vz),
+      ab = Math.abs(d.D.beta),
+      u = 2.5 * (0.44 - ab);
+    kuyruk.push(
+      t < 3.5 || (v < 12 && girdi < 0)
+        ? tus(0, v < 17 ? 1 : 0.4)
+        : !d.DR.on
+          ? tus(-1, 1)
+          : tus(d.DR.dir * (u > 0.15 ? 1 : u < -0.15 ? -1 : 0), ab < 0.54 ? 1 : 0),
+    );
+    s.adim(kuyruk.length > 12 ? kuyruk.shift()! : tus(0, 1));
+    if (d.DR.on && girdi < 0) girdi = t;
+    if (girdi >= 0 && t > girdi + 1 && d.DR.on) {
+      on++;
+      if (Math.abs(ab - 0.44) < 0.12) hedefte++;
+    }
+  }
+  const n = cl((16 - girdi - 1) * 60, 1, 1e9);
+  return { girdi, on: on / n, hedefte: hedefte / n };
+}
+
 describe("MUTANT drift yarışı için ayrı çekirdek", () => {
+  it("her araç stok hâliyle drifte girer ve driftte kalabilir; drift paketi uygunsuz araçta tutmayı kolaylaştırır", () => {
+    // Cem 0.8.11: her araç drift yarışında drift yapabilmeli; uygunsuz araçta driftte kalmak zor ama mümkün olmalı.
+    for (let a = 0; a < CARS.length; a++) {
+      const r = driftTut(a, []);
+      expect(r.girdi, CARS[a].n + " drifte giremedi").toBeGreaterThan(0);
+      expect(r.girdi, CARS[a].n).toBeLessThan(5);
+      expect(r.on, CARS[a].n + " driftte kalamıyor").toBeGreaterThan(0.25);
+    }
+    // Drifte uygun olmayan araçlar (güçsüz arkadan itişli, ağır, güçsüz dört çeker): paketle belirgin kolaylaşır.
+    for (const ad of ["Gümüş Serçe", "Kara Boğa", "Turuncu Ejder", "Haki Keçi"]) {
+      const a = CARS.findIndex((c) => c.n == ad),
+        stok = driftTut(a, []),
+        paket = driftTut(a, DRIFT_PAKETI);
+      expect(paket.hedefte, ad).toBeGreaterThan(stok.hedefte + 0.1);
+    }
+  }, 60000);
+
   it("stok ve güçlendirilmiş araçların kontrol açısı gerçekten farklıdır", () => {
     const stok = driftYarisProfili(kurulum());
     const guclu = driftYarisProfili(kurulum(true));
