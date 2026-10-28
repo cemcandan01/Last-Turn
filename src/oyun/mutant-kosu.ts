@@ -242,6 +242,14 @@ export const LANETLER: Record<Lanet, { ad: string; d: string }> = {
 };
 /** bölge başına 2 normal + 1 lanetli sandık. Her biri açıldığında TEK ödül çeker. */
 export const SANDIK_SAYISI = 3;
+/** Bütün benzersiz eklentiler alınmışsa sandık asla boş kalmaz: tekrarlanabilir kaynak ödülleri. */
+export const SANDIK_KAYNAKLARI = [
+  { id: "sandik-para", ad: "Kayıp kasa", d: "Para +180" },
+  { id: "sandik-tamir", ad: "Onarım seti", d: "Gövde +35 (en çok 100)" },
+  { id: "sandik-enerji", ad: "Enerji hücresi", d: "Nitro enerjisi +60" },
+] as const;
+export const sandikOduluBul = (id: string): { ad: string; d: string } | undefined =>
+  pasifBul(id) ?? SANDIK_KAYNAKLARI.find((o) => o.id === id);
 
 export const pasifBul = (id: string): Pasif | undefined =>
   PASIFLER.find((p) => p.id === id) ?? EKLENTILER.find((p) => p.id === id);
@@ -468,12 +476,9 @@ export function sandikTeklifi(k: Kosu, id: number): string | null {
     ...k.sandiklar.filter((q) => !q.acildi && q.incelendi).flatMap((q) => q.secenekler),
   ]);
   const aday = EKLENTILER.filter((e) => e.nadir == s.lanetli && !ayrilan.has(e.id));
-  if (!aday.length) {
-    s.acildi = true;
-    return null;
-  }
   const rastgele = turet(k, 0x53a7d1, k.bolge * 101 + id * 719);
-  const secilen = aday[Math.floor(rastgele() * aday.length)].id;
+  const kaynak = SANDIK_KAYNAKLARI[Math.floor(rastgele() * SANDIK_KAYNAKLARI.length)];
+  const secilen = aday.length ? aday[Math.floor(rastgele() * aday.length)].id : kaynak.id;
   s.secenekler = [secilen];
   return secilen;
 }
@@ -498,10 +503,18 @@ export function sandikAc(k: Kosu, id: number, eklenti: string): boolean {
     k.pasifler.includes(eklenti)
   )
     return false;
+  const kaynak = SANDIK_KAYNAKLARI.find((o) => o.id == eklenti);
+  if (!kaynak && !EKLENTILER.some((o) => o.id == eklenti)) return false;
   s.acildi = true;
-  k.pasifler.push(eklenti);
-  k.mek = kapasiteUygula(k.mek, takiliMekanikler(k));
-  EKLENTILER.find((e) => e.id == eklenti)?.al?.(k);
+  if (kaynak) {
+    if (eklenti == "sandik-para") k.para += 180;
+    else if (eklenti == "sandik-tamir") k.govde = Math.min(GOVDE.tam, k.govde + 35);
+    else if (eklenti == "sandik-enerji") k.mek.enerji = Math.min(k.mek.kapasite, k.mek.enerji + 60);
+  } else {
+    k.pasifler.push(eklenti);
+    k.mek = kapasiteUygula(k.mek, takiliMekanikler(k));
+    EKLENTILER.find((e) => e.id == eklenti)?.al?.(k);
+  }
   if (s.lanet == "sure") k.kalan = Math.max(1, k.kalan - 45);
   else if (s.lanet == "govde") k.govde = Math.max(1, k.govde - 25);
   else if (s.lanet == "para") k.para = Math.floor(k.para / 2);
