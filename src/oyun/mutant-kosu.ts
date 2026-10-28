@@ -1033,6 +1033,11 @@ export function kesmeCezasi(k: Kosu, metre: number): number {
   k.govde = Math.max(0, k.govde - metre * KESME_CEZASI);
   k.kesme = (k.kesme ?? 0) + 1;
   if (k.govde <= 0) {
+    // Testte tekrar tekrar spin ve çarpma denenebilsin; normal permadeath değişmez.
+    if (k.test) {
+      k.govde = GOVDE.tam;
+      return false;
+    }
     k.pert = true;
     k.faz = "bitti";
   }
@@ -1085,7 +1090,7 @@ export function zamanAkis(k: Kosu, dt: number): "boss" | null {
   if (k.faz == "bitti" || k.faz == "boss") return null;
   k.zaman += dt;
   k.kalan = Math.max(0, k.kalan - dt);
-  if (k.kalan <= 0 && !k.sonNefes && pasifSayisi(k, "sonnefes")) {
+  if (!k.test && k.kalan <= 0 && !k.sonNefes && pasifSayisi(k, "sonnefes")) {
     // bir kez: +90 sn, bedeli boss hedefinin %3 sıkılaşması (bossHedefi)
     k.sonNefes = true;
     k.kalan = 90;
