@@ -34,6 +34,11 @@ export default async function ({ p, ok }) {
     res.querySelector("#labEvrim").value = "ters-kanca";
     res.querySelector("#labEk1").value = "sok-bobini";
     tik("#labSkillAl");
+    const olcumKontrol = !!res.querySelector("#labTani");
+    tik("#labTani");
+    const olcumKapali = res.querySelector("#labTani")?.textContent.includes("KAPALI");
+    tik("#labTani");
+    const olcumAcik = res.querySelector("#labTani")?.textContent.includes("AÇIK");
     const kurulum = k.beceriler.some(
       (s) =>
         s.id == "grappling-hook" &&
@@ -46,7 +51,11 @@ export default async function ({ p, ok }) {
     const dev = document.querySelector("#mutantDevPanel");
     const yarista = !!LT.yaris.EV && LT.yaris.EV.ty == "dp" && LT.oyun.mode == "drive";
     const dugme = !!dev && getComputedStyle(dev).display != "none";
+    LT.hudGuncelle(Math.hypot(LT.sim.S.vx, LT.sim.S.vz));
+    const tani = document.querySelector("#mutantDriftTani");
+    const tanilaniyor = !!tani && tani.style.display == "block" && tani.textContent.includes("AÇI") && tani.textContent.includes("GİR");
     if (dev) dev.click();
+    const taniDurdu = tani?.style.display == "none";
     const durdu = LT.oyun.mode == "result" && !!LT.yaris.EV && !!res.querySelector("#labTekrar");
     if (durdu) {
       res.querySelector("#labSeviye").value = "1";
@@ -60,11 +69,12 @@ export default async function ({ p, ok }) {
     const tekrar = !!LT.yaris.EV && LT.yaris.EV.state == "count" && LT.yaris.EV.t == 0;
     LT.showMenu(["home"]);
     history.replaceState(null, "", oncekiAdres);
-    return { menu, kapali, acik, lab, kurulum, yarista, dugme, durdu, canli, devam, tekrar };
+    return { menu, kapali, acik, lab, kurulum, yarista, dugme, durdu, canli, devam, tekrar, olcumKontrol, olcumKapali, olcumAcik, tanilaniyor, taniDurdu };
   });
   ok(r.menu && r.kapali && r.acik, "MUTANT menüsünde DEV modu açılıp kapanır; bütün araçlar görünür");
   ok(r.lab && r.kurulum, "DEV laboratuvarında skill seviye 3, evrim ve eklenti tek seferde ayarlanır");
   ok(r.yarista && r.dugme && r.durdu, "drift yarışı içinde ⚙ DEV düğmesi açılır ve yarışı duraklatır");
+  ok(r.olcumKontrol && r.olcumKapali && r.olcumAcik && r.tanilaniyor && r.taniDurdu, "DEV drift tanısı yalnız yarışta görünür, panel açılınca kapanır, atölyeden aç/kapatılır");
   ok(
     r.canli && r.devam && r.tekrar,
     "skill değişimi canlı uygulanır, aynı yarışa dönülür ve tekrar başlatılır " +
