@@ -38,6 +38,8 @@ import {
   ETKINLIK_ODULU,
   LANETLER,
   sandikAc,
+  sandikTeklifi,
+  sandikReddet,
   etkinlikHedefi,
   RISKLER,
   STOK_YENILE,
@@ -112,9 +114,6 @@ export function mutantIsaretleri(): { x: number; z: number; renk: string }[] {
   if (!k) return [];
   return [
     ...k.etkinlikler.filter((e) => !e.yapildi).map((e) => ({ x: e.x, z: e.z, renk: TUR[e.ty][2] })),
-    ...k.sandiklar
-      .filter((q) => !q.acildi)
-      .map((q) => ({ x: q.x, z: q.z, renk: (q.lanetli ? LANET_RENK : SANDIK_RENK)[1] })),
     { x: ATOLYE[0], z: ATOLYE[1], renk: ATOLYE_RENK[1] },
     { x: BOSS_YERI[0], z: BOSS_YERI[1], renk: BOSS_RENK[1] },
   ];
@@ -127,7 +126,7 @@ function isaretleriGuncelle() {
         ...k.etkinlikler.filter((e) => !e.yapildi).map((e) => ({ x: e.x, z: e.z, renk: TUR[e.ty][1] })),
         ...k.sandiklar
           .filter((q) => !q.acildi)
-          .map((q) => ({ x: q.x, z: q.z, renk: (q.lanetli ? LANET_RENK : SANDIK_RENK)[0], boy: 24 })),
+          .map((q) => ({ x: q.x, z: q.z, renk: (q.lanetli ? LANET_RENK : SANDIK_RENK)[0], sandik: true })),
         { x: ATOLYE[0], z: ATOLYE[1], renk: ATOLYE_RENK[0], boy: 40 },
         { x: BOSS_YERI[0], z: BOSS_YERI[1], renk: BOSS_RENK[0], boy: 140 },
       ]
@@ -404,32 +403,31 @@ function atolye() {
   );
 }
 
-/** eklenti sandığı: normalde iki sıradan eklentiden biri bedava; lanetlide nadir eklenti, bedeli lanet */
+/** Tek ganimet sandığı: ilk bakışta zar atılır; al ya da reddet, seçim havuzu yok. */
 function sandikSayfasi(id: number) {
   const k = mutant.kosu!,
     q = k.sandiklar.find((x) => x.id == id)!,
+    esya = sandikTeklifi(k, id),
     L = q.lanet ? LANETLER[q.lanet] : null;
+  const p = esya ? pasifBul(esya)! : null;
   const s = sayfaAc(
-    `<h1>${q.lanetli ? "Lanetli sandık" : "Eklenti sandığı"}</h1><p>${q.lanetli ? "Nadir bir eklenti, ama bedeli var. Almazsan sandık kalır, sonra dönebilirsin." : "Bir eklenti seç: koşu boyunca araçta kalır."}</p><div class="mtp">` +
-      q.secenekler
-        .map((e) => {
-          const p = pasifBul(e)!;
-          return `<div class="card go" data-eklenti="${e}"><b>${p.ad}</b><span>${p.d}</span>${L ? `<span>Bedel · ${L.ad}: ${L.d}</span>` : ""}</div>`;
-        })
-        .join("") +
-      '</div><button class="btn alt" id="mGec">Bırak</button>',
+    `<h1>${q.lanetli ? "Lanetli sandık" : "Gizli sandık"}</h1>` +
+      (p
+        ? `<p>Sandıktan çıkan:</p><div class="mtp"><div class="card mtb"><b>${p.ad}</b><span>${p.d}</span>${L ? `<span>Bedel · ${L.ad}: ${L.d}</span>` : ""}</div></div><button class="btn" id="mAl">Ödülü al</button><button class="btn alt" id="mGec">Alma</button>`
+        : '<p>Alınabilecek yeni eklenti kalmadı.</p><button class="btn alt" id="mGec">Kapat</button>'),
   );
-  s.querySelectorAll<HTMLElement>("[data-eklenti]").forEach(
-    (c) =>
-      (c.onclick = () => {
-        if (!sandikAc(k, id, c.dataset.eklenti!)) return;
-        mutantAracGuncelle();
-        isaretleriGuncelle();
-        note(pasifBul(c.dataset.eklenti!)!.ad + " takıldı" + (L ? " · " + L.d : ""), 40);
-        surusDevam();
-      }),
-  );
-  s.querySelector<HTMLElement>("#mGec")!.onclick = surusDevam;
+  s.querySelector<HTMLElement>("#mAl")?.addEventListener("click", () => {
+    if (!esya || !sandikAc(k, id, esya)) return;
+    mutantAracGuncelle();
+    isaretleriGuncelle();
+    note(p!.ad + " takıldı" + (L ? " · " + L.d : ""), 40);
+    surusDevam();
+  });
+  s.querySelector<HTMLElement>("#mGec")!.onclick = () => {
+    if (esya) sandikReddet(k, id);
+    isaretleriGuncelle();
+    surusDevam();
+  };
 }
 
 function bossSayfasi(zorunlu: boolean) {
