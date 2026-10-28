@@ -401,7 +401,7 @@ function testLaboratuvari(secili = "") {
     const e = k.etkinlikler.find((q) => q.ty == "dp");
     if (!e) return note("Bu bölgede drift etkinliği yok", 30);
     e.yapildi = false;
-    e.kapora = null;
+    e.kapora = undefined;
     k.kalan = BOSS_SURESI(k.bolge, true);
     mutant.bossBekliyor = false;
     mutant.risk = 0;
