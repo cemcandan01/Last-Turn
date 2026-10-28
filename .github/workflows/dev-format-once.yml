@@ -20,6 +20,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx prettier --write src/oyun/mutant-kosu.ts src/arayuz/mutant-ui.ts tests/birim/mutant.test.ts
+      # Son DEV menü düzenlemesi için ikinci biçimlendirme
       - name: Commit formatting
         run: |
           git config user.name "github-actions[bot]"
