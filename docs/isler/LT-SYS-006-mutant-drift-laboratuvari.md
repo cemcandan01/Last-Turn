@@ -38,7 +38,7 @@
 - Kabul: 15 aracın hepsi stok girer ve ≥%25 driftte kalır; güçsüz/ağır/dört çeker uygunsuz araçlarda drift paketi tutmayı belirgin kolaylaştırır (test `mutant-drift-test.test.ts`). Ölçüm `docs/denge/2026-10-28-mutant-drift-tutma.md`.
 - Cem kararı (28 Ekim): doğal olarak kolay drift yapan araçlar (güçlü dört çeker ralli araçları dahil) kolay yapmaya devam eder; araçların güçlü olduğu tür farklı olabilir. Adalet şartı yalnız şu: her araç drift yarışında drift yapabilmeli. Cihazda his denenmedi.
 
-## Revize 3 (Claude, 0.8.13): toprak dengesi, pist = açık dünya
+## Revize 3 (Claude, 0.8.14): toprak dengesi, pist = açık dünya
 - Cem: toprakta iyi olmayan araçlar buzda gibi kayıyor; asfalt pisti açık dünya asfaltıyla aynı olsun.
 - Neden: açık dünyada araç kendi lastiğiyle (asfalt aracı toprakta lastik × araç ≈ 0,23–0,40), yarışta ise türün yarış lastiğiyle sürülüyordu (ralli aracı asfalt pistte ~%50 fazla tutuyordu).
 - Yapılan (yalnız MUTANT): `toprakDengesi` toprak açığını %55'e indirir; MUTANT yarışında yarış lastiği takılmaz (oyuncu ve rakip). Kariyer/serbest sürüş değişmedi.

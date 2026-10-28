@@ -1,4 +1,4 @@
-# 2026-10-28 MUTANT toprak dengesi ve yarış lastiği (0.8.13)
+# 2026-10-28 MUTANT toprak dengesi ve yarış lastiği (0.8.14)
 
 Kural: MUTANT'ta lastik × araç toprak tutuşu 1'in altındaysa açığın %55'i kalır (`toprakDengesi`, `TOPRAK_ACIK_PAYI`). MUTANT yarışlarında yarış lastiği takılmaz: araç kendi lastiğiyle yarışır (rakip de). Kariyer değişmedi.
 

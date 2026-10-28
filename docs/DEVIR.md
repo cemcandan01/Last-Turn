@@ -1,9 +1,9 @@
-# Son devir: 0.8.13 denemede — MUTANT toprak dengesi, pist = açık dünya
+# Son devir: 0.8.14 denemede — MUTANT toprak dengesi, pist = açık dünya
 
-- Claude / gelistirme. Kart LT-SYS-006 Revize 3; ölçüm `docs/denge/2026-10-28-mutant-toprak-dengesi.md`.
+- Claude / gelistirme (Codex PR #33 0.8.13 üstüne; commit 5399408 mesajı yanlışlıkla 0.8.13 der). Kart LT-SYS-006 Revize 3; ölçüm `docs/denge/2026-10-28-mutant-toprak-dengesi.md`.
 - `toprakDengesi` (mutant-kosu.ts) koşu aracına ve rakibe uygulanır; MUTANT yarışında `yarisLastigiTak` çağrılmaz (yarislar.ts), rakip de önayar lastiğiyle (rakip.ts). Kariyer değişmedi.
 - Yerel: kontrol temiz (2 eski uyarı), npm test 440/440, alan mutant 22/22 + kariyer 31/31. Açık: cihazda his.
-- Sonraki tek adım: Cem /dev/ 0.8.13'te asfalt aracıyla toprak yolda ve asfalt pistte sürsün.
+- Sonraki tek adım: Cem /dev/ 0.8.14'te asfalt aracıyla toprak yolda ve asfalt pistte sürsün.
 
 # Önceki devir: 0.8.128.13 MUTANT DEV drift ölçümü — PR #33
 
