@@ -461,7 +461,13 @@ export function sandikTeklifi(k: Kosu, id: number): string | null {
   if (!s || s.acildi || k.faz != "surus") return null;
   if (s.incelendi) return s.secenekler[0] ?? null;
   s.incelendi = true;
-  const aday = EKLENTILER.filter((e) => e.nadir == s.lanetli && !k.pasifler.includes(e.id));
+  // Açılıp bekletilen sandıkların ganimetini de ayır: iki sandık peş peşe incelense bile aynı ödül gelmesin.
+  // Reddedilip tüketilmiş sandığın ödülü yeniden havuza girebilir; alınanlar pasifler içindedir.
+  const ayrilan = new Set([
+    ...k.pasifler,
+    ...k.sandiklar.filter((q) => !q.acildi && q.incelendi).flatMap((q) => q.secenekler),
+  ]);
+  const aday = EKLENTILER.filter((e) => e.nadir == s.lanetli && !ayrilan.has(e.id));
   if (!aday.length) {
     s.acildi = true;
     return null;
