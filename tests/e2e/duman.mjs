@@ -94,7 +94,8 @@ if (!ADRES) {
     ".jpg": "image/jpeg",
   };
   srv = http.createServer((q, r) => {
-    let f = path.join(KLASOR, decodeURIComponent(q.url.split("?")[0]));
+    // Deneme yayını /dev/ altında aynı derlemeyi sunar; DEV senaryosu o adrese geçince kaynaklar da bulunmalı.
+    let f = path.join(KLASOR, decodeURIComponent(q.url.split("?")[0]).replace(/^\/dev\//, "/"));
     if (f.endsWith(path.sep)) f += "index.html";
     fs.readFile(f, (e, d) => {
       if (e) {

@@ -10,10 +10,16 @@ import { kariyerKurulumu } from "../../src/oyun/kariyer";
 // LT-SYS-004 dış ivme (MUTANT skill çekişi) yalnız cx.dis verilince kuvvet ekler; kariyer/ölçüm onu hiç vermez ve
 // yokken fizik birebir aynıdır (tests/birim/beceri-fizik.test.ts). İmzadan ayıklanır.
 const disSiz = (s: string) =>
-  s.replace(
-    / {4}\/\/ dış ivme \(MUTANT çekme\/itme\): kütle merkezine yatay kuvvet\n {4}if \(cx\.dis\) \{\n {6}Fx \+= m \* cx\.dis\.x;\n {6}Fz \+= m \* cx\.dis\.z;\n {4}\}\n/,
-    "",
-  );
+  s
+    .replace(
+      / {4}\/\/ dış ivme \(MUTANT çekme\/itme\): kütle merkezine yatay kuvvet\n {4}if \(cx\.dis\) \{\n {6}Fx \+= m \* cx\.dis\.x;\n {6}Fz \+= m \* cx\.dis\.z;\n {4}\}\n/,
+      "",
+    )
+    .replace(
+      // LT-SYS-006 drift yarışı bayrağı yalnız MUTANT'ta açılır; kapalıyken driftSkoru birebir eskisidir.
+      "driftSkoru(d, v2, vl2, vt2, dt, !!cx.driftYarisi);",
+      "driftSkoru(d, v2, vl2, vt2, dt);",
+    );
 const MODEL = [
   "src/fizik/yeni/model.ts",
   "src/fizik/yeni/arac-fizigi.ts",

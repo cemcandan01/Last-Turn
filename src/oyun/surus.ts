@@ -124,7 +124,8 @@ export function surusAdimi() {
   const S = sim.S;
   PROF.km += (Math.hypot(S.vx, S.vz) * ADIM) / 1000;
   yerel.cx.kurulum = surusKurulumu();
-  yerel.cx.driftYarisi = yaris.EV?.ty == "dp" && yaris.EV.state == "run";
+  // Yeni drift yarışı mekaniği yalnız MUTANT; kariyer drifti ölçülmüş eski fizikte kalır.
+  yerel.cx.driftYarisi = yaris.EV?.ty == "dp" && yaris.EV.state == "run" && !!yaris.EV.mutant;
   // MUTANT koşusunda tur rekoru/hayalet yazılmaz (koşu aracı pasifli, kayıt kurulumu güvenilmez)
   if (JSON.stringify(yerel.cx.kurulum) !== kayitImza || ortam.g !== kayitHavasi.tutus || mutant.kosu)
     yerel.kayit.kesik = true;

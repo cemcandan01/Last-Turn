@@ -1,3 +1,11 @@
+# Son devir: 0.8.10 denemede — Codex drift atölyesi (#31) + canlı DEV paneli (#32)
+
+- Claude / gelistirme (Cem: "canlıya çıkarma, teste yolla"). Regresyondaki 0.8.9 canlıya çıkarılmadı; `regresyon` dalı ve durum.json olduğu gibi (onay-bekliyor). Bu sürüm ondan sonraki işleri içerir.
+- #31 ve #32 sürüm artırmadan birleşmişti; 0.8.10 yapıldı. Birleşme sonrası `kariyer.test.ts` 2 kalış: `driftYarisi` bütün `dp` yarışlarında (kariyer dahil) açılıyordu. Düzeltme: `src/oyun/surus.ts` yalnız `yaris.EV.mutant` iken; kariyer drifti eski ölçülmüş fizikte. İmza yardımcısı kapalı bayrak satırını ayıklar.
+- `tests/e2e/duman.mjs` test sunucusu `/dev/` önekini köke eşler (DEV senaryosu `/dev/?mutantTest=1`e geçince 404 veriyordu).
+- Yerel: kontrol temiz (2 eski uyarı), npm test 433/433, alan mutant 21/21. Açık: drift his/dengesi ve MUTANT_REFERANS yeniden ölçümü (LT-SYS-006), iPhone 13 cihaz.
+- Sonraki tek adım: Cem /dev/ 0.8.10'da DEV paneli ve MUTANT drift yarışını denesin.
+
 # Son devir: MUTANT drift deneme atölyesi ve sandık revizyonu — Codex dalında, inceleniyor
 
 - **Codex / codex/mutant-drift-laboratuvari** (taban gelistirme 5a57aa6), görev kartı `docs/isler/LT-SYS-006-mutant-drift-laboratuvari.md`. Cem'in 28 Ekim isteği; kullanıcı henüz test etmedi ve gelistirme/master'a birleşmedi.
