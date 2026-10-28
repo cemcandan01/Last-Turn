@@ -625,11 +625,53 @@ export function testKurulumu(k: Kosu, tur: "pasif" | "beceri" | "parca", id: str
     if (!beceriTeklifiUygula(k, id, birak)) return false;
   } else {
     const p = PARCALAR.find((o) => o.id == id);
-    if (!p || SATILMAZ.includes(id)) return false;
+    if (!p) return false;
     const onceki = k.parcalar.find((q) => PARCALAR.find((m) => m.id == q)?.kat == p.kat);
     if (onceki) k.parcalar = k.parcalar.filter((q) => q != onceki);
     k.parcalar.push(id);
   }
+  k.mek = kapasiteUygula(k.mek, takiliMekanikler(k));
+  return true;
+}
+
+/** DEV panelinde skill'in bütün yasal kurulumuna tek işlemde geç (ilerleme/ödül gerekmez). */
+export function testBeceriAyarla(
+  k: Kosu,
+  id: string,
+  seviye: number,
+  evrim: string | null = null,
+  eklentiler: string[] = [],
+): boolean {
+  if (!k.test || k.faz != "surus") return false;
+  const t = beceriBul(id);
+  if (!t || !Number.isInteger(seviye) || seviye < 0 || seviye > SEVIYE_UST) return false;
+  if (seviye > 0) {
+    if (evrim && (seviye < SEVIYE_UST || !t.evrimler.some((v) => v.id == evrim))) return false;
+    if (eklentiler.length > SKILL_EKLENTI_UST || new Set(eklentiler).size != eklentiler.length)
+      return false;
+    if (eklentiler.some((e) => {
+      const ek = beceriEklentisiBul(e);
+      return !ek || !eklentiUyar(t, ek);
+    }))
+      return false;
+  }
+  const mevcut = k.beceriler.findIndex((b) => b.id == id);
+  if (seviye == 0) {
+    if (mevcut < 0) return false;
+    k.beceriler.splice(mevcut, 1);
+  } else {
+    const yeni = { id, seviye, evrim, eklentiler: [...eklentiler] };
+    if (mevcut >= 0) k.beceriler[mevcut] = yeni;
+    else {
+      if (k.beceriler.length >= SKILL_YUVASI) k.beceriler.shift();
+      k.beceriler.push(yeni);
+    }
+  }
+  // Farklı build'lerin aktif buff ve beklemeleri birbirine taşınmaz.
+  k.bec = beceriDurumuBaslat();
+  k.becCikti = null;
+  k.becEngel = {};
+  k.bekleyenBeceri = [];
   k.mek = kapasiteUygula(k.mek, takiliMekanikler(k));
   return true;
 }
@@ -1048,6 +1090,11 @@ export function zamanAkis(k: Kosu, dt: number): "boss" | null {
     k.sonNefes = true;
     k.kalan = 90;
   }
+  // DEV koşusunda 90 sn'lik pencere yenilenir; zorunlu boss testi kesmez.
+  if (k.test && k.kalan <= 0) {
+    k.kalan = BOSS_SURESI(k.bolge, true);
+    return null;
+  }
   return k.kalan <= 0 ? "boss" : null;
 }
 
@@ -1078,6 +1125,8 @@ export function etkinlikBitti(k: Kosu, id: number, gecti: boolean, risk: Risk = 
   if (!e || e.yapildi) return null;
   e.yapildi = true;
   k.tamamlanan++;
+  // Geliştirici yarışları kurulu skill'i kaporada kaybettirmez, XP/para/ceza üretmez.
+  if (k.test) return { xp: k.xp, para: 0, gecti, seviyeAtladi: false, ekSure: 0, ceza: 0, kapora: null };
   const R = RISKLER[risk],
     o = ETKINLIK_ODULU(e.sev),
     kumar = risk == 2 && pasifSayisi(k, "kumarbaz") > 0,
