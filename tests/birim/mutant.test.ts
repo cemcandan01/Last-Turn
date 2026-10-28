@@ -540,7 +540,6 @@ describe("MUTANT A2: nitro ve sistemik güçler", () => {
 });
 
 describe("MUTANT A2: eklenti sandıkları", () => {
-  const eklenti = (id: string) => EKLENTILER.find((e) => e.id == id)!;
   it("her bölgede 2 normal + 1 lanetli sandık, etkinliklerden ayrı düz yerde; tohumla aynı", () => {
     for (let t = 1; t <= 40; t++) {
       const k = basla(t);
