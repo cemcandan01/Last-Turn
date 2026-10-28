@@ -34,6 +34,7 @@ import { dunyaSorgusuYap, kayitKurulumu, kayitHavasi, reset, sim, yerel } from "
 import { rekorHayaletiBaslat, rekorHayaletiDurdur } from "./uzak";
 import { rakibiGecti, rakipBaslat, rakipDurdur } from "./rakip";
 import { X6_CARPAN, X6_ORAN, driftAdimi, driftBankala, tersAdimi, type DriftOlay } from "./yaris-kurallari";
+import { driftYarisProfili } from "../fizik/ortak";
 import {
   bosKesme,
   bosPistDisi,
@@ -358,7 +359,7 @@ export function evTick(dt: number, o: AdimSonucu, tg = 0.5) {
     geri = tersAdimi(EV, S.vx, S.vz, T[0], T[1], dt);
   if (EV.ty == "dp") {
     // kombo araç tamamen çime çıkınca yanar (tek teker ya da kerb yakmaz)
-    const lost = o.cimTeker == 4 || sim.d.zaman - S.hit < 0.05 || Math.abs(D.beta) > 1.4,
+    const lost = o.cimTeker == 4 || sim.d.zaman - S.hit < 0.05 || Math.abs(D.beta) > driftYarisProfili(yerel.cx.kurulum).azami + 0.12,
       r = driftAdimi(EV, !!D.act, D.beta, lost, o.v, EV.ters || geri, dt, tg, sim.d.zaman, EV.x6);
     if (EV.lap == 0 && D.act && !lost && !EV.ters && !geri) {
       // orta çizgi ilerlemesi (pist uzunluğuyla aynı ölçü; dış çizgiden giden fazla yol sayılmaz)
