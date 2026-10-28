@@ -30,6 +30,8 @@
 
 ## Devir / doğrulama
 
-- **PR:** henüz oluşturulmadı.
-- **CI ve cihaz:** doğrulama bekliyor.
+- **PR:** [#33](https://github.com/cemcandan01/Last-Turn/pull/33), hedef dal `gelistirme`.
+- **Hedefli CI:** [başarılı](https://github.com/cemcandan01/Last-Turn/actions/runs/40720719293); birim testleri, Playwright DEV akışı, tip/lint/biçim.
+- **Tam MUTANT alanı:** [başarılı](https://github.com/cemcandan01/Last-Turn/actions/runs/40721212555); tip/lint/biçim, Chromium ve alan testleri.
+- **Gerçek iPhone:** kullanıcının sürüş hissi ve ekran okunabilirliği testi hâlâ gerekli. 0.8.13 geliştirme sürümünde denenebilir.
 - **Sonraki tek adım:** testler geçince `gelistirme` denemesinde stok vs drift paketli aracı Cem'in karşılaştırması.
