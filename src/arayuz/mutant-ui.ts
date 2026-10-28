@@ -17,6 +17,7 @@ import {
 } from "../cekirdek/beceri";
 import { isaretleriKur, isaretlerGorunur, type Isaret } from "../cizim/isaretler";
 import { Hw, WORLDS } from "../dunya/dunya";
+import { driftTanisi } from "../fizik/drift-tani";
 import { SEVIYELER } from "../dunya/pist-tanimlari";
 import { setActive } from "../oyun/bolge";
 import { oyun } from "../oyun/durum";
@@ -78,7 +79,7 @@ import {
   type Boss,
   type EtkinlikSonucu,
 } from "../oyun/mutant-kosu";
-import { reset, sim } from "../oyun/surus";
+import { reset, sim, yerel } from "../oyun/surus";
 import { EVENTS, leaveEvent, startEvent, yaris } from "../oyun/yarislar";
 import { KISILIKLER } from "../yz/kisilik";
 import { rakip } from "../oyun/rakip";
@@ -152,6 +153,8 @@ const sure = (s: number) => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)
 /** sürüşü durdur, sayfayı aç */
 function sayfaAc(html: string) {
   oyun.mode = "result";
+  const dt = document.querySelector<HTMLElement>("#mutantDriftTani");
+  if (dt) dt.style.display = "none";
   girdiSifirla();
   $("#ctl").classList.add("hidden");
   const r = $("#res");
@@ -408,6 +411,7 @@ function testLaboratuvari(secili = "") {
       (yarista ? '<button class="btn alt" id="labTekrar">BU YARIŞI YENİDEN BAŞLAT</button>' : "") +
       '<button class="btn alt" id="labReset">Tüm kurulumu sıfırla</button>' +
       '<button class="btn alt" id="labSure">90 saniyeyi yenile</button>' +
+      '<button class="btn alt" id="labTani">Drift ölçümleri: ' + (driftDevGoster ? "AÇIK" : "KAPALI") + '</button>' +
       '<button class="btn alt" id="labBolge">Sonraki bölge (test)</button>' +
       '<button class="btn alt" id="labSurus">' +
       (yarista ? "YARIŞA DÖN" : "AÇIK DÜNYAYA DÖN") +
@@ -448,6 +452,10 @@ function testLaboratuvari(secili = "") {
   s.querySelector<HTMLElement>("#labSure")!.onclick = () => {
     k.kalan = BOSS_SURESI(k.bolge, true);
     mutant.bossBekliyor = false;
+    testLaboratuvari(seciliId);
+  };
+  s.querySelector<HTMLElement>("#labTani")!.onclick = () => {
+    driftDevGoster = !driftDevGoster;
     testLaboratuvari(seciliId);
   };
   s.querySelector<HTMLElement>("#labDrift")!.onclick = () => {
@@ -786,6 +794,40 @@ function ozet() {
   };
 }
 
+/** Yalnız MUTANT DEV drift yarışında görünür; diğer HUD ve sürüş modlarını etkilemez. */
+let driftDevGoster = true;
+let driftDevSon = -1;
+function driftDevGuncelle() {
+  const el = document.querySelector<HTMLElement>("#mutantDriftTani");
+  if (!el) return;
+  const e = yaris.EV;
+  const acik =
+    driftDevGoster &&
+    !!mutant.kosu?.test &&
+    !!e?.mutant &&
+    e.ty == "dp" &&
+    oyun.mode == "drive";
+  if (!acik) {
+    el.style.display = "none";
+    driftDevSon = -1;
+    return;
+  }
+  el.style.display = "block";
+  // HUD her karede çalışır; sayısal göstergeyi 10 Hz ile sınırla. Yarış resetinde zaman başa döner.
+  if (driftDevSon >= 0 && sim.d.zaman >= driftDevSon && sim.d.zaman - driftDevSon < 0.1) return;
+  driftDevSon = sim.d.zaman;
+  const t = driftTanisi(sim.d, yerel.cx.kurulum);
+  el.dataset.durum = t.durum;
+  const baslik = el.querySelector<HTMLElement>("#mdtDurum");
+  const acilar = el.querySelector<HTMLElement>("#mdtAcilar");
+  const ipucu = el.querySelector<HTMLElement>("#mdtIpucu");
+  const dolum = el.querySelector<HTMLElement>("#mdtDolum");
+  if (baslik) baslik.textContent = t.mesaj;
+  if (acilar) acilar.textContent = `AÇI ${t.aci}° · GİR ${t.giris}° · SIN ${t.azami}°`;
+  if (ipucu) ipucu.textContent = t.ipucu;
+  if (dolum) dolum.style.width = t.ilerleme + "%";
+}
+
 /** arayüzü koşuya bağla (startWorld) */
 export function mutantArayuzuKur(yeni: () => void, menu: () => void) {
   yeniKosu = yeni;
@@ -799,6 +841,17 @@ export function mutantArayuzuKur(yeni: () => void, menu: () => void) {
     dugme.style.cssText =
       "position:fixed;top:72px;right:12px;z-index:10000;padding:11px 16px;border:2px solid #8de5ff;border-radius:12px;background:#142536;color:#fff;font-weight:bold;display:none";
     document.body.appendChild(dugme);
+  }
+  // DEV tanısı normal HUD'la beraber kapanır; iPhone'da sürüş yolu ve butonları kapatmaz.
+  if (!document.querySelector("#mutantDriftTani")) {
+    const tani = document.createElement("div");
+    tani.id = "mutantDriftTani";
+    tani.style.display = "none";
+    tani.setAttribute("aria-live", "off");
+    tani.innerHTML =
+      '<div class="mdtSatir"><b id="mdtDurum"></b><span id="mdtAcilar"></span></div>' +
+      '<small id="mdtIpucu"></small><div class="mdtCizgi"><i id="mdtDolum"></i></div>';
+    $("#hud").appendChild(tani);
   }
   dugme.onclick = () => {
     if (mutant.kosu?.test && (!yaris.EV || yaris.EV.mutant) && oyun.mode == "drive") testLaboratuvari();
@@ -846,6 +899,7 @@ export function mutantBaslik(evAdi: string | null): string | null {
   if (devDugme)
     devDugme.style.display =
       k?.test && (!yaris.EV || yaris.EV.mutant) && oyun.mode == "drive" ? "block" : "none";
+  driftDevGuncelle();
   if (!k) return null;
   if (evAdi)
     return mutant.etkinlik == "boss" ? "BOSS · " + k.boss.ad : "MUTANT " + sure(k.kalan) + " · " + evAdi;
