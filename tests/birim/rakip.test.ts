@@ -16,6 +16,7 @@ import {
   IZGARA_YAN,
   pistIlerlemesi,
   rakipKurulumu,
+  yarisciIlerlemesi,
   yarisciAdimi,
   yarisciYap,
   type Yarisci,
@@ -66,7 +67,16 @@ function sur(y: Yarisci, sn = 150) {
     const v0 = Math.hypot(S.vx, S.vz),
       gi = yarisciAdimi(y, true),
       v1 = Math.hypot(S.vx, S.vz);
-    if (gi.g < 0 || gi.g > 1 || gi.b < 0 || gi.b > 1 || Math.abs(gi.tg) > 1 || gi.dbr) sinirDisi++;
+    // el freni yalnız kalkış beklemesinde (geri sayım/tepki): yarışta kullanılmaz
+    if (
+      gi.g < 0 ||
+      gi.g > 1 ||
+      gi.b < 0 ||
+      gi.b > 1 ||
+      Math.abs(gi.tg) > 1 ||
+      (gi.dbr && y.pilot.mod != "bekle")
+    )
+      sinirDisi++;
     // ışınlanma yok: bir adımda alınan yol hızın izin verdiğinden fazla olamaz
     const yol = Math.hypot(S.x - px, S.z - pz);
     sicrama = Math.max(sicrama, yol - (Math.max(v0, v1) / 60) * 1.05);
@@ -125,11 +135,12 @@ describe("A3 rakip YZ: yarış çizgisi, hız profili ve kişilik (saf)", () => 
     expect(enCok.caylak).toBeLessThanOrEqual(0.08 * (1 - KISILIKLER.caylak.tutarlilik) + 1e-9);
   });
 
-  it("geri sayımda frende bekler, kalkış tepkisinden sonra gaz verir", () => {
+  it("geri sayımda el freninde bekler, kalkış tepkisinden sonra gaz verir", () => {
     const plan = pilotPlani(TR, KISILIKLER.caylak, 1),
       d = pilotDurumu(plan, TR.P[0][0], TR.P[0][1]),
       a = { x: TR.P[0][0], z: TR.P[0][1], h: Math.atan2(TR.T[0][0], TR.T[0][1]), vx: 0, vz: 0, beta: 0 };
-    expect(pilotAdimi(plan, d, a, 1 / 60, false)).toMatchObject({ g: 0, b: 1 });
+    // ayak freni duran araçta geri vitese takar (fizik): beklerken el freni (LT-SYS-007)
+    expect(pilotAdimi(plan, d, a, 1 / 60, false)).toMatchObject({ g: 0, b: 0, dbr: true });
     expect(pilotAdimi(plan, d, a, 1 / 60, true).g).toBe(0);
     for (let n = 0; n < 30; n++) pilotAdimi(plan, d, a, 1 / 60, true);
     expect(pilotAdimi(plan, d, a, 1 / 60, true).g).toBeGreaterThan(0.5);
@@ -174,6 +185,15 @@ describe("A3 rakip YZ: düello pistinde gerçek fizik (Yeşil Vadi, 2 tur)", () 
     for (const t of sonuc.caylak) expect(t > 45 && t < 53.8, "çaylak uçan tur " + t).toBe(true);
   }, 240000);
 
+  it("geri sayım boyunca ızgarada durur (geri vitese takılıp kaçmaz)", () => {
+    const { y } = yarisci(BASLANGIC_ARACLARI[0], "deneyimli", 1),
+      S = y.ornek.sim.S,
+      x0 = S.x,
+      z0 = S.z;
+    for (let n = 0; n < 3 * 60; n++) yarisciAdimi(y, false);
+    expect(Math.hypot(S.x - x0, S.z - z0)).toBeLessThan(0.3);
+  });
+
   it("aynı tohum birebir aynı yarış; farklı tohum farklı yarış", () => {
     const arac = BASLANGIC_ARACLARI[0],
       bir = yarisci(arac, "caylak", 7).y,
@@ -213,4 +233,46 @@ describe("A3 rakip YZ: düello pistinde gerçek fizik (Yeşil Vadi, 2 tur)", () 
       expect(y.bitis!, ad).toBeLessThan(75);
     }
   }, 180000);
+});
+
+describe("LT-SYS-007 rakip: açık pist (ralli, drag)", () => {
+  // turu olmayan pistte oyuncunun bitiş kuralıyla (yarıyı geç, son noktaya var) biter; ilerleme pist boyunca artar
+  for (const [ad, son] of [
+    ["Kır Etabı", 4],
+    ["Sekizde Bir Mil", 1],
+  ] as const)
+    it(
+      ad + " baştan sona sürülür ve bitirilir",
+      () => {
+        const i = TDEF.findIndex((d) => d.n == ad),
+          d = TDEF[i],
+          arac = BASLANGIC_ARACLARI.find((a) => CARS[a].ty == d.t) ?? BASLANGIC_ARACLARI[0],
+          s = surucuKur({ yaris: i, arac, lk: "norm" }),
+          TR = s.bolge!.TR!,
+          g = tp(TR, "", d.t == "dg" ? 1 : 4, 0);
+        const y = yarisciYap(
+          s.cx.dunya,
+          rakipKurulumu(arac, d.t, "norm"),
+          TR,
+          0,
+          "deneyimli",
+          1,
+          {
+            x: g[1] + TR.T[0][1] * IZGARA_YAN,
+            z: g[2] - TR.T[0][0] * IZGARA_YAN,
+            h: g[3],
+          },
+          son,
+        );
+        let enCok = 0;
+        for (let n = 0; n < 150 * 60 && y.bitis == null; n++) {
+          yarisciAdimi(y, true);
+          enCok = Math.max(enCok, yarisciIlerlemesi(y) == Infinity ? enCok : yarisciIlerlemesi(y));
+        }
+        expect(y.bitis, ad).not.toBeNull();
+        expect(enCok).toBeGreaterThan(TR.len * 0.9);
+        expect(y.pisteDonus).toBe(0);
+      },
+      120000,
+    );
 });

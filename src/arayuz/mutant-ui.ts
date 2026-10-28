@@ -78,6 +78,7 @@ import {
   seviyeXp,
   type Boss,
   type EtkinlikSonucu,
+  TUR_ARACI,
 } from "../oyun/mutant-kosu";
 import { reset, sim, yerel } from "../oyun/surus";
 import { EVENTS, leaveEvent, startEvent, yaris } from "../oyun/yarislar";
@@ -666,12 +667,22 @@ function bossSayfasi(zorunlu: boolean) {
     E = EVENTS[i];
   const s = sayfaAc(
     `<h1>${zorunlu ? "Süre doldu!" : "Boss yarışı"}</h1><p>Bölge ${k.bolge} · ${E.n}</p>${bossKarti(k.boss)}` +
-      row(
-        "Boss hedefi (" +
-          ["başlangıç aracı ölçüsü", "geliştirilmiş araç", "motor + uzmanlık"][Math.min(3, k.bolge) - 1] +
-          ")",
-        hedefYazi(E.ty, bossHedefi(k, mutantPistleri()[i])),
-      ) +
+      (k.boss.ty == "dp"
+        ? row(
+            "Boss hedefi (" +
+              ["başlangıç aracı ölçüsü", "geliştirilmiş araç", "motor + uzmanlık"][Math.min(3, k.bolge) - 1] +
+              ")",
+            hedefYazi(E.ty, bossHedefi(k, mutantPistleri()[i])),
+          )
+        : row(
+            "Rakip",
+            k.boss.ad +
+              " · " +
+              CARS[TUR_ARACI[k.boss.ty]].n +
+              " (" +
+              ["stok", "uzman parçalar", "nadir motor + uzmanlık"][Math.min(3, k.bolge) - 1] +
+              ")",
+          ) + row("Kazanmak için", "Boss'tan önce bitir")) +
       row("Tur", E.laps || 1) +
       row("Seviye", k.seviye + " · " + k.pasifler.length + " yetenek · " + k.parcalar.length + " parça") +
       '<p class="note">Kaybedersen koşu biter. Kazanırsan sonraki bölge ve yeni bir boss.</p><button class="btn" id="mBoss">Boss yarışına gir</button>' +
@@ -705,11 +716,12 @@ function sonuc(r: EtkinlikSonucu | null, boss: boolean, gecti: boolean) {
   const k = mutant.kosu!;
   const bitti = k.faz == "bitti";
   const R = rakip.y,
+    duello = !!rakip.ayar?.duello,
     baslik = boss
       ? gecti
         ? "Boss yenildi!"
         : "Boss kazandı"
-      : R
+      : duello
         ? gecti
           ? "Rakibi yendin"
           : "Rakip önde bitirdi"
@@ -720,14 +732,24 @@ function sonuc(r: EtkinlikSonucu | null, boss: boolean, gecti: boolean) {
     ? row(
         "Rakip (" + KISILIKLER[rakip.ayar!.kisilik].ad + ")",
         R.bitis != null ? fmt(R.bitis) : "bitirmedi",
-      ) + row("Sen", fmt(yaris.EV?.t ?? 0))
+      ) +
+      row("Sen", fmt(yaris.EV?.t ?? 0)) +
+      (r?.rakipGecti != null
+        ? row(
+            r.rakipGecti ? "Rakibi geçtin" : "Rakip önde bitirdi",
+            r.rakipGecti ? "+" + (r.rakipPara ?? 0) + " para" : "bonus yok",
+          )
+        : "")
     : "";
   const s = sayfaAc(
     `<h1>${baslik}</h1>` +
       (boss
-        ? gecti
-          ? `<p>Bölge ${k.bolge} açıldı. Yeni boss: ${k.boss.ad}. +200 para, +150 XP.</p>`
-          : "<p>Koşu bitti.</p>"
+        ? (R
+            ? row("Boss", R.bitis != null ? fmt(R.bitis) : "bitirmedi") + row("Sen", fmt(yaris.EV?.t ?? 0))
+            : "") +
+          (gecti
+            ? `<p>Bölge ${k.bolge} açıldı. Yeni boss: ${k.boss.ad}. +200 para, +150 XP.</p>`
+            : "<p>Koşu bitti.</p>")
         : rakipSatiri +
           row("Kazanılan para", "+" + (r?.para ?? 0)) +
           row("Seviye", k.seviye + " · " + k.xp + " / " + seviyeXp(k.seviye + 1) + " XP") +
@@ -735,7 +757,7 @@ function sonuc(r: EtkinlikSonucu | null, boss: boolean, gecti: boolean) {
           (r?.kapora ? row("Kapora", kaporaSonucYazi(r.kapora)) : "") +
           (r?.ceza
             ? row(
-                RISKLER[mutant.risk].ad + (R ? " düello kaybedildi" : " hedef kaçtı"),
+                RISKLER[mutant.risk].ad + (duello ? " düello kaybedildi" : " hedef kaçtı"),
                 "Boss'a −" + r.ceza + " sn",
               )
             : "")) +

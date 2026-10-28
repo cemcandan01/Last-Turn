@@ -32,6 +32,8 @@ import {
   kaporaBelirle,
   kesmeCezasi,
   kosuAraci,
+  etkinlikRakibi,
+  bossRakibi,
   toprakDengesi,
   kosuBaslat,
   nitroDurumu,
@@ -193,10 +195,10 @@ export function mutantYarisAyari(i: number) {
     // drift kaporası girişte de kilitlenir (kart açılmadan girilse bile aynı belirlenimci seçim)
     if (typeof mutant.etkinlik == "number") kaporaBelirle(k, mutant.etkinlik);
   }
-  if (mutantRakibi()) return { laps: DUELLO.tur, limit: 0 };
-  return k && mutant.etkinlik == "boss"
-    ? { laps: p.laps, limit: bossHedefi(k, p) }
-    : etkinlikHedefi(p, mutant.risk);
+  const r = mutantRakibi();
+  if (k && mutant.etkinlik == "boss") return { laps: p.laps, limit: r ? 0 : bossHedefi(k, p) };
+  if (r?.duello) return { laps: DUELLO.tur, limit: 0 };
+  return etkinlikHedefi(p, mutant.risk);
 }
 
 /** açık etkinlik düelloysa rakibin ayarı: kişilik risk kademesinden, araç oyuncunun başlangıç aracı (stok), tohum
@@ -204,13 +206,24 @@ export function mutantYarisAyari(i: number) {
 export function mutantRakibi(): RakipAyari | null {
   const k = mutant.kosu,
     et = mutant.etkinlik;
-  if (!k || typeof et != "number" || mutantArac < 0) return null;
+  if (!k || et == null || mutantArac < 0) return null;
+  if (et == "boss") {
+    // LT-SYS-007: boss gerçek rakip (drift boss'u puan hedefiyle kalır)
+    const b = bossRakibi(k);
+    return b ? { ...b, duello: true } : null;
+  }
   const e = k.etkinlikler.find((q) => q.id == et);
-  if (!e?.rakip) return null;
+  if (!e) return null;
+  if (!e.rakip) {
+    // LT-SYS-007: düello dışındaki etkinliklerde de rakip (hedef süre geçerli, rakibi geçmek ek para)
+    const r = etkinlikRakibi(k, e, mutantPistleri()[e.i], mutant.risk);
+    return r ? { ...r, duello: false } : null;
+  }
   return {
     kisilik: DUELLO.kisilikler[Math.min(mutant.risk, DUELLO.kisilikler.length - 1)],
     arac: mutantArac,
     tohum: (Math.imul(k.tohum ^ 0x5bd1e995, 31) + e.id * 7919) >>> 0 || 1,
+    duello: true,
   };
 }
 
@@ -330,7 +343,7 @@ export function mutantAdimi(
 }
 
 /** yarış bitti (yarislar.ts endEvent): ödül/boss sonucu, rekor */
-export function mutantYarisBitti(gecti: boolean) {
+export function mutantYarisBitti(gecti: boolean, rakipGecti: boolean | null = null) {
   const k = mutant.kosu,
     et = mutant.etkinlik;
   if (!k || et == null) return;
@@ -346,7 +359,7 @@ export function mutantYarisBitti(gecti: boolean) {
     mutant.ui?.sonuc(null, true, gecti);
     return;
   }
-  mutant.ui?.sonuc(etkinlikBitti(k, et, gecti, mutant.risk), false, gecti);
+  mutant.ui?.sonuc(etkinlikBitti(k, et, gecti, mutant.risk, rakipGecti), false, gecti);
 }
 
 /** boss'a gir (işaretten ya da süre dolunca) */

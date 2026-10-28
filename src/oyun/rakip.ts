@@ -1,6 +1,6 @@
 // Rakip (oyun bağı, A3): yarışa tek YZ rakip ekler. Yarışçı saf modülde (yz/yarisci.ts); burası onu oyuncunun
 // yanına ızgaraya koyar, her sabit adımda oyuncudan sonra ilerletir, uzak araç olarak çizdirir ve sırayı verir.
-// Rakip yalnız MUTANT düellosunda açılır (oyun/mutant.ts → mutantRakibi); kariyer yarışları etkilenmez.
+// Rakip yalnız MUTANT etkinliklerinde ve düelloda açılır (oyun/mutant.ts → mutantRakibi); kariyer yarışları etkilenmez.
 import { nearest, type Pist } from "../dunya/pist";
 import type { YarisTuru } from "../arac/araclar";
 import { aracAnligi } from "../fizik/arac-ornegi";
@@ -18,7 +18,8 @@ import {
 import { set } from "./ayarlar";
 import { kurulum } from "./kurulum";
 import { PRESETS } from "../fizik/veriler";
-import { toprakDengesi } from "./mutant-kosu";
+import { parcaBul, parcaliKurulum } from "../arac/parcalar";
+import { kosuAraci, toprakDengesi } from "./mutant-kosu";
 import { dunyaSorgusuYap } from "./surus";
 import { uzak, uzakAnlikEkle, uzakAracEkle, uzakAracSil } from "./uzak";
 
@@ -26,9 +27,15 @@ export const RAKIP = "rakip";
 
 export interface RakipAyari {
   kisilik: KisilikAdi;
-  /** araç (başlangıç aracının stok hâli) */
+  /** araç: düelloda oyuncunun başlangıç aracı, etkinlikte türün başlangıç aracı */
   arac: number;
   tohum: number;
+  /** takılı parçalar (etkinlik rakibi bölgenin build'iyle; düelloda stok) */
+  parca?: readonly string[];
+  /** düello: hedef süre yok, rakipten önce bitirmek gerekir (boss da düellodur) */
+  duello?: boolean;
+  /** MUTANT pasifleri (boss build'i): araç değerlerine oyuncununki gibi işler */
+  pasif?: readonly string[];
 }
 
 export const rakip = {
@@ -52,16 +59,25 @@ export function rakipBaslat(
     x = x0 + TR.T[i][1] * IZGARA_YAN,
     z = z0 - TR.T[i][0] * IZGARA_YAN;
   rakip.ayar = r;
-  const kur = rakipKurulumu(r.arac, EV.ty, kurulum.lk, set.ss, set.sm);
-  // MUTANT kuralı oyuncuyla aynı: yarış lastiği takılmaz, aracın kendi lastiği ve toprak dengesi
-  kur.tire = PRESETS[kur.pk].tire;
-  kur.car = toprakDengesi(kur.car, kur.tire);
+  const kur = rakipKurulumu(r.arac, EV.ty, kurulum.lk, set.ss, set.sm, r.parca);
+  // MUTANT kuralı oyuncuyla aynı: yarış lastiği takılmaz; lastik parçası varsa o, yoksa önayar lastiği; toprak dengesi
+  const lastikParcasi = (r.parca ?? []).some((id) => parcaBul(id)?.e.lastik != null);
+  kur.tire = lastikParcasi ? parcaliKurulum(r.arac, r.parca ?? [], kurulum.lk).tire : PRESETS[kur.pk].tire;
+  kur.car = toprakDengesi(
+    r.pasif?.length ? kosuAraci(kur.car, { pasifler: [...r.pasif] }) : kur.car,
+    kur.tire,
+  );
   rakip.tabanHp = kur.car.hp;
-  rakip.y = yarisciYap(dunyaSorgusuYap({ cur: null }), kur, TR, EV.laps ?? 1, r.kisilik, r.tohum, {
-    x,
-    z,
-    h,
-  });
+  rakip.y = yarisciYap(
+    dunyaSorgusuYap({ cur: null }),
+    kur,
+    TR,
+    EV.laps ?? 1,
+    r.kisilik,
+    r.tohum,
+    { x, z, h },
+    EV.ty == "dg" ? 1 : 4,
+  );
   // yerel simülasyon: ağ gecikmesi yok, bir adım geriden ara değer (oyuncunun çizimi gibi)
   uzakAnlikEkle(uzakAracEkle(RAKIP, r.arac, ADIM), aracAnligi(rakip.y.ornek));
 }

@@ -1,0 +1,338 @@
+[
+  {
+    "boss": "toprak-kurdu",
+    "bolge": 1,
+    "pist": "Kır Etabı",
+    "hedef": 57.8025,
+    "bitis": 53.79999999999823,
+    "donus": 0
+  },
+  {
+    "boss": "toprak-kurdu",
+    "bolge": 2,
+    "pist": "Kır Etabı",
+    "hedef": 53.7846,
+    "bitis": 51.49999999999836,
+    "donus": 0
+  },
+  {
+    "boss": "toprak-kurdu",
+    "bolge": 2,
+    "pist": "Kıyı Etabı",
+    "hedef": 48.245999999999995,
+    "bitis": 44.06666666666545,
+    "donus": 0
+  },
+  {
+    "boss": "toprak-kurdu",
+    "bolge": 3,
+    "pist": "Kıyı Etabı",
+    "hedef": 45.4104,
+    "bitis": 43.49999999999881,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 1,
+    "pist": "Sekizde Bir Mil",
+    "hedef": 9.2925,
+    "bitis": 8.966666666666692,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 1,
+    "pist": "Çeyrek Kilometre",
+    "hedef": 10.731000000000002,
+    "bitis": 10.333333333333426,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 1,
+    "pist": "Bin Fit",
+    "hedef": 12.2535,
+    "bitis": 11.783333333333498,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 1,
+    "pist": "Çeyrek Mil",
+    "hedef": 14.784,
+    "bitis": 14.200000000000285,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 2,
+    "pist": "Sekizde Bir Mil",
+    "hedef": 8.0886,
+    "bitis": 7.816666666666644,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 2,
+    "pist": "Çeyrek Kilometre",
+    "hedef": 9.3534,
+    "bitis": 9.033333333333362,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 2,
+    "pist": "Bin Fit",
+    "hedef": 10.6896,
+    "bitis": 10.316666666666759,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 2,
+    "pist": "Çeyrek Mil",
+    "hedef": 12.9336,
+    "bitis": 12.466666666666866,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 2,
+    "pist": "Yarım Kilometre",
+    "hedef": 15.0756,
+    "bitis": 14.56666666666697,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 2,
+    "pist": "Yarım Mil",
+    "hedef": 21.4506,
+    "bitis": 20.733333333333437,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 2,
+    "pist": "Bir Kilometre",
+    "hedef": 25.3674,
+    "bitis": 24.53333333333322,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 2,
+    "pist": "Bir Mil",
+    "hedef": 37.3014,
+    "bitis": 36.19999999999923,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 3,
+    "pist": "Sekizde Bir Mil",
+    "hedef": 7.0176,
+    "bitis": 6.833333333333314,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 3,
+    "pist": "Çeyrek Kilometre",
+    "hedef": 8.109,
+    "bitis": 7.883333333333311,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 3,
+    "pist": "Bin Fit",
+    "hedef": 9.302399999999999,
+    "bitis": 9.016666666666694,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 3,
+    "pist": "Çeyrek Mil",
+    "hedef": 11.3016,
+    "bitis": 10.950000000000124,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 3,
+    "pist": "Yarım Kilometre",
+    "hedef": 13.2804,
+    "bitis": 12.850000000000218,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 3,
+    "pist": "Yarım Mil",
+    "hedef": 19.2576,
+    "bitis": 18.800000000000214,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 3,
+    "pist": "Bir Kilometre",
+    "hedef": 23.031599999999997,
+    "bitis": 22.55,
+    "donus": 0
+  },
+  {
+    "boss": "drag-canavari",
+    "bolge": 3,
+    "pist": "Bir Mil",
+    "hedef": 34.833,
+    "bitis": 34.416666666665996,
+    "donus": 0
+  },
+  {
+    "boss": "gece-sahini",
+    "bolge": 1,
+    "pist": "Yeşil Vadi",
+    "hedef": 148.617,
+    "bitis": 130.5666666666627,
+    "donus": 0
+  },
+  {
+    "boss": "gece-sahini",
+    "bolge": 1,
+    "pist": "Kıyı Pisti",
+    "hedef": 197.883,
+    "bitis": 204.233333333388,
+    "donus": 0
+  },
+  {
+    "boss": "gece-sahini",
+    "bolge": 1,
+    "pist": "Çöl Otoyolu",
+    "hedef": 236.3445,
+    "bitis": 237.31666666674766,
+    "donus": 0
+  },
+  {
+    "boss": "gece-sahini",
+    "bolge": 1,
+    "pist": "Grand Prix",
+    "hedef": 205.2855,
+    "bitis": 204.60000000005496,
+    "donus": 0
+  },
+  {
+    "boss": "gece-sahini",
+    "bolge": 2,
+    "pist": "Yeşil Vadi",
+    "hedef": 137.94480000000001,
+    "bitis": 129.63333333332864,
+    "donus": 0
+  },
+  {
+    "boss": "gece-sahini",
+    "bolge": 2,
+    "pist": "Kıyı Pisti",
+    "hedef": 180.9072,
+    "bitis": 196.58333333338192,
+    "donus": 0
+  },
+  {
+    "boss": "gece-sahini",
+    "bolge": 2,
+    "pist": "Çöl Otoyolu",
+    "hedef": 221.1462,
+    "bitis": 230.4833333334089,
+    "donus": 0
+  },
+  {
+    "boss": "gece-sahini",
+    "bolge": 2,
+    "pist": "Grand Prix",
+    "hedef": 181.9782,
+    "bitis": 196.96666666671555,
+    "donus": 0
+  },
+  {
+    "boss": "gece-sahini",
+    "bolge": 2,
+    "pist": "Sisli Orman Pisti",
+    "hedef": 204.65279999999998,
+    "bitis": 210.61666666672642,
+    "donus": 0
+  },
+  {
+    "boss": "gece-sahini",
+    "bolge": 2,
+    "pist": "Kar Dağı Pisti",
+    "hedef": 142.6572,
+    "bitis": 152.43333333334678,
+    "donus": 0
+  },
+  {
+    "boss": "gece-sahini",
+    "bolge": 2,
+    "pist": "Şehir Pisti",
+    "hedef": 193.4838,
+    "bitis": 199.38333333338414,
+    "donus": 0
+  },
+  {
+    "boss": "gece-sahini",
+    "bolge": 2,
+    "pist": "Dağ Pisti",
+    "hedef": 211.9968,
+    "bitis": 210.06666666672598,
+    "donus": 0
+  },
+  {
+    "boss": "gece-sahini",
+    "bolge": 3,
+    "pist": "Kıyı Pisti",
+    "hedef": 169.5852,
+    "bitis": 186.633333333374,
+    "donus": 0
+  },
+  {
+    "boss": "gece-sahini",
+    "bolge": 3,
+    "pist": "Sisli Orman Pisti",
+    "hedef": 187.6698,
+    "bitis": 190.93333333337742,
+    "donus": 0
+  },
+  {
+    "boss": "gece-sahini",
+    "bolge": 3,
+    "pist": "Şehir Pisti",
+    "hedef": 175.79700000000003,
+    "bitis": 187.6166666667081,
+    "donus": 0
+  },
+  {
+    "boss": "camur-baronu",
+    "bolge": 1,
+    "pist": "Plaj Kros",
+    "hedef": 234.13950000000003,
+    "bitis": 192.65000000004545,
+    "donus": 0
+  },
+  {
+    "boss": "camur-baronu",
+    "bolge": 2,
+    "pist": "Plaj Kros",
+    "hedef": 212.3028,
+    "bitis": 186.3833333333738,
+    "donus": 0
+  },
+  {
+    "boss": "camur-baronu",
+    "bolge": 3,
+    "pist": "Plaj Kros",
+    "hedef": 209.61,
+    "bitis": 185.85000000004004,
+    "donus": 0
+  }
+]

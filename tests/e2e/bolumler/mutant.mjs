@@ -156,6 +156,9 @@ export default async function ({ p, ok }) {
     tik("#mBoss");
     const B = LT.yaris.EV;
     r.bossYaris = !!B && B.mutant && B.ty == k.boss.ty && LT.mutant.etkinlik == "boss";
+    // LT-SYS-007: boss rakip olarak ızgarada (drift boss'u hariç); kaybetmek için boss önce bitirmiş olmalı
+    r.bossRakip = k.boss.ty == "dp" ? !LT.rakip.y : !!LT.rakip.y && LT.rakip.ayar?.kisilik == "boss";
+    if (LT.rakip.y) LT.rakip.y.bitis = 1;
     B.state = "run";
     B.t = 99999;
     B.score = 0;
@@ -193,6 +196,7 @@ export default async function ({ p, ok }) {
   );
   ok(r.atolye && r.parca && r.tamir, "atölyede tamir ve stoktan parça alınır, araca takılır");
   ok(r.boss && r.bossYaris, "süre dolunca zorunlu boss yarışı, boss türünde pist");
+  ok(r.bossRakip, "boss yarışında boss rakip olarak ızgarada (drift boss'u puan hedefiyle)");
   ok(r.kaybetti && r.ozet && r.kapandi, "boss kaybedilince koşu biter, özet, ana menüde koşu kapanır");
   ok(r.normal, "sonraki normal yarış MUTANT bayrağı taşımaz");
 }
