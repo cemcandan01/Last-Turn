@@ -44,6 +44,8 @@ import {
   LANETLER,
   SANDIK_SAYISI,
   sandikAc,
+  sandikTeklifi,
+  sandikReddet,
   pistReferansi,
   takiliMekanikler,
   type Kosu,
@@ -547,13 +549,13 @@ describe("MUTANT A2: eklenti sandıkları", () => {
       for (const q of [a, b]) {
         expect(q.lanetli).toBe(false);
         expect(q.lanet).toBeNull();
-        expect(q.secenekler.length).toBe(2);
-        for (const e of q.secenekler) expect(eklenti(e).nadir).toBe(false);
+        expect(q.secenekler).toEqual([]);
+        expect(q.incelendi).toBe(false);
       }
       expect(c.lanetli).toBe(true);
       expect(Object.keys(LANETLER)).toContain(c.lanet);
-      expect(c.secenekler.length).toBe(1);
-      expect(eklenti(c.secenekler[0]).nadir).toBe(true);
+      expect(c.secenekler).toEqual([]);
+      expect(c.incelendi).toBe(false);
       const yerler = [...k.etkinlikler, ...k.sandiklar].map((q) => q.x + "," + q.z);
       expect(new Set(yerler).size).toBe(yerler.length);
       for (const q of k.sandiklar) expect(YERLER.some(([x, z]) => x == q.x && z == q.z)).toBe(true);
@@ -563,7 +565,7 @@ describe("MUTANT A2: eklenti sandıkları", () => {
   it("normal sandık: seçilen eklenti koşuda kalır, sandık bir kez açılır; seviye seçiminde eklenti çıkmaz", () => {
     const k = basla(3),
       q = k.sandiklar[0],
-      e = q.secenekler[0];
+      e = sandikTeklifi(k, q.id)!;
     expect(sandikAc(k, q.id, "olmayan")).toBe(false);
     const para = k.para,
       kalan = k.kalan,
@@ -571,7 +573,7 @@ describe("MUTANT A2: eklenti sandıkları", () => {
     expect(sandikAc(k, q.id, e)).toBe(true);
     expect(k.pasifler).toContain(e);
     expect([k.para, k.kalan, k.govde]).toEqual([para, kalan, govde]);
-    expect(sandikAc(k, q.id, q.secenekler[1])).toBe(false);
+    expect(sandikAc(k, q.id, e)).toBe(false);
     for (let t = 1; t <= 30; t++) expect(basla(t).secenekler.some((id) => id.startsWith("ek-"))).toBe(false);
     expect(PASIFLER.some((p) => p.id.startsWith("ek-"))).toBe(false);
   });
@@ -583,7 +585,7 @@ describe("MUTANT A2: eklenti sandıkları", () => {
       k.govde = 20;
       k.para = 301;
       const kalan = k.kalan;
-      expect(sandikAc(k, q.id, q.secenekler[0])).toBe(true);
+      expect(sandikAc(k, q.id, sandikTeklifi(k, q.id)!)).toBe(true);
       if (lanet == "sure") expect(k.kalan).toBe(kalan - 45);
       if (lanet == "govde") expect([k.govde, k.pert]).toEqual([1, false]);
       if (lanet == "para") expect(k.para).toBe(150);
@@ -591,13 +593,16 @@ describe("MUTANT A2: eklenti sandıkları", () => {
   });
   it("eklentiler sözleşmeye katılır: yedek tüp kapasite/enerji, çift ateşleme maliyet, tampon yalnız çarpma", () => {
     const k = basla();
-    k.sandiklar[0].secenekler = ["ek-yedek-tup", "ek-kizgin-egzoz"];
+    sandikTeklifi(k, 0);
+    k.sandiklar[0].secenekler = ["ek-yedek-tup"];
     sandikAc(k, 0, "ek-yedek-tup");
     expect([k.mek.kapasite, k.mek.enerji]).toEqual([130, BASLANGIC_ENERJI + 30]);
+    sandikTeklifi(k, 2);
     k.sandiklar[2].secenekler = ["ek-cift-atesleme"];
     sandikAc(k, 2, "ek-cift-atesleme");
     expect(nitroDurumu(k).maliyet).toBeCloseTo(NITRO.maliyet * 0.6, 6);
-    k.sandiklar[1].secenekler = ["ek-takviye-tampon", "ek-kizgin-egzoz"];
+    sandikTeklifi(k, 1);
+    k.sandiklar[1].secenekler = ["ek-takviye-tampon"];
     const g = k.govde;
     sandikAc(k, 1, "ek-takviye-tampon");
     hasarAl(k, "carpma");
@@ -606,15 +611,34 @@ describe("MUTANT A2: eklenti sandıkları", () => {
     hasarAl(k, "spin");
     expect(g2 - k.govde).toBeCloseTo(GOVDE.spin, 6);
   });
+  it("sandığı reddetmek ganimeti tüketir; ilk açılan ödül sayfa yeniden açılsa da değişmez", () => {
+    const k = basla(23), q = k.sandiklar[0];
+    const e = sandikTeklifi(k, q.id);
+    expect(e).toBeTruthy();
+    expect(sandikTeklifi(k, q.id)).toBe(e);
+    expect(q.secenekler).toHaveLength(1);
+    expect(sandikReddet(k, q.id)).toBe(true);
+    expect(sandikTeklifi(k, q.id)).toBeNull();
+    expect(sandikAc(k, q.id, e!)).toBe(false);
+  });
+  it("farklı sandıklarda alınmış eklenti tekrarlanmaz", () => {
+    for (let tohum = 1; tohum <= 40; tohum++) {
+      const k = basla(tohum);
+      const bir = sandikTeklifi(k, 0)!;
+      expect(sandikAc(k, 0, bir)).toBe(true);
+      const iki = sandikTeklifi(k, 1);
+      expect(iki).not.toBe(bir);
+    }
+  });
   it("boss sonrası yeni sandıklar; sahip olunan eklenti yeniden çıkmaz", () => {
     const k = basla(9),
-      e = k.sandiklar[2].secenekler[0];
+      e = sandikTeklifi(k, 2)!;
     sandikAc(k, 2, e);
     bossaGir(k);
     bossBitti(k, true, PISTLER);
     expect(k.sandiklar.length).toBe(SANDIK_SAYISI);
     expect(k.sandiklar.every((q) => !q.acildi)).toBe(true);
-    expect(k.sandiklar.flatMap((q) => q.secenekler)).not.toContain(e);
+    expect(k.sandiklar.map((q) => sandikTeklifi(k, q.id))).not.toContain(e);
   });
 });
 
