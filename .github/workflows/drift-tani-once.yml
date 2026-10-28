@@ -1,0 +1,41 @@
+name: DEV drift tanisi one-shot
+on:
+  push:
+    branches: [codex/mutant-drift-telemetri]
+    paths: [.github/workflows/drift-tani-once.yml]
+permissions:
+  contents: write
+jobs:
+  denetim:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/mutant-drift-telemetri
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Prettier uygula
+        run: npx prettier --write src/fizik/drift-tani.ts src/arayuz/mutant-ui.ts src/stil.css tests/birim/mutant-drift-tani.test.ts tests/e2e/bolumler/mutant-dev.mjs tests/senaryolar/mutant.mjs docs/isler/LT-SYS-007-mutant-dev-drift-tanisi.md docs/DEVIR.md
+      - name: Biçimlendirmeyi kaydet
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/fizik/drift-tani.ts src/arayuz/mutant-ui.ts src/stil.css tests/birim/mutant-drift-tani.test.ts tests/e2e/bolumler/mutant-dev.mjs tests/senaryolar/mutant.mjs docs/isler/LT-SYS-007-mutant-dev-drift-tanisi.md docs/DEVIR.md
+          if ! git diff --cached --quiet; then
+            git commit -m "style(mutant): drift tanisi Prettier"
+            git push origin HEAD:codex/mutant-drift-telemetri
+          fi
+      - name: Kod denetimi
+        run: npm run typecheck && npm run lint && npm run format:check
+      - name: Birim testleri
+        run: npx vitest run tests/birim/mutant-drift-tani.test.ts tests/birim/mutant-drift-test.test.ts
+      - name: Chromium kur
+        run: npx playwright install chromium
+      - name: Derle
+        run: npm run build
+      - name: DEV paneli tarayici testi
+        run: node tests/e2e/duman.mjs --bolum mutant-dev
