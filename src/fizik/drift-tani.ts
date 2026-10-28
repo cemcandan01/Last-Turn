@@ -5,15 +5,7 @@ import { driftYarisProfili } from "./ortak";
 import type { FizikBaglami, SimDurumu } from "./tipler";
 
 export type DriftTaniKodu =
-  | "havada"
-  | "toparlan"
-  | "yavas"
-  | "gaz"
-  | "aci"
-  | "hazirlik"
-  | "zorlama"
-  | "drift"
-  | "sinir";
+  "havada" | "toparlan" | "yavas" | "gaz" | "aci" | "hazirlik" | "zorlama" | "drift" | "sinir";
 
 export interface DriftTanisi {
   durum: DriftTaniKodu;
@@ -77,10 +69,5 @@ export function driftTanisi(
       "Direksiyon ve gazı tutarak arka aksı kaydır",
       d.DR.hold / p.zorlama,
     );
-  return sonuc(
-    "aci",
-    "KAYMA AÇISI",
-    "Giriş eşiğine ulaş: " + derece(p.giris) + "°",
-    ab / p.giris,
-  );
+  return sonuc("aci", "KAYMA AÇISI", "Giriş eşiğine ulaş: " + derece(p.giris) + "°", ab / p.giris);
 }

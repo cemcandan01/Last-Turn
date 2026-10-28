@@ -411,7 +411,9 @@ function testLaboratuvari(secili = "") {
       (yarista ? '<button class="btn alt" id="labTekrar">BU YARIŞI YENİDEN BAŞLAT</button>' : "") +
       '<button class="btn alt" id="labReset">Tüm kurulumu sıfırla</button>' +
       '<button class="btn alt" id="labSure">90 saniyeyi yenile</button>' +
-      '<button class="btn alt" id="labTani">Drift ölçümleri: ' + (driftDevGoster ? "AÇIK" : "KAPALI") + '</button>' +
+      '<button class="btn alt" id="labTani">Drift ölçümleri: ' +
+      (driftDevGoster ? "AÇIK" : "KAPALI") +
+      "</button>" +
       '<button class="btn alt" id="labBolge">Sonraki bölge (test)</button>' +
       '<button class="btn alt" id="labSurus">' +
       (yarista ? "YARIŞA DÖN" : "AÇIK DÜNYAYA DÖN") +
@@ -801,12 +803,7 @@ function driftDevGuncelle() {
   const el = document.querySelector<HTMLElement>("#mutantDriftTani");
   if (!el) return;
   const e = yaris.EV;
-  const acik =
-    driftDevGoster &&
-    !!mutant.kosu?.test &&
-    !!e?.mutant &&
-    e.ty == "dp" &&
-    oyun.mode == "drive";
+  const acik = driftDevGoster && !!mutant.kosu?.test && !!e?.mutant && e.ty == "dp" && oyun.mode == "drive";
   if (!acik) {
     el.style.display = "none";
     driftDevSon = -1;
