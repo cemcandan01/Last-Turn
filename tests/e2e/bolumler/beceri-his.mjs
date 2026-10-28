@@ -176,8 +176,12 @@ export default async function ({ p, ok }) {
     const kos = async (hayalet) => {
       LT.reset(agac.x, agac.z - 16, 0);
       await bekle(300);
-      if (hayalet)
-        k.bec.yerel["flying-dutchman"] = { ...k.bec.yerel["flying-dutchman"], kalan: 6, bekleme: 0 };
+      // faz yokken koşuda önceki koşunun fazı bitmiş olsun (başsız tarayıcıda 6 sn simülasyon saati yavaş akar)
+      k.bec.yerel["flying-dutchman"] = {
+        ...k.bec.yerel["flying-dutchman"],
+        kalan: hayalet ? 6 : 0,
+        bekleme: 0,
+      };
       const hit0 = LT.sim.S.hit;
       LT.I.g = 1;
       for (let i = 0; i < 40 && LT.sim.S.z < agac.z + 6; i++) await bekle(50);
