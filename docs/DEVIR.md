@@ -1,3 +1,10 @@
+# Aktif Codex işi: MUTANT DEV drift ölçümü — ayrı dalda doğrulama bekliyor
+
+- **Sahip:** Codex; dal `codex/mutant-drift-telemetri`; görev `docs/isler/LT-SYS-007-mutant-dev-drift-tanisi.md`.
+- **Kapsam:** Fizik değiştirmeden DEV drift yarışında giriş açısı, maksimum kontrol açısı, karşı direksiyon, giriş hazırlığı ve spin soğuması görünür. Atölyeden aç/kapat; normal HUD'da drift açısı görünmez.
+- **Sınırlar:** Normal MUTANT, kariyer drift, serbest sürüş ve master aynen kalır; aynı dosyada Claude paralel geliştirme yapmamalı.
+- **Test/PR:** CI sonucu ve PR bağlantısı görev kartında güncellenecek. **Sonraki adım:** tip/lint/biçim, birim ve Playwright/alan testlerini geçmek.
+
 # Son devir: 0.8.12 denemede — MUTANT drift yarışında her araç drift yapabilir
 
 - Claude / gelistirme. Cem: her araç drift yarışında drift yapabilmeli; driftte kalmak upgrade'le kolaylaşmalı, uygunsuz araçta zor ama mümkün. Kart LT-SYS-006 Revize 2; ölçüm `docs/denge/2026-10-28-mutant-drift-tutma.md`.
