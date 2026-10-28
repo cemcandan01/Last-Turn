@@ -1,0 +1,31 @@
+name: DEV panel format one-shot
+on:
+  push:
+    branches:
+      - codex/mutant-canli-dev-panel
+    paths:
+      - .github/workflows/dev-format-once.yml
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/mutant-canli-dev-panel
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prettier --write src/oyun/mutant-kosu.ts src/arayuz/mutant-ui.ts tests/birim/mutant.test.ts
+      - name: Commit formatting
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/oyun/mutant-kosu.ts src/arayuz/mutant-ui.ts tests/birim/mutant.test.ts
+          if ! git diff --cached --quiet; then
+            git commit -m "style(mutant): DEV panel Prettier"
+            git push origin HEAD:codex/mutant-canli-dev-panel
+          fi
