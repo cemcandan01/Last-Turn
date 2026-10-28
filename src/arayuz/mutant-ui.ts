@@ -39,6 +39,7 @@ import {
   LANETLER,
   sandikAc,
   sandikTeklifi,
+  sandikOduluBul,
   sandikReddet,
   testKurulumu,
   testBolgeyeGec,
@@ -517,18 +518,18 @@ function sandikSayfasi(id: number) {
     q = k.sandiklar.find((x) => x.id == id)!,
     esya = sandikTeklifi(k, id),
     L = q.lanet ? LANETLER[q.lanet] : null;
-  const p = esya ? pasifBul(esya)! : null;
+  const p = esya ? sandikOduluBul(esya)! : null;
   const s = sayfaAc(
     `<h1>${q.lanetli ? "Lanetli sandık" : "Gizli sandık"}</h1>` +
       (p
         ? `<p>Sandıktan çıkan:</p><div class="mtp"><div class="card mtb"><b>${p.ad}</b><span>${p.d}</span>${L ? `<span>Bedel · ${L.ad}: ${L.d}</span>` : ""}</div></div><button class="btn" id="mAl">Ödülü al</button><button class="btn alt" id="mGec">Alma</button>`
-        : '<p>Alınabilecek yeni eklenti kalmadı.</p><button class="btn alt" id="mGec">Kapat</button>'),
+        : '<p>Bu sandıkta ödül yok.</p><button class="btn alt" id="mGec">Kapat</button>'),
   );
   s.querySelector<HTMLElement>("#mAl")?.addEventListener("click", () => {
     if (!esya || !sandikAc(k, id, esya)) return;
     mutantAracGuncelle();
     isaretleriGuncelle();
-    note(p!.ad + " takıldı" + (L ? " · " + L.d : ""), 40);
+    note(p!.ad + " kazanıldı" + (L ? " · " + L.d : ""), 40);
     surusDevam();
   });
   s.querySelector<HTMLElement>("#mGec")!.onclick = () => {
