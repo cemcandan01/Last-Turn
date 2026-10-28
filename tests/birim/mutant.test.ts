@@ -698,6 +698,10 @@ describe("MUTANT DEV paneli: canlı build testi", () => {
     expect(testKurulumunuSifirla(k)).toBe(true);
     expect(k.beceriler).toHaveLength(0);
     expect(k.parcalar).toHaveLength(0);
+    k.govde = 1;
+    expect(hasarAl(k, "spin")).toBe(false);
+    expect(k.govde).toBe(GOVDE.tam);
+    expect(k.faz).toBe("surus");
   });
   it("test driftinde kapora ve XP build'i değiştirmez; 90 saniyelik sayaç otomatik yenilenir", () => {
     const k = kosuBaslat(9, PISTLER, true);
