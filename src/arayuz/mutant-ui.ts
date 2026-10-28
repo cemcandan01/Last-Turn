@@ -6,7 +6,15 @@ import { KATEGORILER, PARCALAR } from "../arac/parcalar";
 import { fmt, fmt3 } from "../cekirdek/bicim";
 import { $ } from "../cekirdek/dom";
 import { ikon, type IkonAdi } from "./ikonlar";
-import { SKILL_YUVASI, beceriBul, beceriEklentisiBul, type BeceriOrnegi } from "../cekirdek/beceri";
+import {
+  BECERILER,
+  BECERI_EKLENTILERI,
+  SKILL_YUVASI,
+  beceriBul,
+  beceriEklentisiBul,
+  eklentiUyar,
+  type BeceriOrnegi,
+} from "../cekirdek/beceri";
 import { isaretleriKur, isaretlerGorunur, type Isaret } from "../cizim/isaretler";
 import { Hw, WORLDS } from "../dunya/dunya";
 import { SEVIYELER } from "../dunya/pist-tanimlari";
@@ -42,8 +50,11 @@ import {
   sandikOduluBul,
   sandikReddet,
   testKurulumu,
+  testBeceriAyarla,
   testKurulumunuSifirla,
+  BOSS_SURESI,
   testBolgeyeGec,
+  kosuBaslat,
   beceriTeklifleri,
   PASIFLER,
   SATILMAZ,
@@ -194,15 +205,29 @@ function basla() {
     r = mulberry32(k.tohum ^ 0x5bd1e995),
     aday = [...BASLANGIC_ARACLARI],
     araclar: number[] = [];
-  while (araclar.length < 3 && aday.length) araclar.push(aday.splice(Math.floor(r() * aday.length), 1)[0]);
+  if (k.test) araclar.push(...CARS.map((_, i) => i));
+  else
+    while (araclar.length < 3 && aday.length) araclar.push(aday.splice(Math.floor(r() * aday.length), 1)[0]);
+  const devDugme =
+    import.meta.env.DEV || location.pathname.includes("/dev/")
+      ? '<button class="btn alt" id="mDevSec">⚙ Geliştirici modu: ' +
+        (k.test ? "AÇIK · kapat" : "KAPALI · aç") +
+        "</button>"
+      : "";
   const s = sayfaAc(
-    `<h1>MUTANT</h1><p>Boss'a ${sure(k.kalan)} var. Önce aracını seç: hepsi zayıf, koşuda güçlenecek.</p>${bossKarti(k.boss)}<div class="mtp">${araclar
+    `<h1>MUTANT</h1><p>Boss'a ${sure(k.kalan)} var. ${k.test ? "DEV testi: tüm araçlar açık, skill ve parçalar yarışta değişebilir." : "Önce aracını seç: hepsi zayıf, koşuda güçlenecek."}</p>${devDugme}${bossKarti(k.boss)}<div class="mtp">${araclar
       .map(
         (i) =>
           `<div class="card go" data-arac="${i}"><b>${CARS[i].n}</b><span>${CARS[i].hp} HP · ${Math.round(CARS[i].kg)} kg · ${CARS[i].awd > 0.5 ? "4×4" : "arkadan itiş"}</span></div>`,
       )
       .join("")}</div>`,
   );
+  s.querySelector<HTMLElement>("#mDevSec")?.addEventListener("click", () => {
+    mutant.kosu = kosuBaslat(k.tohum, mutantPistleri(), !k.test);
+    mutant.etkinlik = null;
+    mutant.bossBekliyor = false;
+    basla();
+  });
   s.querySelectorAll<HTMLElement>("[data-arac]").forEach(
     (e) =>
       (e.onclick = () => {
@@ -313,62 +338,141 @@ function secimYap(id: string, birak?: string) {
   devam();
 }
 
-/** Modüler MUTANT testi: istediği parça/skill'i seç, aynı drift etkinliğini sınırsız tekrar dene. */
-function testLaboratuvari() {
+/** Yarışın ortasında bile açılabilen test paneli: oyun durur, aynı yarışa dönülebilir. */
+function testLaboratuvari(secili = "") {
   const k = mutant.kosu!;
-  if (!k.test) return;
+  if (!k.test || (yaris.EV && !yaris.EV.mutant)) return;
+  const yarista = !!yaris.EV;
   k.faz = "surus";
   k.bekleyenSecim = 0;
   k.secenekler = [];
-  const sec = (id: string, l: { id: string; ad: string }[]) =>
-    `<select id="${id}" style="max-width:46vw;width:100%;padding:8px;background:#172331;color:white">${l.map((o) => `<option value="${o.id}">${o.ad}</option>`).join("")}</select>`;
-  const skill = beceriTeklifleri(k).map((id) => {
-    const [tur, ad] = secenekKarti(id);
-    return { id, ad: ad + " · " + tur };
-  });
+  const sec = (id: string, l: { id: string; ad: string }[], deger = "") =>
+    '<select id="' +
+    id +
+    '" style="max-width:90vw;width:100%;padding:9px;background:#172331;color:white">' +
+    l
+      .map(
+        (o) => '<option value="' + o.id + '"' + (o.id == deger ? " selected" : "") + ">" + o.ad + "</option>",
+      )
+      .join("") +
+    "</select>";
+  const seciliId = BECERILER.some((o) => o.id == secili) ? secili : BECERILER[0].id;
+  const tanim = beceriBul(seciliId)!;
+  const takili = k.beceriler.find((o) => o.id == seciliId);
+  const ekler = BECERI_EKLENTILERI.filter((o) => eklentiUyar(tanim, o));
+  const secimEvo = [{ id: "", ad: "Evrim yok" }, ...tanim.evrimler.map((o) => ({ id: o.id, ad: o.ad }))];
+  const secimEk = [{ id: "", ad: "Eklenti yok" }, ...ekler.map((o) => ({ id: o.id, ad: o.ad }))];
   const s = sayfaAc(
-    `<h1>MUTANT · DENEME ATÖLYESİ</h1><p>Bölge ${k.bolge} · ${sure(k.kalan)} · İlerleme/kariyer kayıtları değişmez.</p>` +
-      `<p class="note">Her parçayı ayrı ayrı dene. Aynı kategoriden parça takarsan eskisi çıkar; üç skill yuvası doluysa ilk skill değişir.</p>` +
-      `<div class="mtp"><div class="card">${sec(
+    "<h1>⚙ MUTANT · DEV PANEL</h1><p>Test modu · " +
+      (yarista ? "Yarış duraklatıldı" : "Açık dünya duraklatıldı") +
+      " · Sayaç: " +
+      sure(k.kalan) +
+      " (90 sn'de yenilenir)</p>" +
+      '<p class="note">Değişiklikler anında araca işlenir. Sadece /dev/ testinde çalışır; kariyer ve normal MUTANT etkilenmez.</p>' +
+      '<div class="mtp"><div class="card"><b>Pasif yetenekler</b>' +
+      sec(
         "labPasif",
         PASIFLER.map((o) => ({ id: o.id, ad: o.ad })),
-      )}<button class="btn" id="labPasifAl">Pasif ekle</button></div>` +
-      `<div class="card">${sec("labSkill", skill)}<button class="btn" id="labSkillAl">Skill / seviye ekle</button></div>` +
-      `<div class="card">${sec(
+      ) +
+      '<button class="btn" id="labPasifAl">Pasif ekle</button></div>' +
+      '<div class="card"><b>Skill · seviye · evrim · eklenti</b>' +
+      sec(
+        "labSkill",
+        BECERILER.map((o) => ({ id: o.id, ad: o.ad })),
+        seciliId,
+      ) +
+      sec(
+        "labSeviye",
+        [1, 2, 3].map((o) => ({ id: String(o), ad: "Seviye " + o })),
+        String(takili?.seviye ?? 1),
+      ) +
+      sec("labEvrim", secimEvo, takili?.evrim ?? "") +
+      sec("labEk1", secimEk, takili?.eklentiler[0] ?? "") +
+      sec("labEk2", secimEk, takili?.eklentiler[1] ?? "") +
+      '<button class="btn" id="labSkillAl">Skill kurulumunu uygula</button>' +
+      '<button class="btn alt" id="labSkillSil">Seçili skill\'i kaldır</button></div>' +
+      '<div class="card"><b>Modifiye parçaları (kilitsiz)</b>' +
+      sec(
         "labParca",
-        PARCALAR.filter((p) => !SATILMAZ.includes(p.id)).map((p) => ({ id: p.id, ad: p.n })),
-      )}<button class="btn" id="labParcaAl">Parça tak</button></div></div>` +
-      `<p class="note">Takılı: ${k.parcalar.length} parça · ${k.pasifler.length} pasif · ${k.beceriler.map((o) => beceriAdi(o)).join(", ") || "skill yok"}</p>` +
-      '<button class="btn" id="labDrift">DRİFT YARIŞINI DENE</button>' +
-      '<button class="btn alt" id="labReset">Kurulumu sıfırla</button>' +
+        PARCALAR.map((o) => ({ id: o.id, ad: o.n })),
+      ) +
+      '<button class="btn" id="labParcaAl">Parça tak</button></div></div>' +
+      '<p class="note">Takılı: ' +
+      k.parcalar.length +
+      " parça · " +
+      k.pasifler.length +
+      " pasif · " +
+      (k.beceriler.map((o) => beceriAdi(o)).join(", ") || "skill yok") +
+      "</p>" +
+      '<button class="btn" id="labDrift">DRİFT YARIŞINA GİR / YENİDEN BAŞLAT</button>' +
+      (yarista ? '<button class="btn alt" id="labTekrar">BU YARIŞI YENİDEN BAŞLAT</button>' : "") +
+      '<button class="btn alt" id="labReset">Tüm kurulumu sıfırla</button>' +
+      '<button class="btn alt" id="labSure">90 saniyeyi yenile</button>' +
       '<button class="btn alt" id="labBolge">Sonraki bölge (test)</button>' +
-      '<button class="btn alt" id="labSurus">Açık dünyaya dön</button>',
+      '<button class="btn alt" id="labSurus">' +
+      (yarista ? "YARIŞA DÖN" : "AÇIK DÜNYAYA DÖN") +
+      "</button>",
   );
-  const ekle = (tur: "pasif" | "beceri" | "parca", select: string) => {
-    const id = s.querySelector<HTMLSelectElement>(select)?.value;
-    if (!id || !testKurulumu(k, tur, id)) return note("Eklenemedi: seviye sınırı veya geçersiz seçim", 30);
+  const ekle = (tur: "pasif" | "parca", id: string) => {
+    const secilen = s.querySelector<HTMLSelectElement>(id)?.value;
+    if (!secilen || !testKurulumu(k, tur, secilen)) return note("Eklenemedi: sınır veya geçersiz seçim", 30);
     mutantKurulumUygula();
-    testLaboratuvari();
+    testLaboratuvari(seciliId);
   };
+  s.querySelector<HTMLSelectElement>("#labSkill")!.onchange = (v) =>
+    testLaboratuvari((v.target as HTMLSelectElement).value);
   s.querySelector<HTMLElement>("#labPasifAl")!.onclick = () => ekle("pasif", "#labPasif");
-  s.querySelector<HTMLElement>("#labSkillAl")!.onclick = () => ekle("beceri", "#labSkill");
   s.querySelector<HTMLElement>("#labParcaAl")!.onclick = () => ekle("parca", "#labParca");
+  s.querySelector<HTMLElement>("#labSkillAl")!.onclick = () => {
+    const sv = +s.querySelector<HTMLSelectElement>("#labSeviye")!.value;
+    // Seviyeyi 3 altına çekince önceki evrim otomatik ayrılır.
+    const evo = sv == 3 ? s.querySelector<HTMLSelectElement>("#labEvrim")!.value || null : null;
+    const ext = ["#labEk1", "#labEk2"]
+      .map((id) => s.querySelector<HTMLSelectElement>(id)!.value)
+      .filter((id) => id.length > 0);
+    if (!testBeceriAyarla(k, seciliId, sv, evo, ext))
+      return note("Uyumsuz eklenti veya evrim: kurulumu kontrol et", 30);
+    mutantKurulumUygula();
+    testLaboratuvari(seciliId);
+  };
+  s.querySelector<HTMLElement>("#labSkillSil")!.onclick = () => {
+    if (!testBeceriAyarla(k, seciliId, 0)) return note("Bu skill zaten takılı değil", 30);
+    mutantKurulumUygula();
+    testLaboratuvari(seciliId);
+  };
   s.querySelector<HTMLElement>("#labReset")!.onclick = () => {
     if (!testKurulumunuSifirla(k)) return;
     mutantKurulumUygula();
-    testLaboratuvari();
+    testLaboratuvari(seciliId);
+  };
+  s.querySelector<HTMLElement>("#labSure")!.onclick = () => {
+    k.kalan = BOSS_SURESI(k.bolge, true);
+    mutant.bossBekliyor = false;
+    testLaboratuvari(seciliId);
   };
   s.querySelector<HTMLElement>("#labDrift")!.onclick = () => {
+    if (yarista) haritayaDon();
     const e = k.etkinlikler.find((q) => q.ty == "dp");
     if (!e) return note("Bu bölgede drift etkinliği yok", 30);
     e.yapildi = false;
+    e.kapora = undefined;
+    k.kalan = BOSS_SURESI(k.bolge, true);
+    mutant.bossBekliyor = false;
     mutant.risk = 0;
     etkinlikBaslat(e.id, e.i);
   };
+  s.querySelector<HTMLElement>("#labTekrar")?.addEventListener("click", () => {
+    const e = yaris.EV;
+    if (!e || !e.mutant) return;
+    k.kalan = BOSS_SURESI(k.bolge, true);
+    mutant.bossBekliyor = false;
+    startEvent(e.i, mutantArac, true);
+  });
   s.querySelector<HTMLElement>("#labBolge")!.onclick = () => {
+    if (yarista) haritayaDon();
     if (!testBolgeyeGec(k, Math.min(3, k.bolge + 1), mutantPistleri())) return;
     isaretleriGuncelle();
-    testLaboratuvari();
+    testLaboratuvari(seciliId);
   };
   s.querySelector<HTMLElement>("#labSurus")!.onclick = surusDevam;
 }
@@ -686,6 +790,19 @@ function ozet() {
 export function mutantArayuzuKur(yeni: () => void, menu: () => void) {
   yeniKosu = yeni;
   anaMenu = menu;
+  // Yalnız test koşusunda görünen mobil geliştirici kısayolu.
+  let dugme = document.querySelector<HTMLButtonElement>("#mutantDevPanel");
+  if (!dugme) {
+    dugme = document.createElement("button");
+    dugme.id = "mutantDevPanel";
+    dugme.textContent = "⚙ DEV";
+    dugme.style.cssText =
+      "position:fixed;top:72px;right:12px;z-index:10000;padding:11px 16px;border:2px solid #8de5ff;border-radius:12px;background:#142536;color:#fff;font-weight:bold;display:none";
+    document.body.appendChild(dugme);
+  }
+  dugme.onclick = () => {
+    if (mutant.kosu?.test && (!yaris.EV || yaris.EV.mutant) && oyun.mode == "drive") testLaboratuvari();
+  };
   // klavyede nitro: N
   addEventListener("keydown", (e) => {
     if (!mutant.kosu || oyun.mode != "drive") return;
@@ -725,6 +842,10 @@ export function mutantVazgec() {
 /** HUD: sol üst başlık ve panel */
 export function mutantBaslik(evAdi: string | null): string | null {
   const k = mutant.kosu;
+  const devDugme = document.querySelector<HTMLButtonElement>("#mutantDevPanel");
+  if (devDugme)
+    devDugme.style.display =
+      k?.test && (!yaris.EV || yaris.EV.mutant) && oyun.mode == "drive" ? "block" : "none";
   if (!k) return null;
   if (evAdi)
     return mutant.etkinlik == "boss" ? "BOSS · " + k.boss.ad : "MUTANT " + sure(k.kalan) + " · " + evAdi;

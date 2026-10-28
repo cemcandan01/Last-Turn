@@ -69,8 +69,8 @@ describe("MUTANT drift yarışı için ayrı çekirdek", () => {
   it("test süresi kısadır ve normal koşu süresini değiştirmez", () => {
     expect(BOSS_SURESI(1)).toBe(900);
     expect(BOSS_SURESI(2)).toBe(780);
-    expect(BOSS_SURESI(1, true)).toBe(180);
-    expect(BOSS_SURESI(3, true)).toBe(240);
+    expect(BOSS_SURESI(1, true)).toBe(90);
+    expect(BOSS_SURESI(3, true)).toBe(90);
   });
 
   it("üretim koşusunda serbest parça ve skill eklenemez", () => {
@@ -104,6 +104,6 @@ describe("MUTANT drift yarışı için ayrı çekirdek", () => {
     expect(k.beceriler.some((b) => b.id == "grappling-hook")).toBe(true);
     expect(testBolgeyeGec(k, 3, [])).toBe(true);
     expect(k.bolge).toBe(3);
-    expect(k.kalan).toBe(240);
+    expect(k.kalan).toBe(90);
   });
 });

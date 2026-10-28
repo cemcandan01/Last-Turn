@@ -33,6 +33,9 @@ import {
   etkinlikBitti,
   kosuAraci,
   kosuBaslat,
+  testBeceriAyarla,
+  testKurulumu,
+  testKurulumunuSifirla,
   parcaAl,
   parcaFiyati,
   pasifSec,
@@ -663,6 +666,59 @@ describe("MUTANT A2: eklenti sandıkları", () => {
     expect(k.sandiklar.length).toBe(SANDIK_SAYISI);
     expect(k.sandiklar.every((q) => !q.acildi)).toBe(true);
     expect(k.sandiklar.map((q) => sandikTeklifi(k, q.id))).not.toContain(e);
+  });
+});
+
+describe("MUTANT DEV paneli: canlı build testi", () => {
+  it("normal koşuya müdahale etmez; testte tüm becerileri seviye 3 ve evrimle anında kurar", () => {
+    const normal = basla(4);
+    expect(testBeceriAyarla(normal, "grappling-hook", 3, "ters-kanca")).toBe(false);
+    expect(testKurulumu(normal, "parca", "motor-degisim")).toBe(false);
+    const k = kosuBaslat(4, PISTLER, true);
+    expect(pasifSec(k, k.secenekler[0])).toBe(true);
+    expect(k.kalan).toBe(90);
+    expect(testBeceriAyarla(k, "grappling-hook", 3, "ters-kanca", ["sok-bobini"])).toBe(true);
+    expect(k.beceriler[0]).toEqual({
+      id: "grappling-hook",
+      seviye: 3,
+      evrim: "ters-kanca",
+      eklentiler: ["sok-bobini"],
+    });
+    expect(testBeceriAyarla(k, "risk-taker", 3, "kivilcim-izi", ["sok-bobini"])).toBe(false);
+    expect(testBeceriAyarla(k, "grappling-hook", 1, "ters-kanca")).toBe(false);
+    expect(testBeceriAyarla(k, "grappling-hook", 3, "ters-kanca", ["sok-bobini", "sok-bobini"])).toBe(false);
+    expect(testKurulumu(k, "parca", "motor-degisim")).toBe(true);
+    expect(k.parcalar).toContain("motor-degisim");
+    expect(testBeceriAyarla(k, "flying-dutchman", 1)).toBe(true);
+    expect(testBeceriAyarla(k, "risk-taker", 3, "kivilcim-izi", ["kor-cekirdegi"])).toBe(true);
+    expect(testBeceriAyarla(k, "slipstream-engine", 2)).toBe(true);
+    expect(k.beceriler.map((o) => o.id)).toEqual(["flying-dutchman", "risk-taker", "slipstream-engine"]);
+    expect(testBeceriAyarla(k, "flying-dutchman", 0)).toBe(true);
+    expect(k.beceriler).toHaveLength(2);
+    expect(testKurulumunuSifirla(k)).toBe(true);
+    expect(k.beceriler).toHaveLength(0);
+    expect(k.parcalar).toHaveLength(0);
+    k.govde = 1;
+    expect(hasarAl(k, "spin")).toBe(false);
+    expect(k.govde).toBe(GOVDE.tam);
+    expect(k.faz).toBe("surus");
+  });
+  it("test driftinde kapora ve XP build'i değiştirmez; 90 saniyelik sayaç otomatik yenilenir", () => {
+    const k = kosuBaslat(9, PISTLER, true);
+    pasifSec(k, k.secenekler[0]);
+    testBeceriAyarla(k, "grappling-hook", 3, "ters-kanca");
+    const e = k.etkinlikler.find((q) => q.ty == "dp")!;
+    e.kapora = { beceri: "grappling-hook", deneme: 0 };
+    const once = JSON.stringify(k.beceriler);
+    const eskiXp = k.xp;
+    const r = etkinlikBitti(k, e.id, false, 2)!;
+    expect(r.kapora).toBeNull();
+    expect(r.ceza).toBe(0);
+    expect(k.xp).toBe(eskiXp);
+    expect(JSON.stringify(k.beceriler)).toBe(once);
+    expect(zamanAkis(k, 90)).toBeNull();
+    expect(k.kalan).toBe(90);
+    expect(k.faz).toBe("surus");
   });
 });
 
