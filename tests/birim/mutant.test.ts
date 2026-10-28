@@ -630,6 +630,18 @@ describe("MUTANT A2: eklenti sandıkları", () => {
       expect(iki).not.toBe(bir);
     }
   });
+  it("iki sandığı ödül almadan önce açınca da çakışma olmaz (tohum matrisi)", () => {
+    for (let tohum = 1; tohum <= 80; tohum++) {
+      const k = basla(tohum);
+      const bir = sandikTeklifi(k, 0)!;
+      const iki = sandikTeklifi(k, 1)!;
+      expect(iki, "tohum " + tohum).not.toBe(bir);
+      expect(sandikTeklifi(k, 0)).toBe(bir);
+      expect(sandikTeklifi(k, 1)).toBe(iki);
+      expect(sandikAc(k, 1, iki)).toBe(true);
+      expect(sandikAc(k, 0, bir)).toBe(true);
+    }
+  });
   it("boss sonrası yeni sandıklar; sahip olunan eklenti yeniden çıkmaz", () => {
     const k = basla(9),
       e = sandikTeklifi(k, 2)!;
