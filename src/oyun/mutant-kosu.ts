@@ -1033,10 +1033,10 @@ export function kesmeCezasi(k: Kosu, metre: number): number {
   k.govde = Math.max(0, k.govde - metre * KESME_CEZASI);
   k.kesme = (k.kesme ?? 0) + 1;
   if (k.govde <= 0) {
-    // Testte tekrar tekrar spin ve çarpma denenebilsin; normal permadeath değişmez.
+    // DEV testinde pist kesme hasarı ölçülür ama koşu sonlandırılmaz.
     if (k.test) {
       k.govde = GOVDE.tam;
-      return false;
+      return h;
     }
     k.pert = true;
     k.faz = "bitti";
@@ -1066,6 +1066,11 @@ export function hasarAl(k: Kosu, tur: "carpma" | "spin"): boolean {
   // hurdacı: hasarın tamir bedelinden az para (bilerek çarpmak kâr etmez)
   if (pasifSayisi(k, "hurdaci")) k.para += Math.floor(alinan * GOVDE.tamirFiyati * HURDACI_PAY);
   if (k.govde <= 0) {
+    // DEV sürüşünde biriken spin/çarpışma hasarı testin bitmesine neden olmaz.
+    if (k.test) {
+      k.govde = GOVDE.tam;
+      return false;
+    }
     k.pert = true;
     k.faz = "bitti";
     return true;
