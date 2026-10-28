@@ -38,7 +38,18 @@ export function driftYarisProfili(K: FizikBaglami["kurulum"]) {
     5 * pay(t.diff, 0.2, 1.2) +
     4 * (1 - cl(c.awd, 0, 1)) +
     3 * pay(K.as.dft, 0.2, 1);
-  return { giris: (12 * Math.PI) / 180, azami: (cl(derece, 22, 58) * Math.PI) / 180 };
+  // Yüksek kilit, açı kiti ve arka çekiş: drifte daha küçük açıyla, daha kısa sürede girilir.
+  // En kötü kurulumda da gerçek kaymayla giriş mümkündür; ücretsiz otomatik drift yoktur.
+  const girisYatkini =
+    0.45 * pay(t.diff, 0.2, 1.15) +
+    0.3 * pay(c.dmax ?? 0.8, 0.55, 1.06) +
+    0.15 * (1 - cl(c.awd, 0, 1)) +
+    0.1 * pay(K.as.ini ?? 0, 0, 1);
+  return {
+    giris: (cl(17 - 7 * girisYatkini, 9, 17) * Math.PI) / 180,
+    hazirlik: 0.2 - 0.1 * girisYatkini,
+    azami: (cl(derece, 22, 58) * Math.PI) / 180,
+  };
 }
 
 /**
@@ -66,9 +77,10 @@ export function driftPenceresi(
       if (!DR.on && DR.cool <= 0) {
         // Gaz ve lastik kaymasıyla giriş. Düşük güçlü, dört çeker araçlarda da ulaşılabilir.
         DR.nc = ab >= p.giris && v >= 7 && gi.g > 0.2 ? DR.nc + dt : 0;
-        if (DR.nc >= 0.12) {
+        if (DR.nc >= p.hazirlik) {
           DR.on = 1;
           DR.t = 0;
+          DR.nc = 0;
           DR.dir = -Math.sign(be);
           DR.bt = cl(ab, p.giris, p.azami);
         }
@@ -82,6 +94,7 @@ export function driftPenceresi(
         if (ab > p.azami + 0.12) {
           DR.on = 0;
           DR.cool = 0.9;
+          DR.nc = 0;
           cx.olay.spin();
         } else if (v < 5 || (ab < p.giris * 0.6 && DR.t > 0.2)) DR.on = 0;
       }
