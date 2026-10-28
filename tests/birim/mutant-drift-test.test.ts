@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { CARS } from "../../src/arac/araclar";
 import { driftPenceresi, driftSiniri, driftSkoru, driftYarisProfili } from "../../src/fizik/ortak";
 import type { FizikBaglami, FizikGirdisi, SimDurumu, SurusKurulumu } from "../../src/fizik/tipler";
-import { BOSS_SURESI, kosuBaslat, pasifSec, testKurulumu, testBolgeyeGec } from "../../src/oyun/mutant-kosu";
+import { BOSS_SURESI, kosuBaslat, pasifSec, testKurulumu,
+  testKurulumunuSifirla, testBolgeyeGec } from "../../src/oyun/mutant-kosu";
 
 const kurulum = (tuned = false) =>
   ({
@@ -72,6 +73,21 @@ describe("MUTANT drift yarışı için ayrı çekirdek", () => {
     expect(testKurulumu(k, "beceri", "b:grappling-hook")).toBe(false);
   });
 
+  it("laboratuvarda kurulum tek hamlede sıfırlanır, normal koşuda sıfırlanamaz", () => {
+    const k = kosuBaslat(31, [], true);
+    pasifSec(k, k.secenekler[0]);
+    expect(testKurulumu(k, "parca", "aci-kiti")).toBe(true);
+    expect(testKurulumu(k, "beceri", "b:grappling-hook")).toBe(true);
+    expect(testKurulumunuSifirla(k)).toBe(true);
+    expect(k.pasifler).toHaveLength(0);
+    expect(k.parcalar).toHaveLength(0);
+    expect(k.beceriler).toHaveLength(0);
+    expect(k.govde).toBe(100);
+    const normal = kosuBaslat(31, []);
+    pasifSec(normal, normal.secenekler[0]);
+    expect(testKurulumunuSifirla(normal)).toBe(false);
+    expect(normal.pasifler).toHaveLength(1);
+  });
   it("laboratuvarda uzmanlık parçası ve skill seçilir, koşu 3. bölgeye geçirilebilir", () => {
     const k = kosuBaslat(9, [], true);
     pasifSec(k, k.secenekler[0]);
