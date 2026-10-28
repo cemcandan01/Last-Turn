@@ -10,7 +10,8 @@ export default async function ({ p, ok }) {
       el.click();
     };
 
-    // CI derlemesi kökte açılır; geliştirme yolu yalnız bu sayfa için etkinleştirilir.
+    // CI derlemesi kökte açılır; geliştirme yolu yalnız bu senaryo için etkinleştirilir.
+    const oncekiAdres = location.pathname + location.search + location.hash;
     history.replaceState(null, "", "/dev/?mutantTest=1");
     LT.demoStop();
     LT.showMenu(["home"]);
@@ -58,6 +59,7 @@ export default async function ({ p, ok }) {
     tik("#labTekrar");
     const tekrar = !!LT.yaris.EV && LT.yaris.EV.state == "count" && LT.yaris.EV.t == 0;
     LT.showMenu(["home"]);
+    history.replaceState(null, "", oncekiAdres);
     return { menu, kapali, acik, lab, kurulum, yarista, dugme, durdu, canli, devam, tekrar };
   });
   ok(r.menu && r.kapali && r.acik, "MUTANT menüsünde DEV modu açılıp kapanır; bütün araçlar görünür");
