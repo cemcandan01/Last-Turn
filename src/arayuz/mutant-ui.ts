@@ -686,6 +686,19 @@ function ozet() {
 export function mutantArayuzuKur(yeni: () => void, menu: () => void) {
   yeniKosu = yeni;
   anaMenu = menu;
+  // Yalnız test koşusunda görünen mobil geliştirici kısayolu.
+  let dugme = document.querySelector<HTMLButtonElement>("#mutantDevPanel");
+  if (!dugme) {
+    dugme = document.createElement("button");
+    dugme.id = "mutantDevPanel";
+    dugme.textContent = "⚙ DEV";
+    dugme.style.cssText =
+      "position:fixed;top:72px;right:12px;z-index:10000;padding:11px 16px;border:2px solid #8de5ff;border-radius:12px;background:#142536;color:#fff;font-weight:bold;display:none";
+    document.body.appendChild(dugme);
+  }
+  dugme.onclick = () => {
+    if (mutant.kosu?.test && !yaris.EV && oyun.mode == "drive") testLaboratuvari();
+  };
   // klavyede nitro: N
   addEventListener("keydown", (e) => {
     if (!mutant.kosu || oyun.mode != "drive") return;
@@ -725,6 +738,9 @@ export function mutantVazgec() {
 /** HUD: sol üst başlık ve panel */
 export function mutantBaslik(evAdi: string | null): string | null {
   const k = mutant.kosu;
+  const devDugme = document.querySelector<HTMLButtonElement>("#mutantDevPanel");
+  if (devDugme)
+    devDugme.style.display = k?.test && !yaris.EV && oyun.mode == "drive" ? "block" : "none";
   if (!k) return null;
   if (evAdi)
     return mutant.etkinlik == "boss" ? "BOSS · " + k.boss.ad : "MUTANT " + sure(k.kalan) + " · " + evAdi;
