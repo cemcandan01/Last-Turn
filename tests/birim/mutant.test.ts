@@ -642,6 +642,18 @@ describe("MUTANT A2: eklenti sandıkları", () => {
       expect(sandikAc(k, 0, bir)).toBe(true);
     }
   });
+  it("eklenti havuzu bitse de sandık kaynak ödülü sunar ve gerçekten verir", () => {
+    const k = basla(19);
+    k.pasifler.push(...EKLENTILER.filter((e) => !e.nadir).map((e) => e.id));
+    k.govde = 35;
+    k.mek.enerji = 1;
+    const eski = { para: k.para, govde: k.govde, enerji: k.mek.enerji };
+    const teklif = sandikTeklifi(k, 0)!;
+    expect(["sandik-para", "sandik-tamir", "sandik-enerji"]).toContain(teklif);
+    expect(sandikAc(k, 0, teklif)).toBe(true);
+    expect(k.sandiklar[0].acildi).toBe(true);
+    expect(k.para > eski.para || k.govde > eski.govde || k.mek.enerji > eski.enerji).toBe(true);
+  });
   it("boss sonrası yeni sandıklar; sahip olunan eklenti yeniden çıkmaz", () => {
     const k = basla(9),
       e = sandikTeklifi(k, 2)!;
