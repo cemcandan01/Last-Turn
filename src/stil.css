@@ -1313,6 +1313,75 @@ details[open] > summary::after {
   backdrop-filter: blur(8px);
 }
 
+/* Yalnız MUTANT DEV drift testinde: açı ve giriş telemetrisi (normal oyuncuda kapalı).
+ * Üst orta kombo panelinin altında, yatay iPhone'da parmak ve araç alanının dışında. */
+#mutantDriftTani {
+  --mdt-renk: #d0dce5;
+  position: absolute;
+  left: 50%;
+  top: calc(var(--hy) + 70px);
+  transform: translateX(-50%);
+  width: min(312px, 45vw);
+  box-sizing: border-box;
+  padding: 4px 10px 6px;
+  border-radius: 10px;
+  border: 1px solid #a9bcc555;
+  background: #111e28d9;
+  backdrop-filter: blur(6px);
+  color: #dfeef2;
+  text-align: left;
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+}
+#mutantDriftTani[data-durum="drift"] {
+  --mdt-renk: #84edbe;
+}
+#mutantDriftTani[data-durum="sinir"],
+#mutantDriftTani[data-durum="toparlan"] {
+  --mdt-renk: #ff8e7d;
+}
+#mutantDriftTani[data-durum="hazirlik"],
+#mutantDriftTani[data-durum="zorlama"] {
+  --mdt-renk: #ffd47c;
+}
+#mutantDriftTani .mdtSatir {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+  white-space: nowrap;
+}
+#mutantDriftTani .mdtSatir b {
+  font-size: 10px;
+  color: var(--mdt-renk);
+}
+#mutantDriftTani .mdtSatir span {
+  font-size: 10px;
+}
+#mutantDriftTani small {
+  display: block;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #bed0d7;
+  font-size: 10px;
+}
+#mutantDriftTani .mdtCizgi {
+  height: 3px;
+  margin-top: 4px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #7b93a247;
+}
+#mutantDriftTani .mdtCizgi i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--mdt-renk);
+  transition: width 0.1s linear;
+}
+
 /* sol üst: yarış adı, ana değer (süre ya da toplam puan), alt satır */
 .hTL {
   position: absolute;
