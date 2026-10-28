@@ -2,8 +2,14 @@ import { describe, expect, it } from "vitest";
 import { CARS } from "../../src/arac/araclar";
 import { driftPenceresi, driftSiniri, driftSkoru, driftYarisProfili } from "../../src/fizik/ortak";
 import type { FizikBaglami, FizikGirdisi, SimDurumu, SurusKurulumu } from "../../src/fizik/tipler";
-import { BOSS_SURESI, kosuBaslat, pasifSec, testKurulumu,
-  testKurulumunuSifirla, testBolgeyeGec } from "../../src/oyun/mutant-kosu";
+import {
+  BOSS_SURESI,
+  kosuBaslat,
+  pasifSec,
+  testBolgeyeGec,
+  testKurulumu,
+  testKurulumunuSifirla,
+} from "../../src/oyun/mutant-kosu";
 
 const kurulum = (tuned = false) =>
   ({
@@ -26,7 +32,8 @@ describe("MUTANT drift yarışı için ayrı çekirdek", () => {
   it("stok ve güçlendirilmiş araçların kontrol açısı gerçekten farklıdır", () => {
     const stok = driftYarisProfili(kurulum());
     const guclu = driftYarisProfili(kurulum(true));
-    expect(stok.giris).toBeCloseTo(guclu.giris);
+    expect(stok.giris).toBeGreaterThan(guclu.giris);
+    expect(stok.hazirlik).toBeGreaterThan(guclu.hazirlik);
     expect(stok.azami).toBeLessThan(guclu.azami);
     expect((guclu.azami * 180) / Math.PI).toBeGreaterThan(40);
     expect((stok.azami * 180) / Math.PI).toBeLessThan(40);
@@ -40,10 +47,10 @@ describe("MUTANT drift yarışı için ayrı çekirdek", () => {
       olay: { spin: () => spin++ },
       driftYarisi: true,
     } as unknown as FizikBaglami;
-    driftPenceresi(d, gi, cx, 14, 0.25, 0.25, driftSiniri(14), 0.14);
+    driftPenceresi(d, gi, cx, 14, 0.35, 0.35, driftSiniri(14), 0.22);
     expect(d.DR.on).toBe(1);
     const dis = sim();
-    driftPenceresi(dis, gi, { ...cx, driftYarisi: false }, 14, 0.25, 0.25, driftSiniri(14), 0.14);
+    driftPenceresi(dis, gi, { ...cx, driftYarisi: false }, 14, 0.35, 0.35, driftSiniri(14), 0.22);
     expect(dis.DR.on).toBe(0);
     driftPenceresi(d, gi, cx, 14, 0.95, 0.95, driftSiniri(14), 0.05);
     expect(d.DR.on).toBe(0);
