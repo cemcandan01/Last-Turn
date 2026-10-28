@@ -17,6 +17,8 @@ import {
 } from "../yz/yarisci";
 import { set } from "./ayarlar";
 import { kurulum } from "./kurulum";
+import { PRESETS } from "../fizik/veriler";
+import { toprakDengesi } from "./mutant-kosu";
 import { dunyaSorgusuYap } from "./surus";
 import { uzak, uzakAnlikEkle, uzakAracEkle, uzakAracSil } from "./uzak";
 
@@ -51,6 +53,9 @@ export function rakipBaslat(
     z = z0 - TR.T[i][0] * IZGARA_YAN;
   rakip.ayar = r;
   const kur = rakipKurulumu(r.arac, EV.ty, kurulum.lk, set.ss, set.sm);
+  // MUTANT kuralı oyuncuyla aynı: yarış lastiği takılmaz, aracın kendi lastiği ve toprak dengesi
+  kur.tire = PRESETS[kur.pk].tire;
+  kur.car = toprakDengesi(kur.car, kur.tire);
   rakip.tabanHp = kur.car.hp;
   rakip.y = yarisciYap(dunyaSorgusuYap({ cur: null }), kur, TR, EV.laps ?? 1, r.kisilik, r.tohum, {
     x,

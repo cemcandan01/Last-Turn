@@ -224,7 +224,8 @@ export function startEvent(i: number, ci?: number, mutantEtkinligi = false) {
   // takılı parçalarıyla (paket ağır basıyorsa o türün önayarı); MUTANT'ta koşu aracı (atölye parçaları + pasifler)
   if (mutantEtkinligi) mutantKurulumUygula();
   else modifiyeUygula(carIndex());
-  yarisLastigiTak(e.ty);
+  // MUTANT: koşu aracı kendi lastiğiyle yarışır (açık dünyayla aynı tutuş); kariyerde etkinlik bileşiği takılır
+  if (!mutantEtkinligi) yarisLastigiTak(e.ty);
   if (!mutantEtkinligi) {
     const u = carIndex();
     PROF.use[u] = (PROF.use[u] || 0) + 1;

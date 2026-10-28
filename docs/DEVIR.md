@@ -1,4 +1,11 @@
-# Son Codex işi: 0.8.13 MUTANT DEV drift ölçümü — PR #33
+# Son devir: 0.8.13 denemede — MUTANT toprak dengesi, pist = açık dünya
+
+- Claude / gelistirme. Kart LT-SYS-006 Revize 3; ölçüm `docs/denge/2026-10-28-mutant-toprak-dengesi.md`.
+- `toprakDengesi` (mutant-kosu.ts) koşu aracına ve rakibe uygulanır; MUTANT yarışında `yarisLastigiTak` çağrılmaz (yarislar.ts), rakip de önayar lastiğiyle (rakip.ts). Kariyer değişmedi.
+- Yerel: kontrol temiz (2 eski uyarı), npm test 440/440, alan mutant 22/22 + kariyer 31/31. Açık: cihazda his.
+- Sonraki tek adım: Cem /dev/ 0.8.13'te asfalt aracıyla toprak yolda ve asfalt pistte sürsün.
+
+# Önceki devir: 0.8.128.13 MUTANT DEV drift ölçümü — PR #33
 
 - **Sahip:** Codex; dal `codex/mutant-drift-telemetri`; görev `docs/isler/LT-SYS-007-mutant-dev-drift-tanisi.md`; PR [#33](https://github.com/cemcandan01/Last-Turn/pull/33).
 - **Kapsam:** Fizik değiştirmeden DEV drift yarışında giriş açısı, kontrol edilebilir açı, karşı direksiyon, hazırlık ve spin soğuması görünür; DEV atölyesinden aç/kapat. Normal HUD'da drift açısı gösterilmez.

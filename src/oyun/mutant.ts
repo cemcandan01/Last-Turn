@@ -13,6 +13,7 @@ import { rakip, rakipEtkisi, rakipGovdesi, rakipSirasi, RAKIP, type RakipAyari }
 import { beceriDunyasiYap, engelListesi } from "./mutant-beceri";
 import { KISILIKLER } from "../yz/kisilik";
 import { kurulum, applyPreset } from "./kurulum";
+import { PRESETS } from "../fizik/veriler";
 import { setCar } from "./durum";
 import {
   ATOLYE,
@@ -31,6 +32,7 @@ import {
   kaporaBelirle,
   kesmeCezasi,
   kosuAraci,
+  toprakDengesi,
   kosuBaslat,
   nitroDurumu,
   zamanAkis,
@@ -142,7 +144,10 @@ export function mutantAracSec(i: number) {
 export function mutantAracGuncelle() {
   const k = mutant.kosu;
   if (!k || mutantArac < 0 || !kurulum.mod) return;
-  kurulum.mod = { ...kurulum.mod, car: kosuAraci(aracKur(mutantArac, k.parcalar).car, k) };
+  kurulum.mod = {
+    ...kurulum.mod,
+    car: toprakDengesi(kosuAraci(aracKur(mutantArac, k.parcalar).car, k), kurulum.tire),
+  };
 }
 
 export function mutantKurulumUygula() {
@@ -150,9 +155,11 @@ export function mutantKurulumUygula() {
   if (!k || mutantArac < 0) return;
   const P = aracKur(mutantArac, k.parcalar),
     lastik = P.parcalar.some((id) => parcaBul(id)!.e.lastik != null);
+  // MUTANT yarışında lastik değişmez: pist asfaltı/toprağı açık dünyadakiyle aynı tutar (Cem 0.8.12)
+  kurulum.yarisLastik = null;
   kurulum.mod = {
     taban: CARS[mutantArac],
-    car: kosuAraci(P.car, k),
+    car: toprakDengesi(kosuAraci(P.car, k), lastik ? P.tire : PRESETS[P.pk].tire),
     tire: lastik ? P.tire : null,
     ayar: P.ayar,
     parcalar: P.parcalar,

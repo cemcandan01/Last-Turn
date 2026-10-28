@@ -45,6 +45,7 @@ import {
   type MekanikTanim,
 } from "../cekirdek/mekanikler";
 import type { SimDurumu } from "../fizik/tipler";
+import { TIRES } from "../fizik/veriler";
 import { BASLANGIC_ENERJI, EKLENTI_PERKLERI, NITRO, PERKLER, SURUS_ENERJISI } from "./mutant-enerji";
 
 /** etkinliğe aday pist: oyundaki EVENTS'in özeti (saf modül oyun verisine bağlanmasın diye) */
@@ -1019,6 +1020,16 @@ export function kosuAraci(
   const tutus = Math.min(BECERI_TUTUS_UST, k.becCikti?.tutus ?? 1);
   c.gr = [c.gr[0] * tutus, c.gr[1] * tutus];
   return c;
+}
+
+/** MUTANT toprak dengesi: lastik × araç toprak tutuşu 1'in altındaysa açığın bu kadarı kalır (Cem 0.8.12: toprakta iyi
+ * olmayan araç buzda gibi kayıyordu). Toprak aracı değişmez; uygunsuz araç toprakta hâlâ belirgin kötü. */
+export const TOPRAK_ACIK_PAYI = 0.55;
+export function toprakDengesi(c: Arac, lastik: number): Arac {
+  const t = TIRES[lastik]?.g[0] ?? 1,
+    birlesik = t * c.gr[0];
+  if (birlesik >= 1) return c;
+  return { ...c, gr: [(1 - (1 - birlesik) * TOPRAK_ACIK_PAYI) / t, c.gr[1]] };
 }
 
 /** skill'lerin birleşik tutuş çarpanı üst sınırı */

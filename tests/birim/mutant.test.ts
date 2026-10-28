@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import { CARS } from "../../src/arac/araclar";
+import { PRESETS, TIRES } from "../../src/fizik/veriler";
 import { TDEF } from "../../src/dunya/pist-tanimlari";
 import { Htest } from "../../src/dunya/corak";
 import { DRIFT_TUR, yildizEsikleri } from "../../src/oyun/yildiz";
 import { MUTANT_REFERANS, MUTANT_REFERANS_YAGMUR } from "../../src/oyun/mutant-denge";
 import {
+  toprakDengesi,
   BOSSLAR,
   YERLER,
   ATOLYE,
@@ -747,5 +750,33 @@ describe("MUTANT A2: yağmurlu boss referansı", () => {
     }
     // güneşli rallikros boss'u yağmur tablosundan etkilenmez
     expect(bossAdaylari("rx", 2, pistler).length).toBe(pistler.filter((p) => p.ty == "rx" && p.ref).length);
+  });
+});
+
+describe("MUTANT toprak dengesi ve yarış lastiği", () => {
+  // Cem 0.8.12: toprakta iyi olmayan araç buzda gibi kayıyordu; asfalt pisti açık dünya asfaltıyla aynı olmalı.
+  const birlesik = (ad: string) => {
+    const c = CARS.find((a) => a.n == ad)!,
+      t = PRESETS[c.pk].tire;
+    return { once: TIRES[t].g[0] * c.gr[0], sonra: TIRES[t].g[0] * toprakDengesi(c, t).gr[0] };
+  };
+  it("uygunsuz aracın toprak tutuşu buz seviyesinden çıkar, toprak aracı değişmez ve önde kalır", () => {
+    for (const ad of ["Kara Boğa", "Gümüş Serçe", "Kızıl Ok", "Beyaz Kurt"]) {
+      const r = birlesik(ad);
+      expect(r.sonra, ad).toBeGreaterThan(0.55);
+      expect(r.sonra, ad).toBeGreaterThan(r.once);
+    }
+    for (const ad of ["Kor RX", "Mavi Yıldız"]) {
+      const r = birlesik(ad);
+      expect(r.sonra, ad).toBeCloseTo(r.once, 9);
+      expect(r.sonra).toBeGreaterThan(birlesik("Kızıl Ok").sonra * 1.8);
+    }
+    // asfalt tutuşu dokunulmaz
+    const c = CARS[0];
+    expect(toprakDengesi(c, PRESETS[c.pk].tire).gr[1]).toBe(c.gr[1]);
+  });
+  it("MUTANT yarışında yarış lastiği takılmaz; kariyerde takılır", () => {
+    const kod = readFileSync("src/oyun/yarislar.ts", "utf8");
+    expect(kod).toContain("if (!mutantEtkinligi) yarisLastigiTak(e.ty);");
   });
 });
