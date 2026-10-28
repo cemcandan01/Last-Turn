@@ -125,16 +125,16 @@ export default async function ({ p, ok }) {
     // eklenti sandığı: iki seçenek, seçilen koşuya eklenir
     const s0 = k.sandiklar[0];
     LT.reset(s0.x, s0.z, 0);
-    r.sandik = await olana(() => res.querySelectorAll("[data-eklenti]").length == 2);
-    const ek = res.querySelector("[data-eklenti]")?.dataset.eklenti;
-    res.querySelector("[data-eklenti]")?.click();
+    r.sandik = await olana(() => res.querySelectorAll("#mAl").length == 1);
+    const ek = k.sandiklar[0].secenekler[0];
+    res.querySelector("#mAl")?.click();
     r.sandik = r.sandik && s0.acildi && k.pasifler.includes(ek) && LT.oyun.mode == "drive";
     // lanetli sandık: bedel yazılı, bırakılınca kapalı kalır
     const s2 = k.sandiklar[2];
     LT.reset(s2.x, s2.z, 0);
     r.lanetli = await olana(() => res.textContent.includes("Lanetli") && res.textContent.includes("Bedel"));
     res.querySelector("#mGec")?.click();
-    r.lanetli = r.lanetli && !s2.acildi && LT.oyun.mode == "drive";
+    r.lanetli = r.lanetli && s2.acildi && LT.oyun.mode == "drive";
     // atölye
     k.para = 2000;
     LT.reset(0, -90, 0);
