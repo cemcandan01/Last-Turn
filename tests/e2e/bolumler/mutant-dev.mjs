@@ -33,9 +33,12 @@ export default async function ({ p, ok }) {
     res.querySelector("#labEvrim").value = "ters-kanca";
     res.querySelector("#labEk1").value = "sok-bobini";
     tik("#labSkillAl");
-    const kurulum = k.beceriler.some((s) =>
-      s.id == "grappling-hook" && s.seviye == 3 &&
-      s.evrim == "ters-kanca" && s.eklentiler.includes("sok-bobini")
+    const kurulum = k.beceriler.some(
+      (s) =>
+        s.id == "grappling-hook" &&
+        s.seviye == 3 &&
+        s.evrim == "ters-kanca" &&
+        s.eklentiler.includes("sok-bobini"),
     );
     tik("#labDrift");
     await pause(500);
@@ -60,5 +63,8 @@ export default async function ({ p, ok }) {
   ok(r.menu && r.kapali && r.acik, "MUTANT menüsünde DEV modu açılıp kapanır; bütün araçlar görünür");
   ok(r.lab && r.kurulum, "DEV laboratuvarında skill seviye 3, evrim ve eklenti tek seferde ayarlanır");
   ok(r.yarista && r.dugme && r.durdu, "drift yarışı içinde ⚙ DEV düğmesi açılır ve yarışı duraklatır");
-  ok(r.canli && r.devam && r.tekrar, "skill değişimi canlı uygulanır, aynı yarışa dönülür ve tekrar başlatılır");
+  ok(
+    r.canli && r.devam && r.tekrar,
+    "skill değişimi canlı uygulanır, aynı yarışa dönülür ve tekrar başlatılır",
+  );
 }
