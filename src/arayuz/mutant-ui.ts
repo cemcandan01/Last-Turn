@@ -54,6 +54,7 @@ import {
   testKurulumunuSifirla,
   BOSS_SURESI,
   testBolgeyeGec,
+  kosuBaslat,
   beceriTeklifleri,
   PASIFLER,
   SATILMAZ,
@@ -204,15 +205,26 @@ function basla() {
     r = mulberry32(k.tohum ^ 0x5bd1e995),
     aday = [...BASLANGIC_ARACLARI],
     araclar: number[] = [];
-  while (araclar.length < 3 && aday.length) araclar.push(aday.splice(Math.floor(r() * aday.length), 1)[0]);
+  if (k.test) araclar.push(...CARS.map((_, i) => i));
+  else while (araclar.length < 3 && aday.length) araclar.push(aday.splice(Math.floor(r() * aday.length), 1)[0]);
+  const devDugme =
+    import.meta.env.DEV || location.pathname.includes("/dev/")
+      ? '<button class="btn alt" id="mDevSec">⚙ Geliştirici modu: ' + (k.test ? "AÇIK · kapat" : "KAPALI · aç") + "</button>"
+      : "";
   const s = sayfaAc(
-    `<h1>MUTANT</h1><p>Boss'a ${sure(k.kalan)} var. Önce aracını seç: hepsi zayıf, koşuda güçlenecek.</p>${bossKarti(k.boss)}<div class="mtp">${araclar
+    `<h1>MUTANT</h1><p>Boss'a ${sure(k.kalan)} var. ${k.test ? "DEV testi: tüm araçlar açık, skill ve parçalar yarışta değişebilir." : "Önce aracını seç: hepsi zayıf, koşuda güçlenecek."}</p>${devDugme}${bossKarti(k.boss)}<div class="mtp">${araclar
       .map(
         (i) =>
           `<div class="card go" data-arac="${i}"><b>${CARS[i].n}</b><span>${CARS[i].hp} HP · ${Math.round(CARS[i].kg)} kg · ${CARS[i].awd > 0.5 ? "4×4" : "arkadan itiş"}</span></div>`,
       )
       .join("")}</div>`,
   );
+  s.querySelector<HTMLElement>("#mDevSec")?.addEventListener("click", () => {
+    mutant.kosu = kosuBaslat(k.tohum, mutantPistleri(), !k.test);
+    mutant.etkinlik = null;
+    mutant.bossBekliyor = false;
+    basla();
+  });
   s.querySelectorAll<HTMLElement>("[data-arac]").forEach(
     (e) =>
       (e.onclick = () => {
