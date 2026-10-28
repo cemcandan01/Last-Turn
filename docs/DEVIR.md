@@ -1,3 +1,10 @@
+# Son devir: 0.8.15 denemede — MUTANT rekabet: etkinlik rakibi, boss rakibi, yol görevleri (LT-SYS-007)
+
+- Claude / claude/mutant-eglence (taban gelistirme 0988774). Kart `docs/isler/LT-SYS-007-mutant-eglence.md`; ölçüm `docs/denge/2026-10-28-mutant-rakip-olcum.md`.
+- Her gp/rx/rl/dg etkinliğinde YZ rakip (kariyer hedef kurulumu; risk → kişilik), rakibi geçmek +%50 para; boss yarışı boss'a karşı (drift hariç); açık dünyada yol görevleri (drift/hız/kıl payı/sıçrama). Rakip YZ: açık pist bitişi, geri sayımda el freni, takılınca piste dönüş.
+- Yerel: kontrol temiz (2 eski uyarı), npm test 451/451, alan mutant 24/24 + kariyer 31/31 + hud 4/4. Açık: asfalt boss'u bölge 2–3'te eski hedeften biraz yavaş; 5 rampalı pist rakipsiz; cihazda his.
+- Sonraki tek adım: Cem /dev/ 0.8.15'te etkinlik rakibi, boss yarışı ve yol görevlerini denesin.
+
 # Son devir: 0.8.14 denemede — MUTANT toprak dengesi, pist = açık dünya
 
 - Claude / gelistirme (Codex PR #33 0.8.13 üstüne; commit 5399408 mesajı yanlışlıkla 0.8.13 der). Kart LT-SYS-006 Revize 3; ölçüm `docs/denge/2026-10-28-mutant-toprak-dengesi.md`.
