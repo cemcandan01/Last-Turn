@@ -149,8 +149,10 @@ export default async function ({ p, ok }) {
     k.mek = { ...k.mek, enerji: 7 };
     await bekle(300);
     const t = yuva("flying-dutchman");
+    // maliyet pasif değiştiricilerle değişir (önceki bölümlerde kazanılan pasifler): oyunun hesapladığıyla karşılaştır
+    const mal = Math.round(LT.mutantDurumu().beceriler.find((b) => b.id == "flying-dutchman").maliyet);
     const r = {
-      enerji: t.classList.contains("engel") && t.textContent.includes("7/30"),
+      enerji: t.classList.contains("engel") && t.textContent.includes("7/" + mal) && mal > 7,
       yazi: t.textContent,
     };
     LT.set.shd = 1;
