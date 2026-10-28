@@ -272,7 +272,8 @@ export const NADIR_EK = 1.4;
 export const ATOLYE_STOK = 5;
 export const STOK_YENILE = 40;
 /** boss'a geri sayım (sn) bölgeye göre */
-export const BOSS_SURESI = (bolge: number) => (bolge == 1 ? 900 : 780);
+export const BOSS_SURESI = (bolge: number, test = false) =>
+  test ? (bolge == 1 ? 180 : bolge == 2 ? 210 : 240) : bolge == 1 ? 900 : 780;
 export const HARITA_ETKINLIK = 8;
 
 export interface Etkinlik {
@@ -329,6 +330,8 @@ export type KosuFazi = "basla" | "surus" | "secim" | "boss" | "bitti";
 
 export interface Kosu {
   tohum: number;
+  /** Yalnız geliştirme denemesinde açılan kısa koşu ve serbest kurulum laboratuvarı. */
+  test?: boolean;
   rng: Rastgele;
   faz: KosuFazi;
   bolge: number;
@@ -493,15 +496,16 @@ export function sandikAc(k: Kosu, id: number, eklenti: string): boolean {
 }
 
 /** yeni koşu: 3 aday araç ve 3 başlangıç pasifi sunulur (faz "basla") */
-export function kosuBaslat(tohum: number, pistler: readonly PistAdayi[]): Kosu {
+export function kosuBaslat(tohum: number, pistler: readonly PistAdayi[], test = false): Kosu {
   const rng = mulberry32(tohum);
   const k: Kosu = {
     tohum,
+    test,
     rng,
     faz: "basla",
     bolge: 1,
     boss: sec(rng, BOSSLAR),
-    kalan: BOSS_SURESI(1),
+    kalan: BOSS_SURESI(1, test),
     xp: 0,
     seviye: 0,
     bekleyenSecim: 0,
@@ -579,6 +583,42 @@ export function pasifSec(k: Kosu, id: string, birak?: string): boolean {
   }
   k.faz = "surus";
   k.secenekler = [];
+  return true;
+}
+
+/** Test laboratuvarı: serbest seçim; normal ekonomi, seviye ve kayıt kuralları etkilenmez. */
+export function testKurulumu(k: Kosu, tur: "pasif" | "beceri" | "parca", id: string): boolean {
+  if (!k.test || k.faz != "surus") return false;
+  if (tur == "pasif") {
+    const p = PASIFLER.find((o) => o.id == id);
+    if (!p || pasifSayisi(k, id) >= p.en) return false;
+    k.pasifler.push(id);
+  } else if (tur == "beceri") {
+    if (!beceriTeklifleri(k).includes(id)) return false;
+    const birak = id.startsWith("b:") && k.beceriler.length >= SKILL_YUVASI ? k.beceriler[0].id : undefined;
+    if (!beceriTeklifiUygula(k, id, birak)) return false;
+  } else {
+    const p = PARCALAR.find((o) => o.id == id);
+    if (!p || SATILMAZ.includes(id)) return false;
+    const onceki = k.parcalar.find((q) => PARCALAR.find((m) => m.id == q)?.kat == p.kat);
+    if (onceki) k.parcalar = k.parcalar.filter((q) => q != onceki);
+    k.parcalar.push(id);
+  }
+  k.mek = kapasiteUygula(k.mek, takiliMekanikler(k));
+  return true;
+}
+
+/** Testte istediği bölgeye geç; normal ilerleme yalnız boss zaferiyle mümkündür. */
+export function testBolgeyeGec(k: Kosu, bolge: number, pistler: readonly PistAdayi[]): boolean {
+  if (!k.test || bolge < 1 || bolge > 3 || bolge < k.bolge) return false;
+  while (k.bolge < bolge) {
+    bossaGir(k);
+    bossBitti(k, true, pistler);
+    k.faz = "surus";
+    k.bekleyenSecim = 0;
+    k.secenekler = [];
+  }
+  k.kalan = BOSS_SURESI(k.bolge, true);
   return true;
 }
 
@@ -1052,7 +1092,7 @@ export function bossBitti(k: Kosu, kazandi: boolean, pistler: readonly PistAdayi
   k.bolge++;
   const kalanlar = BOSSLAR.filter((b) => b.id != k.boss.id);
   k.boss = sec(k.rng, kalanlar);
-  k.kalan = BOSS_SURESI(k.bolge);
+  k.kalan = BOSS_SURESI(k.bolge, !!k.test);
   k.sonNefes = false;
   k.para += 200;
   xpEkle(k, 150);
