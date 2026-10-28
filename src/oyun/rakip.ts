@@ -36,6 +36,8 @@ export interface RakipAyari {
   duello?: boolean;
   /** MUTANT pasifleri (boss build'i): araç değerlerine oyuncununki gibi işler */
   pasif?: readonly string[];
+  /** kovalamaca: rakip ızgaranın bu kadar metre önünde, pist üstünde kalkar */
+  onde?: number;
 }
 
 export const rakip = {
@@ -54,10 +56,14 @@ export function rakipBaslat(
   r: RakipAyari,
 ) {
   const TR = EV.TR,
-    [, x0, z0, h] = EV.g,
-    i = nearest(TR, x0, z0, 0, true)[0],
-    x = x0 + TR.T[i][1] * IZGARA_YAN,
-    z = z0 - TR.T[i][0] * IZGARA_YAN;
+    [, x0, z0, h0] = EV.g,
+    i0 = nearest(TR, x0, z0, 0, true)[0],
+    // kovalamaca: pist boyunca önde (yan kaydırma yok), yönü pistin yönü
+    i = r.onde ? (i0 + Math.round(r.onde / 4)) % TR.N : i0,
+    yan = r.onde ? 0 : IZGARA_YAN,
+    x = (r.onde ? TR.P[i][0] : x0) + TR.T[i][1] * yan,
+    z = (r.onde ? TR.P[i][1] : z0) - TR.T[i][0] * yan,
+    h = r.onde ? Math.atan2(TR.T[i][0], TR.T[i][1]) : h0;
   rakip.ayar = r;
   const kur = rakipKurulumu(r.arac, EV.ty, kurulum.lk, set.ss, set.sm, r.parca);
   // MUTANT kuralı oyuncuyla aynı: yarış lastiği takılmaz; lastik parçası varsa o, yoksa önayar lastiği; toprak dengesi

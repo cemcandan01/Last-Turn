@@ -4,7 +4,8 @@
 import { it } from "vitest";
 import { mkdirSync, writeFileSync } from "node:fs";
 import type { YarisTuru } from "../../src/arac/araclar";
-import { tp } from "../../src/dunya/pist";
+import { mkTrack, tp } from "../../src/dunya/pist";
+import { rotaNoktalari, sokakTurSayisi, SOKAK_ROTALARI } from "../../src/dunya/sehir-duzen";
 import { TDEF } from "../../src/dunya/pist-tanimlari";
 import { PRESETS } from "../../src/fizik/veriler";
 import { BASLANGIC } from "../../src/oyun/kariyer";
@@ -100,35 +101,39 @@ it.skipIf(process.env.SADECE == "boss")(
 );
 
 // Boss rakibi: boss'un olabileceği pistlerde (bossAdaylari), bölgeye göre, bütün turlarda. Eski hedefle karşılaştırma.
-it("MUTANT boss rakibi ölçümü", () => {
-  const TYPL: Partial<Record<YarisTuru, number>> = { gp: 3, rx: 3 };
-  const pistler = TDEF.map((d, i) => ({
-    i,
-    ty: d.t,
-    sev: d.sev ?? d.lv,
-    lv: d.lv,
-    ys: yildizEsikleri(d.t, d.lv),
-    laps: TYPL[d.t],
-    ref: MUTANT_REFERANS[d.t + "_" + d.lv],
-    refYagmur: MUTANT_REFERANS_YAGMUR[d.t + "_" + d.lv],
-  }));
-  const satir = [];
-  for (const boss of BOSSLAR) {
-    if (boss.ty == "dp") continue;
-    for (const bolge of [1, 2, 3]) {
-      for (const p of bossAdaylari(boss.ty, bolge, pistler, boss.hava)) {
-        const B = bossRakibi({ tohum: 1, bolge, boss })!,
-          hedef = bossHedefi({ bolge, boss }, p);
-        const r = bossSur(p.i, B.arac, B.parca, p.laps ?? 0, boss.hava, B.pasif);
-        satir.push({ boss: boss.id, bolge, pist: TDEF[p.i].n, hedef, ...r });
-        console.log(
-          `BOSS ${boss.id.padEnd(14)} b${bolge} ${TDEF[p.i].n.padEnd(20)} boss ${r.bitis?.toFixed(1) ?? "BİTMEDİ"} eski hedef ${hedef.toFixed(1)} oran ${r.bitis ? (r.bitis / hedef).toFixed(2) : "-"} dönüş ${r.donus}`,
-        );
+it.skipIf(!!process.env.SADECE && process.env.SADECE != "boss")(
+  "MUTANT boss rakibi ölçümü",
+  () => {
+    const TYPL: Partial<Record<YarisTuru, number>> = { gp: 3, rx: 3 };
+    const pistler = TDEF.map((d, i) => ({
+      i,
+      ty: d.t,
+      sev: d.sev ?? d.lv,
+      lv: d.lv,
+      ys: yildizEsikleri(d.t, d.lv),
+      laps: TYPL[d.t],
+      ref: MUTANT_REFERANS[d.t + "_" + d.lv],
+      refYagmur: MUTANT_REFERANS_YAGMUR[d.t + "_" + d.lv],
+    }));
+    const satir = [];
+    for (const boss of BOSSLAR) {
+      if (boss.ty == "dp") continue;
+      for (const bolge of [1, 2, 3]) {
+        for (const p of bossAdaylari(boss.ty, bolge, pistler, boss.hava)) {
+          const B = bossRakibi({ tohum: 1, bolge, boss })!,
+            hedef = bossHedefi({ bolge, boss }, p);
+          const r = bossSur(p.i, B.arac, B.parca, p.laps ?? 0, boss.hava, B.pasif);
+          satir.push({ boss: boss.id, bolge, pist: TDEF[p.i].n, hedef, ...r });
+          console.log(
+            `BOSS ${boss.id.padEnd(14)} b${bolge} ${TDEF[p.i].n.padEnd(20)} boss ${r.bitis?.toFixed(1) ?? "BİTMEDİ"} eski hedef ${hedef.toFixed(1)} oran ${r.bitis ? (r.bitis / hedef).toFixed(2) : "-"} dönüş ${r.donus}`,
+          );
+        }
       }
     }
-  }
-  writeFileSync("tests/cikti/mutant-boss-olcum.json", JSON.stringify(satir, null, 1));
-}, 3600000);
+    writeFileSync("tests/cikti/mutant-boss-olcum.json", JSON.stringify(satir, null, 1));
+  },
+  3600000,
+);
 
 function bossSur(
   i: number,
@@ -162,3 +167,50 @@ function bossSur(
   for (let k = 0; k < 600 * 60 && y.bitis == null; k++) yarisciAdimi(y, true);
   return { bitis: y.bitis, donus: y.pisteDonus };
 }
+
+// LT-SYS-008 sokak yarışları: rakip Kule Şehri rotalarını (asfalt kariyer kurulumuyla) bitiriyor mu; süre / tur
+it.skipIf(!!process.env.SADECE && process.env.SADECE != "sokak")(
+  "MUTANT sokak rakibi ölçümü",
+  () => {
+    const satir = [];
+    for (const r of SOKAK_ROTALARI) {
+      const { pts, hw, acik } = rotaNoktalari(r),
+        TR = mkTrack(pts, hw, acik),
+        turlar = sokakTurSayisi(r, TR.len),
+        K0 = kariyerKurulumu("gp", r.sev);
+      for (const kisilik of ["caylak", "deneyimli"] as const) {
+        const s = surucuKur({ dunya: 2, arac: K0.arac, lk: "norm" }),
+          g = tp(TR, "", TR.open ? 4 : TR.N, TR.open ? 0 : 6),
+          j = TR.open ? 0 : (TR.N - 6) % TR.N;
+        const K = rakipKurulumu(K0.arac, "gp", "norm", 1, 1, K0.parca);
+        K.tire = K0.parca.some((id) => parcaBul(id)?.e.lastik != null)
+          ? parcaliKurulum(K0.arac, K0.parca, "norm").tire
+          : PRESETS[K.pk].tire;
+        K.car = toprakDengesi(K.car, K.tire);
+        const y = yarisciYap(
+          s.cx.dunya,
+          K,
+          TR,
+          turlar,
+          kisilik,
+          1,
+          {
+            x: g[1] + TR.T[j][1] * IZGARA_YAN,
+            z: g[2] - TR.T[j][0] * IZGARA_YAN,
+            h: g[3],
+          },
+          4,
+        );
+        for (let k = 0; k < 2 * 60; k++) yarisciAdimi(y, false);
+        for (let k = 0; k < 400 * 60 && y.bitis == null; k++) yarisciAdimi(y, true);
+        const L = TR.len * (turlar || 1);
+        satir.push({ id: r.id, tur: r.tur, kisilik, bitis: y.bitis, L, donus: y.pisteDonus });
+        console.log(
+          `SOKAK ${r.id.padEnd(16)} ${r.tur.padEnd(6)} sev${r.sev} ${kisilik.padEnd(9)} uzunluk ${L.toFixed(0)} m bitiş ${y.bitis?.toFixed(1) ?? "BİTMEDİ"} ort hız ${y.bitis ? (L / y.bitis).toFixed(1) : "-"} m/s dönüş ${y.pisteDonus}`,
+        );
+      }
+    }
+    writeFileSync("tests/cikti/mutant-sokak-olcum.json", JSON.stringify(satir, null, 1));
+  },
+  3600000,
+);

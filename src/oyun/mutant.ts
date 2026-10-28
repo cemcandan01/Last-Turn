@@ -20,7 +20,8 @@ import { mulberry32 } from "../cekirdek/rastgele";
 import { PRESETS } from "../fizik/veriler";
 import { setCar } from "./durum";
 import {
-  ATOLYE,
+  atolyeYeri,
+  bossYeri,
   BOSS_YERI,
   beceriGorunumu,
   beceriYarisBasi,
@@ -206,7 +207,8 @@ export function mutantYarisAyari(i: number) {
   }
   const r = mutantRakibi();
   if (k && mutant.etkinlik == "boss") return { laps: p.laps, limit: r ? 0 : bossHedefi(k, p) };
-  if (r?.duello) return { laps: DUELLO.tur, limit: 0 };
+  // A3 düellosu (bölge 1 asfalt); sokak kovalamacası etkinlikHedefi'nde (2 tur, hedef yok)
+  if (r?.duello && !p.sokak) return { laps: DUELLO.tur, limit: 0 };
   return etkinlikHedefi(p, mutant.risk);
 }
 
@@ -226,7 +228,7 @@ export function mutantRakibi(): RakipAyari | null {
   if (!e.rakip) {
     // LT-SYS-007: düello dışındaki etkinliklerde de rakip (hedef süre geçerli, rakibi geçmek ek para)
     const r = etkinlikRakibi(k, e, mutantPistleri()[e.i], mutant.risk);
-    return r ? { ...r, duello: false } : null;
+    return r ? { duello: false, ...r } : null;
   }
   return {
     kisilik: DUELLO.kisilikler[Math.min(mutant.risk, DUELLO.kisilikler.length - 1)],
@@ -340,11 +342,13 @@ export function mutantAdimi(
       bulunan = "s" + q.id;
       isaret = { tur: "sandik", id: q.id };
     }
-  if (yakin(ATOLYE[0], ATOLYE[1])) {
+  const A = atolyeYeri(k),
+    B = bossYeri(k);
+  if (yakin(A[0], A[1])) {
     bulunan = "a";
     isaret = { tur: "atolye" };
   }
-  if (yakin(BOSS_YERI[0], BOSS_YERI[1])) {
+  if (yakin(B[0], B[1])) {
     bulunan = "b";
     isaret = { tur: "boss" };
   }

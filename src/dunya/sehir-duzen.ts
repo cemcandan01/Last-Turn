@@ -275,6 +275,9 @@ export interface SokakRotasi {
   tur: SokakTuru;
   /** zorluk (1-6; MUTANT bölge havuzu ve rakip kurulumu) */
   sev: number;
+  /** rakip YZ'nin bütün yarışı bitirme süresi (sn) [Çaylak, Deneyimli]: tests/olcum/mutant-rakip.test.ts (SADECE=sokak).
+   *  Rota, tur sayısı ya da rakip kurulumu değişince yeniden ölç */
+  olcum: [number, number];
   /** ızgara düğümleri [cadde, sokak]; ya da yerel noktalar (park yolu) */
   dugum?: [number, number][];
   nokta?: V2[];
@@ -284,6 +287,7 @@ export interface SokakRotasi {
 export const SOKAK_ROTALARI: readonly SokakRotasi[] = [
   {
     id: "alt-sehir",
+    olcum: [112.5, 107.3],
     n: "Alt Şehir Turu",
     tur: "tur",
     sev: 2,
@@ -296,6 +300,7 @@ export const SOKAK_ROTALARI: readonly SokakRotasi[] = [
   },
   {
     id: "park-cevresi",
+    olcum: [77.0, 73.6],
     n: "Park Çevresi",
     tur: "tur",
     sev: 3,
@@ -308,6 +313,7 @@ export const SOKAK_ROTALARI: readonly SokakRotasi[] = [
   },
   {
     id: "dogu-blogu",
+    olcum: [64.7, 58.4],
     n: "Doğu Bloğu",
     tur: "tur",
     sev: 4,
@@ -322,6 +328,7 @@ export const SOKAK_ROTALARI: readonly SokakRotasi[] = [
   },
   {
     id: "kuzey-kosusu",
+    olcum: [86.5, 83.4],
     n: "Kuzey Koşusu",
     tur: "ab",
     sev: 2,
@@ -335,6 +342,7 @@ export const SOKAK_ROTALARI: readonly SokakRotasi[] = [
   },
   {
     id: "guneyden-kuzeye",
+    olcum: [82.5, 79.4],
     n: "Güneyden Kuzeye",
     tur: "ab",
     sev: 3,
@@ -349,6 +357,7 @@ export const SOKAK_ROTALARI: readonly SokakRotasi[] = [
   },
   {
     id: "capraz",
+    olcum: [66.3, 60.7],
     n: "Çapraz Kaçış",
     tur: "ab",
     sev: 4,
@@ -363,6 +372,7 @@ export const SOKAK_ROTALARI: readonly SokakRotasi[] = [
   },
   {
     id: "kovala-bati",
+    olcum: [124.2, 119.2],
     n: "Batı Kovalamacası",
     tur: "kovala",
     sev: 2,
@@ -375,6 +385,7 @@ export const SOKAK_ROTALARI: readonly SokakRotasi[] = [
   },
   {
     id: "kovala-park",
+    olcum: [70.2, 67.1],
     n: "Park Yolu Kovalamacası",
     tur: "kovala",
     sev: 3,
@@ -387,6 +398,7 @@ export const SOKAK_ROTALARI: readonly SokakRotasi[] = [
   },
   {
     id: "kovala-dogu",
+    olcum: [61.4, 56.0],
     n: "Doğu Kovalamacası",
     tur: "kovala",
     sev: 4,
@@ -398,6 +410,15 @@ export const SOKAK_ROTALARI: readonly SokakRotasi[] = [
     ],
   },
 ];
+
+/** yıldız eşikleri (bütün yarış, sn): 1★ Çaylak rakip +%8, 2★ Deneyimli rakip, 3★ Deneyimli −%8 */
+export const sokakYildizlari = (r: Pick<SokakRotasi, "olcum">) =>
+  [r.olcum[0] * 1.08, r.olcum[1], r.olcum[1] * 0.92].map((v) => Math.round(v * 10) / 10);
+
+/** kapalı rotada tur sayısı: yarış ~2,4 km sürsün (A→B turu yok: 0). Boş zaman şikâyeti: yarış uzamasın */
+export const SOKAK_YARIS_M = 2400;
+export const sokakTurSayisi = (r: Pick<SokakRotasi, "tur">, turUzunlugu: number) =>
+  r.tur == "ab" ? 0 : Math.max(1, Math.round(SOKAK_YARIS_M / turUzunlugu));
 
 /** rotanın dünya noktaları ve yarı genişliği (sokakta 7 m, park yolunda 5 m) */
 export function rotaNoktalari(r: SokakRotasi): { pts: V2[]; hw: number; acik: boolean } {
