@@ -1,3 +1,10 @@
+# Son devir: 0.8.16 denemede — MUTANT Kule Şehri: sokak yarışları, Volt Kanat, kanca sarkacı (LT-SYS-008)
+
+- Claude / claude/mutant-sehir (taban gelistirme 17b6828). Kart `docs/isler/LT-SYS-008-mutant-sehir.md`; ölçüm `docs/denge/2026-10-28-mutant-sokak-olcum.md`.
+- Bölge 2+ Kule Şehri (ızgara, ~650 bina, Büyük Park); sokak yarışı 3 tür + kontrol noktası kapıları; Volt Kanat skill'i (fizikte `cx.ucus`, yokken aynı); kanca şehirde bina sarkacı; çatılara inilir.
+- Yerel: kontrol temiz (2 eski uyarı), npm test 460/460, alan mutant 26/26 + kariyer 31/31 + hud 4/4. Açık: iPhone 13 performansı, uçuş/sarkaç dengesi, şehirde boss rotası yok.
+- Sonraki tek adım: Cem /dev/ 0.8.16'te bölge 2'ye geçip (DEV: `?mutantTest=1` + bölge atla) şehirde sürsün, uçsun, sallansın.
+
 # Son devir: 0.8.15 denemede — MUTANT rekabet: etkinlik rakibi, boss rakibi, yol görevleri (LT-SYS-007)
 
 - Claude / claude/mutant-eglence (taban gelistirme 0988774). Kart `docs/isler/LT-SYS-007-mutant-eglence.md`; ölçüm `docs/denge/2026-10-28-mutant-rakip-olcum.md`.
