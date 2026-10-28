@@ -13,6 +13,18 @@ export default [
     tarayici: "mutant-dev",
   },
   {
+    id: "mutant-yol-gorevi",
+    ad: "LT-SYS-007 yol görevleri: açık dünyada görev çıkar, HUD'da görünür, tamamlanınca para ve enerji",
+    p: 1,
+    tarayici: "mutant-gorev",
+  },
+  {
+    id: "mutant-gorev-kurali",
+    ad: "LT-SYS-007 yol görevi kuralları: bekleme, süre, drift/hız/kıl payı/sıçrama ilerlemesi, ödül",
+    p: 1,
+    birim: { dosya: "tests/birim/mutant-gorev.test.ts", grup: "LT-SYS-007 yol görevleri" },
+  },
+  {
     id: "mekanik-yurutucu",
     ad: "Mekanik yürütücü: tekrar engeli, yığınlama yok, sonlu döngü, enerji sınırı",
     p: 1,

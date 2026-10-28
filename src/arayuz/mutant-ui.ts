@@ -86,6 +86,7 @@ import { KISILIKLER } from "../yz/kisilik";
 import { rakip } from "../oyun/rakip";
 import { mulberry32 } from "../cekirdek/rastgele";
 import { note } from "./bildirim";
+import { GOREV_ADI, type GorevOlayi } from "../oyun/mutant-gorev";
 import { kontrolleriKur } from "./kontroller";
 
 const TUR: Record<YarisTuru, [string, number, string]> = {
@@ -896,6 +897,7 @@ export function mutantArayuzuKur(yeni: () => void, menu: () => void) {
     secim: () => pasifSayfasi("Seviye atladın: bir yetenek seç."),
     isaret,
     sonuc,
+    gorev: gorevBildir,
     sureDoldu,
     bitti: ozet,
   };
@@ -924,12 +926,36 @@ export function mutantBaslik(evAdi: string | null): string | null {
     return mutant.etkinlik == "boss" ? "BOSS · " + k.boss.ad : "MUTANT " + sure(k.kalan) + " · " + evAdi;
   return "MUTANT · BÖLGE " + k.bolge;
 }
+/** yol görevi bildirimi (LT-SYS-007) */
+function gorevBildir(o: GorevOlayi) {
+  const ad = GOREV_ADI[o.gorev.tur](o.gorev.hedef);
+  if (o.tur == "basladi") note("GÖREV: " + ad, 30);
+  else if (o.tur == "tamam")
+    note("GÖREV TAMAM · +" + o.gorev.para + " para · +" + o.gorev.enerji + " enerji", 30);
+  else note("Görev kaçtı", 26);
+}
+
+/** aktif yol görevinin HUD satırı: ad, ilerleme, kalan süre */
+function gorevSatiri() {
+  const a = mutant.gorev.aktif;
+  if (!a) return "";
+  const i =
+    a.tur == "hiz"
+      ? a.ilerleme + "/" + a.hedef
+      : a.tur == "kilpayi"
+        ? a.ilerleme + "/" + a.hedef
+        : a.ilerleme.toFixed(1).replace(".", ",") + "/" + a.hedef;
+  return "GÖREV: " + GOREV_ADI[a.tur](a.hedef) + " · " + i + " · " + Math.ceil(a.kalan) + " sn";
+}
+
 export function mutantPaneli(): [string, string] | null {
   const k = mutant.kosu;
   if (!k || yaris.EV) return null;
   return [
     "BOSS " + sure(k.kalan),
-    k.boss.ad + " · Sv " + k.seviye + " · " + k.para + " para · Gövde " + Math.round(k.govde),
+    // yol görevi sürerken ikinci satır görevi gösterir (LT-SYS-007)
+    gorevSatiri() ||
+      k.boss.ad + " · Sv " + k.seviye + " · " + k.para + " para · Gövde " + Math.round(k.govde),
   ];
 }
 

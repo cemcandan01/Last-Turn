@@ -13,6 +13,9 @@ import { rakip, rakipEtkisi, rakipGovdesi, rakipSirasi, RAKIP, type RakipAyari }
 import { beceriDunyasiYap, engelListesi } from "./mutant-beceri";
 import { KISILIKLER } from "../yz/kisilik";
 import { kurulum, applyPreset } from "./kurulum";
+import { bosGorev, gorevAdimi, gorevCek, type GorevOlayi } from "./mutant-gorev";
+import { TELEW } from "../dunya/corak";
+import { mulberry32 } from "../cekirdek/rastgele";
 import { PRESETS } from "../fizik/veriler";
 import { setCar } from "./durum";
 import {
@@ -70,6 +73,8 @@ export interface MutantArayuzu {
   /** hasar aldı (gövde düştü); pert ise koşu bitti */
   hasar(tur: "carpma" | "spin", pert: boolean): void;
   bitti(): void;
+  /** yol görevi başladı / tamamlandı / kaçtı (LT-SYS-007) */
+  gorev?(o: GorevOlayi): void;
 }
 
 export const mutant = {
@@ -98,6 +103,8 @@ export const mutant = {
   /** son reddedilen skill isteği ve nedeni (HUD yuvada kısa uyarı, ses); n her retle artar */
   red: { id: "", engel: "" as BeceriHudEngeli | "basla" | "", n: 0 },
   yeniRekor: false,
+  /** yol görevleri (LT-SYS-007): açık dünyada etkinlikler arası kısa görevler */
+  gorev: bosGorev(),
   ui: null as MutantArayuzu | null,
 };
 
@@ -125,6 +132,7 @@ export function mutantBaslat(tohum = (Date.now() ^ (Math.random() * 0x7fffffff))
   mutant.bekle = 0;
   mutant.bossBekliyor = false;
   mutant.yeniRekor = false;
+  mutant.gorev = bosGorev();
 }
 
 export function mutantKapat() {
@@ -249,6 +257,7 @@ export function mutantAdimi(
   mutant.nitro = false;
   mutant.beceriIstek = [];
   if (!k) return;
+  let carpti = false;
   if (k.faz == "surus" || k.faz == "boss") {
     if (hit < mutant.sonHit) mutant.sonHit = hit;
     let tur: "carpma" | "spin" | null = null;
@@ -259,6 +268,7 @@ export function mutantAdimi(
     const spin = Math.abs(beta) > 1.3 && v > 4;
     if (spin && !mutant.spinde) tur ??= "spin";
     mutant.spinde = Math.abs(beta) > 0.4 && (mutant.spinde || spin);
+    carpti = tur == "carpma";
     if (tur) {
       const pert = hasarAl(k, tur);
       mutantAracGuncelle();
@@ -307,6 +317,7 @@ export function mutantAdimi(
     return;
   }
   if (yarista || k.faz != "surus") return;
+  if (d && !k.test) yolGoreviAdimi(k, x, z, v, d, carpti, cevre, dt);
   // en yakın işaret
   let bulunan = "",
     isaret: MutantIsaret | null = null;
@@ -478,3 +489,45 @@ function rakipDurumu(): MutantDurumu["rakip"] {
 /** açık yarışın tur/konum bilgisi (yarislar.ts kaydeder; döngüsel içe aktarım olmasın diye kaynakla) */
 let yarisDurumu: () => { lap: number; ti: number; kurulu: boolean } | null = () => null;
 export const mutantYarisKaynagi = (f: typeof yarisDurumu) => (yarisDurumu = f);
+
+const RAMPA = TELEW.find((t) => t[0] == "Zıplama rampası")!;
+
+/** yol görevi adımı (açık dünya, sürüşte): başlayınca/bitince bildirim; başarı para ve nitro enerjisi */
+function yolGoreviAdimi(
+  k: Kosu,
+  x: number,
+  z: number,
+  v: number,
+  d: Readonly<Pick<SimDurumu, "S" | "DR" | "D">>,
+  carpti: boolean,
+  cevre: { dunya: Pick<DunyaSorgusu, "yakin"> } | null,
+  dt: number,
+) {
+  const g = mutant.gorev,
+    o = gorevAdimi(
+      g,
+      {
+        v,
+        havada: !!d.S.air,
+        drift: !!d.D.act,
+        carpti,
+        x,
+        z,
+        engeller: g.aktif?.tur == "kilpayi" && cevre ? engelListesi(cevre.dunya, x, z) : [],
+      },
+      dt,
+      () =>
+        gorevCek(
+          mulberry32((k.tohum ^ 0x3c6ef372) + g.tamamlanan * 131 + Math.round(k.zaman)),
+          k.bolge,
+          CARS[mutantArac]?.vmax ?? 150,
+          Math.hypot(x - RAMPA[1], z - RAMPA[2]),
+        ),
+    );
+  if (!o) return;
+  if (o.tur == "tamam") {
+    k.para += o.gorev.para;
+    k.mek = { ...k.mek, enerji: Math.min(k.mek.kapasite, k.mek.enerji + o.gorev.enerji) };
+  }
+  mutant.ui?.gorev?.(o);
+}
