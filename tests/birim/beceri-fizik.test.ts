@@ -15,6 +15,7 @@ import { DUELLO } from "../../src/oyun/mutant-kosu";
 import { beceriDunyasiYap, pistBaglantisi } from "../../src/oyun/mutant-beceri";
 import { rakipKurulumu, yarisciAdimi, yarisciYap, type Yarisci } from "../../src/yz/yarisci";
 import { surucuKur } from "../yardimci/surucu";
+import { YERCEKIMI } from "../../src/fizik/veriler";
 
 const DUELLO_PISTI = TDEF.findIndex((d) => d.t == DUELLO.pist.ty && d.lv == DUELLO.pist.lv);
 const ARAC = BASLANGIC_ARACLARI[0];
@@ -119,5 +120,36 @@ describe("LT-SYS-004 skill kuvvetleri gerçek fizikte", () => {
     // önünde: hız yönüyle aynı tarafta
     expect((n[0] - P.x) * P.vx + (n[1] - P.z) * P.vz).toBeGreaterThan(0);
     expect(pistBaglantisi(null, P, 21, 35)).toBeNull();
+  });
+});
+
+describe("LT-SYS-008 uçuş girişi (cx.ucus) gerçek fizikte", () => {
+  const DUZ = {
+    H: () => 0,
+    surf: () => 1,
+    yakin: () => [],
+    kutu: () => [-1e5, 1e5, -1e5, 1e5] as [number, number, number, number],
+    kerb: () => 0,
+    havaTutusu: () => 1,
+    karli: () => false,
+    yolTuru: () => null,
+  };
+  it("yer çekimini aşan dikey ivme aracı kaldırır; direksiyon yerdeki gibi aynı yöne döndürür; gövde dik kalır", () => {
+    const s = surucuKur({ dunya: 1, arac: 0, lk: "norm" });
+    s.cx.dunya = DUZ;
+    s.reset(0, 0, 0);
+    const Y = () => s.sim.yeni!;
+    for (let k = 0; k < 2 * 60; k++) s.adim({ tg: 0, g: 1, b: 0, analogDireksiyon: true, analogGaz: true });
+    const h0 = s.sim.S.h;
+    for (let k = 0; k < 3 * 60; k++) {
+      s.cx.ucus = { y: YERCEKIMI + Math.max(-6, Math.min(6, (15 - Y().py) * 1.2 - Y().vy * 1.8)), denge: 1 };
+      s.adim({ tg: 0.5, g: 0, b: 0, analogDireksiyon: true, analogGaz: true });
+    }
+    expect(Y().py).toBeGreaterThan(8);
+    expect(s.sim.S.h - h0).toBeGreaterThan(0.3);
+    // dik: gövdenin yukarı ekseni dünya yukarısına yakın (dördeyden y bileşeni)
+    const q = Y(),
+      ustY = 1 - 2 * (q.qx * q.qx + q.qz * q.qz);
+    expect(ustY).toBeGreaterThan(0.9);
   });
 });

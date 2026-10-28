@@ -6,8 +6,15 @@ import { gizle, goster, $ } from "../cekirdek/dom";
 import { note } from "../arayuz/bildirim";
 import { kontrolleriKur } from "../arayuz/kontroller";
 import { sonucGoster } from "../arayuz/sonuc";
-import { REG, type Tele } from "../dunya/bolgeler";
-import { ipucu, tp, type Pist } from "../dunya/pist";
+import { REG, SEHIR, type Tele } from "../dunya/bolgeler";
+import {
+  rotaNoktalari,
+  sokakTurSayisi,
+  sokakYildizlari,
+  SOKAK_ROTALARI,
+  type SokakTuru,
+} from "../dunya/sehir-duzen";
+import { ipucu, mkTrack, tp, type Pist } from "../dunya/pist";
 import type { AdimSonucu } from "../fizik/tipler";
 import type { OnayarAnahtari } from "../fizik/veriler";
 import { setActive } from "./bolge";
@@ -35,6 +42,7 @@ import { rekorHayaletiBaslat, rekorHayaletiDurdur } from "./uzak";
 import { rakibiGecti, rakipBaslat, rakipDurdur } from "./rakip";
 import { X6_CARPAN, X6_ORAN, driftAdimi, driftBankala, tersAdimi, type DriftOlay } from "./yaris-kurallari";
 import { driftYarisProfili } from "../fizik/ortak";
+import { sokakKapilariKur } from "../cizim/sokak-kapilari";
 import {
   bosKesme,
   bosPistDisi,
@@ -112,6 +120,9 @@ export interface YarisTanimi {
   ys: number[];
   /** başlangıç noktası */
   g: Tele;
+  /** LT-SYS-008 sokak yarışı (Kule Şehri): kendi rotası; bölgenin TR'si yarış başında buna kurulur */
+  sokak?: SokakTuru;
+  TR?: Pist;
 }
 
 export interface Yaris extends YarisTanimi {
@@ -188,12 +199,48 @@ export const EVENTS: YarisTanimi[] = REG.filter((r) => r.t != "park").map((r, i)
   };
 });
 
+/**
+ * LT-SYS-008 sokak yarışları (yalnız MUTANT, Kule Şehri): A→B kontrol noktalı (açık rota), blok turu ve kovalamaca
+ * (kapalı rota, ~2,4 km). Kariyer listesine girmez: indeksleri EVENTS'ten sonra (TUM_ETKINLIKLER). Yıldız eşikleri
+ * rakip YZ ölçümünden (sehir-duzen.ts sokakYildizlari; docs/denge/2026-10-28-mutant-sokak-olcum.md)
+ */
+export const SOKAK_ETKINLIKLERI: YarisTanimi[] = SOKAK_ROTALARI.map((r, n) => {
+  const { pts, hw, acik } = rotaNoktalari(r),
+    TR = mkTrack(pts, hw, acik),
+    laps = sokakTurSayisi(r, TR.len) || undefined,
+    ys = sokakYildizlari(r);
+  return {
+    k: "sokak_" + r.id,
+    ty: acik ? "rl" : "gp",
+    lv: 100 + n,
+    sev: r.sev,
+    n: r.n,
+    d:
+      r.tur == "ab"
+        ? "Sokaklarda A'dan B'ye: rotayı izle, kestirme yok."
+        : r.tur == "tur"
+          ? "Blokların çevresinde " + (laps ?? 1) + " tur."
+          : "Rakip önde kalkar: yakala, geç ve önde bitir.",
+    reg: SEHIR.idx,
+    pk: "ar",
+    laps,
+    ys,
+    limit: ys[0],
+    g: tp(TR, r.n, TR.open ? 4 : TR.N, TR.open ? 0 : 6),
+    sokak: r.tur,
+    TR,
+  };
+});
+/** kariyer EVENTS + sokak yarışları (MUTANT ve startEvent bu indeksle) */
+export const TUM_ETKINLIKLER: YarisTanimi[] = [...EVENTS, ...SOKAK_ETKINLIKLERI];
+
 export const yaris = { EV: null as Yaris | null };
 
 mutantYarisKaynagi(() => (yaris.EV ? { lap: yaris.EV.lap, ti: ipucu.ti, kurulu: !!yaris.EV.armed } : null));
 
 mutantPistKaynagi(() =>
-  EVENTS.map((e, i) => ({
+  TUM_ETKINLIKLER.map((e, i) => ({
+    sokak: e.sokak,
     i,
     ty: e.ty,
     sev: e.sev,
@@ -208,7 +255,7 @@ mutantPistKaynagi(() =>
 /** yarışı başlat (ci: seçilen araç); pist ya da araç kilitliyse başlamaz (false). mutantEtkinligi: MUTANT koşusu
  *  içinden (kilit/kariyer yok, koşu aracı ve hedefi, ödül ve rekor koşuya) */
 export function startEvent(i: number, ci?: number, mutantEtkinligi = false) {
-  const e = EVENTS[i];
+  const e = TUM_ETKINLIKLER[i];
   if (!mutantEtkinligi) mutantKapat();
   if (!mutantEtkinligi && (!pistAcikMi(e.ty, e.lv) || !aracAcikMi(ci ?? carIndex()))) {
     note("Kilitli", 40);
@@ -231,6 +278,9 @@ export function startEvent(i: number, ci?: number, mutantEtkinligi = false) {
     PROF.use[u] = (PROF.use[u] || 0) + 1;
   }
   gizle("#res", "#set", "#menu", "#ts");
+  // sokak yarışı: Kule Şehri bölgesinin pisti bu rotadır (mini harita, piste dönüş, tur sayacı)
+  if (e.TR) REG[e.reg].TR = e.TR;
+  sokakKapilariKur(e.sokak ? e.TR! : null);
   setActive(REG[e.reg]);
   girdiSifirla();
   reset(e.g[1], e.g[2], e.g[3]);
@@ -247,7 +297,7 @@ export function startEvent(i: number, ci?: number, mutantEtkinligi = false) {
     pistDisi: bosPistDisi(),
     kesme: bosKesme(),
     sv,
-    TR: REG[e.reg].TR!,
+    TR: e.TR ?? REG[e.reg].TR!,
     state: "count",
     cd: 3,
     t: 0,
@@ -319,6 +369,9 @@ export function leaveEvent() {
   kurulumYukle(sv);
   rekorHayaletiDurdur();
   rakipDurdur();
+  // sokak rotası bölgede kalmasın: açık dünyada tur sayacı/ipucu eski rotaya bakmasın
+  if (EV.TR && REG[EV.reg].t == "park") REG[EV.reg].TR = null;
+  sokakKapilariKur(null);
   yaris.EV = null;
   goster("#ts");
   $("#ev").textContent = "";

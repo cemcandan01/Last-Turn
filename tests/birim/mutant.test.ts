@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { kariyerKurulumu } from "../../src/oyun/kariyer";
+import {
+  SEHIR_ATOLYE,
+  SEHIR_BOSS,
+  SEHIR_YERLERI,
+  SOKAK_ROTALARI,
+  sokakYildizlari,
+} from "../../src/dunya/sehir-duzen";
 import { CARS } from "../../src/arac/araclar";
 import { PRESETS, TIRES } from "../../src/fizik/veriler";
 import { TDEF } from "../../src/dunya/pist-tanimlari";
@@ -9,6 +16,10 @@ import { DRIFT_TUR, yildizEsikleri } from "../../src/oyun/yildiz";
 import { MUTANT_REFERANS, MUTANT_REFERANS_YAGMUR } from "../../src/oyun/mutant-denge";
 import {
   toprakDengesi,
+  atolyeYeri,
+  bossYeri,
+  KOVALA_ONDE,
+  testBolgeyeGec,
   etkinlikRakibi,
   bossRakibi,
   RAKIPSIZ_PISTLER,
@@ -844,5 +855,51 @@ describe("MUTANT rekabet (LT-SYS-007): etkinlik rakibi ve boss rakibi", () => {
       expect(b3.parca).toContain("motor-yaris");
       expect(b3.pasif.length).toBeGreaterThan(b2.pasif.length);
     }
+  });
+});
+
+describe("LT-SYS-008 MUTANT Kule Şehri bölgesi", () => {
+  const SOKAK: PistAdayi[] = SOKAK_ROTALARI.map((r, n) => ({
+    i: 1000 + n,
+    ty: r.tur == "ab" ? "rl" : "gp",
+    sev: r.sev,
+    lv: 100 + n,
+    ys: sokakYildizlari(r),
+    laps: r.tur == "ab" ? undefined : 2,
+    sokak: r.tur,
+  }));
+  const HEPSI = [...PISTLER, ...SOKAK];
+  it("bölge 1 Çorak'ta sokak yarışı yok; bölge 2'de bütün etkinlikler şehirde sokak yarışı, üç tür de var", () => {
+    // bölge atlamak yalnız geliştirici koşusunda (gerçek koşuda boss yenince aynı bölge kurulumu)
+    const k = kosuBaslat(11, HEPSI, true);
+    pasifSec(k, k.secenekler[0]);
+    expect(k.etkinlikler.some((e) => e.sokak)).toBe(false);
+    expect(atolyeYeri(k)).toEqual(ATOLYE);
+    expect(testBolgeyeGec(k, 2, HEPSI)).toBe(true);
+    expect(k.etkinlikler.length).toBeGreaterThan(3);
+    for (const e of k.etkinlikler) {
+      expect(e.sokak, "sokak yarışı").toBeTruthy();
+      expect(SEHIR_YERLERI.some(([x, z]) => x == e.x && z == e.z)).toBe(true);
+    }
+    expect(new Set(k.etkinlikler.map((e) => e.sokak))).toEqual(new Set(["tur", "ab", "kovala"]));
+    for (const q of k.sandiklar) expect(SEHIR_YERLERI.some(([x, z]) => x == q.x && z == q.z)).toBe(true);
+    expect(atolyeYeri(k)).toEqual(SEHIR_ATOLYE);
+    expect(bossYeri(k)).toEqual(SEHIR_BOSS);
+  });
+
+  it("sokak hedefi bütün turlar; kovalamacada hedef yok, rakip önde kalkan düello; rakip asfalt kurulumuyla", () => {
+    const tur = SOKAK.find((p) => p.sokak == "tur")!,
+      ab = SOKAK.find((p) => p.sokak == "ab")!,
+      kv = SOKAK.find((p) => p.sokak == "kovala")!;
+    expect(etkinlikHedefi(tur, 1)).toEqual({ laps: 2, limit: tur.ys[1] });
+    expect(etkinlikHedefi(ab, 2)).toEqual({ laps: undefined, limit: ab.ys[2] });
+    expect(etkinlikHedefi(kv, 0).limit).toBe(0);
+    const r = etkinlikRakibi({ tohum: 3 }, { id: 2, ty: "rl", sev: ab.sev, sokak: "ab" }, ab, 1)!;
+    expect({ arac: r.arac, parca: r.parca }).toEqual(kariyerKurulumu("gp", ab.sev));
+    const c = etkinlikRakibi({ tohum: 3 }, { id: 3, ty: "gp", sev: kv.sev, sokak: "kovala" }, kv, 0)!;
+    expect(c.duello).toBe(true);
+    expect(c.onde).toBe(KOVALA_ONDE);
+    // yıldızlar: 1★ en uzun, 3★ en kısa süre
+    for (const p of SOKAK) expect(p.ys[0] > p.ys[1] && p.ys[1] > p.ys[2]).toBe(true);
   });
 });

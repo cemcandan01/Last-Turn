@@ -123,6 +123,11 @@ export interface FizikBaglami {
    * işaretler
    */
   dis?: { x: number; z: number };
+  /**
+   * MUTANT uçuş/sarkaç (LT-SYS-008): kütle merkezine dikey ivme (m/s², yer çekimine eklenir) ve havada duruş denetimi
+   * (denge 0-1: gövdeyi dik tutar, direksiyon yalpayı yönetir). Yokken fizik birebir aynı
+   */
+  ucus?: { y: number; denge: number };
   /** Yalnız drift yarışı süresince etkin açı ve giriş mekaniği (serbest sürüşe dokunmaz). */
   driftYarisi?: boolean;
 }

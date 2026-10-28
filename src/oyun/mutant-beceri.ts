@@ -1,6 +1,7 @@
 // MUTANT skill'lerinin dünya bağı (LT-SYS-004, saf): skill yürütücüsünün okuduğu dünyayı (oyuncu, rakipler, pist
 // bağlantı noktası, engeller) oyun verisinden kurar. Fiziğe ve oyun durumuna yazmaz; uygulama oyun/mutant.ts'te.
 import type { BeceriDunyasi, Engel, Govde, Hedef } from "../cekirdek/beceri";
+import { binaBaglantisi, SEHIR_X, SEHIR_YARI, SEHIR_Z, sehirYolNoktalari } from "../dunya/sehir-duzen";
 import type { CarpismaIzgarasi } from "../fizik/carpisma";
 import type { DunyaSorgusu } from "../fizik/tipler";
 import { nearest, type Pist } from "../dunya/pist";
@@ -65,7 +66,10 @@ export function beceriDunyasiYap(
   TR: Pist | null,
   yarista: boolean,
   acikDunya = false,
+  zemin = 0,
 ): BeceriDunyasi {
+  // LT-SYS-008: Kule Şehri'nde kanca bina tepesine (sarkaç) ve şehrin sokaklarına tutunur
+  const sehirde = sehirdeMi(P.x, P.z);
   return {
     oyuncu: P,
     hedefler,
@@ -73,8 +77,16 @@ export function beceriDunyasiYap(
       TR
         ? pistBaglantisi(TR, P, enAz, enCok)
         : acikDunya
-          ? yolBaglantisi(acikDunyaYollari(), P, enAz, enCok)
+          ? yolBaglantisi(sehirde ? sehirYollari() : acikDunyaYollari(), P, enAz, enCok)
           : null,
+    binaBaglanti: sehirde ? (enAz, enCok) => binaBaglantisi(P.x, P.z, P.h, enAz, enCok) : undefined,
+    zemin,
     yarista,
   };
 }
+
+let sehirYolOnbellek: [number, number][] | null = null;
+const sehirYollari = () => (sehirYolOnbellek ??= sehirYolNoktalari());
+/** dünya noktası Kule Şehri'nin içinde mi */
+export const sehirdeMi = (x: number, z: number) =>
+  Math.abs(x - SEHIR_X) < SEHIR_YARI && Math.abs(z - SEHIR_Z) < SEHIR_YARI;

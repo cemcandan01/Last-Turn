@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import { CarpismaIzgarasi } from "../fizik/carpisma";
 import { scene } from "../cizim/sahne";
-import { REG, PARK, regAt, type Bolge, type Kutu, type Tele } from "./bolgeler";
+import { REG, PARK, SEHIR, regAt, type Bolge, type Kutu, type Tele } from "./bolgeler";
 import { buildTest, Htest, surfTest, TELEW } from "./corak";
 import { kur, kurulumBaslat, kurulumBitir } from "./kurucu";
 import type { Pist } from "./pist";
@@ -60,7 +60,16 @@ export const WORLDS: AcikDunya[] = [
     tele: PARK.tele!,
     box: PARK.box,
   },
+  {
+    n: "Kule Şehri",
+    d: "Gökdelenler arasında ızgara sokaklar, merkezde Büyük Park. MUTANT'ta ikinci bölgeden itibaren.",
+    reg: SEHIR,
+    tele: SEHIR.tele!,
+    box: SEHIR.box,
+  },
 ];
+/** WORLDS içinde Kule Şehri'nin sırası */
+export const SEHIR_DUNYASI = 2;
 
 /** açık dünyayı kur (bir kez) */
 export function loadWorld() {
@@ -82,4 +91,4 @@ export function ensureBuilt(r: Bolge) {
   scene.add(r.g);
 }
 
-export { REG, PARK, regAt };
+export { REG, PARK, SEHIR, regAt };

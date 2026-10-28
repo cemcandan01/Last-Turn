@@ -25,6 +25,18 @@ export default [
     birim: { dosya: "tests/birim/mutant-gorev.test.ts", grup: "LT-SYS-007 yol görevleri" },
   },
   {
+    id: "mutant-kule-sehri",
+    ad: "LT-SYS-008 Kule Şehri: boss sonrası şehre geçiş, sokak yarışı rotası ve rakibi, Volt Kanat uçuşu, kancanın bina sarkacı",
+    p: 1,
+    tarayici: "mutant-sehir",
+  },
+  {
+    id: "mutant-sehir-kurali",
+    ad: "LT-SYS-008 şehir düzeni, rotalar, uçuş ve sarkaç gerçek fizikte",
+    p: 1,
+    birim: { dosya: "tests/birim/sehir.test.ts", grup: "LT-SYS-008 Kule Şehri" },
+  },
+  {
     id: "mekanik-yurutucu",
     ad: "Mekanik yürütücü: tekrar engeli, yığınlama yok, sonlu döngü, enerji sınırı",
     p: 1,

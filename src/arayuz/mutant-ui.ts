@@ -16,7 +16,7 @@ import {
   type BeceriOrnegi,
 } from "../cekirdek/beceri";
 import { isaretleriKur, isaretlerGorunur, type Isaret } from "../cizim/isaretler";
-import { Hw, WORLDS } from "../dunya/dunya";
+import { Hw, SEHIR_DUNYASI, WORLDS } from "../dunya/dunya";
 import { driftTanisi } from "../fizik/drift-tani";
 import { SEVIYELER } from "../dunya/pist-tanimlari";
 import { setActive } from "../oyun/bolge";
@@ -24,7 +24,6 @@ import { oyun } from "../oyun/durum";
 import { BASLANGIC_ARACLARI } from "../oyun/ekonomi";
 import { girdiSifirla } from "../oyun/girdi";
 import {
-  BOSS_YERI,
   mutant,
   mutantArac,
   mutantAracSec,
@@ -42,7 +41,6 @@ import {
   type MutantIsaret,
 } from "../oyun/mutant";
 import {
-  ATOLYE,
   DUELLO,
   ETKINLIK_ODULU,
   LANETLER,
@@ -79,9 +77,15 @@ import {
   type Boss,
   type EtkinlikSonucu,
   TUR_ARACI,
+  atolyeYeri,
+  bossYeri,
+  sehirde,
+  SEHIR_BOLGESI,
+  KOVALA_ONDE,
 } from "../oyun/mutant-kosu";
 import { reset, sim, yerel } from "../oyun/surus";
-import { EVENTS, leaveEvent, startEvent, yaris } from "../oyun/yarislar";
+import { leaveEvent, startEvent, TUM_ETKINLIKLER, yaris } from "../oyun/yarislar";
+import { SEHIR_GIRIS, type SokakTuru } from "../dunya/sehir-duzen";
 import { KISILIKLER } from "../yz/kisilik";
 import { rakip } from "../oyun/rakip";
 import { mulberry32 } from "../cekirdek/rastgele";
@@ -96,6 +100,15 @@ const TUR: Record<YarisTuru, [string, number, string]> = {
   dp: ["Drift", 0xb67cff, "#b67cff"],
   dg: ["Drag", 0xffd23c, "#ffd23c"],
 };
+/** LT-SYS-008 sokak yarışı adı ve işaret rengi */
+const SOKAK_AD: Record<SokakTuru, string> = {
+    ab: "Sokak: A→B",
+    tur: "Sokak: blok turu",
+    kovala: "Sokak: kovalamaca",
+  },
+  SOKAK_RENK: [number, string] = [0xff8fd8, "#ff8fd8"];
+const etkinlikRengi = (e: { ty: YarisTuru; sokak?: SokakTuru }, i: 1 | 2) =>
+  e.sokak ? SOKAK_RENK[i - 1] : TUR[e.ty][i];
 const ATOLYE_RENK: [number, string] = [0x3cc8ff, "#3cc8ff"],
   BOSS_RENK: [number, string] = [0xff2a2a, "#ff2a2a"],
   /** sandık: normal açık sarı, lanetli eflatun */
@@ -183,9 +196,11 @@ export function mutantIsaretleri(): { x: number; z: number; renk: string }[] {
   const k = mutant.kosu;
   if (!k) return [];
   return [
-    ...k.etkinlikler.filter((e) => !e.yapildi).map((e) => ({ x: e.x, z: e.z, renk: TUR[e.ty][2] })),
-    { x: ATOLYE[0], z: ATOLYE[1], renk: ATOLYE_RENK[1] },
-    { x: BOSS_YERI[0], z: BOSS_YERI[1], renk: BOSS_RENK[1] },
+    ...k.etkinlikler
+      .filter((e) => !e.yapildi)
+      .map((e) => ({ x: e.x, z: e.z, renk: etkinlikRengi(e, 2) as string })),
+    { x: atolyeYeri(k)[0], z: atolyeYeri(k)[1], renk: ATOLYE_RENK[1] },
+    { x: bossYeri(k)[0], z: bossYeri(k)[1], renk: BOSS_RENK[1] },
   ];
 }
 
@@ -193,12 +208,14 @@ function isaretleriGuncelle() {
   const k = mutant.kosu;
   const l: Isaret[] = k
     ? [
-        ...k.etkinlikler.filter((e) => !e.yapildi).map((e) => ({ x: e.x, z: e.z, renk: TUR[e.ty][1] })),
+        ...k.etkinlikler
+          .filter((e) => !e.yapildi)
+          .map((e) => ({ x: e.x, z: e.z, renk: etkinlikRengi(e, 1) as number })),
         ...k.sandiklar
           .filter((q) => !q.acildi)
           .map((q) => ({ x: q.x, z: q.z, renk: (q.lanetli ? LANET_RENK : SANDIK_RENK)[0], sandik: true })),
-        { x: ATOLYE[0], z: ATOLYE[1], renk: ATOLYE_RENK[0], boy: 40 },
-        { x: BOSS_YERI[0], z: BOSS_YERI[1], renk: BOSS_RENK[0], boy: 140 },
+        { x: atolyeYeri(k)[0], z: atolyeYeri(k)[1], renk: ATOLYE_RENK[0], boy: 40 },
+        { x: bossYeri(k)[0], z: bossYeri(k)[1], renk: BOSS_RENK[0], boy: 140 },
       ]
     : [];
   isaretleriKur(l, Hw);
@@ -248,6 +265,7 @@ const BECERI_KISA: Record<string, string> = {
   "flying-dutchman": "HAYALET",
   "risk-taker": "RİSK",
   "slipstream-engine": "AKIM",
+  "volt-kanat": "UÇUŞ",
 };
 const beceriAdi = (o: BeceriOrnegi) => {
   const t = beceriBul(o.id)!,
@@ -483,6 +501,8 @@ function testLaboratuvari(secili = "") {
   s.querySelector<HTMLElement>("#labBolge")!.onclick = () => {
     if (yarista) haritayaDon();
     if (!testBolgeyeGec(k, Math.min(3, k.bolge + 1), mutantPistleri())) return;
+    // bölge 2'ye geçince Kule Şehri'ne taşı (haritayaDon dünyayı bölgeye göre seçer)
+    haritayaDon();
     isaretleriGuncelle();
     testLaboratuvari(seciliId);
   };
@@ -528,9 +548,9 @@ function isaret(i: MutantIsaret) {
   if (i.tur == "boss") return bossSayfasi(false);
   if (i.tur == "sandik") return sandikSayfasi(i.id);
   const e = k.etkinlikler.find((q) => q.id == i.id)!,
-    E = EVENTS[e.i],
+    E = TUM_ETKINLIKLER[e.i],
     o = ETKINLIK_ODULU(e.sev);
-  if (e.rakip) return duelloKarti(e.id, e.i, e.sev);
+  if (e.rakip || e.sokak == "kovala") return duelloKarti(e.id, e.i, e.sev);
   // risk kademesi: hedef 1★/2★/3★ (tek tur); ödül çarpanı ve kaçırmanın bedeli kartta açık
   const kademe = ([0, 1, 2] as Risk[])
     .map((r) => {
@@ -540,7 +560,7 @@ function isaret(i: MutantIsaret) {
     })
     .join("");
   const s = sayfaAc(
-    `<h1>${TUR[e.ty][0]}</h1><p>${E.n} · ${SEVIYELER[e.sev - 1].n}${E.laps ? " · 1 tur" : ""} · Boss'a ${sure(k.kalan)}</p>${e.ty == "dp" ? kaporaYazi(e.id) : ""}<div class="mtp">${kademe}</div>` +
+    `<h1>${e.sokak ? SOKAK_AD[e.sokak] : TUR[e.ty][0]}</h1><p>${E.n} · ${SEVIYELER[e.sev - 1].n}${e.sokak ? (E.laps ? " · " + E.laps + " tur" : " · A'dan B'ye") : E.laps ? " · 1 tur" : ""} · Boss'a ${sure(k.kalan)}</p>${e.ty == "dp" ? kaporaYazi(e.id) : ""}<div class="mtp">${kademe}</div>` +
       '<p class="note">Riski sen seç: zor hedef çok kazandırır, kaçırmak süre götürür. Etkinlik süresi de boss geri sayımından düşer.</p><button class="btn alt" id="mGec">Vazgeç</button>',
   );
   s.querySelectorAll<HTMLElement>("[data-risk]").forEach(
@@ -560,7 +580,8 @@ const DUELLO_YAZI = {
 };
 function duelloKarti(id: number, i: number, sev: number) {
   const k = mutant.kosu!,
-    E = EVENTS[i],
+    E = TUM_ETKINLIKLER[i],
+    kovala = E.sokak == "kovala",
     o = ETKINLIK_ODULU(sev);
   const kademe = DUELLO.kisilikler
     .map((ad, r) => {
@@ -569,8 +590,14 @@ function duelloKarti(id: number, i: number, sev: number) {
     })
     .join("");
   const s = sayfaAc(
-    `<h1>Düello</h1><p>${E.n} · ${DUELLO.tur} tur · Rakipten önce bitir · Boss'a ${sure(k.kalan)}</p><div class="mtp">${kademe}</div>` +
-      '<p class="note">Rakip senin başlangıç aracının stok hâliyle, aynı fizikle sürer: hız ya da tutuş hilesi yok. Araçlar birbirinin içinden geçer.</p><button class="btn alt" id="mGec">Vazgeç</button>',
+    (kovala
+      ? `<h1>${SOKAK_AD.kovala}</h1><p>${E.n} · ${E.laps} tur · Rakip ${KOVALA_ONDE} m önde kalkar: yakala, geç, önde bitir · Boss'a ${sure(k.kalan)}</p>`
+      : `<h1>Düello</h1><p>${E.n} · ${DUELLO.tur} tur · Rakipten önce bitir · Boss'a ${sure(k.kalan)}</p>`) +
+      `<div class="mtp">${kademe}</div>` +
+      (kovala
+        ? '<p class="note">Rakip bu sokaklar için kurulmuş bir asfalt aracıyla, aynı fizikle sürer. Araçlar birbirinin içinden geçer.</p>'
+        : '<p class="note">Rakip senin başlangıç aracının stok hâliyle, aynı fizikle sürer: hız ya da tutuş hilesi yok. Araçlar birbirinin içinden geçer.</p>') +
+      '<button class="btn alt" id="mGec">Vazgeç</button>',
   );
   s.querySelectorAll<HTMLElement>("[data-risk]").forEach(
     (c) =>
@@ -665,7 +692,7 @@ function sandikSayfasi(id: number) {
 function bossSayfasi(zorunlu: boolean) {
   const k = mutant.kosu!,
     i = mutantBossPisti(),
-    E = EVENTS[i];
+    E = TUM_ETKINLIKLER[i];
   const s = sayfaAc(
     `<h1>${zorunlu ? "Süre doldu!" : "Boss yarışı"}</h1><p>Bölge ${k.bolge} · ${E.n}</p>${bossKarti(k.boss)}` +
       (k.boss.ty == "dp"
@@ -704,9 +731,16 @@ function sureDoldu() {
 function haritayaDon() {
   leaveEvent();
   mutantKosuluGeriYukle();
-  oyun.CURW = WORLDS[0];
-  setActive(null);
-  const d = mutant.donus;
+  // LT-SYS-008: bölge 2'den itibaren açık dünya Kule Şehri; Çorak'tan gelince şehrin girişine
+  const k = mutant.kosu,
+    sehir = !!k && sehirde(k),
+    W = WORLDS[sehir ? SEHIR_DUNYASI : 0],
+    b = W.box;
+  oyun.CURW = W;
+  setActive(W.reg);
+  let d = mutant.donus;
+  if (!d || d[0] < b[0] || d[0] > b[1] || d[1] < b[2] || d[1] > b[3])
+    d = mutant.donus = sehir ? [SEHIR_GIRIS[0], SEHIR_GIRIS[1], SEHIR_GIRIS[2]] : null;
   if (d) reset(d[0], d[1], d[2]);
   else reset();
   mutantKurulumUygula();
@@ -749,7 +783,7 @@ function sonuc(r: EtkinlikSonucu | null, boss: boolean, gecti: boolean) {
             ? row("Boss", R.bitis != null ? fmt(R.bitis) : "bitirmedi") + row("Sen", fmt(yaris.EV?.t ?? 0))
             : "") +
           (gecti
-            ? `<p>Bölge ${k.bolge} açıldı. Yeni boss: ${k.boss.ad}. +200 para, +150 XP.</p>`
+            ? `<p>Bölge ${k.bolge} açıldı${k.bolge == SEHIR_BOLGESI ? ": Kule Şehri'ne geçiyorsun. Sokak yarışları, gökdelenler ve Büyük Park seni bekliyor" : ""}. Yeni boss: ${k.boss.ad}. +200 para, +150 XP.</p>`
             : "<p>Koşu bitti.</p>")
         : rakipSatiri +
           row("Kazanılan para", "+" + (r?.para ?? 0)) +
@@ -965,6 +999,7 @@ const BECERI_IKON: Record<string, IkonAdi> = {
   "flying-dutchman": "hayalet",
   "risk-taker": "alev",
   "slipstream-engine": "ruzgar",
+  "volt-kanat": "enerji",
 };
 
 /**

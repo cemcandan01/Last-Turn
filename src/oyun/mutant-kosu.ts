@@ -47,6 +47,7 @@ import {
 import type { SimDurumu } from "../fizik/tipler";
 import { TIRES } from "../fizik/veriler";
 import { kariyerKurulumu } from "./kariyer";
+import { SEHIR_ATOLYE, SEHIR_BOSS, SEHIR_YERLERI, type SokakTuru } from "../dunya/sehir-duzen";
 import { BASLANGIC_ENERJI, EKLENTI_PERKLERI, NITRO, PERKLER, SURUS_ENERJISI } from "./mutant-enerji";
 
 /** etkinliğe aday pist: oyundaki EVENTS'in özeti (saf modül oyun verisine bağlanmasın diye) */
@@ -54,6 +55,8 @@ export interface PistAdayi {
   i: number;
   ty: YarisTuru;
   sev: number;
+  /** LT-SYS-008 sokak yarışı (Kule Şehri): yalnız şehir bölgesinde etkinlik olur */
+  sokak?: SokakTuru;
   /** türdeki pist numarası (düello pisti bununla seçilir) */
   lv?: number;
   /** yıldız eşikleri [1★, 2★, 3★] (bütün turlar için; süre ya da drift puanı) ve tur sayısı */
@@ -297,6 +300,8 @@ export interface Etkinlik {
   yapildi: boolean;
   /** düello (A3): hedef süre yerine YZ rakipten önce bitirmek */
   rakip?: boolean;
+  /** sokak yarışı türü (şehirde) */
+  sokak?: SokakTuru;
   /** drift skill kaporası (LT-SYS-004): kart ilk açılınca kilitlenir */
   kapora?: Kapora;
 }
@@ -340,22 +345,29 @@ export interface EtkinlikRakibi {
   arac: number;
   parca: string[];
   tohum: number;
+  /** kovalamaca: rakip bu kadar metre önde kalkar ve oyuncu onu önde bitirmelidir (düello kuralı) */
+  onde?: number;
+  duello?: boolean;
 }
+/** kovalamacada rakibin önde kalkış mesafesi (m) */
+export const KOVALA_ONDE = 45;
 
 /** etkinliğin rakibi (yoksa null): düello hariç, rakipli türde ve ölçümde bitirilebilen pistte */
 export function etkinlikRakibi(
   k: Pick<Kosu, "tohum">,
-  e: Pick<Etkinlik, "id" | "ty" | "sev" | "rakip">,
+  e: Pick<Etkinlik, "id" | "ty" | "sev" | "rakip" | "sokak">,
   p: Pick<PistAdayi, "ty" | "lv">,
   risk: Risk,
 ): EtkinlikRakibi | null {
   if (e.rakip || !RAKIP_TURLERI.includes(e.ty) || RAKIPSIZ_PISTLER.includes(p.ty + "_" + p.lv)) return null;
-  const K = kariyerKurulumu(e.ty, e.sev);
+  // sokak yarışı asfaltta: A→B (açık rota) de asfalt kurulumuyla
+  const K = kariyerKurulumu(e.sokak ? "gp" : e.ty, e.sev);
   return {
     kisilik: RAKIP_KISILIK[risk],
     arac: K.arac,
     parca: [...K.parca],
     tohum: (Math.imul(k.tohum ^ 0x2545f491, 31) + e.id * 7919) >>> 0 || 1,
+    ...(e.sokak == "kovala" ? { onde: KOVALA_ONDE, duello: true } : {}),
   };
 }
 
@@ -518,10 +530,36 @@ function pasifCek(k: Kosu, n: number): string[] {
   return r;
 }
 
+/** LT-SYS-008: bölge 2'den itibaren koşu Kule Şehri'nde (etkinlikler sokak yarışı, yerler şehirde) */
+export const SEHIR_BOLGESI = 2;
+export const sehirde = (k: Pick<Kosu, "bolge">) => k.bolge >= SEHIR_BOLGESI;
+export const haritaYerleri = (k: Pick<Kosu, "bolge">) => (sehirde(k) ? SEHIR_YERLERI : YERLER);
+export const atolyeYeri = (k: Pick<Kosu, "bolge">) => (sehirde(k) ? SEHIR_ATOLYE : ATOLYE);
+export const bossYeri = (k: Pick<Kosu, "bolge">) => (sehirde(k) ? SEHIR_BOSS : BOSS_YERI);
+
+/** şehir etkinlikleri: sokak yarışları, üç türün her biri en az bir; zorluk bölgeyle */
+function sehirEtkinlikleri(k: Kosu, pistler: readonly PistAdayi[]) {
+  const sokak = pistler.filter((p) => p.sokak),
+    enCok = Math.min(6, 2 * k.bolge),
+    uygun = sokak.filter((p) => p.sev <= enCok) as (PistAdayi & { sokak: SokakTuru })[],
+    turler: SokakTuru[] = ["tur", "ab", "kovala"],
+    yerler = [...SEHIR_YERLERI];
+  k.etkinlikler = [];
+  for (let n = 0; n < HARITA_ETKINLIK && yerler.length; n++) {
+    const tur = n < turler.length ? turler[n] : sec(k.rng, turler),
+      aday = uygun.filter((p) => p.sokak == tur);
+    if (!aday.length) continue;
+    const p = sec(k.rng, aday),
+      [x, z] = yerler.splice(Math.floor(k.rng() * yerler.length), 1)[0];
+    k.etkinlikler.push({ id: n, i: p.i, ty: p.ty, sev: p.sev, x, z, yapildi: false, sokak: tur });
+  }
+}
+
 /** bölgeye göre harita etkinlikleri: her türden en az bir, zorluk bölgeyle artar; boss türü de var */
 function etkinlikDiz(k: Kosu, pistler: readonly PistAdayi[]) {
+  if (sehirde(k)) return sehirEtkinlikleri(k, pistler);
   const enCok = Math.min(6, 1 + 2 * k.bolge),
-    uygun = pistler.filter((p) => p.sev <= enCok && p.sev >= enCok - 3),
+    uygun = pistler.filter((p) => !p.sokak && p.sev <= enCok && p.sev >= enCok - 3),
     turler: YarisTuru[] = ["gp", "rx", "rl", "dp", "dg"],
     yerler = [...YERLER];
   k.etkinlikler = [];
@@ -541,7 +579,7 @@ function etkinlikDiz(k: Kosu, pistler: readonly PistAdayi[]) {
 
 /** Bölge oluşurken sandıklar yalnız yer ve lanet alır; ganimet sandığın açıldığı anda belirlenir. */
 function sandikDiz(k: Kosu) {
-  const yerler = YERLER.filter(([x, z]) => !k.etkinlikler.some((e) => e.x == x && e.z == z));
+  const yerler = haritaYerleri(k).filter(([x, z]) => !k.etkinlikler.some((e) => e.x == x && e.z == z));
   k.sandiklar = [];
   for (let n = 0; n < SANDIK_SAYISI && yerler.length; n++) {
     const lanetli = n == SANDIK_SAYISI - 1,
@@ -1395,7 +1433,9 @@ export function bossHedefi(
 }
 
 /** harita etkinliği tek tur (geri sayıma sığsın): hedef seçilen risk kademesinin yıldızı, tur başına */
-export function etkinlikHedefi(p: Pick<PistAdayi, "ty" | "ys" | "laps">, risk: Risk) {
+export function etkinlikHedefi(p: Pick<PistAdayi, "ty" | "ys" | "laps" | "sokak">, risk: Risk) {
+  // sokak yarışı rotanın bütün turlarıyla (kısa rota, 2 tur); kovalamacada hedef yok, rakip önde bitirilmez
+  if (p.sokak) return { laps: p.laps, limit: p.sokak == "kovala" ? 0 : p.ys[risk] };
   const tur = p.laps && p.laps > 1 ? p.laps : 1,
     y = p.ys[risk] / tur;
   return { laps: p.laps ? 1 : p.laps, limit: p.ty == "dp" ? Math.round(y) : y };

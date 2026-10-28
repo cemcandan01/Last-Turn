@@ -753,6 +753,7 @@ export function yeniAdim(
       Fx += m * cx.dis.x;
       Fz += m * cx.dis.z;
     }
+    if (cx.ucus) ucusDenetimi(cx.ucus, Y, UST, st, h, (fy) => (Fy += m * fy));
     // tümleştirme (yarı örtük Euler)
     Y.vx += (Fx / m) * h;
     Y.vy += (Fy / m) * h;
@@ -938,3 +939,29 @@ function carpismalar(d: SimDurumu, Y: YeniDurum, F: AracFizigi, cx: FizikBaglami
     Y.vz *= -0.3;
   }
 }
+
+/**
+ * MUTANT uçuş/sarkaç (LT-SYS-008, yalnız cx.ucus verilince): dikey ivme kuvvet olarak; denge > 0 iken açısal hız
+ * gövdeyi dikleştirecek, yalpa direksiyona göre dönecek biçimde yumuşakça yönlendirilir (havada teker yok, yönü
+ * oyuncu böyle tutar). Konum yazılmaz.
+ */
+function ucusDenetimi(
+  u: { y: number; denge: number },
+  Y: YeniDurum,
+  UST: { x: number; y: number; z: number },
+  st: number,
+  h: number,
+  dikey: (fy: number) => void,
+) {
+  if (Number.isFinite(u.y)) dikey(u.y);
+  const d = Math.max(0, Math.min(1, u.denge || 0));
+  if (!(d > 0)) return;
+  const k = 14 * d * h,
+    c = 5 * d * h;
+  Y.ox += k * -UST.z - c * Y.ox;
+  Y.oz += k * UST.x - c * Y.oz;
+  Y.oy += (UCUS_YALPA * st - Y.oy) * 3 * d * h;
+}
+
+/** uçuşta tam direksiyonun yalpa hızı (rad/s) */
+export const UCUS_YALPA = 1.6;
