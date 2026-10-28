@@ -818,7 +818,7 @@ export function yeniAdim(
     if (W.kerb(T1.x, T1.z) > 0.02) S.kerb = 1;
   }
   S.spin = kMaxArka > 0.3 && v2 < 25 ? 1 : 0;
-  const dri = driftSkoru(d, v2, vl2, vt2, dt);
+  const dri = driftSkoru(d, v2, vl2, vt2, dt, !!cx.driftYarisi);
   tozVeDuman(d, cx, si, v2, !S.air && v2 > 5 && (kMaxArka > 0.25 || aMaxArka > 0.3 || dri));
   let cimTeker = 0;
   for (let i = 0; i < 4; i++) if (Y.tk[i].zemin == 2) cimTeker++;
