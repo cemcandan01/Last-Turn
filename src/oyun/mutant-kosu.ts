@@ -483,7 +483,14 @@ export function sandikReddet(k: Kosu, id: number): boolean {
 /** Yalnız gerçekten açılan tek ödül alınabilir; sahip olunan eklenti tekrar verilmez. */
 export function sandikAc(k: Kosu, id: number, eklenti: string): boolean {
   const s = k.sandiklar.find((q) => q.id == id);
-  if (!s || s.acildi || !s.incelendi || k.faz != "surus" || s.secenekler[0] != eklenti || k.pasifler.includes(eklenti))
+  if (
+    !s ||
+    s.acildi ||
+    !s.incelendi ||
+    k.faz != "surus" ||
+    s.secenekler[0] != eklenti ||
+    k.pasifler.includes(eklenti)
+  )
     return false;
   s.acildi = true;
   k.pasifler.push(eklenti);

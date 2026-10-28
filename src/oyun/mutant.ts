@@ -110,7 +110,8 @@ export const mutantRekoru = () => okuJson(ANAHTAR, { bolge: 0, boss: 0 });
 
 export function mutantBaslat(tohum = (Date.now() ^ (Math.random() * 0x7fffffff)) >>> 0) {
   // Sadece yerel geliştirme veya /dev/ deneme adresinde; normal koşunun süresini değiştirmez.
-  const test = (import.meta.env.DEV || location.pathname.includes("/dev/")) &&
+  const test =
+    (import.meta.env.DEV || location.pathname.includes("/dev/")) &&
     new URLSearchParams(location.search).get("mutantTest") == "1";
   mutant.kosu = kosuBaslat(tohum, mutantPistleri(), test);
   mutant.etkinlik = null;

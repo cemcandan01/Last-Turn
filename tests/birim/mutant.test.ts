@@ -611,7 +611,8 @@ describe("MUTANT A2: eklenti sandıkları", () => {
     expect(g2 - k.govde).toBeCloseTo(GOVDE.spin, 6);
   });
   it("sandığı reddetmek ganimeti tüketir; ilk açılan ödül sayfa yeniden açılsa da değişmez", () => {
-    const k = basla(23), q = k.sandiklar[0];
+    const k = basla(23),
+      q = k.sandiklar[0];
     const e = sandikTeklifi(k, q.id);
     expect(e).toBeTruthy();
     expect(sandikTeklifi(k, q.id)).toBe(e);

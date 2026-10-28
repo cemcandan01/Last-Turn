@@ -34,7 +34,11 @@ describe("MUTANT drift yarışı için ayrı çekirdek", () => {
   it("düşük stok arabada da kayma açısıyla drift açılır; yarış dışındaki davranış aynı kalır", () => {
     const d = sim();
     let spin = 0;
-    const cx = { kurulum: kurulum(), olay: { spin: () => spin++ }, driftYarisi: true } as unknown as FizikBaglami;
+    const cx = {
+      kurulum: kurulum(),
+      olay: { spin: () => spin++ },
+      driftYarisi: true,
+    } as unknown as FizikBaglami;
     driftPenceresi(d, gi, cx, 14, 0.25, 0.25, driftSiniri(14), 0.14);
     expect(d.DR.on).toBe(1);
     const dis = sim();

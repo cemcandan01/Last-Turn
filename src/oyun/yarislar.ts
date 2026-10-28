@@ -359,7 +359,10 @@ export function evTick(dt: number, o: AdimSonucu, tg = 0.5) {
     geri = tersAdimi(EV, S.vx, S.vz, T[0], T[1], dt);
   if (EV.ty == "dp") {
     // kombo araç tamamen çime çıkınca yanar (tek teker ya da kerb yakmaz)
-    const lost = o.cimTeker == 4 || sim.d.zaman - S.hit < 0.05 || Math.abs(D.beta) > driftYarisProfili(yerel.cx.kurulum).azami + 0.12,
+    const lost =
+        o.cimTeker == 4 ||
+        sim.d.zaman - S.hit < 0.05 ||
+        Math.abs(D.beta) > driftYarisProfili(yerel.cx.kurulum).azami + 0.12,
       r = driftAdimi(EV, !!D.act, D.beta, lost, o.v, EV.ters || geri, dt, tg, sim.d.zaman, EV.x6);
     if (EV.lap == 0 && D.act && !lost && !EV.ters && !geri) {
       // orta çizgi ilerlemesi (pist uzunluğuyla aynı ölçü; dış çizgiden giden fazla yol sayılmaz)

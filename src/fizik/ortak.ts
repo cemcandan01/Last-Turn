@@ -28,7 +28,8 @@ export const driftSiniri = (v: number) => 0.9 - 0.35 * cl((v - 10) / 45, 0, 1);
 /** Drift yarışındaki kontrol alanı araç ve gerçek parçalardan türetilir; stok araç da drift başlatabilir.
  * Birimi radyan. Sınır geçilince yapay bir dönüş kilidi değil, gerçek savrulma ve kombo kaybı devreye girer. */
 export function driftYarisProfili(K: FizikBaglami["kurulum"]) {
-  const c = K.car, t = K.tu;
+  const c = K.car,
+    t = K.tu;
   const pay = (v: number, a: number, b: number) => cl((v - a) / (b - a), 0, 1);
   const derece =
     19 +
@@ -73,7 +74,8 @@ export function driftPenceresi(
         }
       } else if (DR.on) {
         DR.t += dt;
-        const ic = st * DR.dir, gaz = cl(gi.g, 0, 1);
+        const ic = st * DR.dir,
+          gaz = cl(gi.g, 0, 1);
         // Karşı direksiyon ve gaz hâlâ pilotta; modifiye yalnız kurtarılabilir açı alanını büyütür.
         DR.bt += ((ic > 0.25 ? 0.4 * ic : ic < -0.25 ? 1.0 * ic : 0) + (gaz - 0.55) * 0.24) * dt;
         DR.bt = cl(DR.bt, p.giris, p.azami);
@@ -124,7 +126,14 @@ export function driftPenceresi(
 }
 
 /** drift göstergesi ve puanı; döndürdüğü değer: araç drift ediyor mu */
-export function driftSkoru(sim: SimDurumu, v: number, vl: number, vt: number, dt: number, yaris = false): boolean {
+export function driftSkoru(
+  sim: SimDurumu,
+  v: number,
+  vl: number,
+  vt: number,
+  dt: number,
+  yaris = false,
+): boolean {
   const { S, DR, D } = sim;
   const beta = Math.atan2(vt, Math.max(Math.abs(vl), 1)),
     dri = !S.air && v > (yaris ? 7 : 10) && (yaris ? !!DR.on : !!DR.on || Math.abs(beta) > 0.5);
