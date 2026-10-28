@@ -7,6 +7,12 @@ export default [
     tarayici: "mutant",
   },
   {
+    id: "mutant-canli-dev",
+    ad: "DEV menü toggle, tüm araçlar, yarış içi panel, tek adım skill/evrim/eklenti, yeniden başlatma",
+    p: 1,
+    tarayici: "mutant-dev",
+  },
+  {
     id: "mekanik-yurutucu",
     ad: "Mekanik yürütücü: tekrar engeli, yığınlama yok, sonlu döngü, enerji sınırı",
     p: 1,
