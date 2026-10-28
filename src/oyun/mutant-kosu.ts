@@ -240,8 +240,16 @@ export const LANETLER: Record<Lanet, { ad: string; d: string }> = {
   govde: { ad: "Pas laneti", d: "Gövde −25 (pert etmez)" },
   para: { ad: "Açgözlülük laneti", d: "Paranın yarısı gider" },
 };
-/** bölge başına sandık: 2 normal (2 sıradan eklentiden biri, bedava), 1 lanetli (nadir eklenti + lanet) */
+/** bölge başına 2 normal + 1 lanetli sandık. Her biri açıldığında TEK ödül çeker. */
 export const SANDIK_SAYISI = 3;
+/** Bütün benzersiz eklentiler alınmışsa sandık asla boş kalmaz: tekrarlanabilir kaynak ödülleri. */
+export const SANDIK_KAYNAKLARI = [
+  { id: "sandik-para", ad: "Kayıp kasa", d: "Para +180" },
+  { id: "sandik-tamir", ad: "Onarım seti", d: "Gövde +35 (en çok 100)" },
+  { id: "sandik-enerji", ad: "Enerji hücresi", d: "Nitro enerjisi +60" },
+] as const;
+export const sandikOduluBul = (id: string): { ad: string; d: string } | undefined =>
+  pasifBul(id) ?? SANDIK_KAYNAKLARI.find((o) => o.id === id);
 
 export const pasifBul = (id: string): Pasif | undefined =>
   PASIFLER.find((p) => p.id === id) ?? EKLENTILER.find((p) => p.id === id);
@@ -272,7 +280,8 @@ export const NADIR_EK = 1.4;
 export const ATOLYE_STOK = 5;
 export const STOK_YENILE = 40;
 /** boss'a geri sayım (sn) bölgeye göre */
-export const BOSS_SURESI = (bolge: number) => (bolge == 1 ? 900 : 780);
+export const BOSS_SURESI = (bolge: number, test = false) =>
+  test ? (bolge == 1 ? 180 : bolge == 2 ? 210 : 240) : bolge == 1 ? 900 : 780;
 export const HARITA_ETKINLIK = 8;
 
 export interface Etkinlik {
@@ -317,9 +326,11 @@ export interface Sandik {
   x: number;
   z: number;
   lanetli: boolean;
-  /** sunulan eklentiler (normal: 2 sıradan; lanetli: 1 nadir) ve lanetli sandığın bedeli */
+  /** İlk açıldığında çekilen tek ödül; önceden boş, reddedilince yeniden çekilmez. */
   secenekler: string[];
+  incelendi: boolean;
   lanet: Lanet | null;
+  /** kabul edildi, reddedildi veya ödül havuzu boş */
   acildi: boolean;
 }
 
@@ -327,6 +338,8 @@ export type KosuFazi = "basla" | "surus" | "secim" | "boss" | "bitti";
 
 export interface Kosu {
   tohum: number;
+  /** Yalnız geliştirme denemesinde açılan kısa koşu ve serbest kurulum laboratuvarı. */
+  test?: boolean;
   rng: Rastgele;
   faz: KosuFazi;
   bolge: number;
@@ -438,36 +451,70 @@ function etkinlikDiz(k: Kosu, pistler: readonly PistAdayi[]) {
   if (k.bolge == DUELLO.bolge && dp && de) Object.assign(de, { i: dp.i, sev: dp.sev, rakip: true });
 }
 
-/** bölgenin sandıkları: etkinliklerin kullanmadığı düz yerlere (tohumlu); sahip olunan eklenti yeniden çıkmaz */
+/** Bölge oluşurken sandıklar yalnız yer ve lanet alır; ganimet sandığın açıldığı anda belirlenir. */
 function sandikDiz(k: Kosu) {
-  const yerler = YERLER.filter(([x, z]) => !k.etkinlikler.some((e) => e.x == x && e.z == z)),
-    sahip = (id: string) => k.pasifler.includes(id);
+  const yerler = YERLER.filter(([x, z]) => !k.etkinlikler.some((e) => e.x == x && e.z == z));
   k.sandiklar = [];
   for (let n = 0; n < SANDIK_SAYISI && yerler.length; n++) {
     const lanetli = n == SANDIK_SAYISI - 1,
-      aday = EKLENTILER.filter((e) => e.nadir == lanetli && !sahip(e.id)).map((e) => e.id),
-      secenekler: string[] = [];
-    while (secenekler.length < (lanetli ? 1 : 2) && aday.length)
-      secenekler.push(aday.splice(Math.floor(k.rng() * aday.length), 1)[0]);
-    if (!secenekler.length) continue;
-    const [x, z] = yerler.splice(Math.floor(k.rng() * yerler.length), 1)[0],
+      [x, z] = yerler.splice(Math.floor(k.rng() * yerler.length), 1)[0],
       lanet = lanetli ? sec(k.rng, Object.keys(LANETLER) as Lanet[]) : null;
-    k.sandiklar.push({ id: n, x, z, lanetli, secenekler, lanet, acildi: false });
+    k.sandiklar.push({ id: n, x, z, lanetli, secenekler: [], incelendi: false, lanet, acildi: false });
   }
 }
 
-/**
- * sandığı aç: seçilen eklenti koşuya eklenir (lanetliyse bedel hemen ödenir). Bırakılan sandık kapalı kalır, sonra
- * dönülebilir. Dönen: alındı mı
- */
+/** Ödül ilk açılışta, eldeki eklentilere göre ve ayrı tohumla çekilir; ekranı kapatıp açmak değiştirmez. */
+export function sandikTeklifi(k: Kosu, id: number): string | null {
+  const s = k.sandiklar.find((q) => q.id == id);
+  if (!s || s.acildi || k.faz != "surus") return null;
+  if (s.incelendi) return s.secenekler[0] ?? null;
+  s.incelendi = true;
+  // Açılıp bekletilen sandıkların ganimetini de ayır: iki sandık peş peşe incelense bile aynı ödül gelmesin.
+  // Reddedilip tüketilmiş sandığın ödülü yeniden havuza girebilir; alınanlar pasifler içindedir.
+  const ayrilan = new Set([
+    ...k.pasifler,
+    ...k.sandiklar.filter((q) => !q.acildi && q.incelendi).flatMap((q) => q.secenekler),
+  ]);
+  const aday = EKLENTILER.filter((e) => e.nadir == s.lanetli && !ayrilan.has(e.id));
+  const rastgele = turet(k, 0x53a7d1, k.bolge * 101 + id * 719);
+  const kaynak = SANDIK_KAYNAKLARI[Math.floor(rastgele() * SANDIK_KAYNAKLARI.length)];
+  const secilen = aday.length ? aday[Math.floor(rastgele() * aday.length)].id : kaynak.id;
+  s.secenekler = [secilen];
+  return secilen;
+}
+
+/** Ödülü istememek sandığı tüketir; yeni sandık açmadan yeniden zar atılamaz. */
+export function sandikReddet(k: Kosu, id: number): boolean {
+  const s = k.sandiklar.find((q) => q.id == id);
+  if (!s || s.acildi || !s.incelendi || k.faz != "surus") return false;
+  s.acildi = true;
+  return true;
+}
+
+/** Yalnız gerçekten açılan tek ödül alınabilir; sahip olunan eklenti tekrar verilmez. */
 export function sandikAc(k: Kosu, id: number, eklenti: string): boolean {
   const s = k.sandiklar.find((q) => q.id == id);
-  if (!s || s.acildi || k.faz != "surus" || !s.secenekler.includes(eklenti) || k.pasifler.includes(eklenti))
+  if (
+    !s ||
+    s.acildi ||
+    !s.incelendi ||
+    k.faz != "surus" ||
+    s.secenekler[0] != eklenti ||
+    k.pasifler.includes(eklenti)
+  )
     return false;
+  const kaynak = SANDIK_KAYNAKLARI.find((o) => o.id == eklenti);
+  if (!kaynak && !EKLENTILER.some((o) => o.id == eklenti)) return false;
   s.acildi = true;
-  k.pasifler.push(eklenti);
-  k.mek = kapasiteUygula(k.mek, takiliMekanikler(k));
-  EKLENTILER.find((e) => e.id == eklenti)?.al?.(k);
+  if (kaynak) {
+    if (eklenti == "sandik-para") k.para += 180;
+    else if (eklenti == "sandik-tamir") k.govde = Math.min(GOVDE.tam, k.govde + 35);
+    else if (eklenti == "sandik-enerji") k.mek.enerji = Math.min(k.mek.kapasite, k.mek.enerji + 60);
+  } else {
+    k.pasifler.push(eklenti);
+    k.mek = kapasiteUygula(k.mek, takiliMekanikler(k));
+    EKLENTILER.find((e) => e.id == eklenti)?.al?.(k);
+  }
   if (s.lanet == "sure") k.kalan = Math.max(1, k.kalan - 45);
   else if (s.lanet == "govde") k.govde = Math.max(1, k.govde - 25);
   else if (s.lanet == "para") k.para = Math.floor(k.para / 2);
@@ -475,15 +522,16 @@ export function sandikAc(k: Kosu, id: number, eklenti: string): boolean {
 }
 
 /** yeni koşu: 3 aday araç ve 3 başlangıç pasifi sunulur (faz "basla") */
-export function kosuBaslat(tohum: number, pistler: readonly PistAdayi[]): Kosu {
+export function kosuBaslat(tohum: number, pistler: readonly PistAdayi[], test = false): Kosu {
   const rng = mulberry32(tohum);
   const k: Kosu = {
     tohum,
+    test,
     rng,
     faz: "basla",
     bolge: 1,
     boss: sec(rng, BOSSLAR),
-    kalan: BOSS_SURESI(1),
+    kalan: BOSS_SURESI(1, test),
     xp: 0,
     seviye: 0,
     bekleyenSecim: 0,
@@ -561,6 +609,61 @@ export function pasifSec(k: Kosu, id: string, birak?: string): boolean {
   }
   k.faz = "surus";
   k.secenekler = [];
+  return true;
+}
+
+/** Test laboratuvarı: serbest seçim; normal ekonomi, seviye ve kayıt kuralları etkilenmez. */
+export function testKurulumu(k: Kosu, tur: "pasif" | "beceri" | "parca", id: string): boolean {
+  if (!k.test || k.faz != "surus") return false;
+  if (tur == "pasif") {
+    const p = PASIFLER.find((o) => o.id == id);
+    if (!p || pasifSayisi(k, id) >= p.en) return false;
+    k.pasifler.push(id);
+  } else if (tur == "beceri") {
+    if (!beceriTeklifleri(k).includes(id)) return false;
+    const birak = id.startsWith("b:") && k.beceriler.length >= SKILL_YUVASI ? k.beceriler[0].id : undefined;
+    if (!beceriTeklifiUygula(k, id, birak)) return false;
+  } else {
+    const p = PARCALAR.find((o) => o.id == id);
+    if (!p || SATILMAZ.includes(id)) return false;
+    const onceki = k.parcalar.find((q) => PARCALAR.find((m) => m.id == q)?.kat == p.kat);
+    if (onceki) k.parcalar = k.parcalar.filter((q) => q != onceki);
+    k.parcalar.push(id);
+  }
+  k.mek = kapasiteUygula(k.mek, takiliMekanikler(k));
+  return true;
+}
+
+/** Deneme atölyesinde kurulumun sıfırdan karşılaştırılması: sadece test koşusunda kullanılabilir. */
+export function testKurulumunuSifirla(k: Kosu): boolean {
+  if (!k.test || k.faz != "surus") return false;
+  k.pasifler = [];
+  k.parcalar = [];
+  k.beceriler = [];
+  k.mek = mekanikBaslat(100, BASLANGIC_ENERJI);
+  k.gozlem = driftGozlemiBaslat();
+  k.bec = beceriDurumuBaslat();
+  k.becCikti = null;
+  k.becEngel = {};
+  k.bekleyenBeceri = [];
+  k.bekleyenHasar = null;
+  k.bekleyenRisk = null;
+  k.govde = GOVDE.tam;
+  k.pert = false;
+  return true;
+}
+
+/** Testte istediği bölgeye geç; normal ilerleme yalnız boss zaferiyle mümkündür. */
+export function testBolgeyeGec(k: Kosu, bolge: number, pistler: readonly PistAdayi[]): boolean {
+  if (!k.test || bolge < 1 || bolge > 3 || bolge < k.bolge) return false;
+  while (k.bolge < bolge) {
+    bossaGir(k);
+    bossBitti(k, true, pistler);
+    k.faz = "surus";
+    k.bekleyenSecim = 0;
+    k.secenekler = [];
+  }
+  k.kalan = BOSS_SURESI(k.bolge, true);
   return true;
 }
 
@@ -1034,7 +1137,7 @@ export function bossBitti(k: Kosu, kazandi: boolean, pistler: readonly PistAdayi
   k.bolge++;
   const kalanlar = BOSSLAR.filter((b) => b.id != k.boss.id);
   k.boss = sec(k.rng, kalanlar);
-  k.kalan = BOSS_SURESI(k.bolge);
+  k.kalan = BOSS_SURESI(k.bolge, !!k.test);
   k.sonNefes = false;
   k.para += 200;
   xpEkle(k, 150);

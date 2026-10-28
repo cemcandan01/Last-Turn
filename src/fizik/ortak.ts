@@ -25,6 +25,33 @@ export function direksiyonVeGaz(sim: SimDurumu, gi: FizikGirdisi, cx: FizikBagla
 /** drift açısının en büyük güvenli değeri: hız arttıkça daralır */
 export const driftSiniri = (v: number) => 0.9 - 0.35 * cl((v - 10) / 45, 0, 1);
 
+/** Drift yarışındaki kontrol alanı araç ve gerçek parçalardan türetilir; stok araç da drift başlatabilir.
+ * Birimi radyan. Sınır geçilince yapay bir dönüş kilidi değil, gerçek savrulma ve kombo kaybı devreye girer. */
+export function driftYarisProfili(K: FizikBaglami["kurulum"]) {
+  const c = K.car,
+    t = K.tu;
+  const pay = (v: number, a: number, b: number) => cl((v - a) / (b - a), 0, 1);
+  const derece =
+    19 +
+    15 * pay(c.dmax ?? 0.8, 0.55, 1.06) +
+    9 * pay(t.lock, 0.4, 1.0) +
+    5 * pay(t.diff, 0.2, 1.2) +
+    4 * (1 - cl(c.awd, 0, 1)) +
+    3 * pay(K.as.dft, 0.2, 1);
+  // Yüksek kilit, açı kiti ve arka çekiş: drifte daha küçük açıyla, daha kısa sürede girilir.
+  // En kötü kurulumda da gerçek kaymayla giriş mümkündür; ücretsiz otomatik drift yoktur.
+  const girisYatkini =
+    0.45 * pay(t.diff, 0.2, 1.15) +
+    0.3 * pay(c.dmax ?? 0.8, 0.55, 1.06) +
+    0.15 * (1 - cl(c.awd, 0, 1)) +
+    0.1 * pay(K.as.ini ?? 0, 0, 1);
+  return {
+    giris: (cl(17 - 7 * girisYatkini, 9, 17) * Math.PI) / 180,
+    hazirlik: 0.2 - 0.1 * girisYatkini,
+    azami: (cl(derece, 22, 58) * Math.PI) / 180,
+  };
+}
+
 /**
  * drift penceresi: açı pencere içinde kaldıkça drift sürer; çok düşerse araç düzelir, abartılırsa spin.
  * v: hız, be: kayma açısı (işaretli), ab: |be|, bmax: driftSiniri(v)
@@ -44,6 +71,37 @@ export function driftPenceresi(
     as = K.as,
     st = sim.st;
   if (DR.cool > 0) DR.cool -= dt;
+  if (cx.driftYarisi) {
+    const p = driftYarisProfili(K);
+    if (!S.air) {
+      if (!DR.on && DR.cool <= 0) {
+        // Gaz ve lastik kaymasıyla giriş. Düşük güçlü, dört çeker araçlarda da ulaşılabilir.
+        DR.nc = ab >= p.giris && v >= 7 && gi.g > 0.2 ? DR.nc + dt : 0;
+        if (DR.nc >= p.hazirlik) {
+          DR.on = 1;
+          DR.t = 0;
+          DR.nc = 0;
+          DR.dir = -Math.sign(be);
+          DR.bt = cl(ab, p.giris, p.azami);
+        }
+      } else if (DR.on) {
+        DR.t += dt;
+        const ic = st * DR.dir,
+          gaz = cl(gi.g, 0, 1);
+        // Karşı direksiyon ve gaz hâlâ pilotta; modifiye yalnız kurtarılabilir açı alanını büyütür.
+        DR.bt += ((ic > 0.25 ? 0.4 * ic : ic < -0.25 ? 1.0 * ic : 0) + (gaz - 0.55) * 0.24) * dt;
+        DR.bt = cl(DR.bt, p.giris, p.azami);
+        if (ab > p.azami + 0.12) {
+          DR.on = 0;
+          DR.cool = 0.9;
+          DR.nc = 0;
+          cx.olay.spin();
+        } else if (v < 5 || (ab < p.giris * 0.6 && DR.t > 0.2)) DR.on = 0;
+      }
+    } else DR.on = 0;
+    DR.k += ((DR.on ? 1 : 0) - DR.k) * Math.min(1, dt * (DR.on ? 7 : 3));
+    return;
+  }
   if (!S.air) {
     if (!DR.on && DR.cool <= 0) {
       const full = Math.abs(st) > (gi.g > 0.5 ? 0.6 : 0.7);
@@ -81,10 +139,17 @@ export function driftPenceresi(
 }
 
 /** drift göstergesi ve puanı; döndürdüğü değer: araç drift ediyor mu */
-export function driftSkoru(sim: SimDurumu, v: number, vl: number, vt: number, dt: number): boolean {
+export function driftSkoru(
+  sim: SimDurumu,
+  v: number,
+  vl: number,
+  vt: number,
+  dt: number,
+  yaris = false,
+): boolean {
   const { S, DR, D } = sim;
   const beta = Math.atan2(vt, Math.max(Math.abs(vl), 1)),
-    dri = !S.air && v > 10 && (!!DR.on || Math.abs(beta) > 0.5);
+    dri = !S.air && v > (yaris ? 7 : 10) && (yaris ? !!DR.on : !!DR.on || Math.abs(beta) > 0.5);
   D.beta = beta;
   D.act = dri ? 1 : 0;
   if (dri) {

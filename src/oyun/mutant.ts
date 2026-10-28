@@ -109,7 +109,11 @@ export const mutantPistleri = () => (pistlerOnbellek ??= pistKaynagi ? pistKayna
 export const mutantRekoru = () => okuJson(ANAHTAR, { bolge: 0, boss: 0 });
 
 export function mutantBaslat(tohum = (Date.now() ^ (Math.random() * 0x7fffffff)) >>> 0) {
-  mutant.kosu = kosuBaslat(tohum, mutantPistleri());
+  // Sadece yerel geliştirme veya /dev/ deneme adresinde; normal koşunun süresini değiştirmez.
+  const test =
+    (import.meta.env.DEV || location.pathname.includes("/dev/")) &&
+    new URLSearchParams(location.search).get("mutantTest") == "1";
+  mutant.kosu = kosuBaslat(tohum, mutantPistleri(), test);
   mutant.etkinlik = null;
   mutant.donus = null;
   // Başlangıç noktası atölye halkasının içindedir: kullanıcı alandan çıkıp geri dönmeden açma.

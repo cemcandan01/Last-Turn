@@ -123,6 +123,8 @@ export interface FizikBaglami {
    * işaretler
    */
   dis?: { x: number; z: number };
+  /** Yalnız drift yarışı süresince etkin açı ve giriş mekaniği (serbest sürüşe dokunmaz). */
+  driftYarisi?: boolean;
 }
 
 /** bir fizik adımının durumu: araç, drift, direksiyon ve simülasyon saati */

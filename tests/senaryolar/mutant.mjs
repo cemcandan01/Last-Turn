@@ -43,6 +43,12 @@ export default [
     birim: { dosya: "tests/birim/mutant.test.ts", grup: "MUTANT A2: nitro ve sistemik güçler" },
   },
   {
+    id: "mutant-drift-laboratuvari",
+    ad: "MUTANT yarışa özel drift: açı girişi, modifiye açı tavanı, spin sınırı, test modu ve laboratuvar yalıtımı",
+    p: 1,
+    birim: { dosya: "tests/birim/mutant-drift-test.test.ts", grup: "MUTANT drift yarışı için ayrı çekirdek" },
+  },
+  {
     id: "eklenti-sandiklari",
     ad: "MUTANT A2 eklenti sandıkları: tohumlu yerleşim, normal/lanetli seçim, bedel, sözleşmeye katılım",
     p: 1,
