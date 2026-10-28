@@ -36,4 +36,4 @@
 - Cem: drift yarışında her araç drift yapabilmeli; driftte kalmak upgrade'e göre kolaylaşmalı, uygunsuz araçta zor ama mümkün.
 - Ölçüm: 0.8.11'de stok 9 araç gaz+direksiyonla drifte giremiyordu. Ekleme (`driftYarisProfili`): tam direksiyon + gaz `zorlama` (0,25–0,6 sn, uygunsuz araçta uzun) tutulunca kıç kayar; drift desteği `destek = 0,3 + 0,7·kontrol^1,5` (kontrol: açı kiti, kilit, diferansiyel, arka çekiş, drift yardımı).
 - Kabul: 15 aracın hepsi stok girer ve ≥%25 driftte kalır; güçsüz/ağır/dört çeker uygunsuz araçlarda drift paketi tutmayı belirgin kolaylaştırır (test `mutant-drift-test.test.ts`). Ölçüm `docs/denge/2026-10-28-mutant-drift-tutma.md`.
-- Açık: güçlü dört çeker ralli araçları (Kor RX, Mavi Yıldız, Kum Fırtınası, Sarı Arı) stokta zaten kolay drift tutuyor; paket onları kolaylaştırmıyor (fizik çekirdeği değiştirilmedi). Cihazda his denenmedi.
+- Cem kararı (28 Ekim): doğal olarak kolay drift yapan araçlar (güçlü dört çeker ralli araçları dahil) kolay yapmaya devam eder; araçların güçlü olduğu tür farklı olabilir. Adalet şartı yalnız şu: her araç drift yarışında drift yapabilmeli. Cihazda his denenmedi.

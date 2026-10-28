@@ -2,7 +2,7 @@
 
 - Claude / gelistirme. Cem: her araç drift yarışında drift yapabilmeli; driftte kalmak upgrade'le kolaylaşmalı, uygunsuz araçta zor ama mümkün. Kart LT-SYS-006 Revize 2; ölçüm `docs/denge/2026-10-28-mutant-drift-tutma.md`.
 - `src/fizik/ortak.ts` (yalnız `driftYarisi`): tam direksiyon + gaz tutma girişi (`zorlama`), destek gücü drift uygunluğuna bağlı (`destek`). Kariyer/serbest sürüş değişmedi (kariyer testi geçti).
-- Yerel: kontrol temiz (2 eski uyarı), npm test 435/435, alan mutant 21/21. Açık: güçlü dört çeker ralli araçları stokta kolay; cihazda his.
+- Yerel: kontrol temiz (2 eski uyarı), npm test 435/435, alan mutant 21/21. Cem kararı: kolay drift yapan araç kolay yapsın (araçların güçlü olduğu tür farklı olabilir); şart yalnız her aracın drift yapabilmesi. Açık: cihazda his.
 - Sonraki tek adım: Cem /dev/ 0.8.12'de uygunsuz bir araçla (ör. Gümüş Serçe, Haki Keçi) stok ve drift paketli drifti karşılaştırsın.
 
 # Önceki devir: 0.8.11 denemede — MUTANT drift yarışında yön kilidi düzeltmesi
