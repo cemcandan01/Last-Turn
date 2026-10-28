@@ -4,7 +4,7 @@
     "--sure"
   ],
   "daraltilmis": false,
-  "dk": 29.1,
+  "dk": 23.7,
   "ozet": {
     "altyapi": {
       "senaryo": 19,
@@ -74,8 +74,8 @@
     },
     "mutant": {
       "senaryo": 19,
-      "gecti": 18,
-      "kaldi": 1,
+      "gecti": 19,
+      "kaldi": 0,
       "kosulmadi": 0
     },
     "pist": {
@@ -139,7 +139,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.015358525000000043
+      "sure": 0.012670086999999995
     },
     {
       "id": "pwa-cevrimdisi",
@@ -152,7 +152,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.055351942000000036
+      "sure": 0.04374722699999999
     },
     {
       "id": "girdi-kaydi",
@@ -165,7 +165,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.0985501120000003
+      "sure": 2.546251766
     },
     {
       "id": "ekran-yon",
@@ -175,7 +175,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 18.815
+      "sure": 18.589
     },
     {
       "id": "xp-egrisi",
@@ -188,7 +188,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.016617249000000042
+      "sure": 0.016906443999999993
     },
     {
       "id": "kilit-tablosu",
@@ -201,7 +201,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.09091067599999997
+      "sure": 0.05891164700000002
     },
     {
       "id": "ilerleme-gecis",
@@ -214,7 +214,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.0036123609999999646
+      "sure": 0.0015378399999999885
     },
     {
       "id": "yaris-parasi",
@@ -227,7 +227,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.039614327000000005
+      "sure": 0.021125889999999998
     },
     {
       "id": "arac-satin-alma",
@@ -240,7 +240,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.016808577000000043
+      "sure": 0.018424473000000035
     },
     {
       "id": "para-gecisi",
@@ -253,7 +253,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.010068882000000003
+      "sure": 0.0042018190000000285
     },
     {
       "id": "ilerleme-kilit",
@@ -263,7 +263,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 6.516
+      "sure": 4.715
     },
     {
       "id": "bulut-kapali",
@@ -276,7 +276,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.002768515000000008
+      "sure": 0.0023096079999999973
     },
     {
       "id": "bulut-esitleme",
@@ -289,7 +289,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.16594863000000007
+      "sure": 0.147665318
     },
     {
       "id": "hesap-formu",
@@ -299,7 +299,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.521
+      "sure": 0.367
     },
     {
       "id": "ozellik-toplami",
@@ -312,7 +312,7 @@
       "dal": "denge",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.4428085450000001
+      "sure": 0.37630967000000004
     },
     {
       "id": "gercek-performans",
@@ -325,7 +325,7 @@
       "dal": "denge",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 19.250760172000003
+      "sure": 14.918830769000001
     },
     {
       "id": "kararlilik",
@@ -339,7 +339,7 @@
       "dal": "denge",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 8.071019952000004
+      "sure": 5.871089637000001
     },
     {
       "id": "parcalar",
@@ -352,7 +352,7 @@
       "dal": "denge",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.018599793
+      "sure": 2.312184989
     },
     {
       "id": "puan",
@@ -365,7 +365,7 @@
       "dal": "denge",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.30035397400000013
+      "sure": 0.21402110600000016
     },
     {
       "id": "gorunen-puanlar",
@@ -375,7 +375,7 @@
       "dal": "denge",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.052
+      "sure": 3.12
     },
     {
       "id": "modifiye-garaj",
@@ -385,7 +385,7 @@
       "dal": "denge",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 97.81
+      "sure": 89.011
     },
     {
       "id": "garaj",
@@ -396,7 +396,7 @@
       "dal": "denge",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 104.717
+      "sure": 74.577
     },
     {
       "id": "kariyer-sozlesmesi",
@@ -409,7 +409,7 @@
       "dal": "denge",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.18435877599999992
+      "sure": 0.15468164899999987
     },
     {
       "id": "kararlilik",
@@ -423,7 +423,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 8.071019952000004
+      "sure": 5.871089637000001
     },
     {
       "id": "surus",
@@ -434,7 +434,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.33
+      "sure": 2.1
     },
     {
       "id": "spin",
@@ -447,7 +447,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.8569675449999996
+      "sure": 1.5162968000000001
     },
     {
       "id": "drift-denge",
@@ -460,7 +460,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.5336982090000001
+      "sure": 0.41861470199999984
     },
     {
       "id": "saglamlik",
@@ -473,7 +473,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 7.045192026999997
+      "sure": 5.820469729000001
     },
     {
       "id": "parcalar",
@@ -486,7 +486,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.018599793
+      "sure": 2.312184989
     },
     {
       "id": "puan",
@@ -499,7 +499,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.30035397400000013
+      "sure": 0.21402110600000016
     },
     {
       "id": "kariyer-sozlesmesi",
@@ -512,7 +512,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.18435877599999992
+      "sure": 0.15468164899999987
     },
     {
       "id": "garaj-duzen",
@@ -522,7 +522,7 @@
       "dal": "garaj-duzen",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 7.854
+      "sure": 5.198
     },
     {
       "id": "garaj",
@@ -533,7 +533,7 @@
       "dal": "garaj",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 104.717
+      "sure": 74.577
     },
     {
       "id": "garaj-kilit",
@@ -543,7 +543,7 @@
       "dal": "garaj",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 7.652
+      "sure": 7.196
     },
     {
       "id": "magaza",
@@ -553,7 +553,7 @@
       "dal": "garaj",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 21.007
+      "sure": 16.643
     },
     {
       "id": "hayalet-yaris",
@@ -563,7 +563,7 @@
       "dal": "hayalet",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.629
+      "sure": 0.58
     },
     {
       "id": "hayalet-sinirlar",
@@ -576,7 +576,7 @@
       "dal": "hayalet",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.25123357599999996
+      "sure": 0.15156464599999991
     },
     {
       "id": "hayalet-dogruluk",
@@ -589,7 +589,7 @@
       "dal": "hayalet",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.16294522900000005
+      "sure": 0.09907960700000001
     },
     {
       "id": "hayalet-kayit",
@@ -602,7 +602,7 @@
       "dal": "hayalet",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.04247640200000001
+      "sure": 0.04214924499999995
     },
     {
       "id": "hud-minimap",
@@ -612,7 +612,7 @@
       "dal": "hud",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 19.085
+      "sure": 14.813
     },
     {
       "id": "kariyer-sozlesmesi",
@@ -625,7 +625,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.18435877599999992
+      "sure": 0.15468164899999987
     },
     {
       "id": "ekonomi-0",
@@ -638,7 +638,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.039614327000000005
+      "sure": 0.021125889999999998
     },
     {
       "id": "ekonomi-1",
@@ -651,7 +651,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.016808577000000043
+      "sure": 0.018424473000000035
     },
     {
       "id": "ekonomi-2",
@@ -664,7 +664,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.010068882000000003
+      "sure": 0.0042018190000000285
     },
     {
       "id": "ilerleme-0",
@@ -677,7 +677,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.016617249000000042
+      "sure": 0.016906443999999993
     },
     {
       "id": "ilerleme-1",
@@ -690,7 +690,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.09091067599999997
+      "sure": 0.05891164700000002
     },
     {
       "id": "ilerleme-2",
@@ -703,7 +703,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.0036123609999999646
+      "sure": 0.0015378399999999885
     },
     {
       "id": "modifiye-0",
@@ -716,7 +716,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.01176242400000001
+      "sure": 0.007015683999999993
     },
     {
       "id": "modifiye-1",
@@ -729,7 +729,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.004020432999999997
+      "sure": 0.003264715000000024
     },
     {
       "id": "modifiye-2",
@@ -742,7 +742,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.008772497000000016
+      "sure": 0.007855199999999996
     },
     {
       "id": "bulut-rekor",
@@ -755,7 +755,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.0050520860000000025
+      "sure": 0.003954302999999982
     },
     {
       "id": "lastik",
@@ -768,7 +768,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.005210940999999963
+      "sure": 0.0044805269999999954
     },
     {
       "id": "parca-0",
@@ -781,7 +781,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.018599793
+      "sure": 2.312184989
     },
     {
       "id": "parca-1",
@@ -794,7 +794,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.30035397400000013
+      "sure": 0.21402110600000016
     },
     {
       "id": "parca-2",
@@ -807,7 +807,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 17.341776324000005
+      "sure": 12.950872488
     },
     {
       "id": "sinif",
@@ -820,7 +820,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.4428085450000001
+      "sure": 0.37630967000000004
     },
     {
       "id": "kurallar",
@@ -833,7 +833,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.40114263200000005
+      "sure": 0.379130529
     },
     {
       "id": "hayalet-0",
@@ -846,7 +846,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.04247640200000001
+      "sure": 0.04214924499999995
     },
     {
       "id": "hayalet-1",
@@ -859,7 +859,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.16294522900000005
+      "sure": 0.09907960700000001
     },
     {
       "id": "hayalet-2",
@@ -872,7 +872,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.25123357599999996
+      "sure": 0.15156464599999991
     },
     {
       "id": "acilis",
@@ -883,7 +883,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.719
+      "sure": 1.703
     },
     {
       "id": "modifiye-birim",
@@ -896,7 +896,7 @@
       "dal": "modifiye",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.004020432999999997
+      "sure": 0.003264715000000024
     },
     {
       "id": "modifiye-bulut",
@@ -909,7 +909,7 @@
       "dal": "modifiye",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.008772497000000016
+      "sure": 0.007855199999999996
     },
     {
       "id": "modifiye-garaj",
@@ -919,7 +919,7 @@
       "dal": "modifiye",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 97.81
+      "sure": 89.011
     },
     {
       "id": "kariyer-sozlesmesi",
@@ -932,7 +932,7 @@
       "dal": "modifiye",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.18435877599999992
+      "sure": 0.15468164899999987
     },
     {
       "id": "mutant-akis",
@@ -942,7 +942,7 @@
       "dal": "mutant-oynanis-ilk-duzeltmeler",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 19.159
+      "sure": 16.414
     },
     {
       "id": "mekanik-yurutucu",
@@ -955,7 +955,7 @@
       "dal": "mutant-oynanis-ilk-duzeltmeler",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.014231443000000127
+      "sure": 0.01004539099999991
     },
     {
       "id": "drift-gozlemcisi",
@@ -968,7 +968,7 @@
       "dal": "mutant-oynanis-ilk-duzeltmeler",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.5406465619999996
+      "sure": 1.334595202
     },
     {
       "id": "ortak-kurallar",
@@ -981,7 +981,7 @@
       "dal": "mutant-oynanis-ilk-duzeltmeler",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.00916158900000005
+      "sure": 0.0033627420000000257
     },
     {
       "id": "kosu-kurallari",
@@ -994,7 +994,7 @@
       "dal": "mutant-oynanis-ilk-duzeltmeler",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.09650882799999999
+      "sure": 0.08480619599999997
     },
     {
       "id": "nitro-sistemik",
@@ -1007,7 +1007,7 @@
       "dal": "mutant-oynanis-ilk-duzeltmeler",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.06566549399999996
+      "sure": 0.03750997899999993
     },
     {
       "id": "eklenti-sandiklari",
@@ -1020,7 +1020,7 @@
       "dal": "mutant-oynanis-ilk-duzeltmeler",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.02550342599999999
+      "sure": 0.01786602799999997
     },
     {
       "id": "mutant-akis",
@@ -1030,7 +1030,7 @@
       "dal": "mutant",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 19.159
+      "sure": 16.414
     },
     {
       "id": "mekanik-yurutucu",
@@ -1043,7 +1043,7 @@
       "dal": "mutant",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.014231443000000127
+      "sure": 0.01004539099999991
     },
     {
       "id": "drift-gozlemcisi",
@@ -1056,7 +1056,7 @@
       "dal": "mutant",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.5406465619999996
+      "sure": 1.334595202
     },
     {
       "id": "ortak-kurallar",
@@ -1069,7 +1069,7 @@
       "dal": "mutant",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.00916158900000005
+      "sure": 0.0033627420000000257
     },
     {
       "id": "kosu-kurallari",
@@ -1082,7 +1082,7 @@
       "dal": "mutant",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.09650882799999999
+      "sure": 0.08480619599999997
     },
     {
       "id": "nitro-sistemik",
@@ -1095,7 +1095,7 @@
       "dal": "mutant",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.06566549399999996
+      "sure": 0.03750997899999993
     },
     {
       "id": "eklenti-sandiklari",
@@ -1108,7 +1108,7 @@
       "dal": "mutant",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.02550342599999999
+      "sure": 0.01786602799999997
     },
     {
       "id": "rakip-yz",
@@ -1121,7 +1121,7 @@
       "dal": "mutant",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 46.317612415999996
+      "sure": 37.569076563
     },
     {
       "id": "rakip-duello",
@@ -1131,7 +1131,7 @@
       "dal": "mutant",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 73.063
+      "sure": 51.593
     },
     {
       "id": "skill-akis",
@@ -1141,7 +1141,7 @@
       "dal": "mutant",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 19.387
+      "sure": 14.121
     },
     {
       "id": "skill-yurutucu",
@@ -1154,7 +1154,7 @@
       "dal": "mutant",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.6313226269999997
+      "sure": 0.4939055189999999
     },
     {
       "id": "skill-fizik",
@@ -1167,7 +1167,7 @@
       "dal": "mutant",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.746052905
+      "sure": 2.383842319
     },
     {
       "id": "skill-his",
@@ -1180,7 +1180,7 @@
       "dal": "mutant",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 4.5905993669999985
+      "sure": 3.72033156
     },
     {
       "id": "skill-efekt-hud",
@@ -1188,11 +1188,9 @@
       "p": 1,
       "tarayici": "beceri-his",
       "dal": "mutant",
-      "durum": "kaldı",
-      "hatalar": [
-        "Flying Dutchman fazında ağacın içinden geçer, faz yokken çarpar: {\"agac\":true,\"hayalet\":{\"carpti\":false,\"gecti\":true},\"normal\":{\"carpti\":false,\"gecti\":true},\"govde\":100}"
-      ],
-      "sure": 41.085
+      "durum": "geçti",
+      "hatalar": [],
+      "sure": 37.925
     },
     {
       "id": "yol-agi",
@@ -1205,7 +1203,7 @@
       "dal": "mutant",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 9.842828667999997
+      "sure": 7.754948751
     },
     {
       "id": "pist-kesme",
@@ -1218,7 +1216,7 @@
       "dal": "mutant",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 54.37217245299999
+      "sure": 43.578678193
     },
     {
       "id": "pist-kesme-kural",
@@ -1231,7 +1229,7 @@
       "dal": "mutant",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.0068337209999999975
+      "sure": 0.008125771999999984
     },
     {
       "id": "yarislar",
@@ -1242,7 +1240,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.562
+      "sure": 2.91
     },
     {
       "id": "kariyer-sozlesmesi",
@@ -1255,7 +1253,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.18435877599999992
+      "sure": 0.15468164899999987
     },
     {
       "id": "girdi-kaydi",
@@ -1268,7 +1266,7 @@
       "dal": "surus",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.0985501120000003
+      "sure": 2.546251766
     },
     {
       "id": "gercek-performans",
@@ -1281,7 +1279,7 @@
       "dal": "surus",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 19.250760172000003
+      "sure": 14.918830769000001
     },
     {
       "id": "kararlilik",
@@ -1295,7 +1293,7 @@
       "dal": "surus",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 8.071019952000004
+      "sure": 5.871089637000001
     },
     {
       "id": "surus",
@@ -1306,7 +1304,7 @@
       "dal": "surus",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.33
+      "sure": 2.1
     },
     {
       "id": "saglamlik",
@@ -1319,7 +1317,7 @@
       "dal": "surus",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 7.045192026999997
+      "sure": 5.820469729000001
     },
     {
       "id": "parcalar",
@@ -1332,7 +1330,7 @@
       "dal": "surus",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.018599793
+      "sure": 2.312184989
     },
     {
       "id": "puan",
@@ -1345,7 +1343,7 @@
       "dal": "surus",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.30035397400000013
+      "sure": 0.21402110600000016
     },
     {
       "id": "garaj",
@@ -1356,7 +1354,7 @@
       "dal": "surus",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 104.717
+      "sure": 74.577
     },
     {
       "id": "yaris-lastigi",
@@ -1369,7 +1367,7 @@
       "dal": "yarista-reset",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.005210940999999963
+      "sure": 0.0044805269999999954
     },
     {
       "id": "pist-disi-sinir",
@@ -1382,7 +1380,7 @@
       "dal": "yarista-reset",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.01702116000000004
+      "sure": 0.013967776999999999
     },
     {
       "id": "yarista-reset",
@@ -1392,7 +1390,7 @@
       "dal": "yarista-reset",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 6.811
+      "sure": 4.738
     },
     {
       "id": "arac-bagimsiz",
@@ -1405,7 +1403,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.706591239
+      "sure": 2.4651759149999997
     },
     {
       "id": "uzak-arac",
@@ -1418,7 +1416,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.32222766599999975
+      "sure": 0.3000952320000001
     },
     {
       "id": "hayalet",
@@ -1428,7 +1426,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 18.044
+      "sure": 13.055
     },
     {
       "id": "cihaz-denetim",
@@ -1438,7 +1436,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.395
+      "sure": 0.375
     },
     {
       "id": "bulut-rekor",
@@ -1451,7 +1449,7 @@
       "dal": "altyapi",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.007444500000000005
+      "sure": 0.007076944000000026
     },
     {
       "id": "drift-yarisi",
@@ -1464,7 +1462,7 @@
       "dal": "denge",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 7.633385047
+      "sure": 6.008704021000001
     },
     {
       "id": "debriyaj",
@@ -1477,7 +1475,7 @@
       "dal": "denge",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.9424663870000022
+      "sure": 0.8090980159999999
     },
     {
       "id": "uyum",
@@ -1490,7 +1488,7 @@
       "dal": "denge",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 16.936063463
+      "sure": 12.226529452000001
     },
     {
       "id": "cihaz-uyum",
@@ -1513,7 +1511,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.0187764409999995
+      "sure": 1.6800605679999998
     },
     {
       "id": "drift-yarisi",
@@ -1526,7 +1524,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 7.633385047
+      "sure": 6.008704021000001
     },
     {
       "id": "debriyaj",
@@ -1539,7 +1537,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.9424663870000022
+      "sure": 0.8090980159999999
     },
     {
       "id": "debriyaj-tus",
@@ -1549,7 +1547,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.966
+      "sure": 1.501
     },
     {
       "id": "titresim",
@@ -1562,7 +1560,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 166.14236482700005
+      "sure": 133.952155737
     },
     {
       "id": "uyum",
@@ -1575,7 +1573,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 16.936063463
+      "sure": 12.226529452000001
     },
     {
       "id": "parca-his",
@@ -1588,7 +1586,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 17.438196829999995
+      "sure": 12.834410411999999
     },
     {
       "id": "cihaz-uyum",
@@ -1621,7 +1619,7 @@
       "dal": "grafik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.1975906740000006
+      "sure": 2.0892600050000003
     },
     {
       "id": "ek-parcalar",
@@ -1634,7 +1632,7 @@
       "dal": "grafik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.9731944719999992
+      "sure": 0.7571759839999995
     },
     {
       "id": "kokpit",
@@ -1644,7 +1642,7 @@
       "dal": "grafik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 16.42
+      "sure": 14.291
     },
     {
       "id": "hud-cakisma",
@@ -1654,7 +1652,7 @@
       "dal": "hud",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 20.304
+      "sure": 15.973
     },
     {
       "id": "hud-duzenleyici",
@@ -1664,7 +1662,7 @@
       "dal": "hud",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.26
+      "sure": 0.277
     },
     {
       "id": "cihaz-uyum",
@@ -1684,7 +1682,7 @@
       "dal": "kamera",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 14.545
+      "sure": 11.53
     },
     {
       "id": "kariyer",
@@ -1694,7 +1692,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.736
+      "sure": 3.485
     },
     {
       "id": "ilerleme",
@@ -1704,7 +1702,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 5.444
+      "sure": 5.118
     },
     {
       "id": "garaj-kilit",
@@ -1714,7 +1712,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 5.487
+      "sure": 4.515
     },
     {
       "id": "modifiye",
@@ -1724,7 +1722,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 92.273
+      "sure": 86.869
     },
     {
       "id": "hayalet",
@@ -1734,7 +1732,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.621
+      "sure": 0.415
     },
     {
       "id": "yildiz",
@@ -1744,7 +1742,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.01
+      "sure": 0.011
     },
     {
       "id": "xp-gorsel",
@@ -1754,7 +1752,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 19.294
+      "sure": 15.693
     },
     {
       "id": "garaj-duzen",
@@ -1764,7 +1762,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 6.537
+      "sure": 4.763
     },
     {
       "id": "yarislar",
@@ -1774,7 +1772,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 3.848
+      "sure": 3.078
     },
     {
       "id": "hud-cakisma",
@@ -1784,7 +1782,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 20.304
+      "sure": 15.973
     },
     {
       "id": "piste-donus",
@@ -1794,7 +1792,7 @@
       "dal": "kariyer",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 6.404
+      "sure": 4.896
     },
     {
       "id": "ortak-calisma",
@@ -1807,7 +1805,7 @@
       "dal": "kurallar",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.362106925
+      "sure": 0.30303722799999994
     },
     {
       "id": "garaj-ses",
@@ -1817,7 +1815,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.478
+      "sure": 0.27
     },
     {
       "id": "dokunma",
@@ -1827,7 +1825,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.927
+      "sure": 1.924
     },
     {
       "id": "arka-gorsel",
@@ -1837,7 +1835,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.803
+      "sure": 1.826
     },
     {
       "id": "seviyeler",
@@ -1847,7 +1845,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.087
+      "sure": 0.068
     },
     {
       "id": "yildiz",
@@ -1857,7 +1855,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.01
+      "sure": 0.011
     },
     {
       "id": "xp-gorsel",
@@ -1867,7 +1865,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 19.294
+      "sure": 15.693
     },
     {
       "id": "kapak",
@@ -1877,7 +1875,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.633
+      "sure": 2.637
     },
     {
       "id": "magaza-panel",
@@ -1887,7 +1885,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 2.927
+      "sure": 2.887
     },
     {
       "id": "cihaz-uyum",
@@ -1910,7 +1908,7 @@
       "dal": "modifiye",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.007445954
+      "sure": 0.004371359999999981
     },
     {
       "id": "modifiye-his",
@@ -1923,7 +1921,7 @@
       "dal": "modifiye",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 7.86890388
+      "sure": 5.854661577000001
     },
     {
       "id": "kombinasyon-matrisi",
@@ -1936,7 +1934,7 @@
       "dal": "mutant-oynanis-ilk-duzeltmeler",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.3499396579999957
+      "sure": 0.2543850370000073
     },
     {
       "id": "kombinasyon-matrisi",
@@ -1949,7 +1947,7 @@
       "dal": "mutant",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.3499396579999957
+      "sure": 0.2543850370000073
     },
     {
       "id": "rakip-plan",
@@ -1962,7 +1960,7 @@
       "dal": "mutant",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.16880700700000012
+      "sure": 0.12135241799999995
     },
     {
       "id": "pist-duzeni",
@@ -1975,7 +1973,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.09408886300000006
+      "sure": 0.07217839499999996
     },
     {
       "id": "yildiz-kurallari",
@@ -1988,7 +1986,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.6321586640000001
+      "sure": 0.53651022
     },
     {
       "id": "yildiz-yaris",
@@ -1998,7 +1996,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.01
+      "sure": 0.011
     },
     {
       "id": "drift-puan-formulu",
@@ -2011,7 +2009,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.0021678180000001246
+      "sure": 0.0016451779999999872
     },
     {
       "id": "drift-bonuslari",
@@ -2024,7 +2022,7 @@
       "dal": "pist",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.002740203000000065
+      "sure": 0.0035970230000000355
     },
     {
       "id": "ses-tarayici",
@@ -2034,7 +2032,7 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 8.77
+      "sure": 8.104
     },
     {
       "id": "motor-sesi",
@@ -2047,7 +2045,7 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.9344973120000002
+      "sure": 1.600345065
     },
     {
       "id": "debriyaj",
@@ -2060,7 +2058,7 @@
       "dal": "surus",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.9424663870000022
+      "sure": 0.8090980159999999
     },
     {
       "id": "debriyaj-tus",
@@ -2070,7 +2068,7 @@
       "dal": "surus",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 1.966
+      "sure": 1.501
     },
     {
       "id": "uyum",
@@ -2083,7 +2081,7 @@
       "dal": "surus",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 16.936063463
+      "sure": 12.226529452000001
     },
     {
       "id": "cihaz-uyum",
@@ -2103,7 +2101,7 @@
       "dal": "fizik",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 231.63
+      "sure": 202.676
     },
     {
       "id": "gecis",
@@ -2113,7 +2111,7 @@
       "dal": "menu",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 8.065
+      "sure": 7.025
     },
     {
       "id": "efektler",
@@ -2126,7 +2124,7 @@
       "dal": "ses",
       "durum": "geçti",
       "hatalar": [],
-      "sure": 0.642832333
+      "sure": 0.46310885899999993
     },
     {
       "id": "kayitsiz-birim",
