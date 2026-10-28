@@ -59,7 +59,7 @@ export function rakipBaslat(
     [, x0, z0, h0] = EV.g,
     i0 = nearest(TR, x0, z0, 0, true)[0],
     // kovalamaca: pist boyunca önde (yan kaydırma yok), yönü pistin yönü
-    i = r.onde ? (i0 + Math.round(r.onde / 4)) % TR.N : i0,
+    i = r.onde ? ileriNokta(TR, i0, r.onde) : i0,
     yan = r.onde ? 0 : IZGARA_YAN,
     x = (r.onde ? TR.P[i][0] : x0) + TR.T[i][1] * yan,
     z = (r.onde ? TR.P[i][1] : z0) - TR.T[i][0] * yan,
@@ -138,3 +138,15 @@ export const rakibiGecti = (t: number) => {
   const b = rakip.y?.bitis;
   return b == null || t < b;
 };
+
+/** pist boyunca i'den m metre ilerideki nokta (kapalı pistte başa sarar) */
+function ileriNokta(TR: Pist, i: number, m: number) {
+  let j = i,
+    d = 0;
+  for (let n = 0; n < TR.N && d < m; n++) {
+    const k = (j + 1) % TR.N;
+    d += Math.hypot(TR.P[k][0] - TR.P[j][0], TR.P[k][1] - TR.P[j][1]);
+    j = k;
+  }
+  return j;
+}

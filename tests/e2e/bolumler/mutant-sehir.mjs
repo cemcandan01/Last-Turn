@@ -83,9 +83,13 @@ export default async function ({ p, ok }) {
       r.rota = !!EV && EV.TR === sehir.TR && !!EV.TR && EV.reg == sehir.idx;
       r.rakip = !!LT.rakip.y;
       if (e.sokak == "kovala") {
-        const ry = LT.rakip.y.ornek.sim.S,
-          d = Math.hypot(ry.x - LT.sim.S.x, ry.z - LT.sim.S.z);
-        r.onde = d > 30;
+        // pist boyunca fark (oyuncu ızgarada, başlangıç çizgisinin gerisinde)
+        const TR = EV.TR,
+          pi = LT.ipucu.ti,
+          ri = LT.rakip.y.ti;
+        let d = TR.S[ri] - TR.S[pi];
+        if (d < 0) d += TR.len;
+        r.onde = d > 38 && d < 60;
       } else r.onde = true;
       EV.state = "run";
       EV.cd = 0;
@@ -166,7 +170,11 @@ export default async function ({ p, ok }) {
     r.gecis && r.sehir,
     "boss yenilince koşu Kule Şehri'ne geçer, etkinlikler sokak yarışı " + JSON.stringify(r),
   );
-  ok(r.rota && r.rakip && r.onde && r.hud, "sokak yarışı şehir rotasında, rakip (kovalamacada önde), HUD");
+  ok(
+    r.rota && r.rakip && r.onde && r.hud,
+    "sokak yarışı şehir rotasında, rakip (kovalamacada önde), HUD " +
+      JSON.stringify({ rota: r.rota, rakip: r.rakip, onde: r.onde, hud: r.hud }),
+  );
   ok(r.ucus, "Volt Kanat aracı 20 m'nin üstüne kaldırır");
   ok(r.sarkac && r.havada, "kanca şehirde bina tepesine takılır, aracı yerden kaldırır");
 }

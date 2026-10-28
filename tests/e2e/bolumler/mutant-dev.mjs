@@ -71,6 +71,22 @@ export default async function ({ p, ok }) {
     dev.click();
     tik("#labTekrar");
     const tekrar = !!LT.yaris.EV && LT.yaris.EV.state == "count" && LT.yaris.EV.t == 0;
+    // DEV panelinden doğrudan Kule Şehri'ne (bölge 2, şehrin girişi, sürüş)
+    dev.click();
+    tik("#labSehir");
+    const sehir =
+        LT.oyun.CURW.n == "Kule Şehri" &&
+        LT.mutant.kosu.bolge == 2 &&
+        LT.oyun.mode == "drive" &&
+        !LT.yaris.EV &&
+        Math.abs(LT.sim.S.x - 9000) < 800,
+      sehirDurum = {
+        w: LT.oyun.CURW.n,
+        b: LT.mutant.kosu.bolge,
+        m: LT.oyun.mode,
+        ev: !!LT.yaris.EV,
+        x: Math.round(LT.sim.S.x),
+      };
     LT.showMenu(["home"]);
     history.replaceState(null, "", oncekiAdres);
     return {
@@ -90,6 +106,8 @@ export default async function ({ p, ok }) {
       olcumAcik,
       tanilaniyor,
       taniDurdu,
+      sehir,
+      sehirDurum,
     };
   });
   ok(r.menu && r.kapali && r.acik, "MUTANT menüsünde DEV modu açılıp kapanır; bütün araçlar görünür");
@@ -103,5 +121,9 @@ export default async function ({ p, ok }) {
     r.canli && r.devam && r.tekrar,
     "skill değişimi canlı uygulanır, aynı yarışa dönülür ve tekrar başlatılır " +
       JSON.stringify({ canli: r.canli, devam: r.devam, tekrar: r.tekrar }),
+  );
+  ok(
+    r.sehir,
+    "DEV panelinden Kule Şehri'ne doğrudan gidilir (bölge 2, sürüş) " + JSON.stringify(r.sehirDurum),
   );
 }
