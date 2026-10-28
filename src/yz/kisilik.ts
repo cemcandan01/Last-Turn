@@ -49,6 +49,19 @@ export const KISILIKLER = {
     sabir: 1.6,
     kaymaSiniri: 0.3,
   },
+  // MUTANT boss'u (LT-SYS-007): en geç fren, en yüksek viraj hızı, en tutarlı ve en hızlı tepki
+  boss: {
+    ad: "Boss",
+    yan: 12.5,
+    fren: 10,
+    pay: 2.5,
+    bakis: 7,
+    bakisHiz: 0.4,
+    tutarlilik: 0.97,
+    tepki: 0.12,
+    sabir: 1.4,
+    kaymaSiniri: 0.33,
+  },
 } satisfies Record<string, Kisilik>;
 
 export type KisilikAdi = keyof typeof KISILIKLER;

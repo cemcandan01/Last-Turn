@@ -46,6 +46,7 @@ import {
 } from "../cekirdek/mekanikler";
 import type { SimDurumu } from "../fizik/tipler";
 import { TIRES } from "../fizik/veriler";
+import { kariyerKurulumu } from "./kariyer";
 import { BASLANGIC_ENERJI, EKLENTI_PERKLERI, NITRO, PERKLER, SURUS_ENERJISI } from "./mutant-enerji";
 
 /** etkinliğe aday pist: oyundaki EVENTS'in özeti (saf modül oyun verisine bağlanmasın diye) */
@@ -320,6 +321,93 @@ export const DUELLO = {
   tur: 2,
   kisilikler: ["caylak", "deneyimli"] as const,
 };
+
+/**
+ * LT-SYS-007 etkinlik rakibi: asfalt, rallikros, ralli ve drag etkinliklerinde ızgarada bir YZ rakip. Başarı yine risk
+ * kademesinin hedefi; rakipten önce bitirmek ek para (RAKIP_ODUL × etkinlik parası). Rakip pistin kariyer hedef
+ * kurulumuyla sürer (yıldız eşikleri bu kurulumla ölçüldü): temposu hedefe yakın, yarış kafa kafaya. Drift etkinliği
+ * puan yarışıdır, rakipsiz. Bölge 1 düellosu (DUELLO) ayrı kuralıyla kalır.
+ */
+export const RAKIP_TURLERI: readonly YarisTuru[] = ["gp", "rx", "rl", "dg"];
+/** ölçümde (tests/olcum/mutant-rakip.test.ts) rakip YZ'nin rampada takılıp bitiremediği pistler: rakipsiz */
+export const RAKIPSIZ_PISTLER: readonly string[] = ["rx_6", "rl_3", "rl_4", "rl_6", "rl_8"];
+export const RAKIP_ODUL = 0.5;
+/** risk kademesi rakibin kişiliği: Güvenli → Çaylak, Riskli ve Ölümcül → Deneyimli */
+export const RAKIP_KISILIK = ["caylak", "deneyimli", "deneyimli"] as const;
+
+export interface EtkinlikRakibi {
+  kisilik: (typeof RAKIP_KISILIK)[number];
+  arac: number;
+  parca: string[];
+  tohum: number;
+}
+
+/** etkinliğin rakibi (yoksa null): düello hariç, rakipli türde ve ölçümde bitirilebilen pistte */
+export function etkinlikRakibi(
+  k: Pick<Kosu, "tohum">,
+  e: Pick<Etkinlik, "id" | "ty" | "sev" | "rakip">,
+  p: Pick<PistAdayi, "ty" | "lv">,
+  risk: Risk,
+): EtkinlikRakibi | null {
+  if (e.rakip || !RAKIP_TURLERI.includes(e.ty) || RAKIPSIZ_PISTLER.includes(p.ty + "_" + p.lv)) return null;
+  const K = kariyerKurulumu(e.ty, e.sev);
+  return {
+    kisilik: RAKIP_KISILIK[risk],
+    arac: K.arac,
+    parca: [...K.parca],
+    tohum: (Math.imul(k.tohum ^ 0x2545f491, 31) + e.id * 7919) >>> 0 || 1,
+  };
+}
+
+/**
+ * LT-SYS-007 boss rakibi: boss yarışı (drift hariç) hedef süreye karşı değil, boss'a karşıdır. Boss türün başlangıç
+ * aracıyla, eski boss hedefinin ölçüldüğü bölge build'iyle (bölge 1 stok, 2 uzman, 3+ nadir motor + uzman; parça ve
+ * pasif aynı) ve "boss" kişiliğiyle sürer: oyuncunun yatırımla ulaşabileceği araç, ölçüm pilotundan hızlı sürücü.
+ */
+export const TUR_ARACI: Record<YarisTuru, number> = { gp: 10, rx: 11, rl: 12, dp: 13, dg: 14 };
+const BOSS_LASTIK: Record<YarisTuru, string> = {
+  gp: "lastik-spor",
+  rx: "lastik-karisik",
+  rl: "lastik-toprak",
+  dp: "lastik-drift",
+  dg: "lastik-drag",
+};
+const BOSS_UZMAN: Record<YarisTuru, string[]> = {
+  gp: ["suspansiyon-spor", "diferansiyel-lsd"],
+  rx: ["suspansiyon-rallikros", "diferansiyel-ralli"],
+  rl: ["suspansiyon-ralli", "diferansiyel-ralli"],
+  dp: ["diferansiyel-kilitli", "aci-kiti"],
+  dg: ["suspansiyon-drag", "sanziman-uzun"],
+};
+const BOSS_UZMAN_PASIF: Record<YarisTuru, string[]> = {
+  gp: ["asfalt", "fren"],
+  rx: ["toprak", "fren"],
+  rl: ["toprak", "toprak"],
+  dp: ["aci", "guc"],
+  dg: ["guc", "hafif"],
+};
+export function bossYapisi(ty: YarisTuru, bolge: number): { parca: string[]; pasif: string[] } {
+  if (bolge <= 1) return { parca: [], pasif: [] };
+  if (bolge == 2)
+    return {
+      parca: ["motor-spor", BOSS_LASTIK[ty], ...BOSS_UZMAN[ty]],
+      pasif: [...BOSS_UZMAN_PASIF[ty], "guc"],
+    };
+  return {
+    parca: ["motor-yaris", "turbo-buyuk", BOSS_LASTIK[ty], ...BOSS_UZMAN[ty]],
+    pasif: [...BOSS_UZMAN_PASIF[ty], "guc", "guc", "guc"],
+  };
+}
+
+export function bossRakibi(k: Pick<Kosu, "tohum" | "bolge" | "boss">) {
+  if (k.boss.ty == "dp") return null;
+  return {
+    kisilik: "boss" as const,
+    arac: TUR_ARACI[k.boss.ty],
+    ...bossYapisi(k.boss.ty, k.bolge),
+    tohum: (Math.imul(k.tohum ^ 0x68e31da4, 31) + k.bolge * 7919) >>> 0 || 1,
+  };
+}
 
 export interface Sandik {
   id: number;
@@ -1138,10 +1226,19 @@ export interface EtkinlikSonucu {
   ceza: number;
   /** drift kaporasının sonucu (drift değilse null) */
   kapora: KaporaSonucu | null;
+  /** etkinlik rakibi (LT-SYS-007): rakipten önce bitirince eklenen para; rakipsizse rakipGecti null */
+  rakipPara?: number;
+  rakipGecti?: boolean | null;
 }
 
 /** etkinlik bitti: seçilen risk kademesinde geçti ya da kaçırdı; ödül, ceza ve seviye. Etkinlik bir kez oynanır */
-export function etkinlikBitti(k: Kosu, id: number, gecti: boolean, risk: Risk = 0): EtkinlikSonucu | null {
+export function etkinlikBitti(
+  k: Kosu,
+  id: number,
+  gecti: boolean,
+  risk: Risk = 0,
+  rakipGecti: boolean | null = null,
+): EtkinlikSonucu | null {
   const e = k.etkinlikler.find((q) => q.id == id);
   if (!e || e.yapildi) return null;
   e.yapildi = true;
@@ -1156,7 +1253,9 @@ export function etkinlikBitti(k: Kosu, id: number, gecti: boolean, risk: Risk = 
     seviye0 = k.seviye;
   k.kalan = Math.max(0, k.kalan - ceza);
   xpEkle(k, o.xp * pay);
-  const para = Math.round(o.para * pay * (1 + 0.25 * pasifSayisi(k, "tuccar")));
+  const taban = o.para * (1 + 0.25 * pasifSayisi(k, "tuccar")),
+    rakipPara = rakipGecti ? Math.round(taban * Math.max(1, R.odul) * RAKIP_ODUL) : 0,
+    para = Math.round(taban * pay) + rakipPara;
   k.para += para;
   const ekSure = gecti ? 20 * pasifSayisi(k, "zaman") : 0;
   k.govde = Math.min(GOVDE.tam, k.govde + 12 * pasifSayisi(k, "tamirci"));
@@ -1170,7 +1269,17 @@ export function etkinlikBitti(k: Kosu, id: number, gecti: boolean, risk: Risk = 
       k.faz = "surus";
     }
   }
-  return { xp: k.xp, para, gecti, seviyeAtladi: k.seviye > seviye0, ekSure, ceza, kapora };
+  return {
+    xp: k.xp,
+    para,
+    gecti,
+    seviyeAtladi: k.seviye > seviye0,
+    ekSure,
+    ceza,
+    kapora,
+    rakipPara,
+    rakipGecti,
+  };
 }
 
 export const parcaFiyati = (k: Pick<Kosu, "pasifler">, sv: number, id = "") =>

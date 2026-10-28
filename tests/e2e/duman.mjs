@@ -50,6 +50,7 @@ const BOLUMLER = [
   "hesap-formu",
   "mutant",
   "mutant-dev",
+  "mutant-gorev",
   "rakip",
   "beceri",
   "beceri-his",

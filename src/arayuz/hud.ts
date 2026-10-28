@@ -109,24 +109,28 @@ function olayPaneli(): [string, string] {
         "Tur " + Math.min(EV.lap + 1, EV.laps || 1) + "/" + EV.laps + " · Hedef " + EV.limit,
       ];
     const asim = EV.t > EV.limit ? " · SÜRE AŞILDI" : "";
+    // rakip: sıra ve fark (pist boyunca metre); düelloda hedef yok (limit 0), etkinlikte hedef de yazılır
+    const rs = rakipSirasi(EV.lap, ipucu.ti, !!EV.armed),
+      rakipYazi = rs
+        ? rs.sira + "." + (rs.bitti ? " · Rakip bitirdi" : " · " + Math.round(Math.abs(rs.fark)) + " m")
+        : "";
     if (EV.ty == "dg")
       return [
         KRONO + EV.t.toFixed(2),
-        "Hedef " + EV.limit.toFixed(1) + " sn · %" + Math.round((100 * ipucu.ti) / (EV.TR.N - 1)) + asim,
+        (rakipYazi ? rakipYazi + " · " : "") +
+          "Hedef " +
+          EV.limit.toFixed(1) +
+          " sn · %" +
+          Math.round((100 * ipucu.ti) / (EV.TR.N - 1)) +
+          asim,
       ];
-    // düello: hedef yerine sıra ve rakiple fark (pist boyunca metre)
-    const rs = rakipSirasi(EV.lap, ipucu.ti, !!EV.armed);
     return [
       KRONO + fmt(EV.t),
       (EV.laps
         ? "Tur " + Math.min(EV.lap + 1, EV.laps) + "/" + EV.laps
         : "%" + Math.round((100 * ipucu.ti) / EV.TR.N)) +
-        (rs
-          ? " · " +
-            rs.sira +
-            "." +
-            (rs.bitti ? " · Rakip bitirdi" : " · " + Math.round(Math.abs(rs.fark)) + " m")
-          : " · Hedef " + fmt(EV.limit) + asim),
+        (rs ? " · " + rakipYazi : "") +
+        (EV.limit > 0 ? " · Hedef " + fmt(EV.limit) + asim : ""),
     ];
   }
   const mp = mutantPaneli();

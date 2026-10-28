@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
+import { kariyerKurulumu } from "../../src/oyun/kariyer";
 import { CARS } from "../../src/arac/araclar";
 import { PRESETS, TIRES } from "../../src/fizik/veriler";
 import { TDEF } from "../../src/dunya/pist-tanimlari";
@@ -8,6 +9,11 @@ import { DRIFT_TUR, yildizEsikleri } from "../../src/oyun/yildiz";
 import { MUTANT_REFERANS, MUTANT_REFERANS_YAGMUR } from "../../src/oyun/mutant-denge";
 import {
   toprakDengesi,
+  etkinlikRakibi,
+  bossRakibi,
+  RAKIPSIZ_PISTLER,
+  RAKIP_ODUL,
+  TUR_ARACI,
   BOSSLAR,
   YERLER,
   ATOLYE,
@@ -778,5 +784,65 @@ describe("MUTANT toprak dengesi ve yarış lastiği", () => {
   it("MUTANT yarışında yarış lastiği takılmaz; kariyerde takılır", () => {
     const kod = readFileSync("src/oyun/yarislar.ts", "utf8");
     expect(kod).toContain("if (!mutantEtkinligi) yarisLastigiTak(e.ty);");
+  });
+});
+
+describe("MUTANT rekabet (LT-SYS-007): etkinlik rakibi ve boss rakibi", () => {
+  const pist = (ty: string, lv: number) => ({ ty: ty as PistAdayi["ty"], lv });
+  it("asfalt, rallikros, ralli ve drag etkinliğinde rakip var; drift, düello ve takılan pistte yok", () => {
+    const k = basla();
+    for (const ty of ["gp", "rx", "rl", "dg"] as const) {
+      const r = etkinlikRakibi(k, { id: 1, ty, sev: 2 }, pist(ty, 1), 0);
+      expect(r, ty).not.toBeNull();
+      expect(r!.kisilik).toBe("caylak");
+    }
+    expect(etkinlikRakibi(k, { id: 1, ty: "gp", sev: 2 }, pist("gp", 1), 2)!.kisilik).toBe("deneyimli");
+    expect(etkinlikRakibi(k, { id: 1, ty: "dp", sev: 2 }, pist("dp", 1), 0)).toBeNull();
+    expect(etkinlikRakibi(k, { id: 1, ty: "gp", sev: 1, rakip: true }, pist("gp", 1), 0)).toBeNull();
+    for (const anahtar of RAKIPSIZ_PISTLER) {
+      const [ty, lv] = anahtar.split("_");
+      expect(etkinlikRakibi(k, { id: 1, ty: ty as "rx", sev: 3 }, pist(ty, +lv), 0), anahtar).toBeNull();
+    }
+    // rakip pistin kariyer hedef kurulumuyla sürer (yıldız eşikleri bu kurulumla ölçüldü)
+    const r = etkinlikRakibi(k, { id: 1, ty: "gp", sev: 5 }, pist("gp", 5), 1)!;
+    expect({ arac: r.arac, parca: r.parca }).toEqual(kariyerKurulumu("gp", 5));
+    // aynı koşu ve etkinlik aynı rakip (yeniden başlatınca aynı yarış)
+    expect(etkinlikRakibi(k, { id: 1, ty: "gp", sev: 5 }, pist("gp", 5), 1)).toEqual(r);
+  });
+
+  it("rakibi geçmek etkinlik parasına ek verir; hedef kaçsa da bonus alınır, rakipsizde bonus yok", () => {
+    const k = basla(),
+      [e1, e2, e3] = k.etkinlikler,
+      O = (e: typeof e1) => ETKINLIK_ODULU(e.sev).para;
+    let p = k.para;
+    const a = etkinlikBitti(k, e1.id, true, 0, true)!;
+    expect(k.para - p).toBe(O(e1) + Math.round(O(e1) * RAKIP_ODUL));
+    expect(a.rakipGecti).toBe(true);
+    p = k.para;
+    etkinlikBitti(k, e2.id, false, 0, true);
+    expect(k.para - p).toBe(Math.round(O(e2) * 0.3) + Math.round(O(e2) * RAKIP_ODUL));
+    p = k.para;
+    const c = etkinlikBitti(k, e3.id, true, 0, false)!;
+    expect(k.para - p).toBe(O(e3));
+    expect(c.rakipPara).toBe(0);
+  });
+
+  it("boss rakibi türün başlangıç aracıyla, bölgeyle güçlenen build'le; drift boss'u rakipsiz", () => {
+    const k = basla();
+    for (const boss of BOSSLAR) {
+      const r = bossRakibi({ ...k, boss, bolge: 1 });
+      if (boss.ty == "dp") {
+        expect(r).toBeNull();
+        continue;
+      }
+      expect(r!.kisilik).toBe("boss");
+      expect(r!.arac).toBe(TUR_ARACI[boss.ty]);
+      expect(r!.parca).toEqual([]);
+      const b2 = bossRakibi({ ...k, boss, bolge: 2 })!,
+        b3 = bossRakibi({ ...k, boss, bolge: 3 })!;
+      expect(b2.parca.length).toBeGreaterThan(0);
+      expect(b3.parca).toContain("motor-yaris");
+      expect(b3.pasif.length).toBeGreaterThan(b2.pasif.length);
+    }
   });
 });

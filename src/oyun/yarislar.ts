@@ -417,14 +417,10 @@ export function endEvent() {
     // MUTANT: kariyer ödülü, yıldız, rekor ve hayalet yok; sonuç koşuya
     girdiSifirla();
     gizle("#ctl");
-    // düelloda hedef rakipten önce bitirmek; diğer etkinliklerde süre/puan hedefi
-    mutantYarisBitti(
-      mutantRakibi()
-        ? rakibiGecti(EV.t)
-        : EV.ty == "dp"
-          ? EV.score > 0 && EV.score >= EV.limit
-          : EV.t <= EV.limit,
-    );
+    // düelloda hedef rakipten önce bitirmek; diğer etkinliklerde süre/puan hedefi, rakip varsa onu geçmek ek ödül
+    const r = mutantRakibi(),
+      hedef = EV.ty == "dp" ? EV.score > 0 && EV.score >= EV.limit : EV.t <= EV.limit;
+    mutantYarisBitti(r?.duello ? rakibiGecti(EV.t) : hedef, r && !r.duello ? rakibiGecti(EV.t) : null);
     return;
   }
   PROF.races++;

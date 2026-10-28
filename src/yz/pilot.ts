@@ -117,7 +117,8 @@ export function pilotAdimi(
   if (!basla || d.sure < K.tepki) {
     d.mod = "bekle";
     d.hedefHiz = 0;
-    return { tg: 0, g: 0, b: 1, analogDireksiyon: true, analogGaz: true };
+    // geri sayımda el freni: duran araçta ayak freni geri vitese takar (fizik), araç ızgarada geri kaçıyordu
+    return { tg: 0, g: 0, b: 0, dbr: true, analogDireksiyon: true, analogGaz: true };
   }
   if (d.mod == "bekle") d.mod = "yaris";
 
