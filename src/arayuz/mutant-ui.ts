@@ -40,6 +40,11 @@ import {
   sandikAc,
   sandikTeklifi,
   sandikReddet,
+  testKurulumu,
+  testBolgeyeGec,
+  beceriTeklifleri,
+  PASIFLER,
+  SATILMAZ,
   etkinlikHedefi,
   RISKLER,
   STOK_YENILE,
@@ -80,6 +85,33 @@ const ATOLYE_RENK: [number, string] = [0x3cc8ff, "#3cc8ff"],
   /** sandık: normal açık sarı, lanetli eflatun */
   SANDIK_RENK: [number, string] = [0xfff0a8, "#fff0a8"],
   LANET_RENK: [number, string] = [0xff3cc8, "#ff3cc8"];
+
+/** Uzmanlığı olan kartlar türün rengini ve oyundaki yerleşik yarış ikonunu taşır; genel etkiler nötrdür. */
+const TUR_IKON: Record<YarisTuru, IkonAdi> = {
+  gp: "pist", rx: "rallycross", rl: "dag", dp: "donus", dg: "isik",
+};
+function kartTuru(id: string): YarisTuru | null {
+  const oz = id.split(":");
+  const ana = oz[0] == "b" || oz[0] == "y" || oz[0] == "v" ? oz[1] : id;
+  const m: Record<string, YarisTuru> = {
+    asfalt: "gp", fren: "gp", toprak: "rl", aci: "dp",
+    "lastik-drift": "dp", "suspansiyon-drift": "dp", "diferansiyel-kilitli": "dp",
+    "diferansiyel-kaynakli": "dp", "aci-kiti": "dp",
+    "lastik-toprak": "rl", "suspansiyon-ralli": "rl", "diferansiyel-ralli": "rl",
+    "lastik-karisik": "rx", "suspansiyon-rallikros": "rx",
+    "lastik-drag": "dg", "suspansiyon-drag": "dg", "sanziman-kisa": "dg",
+    "lastik-yaris": "gp", "suspansiyon-yaris": "gp", "aero-yaris": "gp",
+    "slipstream-engine": "gp", "risk-taker": "dp",
+  };
+  return m[ana] ?? null;
+}
+function kartStili(id: string) {
+  const ty = kartTuru(id);
+  return ty
+    ? { stil: ` style="border:2px solid ${TUR[ty][2]};box-shadow:inset 0 0 0 1px ${TUR[ty][2]}40"`,
+        tur: `<span style="color:${TUR[ty][2]};display:inline-flex;align-items:center;gap:6px">${ikon(TUR_IKON[ty])} ${TUR[ty][0]}</span>` }
+    : { stil: "", tur: "" };
+}
 
 const row = (a: string, b: string | number) => `<div class="rk"><span>${a}</span><span>${b}</span></div>`;
 const sure = (s: number) => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
@@ -224,8 +256,8 @@ function pasifSayfasi(baslik: string) {
         : ""
     }<p class="note">Skill (${k.beceriler.length}/${SKILL_YUVASI}): ${beceriListesi(k.beceriler)}</p><div class="mtp">${k.secenekler
       .map((id) => {
-        const [tur, ad, d] = secenekKarti(id);
-        return `<div class="card go" data-pasif="${id}"><b>${ad}</b><span>${tur}</span><span>${d}</span></div>`;
+        const [tur, ad, d] = secenekKarti(id), k = kartStili(id);
+        return `<div class="card go" data-pasif="${id}"${k.stil}><b>${ad}</b>${k.tur}<span>${tur}</span><span>${d}</span></div>`;
       })
       .join("")}</div>`,
   );
@@ -250,11 +282,60 @@ function secimYap(id: string, birak?: string) {
   if (k.faz == "secim") return pasifSayfasi("Seviye atladın: bir yetenek daha seç.");
   if (ilk) {
     isaretleriGuncelle();
+    if (k.test) return testLaboratuvari();
     surusDevam();
-    note("Renkli ışıklar etkinlik, sarı sandık, eflatun lanetli sandık, mavi atölye, kırmızı boss", 30);
+    note("Renkli ışıklar etkinlik, gizli 3B sandıklar, mavi atölye, kırmızı boss", 30);
     return;
   }
   devam();
+}
+
+/** Modüler MUTANT testi: istediği parça/skill'i seç, aynı drift etkinliğini sınırsız tekrar dene. */
+function testLaboratuvari() {
+  const k = mutant.kosu!;
+  if (!k.test) return;
+  k.faz = "surus";
+  k.bekleyenSecim = 0;
+  k.secenekler = [];
+  const sec = (id: string, l: { id: string; ad: string }[]) =>
+    `<select id="${id}" style="max-width:46vw;width:100%;padding:8px;background:#172331;color:white">${l.map((o) => `<option value="${o.id}">${o.ad}</option>`).join("")}</select>`;
+  const skill = beceriTeklifleri(k).map((id) => {
+    const [tur, ad] = secenekKarti(id);
+    return { id, ad: ad + " · " + tur };
+  });
+  const s = sayfaAc(
+    `<h1>MUTANT · DENEME ATÖLYESİ</h1><p>Bölge ${k.bolge} · ${sure(k.kalan)} · İlerleme/kariyer kayıtları değişmez.</p>` +
+      `<p class="note">Her parçayı ayrı ayrı dene. Aynı kategoriden parça takarsan eskisi çıkar; üç skill yuvası doluysa ilk skill değişir.</p>` +
+      `<div class="mtp"><div class="card">${sec("labPasif", PASIFLER.map((o) => ({ id: o.id, ad: o.ad })))}<button class="btn" id="labPasifAl">Pasif ekle</button></div>` +
+      `<div class="card">${sec("labSkill", skill)}<button class="btn" id="labSkillAl">Skill / seviye ekle</button></div>` +
+      `<div class="card">${sec("labParca", PARCALAR.filter((p) => !SATILMAZ.includes(p.id)).map((p) => ({ id: p.id, ad: p.n })))}<button class="btn" id="labParcaAl">Parça tak</button></div></div>` +
+      `<p class="note">Takılı: ${k.parcalar.length} parça · ${k.pasifler.length} pasif · ${k.beceriler.map((o) => beceriAdi(o)).join(", ") || "skill yok"}</p>` +
+      '<button class="btn" id="labDrift">DRİFT YARIŞINI DENE</button>' +
+      '<button class="btn alt" id="labBolge">Sonraki bölge (test)</button>' +
+      '<button class="btn alt" id="labSurus">Açık dünyaya dön</button>',
+  );
+  const ekle = (tur: "pasif" | "beceri" | "parca", select: string) => {
+    const id = s.querySelector<HTMLSelectElement>(select)?.value;
+    if (!id || !testKurulumu(k, tur, id)) return note("Eklenemedi: seviye sınırı veya geçersiz seçim", 30);
+    mutantKurulumUygula();
+    testLaboratuvari();
+  };
+  s.querySelector<HTMLElement>("#labPasifAl")!.onclick = () => ekle("pasif", "#labPasif");
+  s.querySelector<HTMLElement>("#labSkillAl")!.onclick = () => ekle("beceri", "#labSkill");
+  s.querySelector<HTMLElement>("#labParcaAl")!.onclick = () => ekle("parca", "#labParca");
+  s.querySelector<HTMLElement>("#labDrift")!.onclick = () => {
+    const e = k.etkinlikler.find((q) => q.ty == "dp");
+    if (!e) return note("Bu bölgede drift etkinliği yok", 30);
+    e.yapildi = false;
+    mutant.risk = 0;
+    etkinlikBaslat(e.id, e.i);
+  };
+  s.querySelector<HTMLElement>("#labBolge")!.onclick = () => {
+    if (!testBolgeyeGec(k, Math.min(3, k.bolge + 1), mutantPistleri())) return;
+    isaretleriGuncelle();
+    testLaboratuvari();
+  };
+  s.querySelector<HTMLElement>("#labSurus")!.onclick = surusDevam;
 }
 
 /** yuvalar dolu: yeni skill için hangisinin bırakılacağı (seviyesi, eklentileri ve evrimiyle gider) */
@@ -510,8 +591,13 @@ function sonuc(r: EtkinlikSonucu | null, boss: boolean, gecti: boolean) {
               )
             : "")) +
       row("Boss'a kalan", sure(k.kalan)) +
-      `<button class="btn" id="mDevam">${bitti ? "Özet" : "Haritaya dön"}</button>`,
+      `<button class="btn" id="mDevam">${bitti ? "Özet" : "Haritaya dön"}</button>` +
+      (k.test && !boss ? '<button class="btn alt" id="mLab">Yeniden kur ve drift dene</button>' : ""),
   );
+  s.querySelector<HTMLElement>("#mLab")?.addEventListener("click", () => {
+    haritayaDon();
+    testLaboratuvari();
+  });
   s.querySelector<HTMLElement>("#mDevam")!.onclick = () => {
     if (bitti) return ozet();
     haritayaDon();
