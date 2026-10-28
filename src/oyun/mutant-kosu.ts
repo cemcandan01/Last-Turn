@@ -280,8 +280,7 @@ export const NADIR_EK = 1.4;
 export const ATOLYE_STOK = 5;
 export const STOK_YENILE = 40;
 /** boss'a geri sayım (sn) bölgeye göre */
-export const BOSS_SURESI = (bolge: number, test = false) =>
-  test ? 90 : bolge == 1 ? 900 : 780;
+export const BOSS_SURESI = (bolge: number, test = false) => (test ? 90 : bolge == 1 ? 900 : 780);
 export const HARITA_ETKINLIK = 8;
 
 export interface Etkinlik {
@@ -647,12 +646,13 @@ export function testBeceriAyarla(
   if (!t || !Number.isInteger(seviye) || seviye < 0 || seviye > SEVIYE_UST) return false;
   if (seviye > 0) {
     if (evrim && (seviye < SEVIYE_UST || !t.evrimler.some((v) => v.id == evrim))) return false;
-    if (eklentiler.length > SKILL_EKLENTI_UST || new Set(eklentiler).size != eklentiler.length)
-      return false;
-    if (eklentiler.some((e) => {
-      const ek = beceriEklentisiBul(e);
-      return !ek || !eklentiUyar(t, ek);
-    }))
+    if (eklentiler.length > SKILL_EKLENTI_UST || new Set(eklentiler).size != eklentiler.length) return false;
+    if (
+      eklentiler.some((e) => {
+        const ek = beceriEklentisiBul(e);
+        return !ek || !eklentiUyar(t, ek);
+      })
+    )
       return false;
   }
   const mevcut = k.beceriler.findIndex((b) => b.id == id);

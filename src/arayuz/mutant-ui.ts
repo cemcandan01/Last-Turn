@@ -6,7 +6,15 @@ import { KATEGORILER, PARCALAR } from "../arac/parcalar";
 import { fmt, fmt3 } from "../cekirdek/bicim";
 import { $ } from "../cekirdek/dom";
 import { ikon, type IkonAdi } from "./ikonlar";
-import { BECERILER, BECERI_EKLENTILERI, SKILL_YUVASI, beceriBul, beceriEklentisiBul, eklentiUyar, type BeceriOrnegi } from "../cekirdek/beceri";
+import {
+  BECERILER,
+  BECERI_EKLENTILERI,
+  SKILL_YUVASI,
+  beceriBul,
+  beceriEklentisiBul,
+  eklentiUyar,
+  type BeceriOrnegi,
+} from "../cekirdek/beceri";
 import { isaretleriKur, isaretlerGorunur, type Isaret } from "../cizim/isaretler";
 import { Hw, WORLDS } from "../dunya/dunya";
 import { SEVIYELER } from "../dunya/pist-tanimlari";
@@ -324,8 +332,14 @@ function testLaboratuvari(secili = "") {
   k.bekleyenSecim = 0;
   k.secenekler = [];
   const sec = (id: string, l: { id: string; ad: string }[], deger = "") =>
-    "<select id=\"" + id + "\" style=\"max-width:90vw;width:100%;padding:9px;background:#172331;color:white\">" +
-    l.map((o) => "<option value=\"" + o.id + "\"" + (o.id == deger ? " selected" : "") + ">" + o.ad + "</option>").join("") +
+    '<select id="' +
+    id +
+    '" style="max-width:90vw;width:100%;padding:9px;background:#172331;color:white">' +
+    l
+      .map(
+        (o) => '<option value="' + o.id + '"' + (o.id == deger ? " selected" : "") + ">" + o.ad + "</option>",
+      )
+      .join("") +
     "</select>";
   const seciliId = BECERILER.some((o) => o.id == secili) ? secili : BECERILER[0].id;
   const tanim = beceriBul(seciliId)!;
@@ -334,31 +348,55 @@ function testLaboratuvari(secili = "") {
   const secimEvo = [{ id: "", ad: "Evrim yok" }, ...tanim.evrimler.map((o) => ({ id: o.id, ad: o.ad }))];
   const secimEk = [{ id: "", ad: "Eklenti yok" }, ...ekler.map((o) => ({ id: o.id, ad: o.ad }))];
   const s = sayfaAc(
-    "<h1>⚙ MUTANT · DEV PANEL</h1><p>Test modu · " + (yarista ? "Yarış duraklatıldı" : "Açık dünya duraklatıldı") +
-      " · Sayaç: " + sure(k.kalan) + " (90 sn'de yenilenir)</p>" +
-      "<p class=\"note\">Değişiklikler anında araca işlenir. Sadece /dev/ testinde çalışır; kariyer ve normal MUTANT etkilenmez.</p>" +
-      "<div class=\"mtp\"><div class=\"card\"><b>Pasif yetenekler</b>" +
-      sec("labPasif", PASIFLER.map((o) => ({ id: o.id, ad: o.ad }))) +
-      "<button class=\"btn\" id=\"labPasifAl\">Pasif ekle</button></div>" +
-      "<div class=\"card\"><b>Skill · seviye · evrim · eklenti</b>" +
-      sec("labSkill", BECERILER.map((o) => ({ id: o.id, ad: o.ad })), seciliId) +
-      sec("labSeviye", [1, 2, 3].map((o) => ({ id: String(o), ad: "Seviye " + o })), String(takili?.seviye ?? 1)) +
+    "<h1>⚙ MUTANT · DEV PANEL</h1><p>Test modu · " +
+      (yarista ? "Yarış duraklatıldı" : "Açık dünya duraklatıldı") +
+      " · Sayaç: " +
+      sure(k.kalan) +
+      " (90 sn'de yenilenir)</p>" +
+      '<p class="note">Değişiklikler anında araca işlenir. Sadece /dev/ testinde çalışır; kariyer ve normal MUTANT etkilenmez.</p>' +
+      '<div class="mtp"><div class="card"><b>Pasif yetenekler</b>' +
+      sec(
+        "labPasif",
+        PASIFLER.map((o) => ({ id: o.id, ad: o.ad })),
+      ) +
+      '<button class="btn" id="labPasifAl">Pasif ekle</button></div>' +
+      '<div class="card"><b>Skill · seviye · evrim · eklenti</b>' +
+      sec(
+        "labSkill",
+        BECERILER.map((o) => ({ id: o.id, ad: o.ad })),
+        seciliId,
+      ) +
+      sec(
+        "labSeviye",
+        [1, 2, 3].map((o) => ({ id: String(o), ad: "Seviye " + o })),
+        String(takili?.seviye ?? 1),
+      ) +
       sec("labEvrim", secimEvo, takili?.evrim ?? "") +
       sec("labEk1", secimEk, takili?.eklentiler[0] ?? "") +
       sec("labEk2", secimEk, takili?.eklentiler[1] ?? "") +
-      "<button class=\"btn\" id=\"labSkillAl\">Skill kurulumunu uygula</button>" +
-      "<button class=\"btn alt\" id=\"labSkillSil\">Seçili skill'i kaldır</button></div>" +
-      "<div class=\"card\"><b>Modifiye parçaları (kilitsiz)</b>" +
-      sec("labParca", PARCALAR.map((o) => ({ id: o.id, ad: o.n }))) +
-      "<button class=\"btn\" id=\"labParcaAl\">Parça tak</button></div></div>" +
-      "<p class=\"note\">Takılı: " + k.parcalar.length + " parça · " + k.pasifler.length + " pasif · " +
-      (k.beceriler.map((o) => beceriAdi(o)).join(", ") || "skill yok") + "</p>" +
-      "<button class=\"btn\" id=\"labDrift\">DRİFT YARIŞINA GİR / YENİDEN BAŞLAT</button>" +
-      (yarista ? "<button class=\"btn alt\" id=\"labTekrar\">BU YARIŞI YENİDEN BAŞLAT</button>" : "") +
-      "<button class=\"btn alt\" id=\"labReset\">Tüm kurulumu sıfırla</button>" +
-      "<button class=\"btn alt\" id=\"labSure\">90 saniyeyi yenile</button>" +
-      "<button class=\"btn alt\" id=\"labBolge\">Sonraki bölge (test)</button>" +
-      "<button class=\"btn alt\" id=\"labSurus\">" + (yarista ? "YARIŞA DÖN" : "AÇIK DÜNYAYA DÖN") + "</button>",
+      '<button class="btn" id="labSkillAl">Skill kurulumunu uygula</button>' +
+      '<button class="btn alt" id="labSkillSil">Seçili skill\'i kaldır</button></div>' +
+      '<div class="card"><b>Modifiye parçaları (kilitsiz)</b>' +
+      sec(
+        "labParca",
+        PARCALAR.map((o) => ({ id: o.id, ad: o.n })),
+      ) +
+      '<button class="btn" id="labParcaAl">Parça tak</button></div></div>' +
+      '<p class="note">Takılı: ' +
+      k.parcalar.length +
+      " parça · " +
+      k.pasifler.length +
+      " pasif · " +
+      (k.beceriler.map((o) => beceriAdi(o)).join(", ") || "skill yok") +
+      "</p>" +
+      '<button class="btn" id="labDrift">DRİFT YARIŞINA GİR / YENİDEN BAŞLAT</button>' +
+      (yarista ? '<button class="btn alt" id="labTekrar">BU YARIŞI YENİDEN BAŞLAT</button>' : "") +
+      '<button class="btn alt" id="labReset">Tüm kurulumu sıfırla</button>' +
+      '<button class="btn alt" id="labSure">90 saniyeyi yenile</button>' +
+      '<button class="btn alt" id="labBolge">Sonraki bölge (test)</button>' +
+      '<button class="btn alt" id="labSurus">' +
+      (yarista ? "YARIŞA DÖN" : "AÇIK DÜNYAYA DÖN") +
+      "</button>",
   );
   const ekle = (tur: "pasif" | "parca", id: string) => {
     const secilen = s.querySelector<HTMLSelectElement>(id)?.value;
@@ -790,7 +828,8 @@ export function mutantBaslik(evAdi: string | null): string | null {
   const k = mutant.kosu;
   const devDugme = document.querySelector<HTMLButtonElement>("#mutantDevPanel");
   if (devDugme)
-    devDugme.style.display = k?.test && (!yaris.EV || yaris.EV.mutant) && oyun.mode == "drive" ? "block" : "none";
+    devDugme.style.display =
+      k?.test && (!yaris.EV || yaris.EV.mutant) && oyun.mode == "drive" ? "block" : "none";
   if (!k) return null;
   if (evAdi)
     return mutant.etkinlik == "boss" ? "BOSS · " + k.boss.ad : "MUTANT " + sure(k.kalan) + " · " + evAdi;
