@@ -9,10 +9,11 @@
 2. `src/oyun/mutant.ts`: yalnız yerel geliştirme veya `/dev/` üzerinde `?mutantTest=1` seçeneği. `src/arayuz/mutant-ui.ts` ilk araç/perk seçimi ardından test atölyesi; doğrudan drift yarışı ve yarış sonunda yeniden kurup deneme. Normal koşuya verilmez.
 3. `src/fizik/ortak.ts`, `fizik/tipler.ts`, `oyun/surus.ts`, `oyun/yarislar.ts`, `fizik/yeni/model.ts`: `driftYarisi` isteğe bağlı fizik bayrağı; 12° kayma giriş şartı + 0,12 sn; minimum hız 7 m/sn; azami kontrollü açı araç dmax, AWD, ayar lock/diff ve drift desteğinden türetilir (yaklaşık 22°–58°). Fiziksel savrulma sınırı aşınca kombo yakılır; açık dünya ve diğer yarış türlerinin drift akışı etkilenmez.
 4. Sandık ödülü sadece ilk açılışta, ayrı tohumla ve sahip olunmayan eklentilerden gelir; tek ödül, al/reddet; reddedince tüketilir ve yeniden zar atılamaz. Minimapten sandık işaretleri kaldırıldı; dünya işaret çiziminde düşük poligonlu 3B ahşap/metal sandık, uzaktan ışık kulesi olmadan.
-5. Kart uzmanlık sınırları: salt yarış türüne özgü mekaniklerde yarış rengi ve oyundaki ikon, genel parçalarda nötr.
+5. Tüm eşsiz eklentiler alınmışsa boş sandık yerine rastgele para (+180), tamir (+35) veya nitro enerjisi (+60) gelir; kaynağı da oyuncu reddedebilir. Tek ganimet ve alınmış eklentiyi yeniden sunmama kuralı değişmez.
+6. Kart uzmanlık sınırları: salt yarış türüne özgü mekaniklerde yarış rengi ve oyundaki ikon, genel parçalarda nötr.
 
 ## Kabul / kontrol
-- [ ] GitHub CI typecheck+lint+format+test+build (PR üzerine bakılmalı; henüz çalışmış diye yazılmadı).
+- [ ] GitHub CI typecheck+lint+format+test+build (son kaynak ödülü ve CI alan koşucu değişiklikleriyle yeniden doğrulanmalı).
 - [ ] Test `mutantTest` ile seçilen parça/skill aynı drift yarışında denenebiliyor; tekrar laboratuvara dönülüyor.
 - [ ] Aynı tohum/koşuda bir sandıktan alınan ödül diğer sandıkta görünmüyor; testte reddedilen ganimet tüketiliyor.
 - [ ] Drift: stok araçta fiziksel kaymayla giriş, güçlü drift kurulumunda 40°+ ulaşılabilir aralık, sınır dışına çıkınca kombo yanması; gerçek iPhone 13 yatay sürüş hissi ayrıca denenecek.
