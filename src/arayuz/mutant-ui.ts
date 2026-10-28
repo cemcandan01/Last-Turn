@@ -425,7 +425,8 @@ function testLaboratuvari(secili = "") {
   s.querySelector<HTMLElement>("#labParcaAl")!.onclick = () => ekle("parca", "#labParca");
   s.querySelector<HTMLElement>("#labSkillAl")!.onclick = () => {
     const sv = +s.querySelector<HTMLSelectElement>("#labSeviye")!.value;
-    const evo = s.querySelector<HTMLSelectElement>("#labEvrim")!.value || null;
+    // Seviyeyi 3 altına çekince önceki evrim otomatik ayrılır.
+    const evo = sv == 3 ? s.querySelector<HTMLSelectElement>("#labEvrim")!.value || null : null;
     const ext = ["#labEk1", "#labEk2"]
       .map((id) => s.querySelector<HTMLSelectElement>(id)!.value)
       .filter((id) => id.length > 0);
