@@ -240,7 +240,7 @@ export const LANETLER: Record<Lanet, { ad: string; d: string }> = {
   govde: { ad: "Pas laneti", d: "Gövde −25 (pert etmez)" },
   para: { ad: "Açgözlülük laneti", d: "Paranın yarısı gider" },
 };
-/** bölge başına sandık: 2 normal (2 sıradan eklentiden biri, bedava), 1 lanetli (nadir eklenti + lanet) */
+/** bölge başına 2 normal + 1 lanetli sandık. Her biri açıldığında TEK ödül çeker. */
 export const SANDIK_SAYISI = 3;
 
 export const pasifBul = (id: string): Pasif | undefined =>
@@ -317,9 +317,11 @@ export interface Sandik {
   x: number;
   z: number;
   lanetli: boolean;
-  /** sunulan eklentiler (normal: 2 sıradan; lanetli: 1 nadir) ve lanetli sandığın bedeli */
+  /** İlk açıldığında çekilen tek ödül; önceden boş, reddedilince yeniden çekilmez. */
   secenekler: string[];
+  incelendi: boolean;
   lanet: Lanet | null;
+  /** kabul edildi, reddedildi veya ödül havuzu boş */
   acildi: boolean;
 }
 
@@ -438,31 +440,47 @@ function etkinlikDiz(k: Kosu, pistler: readonly PistAdayi[]) {
   if (k.bolge == DUELLO.bolge && dp && de) Object.assign(de, { i: dp.i, sev: dp.sev, rakip: true });
 }
 
-/** bölgenin sandıkları: etkinliklerin kullanmadığı düz yerlere (tohumlu); sahip olunan eklenti yeniden çıkmaz */
+/** Bölge oluşurken sandıklar yalnız yer ve lanet alır; ganimet sandığın açıldığı anda belirlenir. */
 function sandikDiz(k: Kosu) {
-  const yerler = YERLER.filter(([x, z]) => !k.etkinlikler.some((e) => e.x == x && e.z == z)),
-    sahip = (id: string) => k.pasifler.includes(id);
+  const yerler = YERLER.filter(([x, z]) => !k.etkinlikler.some((e) => e.x == x && e.z == z));
   k.sandiklar = [];
   for (let n = 0; n < SANDIK_SAYISI && yerler.length; n++) {
     const lanetli = n == SANDIK_SAYISI - 1,
-      aday = EKLENTILER.filter((e) => e.nadir == lanetli && !sahip(e.id)).map((e) => e.id),
-      secenekler: string[] = [];
-    while (secenekler.length < (lanetli ? 1 : 2) && aday.length)
-      secenekler.push(aday.splice(Math.floor(k.rng() * aday.length), 1)[0]);
-    if (!secenekler.length) continue;
-    const [x, z] = yerler.splice(Math.floor(k.rng() * yerler.length), 1)[0],
+      [x, z] = yerler.splice(Math.floor(k.rng() * yerler.length), 1)[0],
       lanet = lanetli ? sec(k.rng, Object.keys(LANETLER) as Lanet[]) : null;
-    k.sandiklar.push({ id: n, x, z, lanetli, secenekler, lanet, acildi: false });
+    k.sandiklar.push({ id: n, x, z, lanetli, secenekler: [], incelendi: false, lanet, acildi: false });
   }
 }
 
-/**
- * sandığı aç: seçilen eklenti koşuya eklenir (lanetliyse bedel hemen ödenir). Bırakılan sandık kapalı kalır, sonra
- * dönülebilir. Dönen: alındı mı
- */
+/** Ödül ilk açılışta, eldeki eklentilere göre ve ayrı tohumla çekilir; ekranı kapatıp açmak değiştirmez. */
+export function sandikTeklifi(k: Kosu, id: number): string | null {
+  const s = k.sandiklar.find((q) => q.id == id);
+  if (!s || s.acildi || k.faz != "surus") return null;
+  if (s.incelendi) return s.secenekler[0] ?? null;
+  s.incelendi = true;
+  const aday = EKLENTILER.filter((e) => e.nadir == s.lanetli && !k.pasifler.includes(e.id));
+  if (!aday.length) {
+    s.acildi = true;
+    return null;
+  }
+  const rastgele = turet(k, 0x53a7d1, k.bolge * 101 + id * 719);
+  const secilen = aday[Math.floor(rastgele() * aday.length)].id;
+  s.secenekler = [secilen];
+  return secilen;
+}
+
+/** Ödülü istememek sandığı tüketir; yeni sandık açmadan yeniden zar atılamaz. */
+export function sandikReddet(k: Kosu, id: number): boolean {
+  const s = k.sandiklar.find((q) => q.id == id);
+  if (!s || s.acildi || !s.incelendi || k.faz != "surus") return false;
+  s.acildi = true;
+  return true;
+}
+
+/** Yalnız gerçekten açılan tek ödül alınabilir; sahip olunan eklenti tekrar verilmez. */
 export function sandikAc(k: Kosu, id: number, eklenti: string): boolean {
   const s = k.sandiklar.find((q) => q.id == id);
-  if (!s || s.acildi || k.faz != "surus" || !s.secenekler.includes(eklenti) || k.pasifler.includes(eklenti))
+  if (!s || s.acildi || !s.incelendi || k.faz != "surus" || s.secenekler[0] != eklenti || k.pasifler.includes(eklenti))
     return false;
   s.acildi = true;
   k.pasifler.push(eklenti);
