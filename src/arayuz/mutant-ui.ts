@@ -206,10 +206,13 @@ function basla() {
     aday = [...BASLANGIC_ARACLARI],
     araclar: number[] = [];
   if (k.test) araclar.push(...CARS.map((_, i) => i));
-  else while (araclar.length < 3 && aday.length) araclar.push(aday.splice(Math.floor(r() * aday.length), 1)[0]);
+  else
+    while (araclar.length < 3 && aday.length) araclar.push(aday.splice(Math.floor(r() * aday.length), 1)[0]);
   const devDugme =
     import.meta.env.DEV || location.pathname.includes("/dev/")
-      ? '<button class="btn alt" id="mDevSec">⚙ Geliştirici modu: ' + (k.test ? "AÇIK · kapat" : "KAPALI · aç") + "</button>"
+      ? '<button class="btn alt" id="mDevSec">⚙ Geliştirici modu: ' +
+        (k.test ? "AÇIK · kapat" : "KAPALI · aç") +
+        "</button>"
       : "";
   const s = sayfaAc(
     `<h1>MUTANT</h1><p>Boss'a ${sure(k.kalan)} var. ${k.test ? "DEV testi: tüm araçlar açık, skill ve parçalar yarışta değişebilir." : "Önce aracını seç: hepsi zayıf, koşuda güçlenecek."}</p>${devDugme}${bossKarti(k.boss)}<div class="mtp">${araclar
