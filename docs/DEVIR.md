@@ -1,10 +1,10 @@
 # Son devir: MUTANT drift deneme atölyesi ve sandık revizyonu — Codex dalında, inceleniyor
 
 - **Codex / codex/mutant-drift-laboratuvari** (taban gelistirme 5a57aa6), görev kartı `docs/isler/LT-SYS-006-mutant-drift-laboratuvari.md`. Cem'in 28 Ekim isteği; kullanıcı henüz test etmedi ve gelistirme/master'a birleşmedi.
-- Eklenen: yalnız yerel veya `/dev/?mutantTest=1` ile 3/3,5/4 dakikalık boss süresi, pasif/skill/seviye/parça seçebildiği laboratuvar, doğrudan drift yarışı, yarıştan dönüp tekrar kurma, testte 1–3. bölge atlama. Normal koşu süresi korunur.
-- Drift yarışı: serbest sürüşten ayrı 12° açıyla giriş, otomobil stok karakteri/diferansiyel/açı kiti/drift ayarlarından kontrollü açı tavanı, aşımda spin ve kombo kaybı; diğer yarış tiplerine yeni mekanik henüz eklenmedi. **Gerçek sürüş dengesi ve tüm 3. bölge hedefleri ölçülmedi.**
-- Sandık: açılışta bir rastgele ödül, al/reddet, alınmış olanı diğer sandık sunmaz; görünür minimap ve ışık kuleleri yerine gizli 3B model. Bilinen yarış uzmanlığı olan upgrade kartında yarış rengi ve ikon; genel kartlar nötr.
-- Doğrulama: birim/e2e testleri yeni sandık akışı için güncellendi, drift testleri yazıldı; CI henüz teyit edilmedi. Tam kapsam ve kullanıcı kabulü görev kartında. **Claude aynı dosyalarda paralel kodlama yapmasın.** Sonraki adım: PR ve CI sonuçlarına bakıp hataları gider, cihazda drift hissini ve sandık keşfini dene; sonra kontrollü biçimde devral.
+- Eklenen: yalnız yerel veya `/dev/?mutantTest=1` ile 3/3,5/4 dakikalık boss süresi, pasif/skill/seviye/parça seçebildiği ve tek tıkla kurulumu sıfırlayabildiği laboratuvar, doğrudan drift yarışı, yarıştan dönüp tekrar kurma, testte 1–3. bölge atlama. Normal koşu süresi korunur.
+- Drift yarışı: serbest sürüşten ayrı ve modifiyeyle değişen 9–17° giriş açısı ile 0,1–0,2 sn hazırlık, otomobil stok karakteri/diferansiyel/açı kiti/drift ayarlarından kontrollü açı tavanı, aşımda spin ve kombo kaybı; diğer yarış tiplerine yeni mekanik henüz eklenmedi. **Gerçek sürüş dengesi ve tüm 3. bölge hedefleri ölçülmedi.**
+- Sandık: açılışta bir rastgele ödül, al/reddet, alınmış veya başka açık sandıkta teklif edilmiş olanı diğer sandık sunmaz; eşsiz ödül havuzu bitince kaynak ödülü (para/tamir/enerji); görünür minimap ve ışık kuleleri yerine gizli 3B model. Bilinen yarış uzmanlığı olan upgrade kartında yarış rengi ve ikon; genel kartlar nötr.
+- Doğrulama: birim/e2e testleri yeni sandık akışı için güncellendi, drift testleri yazılıp mutant alan koşucusuna kaydedildi; temel 75d4d7 test paketi başarılı, en son commitler için CI tekrarı gerekiyor. Tam kapsam ve kullanıcı kabulü görev kartında. **Claude aynı dosyalarda paralel kodlama yapmasın.** Sonraki adım: PR ve CI sonuçlarına bakıp hataları gider, cihazda drift hissini ve sandık keşfini dene; sonra kontrollü biçimde devral.
 
 # Son devir: MUTANT skill hissi + açık dünya yol ağı (LT-SYS-005) — PR'da
 
