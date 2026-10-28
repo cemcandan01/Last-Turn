@@ -14,12 +14,18 @@ export default async function ({ p, ok }) {
   });
   ok(!gr.startsWith("HATA"), "garaj açılıyor ve araç değişiyor");
   const sg = await p.evaluate(() => {
+    // MUTANT: garaj yok, araç koşuda seçilir; koşu aracı kendi önayarıyla
     LT.showMenu(["free"]);
-    document.querySelector("[data-w='1']").click();
-    const gar = !document.querySelector("#gar").classList.contains("hidden");
-    document.querySelector("#gnx").click();
-    document.querySelector("#gok").click();
-    const r = { gar, mod: LT.oyun.mode, w: LT.oyun.CURW.n, pk: LT.kurulum.pk, aracPk: LT.oyun.CAR.pk };
+    document.querySelector("[data-w='0']").click();
+    const garajYok = document.querySelector("#gar").classList.contains("hidden");
+    document.querySelector("#res [data-arac]").click();
+    document.querySelector("#res [data-pasif]").click();
+    const r = { garajYok, mod: LT.oyun.mode, w: LT.oyun.CURW.n, pk: LT.kurulum.pk, aracPk: LT.oyun.CAR.pk };
+    LT.showSet();
+    r.mutantOnayar = !!document.querySelector("#set details[data-sec='pre']");
+    LT.showMenu(["home"]);
+    // önayar test sürüşünde (koşusuz açık dünya) seçilir, yarışta seçilmez
+    LT.startWorld(1);
     LT.showSet();
     r.serbestOnayar = !!document.querySelector("#set details[data-sec='pre']");
     LT.showMenu(["home"]);
@@ -35,12 +41,12 @@ export default async function ({ p, ok }) {
     return r;
   });
   ok(
-    sg.gar && sg.mod == "drive" && sg.w == "Boş Otopark" && sg.pk == sg.aracPk,
-    "serbest sürüşten önce garaj açılıyor, araç kendi önayarıyla başlıyor",
+    sg.garajYok && sg.mod == "drive" && sg.w == "Çorak Topraklar" && sg.pk == sg.aracPk,
+    "MUTANT garajsız başlar, koşu aracı kendi önayarıyla, Çorak Topraklar",
   );
   ok(
-    sg.serbestOnayar && !sg.yarisOnayar && sg.yarisPk == "dr",
-    "önayar yalnız serbest sürüşte; drift yarışında aracın drift önayarı",
+    sg.serbestOnayar && !sg.mutantOnayar && !sg.yarisOnayar && sg.yarisPk == "dr",
+    "önayar yalnız test sürüşünde; MUTANT ve yarışta yok, drift yarışında aracın drift önayarı",
   );
   // yatay 844x390: garaj paneli kaydırmasız sığar, seç/geri butonları ekranda görünür (en uzun adlı yarış butonuyla)
   const sig = await p.evaluate(() => {

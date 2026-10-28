@@ -19,6 +19,8 @@ import { kurulum } from "./kurulum";
 import { PROF, saveProf } from "./profil";
 import { yaris, evTick } from "./yarislar";
 import { rekorHayaletiBaslat, rekorHayaletiDurdur, uzakAdimi, uzakSifirla } from "./uzak";
+import { mutant, mutantAdimi, mutantHayalet, mutantOyuncuIvmesi } from "./mutant";
+import { rakipAdimi } from "./rakip";
 
 /** serbest sürüşte tur sayacı (kapalı pistlerde) */
 export const LAP = {
@@ -37,7 +39,7 @@ export const LAP = {
  * türü ona göre). Yerel araçta bu dunya'nın kendisidir (HUD ve tur sayacı dunya.cur'u okur), diğer araçlarda kendi
  * nesneleri: araçlar birbirinin bölgesini bozmaz
  */
-export function dunyaSorgusuYap(b: { cur: Bolge | null }): DunyaSorgusu {
+export function dunyaSorgusuYap(b: { cur: Bolge | null }, oyuncu = false): DunyaSorgusu {
   return {
     H: Hw,
     surf: (x, z) => {
@@ -51,13 +53,19 @@ export function dunyaSorgusuYap(b: { cur: Bolge | null }): DunyaSorgusu {
       }
       return r;
     },
-    yakin: (x, z) => dunya.cols.yakin(x, z),
+    // oyuncu Flying Dutchman fazında katı nesnelerin (ağaç, kaya, direk) içinden geçer; duvarlar (kutu) kalır
+    yakin: (x, z) =>
+      oyuncu && mutantHayalet() ? katiOlmayan(dunya.cols.yakin(x, z)) : dunya.cols.yakin(x, z),
     kutu: () => (yaris.EV ? REG[yaris.EV.reg].box : oyun.CURW.box),
     kerb: (x, z) => (b.cur && b.cur.Hk ? b.cur.Hk(x, z) : 0),
     havaTutusu: () => ortam.g,
     karli: () => ortam.k == "snow",
     yolTuru: () => (b.cur ? b.cur.t : null),
   };
+}
+
+function* katiOlmayan<T extends { t: string }>(l: Iterable<T>) {
+  for (const o of l) if (o.t != "solid") yield o;
 }
 
 const surusKurulumu = (): SurusKurulumu => ({
@@ -74,7 +82,7 @@ const surusKurulumu = (): SurusKurulumu => ({
 /** yerel oyuncunun aracı: kamera, ses, HUD ve yarış buna bakar */
 export const yerel = aracOrnegiYap(
   {
-    dunya: dunyaSorgusuYap(dunya),
+    dunya: dunyaSorgusuYap(dunya, true),
     kurulum: surusKurulumu(),
     olay: { spin: () => note("SPİN", 40), puf: puff, caliRengi: () => mB.color.getHex() },
     gorselRng: Math.random,
@@ -116,13 +124,23 @@ export function surusAdimi() {
   const S = sim.S;
   PROF.km += (Math.hypot(S.vx, S.vz) * ADIM) / 1000;
   yerel.cx.kurulum = surusKurulumu();
-  if (JSON.stringify(yerel.cx.kurulum) !== kayitImza || ortam.g !== kayitHavasi.tutus)
+  // MUTANT koşusunda tur rekoru/hayalet yazılmaz (koşu aracı pasifli, kayıt kurulumu güvenilmez)
+  if (JSON.stringify(yerel.cx.kurulum) !== kayitImza || ortam.g !== kayitHavasi.tutus || mutant.kosu)
     yerel.kayit.kesik = true;
   const gi = fizikGirdisi(),
     son = aracAdimi(yerel, gi);
+  mutantAdimi(S.x, S.z, son.v, ADIM, !!yaris.EV, S.hit, sim.d.D.beta, sim.d, {
+    TR: yaris.EV?.TR ?? dunya.TR,
+    dunya: yerel.cx.dunya,
+    kosuyor: yaris.EV?.state == "run",
+  });
+  // MUTANT skill çekişi sonraki adımda kütle merkezine kuvvet (koşu yoksa yok: fizik birebir aynı)
+  yerel.cx.dis = mutantOyuncuIvmesi();
   if (sim.d.zaman % 20 < ADIM) saveProf();
   turSayaci(ADIM);
   if (yaris.EV) evTick(ADIM, son, gi.tg);
+  // rakip oyuncudan sonra, aynı adımda (yarış bitince oyuncu adımı durur, rakip de)
+  rakipAdimi(yaris.EV?.state == "run");
   uzakAdimi();
 }
 
@@ -160,7 +178,8 @@ function turSayaci(dt: number) {
           );
         }
       }
-      if (cur) rekorHayaletiBaslat("lap_" + (cur.n || "pist"), dunyaSorgusuYap({ cur: null }));
+      if (cur && !mutant.kosu)
+        rekorHayaletiBaslat("lap_" + (cur.n || "pist"), dunyaSorgusuYap({ cur: null }));
       LAP.kayitBas = yerel.kayit.n;
       LAP.run = 1;
       LAP.t = 0;

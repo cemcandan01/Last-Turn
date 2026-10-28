@@ -16,7 +16,9 @@ iPhone için 3D sürüş ve yarış oyunu. Ana ekrana kurulan bir uygulama (PWA)
 - **Otomatik yarış lastiği**: asfalt Yarış, rallikros Karışık, ralli Toprak, drift Drift, drag Drag. Elle lastik değişimi yalnız serbest sürüşte; yarıştan çıkınca önceki ayar geri gelir.
 - **Rekor hayaleti**: en iyi yarış ve serbest tur kaydı saydam araçla tekrar oynatılır; kayıtlı araç, parçalar, lastik, yardım ve hava kullanılır. Piste dönüşle kesilmiş kayıt tam rekor diye saklanmaz.
 - **Garaj düzeni**: büyük sınıf/puan göstergesi, altında Motoru dinle; sade sağ panel ve parçaya yaklaşan kamera ile modifiye ekranı.
-- **Drift puanı**: açı × hız; uzun drift, direksiyonsuz ve tek yön bonusları; drift yarışında 1. turun %90'ı driftle geçilirse 2. turda x6 çarpan.
+- **Drift puanı**: açı × hız; uzun drift, direksiyonsuz ve tek yön bonusları; drift yarışında 1. turun %90'ı driftle geçilirse 2. turda x6 çarpan. Kerb pist sayılır, kombo yalnız tamamen çimde yanar; biriken bonus kombo panelinde görünür.
+- **Kariyer**: her pistte ölçülmüş kupa sınırı (araç sınıfı; üstündeki araçla ödülsüz deneme), yatırım kredisi, lastik kalitesi ve dengeli ödüller.
+- **Rekor hayaleti**: Ayarlar'dan açılıp kapatılır.
 - **Hesap ve bulut kaydı**: ilerleme buluta kaydedilir, hesaplar arasında hızlıca geçilir; Google ya da e-posta ile bağlanıp başka cihazda sürdürülebilir. Profil'de "Yeni oyuncu olarak başla".
 - **Ana menü**: ekranın altında soldan sağa ikonlu eğik paneller (Yarış, Serbest sürüş, Garaj, Mağaza, Profil, Ayarlar); arkada oyunun kendi sahnelerinden hafif görseller yavaş kayarak akar. Yarış türü seçimi parmağı izleyen kapak akışı, her türün kendi rengi ve ikonu → pist listesi → günün saati ve hava → araç seçimi.
 - **Araçlar ve kokpit**: teker kemerli, yuvarlak hatlı gövdeler ve yeni jantlar; her aracın kendi kokpit tasarımı, gösterge kadranları, yan aynalar ve dikiz aynası, yarış araçlarında koruma kafesi.

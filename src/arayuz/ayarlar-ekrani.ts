@@ -31,6 +31,8 @@ import { hudDuzenleyiciAc } from "./hud-duzenleyici";
 import { kontrolleriKur } from "./kontroller";
 import { showMenu } from "./menu";
 import { performansGoster } from "../cekirdek/performans";
+import { mutant } from "../oyun/mutant";
+import { mutantVazgec } from "./mutant-ui";
 
 const STEER: Record<DireksiyonModu, { n: string; d: string }> = {
   btn: { n: "Tuşlar", d: "Sağ ve sol tuşları" },
@@ -106,7 +108,7 @@ const sliders = (D: AyarSatiri[], O: Record<string, number>, o: string) =>
 const kaydet = () => ayarlariKaydet(oyun.camMode, kurulum.lk);
 
 /** önayar yalnız serbest sürüşte (duraklatma menüsünde) seçilir; yarışta aracın kendi önayarı kullanılır */
-const serbestSurus = () => !yaris.EV && (oyun.mode == "pause" || oyun.mode == "drive");
+const serbestSurus = () => !yaris.EV && !mutant.kosu && (oyun.mode == "pause" || oyun.mode == "drive");
 
 export const settingsHTML = () =>
   (serbestSurus()
@@ -249,9 +251,9 @@ export function showSet() {
     $("#ctl").classList.add("hidden");
   }
   s.innerHTML =
-    `<div class="bar"><button class="btn" id="cl">Sürüşe dön</button>${yaris.EV ? '<button class="btn" id="restart">Yeniden başlat</button>' : ""}<button class="btn alt" id="mn">Ana menü</button></div><p style="margin:0 0 4px">Oyun duraklatıldı.</p>` +
+    `<div class="bar"><button class="btn" id="cl">Sürüşe dön</button>${yaris.EV ? '<button class="btn" id="restart">Yeniden başlat</button>' : ""}${yaris.EV?.mutant ? '<button class="btn alt" id="mvaz">Etkinlikten vazgeç</button>' : ""}<button class="btn alt" id="mn">Ana menü</button></div><p style="margin:0 0 4px">Oyun duraklatıldı.</p>` +
     settingsHTML() +
-    (yaris.EV
+    (yaris.EV || mutant.kosu
       ? ""
       : sec(
           "tp",
@@ -271,6 +273,8 @@ export function showSet() {
         resume();
       }),
   );
+  const vaz = s.querySelector<HTMLElement>("#mvaz");
+  if (vaz) vaz.onclick = mutantVazgec;
   const restart = s.querySelector<HTMLElement>("#restart");
   if (restart) restart.onclick = yarisiYenidenBaslat;
   $("#cl").onclick = resume;

@@ -2,7 +2,20 @@
 // Oyun kodu bu dosyayı kullanmaz.
 export { CARS } from "../arac/araclar";
 export { gorunumUygula } from "../arac/gorunumler";
-export { showMenu, startWorld } from "../arayuz/menu";
+export { showMenu } from "../arayuz/menu";
+export { kontrolleriKur } from "../arayuz/kontroller";
+import { startWorld as dunyaBaslat } from "../arayuz/menu";
+/** test sürüşü: açık dünyada MUTANT koşusu olmadan (eski testler); MUTANT için mutantBasla */
+export const startWorld = (w: number) => dunyaBaslat(w, false);
+export const mutantBasla = (w: number) => dunyaBaslat(w, true);
+export { mutant, mutantArac, mutantDurumu, mutantKapat, mutantYarisBitti } from "./mutant";
+import { beceriEfektBilgisi as efektBilgisi } from "../cizim/beceri-efekt";
+import { model as aracModeli } from "../cizim/arac-modeli";
+/** MUTANT skill efektleri (test): halat, hayalet gövde mesh sayısı, görünen kor */
+export const beceriEfektBilgisi = () =>
+  efektBilgisi([aracModeli.carM?.g ?? null, ...(aracModeli.carM?.ws.map((w) => w.pv) ?? [])]);
+export { rakip, rakipDurdur } from "./rakip";
+export { BOSSLAR, PASIFLER } from "./mutant-kosu";
 export { openGarage, closeGarage, magazaAc, magazaAc as openStore } from "../arayuz/garaj";
 export { lastikDegistir } from "../arayuz/ayarlar-ekrani";
 export { showSet } from "../arayuz/ayarlar-ekrani";

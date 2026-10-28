@@ -16,6 +16,8 @@ import { I, tilt } from "../oyun/girdi";
 import { ikon } from "./ikonlar";
 import { LAP, sim } from "../oyun/surus";
 import { yaris } from "../oyun/yarislar";
+import { rakipSirasi } from "../oyun/rakip";
+import { mutantBaslik, mutantPaneli, mutantTusuGuncelle } from "./mutant-ui";
 
 /** sahte vitesli devir göstergesi: hızdan vites ve devir (x1000) */
 const GEARS = [0, 60, 100, 145, 190, 240, 400];
@@ -112,16 +114,23 @@ function olayPaneli(): [string, string] {
         KRONO + EV.t.toFixed(2),
         "Hedef " + EV.limit.toFixed(1) + " sn · %" + Math.round((100 * ipucu.ti) / (EV.TR.N - 1)) + asim,
       ];
+    // düello: hedef yerine sıra ve rakiple fark (pist boyunca metre)
+    const rs = rakipSirasi(EV.lap, ipucu.ti, !!EV.armed);
     return [
       KRONO + fmt(EV.t),
       (EV.laps
         ? "Tur " + Math.min(EV.lap + 1, EV.laps) + "/" + EV.laps
         : "%" + Math.round((100 * ipucu.ti) / EV.TR.N)) +
-        " · Hedef " +
-        fmt(EV.limit) +
-        asim,
+        (rs
+          ? " · " +
+            rs.sira +
+            "." +
+            (rs.bitti ? " · Rakip bitirdi" : " · " + Math.round(Math.abs(rs.fark)) + " m")
+          : " · Hedef " + fmt(EV.limit) + asim),
     ];
   }
+  const mp = mutantPaneli();
+  if (mp) return mp;
   if (TR && !TR.open)
     return LAP.run
       ? [KRONO + fmt(LAP.t), "Son " + fmt(LAP.last) + " · En iyi " + fmt(LAP.best)]
@@ -325,7 +334,7 @@ export function hudGuncelle(v: number) {
   if (E.hSP.style.display != gizli) E.hSP.style.display = gizli;
   yazi(E.gear, motor.GEAR < 0 ? "R" : String(motor.GEAR || "N"));
   if (gorunum.hiz == "kadran") kadranYay(kmh / (VMAX * 3.6));
-  yazi(E.hName, EV ? EV.n : oyun.CURW.n);
+  yazi(E.hName, mutantBaslik(EV ? EV.n : null) ?? (EV ? EV.n : oyun.CURW.n));
   const [ana, alt] = olayPaneli();
   yaziHtml(E.ev, ana);
   yazi(E.lap, alt);
@@ -342,6 +351,7 @@ export function hudGuncelle(v: number) {
   );
   driftGostergesi();
   pisteDonusSayaci();
+  mutantTusuGuncelle();
   if (CT.steer == "tilt") {
     const c = document.getElementById("cal");
     if (c) yazi(c, performance.now() - tilt.t < 1500 ? "Ortala" : "Sensör izni");

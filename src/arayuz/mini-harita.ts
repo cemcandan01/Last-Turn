@@ -5,6 +5,7 @@ import type { V2 } from "../cekirdek/matematik";
 import type { Bolge } from "../dunya/bolgeler";
 import type { Pist } from "../dunya/pist";
 import { EA, EB, SX } from "../dunya/corak";
+import { YOLLAR } from "../dunya/yollar";
 
 const W = 240;
 /** imlecin yeri: ortada, yüksekliğin ~%68'i (önü daha çok görünsün) */
@@ -111,6 +112,17 @@ export function mmDraw(r?: Bolge | null, gecici = false) {
     x.moveTo(a[0], a[1]);
     x.lineTo(b[0], b[1]);
     x.stroke();
+    // asfalt yol ağı: ince çizgi (oval ve düz yolla aynı renk)
+    x.lineWidth = 2.6 * k;
+    for (const y of YOLLAR) {
+      x.beginPath();
+      y.forEach(([px, pz], i) => {
+        const q = mmP(px, pz);
+        if (i) x.lineTo(q[0], q[1]);
+        else x.moveTo(q[0], q[1]);
+      });
+      x.stroke();
+    }
   }
 }
 
@@ -132,6 +144,8 @@ export function miniHaritaCiz(
   v = 30,
   oteki: readonly HaritaAraci[] = [],
   hayalet = "hayalet",
+  /** MUTANT işaretleri: görüş dışındakiler kenara sabitlenir (yön gösterir) */
+  isaretler: readonly { x: number; z: number; renk: string }[] = [],
 ) {
   if (!mmc) return;
   const t = performance.now(),
@@ -238,6 +252,31 @@ export function miniHaritaCiz(
     mmc.arc(q[0], q[1], yr, 0, 7);
     mmc.fill();
     mmc.stroke();
+  }
+  for (const i of isaretler) {
+    const q = mmDonustur(i.x, i.z);
+    let kx = q[0],
+      ky = q[1];
+    if (kx < 7 || kx > W - 7 || ky < 7 || ky > W - 7) {
+      // görüş dışında: imleçten işaretin yönünde kenara (sağ = r, ileri = yukarı)
+      const dx = i.x - M.x,
+        dz = i.z - M.z,
+        r = M.fx * dz - M.fz * dx,
+        f = M.fx * dx + M.fz * dz,
+        l = Math.hypot(r, f) || 1,
+        rn = r / l,
+        fn = f / l,
+        kX = rn > 0 ? (W - 7 - OX) / rn : rn < 0 ? (OX - 7) / -rn : Infinity,
+        kY = fn > 0 ? (OY - 7) / fn : fn < 0 ? (W - 7 - OY) / -fn : Infinity,
+        k = Math.min(kX, kY);
+      kx = OX + rn * k;
+      ky = OY - fn * k;
+    }
+    mmc.fillStyle = i.renk;
+    mmc.strokeStyle = "#000c";
+    mmc.lineWidth = 1.5;
+    mmc.fillRect(kx - 5, ky - 5, 10, 10);
+    mmc.strokeRect(kx - 5, ky - 5, 10, 10);
   }
   // araç imleci: ortada sabit, hep yukarı
   mmc.fillStyle = "#fff";

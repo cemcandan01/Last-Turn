@@ -192,6 +192,32 @@ export function ton(
   o.stop(t + sure + 0.02);
 }
 
+/** süzülmüş gürültü hışırtısı (f1 → f2 Hz, süre sn) */
+function hisirti(
+  ctx: BaseAudioContext,
+  h: AudioNode,
+  t: number,
+  f1: number,
+  f2: number,
+  sure: number,
+  kazanc: number,
+) {
+  const s = ctx.createBufferSource(),
+    f = ctx.createBiquadFilter(),
+    g = ctx.createGain();
+  s.buffer = gurultuTampon(ctx);
+  f.type = "bandpass";
+  f.Q.value = 1.4;
+  f.frequency.setValueAtTime(f1, t);
+  f.frequency.exponentialRampToValueAtTime(f2, t + sure * 0.6);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(kazanc, t + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + sure);
+  s.connect(f).connect(g).connect(h);
+  s.start(t);
+  s.stop(t + sure + 0.05);
+}
+
 /** arayüz ve yarış sesleri */
 export const arayuzSesi = {
   /** menü tıkı */
@@ -224,6 +250,55 @@ export const arayuzSesi = {
   kasa(ctx: BaseAudioContext, h: AudioNode, t: number) {
     ton(ctx, h, t, 988, 0.12, 0.08, "sine");
     ton(ctx, h, t + 0.06, 1319, 0.35, 0.08, "sine");
+  },
+  /** MUTANT nitrosu ateşlendi: yükselen hava hışırtısı + alçak gümleme */
+  nitro(ctx: BaseAudioContext, h: AudioNode, t: number) {
+    const s = ctx.createBufferSource(),
+      f = ctx.createBiquadFilter(),
+      g = ctx.createGain();
+    s.buffer = gurultuTampon(ctx);
+    f.type = "bandpass";
+    f.Q.value = 1.2;
+    f.frequency.setValueAtTime(300, t);
+    f.frequency.exponentialRampToValueAtTime(2600, t + 0.4);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.32, t + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 1);
+    s.connect(f).connect(g).connect(h);
+    s.start(t);
+    s.stop(t + 1.05);
+    ton(ctx, h, t, 95, 0.3, 0.22, "sine", 45);
+  },
+  /** nitro söndü: kısa düşen ıslık */
+  nitroBitti(ctx: BaseAudioContext, h: AudioNode, t: number) {
+    ton(ctx, h, t, 900, 0.25, 0.05, "triangle", 380);
+  },
+  /** MUTANT skill sesleri (LT-SYS-005). Kanca atıldı: kısa kırbaç (yükselen hışırtı) + metal tık */
+  kanca(ctx: BaseAudioContext, h: AudioNode, t: number) {
+    hisirti(ctx, h, t, 1200, 5200, 0.22, 0.25);
+    ton(ctx, h, t + 0.16, 2400, 0.08, 0.1, "square", 1800);
+  },
+  /** hayalet fazına giriş: inen, titreşen çift ton; çıkış: yükselen kısa ton */
+  hayalet(ctx: BaseAudioContext, h: AudioNode, t: number, giris: boolean) {
+    if (giris) {
+      ton(ctx, h, t, 1320, 0.6, 0.07, "triangle", 440);
+      ton(ctx, h, t + 0.03, 990, 0.7, 0.05, "sine", 330);
+    } else ton(ctx, h, t, 440, 0.25, 0.08, "triangle", 1100);
+  },
+  /** Risk Taker dönüşümü: alçak gümleme + yükselen testere + alev hışırtısı; bitişte inen ton */
+  donusum(ctx: BaseAudioContext, h: AudioNode, t: number, giris: boolean) {
+    if (!giris) return ton(ctx, h, t, 520, 0.4, 0.07, "sawtooth", 160);
+    ton(ctx, h, t, 70, 0.6, 0.25, "sine", 40);
+    ton(ctx, h, t, 220, 0.5, 0.08, "sawtooth", 880);
+    hisirti(ctx, h, t, 400, 1800, 0.9, 0.28);
+  },
+  /** Slipstream boşalıyor: kısa rüzgâr */
+  ruzgar(ctx: BaseAudioContext, h: AudioNode, t: number) {
+    hisirti(ctx, h, t, 800, 3000, 0.5, 0.18);
+  },
+  /** skill şimdi kullanılamaz (neden yuvada yazar): kısa alçak "bonk" */
+  red(ctx: BaseAudioContext, h: AudioNode, t: number) {
+    ton(ctx, h, t, 180, 0.14, 0.12, "square", 120);
   },
   /** kombo yandı */
   yandi(ctx: BaseAudioContext, h: AudioNode, t: number) {

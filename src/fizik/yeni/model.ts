@@ -748,6 +748,11 @@ export function yeniAdim(
       // drift desteği: yalpa hızını seçilen drift açısına götürür
       if (dw > 0) ty += Iy * 10 * dw * (wd - Y.oy);
     }
+    // dış ivme (MUTANT çekme/itme): kütle merkezine yatay kuvvet
+    if (cx.dis) {
+      Fx += m * cx.dis.x;
+      Fz += m * cx.dis.z;
+    }
     // tümleştirme (yarı örtük Euler)
     Y.vx += (Fx / m) * h;
     Y.vy += (Fy / m) * h;
