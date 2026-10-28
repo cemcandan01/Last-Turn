@@ -434,6 +434,7 @@ function testLaboratuvari(secili = "") {
       '<button class="btn alt" id="labTani">Drift ölçümleri: ' +
       (driftDevGoster ? "AÇIK" : "KAPALI") +
       "</button>" +
+      '<button class="btn" id="labSehir">KULE ŞEHRİ\'NE GİT</button>' +
       '<button class="btn alt" id="labBolge">Sonraki bölge (test)</button>' +
       '<button class="btn alt" id="labSurus">' +
       (yarista ? "YARIŞA DÖN" : "AÇIK DÜNYAYA DÖN") +
@@ -505,6 +506,15 @@ function testLaboratuvari(secili = "") {
     haritayaDon();
     isaretleriGuncelle();
     testLaboratuvari(seciliId);
+  };
+  // Cem: şehir haritasına DEV panelinden doğrudan git (bölge 2'ye atlar, şehrin girişinde sürüşe başlar)
+  s.querySelector<HTMLElement>("#labSehir")!.onclick = () => {
+    if (yarista) haritayaDon();
+    if (!sehirde(k) && !testBolgeyeGec(k, SEHIR_BOLGESI, mutantPistleri())) return;
+    mutant.donus = [SEHIR_GIRIS[0], SEHIR_GIRIS[1], SEHIR_GIRIS[2]];
+    haritayaDon();
+    isaretleriGuncelle();
+    surusDevam();
   };
   s.querySelector<HTMLElement>("#labSurus")!.onclick = surusDevam;
 }
