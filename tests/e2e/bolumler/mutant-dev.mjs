@@ -67,6 +67,7 @@ export default async function ({ p, ok }) {
   ok(r.yarista && r.dugme && r.durdu, "drift yarışı içinde ⚙ DEV düğmesi açılır ve yarışı duraklatır");
   ok(
     r.canli && r.devam && r.tekrar,
-    "skill değişimi canlı uygulanır, aynı yarışa dönülür ve tekrar başlatılır " + JSON.stringify({ canli: r.canli, devam: r.devam, tekrar: r.tekrar }),
+    "skill değişimi canlı uygulanır, aynı yarışa dönülür ve tekrar başlatılır " +
+      JSON.stringify({ canli: r.canli, devam: r.devam, tekrar: r.tekrar }),
   );
 }
