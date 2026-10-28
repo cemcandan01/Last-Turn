@@ -42,6 +42,7 @@ import {
   sandikOduluBul,
   sandikReddet,
   testKurulumu,
+  testKurulumunuSifirla,
   testBolgeyeGec,
   beceriTeklifleri,
   PASIFLER,
@@ -339,6 +340,7 @@ function testLaboratuvari() {
       )}<button class="btn" id="labParcaAl">Parça tak</button></div></div>` +
       `<p class="note">Takılı: ${k.parcalar.length} parça · ${k.pasifler.length} pasif · ${k.beceriler.map((o) => beceriAdi(o)).join(", ") || "skill yok"}</p>` +
       '<button class="btn" id="labDrift">DRİFT YARIŞINI DENE</button>' +
+      '<button class="btn alt" id="labReset">Kurulumu sıfırla</button>' +
       '<button class="btn alt" id="labBolge">Sonraki bölge (test)</button>' +
       '<button class="btn alt" id="labSurus">Açık dünyaya dön</button>',
   );
@@ -351,6 +353,11 @@ function testLaboratuvari() {
   s.querySelector<HTMLElement>("#labPasifAl")!.onclick = () => ekle("pasif", "#labPasif");
   s.querySelector<HTMLElement>("#labSkillAl")!.onclick = () => ekle("beceri", "#labSkill");
   s.querySelector<HTMLElement>("#labParcaAl")!.onclick = () => ekle("parca", "#labParca");
+  s.querySelector<HTMLElement>("#labReset")!.onclick = () => {
+    if (!testKurulumunuSifirla(k)) return;
+    mutantKurulumUygula();
+    testLaboratuvari();
+  };
   s.querySelector<HTMLElement>("#labDrift")!.onclick = () => {
     const e = k.etkinlikler.find((q) => q.ty == "dp");
     if (!e) return note("Bu bölgede drift etkinliği yok", 30);
