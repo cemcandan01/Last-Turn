@@ -13,6 +13,7 @@ import { rakip, rakipEtkisi, rakipGovdesi, rakipSirasi, RAKIP, type RakipAyari }
 import { beceriDunyasiYap, engelListesi } from "./mutant-beceri";
 import { KISILIKLER } from "../yz/kisilik";
 import { kurulum, applyPreset } from "./kurulum";
+import { SARKAC } from "../cekirdek/beceri";
 import { bosGorev, gorevAdimi, gorevCek, type GorevOlayi } from "./mutant-gorev";
 import { TELEW } from "../dunya/corak";
 import { mulberry32 } from "../cekirdek/rastgele";
@@ -249,7 +250,13 @@ export function mutantAdimi(
   beta = 0,
   d: Readonly<Pick<SimDurumu, "S" | "DR" | "D">> | null = null,
   /** skill dünyası: bulunulan pist, çarpışma sorgusu ve yarış başladı mı (geri sayımda skill çalışmaz) */
-  cevre: { TR: Pist | null; dunya: Pick<DunyaSorgusu, "yakin">; kosuyor: boolean } | null = null,
+  cevre: {
+    TR: Pist | null;
+    dunya: Pick<DunyaSorgusu, "yakin">;
+    kosuyor: boolean;
+    /** LT-SYS-008: gövde yüksekliği, dikey hız ve altındaki zemin (uçuş/sarkaç) */
+    govde?: { y: number; vy: number; zemin: number };
+  } | null = null,
 ) {
   const k = mutant.kosu,
     nitro = mutant.nitro,
@@ -283,11 +290,12 @@ export function mutantAdimi(
         R = kosuyor ? rakipGovdesi() : null,
         // kanca bağlantısı: yarışta pist, açık dünyada (serbest sürüş) yol ağı
         dunya = beceriDunyasiYap(
-          { x: S.x, z: S.z, h: S.h, vx: S.vx, vz: S.vz },
+          { x: S.x, z: S.z, h: S.h, vx: S.vx, vz: S.vz, y: cevre?.govde?.y, vy: cevre?.govde?.vy },
           R ? [R] : [],
           yarista ? (cevre?.TR ?? null) : null,
           kosuyor,
           !yarista && !!cevre,
+          cevre?.govde?.zemin ?? 0,
         );
       // hazır olmayan istek: neden yuvada gösterilir (enerji harcanmaz)
       if (istekler.length) {
@@ -381,10 +389,20 @@ export function mutantBossaGir() {
   mutant.etkinlik = "boss";
 }
 
-/** skill'lerin oyuncuya çekme/itme ivmesi (sonraki fizik adımında kuvvet; koşu yoksa null) */
+/** skill'lerin oyuncuya çekme/itme ivmesi (sonraki fizik adımında kuvvet; koşu yoksa null); uçuşun yatayı dahil */
 export function mutantOyuncuIvmesi(): { x: number; z: number } | undefined {
-  const a = mutant.kosu?.becCikti?.oyuncuIvme;
-  return a && (a.x || a.z) ? { x: a.x, z: a.z } : undefined;
+  const c = mutant.kosu?.becCikti,
+    a = c?.oyuncuIvme,
+    u = c?.ucus,
+    x = (a?.x ?? 0) + (u?.x ?? 0),
+    z = (a?.z ?? 0) + (u?.z ?? 0);
+  return x || z ? { x, z } : undefined;
+}
+
+/** LT-SYS-008: uçuş/sarkacın dikey ivmesi ve duruş denetimi (yoksa undefined: fizik birebir aynı) */
+export function mutantUcus(): { y: number; denge: number } | undefined {
+  const u = mutant.kosu?.becCikti?.ucus;
+  return u ? { y: u.y, denge: u.denge } : undefined;
 }
 
 /**
@@ -398,11 +416,18 @@ export function beceriEfektDurumu() {
     acik = (id: string) => (y[id]?.kalan ?? 0) > 0,
     kanca = acik("grappling-hook") ? y["grappling-hook"] : null;
   return {
-    kanca: kanca ? (kanca.hedef ? ("rakip" as const) : kanca.nokta) : null,
+    kanca: kanca
+      ? kanca.hedef == SARKAC && kanca.nokta
+        ? ([kanca.nokta[0], kanca.nokta[1], kanca.deger] as const)
+        : kanca.hedef
+          ? ("rakip" as const)
+          : kanca.nokta
+      : null,
     hayalet: !!k.becCikti?.hayalet,
     donusum: acik("risk-taker"),
     iz: y["risk-taker"]?.iz ?? [],
-    ruzgar: acik("slipstream-engine"),
+    // Volt Kanat uçuşu da rüzgâr çizgileriyle görünür (ayrı model yok)
+    ruzgar: acik("slipstream-engine") || acik("volt-kanat"),
   };
 }
 

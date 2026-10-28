@@ -19,7 +19,7 @@ import { kurulum } from "./kurulum";
 import { PROF, saveProf } from "./profil";
 import { yaris, evTick } from "./yarislar";
 import { rekorHayaletiBaslat, rekorHayaletiDurdur, uzakAdimi, uzakSifirla } from "./uzak";
-import { mutant, mutantAdimi, mutantHayalet, mutantOyuncuIvmesi } from "./mutant";
+import { mutant, mutantAdimi, mutantHayalet, mutantOyuncuIvmesi, mutantUcus } from "./mutant";
 import { rakipAdimi } from "./rakip";
 
 /** serbest sürüşte tur sayacı (kapalı pistlerde) */
@@ -54,8 +54,11 @@ export function dunyaSorgusuYap(b: { cur: Bolge | null }, oyuncu = false): Dunya
       return r;
     },
     // oyuncu Flying Dutchman fazında katı nesnelerin (ağaç, kaya, direk) içinden geçer; duvarlar (kutu) kalır
-    yakin: (x, z) =>
-      oyuncu && mutantHayalet() ? katiOlmayan(dunya.cols.yakin(x, z)) : dunya.cols.yakin(x, z),
+    yakin: (x, z) => {
+      const l = oyuncu && mutantHayalet() ? katiOlmayan(dunya.cols.yakin(x, z)) : dunya.cols.yakin(x, z);
+      // LT-SYS-008: uçan/savrulan araç tepesi altında kaldığı binaya çarpmaz (yükseklik yalnız şehir binalarında)
+      return oyuncu ? ustundeOlmayan(l) : l;
+    },
     kutu: () => (yaris.EV ? REG[yaris.EV.reg].box : oyun.CURW.box),
     kerb: (x, z) => (b.cur && b.cur.Hk ? b.cur.Hk(x, z) : 0),
     havaTutusu: () => ortam.g,
@@ -66,6 +69,13 @@ export function dunyaSorgusuYap(b: { cur: Bolge | null }, oyuncu = false): Dunya
 
 function* katiOlmayan<T extends { t: string }>(l: Iterable<T>) {
   for (const o of l) if (o.t != "solid") yield o;
+}
+
+/** aracın gövde altı yüksekliği (m): ağırlık merkezi − 0,6 */
+const aracAlti = () => (yerel.sim.yeni ? yerel.sim.yeni.py - 0.6 : 0);
+function* ustundeOlmayan<T extends { y?: number }>(l: Iterable<T>) {
+  const a = aracAlti();
+  for (const o of l) if (o.y == null || a < o.y) yield o;
 }
 
 const surusKurulumu = (): SurusKurulumu => ({
@@ -135,9 +145,11 @@ export function surusAdimi() {
     TR: yaris.EV?.TR ?? dunya.TR,
     dunya: yerel.cx.dunya,
     kosuyor: yaris.EV?.state == "run",
+    govde: yerel.sim.yeni ? { y: yerel.sim.yeni.py, vy: yerel.sim.yeni.vy, zemin: Hw(S.x, S.z) } : undefined,
   });
   // MUTANT skill çekişi sonraki adımda kütle merkezine kuvvet (koşu yoksa yok: fizik birebir aynı)
   yerel.cx.dis = mutantOyuncuIvmesi();
+  yerel.cx.ucus = mutantUcus();
   if (sim.d.zaman % 20 < ADIM) saveProf();
   turSayaci(ADIM);
   if (yaris.EV) evTick(ADIM, son, gi.tg);

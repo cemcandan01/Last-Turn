@@ -12,6 +12,8 @@ export interface Carpisan {
   /** kutu yarı genişlikleri (box) */
   hx?: number;
   hz?: number;
+  /** tepe yüksekliği (m; bina): oyuncunun dünya sorgusu, araç bunun üstündeyken nesneyi vermez (uçuş) */
+  y?: number;
 }
 
 export const GRID = 16;

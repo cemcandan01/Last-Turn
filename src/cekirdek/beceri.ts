@@ -26,6 +26,10 @@ export const SKILL_EKLENTI_UST = 2;
 export const HASAR_ADIM_UST = 10;
 /** skill'lerin bir gövdeye verebileceği en büyük yatay ivme (m/s²; oyunda yerçekimi 24) */
 export const IVME_UST = 12;
+/** uçuş/sarkaç ivmesinin yatay ve (yer çekimi dışında) dikey üst sınırı (m/s²) */
+export const UCUS_IVME_UST = 30;
+/** oyunun yer çekimi (fizik/veriler.ts YERCEKIMI ile aynı; saf çekirdek fiziğe bağlanmasın diye sabit) */
+export const YER_CEKIMI = 24;
 /** durum etkisinin en uzun süresi (sn) */
 export const DURUM_UST = 3;
 /** ateş: 0,5 sn'de bir 2 hasar; elektrik: hedefin hızına karşı fren (m/s²) */
@@ -47,6 +51,9 @@ export interface Govde {
   h: number;
   vx: number;
   vz: number;
+  /** ağırlık merkezi yüksekliği ve dikey hız (LT-SYS-008 uçuş/sarkaç; verilmezse yerde sayılır) */
+  y?: number;
+  vy?: number;
 }
 export interface Hedef extends Govde {
   id: string;
@@ -68,6 +75,10 @@ export interface BeceriDunyasi {
   baglanti(enAz: number, enCok: number): [number, number] | null;
   /** yarışta mı (risk/takip yalnız yarışta birikir; serbest sürüşte farm yok) */
   yarista: boolean;
+  /** LT-SYS-008: şehirde oyuncunun önündeki bina tepesi (dünya x, y, z; kanca sarkacı). Şehir dışında yok */
+  binaBaglanti?(enAz: number, enCok: number): [number, number, number] | null;
+  /** oyuncunun altındaki zemin yüksekliği (uçuş irtifası buna göre); verilmezse 0 */
+  zemin?: number;
 }
 
 /** oyuncunun sahip olduğu skill: seviye, takılı skill eklentileri ve evrim. Skill kaybedilince hepsi birlikte gider */
@@ -96,6 +107,8 @@ export interface BeceriYerel {
   iz: [number, number, number][];
   /** bu etkide bir kez işlenen hedefler */
   islenen: string[];
+  /** etki bitince parametre beklemesi yerine kullanılacak bekleme (sn; ör. kancanın kısa sarkaç beklemesi) */
+  ozelBekleme?: number;
 }
 
 export interface HedefDurumu {
@@ -124,6 +137,8 @@ export interface BeceriDurumu {
 /** bir adımın fiziğe/oyuna giden sonucu */
 export interface BeceriCiktisi {
   oyuncuIvme: { x: number; z: number };
+  /** LT-SYS-008 uçuş/sarkaç: oyuncuya 3B ivme (m/s²; y yer çekimine eklenir) ve havada duruş denetimi (0-1) */
+  ucus: { x: number; y: number; z: number; denge: number } | null;
   hedefIvme: Record<string, { x: number; z: number }>;
   /** mekanik yürütücüsüne (sonraki adım) gidecek ortak olaylar */
   olaylar: BeceriOlayi[];
@@ -160,6 +175,8 @@ export interface BeceriBaglami {
   hasarVer(hedef: string, miktar: number, hasar: HasarTuru, aralikAdim: number): number;
   durumUygula(hedef: string, durum: DurumTuru, sure: number): void;
   ivme(govde: "oyuncu" | string, ax: number, az: number): void;
+  /** oyuncuya 3B ivme (uçuş/sarkaç); yatay bileşeni yatay ivme sınırına tabi değil, UCUS_IVME_UST ile sınırlı */
+  ucus(ax: number, ay: number, az: number, denge: number): void;
   olay(e: BeceriOlayi): void;
 }
 
@@ -282,6 +299,57 @@ export const KANCA_HIZ_UST = 50;
 /** yol noktasına bu kadar (m) yaklaşınca halat ilerideki noktaya kayar */
 export const KANCA_KAYMA = 14;
 
+/**
+ * LT-SYS-008 kanca sarkacı (şehir): ip ilerideki bina tepesine takılır, ip boyu takıldığı andaki uzaklık. İp gergin
+ * olunca (uzaklık > boy) araç bağlantıya doğru çekilir: sarkaç gibi savrulur; ip yavaşça kısalır (araç yükselir).
+ * Süre bitince ya da bağlantının altından geçince bırakır: hız korunur; kısa bekleme ile yeniden atılır (zincir).
+ */
+export const SARKAC = "#bina";
+export const KANCA_SARKAC = {
+  sure: 2.4,
+  bekleme: 0.5,
+  menzil: 1.6,
+  yay: 28,
+  sonum: 5,
+  kisalma: 3,
+  enKisa: 10,
+};
+
+const binaNoktasi = (c: BeceriBaglami) =>
+  c.dunya.binaBaglanti?.(c.p.menzil * 0.5, c.p.menzil * KANCA_SARKAC.menzil) ?? null;
+
+function sarkacBasla(c: BeceriBaglami, b: [number, number, number]) {
+  const P = c.dunya.oyuncu;
+  c.y.hedef = SARKAC;
+  c.y.nokta = [b[0], b[2]];
+  // bağlantı yüksekliği deger'de, ip boyu sayac'ta
+  c.y.deger = b[1];
+  // ip takıldığı uzaklığın %80'i: hemen gerilir, aracı bağlantıya (öne ve yukarı) çeker
+  c.y.sayac = Math.max(KANCA_SARKAC.enKisa, 0.8 * Math.hypot(b[0] - P.x, b[1] - (P.y ?? 0), b[2] - P.z));
+  c.y.kalan = KANCA_SARKAC.sure;
+  c.y.ozelBekleme = KANCA_SARKAC.bekleme;
+}
+
+function sarkacAdimi(c: BeceriBaglami) {
+  const P = c.dunya.oyuncu,
+    n = c.y.nokta!,
+    dx = n[0] - P.x,
+    dy = c.y.deger - (P.y ?? 0),
+    dz = n[1] - P.z,
+    d = Math.hypot(dx, dy, dz) || 1,
+    ux = dx / d,
+    uy = dy / d,
+    uz = dz / d;
+  // bağlantının altından geçip öne savrulduysa (ip arkada, yatayda yakın) bırak: hız korunur
+  if (Math.hypot(dx, dz) < 4 && P.vx * dx + P.vz * dz < 0) return void (c.y.kalan = 0);
+  c.y.sayac = Math.max(KANCA_SARKAC.enKisa, c.y.sayac - KANCA_SARKAC.kisalma * c.dt);
+  const uzama = d - c.y.sayac;
+  if (uzama <= 0) return void c.ucus(0, 0, 0, 0.3);
+  const vr = P.vx * ux + (P.vy ?? 0) * uy + P.vz * uz,
+    a = KANCA_SARKAC.yay * Math.min(uzama, 3) + KANCA_SARKAC.sonum * Math.max(0, -vr);
+  c.ucus(ux * a, uy * a, uz * a, 0.3);
+}
+
 export const GRAPPLING_HOOK: BeceriTanim = {
   id: "grappling-hook",
   ad: "Grappling Hook",
@@ -304,18 +372,23 @@ export const GRAPPLING_HOOK: BeceriTanim = {
   kullanilabilir(c) {
     const ters = c.o.evrim == "ters-kanca";
     if (koniHedefi(c, c.p.menzil, ters ? 0.6 : 0.45, ters)) return true;
+    // şehirde (yarış dışı ya da yarışta rakip yokken) ilerideki bina tepesine sarkaç ipi
+    if (!ters && binaNoktasi(c)) return true;
     // rakip yoksa yarışta pistin, serbest sürüşte yol ağının ilerideki bir noktasına tutunur
     return !ters && !!c.dunya.baglanti(c.p.menzil * 0.6, c.p.menzil);
   },
   basla(c) {
     const ters = c.o.evrim == "ters-kanca";
     c.y.hedef = koniHedefi(c, c.p.menzil, ters ? 0.6 : 0.45, ters);
+    const bina = !c.y.hedef && !ters ? binaNoktasi(c) : null;
+    if (bina) return sarkacBasla(c, bina);
     c.y.nokta = c.y.hedef ? null : c.dunya.baglanti(c.p.menzil * 0.6, c.p.menzil);
     c.y.kalan = c.p.sure;
     if (c.y.hedef) c.olay({ tur: "KonumEtkisi", hedef: c.y.hedef, etki: "cekme", kaynak: c.t.id });
   },
   adim(c) {
     if (c.y.kalan <= 0) return;
+    if (c.y.hedef == SARKAC) return sarkacAdimi(c);
     const P = c.dunya.oyuncu,
       ters = c.o.evrim == "ters-kanca",
       H = c.y.hedef ? c.dunya.hedefler.find((h) => h.id == c.y.hedef) : null,
@@ -513,11 +586,70 @@ export const SLIPSTREAM_ENGINE: BeceriTanim = {
   },
 };
 
+/** Volt Kanat (LT-SYS-008): uçuşun sabitleri. inis: son bu kadar saniyede yumuşak iniş; tavan hız (m/s) */
+export const VOLT = { tavanHiz: 46, inisHizi: 8, inisUst: 6 };
+
+export const VOLT_KANAT: BeceriTanim = {
+  id: "volt-kanat",
+  ad: "Volt Kanat",
+  d: "Elektrikli uçuş modu: araç havalanır, binaların üstüne çıkacak kadar yükselir ve direksiyonla yönlendirilir; süre bitince yumuşakça iner. Çatılara inebilirsin.",
+  tur: "aktif",
+  etiketler: ["hareket"],
+  maliyet: 40,
+  seviyeler: [
+    { sure: 4, irtifa: 30, itki: 6, bekleme: 9 },
+    { sure: 4.5, irtifa: 45, itki: 7, bekleme: 8 },
+    { sure: 5, irtifa: 65, itki: 8, bekleme: 7 },
+  ],
+  evrimler: [
+    {
+      id: "firtina-kanadi",
+      ad: "Fırtına Kanadı",
+      d: "Uçarken 8 m içinden geçtiğin her rakibe bir kez 1,5 sn elektrik bırakırsın.",
+    },
+  ],
+  basla(c) {
+    c.y.kalan = c.p.sure;
+    c.y.islenen = [];
+    // kalkış zemini: irtifa ona göre (çatıdan kalkınca daha yükseğe çıkar); sayac: iniş aşamasının üst süresi
+    c.y.deger = c.dunya.zemin ?? 0;
+    c.y.sayac = VOLT.inisUst;
+  },
+  adim(c) {
+    const P = c.dunya.oyuncu,
+      y = P.y ?? 0,
+      vy = P.vy ?? 0,
+      zemin = c.dunya.zemin ?? 0;
+    if (c.y.kalan <= 0) {
+      // süre bitti: yere (ya da çatıya) değene dek paraşüt gibi iniş, en çok inisHizi ile
+      if (c.y.sayac <= 0) return;
+      c.y.sayac -= c.dt;
+      if (y - zemin < 1.2) return void (c.y.sayac = 0);
+      const ay = YER_CEKIMI + (-VOLT.inisHizi - vy) * 3;
+      return void c.ucus(0, Math.max(0, ay), 0, 1);
+    }
+    // irtifaya tırman ve orada tut (kalkış zemininden ya da altındaki çatıdan yukarı)
+    const hedef = Math.max(c.y.deger, zemin) + c.p.irtifa,
+      ay = YER_CEKIMI + Math.max(-8, Math.min(10, (hedef - y) * 1.1 - vy * 1.6));
+    // ileri itki: burnun yönünde, tavan hıza kadar
+    const v = Math.hypot(P.vx, P.vz),
+      k = v < VOLT.tavanHiz ? c.p.itki : 0;
+    c.ucus(Math.sin(P.h) * k, ay, Math.cos(P.h) * k, 1);
+    if (c.o.evrim != "firtina-kanadi") return;
+    for (const h of c.dunya.hedefler)
+      if (!c.y.islenen.includes(h.id) && Math.hypot(h.x - P.x, h.z - P.z) < 8) {
+        c.y.islenen.push(h.id);
+        c.durumUygula(h.id, "elektrik", 1.5);
+      }
+  },
+};
+
 export const BECERILER: readonly BeceriTanim[] = [
   GRAPPLING_HOOK,
   FLYING_DUTCHMAN,
   RISK_TAKER,
   SLIPSTREAM_ENGINE,
+  VOLT_KANAT,
 ];
 export const beceriBul = (id: string) => BECERILER.find((b) => b.id == id);
 
@@ -643,6 +775,7 @@ export function beceriIstekleri(
 
 const bosCikti = (): BeceriCiktisi => ({
   oyuncuIvme: { x: 0, z: 0 },
+  ucus: null,
   hedefIvme: {},
   olaylar: [],
   tutus: 1,
@@ -690,6 +823,14 @@ function baglamYap(
       ),
     durumUygula: (hedef, durum, sure) =>
       durumYaz(d, dunya, hedef, durum, sure, kaynak, (e) => kayit.push({ e, derinlik })),
+    ucus: (ax, ay, az, denge) => {
+      if (![ax, ay, az, denge].every(Number.isFinite)) return;
+      const u = (cikti.ucus ??= { x: 0, y: 0, z: 0, denge: 0 });
+      u.x += ax;
+      u.y += ay;
+      u.z += az;
+      u.denge = Math.max(u.denge, Math.min(1, denge));
+    },
     ivme: (g, ax, az) => {
       if (!Number.isFinite(ax) || !Number.isFinite(az)) return;
       if (g == "oyuncu") {
@@ -820,7 +961,8 @@ export function beceriAdimi(
     c.t.adim(c);
     if (y.kalan > 0) y.kalan = Math.max(0, y.kalan - gecerliDt);
     if (acikti && y.kalan <= 0) {
-      y.bekleme = c.p.bekleme ?? 0;
+      y.bekleme = y.ozelBekleme ?? c.p.bekleme ?? 0;
+      y.ozelBekleme = undefined;
       y.hedef = null;
       y.nokta = null;
       y.islenen = [];
@@ -872,6 +1014,15 @@ export function beceriAdimi(
   if (kayit.length > ADIM_ISLEM_SINIRI) d.kesilen += kayit.length - ADIM_ISLEM_SINIRI;
   sinirliIvme(cikti.oyuncuIvme);
   for (const a of Object.values(cikti.hedefIvme)) sinirliIvme(a);
+  if (cikti.ucus) {
+    const u = cikti.ucus,
+      m = Math.hypot(u.x, u.z);
+    if (m > UCUS_IVME_UST) {
+      u.x *= UCUS_IVME_UST / m;
+      u.z *= UCUS_IVME_UST / m;
+    }
+    u.y = Math.max(-UCUS_IVME_UST, Math.min(YER_CEKIMI + UCUS_IVME_UST, u.y));
+  }
   return { d, cikti };
 }
 

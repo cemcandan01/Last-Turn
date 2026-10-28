@@ -372,7 +372,9 @@ function skillEfektleri(dt: number, surus: boolean, x: number, y: number, z: num
   if (d.kanca == "rakip") {
     const u = uzak.araclar.find((q) => q.id == RAKIP);
     if (u) kanca = [u.goster.x, u.goster.y + 0.8, u.goster.z];
-  } else if (d.kanca) kanca = [d.kanca[0], Hw(d.kanca[0], d.kanca[1]) + 0.5, d.kanca[1]];
+  } else if (d.kanca)
+    // bina sarkacı: uç çatı yüksekliğinde (üçüncü değer); yol/pist noktası zeminde
+    kanca = [d.kanca[0], d.kanca.length > 2 ? d.kanca[2]! : Hw(d.kanca[0], d.kanca[1]) + 0.5, d.kanca[1]];
   beceriEfektleri(
     dt,
     {

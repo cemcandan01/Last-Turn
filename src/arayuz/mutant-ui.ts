@@ -248,6 +248,7 @@ const BECERI_KISA: Record<string, string> = {
   "flying-dutchman": "HAYALET",
   "risk-taker": "RİSK",
   "slipstream-engine": "AKIM",
+  "volt-kanat": "UÇUŞ",
 };
 const beceriAdi = (o: BeceriOrnegi) => {
   const t = beceriBul(o.id)!,
@@ -965,6 +966,7 @@ const BECERI_IKON: Record<string, IkonAdi> = {
   "flying-dutchman": "hayalet",
   "risk-taker": "alev",
   "slipstream-engine": "ruzgar",
+  "volt-kanat": "enerji",
 };
 
 /**

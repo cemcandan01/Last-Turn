@@ -9,8 +9,13 @@ import { SURF, TIRES, YERCEKIMI } from "../../src/fizik/veriler";
 import { kariyerKurulumu } from "../../src/oyun/kariyer";
 // LT-SYS-004 dış ivme (MUTANT skill çekişi) yalnız cx.dis verilince kuvvet ekler; kariyer/ölçüm onu hiç vermez ve
 // yokken fizik birebir aynıdır (tests/birim/beceri-fizik.test.ts). İmzadan ayıklanır.
-const disSiz = (s: string) =>
+// LT-SYS-008 uçuş/sarkaç girişi (cx.ucus) de yalnız MUTANT skill'i verince çalışır; kariyer vermez, imzadan ayıklanır.
+const ucussuz = (s: string) =>
   s
+    .replace("    if (cx.ucus) ucusDenetimi(cx.ucus, Y, UST, st, h, (fy) => (Fy += m * fy));\n", "")
+    .replace(/\n\/\*\*\n \* MUTANT uçuş\/sarkaç[\s\S]*$/, "\n");
+const disSiz = (s: string) =>
+  ucussuz(s)
     .replace(
       / {4}\/\/ dış ivme \(MUTANT çekme\/itme\): kütle merkezine yatay kuvvet\n {4}if \(cx\.dis\) \{\n {6}Fx \+= m \* cx\.dis\.x;\n {6}Fz \+= m \* cx\.dis\.z;\n {4}\}\n/,
       "",

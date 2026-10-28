@@ -34,6 +34,7 @@ import {
 } from "./pist";
 import { pistNoktalari, TDEF, type PistTanimi } from "./pist-tanimlari";
 import { thOf } from "./temalar";
+import { mkSehir } from "./sehir";
 
 export type Kutu = [number, number, number, number];
 export type Tele = [string, number, number, number];
@@ -521,10 +522,13 @@ function mkPark(idx: number): Bolge {
   return R;
 }
 
-/** tüm bölgeler: 40 pist + Boş Otopark (sonda) */
+/** tüm bölgeler: 40 pist + Boş Otopark + Kule Şehri (sonda) */
 export const REG: Bolge[] = TDEF.map(mkReg);
 export const PARK = mkPark(REG.length);
 REG.push(PARK);
+/** Kule Şehri (LT-SYS-008): MUTANT bölge 2+ açık dünyası; sokak yarışlarında TR o anki rota */
+export const SEHIR = mkSehir(REG.length);
+REG.push(SEHIR);
 
 /** (x, z) noktasının bölgesi; açık dünyadaysa null */
 export function regAt(x: number, z: number): Bolge | null {
