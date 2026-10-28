@@ -27,3 +27,7 @@
 - Başka türlere geçmeden bu drift oynanışını oyuncuyla doğrula; sonra drag (kalkış/tepki), ralli (zemin/rota), rallikros (zemin geçişi/iniş) ve asfalt (ideal çizgi/rakip taktikleri) ayrı kartlarda geliştir.
 
 **Çalışma anlaşması:** Codex'in bu dalında tamamlanmamış/kanıtlanmamış değişiklikleri `gelistirme` veya `master` dalına otomatik birleştirme. Claude ancak Cem devri açıkça isterse devralır, önce dal ve PR'ı kontrol eder.
+
+## Revize 1 (Claude, 0.8.11): drift yönü kilitleniyordu
+- Cem: drifte girince direksiyon ne olursa olsun araç aynı açıda sabit kalıyor. Hedef açı giriş eşiğinin altına inemediği ve yön ilk girişe kilitli olduğu için drift bitmiyordu.
+- Kabul: ters direksiyonla açı düşer ve drift biter; kıç öbür yana geçince drift o yönde sürer; kariyer/serbest sürüş aynı. Test: `mutant-drift-test.test.ts` tam fizik senaryosu.

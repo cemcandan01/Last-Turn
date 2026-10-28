@@ -86,17 +86,24 @@ export function driftPenceresi(
         }
       } else if (DR.on) {
         DR.t += dt;
+        // Kıç öbür yana savrulduysa (geçiş) drift o yönde sürer; yön ilk girişe kilitli kalmaz.
+        if (-Math.sign(be) != DR.dir && ab >= p.giris) {
+          DR.dir = -Math.sign(be);
+          DR.bt = cl(ab, 0, p.azami);
+          DR.t = 0;
+        }
         const ic = st * DR.dir,
           gaz = cl(gi.g, 0, 1);
         // Karşı direksiyon ve gaz hâlâ pilotta; modifiye yalnız kurtarılabilir açı alanını büyütür.
         DR.bt += ((ic > 0.25 ? 0.4 * ic : ic < -0.25 ? 1.0 * ic : 0) + (gaz - 0.55) * 0.24) * dt;
-        DR.bt = cl(DR.bt, p.giris, p.azami);
+        // Alt sınır sıfır: karşı direksiyonla açı giriş eşiğinin altına inip drift bitirilebilir.
+        DR.bt = cl(DR.bt, 0, p.azami);
         if (ab > p.azami + 0.12) {
           DR.on = 0;
           DR.cool = 0.9;
           DR.nc = 0;
           cx.olay.spin();
-        } else if (v < 5 || (ab < p.giris * 0.6 && DR.t > 0.2)) DR.on = 0;
+        } else if (v < 5 || DR.bt < p.giris * 0.5 || (ab < p.giris * 0.6 && DR.t > 0.2)) DR.on = 0;
       }
     } else DR.on = 0;
     DR.k += ((DR.on ? 1 : 0) - DR.k) * Math.min(1, dt * (DR.on ? 7 : 3));

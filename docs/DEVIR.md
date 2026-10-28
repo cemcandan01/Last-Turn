@@ -1,4 +1,10 @@
-# Son devir: 0.8.10 denemede — Codex drift atölyesi (#31) + canlı DEV paneli (#32)
+# Son devir: 0.8.11 denemede — MUTANT drift yarışında yön kilidi düzeltmesi
+
+- Claude / gelistirme. Cem: "drifte girdikten sonra yön değiştiremiyorum, araba o açıda sabitleniyor". Neden: `driftPenceresi` yarış dalında hedef açı `giris` altına inemiyor, drift yönü girişte kilitleniyordu; yardım direksiyonu bu açıya çekiyordu. Düzeltme (`src/fizik/ortak.ts`, yalnız `driftYarisi`): alt sınır 0, `bt < giris/2` drifti bitirir, kıç öbür yana geçince yön döner. Kariyer/serbest sürüş değişmedi.
+- Test: `mutant-drift-test.test.ts` tam fizikle ters direksiyon senaryosu (düzeltmesiz kalıyor, düzeltmeyle geçiyor). npm test 434/434, alan mutant 21/21. Açık: cihazda his; açı/yardım dengesi ölçülmedi.
+- Sonraki tek adım: Cem /dev/ 0.8.11'de drift geçişlerini denesin.
+
+# Önceki devir: 0.8.10 denemede — Codex drift atölyesi (#31) + canlı DEV paneli (#32)
 
 - Claude / gelistirme (Cem: "canlıya çıkarma, teste yolla"). Regresyondaki 0.8.9 canlıya çıkarılmadı; `regresyon` dalı ve durum.json olduğu gibi (onay-bekliyor). Bu sürüm ondan sonraki işleri içerir.
 - #31 ve #32 sürüm artırmadan birleşmişti; 0.8.10 yapıldı. Birleşme sonrası `kariyer.test.ts` 2 kalış: `driftYarisi` bütün `dp` yarışlarında (kariyer dahil) açılıyordu. Düzeltme: `src/oyun/surus.ts` yalnız `yaris.EV.mutant` iken; kariyer drifti eski ölçülmüş fizikte. İmza yardımcısı kapalı bayrak satırını ayıklar.

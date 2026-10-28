@@ -10,6 +10,8 @@ import {
   testKurulumu,
   testKurulumunuSifirla,
 } from "../../src/oyun/mutant-kosu";
+import { pistNo } from "../../src/dunya/pist-tanimlari";
+import { surucuKur } from "../yardimci/surucu";
 
 const kurulum = (tuned = false) =>
   ({
@@ -55,6 +57,30 @@ describe("MUTANT drift yarışı için ayrı çekirdek", () => {
     driftPenceresi(d, gi, cx, 14, 0.95, 0.95, driftSiniri(14), 0.05);
     expect(d.DR.on).toBe(0);
     expect(spin).toBe(1);
+  });
+
+  it("drifte girdikten sonra karşı direksiyonla açı düşer, kıç öbür yana geçer; yön kilitlenmez", () => {
+    // Cem 0.8.10: drift yarışında kıç bir yana kaydıktan sonra direksiyon ne olursa olsun araç o açıda kalıyordu.
+    const s = surucuKur({ yaris: pistNo("dp", 1), arac: 0, lk: "norm" });
+    s.cx.driftYarisi = true;
+    const TR = s.bolge!.TR!,
+      P = TR.P[5];
+    s.reset(P[0], P[1], Math.atan2(TR.T[5][0], TR.T[5][1]));
+    const surus = (tg: number, sn: number) => {
+      for (let k = 0; k < sn * 60; k++) s.adim({ tg, g: 1, b: 0, analogDireksiyon: true, analogGaz: true });
+    };
+    surus(0, 2.5);
+    surus(-1, 2);
+    const ilk = s.sim.d.D.beta;
+    expect(s.sim.d.DR.on).toBe(1);
+    expect(Math.abs(ilk)).toBeGreaterThan(0.4);
+    surus(1, 2.5);
+    // Ters yöne tam kırınca kayma açısının işareti döner: araç ilk açıda sabit kalmaz.
+    expect(Math.sign(s.sim.d.D.beta)).toBe(-Math.sign(ilk));
+    expect(Math.abs(s.sim.d.D.beta)).toBeGreaterThan(0.3);
+    // Yeni drift öbür yönde açılmıştır (dir = -işaret(beta)).
+    expect(s.sim.d.DR.on).toBe(1);
+    expect(s.sim.d.DR.dir).toBe(Math.sign(ilk));
   });
 
   it("yarış skoru, yardımcı drift kapandıktan sonra yüksek açıyla bedavaya sürmez", () => {
