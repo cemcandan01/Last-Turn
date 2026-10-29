@@ -127,7 +127,18 @@ export interface FizikBaglami {
    * MUTANT uçuş/sarkaç (LT-SYS-008): kütle merkezine dikey ivme (m/s², yer çekimine eklenir) ve havada duruş denetimi
    * (denge 0-1: gövdeyi dik tutar, direksiyon yalpayı yönetir). Yokken fizik birebir aynı
    */
-  ucus?: { y: number; denge: number };
+  ucus?: {
+    y: number;
+    denge: number;
+    /** LT-SYS-009: havadayken burun yönünde itki (m/s²; Volt, havada nitro) */
+    ileri?: number;
+    /** havadayken düşüş hızı sınırı (m/s; Volt sonrası süzülme) */
+    inis?: number;
+    /** havada burun denetimi: parmak sürüklüyor mu, yunuslama (+ burun yukarı) ve yalpa (+ sola) hızı (rad/s) */
+    hava?: { parmak: boolean; yunus: number; yalpa: number };
+    /** istenen yalpa hızı (rad/s; yerde ve havada, ör. kanca köşe sarkacında burun yörüngeye döner) */
+    yalpa?: number;
+  };
   /** Yalnız drift yarışı süresince etkin açı ve giriş mekaniği (serbest sürüşe dokunmaz). */
   driftYarisi?: boolean;
 }

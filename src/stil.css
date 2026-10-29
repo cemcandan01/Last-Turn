@@ -4437,6 +4437,21 @@ details[open] > summary::after {
 .mbr .mbk.hazir {
   border-color: var(--acc);
 }
+/* LT-SYS-009: hedefi olan hazır skill (kanca atılabilir) parlar */
+.mbr .mbk.parla {
+  border-color: #6ff0ff;
+  animation: mbkParla 0.7s ease-in-out infinite alternate;
+}
+@keyframes mbkParla {
+  from {
+    box-shadow: 0 0 4px #40e0ff88;
+  }
+  to {
+    box-shadow:
+      0 0 16px #40e0ff,
+      inset 0 0 10px #40e0ff66;
+  }
+}
 .mbr .mbk.on {
   background: #3cc8ff66;
   border-color: #9fe8ff;

@@ -12,7 +12,7 @@ import { kariyerKurulumu } from "../../src/oyun/kariyer";
 // LT-SYS-008 uçuş/sarkaç girişi (cx.ucus) de yalnız MUTANT skill'i verince çalışır; kariyer vermez, imzadan ayıklanır.
 const ucussuz = (s: string) =>
   s
-    .replace("    if (cx.ucus) ucusDenetimi(cx.ucus, Y, UST, st, h, (fy) => (Fy += m * fy));\n", "")
+    .replace(/ {4}if \(cx\.ucus\)\n {6}ucusDenetimi\([\s\S]*?\n {6}\);\n/, "")
     .replace(/\n\/\*\*\n \* MUTANT uçuş\/sarkaç[\s\S]*$/, "\n");
 const disSiz = (s: string) =>
   ucussuz(s)

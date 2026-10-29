@@ -10,6 +10,8 @@ import {
   BECERI_EKLENTILERI,
   FLYING_DUTCHMAN,
   GRAPPLING_HOOK,
+  KANCA_KOSE,
+  KOSE,
   HASAR_ADIM_UST,
   IVME_UST,
   RISK_BAR,
@@ -21,7 +23,6 @@ import {
   beceriDurumuBaslat,
   beceriEngeli,
   beceriIstekleri,
-  beceriYetenegi,
   eklentiUyar,
   takiliBeceriler,
   yakinlikGozlemi,
@@ -143,33 +144,61 @@ describe("LT-SYS-004 skill sistemi", () => {
   });
 
   describe("Grappling Hook", () => {
-    it("hedef ve pist noktası yoksa istek düşer, enerji harcanmaz", () => {
+    it("köşe ve rakip yoksa istek düşer (hak harcanmaz); köşe varsa atılır; enerji hiç harcanmaz", () => {
       const k = kosu([sb("grappling-hook")]),
         P = govde(0, 0);
       adim(k, P, dunya(P, [], true, null), ["grappling-hook"]);
       expect(k.mek.enerji).toBe(100);
       expect(k.bec.yerel["grappling-hook"]?.kalan ?? 0).toBe(0);
-      // yarış dışında da dünyanın verdiği bağlantıya (açık dünyada yol ağı) tutunur; bağlantı yoksa düşer
-      expect(beceriIstekleri(k.bec, k.beceriler, dunya(P, [], false, [0, 30]), ["grappling-hook"])).toEqual([
-        beceriYetenegi("grappling-hook"),
-      ]);
-      expect(beceriIstekleri(k.bec, k.beceriler, dunya(P, [], false, null), ["grappling-hook"])).toEqual([]);
       expect(beceriEngeli(k.bec, k.beceriler, dunya(P, [], false, null), "grappling-hook")).toBe("hedef");
+      // yol noktası artık hedef değil (LT-SYS-009): yalnız köşe ya da rakip
+      expect(beceriIstekleri(k.bec, k.beceriler, dunya(P, [], false, [0, 30]), ["grappling-hook"])).toEqual(
+        [],
+      );
+      const W = {
+        ...dunya(P, [], false),
+        kose: () => ({ p: [8, 12] as [number, number], uc: [8, 12] as [number, number] }),
+      };
+      expect(beceriIstekleri(k.bec, k.beceriler, W, ["grappling-hook"])).toEqual(["grappling-hook"]);
+      adim(k, P, W, ["grappling-hook"]);
+      expect(k.bec.yerel["grappling-hook"].hedef).toBe(KOSE);
+      expect(k.mek.enerji).toBe(100);
     });
 
-    it("öndeki rakibe bağlanır: enerji 25, oyuncu ona, rakip oyuncuya doğru ivmelenir; KonumEtkisi", () => {
+    it("öndeki rakibe bağlanır: oyuncu ona, rakip oyuncuya doğru ivmelenir; ikinci dokunuş bırakır", () => {
       const k = kosu([sb("grappling-hook")]),
         P = govde(0, 0),
         W = dunya(P, [hedef(1, 20)]);
       adim(k, P, W, ["grappling-hook"]);
-      expect(k.mek.enerji).toBeCloseTo(75, 9);
+      expect(k.mek.enerji).toBe(100);
       expect(k.becCikti!.oyuncuIvme.z).toBeGreaterThan(5);
       expect(k.becCikti!.hedefIvme.rakip.z).toBeLessThan(-2);
       expect(Math.hypot(k.becCikti!.oyuncuIvme.x, k.becCikti!.oyuncuIvme.z)).toBeLessThanOrEqual(IVME_UST);
       expect(k.bekleyenBeceri.some((e) => e.tur == "KonumEtkisi" && e.hedef == "rakip")).toBe(true);
-      // etki sürerken ve sonrası beklemede yeniden kullanılamaz (enerji gitmez)
+      // tek dokunuşla süre boyunca bağlı kalır (en çok KANCA.enUzun)
+      for (let i = 0; i < 60; i++) adim(k, P, W);
+      expect(k.bec.yerel["grappling-hook"].kalan).toBeGreaterThan(0);
+      // ikinci dokunuş bırakır; Sv1'de tek hak: dolana dek yeniden atılamaz
       adim(k, P, W, ["grappling-hook"]);
-      expect(k.mek.enerji).toBeCloseTo(75, 9);
+      expect(k.bec.yerel["grappling-hook"].kalan).toBe(0);
+      expect(beceriEngeli(k.bec, k.beceriler, W, "grappling-hook")).toBe("bekleme");
+      for (let i = 0; i < 60 * GRAPPLING_HOOK.seviyeler[0].bekleme + 2; i++) adim(k, P, W);
+      expect(beceriEngeli(k.bec, k.beceriler, W, "grappling-hook")).toBeNull();
+    });
+
+    it("her seviye bir hak: Sv3'te üç kez art arda atılır, dördüncü düşer; haklar tek tek dolar", () => {
+      const k = kosu([sb("grappling-hook", 3)]),
+        P = govde(0, 0),
+        W = dunya(P, [hedef(1, 20)]);
+      const at = () => {
+        adim(k, P, W, ["grappling-hook"]);
+        const acik = k.bec.yerel["grappling-hook"].kalan > 0;
+        adim(k, P, W, ["grappling-hook"]);
+        return acik;
+      };
+      expect([at(), at(), at(), at()]).toEqual([true, true, true, false]);
+      for (let i = 0; i < 60 * GRAPPLING_HOOK.seviyeler[2].bekleme + 2; i++) adim(k, P, W);
+      expect([at(), at()]).toEqual([true, false]);
     });
 
     it("arkadaki ya da konidışı rakibe bağlanmaz; Ters Kanca evrimi arkadakini iki kat frenler, seni çekmez", () => {
@@ -184,15 +213,27 @@ describe("LT-SYS-004 skill sistemi", () => {
       expect(k.becCikti!.hedefIvme.rakip.z).toBeCloseTo(2 * GRAPPLING_HOOK.seviyeler[2].fren, 9);
     });
 
-    it("rakip yokken pistteki noktaya tutunur; çok yaklaşınca kanca kopar ve bekleme başlar", () => {
-      const k = kosu([sb("grappling-hook")]);
-      let P = govde(0, 0);
-      adim(k, P, dunya(P, [], true, [0, 30]), ["grappling-hook"]);
-      expect(k.becCikti!.oyuncuIvme.z).toBeGreaterThan(0);
-      P = govde(0, 25);
-      adim(k, P, dunya(P, [], true, [0, 30]));
+    it("köşe sarkacı: ip gevşeyince kısalır, gerilince köşeye çeker, burnu yörüngeye döndürür, tutuş verir", () => {
+      const k = kosu([sb("grappling-hook")]),
+        kose = () => ({ p: [8, 12] as [number, number], uc: [8, 12] as [number, number] });
+      let P = govde(0, 0, 20);
+      adim(k, P, { ...dunya(P, [], false), kose }, ["grappling-hook"]);
+      const L0 = k.bec.yerel["grappling-hook"].sayac;
+      // köşeye yaklaşırken ip gevşek: kısalır, çekmez
+      P = govde(0, 12, 20);
+      adim(k, P, { ...dunya(P, [], false), kose });
+      expect(k.bec.yerel["grappling-hook"].sayac).toBeLessThan(L0);
+      expect(k.becCikti!.tutus).toBeCloseTo(KANCA_KOSE.tutus, 9);
+      // köşeyi geçince ip gerilir: köşeye (sola, +x) merkezcil ivme, burun sola döner (yalpa +)
+      P = govde(0, 17, 20);
+      adim(k, P, { ...dunya(P, [], false), kose });
+      expect(k.becCikti!.ucus!.x).toBeGreaterThan(5);
+      expect(k.becCikti!.ucus!.yalpa!).toBeGreaterThan(0);
+      expect(k.becCikti!.ucus!.denge).toBe(1);
+      // hız yönü yeterince döndü: kendiliğinden bırakır
+      P = { x: 6, z: 20, h: 1.6, vx: 20, vz: -1 };
+      adim(k, P, { ...dunya(P, [], false), kose });
       expect(k.bec.yerel["grappling-hook"].kalan).toBe(0);
-      expect(k.bec.yerel["grappling-hook"].bekleme).toBeCloseTo(GRAPPLING_HOOK.seviyeler[0].bekleme, 9);
     });
 
     it("Şok bobini eklentisi çekilen hedefe elektrik verir; elektrik rakibi frenler; yenileme olay üretmez", () => {
@@ -200,7 +241,7 @@ describe("LT-SYS-004 skill sistemi", () => {
         P = govde(0, 0),
         W = dunya(P, [hedef(0, 20)]);
       let d = beceriDurumuBaslat();
-      const r = beceriAdimi(d, takili, W, [beceriYetenegi("grappling-hook")], [], DT);
+      const r = beceriAdimi(d, takili, W, ["grappling-hook"], [], DT);
       d = r.d;
       expect(r.cikti.olaylar.filter((e) => e.tur == "DurumUygulandi" && e.durum == "elektrik")).toHaveLength(
         1,
@@ -221,7 +262,7 @@ describe("LT-SYS-004 skill sistemi", () => {
 
   describe("Flying Dutchman", () => {
     it("faz: hasar işlemez (KorumaEngelledi → Kalkan Bataryası), tutuş artar, kanca kullanılamaz; sonra bekleme", () => {
-      const k = kosu([sb("flying-dutchman"), sb("grappling-hook")], 100, ["kalkan-bataryasi"]),
+      const k = kosu([sb("flying-dutchman"), sb("grappling-hook")], 50, ["kalkan-bataryasi"]),
         P = govde(0, 0),
         W = dunya(P, [hedef(0, 20)]);
       adim(k, P, W, ["flying-dutchman"]);
@@ -253,7 +294,7 @@ describe("LT-SYS-004 skill sistemi", () => {
       let d = beceriDurumuBaslat(),
         say = 0;
       for (let i = 0; i < 60; i++) {
-        const r = beceriAdimi(d, takili, W, i == 0 ? [beceriYetenegi("flying-dutchman")] : [], [], DT);
+        const r = beceriAdimi(d, takili, W, i == 0 ? ["flying-dutchman"] : [], [], DT);
         d = r.d;
         say += r.cikti.olaylar.filter((e) => e.tur == "DurumUygulandi").length;
         expect(r.cikti.olaylar.some((e) => e.tur == "HasarVerildi")).toBe(false);
@@ -585,9 +626,9 @@ describe("LT-SYS-004 skill sistemi", () => {
       for (let i = 0; i < SN * 60; i++) {
         const P = govde(0, i * 0.4, 24),
           R = hedef(0.5, P.z + (i % 120 < 60 ? 10 : -2), 24);
-        const k0 = k.mek.telemetri["beceri:grappling-hook"]?.tetik ?? 0;
+        const acik0 = (k.bec.yerel["grappling-hook"]?.kalan ?? 0) > 0;
         adim(k, P, dunya(P, [R]), ["grappling-hook"], 0.45);
-        if ((k.mek.telemetri["beceri:grappling-hook"]?.tetik ?? 0) > k0) kanca++;
+        if (!acik0 && k.bec.yerel["grappling-hook"]?.kalan > 0) kanca++;
         if (k.bec.yerel["risk-taker"]?.kalan > 0) donusum++;
         enerjiMax = Math.max(enerjiMax, k.mek.enerji);
         gucMax = Math.max(gucMax, kosuAraci(CARS[0], k).hp / CARS[0].hp);
@@ -609,9 +650,9 @@ describe("LT-SYS-004 skill sistemi", () => {
       mkdirSync("tests/cikti", { recursive: true });
       writeFileSync("tests/cikti/beceri-ekonomi.json", JSON.stringify(rapor, null, 1));
       expect(rapor.kesilen).toBe(0);
-      // hasar tick/adım sınırı: alev + ateş en çok ~12-16/sn; kanca bekleme sınırlı (≥ 5 sn arayla)
+      // hasar tick/adım sınırı: alev + ateş en çok ~12-16/sn; kanca hak sınırlı (3 hak, her biri 5 sn'de dolar)
       expect(rapor.verilenHasarSn).toBeLessThanOrEqual(20);
-      expect(kanca).toBeLessThanOrEqual(SN / 5 + 1);
+      expect(kanca).toBeLessThanOrEqual(3 + SN / 5 + 1);
       // dönüşüm sürekli olamaz (sonrası yorgunluk + bar yeniden dolmalı)
       expect(rapor.donusumPayi).toBeLessThan(0.75);
       // nitro + skill gücü üst sınırı (pasifsiz araç)

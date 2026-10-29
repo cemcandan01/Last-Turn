@@ -390,6 +390,7 @@ function skillEfektleri(dt: number, surus: boolean, x: number, y: number, z: num
       iz: d.iz,
       zemin: Hw,
       ruzgar: d.ruzgar,
+      hedef: d.kancaHedef,
     },
     govde,
   );

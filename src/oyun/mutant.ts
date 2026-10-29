@@ -6,8 +6,10 @@ import { CARS } from "../arac/araclar";
 import { aracKur, parcaBul } from "../arac/parcalar";
 import { okuJson, yazJson } from "../cekirdek/depo";
 import { isaretleriKur } from "../cizim/isaretler";
+import { suruklemeKancasi } from "../cizim/kamera";
+import { sim } from "./surus";
 import { COND, type GununSaati, type Hava } from "../cizim/ortam";
-import type { DunyaSorgusu, SimDurumu } from "../fizik/tipler";
+import type { DunyaSorgusu, FizikBaglami, SimDurumu } from "../fizik/tipler";
 import type { Pist } from "../dunya/pist";
 import { rakip, rakipEtkisi, rakipGovdesi, rakipSirasi, RAKIP, type RakipAyari } from "./rakip";
 import { beceriDunyasiYap, engelListesi } from "./mutant-beceri";
@@ -102,6 +104,10 @@ export const mutant = {
   nitro: false,
   /** basılan skill tuşları (skill kimliği): bir sonraki sabit adımda istek olur */
   beceriIstek: [] as string[],
+  /** LT-SYS-009: parmağın basılı tuttuğu skill tuşları (Volt basılı tuttukça uçar) */
+  beceriBasili: [] as string[],
+  /** havada burun denetimi: sürükleme alanında parmak var mı ve bekleyen burun açıları (rad; adım adım verilir) */
+  hava: { parmak: false, yunus: 0, yalpa: 0 },
   /** son reddedilen skill isteği ve nedeni (HUD yuvada kısa uyarı, ses); n her retle artar */
   red: { id: "", engel: "" as BeceriHudEngeli | "basla" | "", n: 0 },
   yeniRekor: false,
@@ -258,6 +264,8 @@ export function mutantAdimi(
     kosuyor: boolean;
     /** LT-SYS-008: gövde yüksekliği, dikey hız ve altındaki zemin (uçuş/sarkaç) */
     govde?: { y: number; vy: number; zemin: number };
+    /** LT-SYS-009: süzülmüş direksiyon (-1..1, + sola; kanca köşe tarafı) */
+    direksiyon?: number;
   } | null = null,
 ) {
   const k = mutant.kosu,
@@ -298,6 +306,7 @@ export function mutantAdimi(
           kosuyor,
           !yarista && !!cevre,
           cevre?.govde?.zemin ?? 0,
+          { basili: mutant.beceriBasili, direksiyon: cevre?.direksiyon },
         );
       // hazır olmayan istek: neden yuvada gösterilir (enerji harcanmaz)
       if (istekler.length) {
@@ -403,11 +412,55 @@ export function mutantOyuncuIvmesi(): { x: number; z: number } | undefined {
   return x || z ? { x, z } : undefined;
 }
 
-/** LT-SYS-008: uçuş/sarkacın dikey ivmesi ve duruş denetimi (yoksa undefined: fizik birebir aynı) */
-export function mutantUcus(): { y: number; denge: number } | undefined {
-  const u = mutant.kosu?.becCikti?.ucus;
-  return u ? { y: u.y, denge: u.denge } : undefined;
+/** havada nitro: burun yönünde itki (m/s²) */
+export const HAVA_NITRO = 14;
+/** sürüklemenin burun açısı (rad/piksel) ve bekleyen açının verilme hızı (1/sn) */
+export const HAVA_SURUKLE = { aci: 0.011, hiz: 12 };
+
+/**
+ * LT-SYS-008/009: uçuş/sarkacın dikey ivmesi, duruş denetimi, havada burun denetimi ve itki. Koşu sürerken her adım
+ * verilir (havada değilse fizik yalnız skill ivmesini uygular); koşu yoksa undefined: fizik birebir aynı
+ */
+export function mutantUcus(dt: number): FizikBaglami["ucus"] {
+  const k = mutant.kosu;
+  if (!k || (k.faz != "surus" && k.faz != "boss")) return undefined;
+  const u = k.becCikti?.ucus,
+    H = mutant.hava,
+    // bekleyen açı adım adım verilir: kare başına gelen sürükleme adımlara yayılır
+    al = (v: number) => v * Math.min(1, HAVA_SURUKLE.hiz * dt),
+    yunus = al(H.yunus),
+    yalpa = al(H.yalpa);
+  H.yunus -= yunus;
+  H.yalpa -= yalpa;
+  const nitro = nitroAcik() ? HAVA_NITRO : 0;
+  return {
+    y: u?.y ?? 0,
+    denge: u?.denge ?? 0,
+    ileri: (u?.ileri ?? 0) + nitro,
+    inis: u?.inis,
+    yalpa: u?.yalpa,
+    hava: { parmak: H.parmak, yunus: yunus / dt, yalpa: yalpa / dt },
+  };
 }
+
+/** sürükleme alanı havadayken burnu çevirir (kamera yerine): koşu sürerken ve araç havadayken (parmak inince) */
+export const havaDenetimi = () => {
+  const k = mutant.kosu;
+  return !!k && (k.faz == "surus" || k.faz == "boss") && !!sim.S.air;
+};
+suruklemeKancasi.hava = {
+  aktif: () => havaDenetimi() || (mutant.hava.parmak && !!mutant.kosu),
+  surukle: (dx, dy) => {
+    const H = mutant.hava;
+    H.parmak = true;
+    // aşağı kaydırınca burun kalkar, yukarı iner; sağa kaydırınca burun sağa (yalpa −)
+    H.yunus += dy * HAVA_SURUKLE.aci;
+    H.yalpa -= dx * HAVA_SURUKLE.aci;
+  },
+  birak: () => {
+    mutant.hava.parmak = false;
+  },
+};
 
 /**
  * skill efektleri için salt okunur durum (cizim/beceri-efekt.ts, ses, kamera). Efekt skill'e göre seçilir; etkisi
@@ -420,13 +473,16 @@ export function beceriEfektDurumu() {
     acik = (id: string) => (y[id]?.kalan ?? 0) > 0,
     kanca = acik("grappling-hook") ? y["grappling-hook"] : null;
   return {
+    // ucu: rakip ya da ipin çizildiği nokta [x, z, y] (bina cephesi / köşe)
     kanca: kanca
-      ? kanca.hedef == SARKAC && kanca.nokta
-        ? ([kanca.nokta[0], kanca.nokta[1], kanca.deger] as const)
-        : kanca.hedef
+      ? kanca.uc
+        ? ([kanca.uc[0], kanca.uc[2], kanca.uc[1]] as const)
+        : kanca.hedef && kanca.hedef != SARKAC
           ? ("rakip" as const)
           : kanca.nokta
       : null,
+    /** LT-SYS-009: kanca atılabilirken atılacağı nokta (parlar) [x, y, z] */
+    kancaHedef: k.becHedef["grappling-hook"] ?? null,
     hayalet: !!k.becCikti?.hayalet,
     donusum: acik("risk-taker"),
     iz: y["risk-taker"]?.iz ?? [],

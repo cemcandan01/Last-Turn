@@ -1,6 +1,6 @@
 /* global LT */
 // LT-SYS-004 MUTANT skill'leri: başlangıç seçiminde skill teklifi; alınan skill kontrollerde tuş olur (aktif) ya da
-// bar gösterir (tetiklenen); 1/2/3 ve tuşla istek. Düelloda Grappling Hook rakibe bağlanır, enerji harcar, rakibe
+// bar gösterir (tetiklenen); 1/2/3 ve tuşla istek. Düelloda Grappling Hook rakibe (ya da virajına) bağlanır, enerji harcamaz, rakibe
 // doğru çeker. Drift etkinliği kartında kapora kilitli (vazgeçip dönünce aynı); kaybedince kapora skill'i gider.
 // Ekran görüntüsü (iPhone 13 yatay): tests/cikti/beceri-hud.png
 import fs from "node:fs";
@@ -87,16 +87,19 @@ export default async function ({ p, ok }) {
     await olana(() => LT.yaris.EV?.state == "run", 120);
     // oyuncu gazda; rakip kalkınca öne geçer. Kanca hazır olana (rakip önde, konide, menzilde) dek bas
     LT.I.g = 1;
-    let bag = false;
+    let bag = false,
+      hedef = null;
     for (let i = 0; i < 120 && !bag; i++) {
       document
         .querySelector("#ctl [data-beceri='grappling-hook']")
         .dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true }));
       await bekle(100);
-      bag =
-        (k.bec.yerel["grappling-hook"]?.kalan ?? 0) > 0 || (k.bec.yerel["grappling-hook"]?.bekleme ?? 0) > 0;
+      bag = (k.bec.yerel["grappling-hook"]?.kalan ?? 0) > 0;
+      hedef = k.bec.yerel["grappling-hook"]?.hedef ?? null;
     }
-    r.kanca = bag && k.mek.telemetri["beceri:grappling-hook"]?.tetik == 1 && k.mek.enerji < 100;
+    // rakip konideyse rakibe, değilse pist virajına tutunur; enerji harcanmaz (LT-SYS-009)
+    r.kanca = bag && (hedef == "rakip" || hedef == "#kose") && k.mek.enerji >= 100 - 1e-6;
+    r.kancaHedef = hedef;
     r.hudDurum = LT.mutantDurumu().beceriler.length == 2 && LT.mutantDurumu().rakipGovde === 100;
     LT.I.g = 0;
     return r;
@@ -108,7 +111,8 @@ export default async function ({ p, ok }) {
   ok(r.tuslar, "aktif skill tuş, tetiklenen skill bar olarak kontrollerde");
   ok(
     r.kanca && r.hudDurum,
-    "düelloda kanca rakibe bağlanır ve enerji harcar; HUD durumu skill'leri ve rakip gövdesini verir",
+    "düelloda kanca rakibe ya da virajına bağlanır, enerji harcamaz; HUD durumu skill'leri ve rakip gövdesini verir: " +
+      r.kancaHedef,
   );
 
   const kok = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");

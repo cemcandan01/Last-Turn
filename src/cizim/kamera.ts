@@ -3,6 +3,14 @@ import { cl } from "../cekirdek/matematik";
 import { oyun } from "../oyun/durum";
 import { toApp } from "../cekirdek/ekran";
 
+/**
+ * LT-SYS-009: sürüşte sürükleme alanının başka bir işe bağlanması (MUTANT: araç havadayken burnu çevirir). aktif()
+ * doğruysa sürükleme kamerayı döndürmez, piksel farkı surukle'ye gider; parmak kalkınca birak çağrılır
+ */
+export const suruklemeKancasi = {
+  hava: null as null | { aktif: () => boolean; surukle: (dx: number, dy: number) => void; birak: () => void },
+};
+
 export const kamera = {
   /** takip kamerasının yönü */
   camYaw: 0,
@@ -208,6 +216,13 @@ export function kameraKur(cvs: HTMLElement) {
       return;
     }
     if (e.pointerId !== kamera.dp) return;
+    const hava = suruklemeKancasi.hava;
+    if (hava?.aktif()) {
+      hava.surukle(ax - lx, ay - ly0);
+      lx = ax;
+      ly0 = ay;
+      return;
+    }
     kamera.ly += (ax - lx) * 0.009 * -1;
     kamera.lp = cl(kamera.lp + (ay - ly0) * 0.006, -0.25, 1);
     lx = ax;
@@ -247,7 +262,10 @@ export function kameraKur(cvs: HTMLElement) {
           baslangic.yer = 1e9;
         }
       }
-      if (pe.pointerId === kamera.dp) kamera.dp = null;
+      if (pe.pointerId === kamera.dp) {
+        kamera.dp = null;
+        suruklemeKancasi.hava?.birak();
+      }
     });
   cvs.addEventListener(
     "wheel",

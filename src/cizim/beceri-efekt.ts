@@ -1,7 +1,8 @@
 // MUTANT skill efektleri (LT-SYS-005): her skill'in ayırt edici, ucuz görüntüsü. Yalnız gösterir; oynanışa yazmaz.
 // Grafik ayarından (gölge) bağımsız aynı çizilir: efekt oyuncuya bilgi verir (kanca neye bağlı, faz ne zaman biter,
 // alev izi nerede yakar), bu yüzden kapatılmaz; hepsi gölgesiz, ışıksız (MeshBasic) ve sabit havuzlu, en çok ~40 çizim.
-//  - Grappling Hook: araçtan bağlantıya parlak halat + uçta kanca halkası; bağlanınca kısa parlama.
+//  - Grappling Hook: araçtan bağlantıya parlak halat + uçta kanca halkası; bağlanınca kısa parlama. Atılabilirken
+//    atılacağı nokta (köşe, bina, rakip) nabız gibi parlayan halka ve ışık sütunuyla işaretlenir (LT-SYS-009).
 //  - Flying Dutchman: araç yarı saydam soluk mavi hayalet; faz başlarken ve biterken genişleyen halka.
 //  - Risk Taker: dönüşümde araçtan çıkan alevler, yerde gerçek alev izinin (hasar alanı) kor alevleri, dönüşüm anında
 //    turuncu halka.
@@ -27,6 +28,8 @@ export interface BeceriEfektGirdisi {
   zemin(x: number, z: number): number;
   /** Slipstream gücü boşalıyor */
   ruzgar: boolean;
+  /** kanca atılabilirken hedef noktası (dünya x, y, z) */
+  hedef?: readonly [number, number, number] | null;
 }
 
 const halatMat = new THREE.MeshBasicMaterial({ color: 0x40e0ff }),
@@ -64,6 +67,24 @@ const halatMat = new THREE.MeshBasicMaterial({ color: 0x40e0ff }),
   }),
   KOR_SAYI = 26,
   korlar: THREE.Group[] = [];
+const hedefMat = new THREE.MeshBasicMaterial({
+    color: 0x6ff0ff,
+    transparent: true,
+    opacity: 0.8,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  }),
+  hedefHalka = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.16, 6, 20), hedefMat),
+  sutunMat = new THREE.MeshBasicMaterial({
+    color: 0x40e0ff,
+    transparent: true,
+    opacity: 0.25,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  }),
+  hedefSutun = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 1, 8, 1, true), sutunMat);
+hedefHalka.visible = hedefSutun.visible = false;
+scene.add(hedefHalka, hedefSutun);
 halat.visible = uc.visible = halka.visible = false;
 halka.rotation.x = -Math.PI / 2;
 scene.add(halat, uc, halka);
@@ -150,6 +171,21 @@ export function beceriEfektleri(
     if (!once.kanca) halkaBaslat(0x40e0ff);
   }
   halat.visible = uc.visible = !!(e && k);
+  // atılabilir kanca hedefi: nabız gibi parlayan halka, yerden noktaya ışık sütunu
+  const hd = !k ? (e?.hedef ?? null) : null;
+  hedefHalka.visible = hedefSutun.visible = !!hd;
+  if (hd) {
+    const n = 0.5 + 0.5 * Math.sin(t * 9);
+    hedefHalka.position.set(hd[0], hd[1], hd[2]);
+    hedefHalka.rotation.y += dt * 3;
+    hedefHalka.scale.setScalar(0.9 + 0.35 * n);
+    hedefMat.opacity = 0.55 + 0.4 * n;
+    const zy = e!.zemin(hd[0], hd[2]),
+      boy = Math.max(2, hd[1] - zy + 6);
+    hedefSutun.position.set(hd[0], zy + boy / 2, hd[2]);
+    hedefSutun.scale.set(1, boy, 1);
+    sutunMat.opacity = 0.15 + 0.2 * n;
+  }
   once.kanca = !!(e && k);
   // hayalet: gövde yarı saydam, giriş/çıkışta halka
   const hay = !!e?.hayalet;
