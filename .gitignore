@@ -3,3 +3,21 @@ dist/
 tests/cikti/
 *.log
 .DS_Store
+
+# Unity generates these locally. Project configuration and all Assets stay tracked.
+Unity/[Ll]ibrary/
+Unity/[Tt]emp/
+Unity/[Oo]bj/
+Unity/[Bb]uild/
+Unity/[Bb]uilds/
+Unity/[Ll]ogs/
+Unity/[Uu]ser[Ss]ettings/
+Unity/[Mm]emoryCaptures/
+Unity/[Rr]ecordings/
+Unity/*.csproj
+Unity/*.sln
+Unity/*.user
+Unity/*.userprefs
+Unity/.vs/
+Unity/Validation/bin/
+Unity/Validation/obj/
