@@ -28,6 +28,9 @@ jobs:
       - name: Tarayıcı
         run: npx playwright install chromium
       - name: Alan testi
+        # Unity geçiş dallarının C# doğrulaması unity-dogrulama.yml'dedir;
+        # TypeScript alan koşucusu yalnız kayıtlı TypeScript alanları için çalışır.
+        if: ${{ !startsWith(github.head_ref || github.ref_name, 'codex/unity-') && !startsWith(github.head_ref || github.ref_name, 'claude/unity-') }}
         run: node tests/kosucu.mjs alan "${GITHUB_REF_NAME}"
       - name: Rapor
         if: always()
