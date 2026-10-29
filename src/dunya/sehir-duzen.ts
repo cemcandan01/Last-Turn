@@ -67,16 +67,45 @@ export function sehirZemini(x: number, z: number): number {
   return CIM;
 }
 
+/**
+ * LT-SYS-009 semtler (tekdüze ızgara tekinsiz duruyordu): her semtin kendi cephesi, renkleri, yükseklik karakteri ve
+ * sokak dokusu var. cam: güneydeki iş merkezi ve park çevresinin kuleleri · eski: batıda tuğla eski şehir (alçak,
+ * dükkân tenteli) · konut: kuzeyde sıvalı, balkonlu apartmanlar · sanayi: doğuda geniş, alçak depolar · tas: geri kalan
+ * klasik taş binalar
+ */
+export type Semt = "cam" | "eski" | "konut" | "sanayi" | "tas";
+export function semt(x: number, z: number): Semt {
+  if (z < -520) return "cam";
+  if (x > 470) return "sanayi";
+  if (x < -430) return "eski";
+  if (z > 380) return "konut";
+  const dPark = Math.hypot(Math.max(PARK.x0 - x, 0, x - PARK.x1), Math.max(PARK.z0 - z, 0, z - PARK.z1));
+  return dPark < 140 ? "cam" : "tas";
+}
+/** cephe dokusu sırası (çizim): semt → doku */
+export const SEMT_DOKU: Record<Semt, number> = { tas: 0, cam: 1, eski: 2, konut: 3, sanayi: 4 };
+
 export interface Bina {
-  /** yerel merkez, yarı boylar, yükseklik */
+  /** yerel merkez, yarı boylar, yükseklik (kademeli kulede alt gövdenin çatısı) */
   x: number;
   z: number;
   hx: number;
   hz: number;
   y: number;
-  /** cephe ton indeksi (çizim) */
+  /** cephe ton indeksi (çizim; semtin renk listesinde) */
   ton: number;
+  /** cephe dokusu (SEMT_DOKU) */
+  doku: number;
+  /** kademeli kule: aynı merkezde daha dar üst gövde (yarı boylar, tepe yüksekliği) */
+  ust?: { hx: number; hz: number; y: number };
+  /** çatı süsü: 0 yok, 1 su deposu, 2 anten, 3 klima kutuları, 4 baca */
+  cati: number;
+  /** zemin katta renkli dükkân tentesi */
+  tente: boolean;
 }
+
+/** binanın en yüksek noktası (kademeli kulede üst gövdenin tepesi) */
+export const binaTepesi = (b: Bina) => b.ust?.y ?? b.y;
 
 /** blok: caddeler/sokaklar arası (kaldırımlı) dikdörtgen (yerel) */
 export interface Blok {
@@ -86,7 +115,20 @@ export interface Blok {
   z1: number;
 }
 
-let onbellek: { bloklar: Blok[]; binalar: Bina[]; hucre: Map<number, Bina[]> } | null = null;
+/** boş parselde küçük meydan (ağaçlı, açık zemin; çarpışma yok) */
+export interface Meydan {
+  x: number;
+  z: number;
+  hx: number;
+  hz: number;
+}
+
+let onbellek: {
+  bloklar: Blok[];
+  binalar: Bina[];
+  meydanlar: Meydan[];
+  hucre: Map<number, Bina[]>;
+} | null = null;
 
 const hucreNo = (x: number, z: number) =>
   Math.floor((x - CADDELER[0]) / CADDE_ARA) * 100 + Math.floor((z - SOKAKLAR[0]) / SOKAK_ARA);
@@ -96,7 +138,12 @@ export function sehirYuksekligi(x: number, z: number): number {
   if (Math.abs(x) > SEHIR_YARI || Math.abs(z) > SEHIR_YARI) return 0;
   const l = sehirBinalari().hucre.get(hucreNo(x, z));
   // çatı kenarından 1,5 m içeri: yoldaki aracın duvara değen tekeri çatı yüksekliğini görüp fırlamasın
-  if (l) for (const b of l) if (Math.abs(x - b.x) < b.hx - 1.5 && Math.abs(z - b.z) < b.hz - 1.5) return b.y;
+  if (l)
+    for (const b of l)
+      if (Math.abs(x - b.x) < b.hx - 1.5 && Math.abs(z - b.z) < b.hz - 1.5)
+        return b.ust && Math.abs(x - b.x) < b.ust.hx - 1.5 && Math.abs(z - b.z) < b.ust.hz - 1.5
+          ? b.ust.y
+          : b.y;
   return 0;
 }
 
@@ -109,6 +156,7 @@ export function sehirBinalari() {
   const r = mulberry32(0x5e41e),
     bloklar: Blok[] = [],
     binalar: Bina[] = [],
+    meydanlar: Meydan[] = [],
     KALDIRIM = 4;
   for (let i = 0; i + 1 < CADDELER.length; i++)
     for (let j = 0; j + 1 < SOKAKLAR.length; j++) {
@@ -122,7 +170,9 @@ export function sehirBinalari() {
         cz = (b.z0 + b.z1) / 2;
       if (parkIcinde(cx, cz)) continue;
       bloklar.push(b);
-      const parsel = r() < 0.35 ? 2 : 3,
+      const sm = semt(cx, cz),
+        parsel =
+          sm == "sanayi" ? (r() < 0.5 ? 1 : 2) : sm == "eski" ? 3 + (r() < 0.4 ? 1 : 0) : r() < 0.35 ? 2 : 3,
         x0 = b.x0 + KALDIRIM,
         x1 = b.x1 - KALDIRIM,
         z0 = b.z0 + KALDIRIM,
@@ -136,21 +186,55 @@ export function sehirBinalari() {
       for (let k = 0; k < parsel; k++) {
         const bx0 = x0 + k * (w + 3),
           derin = r() < 0.3 ? (z1 - z0) / 2 - 1 : (z1 - z0) / 2;
-        const y = Math.max(
+        let y = Math.max(
           18,
           Math.min(
             260,
             28 + 150 * Math.exp(-dPark / 230) + r() * 45 + merkez * (60 + r() * 120) - (r() < 0.15 ? 15 : 0),
           ),
         );
-        binalar.push({
-          x: bx0 + w / 2,
-          z: r() < 0.5 ? z0 + derin : z1 - derin,
-          hx: w / 2,
-          hz: derin,
-          y,
-          ton: Math.floor(r() * 6),
-        });
+        // semt yükseklik karakteri: eski şehir ve sanayi alçak, konut orta
+        if (sm == "eski") y = 14 + r() * 30;
+        else if (sm == "sanayi") y = 10 + r() * 16 + (r() < 0.12 ? 30 : 0);
+        else if (sm == "konut") y = Math.min(y, 30 + r() * 45);
+        const bx = bx0 + w / 2,
+          bz = r() < 0.5 ? z0 + derin : z1 - derin;
+        // ara sıra boş parsel: ağaçlı küçük meydan (sanayide yok)
+        if (sm != "sanayi" && sm != "cam" && r() < 0.07) {
+          meydanlar.push({ x: bx, z: bz, hx: w / 2, hz: derin });
+          continue;
+        }
+        const cati = r(),
+          b: Bina = {
+            x: bx,
+            z: bz,
+            hx: w / 2,
+            hz: derin,
+            y,
+            ton: Math.floor(r() * 6),
+            doku: SEMT_DOKU[sm],
+            cati:
+              sm == "sanayi"
+                ? cati < 0.35
+                  ? 4
+                  : 3
+                : sm == "cam"
+                  ? cati < 0.5
+                    ? 2
+                    : 3
+                  : cati < 0.45
+                    ? 1
+                    : cati < 0.7
+                      ? 3
+                      : 0,
+            tente: (sm == "eski" || sm == "konut") && r() < 0.7,
+          };
+        // yüksek kulelerin bir kısmı kademeli: alt gövde %55, üstte daralan kule
+        if (y > 90 && r() < 0.55) {
+          b.ust = { hx: b.hx * 0.62, hz: b.hz * 0.62, y };
+          b.y = Math.round(y * 0.55);
+        }
+        binalar.push(b);
       }
     }
   const hucre = new Map<number, Bina[]>();
@@ -158,46 +242,8 @@ export function sehirBinalari() {
     const n = hucreNo(b.x, b.z);
     (hucre.get(n) ?? hucre.set(n, []).get(n)!).push(b);
   }
-  onbellek = { bloklar, binalar, hucre };
+  onbellek = { bloklar, binalar, meydanlar, hucre };
   return onbellek;
-}
-
-/**
- * Kancanın bina tepesi bağlantısı (dünya koordinatı): oyuncunun önünde (bakış yönünde ±0,7 rad), yatayda enAz–enCok m
- * uzaktaki binaların yola bakan çatı kenarı; en yakın uygun olan. Yoksa null. Yükseklik binanın tepesi (en çok 90 m:
- * çok uzun ip savrulmayı kontrolsüz yapar).
- */
-export function binaBaglantisi(
-  x: number,
-  z: number,
-  h: number,
-  enAz: number,
-  enCok: number,
-): [number, number, number] | null {
-  const lx = x - SEHIR_X,
-    lz = z - SEHIR_Z,
-    fx = Math.sin(h),
-    fz = Math.cos(h);
-  let en: [number, number, number] | null = null,
-    enD = Infinity;
-  for (const b of sehirBinalari().binalar) {
-    // binanın oyuncuya en yakın çatı kenarı noktası (yatay)
-    const px = Math.max(b.x - b.hx, Math.min(b.x + b.hx, lx + fx * enCok * 0.6)),
-      pz = Math.max(b.z - b.hz, Math.min(b.z + b.hz, lz + fz * enCok * 0.6)),
-      dx = px - lx,
-      dz = pz - lz,
-      d = Math.hypot(dx, dz);
-    if (d < enAz || d > enCok) continue;
-    const aci = Math.acos(Math.max(-1, Math.min(1, (dx * fx + dz * fz) / (d || 1))));
-    if (aci > 0.7) continue;
-    // önde ve yanda olanı biraz tercih et: savrulma yolu boyunca olur
-    const skor = d * (1 + aci);
-    if (skor < enD) {
-      enD = skor;
-      en = [px + SEHIR_X, Math.min(b.y, 90), pz + SEHIR_Z];
-    }
-  }
-  return en;
 }
 
 /** yerel ızgara düğümü → yerel nokta (cadde i, sokak j) */
@@ -459,4 +505,142 @@ export function sehirYolNoktalari(): [number, number][] {
   for (const z of SOKAKLAR)
     for (let x = -780; x <= 780; x += 10) if (yoldaMi(x, z)) p.push([x + SEHIR_X, z + SEHIR_Z]);
   return p;
+}
+
+/** köşe ipinin merkezcil ivmesi bu kadarı aşmasın diye (m/s²) dönme noktası hızla bloğun içine kayar */
+export const KOSE_MERKEZCIL = 55;
+
+/**
+ * LT-SYS-009 yerde kanca köşesi: oyuncunun gittiği cadde/sokakta önündeki (en çok 40 m; içindeyse de) kavşağın yakın
+ * köşesi (uc: ipin çizildiği kaldırım ucu) ve ipin döndüğü nokta (p). yon +1 sol, −1 sağ, 0 araca yakın taraf. O yana
+ * yan sokak yoksa (park, şehir kenarı) null. Hızlıyken p köşegen boyunca bloğun içine kayar (yarıçap v²/55'e çıkar):
+ * çeyrek dönüş yine yan sokağın ortasında biter ve yörünge köşeden dışarıda kalır (a < 16 m). Dünya koordinatı.
+ */
+export function sehirKosesi(
+  x: number,
+  z: number,
+  h: number,
+  vx: number,
+  vz: number,
+  yon: number,
+): { p: [number, number]; uc: [number, number] } | null {
+  const lx = x - SEHIR_X,
+    lz = z - SEHIR_Z,
+    v = Math.hypot(vx, vz),
+    fx = v > 3 ? vx / v : Math.sin(h),
+    fz = v > 3 ? vz / v : Math.cos(h),
+    // sol: (fz, −fx)
+    sx = fz,
+    sz_ = -fx;
+  let en: { p: [number, number]; uc: [number, number] } | null = null,
+    enA = Infinity;
+  for (const cx of CADDELER)
+    for (const kz of SOKAKLAR) {
+      const rx = cx - lx,
+        rz = kz - lz,
+        ileri = rx * fx + rz * fz,
+        yan = rx * sx + rz * sz_;
+      if (ileri < -6 || ileri > 40 || Math.abs(yan) > 10 || ileri >= enA) continue;
+      // köşe tarafı: istenen ya da aracın yakın olduğu yan (araç merkezin solundaysa sol)
+      const taraf = yon || (yan < 0 ? 1 : -1);
+      // köşeler: kavşak merkezinden ±yarı genişlik; yakın taraf (geride) ve istenen yan
+      let kose: [number, number] | null = null;
+      for (const ax of [-CADDE_YARI, CADDE_YARI])
+        for (const az of [-SOKAK_YARI, SOKAK_YARI]) {
+          const ki = ax * fx + az * fz,
+            ky = ax * sx + az * sz_;
+          if (ki < 0 && Math.sign(ky) == taraf) kose = [cx + ax, kz + az];
+        }
+      if (!kose) continue;
+      // o yönde yan sokak ve köşede blok (park içi değil) olmalı
+      const yanX = cx + sx * taraf * (CADDE_YARI + 12),
+        yanZ = kz + sz_ * taraf * (SOKAK_YARI + 12),
+        blokX = kose[0] + (sx * taraf - fx) * 3,
+        blokZ = kose[1] + (sz_ * taraf - fz) * 3;
+      if (!yoldaMi(yanX, yanZ) || yoldaMi(blokX, blokZ) || parkIcinde(blokX, blokZ)) continue;
+      enA = ileri;
+      // aracın köşeye yanal uzaklığı (doğal yarıçap); hız bunu aşan yarıçap isterse nokta bloğa kayar
+      const yanal = Math.abs((kose[0] - lx) * sx + (kose[1] - lz) * sz_),
+        a = Math.max(0, Math.min(15, (v * v) / KOSE_MERKEZCIL - yanal));
+      en = {
+        p: [kose[0] + (sx * taraf - fx) * a + SEHIR_X, kose[1] + (sz_ * taraf - fz) * a + SEHIR_Z],
+        uc: [kose[0] + SEHIR_X, kose[1] + SEHIR_Z],
+      };
+    }
+  return en;
+}
+
+/**
+ * LT-SYS-009 havada kanca: burnun yönünde (±0,7 rad) 18–65 m ilerideki sokağın orta çizgisi üstünde asılma noktası
+ * (fizik; sokak boyunca savrulur, duvara değil) ve ipin çizildiği yan bina cephesi noktası. Yükseklik yan binaların
+ * tepesine göre (en çok 90 m); yanında oyuncudan en az 8 m yüksek bina yoksa (park, alçak semt) null.
+ */
+export function gokBaglantisi(
+  x: number,
+  y: number,
+  z: number,
+  h: number,
+): { p: [number, number, number]; uc: [number, number, number] } | null {
+  const lx = x - SEHIR_X,
+    lz = z - SEHIR_Z,
+    fx = Math.sin(h),
+    fz = Math.cos(h);
+  let en: { p: [number, number, number]; uc: [number, number, number] } | null = null,
+    enS = Infinity;
+  for (let s = 20; s <= 60; s += 5) {
+    const qx = lx + fx * s,
+      qz = lz + fz * s,
+      adaylar: [number, number][] = [
+        [enYakin(CADDELER, qx), qz],
+        [qx, enYakin(SOKAKLAR, qz)],
+      ];
+    for (const [ax, az] of adaylar) {
+      if (!yoldaMi(ax, az)) continue;
+      const dx = ax - lx,
+        dz = az - lz,
+        d = Math.hypot(dx, dz);
+      if (d < 18 || d > 65) continue;
+      const aci = Math.acos(Math.max(-1, Math.min(1, (dx * fx + dz * fz) / d)));
+      if (aci > 0.7) continue;
+      const skor = aci * 40 + Math.abs(d - 38);
+      if (skor >= enS) continue;
+      // yan binalar: en yüksek tepe ve ipin çizileceği cephe noktası
+      let tepe = 0,
+        uc: [number, number] | null = null,
+        ucD = Infinity;
+      for (const b of yakinBinalar(ax, az, 30)) {
+        const by = binaTepesi(b);
+        if (by > tepe) tepe = by;
+        const px = Math.max(b.x - b.hx, Math.min(b.x + b.hx, ax)),
+          pz = Math.max(b.z - b.hz, Math.min(b.z + b.hz, az)),
+          bd = Math.hypot(px - ax, pz - az);
+        if (by > y + 8 && bd < ucD) {
+          ucD = bd;
+          uc = [px, pz];
+        }
+      }
+      if (!uc || tepe < y + 8) continue;
+      const py = Math.max(y + 12, Math.min(tepe, 90) * 0.92);
+      enS = skor;
+      en = {
+        p: [ax + SEHIR_X, py, az + SEHIR_Z],
+        uc: [uc[0] + SEHIR_X, Math.min(py, tepe), uc[1] + SEHIR_Z],
+      };
+    }
+  }
+  return en;
+}
+
+/** yerel noktanın r m çevresindeki binalar (hücre ızgarasından) */
+function yakinBinalar(x: number, z: number, r: number): Bina[] {
+  const { hucre } = sehirBinalari(),
+    out: Bina[] = [];
+  for (let dx = -1; dx <= 1; dx++)
+    for (let dz = -1; dz <= 1; dz++) {
+      const l = hucre.get(hucreNo(x + dx * CADDE_ARA, z + dz * SOKAK_ARA));
+      if (l)
+        for (const b of l)
+          if (Math.abs(x - b.x) < b.hx + r && Math.abs(z - b.z) < b.hz + r && !out.includes(b)) out.push(b);
+    }
+  return out;
 }

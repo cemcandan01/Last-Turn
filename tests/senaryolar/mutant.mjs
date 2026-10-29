@@ -26,13 +26,13 @@ export default [
   },
   {
     id: "mutant-kule-sehri",
-    ad: "LT-SYS-008 Kule Şehri: boss sonrası şehre geçiş, sokak yarışı rotası ve rakibi, Volt Kanat uçuşu, kancanın bina sarkacı",
+    ad: "LT-SYS-008/009 Kule Şehri: boss sonrası şehre geçiş, sokak yarışı rotası ve rakibi, kanca köşede parlar ve döndürür, basılı Volt uçuşu, havada sürükleyerek burun, havada bina sarkacı (enerjisiz)",
     p: 1,
     tarayici: "mutant-sehir",
   },
   {
     id: "mutant-sehir-kurali",
-    ad: "LT-SYS-008 şehir düzeni, rotalar, uçuş ve sarkaç gerçek fizikte",
+    ad: "LT-SYS-008/009 şehir düzeni, rotalar, köşe/hava kancası, basılı Volt, 360° hava kontrolü ve havada nitro gerçek fizikte",
     p: 1,
     birim: { dosya: "tests/birim/sehir.test.ts", grup: "LT-SYS-008 Kule Şehri" },
   },

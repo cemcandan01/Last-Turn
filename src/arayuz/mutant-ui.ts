@@ -926,7 +926,14 @@ export function mutantArayuzuKur(yeni: () => void, menu: () => void) {
     if (e.key == "n" || e.key == "N") mutant.nitro = true;
     // skill tuşları: 1/2/3 yuva sırasıyla
     const o = mutant.kosu.beceriler[+e.key - 1];
-    if (o && "123".includes(e.key)) mutant.beceriIstek.push(o.id);
+    if (o && "123".includes(e.key) && !e.repeat) {
+      mutant.beceriIstek.push(o.id);
+      if (!mutant.beceriBasili.includes(o.id)) mutant.beceriBasili = [...mutant.beceriBasili, o.id];
+    }
+  });
+  addEventListener("keyup", (e) => {
+    const o = mutant.kosu?.beceriler[+e.key - 1];
+    if (o) mutant.beceriBasili = mutant.beceriBasili.filter((q) => q != o.id);
   });
   mutant.ui = {
     hasar: (tur, pert) => {
@@ -1014,7 +1021,7 @@ const BECERI_IKON: Record<string, IkonAdi> = {
 
 /**
  * NİTRO ve skill yuvaları (koşuda; kontroller.ts sol grubun üstüne koyar). Yuva: solda ikon ve seviye (1-3 çentik),
- * sağda kısa ad ve durum (maliyet, kalan süre, bekleme ya da kullanılamama nedeni); dolgu: etki/bekleme/enerji/bar
+ * sağda kısa ad ve durum (HAZIR ya da kalan hak, kalan süre, bekleme ya da kullanılamama nedeni); dolgu: etki/bekleme/bar
  */
 export const mutantTusuHtml = () =>
   mutant.kosu
@@ -1046,12 +1053,22 @@ export function mutantTusuBagla() {
     v.preventDefault();
     mutant.nitro = true;
   });
-  document.querySelectorAll<HTMLElement>("[data-beceri]").forEach((b) =>
+  document.querySelectorAll<HTMLElement>("[data-beceri]").forEach((b) => {
+    const id = b.dataset.beceri!,
+      birak = () => void (mutant.beceriBasili = mutant.beceriBasili.filter((q) => q != id));
     b.addEventListener("pointerdown", (v) => {
       v.preventDefault();
-      mutant.beceriIstek.push(b.dataset.beceri!);
-    }),
-  );
+      mutant.beceriIstek.push(id);
+      // basılı tutma (Volt basılı tuttukça uçar): parmak kalkana dek
+      if (!mutant.beceriBasili.includes(id)) mutant.beceriBasili = [...mutant.beceriBasili, id];
+      try {
+        b.setPointerCapture?.(v.pointerId);
+      } catch {
+        /* yapay olay */
+      }
+    });
+    for (const n of ["pointerup", "pointercancel", "lostpointercapture"]) b.addEventListener(n, birak);
+  });
 }
 
 /** son reddedilen skill isteği: yuvası kısa süre kırmızı yanar (neden alt satırda) */
@@ -1089,23 +1106,25 @@ export function mutantTusuGuncelle() {
       dolgu = b.bar / 100;
       yazi = engel ? ENGEL_YAZISI[engel] : "%" + b.bar;
       durum = engel ? "engel" : b.bar >= 75 ? "hazir" : "";
-    } else if (engel == "enerji") {
-      dolgu = Math.min(1, d.enerji / Math.max(b.maliyet, 1));
-      yazi = Math.floor(d.enerji) + "/" + Math.round(b.maliyet);
-      durum = "engel";
     } else if (engel) {
       dolgu = 1;
       yazi = ENGEL_YAZISI[engel];
       durum = "engel";
     } else {
-      dolgu = 1;
-      yazi = String(Math.round(b.maliyet));
+      // hazır: haklı skill'de kalan hak (sonraki hak dolarken dolgu ilerler)
+      dolgu = b.sarjUst && b.sarj < b.sarjUst ? 1 - b.bekleme / Math.max(b.beklemeTam, 0.01) : 1;
+      yazi = b.sarjUst > 1 ? "×" + b.sarj : "HAZIR";
       durum = "hazir";
     }
     const w = Math.round(100 * Math.max(0, Math.min(1, dolgu))) + "%",
-      c = "k mbk" + (b.tur == "tetikli" ? " mbo" : "") + (durum ? " " + durum : "") + (red ? " red" : ""),
+      c =
+        "k mbk" +
+        (b.tur == "tetikli" ? " mbo" : "") +
+        (durum ? " " + durum : "") +
+        (durum == "hazir" && b.hedefNokta ? " parla" : "") +
+        (red ? " red" : ""),
       u = t.querySelector("u")!,
-      html = b.bar == null && !b.acik && durum != "bekle" && !engel ? yazi + ikon("enerji") : yazi;
+      html = yazi;
     if (t.style.getPropertyValue("--e") != w) t.style.setProperty("--e", w);
     if (t.className != c) t.className = c;
     if (u.dataset.h != html) {

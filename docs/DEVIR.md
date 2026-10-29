@@ -1,3 +1,9 @@
+# Son devir: 0.8.18 denemede — MUTANT bekleme süreli skill'ler, 360° hava kontrolü, köşe/hava kancası, semtli şehir (LT-SYS-009)
+
+- Claude / claude/mutant-hava-kontrol. Kart `docs/isler/LT-SYS-009-mutant-hava-kontrol.md`. Skill'ler enerjisiz (bekleme/hak; nitro enerjide), kanca aç/kapa + seviye kadar hak + köşe/rakip/sokak üstü hedef + parlama, Volt basılı 3 sn yukarı+ileri, havada sürükleyerek burun ve havada nitro, şehirde 5 semt.
+- Yerel: kontrol temiz (2 eski uyarı), npm test 465/465, alan mutant 26/26 (bir senaryo düzeltme sonrası tek başına). Açık: denge ve iPhone 13 performansı; "her level" skill seviyesi diye yorumlandı.
+- Sonraki tek adım: Cem /dev/ 0.8.18'de şehirde (DEV → Kule Şehri'ne git) kancayı kavşakta, Volt'u basılı tutup burnu sürükleyerek denesin.
+
 # Son devir: 0.8.17 denemede — DEV panelinden Kule Şehri'ne doğrudan geçiş
 
 - Claude / claude/mutant-sehir-dev. DEV atölyesinde "KULE ŞEHRİ'NE GİT" (bölge 2, şehrin girişi, sürüş). Kovalamaca rakibi pist boyunca 45 m önde (aralıklı e2e kalışı düzeldi).

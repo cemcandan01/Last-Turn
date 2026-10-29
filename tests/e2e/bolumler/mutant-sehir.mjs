@@ -1,7 +1,8 @@
 /* global LT */
-// LT-SYS-008 Kule Şehri: boss yenilince koşu şehre geçer (etkinlikler sokak yarışı, işaretler şehirde); sokak
-// kovalamacası şehir rotasında rakip önde kalkar; Volt Kanat aracı binaların hizasına kaldırır; kanca şehirde bina
-// tepesine takılıp aracı yerden kaldırır. Ekran görüntüleri: tests/cikti/mutant-sehir*.png
+// LT-SYS-008/009 Kule Şehri: boss yenilince koşu şehre geçer (etkinlikler sokak yarışı, işaretler şehirde); sokak
+// kovalamacası şehir rotasında rakip önde kalkar; kanca kavşakta parlar ve köşede döndürür; Volt Kanat basılı
+// tutunca yükselir, havada ekranı kaydırmak burnu çevirir; havada kanca sokağın üstüne asılır. Skill'ler enerjisiz.
+// Ekran görüntüleri: tests/cikti/mutant-sehir*.png
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -117,24 +118,37 @@ export default async function ({ p, ok }) {
       LT.mutant.etkinlik = null;
       document.querySelector("#res").classList.add("hidden");
       LT.oyun.mode = "drive";
-      // Volt Kanat: yükselir
-      k.beceriler = [{ id: "volt-kanat", seviye: 2, eklentiler: [], evrim: null }];
-      k.mek = { ...k.mek, enerji: 100 };
+      // LT-SYS-009 kanca köşede: kavşağa yaklaşırken tuş ve köşe parlar; atınca köşede döner
+      k.beceriler = [
+        { id: "grappling-hook", seviye: 3, eklentiler: [], evrim: null },
+        { id: "volt-kanat", seviye: 2, eklentiler: [], evrim: null },
+      ];
+      k.mek = { ...k.mek, enerji: 0 };
       LT.kontrolleriKur();
-      LT.reset(9000 - 540, -700, 0);
-      LT.I.g = 1;
-      await bekle(1500);
-      const bas = (id) =>
-        document
-          .querySelector(`#ctl [data-beceri='${id}']`)
-          .dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true }));
-      bas("volt-kanat");
-      r.ucus = await olana(() => (LT.sim.yeni?.py ?? 0) > 20);
-      r.ucusY = LT.sim.yeni?.py;
+      const yuva = (id) => document.querySelector(`#ctl [data-beceri='${id}']`),
+        bas = (id) =>
+          yuva(id).dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true }));
+      LT.reset(9000 - 540 + 2, -468 - 110, 0);
+      LT.I.g = 0.8;
+      // blok ortasında (geride kalan kavşaktan 10 m sonra, öndeki kavşağa 45 m'den uzak) hiç parlamaz
+      r.parlamaYok = true;
+      r.blokOrtasi = await olana(() => {
+        const z = LT.sim.S.z;
+        if (z > -536 && z < -514 && yuva("grappling-hook").classList.contains("parla")) r.parlamaYok = false;
+        return z >= -514;
+      }, 20000);
+      r.parla = await olana(() => yuva("grappling-hook").classList.contains("parla"), 8000);
+      r.hedefNokta = !!LT.mutantDurumu().beceriler.find((b) => b.id == "grappling-hook").hedefNokta;
+      bas("grappling-hook");
+      r.kose = await olana(() => k.bec.yerel["grappling-hook"]?.hedef == "#kose", 2000);
+      const h0 = LT.sim.S.h;
+      r.dondu = await olana(() => Math.abs(LT.sim.S.h - h0) > 1, 6000);
+      r.enerjisiz = k.mek.enerji < 40;
+      LT.I.g = 0;
       return r;
     }),
   );
-  await foto("mutant-sehir-ucus.png");
+  await foto("mutant-sehir-kose.png");
   Object.assign(
     r,
     await p.evaluate(async () => {
@@ -145,20 +159,69 @@ export default async function ({ p, ok }) {
         return f();
       };
       const k = LT.mutant.kosu,
-        r = {};
-      await olana(() => (LT.sim.yeni?.py ?? 9) < 2, 20000);
-      // kanca: şehirde bina tepesine sarkaç
-      k.beceriler = [{ id: "grappling-hook", seviye: 3, eklentiler: [], evrim: null }];
-      k.mek = { ...k.mek, enerji: 100 };
-      LT.kontrolleriKur();
-      LT.reset(9000 - 540, -600, 0);
+        r = {},
+        yuva = (id) => document.querySelector(`#ctl [data-beceri='${id}']`),
+        bas = (id) =>
+          yuva(id).dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true })),
+        birak = (id) =>
+          yuva(id).dispatchEvent(new PointerEvent("pointerup", { bubbles: true, cancelable: true }));
+      // Volt Kanat: basılı tuttukça yükselir (enerji yokken de)
+      k.bec.yerel["volt-kanat"] = { ...(k.bec.yerel["volt-kanat"] ?? {}), kalan: 0, bekleme: 0 };
+      LT.reset(9000 - 540, -700, 0);
       LT.I.g = 1;
-      await bekle(1800);
-      document
-        .querySelector("#ctl [data-beceri='grappling-hook']")
-        .dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true }));
-      r.sarkac = await olana(() => k.bec.yerel["grappling-hook"]?.hedef == "#bina", 3000);
-      r.havada = await olana(() => (LT.sim.yeni?.py ?? 0) > 2.5, 6000);
+      await bekle(1500);
+      bas("volt-kanat");
+      r.ucus = await olana(() => (LT.sim.yeni?.py ?? 0) > 15);
+      r.ucusY = LT.sim.yeni?.py;
+      // havada ekranı aşağı kaydırmak burnu kaldırır (kamera yerine)
+      const cvs = document.querySelector("canvas"),
+        b = cvs.getBoundingClientRect(),
+        x = b.left + b.width * 0.5,
+        y = b.top + b.height * 0.3,
+        burun = () => {
+          const Y = LT.sim.yeni;
+          return 2 * (Y.qy * Y.qz - Y.qw * Y.qx);
+        };
+      const n0 = burun();
+      cvs.dispatchEvent(
+        new PointerEvent("pointerdown", { bubbles: true, pointerId: 7, clientX: x, clientY: y }),
+      );
+      for (let i = 1; i <= 6; i++) {
+        cvs.dispatchEvent(
+          new PointerEvent("pointermove", { bubbles: true, pointerId: 7, clientX: x, clientY: y + i * 15 }),
+        );
+        await bekle(40);
+      }
+      await bekle(300);
+      r.burunKalkti = burun() - n0 > 0.3;
+      r.burun = [n0, burun()];
+      cvs.dispatchEvent(
+        new PointerEvent("pointerup", { bubbles: true, pointerId: 7, clientX: x, clientY: y + 90 }),
+      );
+      birak("volt-kanat");
+      return r;
+    }),
+  );
+  await foto("mutant-sehir-ucus.png");
+  Object.assign(
+    r,
+    await p.evaluate(async () => {
+      const bekle = (ms) => new Promise((s) => setTimeout(s, ms));
+      const k = LT.mutant.kosu,
+        r = {};
+      // Volt bitince havadayken kanca: sokağın üstüne asılır (bina sarkacı)
+      const kancaAt = () =>
+        document
+          .querySelector("#ctl [data-beceri='grappling-hook']")
+          .dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true }));
+      r.sarkac = false;
+      for (let i = 0; i < 40 && !r.sarkac && (LT.sim.yeni?.py ?? 0) > 4; i++) {
+        if ((k.bec.yerel["grappling-hook"]?.kalan ?? 0) <= 0 && LT.mutantDurumu().beceriler[0].hazir)
+          kancaAt();
+        await bekle(100);
+        r.sarkac = k.bec.yerel["grappling-hook"]?.hedef == "#bina";
+      }
+      r.havada = (LT.sim.yeni?.py ?? 0) > 2.5;
       return r;
     }),
   );
@@ -175,6 +238,12 @@ export default async function ({ p, ok }) {
     "sokak yarışı şehir rotasında, rakip (kovalamacada önde), HUD " +
       JSON.stringify({ rota: r.rota, rakip: r.rakip, onde: r.onde, hud: r.hud }),
   );
-  ok(r.ucus, "Volt Kanat aracı 20 m'nin üstüne kaldırır");
-  ok(r.sarkac && r.havada, "kanca şehirde bina tepesine takılır, aracı yerden kaldırır");
+  ok(
+    r.blokOrtasi && r.parlamaYok && r.parla && r.hedefNokta && r.kose && r.dondu && r.enerjisiz,
+    "kanca blok ortasında parlamaz, kavşağa yaklaşınca parlar; köşeye takılıp aracı döndürür (enerjisiz) " +
+      JSON.stringify({ parlamaYok: r.parlamaYok, parla: r.parla, kose: r.kose, dondu: r.dondu }),
+  );
+  ok(r.ucus, "Volt Kanat basılı tutunca aracı 15 m'nin üstüne kaldırır (enerji yokken de)");
+  ok(r.burunKalkti, "havada ekranı aşağı kaydırmak burnu kaldırır " + JSON.stringify(r.burun));
+  ok(r.sarkac && r.havada, "havada kanca sokağın üstüne asılır (bina sarkacı)");
 }

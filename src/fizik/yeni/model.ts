@@ -753,7 +753,19 @@ export function yeniAdim(
       Fx += m * cx.dis.x;
       Fz += m * cx.dis.z;
     }
-    if (cx.ucus) ucusDenetimi(cx.ucus, Y, UST, st, h, (fy) => (Fy += m * fy));
+    if (cx.ucus)
+      ucusDenetimi(
+        cx.ucus,
+        Y,
+        UST,
+        ON,
+        SOL,
+        st,
+        h,
+        temasN,
+        Y.py - W.H(Y.px, Y.pz),
+        (f) => ((Fx += m * f.x), (Fy += m * f.y), (Fz += m * f.z)),
+      );
     // tümleştirme (yarı örtük Euler)
     Y.vx += (Fx / m) * h;
     Y.vy += (Fy / m) * h;
@@ -941,27 +953,69 @@ function carpismalar(d: SimDurumu, Y: YeniDurum, F: AracFizigi, cx: FizikBaglami
 }
 
 /**
- * MUTANT uçuş/sarkaç (LT-SYS-008, yalnız cx.ucus verilince): dikey ivme kuvvet olarak; denge > 0 iken açısal hız
- * gövdeyi dikleştirecek, yalpa direksiyona göre dönecek biçimde yumuşakça yönlendirilir (havada teker yok, yönü
- * oyuncu böyle tutar). Konum yazılmaz.
+ * MUTANT uçuş/sarkaç ve hava kontrolü (LT-SYS-008/009, yalnız cx.ucus verilince): dikey ivme ve burun yönünde itki
+ * (havadayken) kuvvet olarak. Havada (teker değmiyor, yerden yüksek) parmakla sürükleme açısal hızı yönetir: burun
+ * kalkar/iner (gövdenin yan ekseni), sağa/sola döner (dünya dikeyi), yatış düzeltilir. Parmak yokken duruş korunur;
+ * denge > 0 (skill) ya da yere yakın düşerken gövde dikleşir, direksiyon yalpayı yönetir. Yerde denge > 0 yalnız
+ * devrilmeyi önler. Konum yazılmaz.
  */
 function ucusDenetimi(
-  u: { y: number; denge: number },
+  u: NonNullable<FizikBaglami["ucus"]>,
   Y: YeniDurum,
-  UST: { x: number; y: number; z: number },
+  UST: V,
+  ON: V,
+  SOL: V,
   st: number,
   h: number,
-  dikey: (fy: number) => void,
+  temas: number,
+  yukseklik: number,
+  kuvvet: (f: V) => void,
 ) {
-  if (Number.isFinite(u.y)) dikey(u.y);
+  const havada = temas == 0 && yukseklik > UCUS_HAVA,
+    itki = havada && Number.isFinite(u.ileri) ? (u.ileri ?? 0) : 0;
+  F_U.x = ON.x * itki;
+  F_U.y = (Number.isFinite(u.y) ? u.y : 0) + ON.y * itki;
+  F_U.z = ON.z * itki;
+  // süzülme: düşüş hızı sınırı (Volt sonrası iniş)
+  if (havada && u.inis && Y.vy < -u.inis) F_U.y += Math.min(60, (-u.inis - Y.vy) * 6);
+  kuvvet(F_U);
+  if (u.yalpa !== undefined && Number.isFinite(u.yalpa)) Y.oy += (u.yalpa - Y.oy) * Math.min(1, 40 * h);
   const d = Math.max(0, Math.min(1, u.denge || 0));
-  if (!(d > 0)) return;
-  const k = 14 * d * h,
-    c = 5 * d * h;
+  if (havada && u.hava) {
+    const yaklas = Math.min(1, 10 * h);
+    // yere yakın ve düşüyor (ya da skill dengesi): parmak yokken gövde dikleşir (düzgün iniş)
+    const dusus = Math.max(0, -Y.vy),
+      inise = yukseklik < 3 + dusus * 0.7;
+    if (u.hava.parmak) {
+      // burun ekseni: yan eksen (SOL) çevresinde; + yunuslama burnu kaldırır (SOL çevresinde − dönüş)
+      const p = -cl(u.hava.yunus, -6, 6),
+        yw = cl(u.hava.yalpa, -6, 6),
+        // yatış düzeltme: yan eksen yatay kalsın (burun ekseni çevresinde)
+        r = -3 * SOL.y;
+      Y.ox += (SOL.x * p + ON.x * r - Y.ox) * yaklas;
+      Y.oy += (SOL.y * p + yw + ON.y * r - Y.oy) * yaklas;
+      Y.oz += (SOL.z * p + ON.z * r - Y.oz) * yaklas;
+      return;
+    }
+    if (!(d > 0) && !inise) {
+      // duruş korunur: savrulma söner, direksiyon yön verir
+      Y.ox -= Y.ox * yaklas * 0.5;
+      Y.oz -= Y.oz * yaklas * 0.5;
+      Y.oy += (UCUS_YALPA * st - Y.oy) * yaklas * 0.3;
+      return;
+    }
+  }
+  const dd = havada && u.hava ? Math.max(d, 1) : d;
+  if (!(dd > 0)) return;
+  const k = 14 * dd * h,
+    c = 5 * dd * h;
   Y.ox += k * -UST.z - c * Y.ox;
   Y.oz += k * UST.x - c * Y.oz;
-  Y.oy += (UCUS_YALPA * st - Y.oy) * 3 * d * h;
+  if (havada) Y.oy += (UCUS_YALPA * st - Y.oy) * 3 * dd * h;
 }
 
+const F_U = v3();
 /** uçuşta tam direksiyonun yalpa hızı (rad/s) */
 export const UCUS_YALPA = 1.6;
+/** ağırlık merkezinin zeminden bu kadar (m) yüksekte ve tekerler boştayken araç havada sayılır */
+export const UCUS_HAVA = 1.3;

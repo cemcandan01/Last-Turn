@@ -18,7 +18,9 @@ import {
   beceriEngeli,
   beceriEklentisiBul,
   beceriIstekleri,
-  beceriMekanigi,
+  beceriHedefNoktasi,
+  KANCA,
+  sarjSayisi,
   eklentiUyar,
   parametre,
   yakinlikGozlemi,
@@ -489,6 +491,8 @@ export interface Kosu {
   bekleyenBeceri: BeceriOlayi[];
   /** son adımda skill'in kullanılamama/dolmama nedeni (HUD; enerji ayrıca beceriGorunumu'nde) */
   becEngel: Record<string, BeceriEngeli | null>;
+  /** LT-SYS-009: hazır skill'in atılacağı nokta (kanca hedefi parlar); yoksa null */
+  becHedef: Record<string, [number, number, number] | null>;
   /** yapılan seçim sayısı (skill teklifinin tohumu; ana rastgelelik sırası değişmesin diye ayrı) */
   secimNo: number;
 }
@@ -685,6 +689,7 @@ export function kosuBaslat(tohum: number, pistler: readonly PistAdayi[], test = 
     becCikti: null,
     bekleyenBeceri: [],
     becEngel: {},
+    becHedef: {},
     secimNo: 0,
   };
   k.secenekler = secenekCek(k);
@@ -798,6 +803,7 @@ export function testBeceriAyarla(
   k.bec = beceriDurumuBaslat();
   k.becCikti = null;
   k.becEngel = {};
+  k.becHedef = {};
   k.bekleyenBeceri = [];
   k.mek = kapasiteUygula(k.mek, takiliMekanikler(k));
   return true;
@@ -814,6 +820,7 @@ export function testKurulumunuSifirla(k: Kosu): boolean {
   k.bec = beceriDurumuBaslat();
   k.becCikti = null;
   k.becEngel = {};
+  k.becHedef = {};
   k.bekleyenBeceri = [];
   k.bekleyenHasar = null;
   k.bekleyenRisk = null;
@@ -836,18 +843,13 @@ export function testBolgeyeGec(k: Kosu, bolge: number, pistler: readonly PistAda
   return true;
 }
 
-/** takılı enerji mekanikleri: her koşuda NITRO + temel sürüş enerjisi + pasiflerin mekanikleri + etkin skill'lerin enerji tanımı */
-export const takiliMekanikler = (
-  k: Pick<Kosu, "pasifler"> & { beceriler?: BeceriOrnegi[] },
-): MekanikTanim[] => [
+/** takılı enerji mekanikleri: her koşuda NITRO + temel sürüş enerjisi + pasiflerin mekanikleri. LT-SYS-009: etkin
+ *  skill'ler enerji harcamaz (yalnız bekleme/hak), enerji nitroyu besler */
+export const takiliMekanikler = (k: Pick<Kosu, "pasifler">): MekanikTanim[] => [
   NITRO,
   SURUS_ENERJISI,
   ...k.pasifler.flatMap((id) => {
     const m = pasifBul(id)?.m;
-    return m ? [m] : [];
-  }),
-  ...(k.beceriler ?? []).flatMap((o) => {
-    const m = beceriMekanigi(o);
     return m ? [m] : [];
   }),
 ];
@@ -1050,17 +1052,11 @@ export function enerjiAdimi(
   const yg = yakinlikGozlemi(k.bec, dunya, ed?.engeller ?? [], dt, ed?.carpti ?? false);
   k.bec = yg.d;
   for (const o of [...k.bekleyenBeceri, ...yg.olaylar]) ekle({ ...o, sira: 0 } as GirisOlayi);
-  for (const y of beceriIstekleri(k.bec, k.beceriler, dunya, ed?.istekler ?? []))
-    ekle({ tur: "AbilityActivated", sira: 0, yetenek: y });
+  const tetiklenen = beceriIstekleri(k.bec, k.beceriler, dunya, ed?.istekler ?? []);
   k.bekleyenRisk = null;
   k.bekleyenHasar = null;
   k.bekleyenBeceri = [];
-  const once = k.mek;
   k.mek = mekanikAdimi(k.mek, olaylar, takiliMekanikler(k), true, dt);
-  // enerjisi bu adımda harcanan etkin skill'ler başlar
-  const tetiklenen = Object.keys(k.mek.sonTetik).filter(
-    (id) => id.startsWith("beceri:") && k.mek.sonTetik[id] == k.mek.adim && once.sonTetik[id] != k.mek.adim,
-  );
   const b = beceriAdimi(k.bec, k.beceriler, dunya, tetiklenen, olaylar, dt);
   k.bec = b.d;
   k.becCikti = b.cikti;
@@ -1068,23 +1064,26 @@ export function enerjiAdimi(
   k.becEngel = Object.fromEntries(
     k.beceriler.map((o) => [o.id, beceriEngeli(k.bec, k.beceriler, dunya, o.id)]),
   );
+  k.becHedef = Object.fromEntries(
+    k.beceriler.map((o) => [o.id, beceriHedefNoktasi(k.bec, k.beceriler, dunya, o.id)]),
+  );
   return gucCarpani(k.mek) != g0 || (c0?.guc ?? 1) != b.cikti.guc || (c0?.tutus ?? 1) != b.cikti.tutus;
 }
 
 /** skill'in HUD'da gösterilen kullanılamama nedeni: skill'in kendi engeli ya da enerji */
-export type BeceriHudEngeli = BeceriEngeli | "enerji";
+export type BeceriHudEngeli = BeceriEngeli;
 
 /** skill tuşunun ve barının durumu (HUD ve efektler için salt okunur) */
 export function beceriGorunumu(k: Kosu) {
-  const mekP = parametreler(takiliMekanikler(k)).maliyet;
   return k.beceriler.map((o) => {
     const t = beceriBul(o.id)!,
       y = k.bec.yerel[o.id],
       p = parametre(t, o),
-      maliyet = (t.maliyet ?? 0) * mekP,
-      engel0 = k.becEngel[o.id] ?? null,
-      engel: BeceriHudEngeli | null =
-        engel0 ?? (t.tur == "aktif" && k.mek.enerji < maliyet ? "enerji" : null);
+      engel: BeceriHudEngeli | null = k.becEngel[o.id] ?? null,
+      // hak: kalan hak ve sonraki hakka kalan süre (bekleme yerine)
+      sarjUst = p.sarj ?? 0,
+      sarj = sarjUst && y ? sarjSayisi(y, p) : sarjUst,
+      bekleme = sarjUst ? (sarj < sarjUst ? Math.max(0, p.bekleme - (y?.dolum ?? 0)) : 0) : (y?.bekleme ?? 0);
     return {
       id: o.id,
       ad: t.ad,
@@ -1094,13 +1093,16 @@ export function beceriGorunumu(k: Kosu) {
       eklentiler: o.eklentiler,
       acik: (y?.kalan ?? 0) > 0,
       kalan: y?.kalan ?? 0,
-      bekleme: y?.bekleme ?? 0,
+      bekleme,
+      sarj,
+      sarjUst,
       /** bu seviyede etki süresi ve bekleme (sn): dolgu oranı için */
-      sure: p.sure ?? 0,
+      sure: p.sure ?? (t.birak ? KANCA.enUzun : 0),
       beklemeTam: p.bekleme ?? 0,
       bar: t.bar ? Math.round(100 * Math.max(0, Math.min(1, y ? t.bar(y, p) : 0))) : null,
-      maliyet,
       engel,
+      /** hazırken atılacağı nokta (kanca hedefi parlaması) */
+      hedefNokta: k.becHedef[o.id] ?? null,
       /** etki sürerken bağlantı (kanca): rakibin kimliği ya da yol noktası */
       hedef: (y?.kalan ?? 0) > 0 ? (y?.hedef ?? null) : null,
       nokta: (y?.kalan ?? 0) > 0 ? (y?.nokta ?? null) : null,

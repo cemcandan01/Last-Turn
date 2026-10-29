@@ -1,9 +1,9 @@
 /* global LT */
-// LT-SYS-005 skill'ler hissedilir ve anlaşılır: açık dünyada (serbest sürüş) üç yuva ikon/seviye/durum gösterir;
-// kanca asfalt yola tutunur, halat görünür, enerji harcanır; yolsuz arazide istek reddedilir (HEDEF YOK, kırmızı yuva,
-// enerji gitmez); Flying Dutchman gövdeyi hayalete çevirir ve faz bitince geri alır; Risk Taker dönüşümünde kor
-// alevleri ve kalan süre görünür; enerji yetmeyince yuva "x/y". Gölgeler kapalıyken (en düşük görüntü ayarı) de
-// efektler aynı. Ekran görüntüleri (iPhone 13 yatay): tests/cikti/beceri-kanca.png, -hayalet.png, -alev.png
+// LT-SYS-005/009 skill'ler hissedilir ve anlaşılır: açık dünyada (serbest sürüş) üç yuva ikon/seviye/durum gösterir;
+// Çorak'ta köşe ve rakip yok: kanca reddedilir (HEDEF YOK, kırmızı yuva); Flying Dutchman gövdeyi hayalete çevirir ve
+// faz bitince geri alır; Risk Taker dönüşümünde kor alevleri ve kalan süre görünür; skill enerji istemez (enerji
+// azken de HAZIR). Gölgeler kapalıyken (en düşük görüntü ayarı) de efektler aynı. Kancanın köşe/bina tutunması
+// mutant-sehir'de. Ekran görüntüleri (iPhone 13 yatay): tests/cikti/beceri-hayalet.png, -alev.png
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -54,7 +54,7 @@ export default async function ({ p, ok }) {
     });
     r.seviye = yuva("grappling-hook").querySelector("em").dataset.sv == "2";
 
-    // yolsuz arazide, yola sırtı dönük: kanca reddedilir, enerji gitmez, neden yazılır
+    // Çorak açık dünyasında köşe ve rakip yok: kanca reddedilir, neden yazılır
     LT.reset(640, -760, Math.PI / 2);
     await bekle(400);
     const e0 = k.mek.enerji,
@@ -68,34 +68,10 @@ export default async function ({ p, ok }) {
       yuva("grappling-hook").textContent.includes("HEDEF YOK") &&
       k.mek.enerji >= e0;
 
-    // düz asfalt yolda kuzeye hızlan, kanca yola tutunur: halat görünür, enerji gider
     LT.reset(210, -500, 0);
     LT.I.g = 1;
-    await bekle(1500);
-    r.e1 = k.mek.enerji;
-    bas("grappling-hook");
-    await bekle(120);
     return r;
   });
-  // halat bağlıyken görüntü
-  await goruntu("beceri-kanca.png");
-  Object.assign(
-    r,
-    await deger(async () => {
-      const bekle = (ms) => new Promise((s) => setTimeout(s, ms));
-      const k = LT.mutant.kosu;
-      let halat = LT.beceriEfektBilgisi().halat,
-        tutundu = !!k.bec.yerel["grappling-hook"]?.nokta;
-      for (let i = 0; i < 8; i++) {
-        tutundu ||= !!k.bec.yerel["grappling-hook"]?.nokta;
-        halat ||= LT.beceriEfektBilgisi().halat;
-        await bekle(50);
-      }
-      const t = document.querySelector("#ctl [data-beceri='grappling-hook']");
-      return { tutundu, halat, harcadi: k.mek.enerji, kancaYazi: /\d,\d sn/.test(t.textContent) };
-    }),
-  );
-  r.kanca = r.tutundu && r.halat && r.harcadi <= r.e1 - 20;
 
   const r2 = await deger(async () => {
     const bekle = (ms) => new Promise((s) => setTimeout(s, ms));
@@ -144,15 +120,13 @@ export default async function ({ p, ok }) {
     const k = LT.mutant.kosu,
       yuva = (id) => document.querySelector(`#ctl [data-beceri='${id}']`);
     LT.I.g = 0;
-    // bekleme bitmiş say: yuva yalnız enerjiyi göstersin
+    // bekleme bitmiş say: enerji çok azken de skill hazır (LT-SYS-009: skill'ler yalnız bekleme süresiyle)
     k.bec.yerel["flying-dutchman"].bekleme = 0;
     k.mek = { ...k.mek, enerji: 7 };
     await bekle(300);
     const t = yuva("flying-dutchman");
-    // maliyet pasif değiştiricilerle değişir (önceki bölümlerde kazanılan pasifler): oyunun hesapladığıyla karşılaştır
-    const mal = Math.round(LT.mutantDurumu().beceriler.find((b) => b.id == "flying-dutchman").maliyet);
     const r = {
-      enerji: t.classList.contains("engel") && t.textContent.includes("7/" + mal) && mal > 7,
+      enerji: t.classList.contains("hazir") && t.textContent.includes("HAZIR"),
       yazi: t.textContent,
     };
     LT.set.shd = 1;
@@ -198,16 +172,12 @@ export default async function ({ p, ok }) {
   );
 
   ok(r.yuvalar && r.seviye, "üç skill yuvası ikon, seviye çentiği ve durum yazısıyla");
-  ok(r.red, "yolsuz arazide kanca reddedilir: enerji gitmez, yuva kırmızı ve 'HEDEF YOK'");
-  ok(
-    r.kanca && r.kancaYazi,
-    "açık dünyada kanca asfalt yola tutunur, halat görünür, enerji harcanır, kalan süre yazılır",
-  );
+  ok(r.red, "köşe/rakip yokken kanca reddedilir: yuva kırmızı ve 'HEDEF YOK'");
   ok(
     r2.hayalet && r2.fazYazi && r2.faz,
     "Flying Dutchman: gövde hayalet, yuvada kalan süre, kanca fazda kapalı",
   );
   ok(r3.hayaletBitti, "faz bitince gövde eski hâline döner");
   ok(r3.alev && r3.alevYazi, "Risk Taker dönüşümü: kor alevleri görünür, yuvada kalan süre");
-  ok(r4.enerji, "enerji yetmeyince yuva 'enerji/maliyet' gösterir" + (r4.enerji ? "" : " · " + r4.yazi));
+  ok(r4.enerji, "skill enerji istemez: enerji 7 iken de yuva HAZIR" + (r4.enerji ? "" : " · " + r4.yazi));
 }

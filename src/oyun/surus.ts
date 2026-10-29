@@ -146,10 +146,11 @@ export function surusAdimi() {
     dunya: yerel.cx.dunya,
     kosuyor: yaris.EV?.state == "run",
     govde: yerel.sim.yeni ? { y: yerel.sim.yeni.py, vy: yerel.sim.yeni.vy, zemin: Hw(S.x, S.z) } : undefined,
+    direksiyon: sim.d.st,
   });
   // MUTANT skill çekişi sonraki adımda kütle merkezine kuvvet (koşu yoksa yok: fizik birebir aynı)
   yerel.cx.dis = mutantOyuncuIvmesi();
-  yerel.cx.ucus = mutantUcus();
+  yerel.cx.ucus = mutantUcus(ADIM);
   if (sim.d.zaman % 20 < ADIM) saveProf();
   turSayaci(ADIM);
   if (yaris.EV) evTick(ADIM, son, gi.tg);
