@@ -3,15 +3,15 @@ name: Unity doğrulama
 on:
   pull_request:
     paths:
-      - 'Unity/**'
-      - '.github/workflows/unity-dogrulama.yml'
+      - "Unity/**"
+      - ".github/workflows/unity-dogrulama.yml"
   push:
     branches:
-      - 'codex/**'
-      - 'claude/**'
+      - "codex/**"
+      - "claude/**"
     paths:
-      - 'Unity/**'
-      - '.github/workflows/unity-dogrulama.yml'
+      - "Unity/**"
+      - ".github/workflows/unity-dogrulama.yml"
 
 permissions:
   contents: read
@@ -28,7 +28,7 @@ jobs:
           node-version: 22
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: "10.0.x"
       - name: Unity proje düzeni
         run: node Unity/Validation/validate-project.mjs
       - name: Motor bağımsız C# kuralları
