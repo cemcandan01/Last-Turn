@@ -23,6 +23,7 @@
 
 ## Doğrulama
 - Yerel: `npm run kontrol` temiz (2 eski uyarı); `npm test` 465/465 (+ sonrasında değişen sehir/beceri/beceri-his dosyaları ayrı koşuldu: 9/9, 25/25, 9/9); `npm run alan -- mutant` 25/26, kalan tek senaryo test aralığı hatasıydı, düzeltilip `mutant-sehir, beceri, beceri-his` yeniden koşuldu: hepsi geçti. Kariyer imza testi geçti (kariyer fiziği aynı).
+- CI: Denetim 40798995923 (3e9cb50: tip, ESLint, biçim, tarayıcı, alan testi) başarılı; Yayın 40798998346 (0.8.18 /dev/ yayını ve adres denetimi) başarılı.
 - Görüntüler: `tests/cikti/mutant-sehir.png`, `-kose.png`, `-ucus.png`, `-sarkac.png`.
 
 ## Açık
