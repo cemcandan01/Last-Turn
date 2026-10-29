@@ -1,0 +1,43 @@
+name: Unity doğrulama
+
+on:
+  pull_request:
+    paths:
+      - 'Unity/**'
+      - '.github/workflows/unity-dogrulama.yml'
+  push:
+    branches:
+      - 'codex/**'
+      - 'claude/**'
+    paths:
+      - 'Unity/**'
+      - '.github/workflows/unity-dogrulama.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  cekirdek:
+    name: Unity C# çekirdek
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Unity proje düzeni
+        run: node Unity/Validation/validate-project.mjs
+      - name: Motor bağımsız C# kuralları
+        run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release
+
+  editor-testleri:
+    # UNITY_LICENSE eklendiğinde bu iş GameCI ile Unity EditMode testine dönüştürülecek.
+    # Lisans olmadan yanıltıcı şekilde başarılı bir Unity derlemesi iddia etmeyiz.
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Unity Editor testleri lisans kurulumu bekliyor.'
