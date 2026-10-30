@@ -4,6 +4,20 @@ import { resolve } from "node:path";
 const projectRoot = resolve(import.meta.dirname, "..");
 const required = [
   "Assets/LastTurn/Scripts/Core/RacePhase.cs",
+  "Assets/LastTurn/Scripts/Core/TireModel.cs",
+  "Assets/LastTurn/Scripts/Core/WheelSolver.cs",
+  "Assets/LastTurn/Scripts/Core/WheelDriveBench.cs",
+  "Assets/LastTurn/Scripts/Core/SeededRandom.cs",
+  "Assets/LastTurn/Scripts/Core/FixedStepRunner.cs",
+  "Assets/LastTurn/Scripts/Core/BodyMath.cs",
+  "Assets/LastTurn/Scripts/Core/VehicleParameters.cs",
+  "Assets/LastTurn/Scripts/Core/VehicleState.cs",
+  "Assets/LastTurn/Scripts/Core/FourWheelVehicle.cs",
+  "Assets/LastTurn/Scripts/Core/VehicleFixedStepRunner.cs",
+  "Assets/LastTurn/Editor/VehicleCoreSmokeCheck.cs",
+  "Validation/Reference/four-wheel-0.8.18.json",
+  "Assets/LastTurn/Editor/DriveCoreCompilationCheck.cs",
+  "Validation/Reference/wheel-drive-0.8.18.json",
   "Packages/manifest.json",
   "ProjectSettings/ProjectVersion.txt",
 ];

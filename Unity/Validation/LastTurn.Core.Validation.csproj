@@ -7,6 +7,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../Assets/LastTurn/Scripts/Core/RacePhase.cs" Link="RacePhase.cs" />
+    <Compile Include="../Assets/LastTurn/Scripts/Core/**/*.cs" LinkBase="Core" />
+    <None Update="Reference/**/*.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
