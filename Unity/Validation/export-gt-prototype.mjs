@@ -35,12 +35,28 @@ const surfaceTires = terrain.surfaceProfiles
       " },",
   )
   .join("\n");
+const dirt = JSON.parse(
+  fs.readFileSync(path.join(root, "Unity/Validation/Reference/dirt-balance-0.8.18.json"), "utf8"),
+);
+if (dirt.baseline !== ref.baseline) throw new Error("Toprak dengesi SHA uyuşmazlığı");
+const balancedTires = dirt.profiles
+  .find((p) => p.name === "gt-tire0-balanced")
+  .surfaceTires.map(
+    (row) =>
+      "        new[] { " +
+      row.map((p) => "new TireParameters(" + nums([p.muY, p.muX, p.kp, p.ap, p.C]) + ")").join(", ") +
+      " },",
+  )
+  .join("\n");
 const text = `// Üretici: Unity/Validation/export-gt-prototype.mjs; TS 0.8.18 ${ref.baseline}.
 namespace LastTurn.Core
 {
   public static class GtPrototypeParameters
   {
-    public static PowertrainParameters Create()
+    public static PowertrainParameters Create() => CreateProfile(false);
+    // TerrainTest: TS MUTANT üst kurulum dengesi; ham GT/asfalt referansı ayrı korunur.
+    public static PowertrainParameters CreateTerrain() => CreateProfile(true);
+    private static PowertrainParameters CreateProfile(bool terrainBalance)
     {
       var wheels = new[] {
 ${wheels}
@@ -48,7 +64,9 @@ ${wheels}
       var tires = new[] {
 ${tires}
       };
-      var surfaceTires = new[] {
+      var surfaceTires = terrainBalance ? new[] {
+${balancedTires}
+      } : new[] {
 ${surfaceTires}
       };
       var chassis = new VehicleParameters(${f.m}, new BodyVector(${nums(f.I)}), ${nums([f.cgY, f.cgZ, f.aks])}, wheels, tires,

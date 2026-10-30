@@ -28,6 +28,7 @@ const required = [
   "Assets/LastTurn/Scenes/TerrainTest.unity",
   "Assets/LastTurn/Editor/TerrainPrototypeValidation.cs",
   "Validation/Reference/terrain-0.8.18.json",
+  "Validation/Reference/dirt-balance-0.8.18.json",
   "Assets/LastTurn/Editor/PowertrainCoreSmokeCheck.cs",
   "Validation/Reference/powertrain-0.8.18.json",
   "Assets/LastTurn/Editor/VehicleCoreSmokeCheck.cs",

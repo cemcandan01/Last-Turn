@@ -4,6 +4,7 @@ import path from "node:path";
 import vm from "node:vm";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import {
   carValues,
   presetValue,
@@ -31,7 +32,9 @@ const data = source[4],
   tireSource = source[2];
 const evaluate = (s) => vm.runInNewContext("(" + s + ")");
 const surfaces = evaluate(block(data, data.indexOf("= [", data.indexOf("export const SURF")), "[", "]").body);
-const tireValue = evaluate(block(data, data.indexOf("= [", data.indexOf("export const TIRES"))).body);
+const tireValues = evaluate(
+  block(data, data.indexOf("= [", data.indexOf("export const TIRES")), "[", "]").body,
+);
 const frequencies = block(geometry, geometry.indexOf("const FREKANS")).body;
 const loopStart = model.indexOf("for (let n = 0; n < ARA; n++)");
 const substeps = erase(model.slice(loopStart, block(model, loopStart).end));
@@ -57,11 +60,11 @@ const driveArray = block(model, model.indexOf("Tsurus = ["), "[", "]").body;
 const cleanFn = (text, name) => fn(text, name).replace(/:\s*(SimDurumu|FizikBaglami|AracDurumu)\b/g, "");
 const bOf = tireSource.split("\n").find((s) => s.startsWith("const bOf ="));
 
-const code = `
+const code = (tireIndex, tuning) => `
 const ARA=8,VD_X=3,VD_Y=2,AKS_BAGI=20,RHO=1.2,VMAX=77.2,YERCEKIMI=24;
 const TUTUS=1.15,GEVSEK_TUTUS=.75,GEVSEK_TEPE=.24,GEVSEK_C=1.55,GEVSEK_ARKA=.92;
 const VITESLER=[3.2,2.15,1.6,1.28,1.06,.88],FREKANS=${frequencies};
-const TIRES=[${JSON.stringify(tireValue)}],SURF=${JSON.stringify(surfaces)};
+const TIRES=${JSON.stringify(tireValues)},SURF=${JSON.stringify(surfaces)};
 const cl=(x,a,b)=>Math.max(a,Math.min(b,x));
 const sm=(a,b,x)=>{const t=cl((x-a)/(b-a),0,1);return t*t*(3-2*t)};
 const v3=()=>({x:0,y:0,z:0});
@@ -79,10 +82,10 @@ ${fn(geometry, "aracFizigi")}
 ${cleanFn(model, "yeniBaslat")}
 ${cleanFn(model, "cikis")}
 ${cleanFn(common, "zeminIzleri")}
-function settings(CAR){return {car:CAR,tu:${JSON.stringify(presetValue.v)},as:{acc:1,bra:1,grip:0,ini:0,dft:0},tire:0};}
+function settings(CAR){return {car:CAR,tu:${JSON.stringify(tuning)},as:{acc:1,bra:1,grip:0,ini:0,dft:0},tire:${tireIndex}};}
 function setup(CAR,surface=1){
  const K=settings(CAR),F=aracFizigi(CAR,K),S={wet:0,mud:0},W={havaTutusu:()=>1},DR={k:0},gi={g:0};
- const tu=K.tu,as=K.as,T=TIRES[0],Y={tk:F.tk.map(()=>({zemin:surface}))},ab=0,vl=0;
+ const tu=K.tu,as=K.as,T=TIRES[K.tire],Y={tk:F.tk.map(()=>({zemin:surface}))},ab=0,vl=0;
  ${tirePrep}
  return {F,LP};
 }
@@ -95,7 +98,7 @@ function step(Y,S,F,CAR,W,command){
  const dt=1/60,h=dt/ARA,m=F.m,g=24,[Ix,Iy,Iz]=F.I,K=settings(CAR),tu=K.tu;
  const cx={},fx=Math.sin(S.h),fz=Math.cos(S.h),kin=0,al=0,esc=0,dw=0,wd=0,Aeq=0,d={},dlt=command[0];
  ${surfacePrep}
- const as={...K.as,abs:command[4]},T=TIRES[0],DR={k:0},gi={g:0},ab=0,vl=0;
+ const as={...K.as,abs:command[4]},T=TIRES[K.tire],DR={k:0},gi={g:0},ab=0,vl=0;
  ${tirePrep}
  ${steeringPrep}
  const Tw=command[1],elFreni=command[3],Tsurus=${driveArray},fren=command[2],gaz=1,cekisSiniri=command[5];
@@ -106,7 +109,9 @@ function step(Y,S,F,CAR,W,command){
  cikis({S},Y,F);
 }
 ({setup,initial,step})`;
-const oracle = vm.runInNewContext(code, {}, { timeout: 1000 });
+const createOracle = (tireIndex = 0, tuning = presetValue.v) =>
+  vm.runInNewContext(code(tireIndex, tuning), {}, { timeout: 1000 });
+const oracle = createOracle();
 
 function world(name) {
   let H = () => 0,
@@ -205,25 +210,28 @@ const reference = {
     scenario("mud-to-asphalt", 0, 8, 0, () => [0, 2000, 0, false, 1, 1.2]),
   ],
 };
-const target = path.join(root, "Unity/Validation/Reference/terrain-0.8.18.json");
-if (process.argv.includes("--check")) {
-  const saved = JSON.parse(fs.readFileSync(target, "utf8"));
-  const metadata = (r) => ({
-    ...r,
-    scenarios: r.scenarios.map(({ rows, ...s }) => ({ ...s, commands: rows.map((r) => r.command) })),
-  });
-  if (JSON.stringify(metadata(saved)) !== JSON.stringify(metadata(reference)))
-    throw new Error("Arazi kaynak/parametre/girdi sözleşmesi değişti");
-  for (let s = 0; s < reference.scenarios.length; s++)
-    for (let k = 0; k < 600; k++)
-      for (let c = 0; c < reference.fields.length; c++) {
-        const a = reference.scenarios[s].rows[k].values[c],
-          b = saved.scenarios[s].rows[k].values[c];
-        if (!Number.isFinite(b) || Math.abs(a - b) > reference.tolerances[c])
-          throw new Error(`Arazi TS farkı ${s}/${k}/${c}`);
-      }
-  console.log(`TS arazi referansı doğrulandı: ${reference.scenarios.length} × 600 adım × 51 değer.`);
-} else {
-  fs.writeFileSync(target, JSON.stringify(reference) + "\n");
-  console.log(`TS arazi referansı üretildi: ${reference.scenarios.length} × 600 adım × 51 değer.`);
+if (path.resolve(process.argv[1] ?? "") === fileURLToPath(import.meta.url)) {
+  const target = path.join(root, "Unity/Validation/Reference/terrain-0.8.18.json");
+  if (process.argv.includes("--check")) {
+    const saved = JSON.parse(fs.readFileSync(target, "utf8"));
+    const metadata = (r) => ({
+      ...r,
+      scenarios: r.scenarios.map(({ rows, ...s }) => ({ ...s, commands: rows.map((r) => r.command) })),
+    });
+    if (JSON.stringify(metadata(saved)) !== JSON.stringify(metadata(reference)))
+      throw new Error("Arazi kaynak/parametre/girdi sözleşmesi değişti");
+    for (let s = 0; s < reference.scenarios.length; s++)
+      for (let k = 0; k < 600; k++)
+        for (let c = 0; c < reference.fields.length; c++) {
+          const a = reference.scenarios[s].rows[k].values[c],
+            b = saved.scenarios[s].rows[k].values[c];
+          if (!Number.isFinite(b) || Math.abs(a - b) > reference.tolerances[c])
+            throw new Error(`Arazi TS farkı ${s}/${k}/${c}`);
+        }
+    console.log(`TS arazi referansı doğrulandı: ${reference.scenarios.length} × 600 adım × 51 değer.`);
+  } else {
+    fs.writeFileSync(target, JSON.stringify(reference) + "\n");
+    console.log(`TS arazi referansı üretildi: ${reference.scenarios.length} × 600 adım × 51 değer.`);
+  }
 }
+export { createOracle, values, tireValues, surfaces };

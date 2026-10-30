@@ -125,6 +125,12 @@ GT fabrika verisi, sabit TS oracle'ından üretilen altı yüzey × dört lastik
 
 Yeni sahne `Unity/Assets/LastTurn/Scenes/TerrainTest.unity`; `Last Turn → Arazi Test Sahnesini Aç` / `Arazi Kısa Play Doğrulaması` menüleri. Rehber `Unity/ARAZI-PROTOTIP.md`. Kamera/görsel teker/klavye aynı adaptörü kullanır; yalnız bu sahnenin arazi bayrağı açıktır. GTTest sahne dosyası korunur. `export-terrain-reference.mjs --check` özgün TS reset/zemin/lastik/alt-adımlarını yedi 600-adımlık senaryoda sınar. `.NET` koşucusu 51 alanı ve 30/60/120 FPS/reset davranışını karşılaştırır. `check-terrain-proof.mjs` gerçek Play kaynak hash'lerini doğrular. Tam dünya/gp3, bariyer/nesne çarpışması, cihaz/IL2CPP ve Drag bu dilimde yoktur.
 
+## TerrainTest toprak kurulum düzeltmesi — 31 Ekim 2026
+
+`docs/isler/2026-10-31-unity-toprak-kararlilik.md`: ham modelin toprak dengesi ile TS MUTANT'ın gerçek araç kurulum profili ayrı katmanlardır. Önceki TerrainTest, MUTANT `toprakDengesi` uygulanmadan ham GT/ar/yarış lastiği kullanıyordu. Artık `GtPrototypeParameters.CreateTerrain()` sabit TS kuralıyla üretilen yüzey tablosunu kullanır; `Create()` ve GTTest ham/asfalt kabulünü korur. Seçili lastik × araç birleşik toprak değeri 1 altındaysa açığın .55'i kalır; asfalt ve uygun kombinasyonlar değişmez. Bu yeni genel fizik bonusu veya bütün modlara yayılan MUTANT kuralı değildir. Lastik kuvveti, kayma paydaları, direksiyon, diferansiyel ve sürtünme modeli değiştirilmedi. Ham oracle'lar korunur; yeni `export-dirt-balance-reference.mjs --check` üst kurulum zincirinin ayrı karşılaştırmasıdır.
+
+**Cem'in sonraki aşama kararı:** Bu düzeltmenin ardından fizik üzerinde yeni özellik geliştirmeye ara verilir; mevcut TypeScript oyun sistemlerinin Unity'ye taşınması planlanır. Yeni Drag, fizik yardımı veya pist özelliği bu görevden kendiliğinden başlatılmaz.
+
 ## GitHub koruma ayarı
 
 Bu bağlı GitHub entegrasyonunun yönetici izni koruma kuralını değiştirmeye yetmiyor. Depo sahibi GitHub'da `Settings → Rules → Rulesets` altında `master` için şu kuralları eklemeli:

@@ -12,9 +12,9 @@ internal static class TerrainValidation
     public double GripMultiplier=>1;
   }
   internal static double[] Values(VehicleState s)=>VehicleValidation.Values(s).Concat(s.Wheels.Select(w=>(double)w.SurfaceIndex)).Concat(new[]{s.Wet,s.Mud}).ToArray();
-  internal static void Run()
+  internal static void Run(string reference="terrain-0.8.18.json")
   {
-    using var fixture=JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,"Reference/terrain-0.8.18.json")));
+    using var fixture=JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,"Reference/"+reference)));
     var root=fixture.RootElement;int checks=0,rows=0;
     void Check(bool condition,string label){checks++;if(!condition)throw new InvalidOperationException(label);}
     Check(root.GetProperty("baseline").GetString()=="df3549e709469f0b519ebfbeaa9f63c1040fee05","Arazi baseline");
@@ -61,6 +61,6 @@ internal static class TerrainValidation
       sim.Reset(speed,height);for(int k=0;k<inputs.Count;k++){sim.Step(inputs[k]);Check(Bits(sim.State).SequenceEqual(states[k]),name+" reset/tekrar");}
       summaries.Add(new{name,air,minContacts,landed,mixed,maxCompression,maxLoad,maxY,finalSpeed=sim.State.Velocity.Length,finalMud=sim.State.Mud});
     }
-    Console.WriteLine(JsonSerializer.Serialize(new{result="terrain-passed",rows,checks,maxErrors=errors,summaries},new JsonSerializerOptions{WriteIndented=true}));
+    Console.WriteLine(JsonSerializer.Serialize(new{result="terrain-passed",reference,rows,checks,maxErrors=errors,summaries},new JsonSerializerOptions{WriteIndented=true}));
   }
 }

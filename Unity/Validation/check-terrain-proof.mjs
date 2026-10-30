@@ -6,7 +6,8 @@ const proof = JSON.parse(await fs.readFile(path.join(project, "Logs/terrain-play
 if (
   proof.result !== "terrain-play-passed" ||
   proof.unityVersion !== "6000.3.9f1" ||
-  proof.checks.length < 17 ||
+  proof.checks.length < 23 ||
+  !(proof.lowSpeedPeakBeta < 12 && proof.lowSpeedFinalBeta < 3) ||
   !proof.air ||
   !proof.landed ||
   !proof.soil ||

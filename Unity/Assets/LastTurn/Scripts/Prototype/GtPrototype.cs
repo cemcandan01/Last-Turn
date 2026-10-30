@@ -33,7 +33,7 @@ namespace LastTurn.Prototype
 
     private void Awake()
     {
-      parameters = GtPrototypeParameters.Create();
+      parameters = terrainMode?GtPrototypeParameters.CreateTerrain():GtPrototypeParameters.Create();
       world=terrainMode?(IVehicleWorld)new TerrainTestWorld():FlatAsphaltWorld.Instance;
       if (!vehicleRoot || !followCamera) throw new InvalidOperationException("GTTest sahnesi eksik; Last Turn menüsünden sahneyi oluşturun.");
       input = new GtKeyboardInput(); ResetVehicle();
@@ -178,7 +178,7 @@ namespace LastTurn.Prototype
       GUI.Label(new Rect(28,116,275,22),$"Temas {contacts}/4   Ön {s.FrontLoad/1000:0.0} / Arka {s.RearLoad/1000:0.0} kN",text);
       GUI.Label(new Rect(28,139,275,22),$"60 Hz × 8  |  Adım {s.Steps}  |  {1/Mathf.Max(.001f,frameSeconds):0} FPS",text);
       GUI.Label(new Rect(28,161,275,22),$"Gaz %{CurrentInput.Throttle*100:0}  Fren %{CurrentInput.Brake*100:0}  El freni {(CurrentInput.Handbrake?"AÇIK":"—")}",text);
-      GUI.Label(new Rect(28,185,275,22),focused?(terrainMode?VehicleGround.Name(s.CenterSurface)+" · engebeli zemin":"Düz asfalt · klavye testi"):"Duraklatıldı · pencereye dönün",text);
+      GUI.Label(new Rect(28,185,275,22),focused?(terrainMode?VehicleGround.Name(s.CenterSurface)+" · TS toprak dengesi":"Düz asfalt · klavye testi"):"Duraklatıldı · pencereye dönün",text);
       if(terrainMode)
       {
         GUI.Box(new Rect(14,225,350,158),GUIContent.none);

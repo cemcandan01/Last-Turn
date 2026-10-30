@@ -6,7 +6,7 @@ W/↑ gaz, S/↓ fren ve durunca geri, A/D veya oklar yön, Space el freni, R ba
 
 ## Parkur
 
-Başlangıç ve sağ şerit asfalt, aracın solundaki kahverengi şerit topraktır (TS x ≥ 4; Unity x ≤ −4). Aynı araç ve yarış lastiği kullanılır; toprakta doğal olarak daha az tutuş vardır. Asfalt lastiğine keyfi bir çekiş çarpanı eklenmemiştir: TS'nin yüzey, lastik bileşiği, basınç ve ön/arka denge parametreleri taşınmıştır.
+Başlangıç ve sağ şerit asfalt, aracın solundaki kahverengi şerit topraktır (TS x ≥ 4; Unity x ≤ −4). Aynı araç ve yarış lastiği kullanılır; toprakta doğal olarak daha az tutuş vardır. TerrainTest ayrıca TS 0.8.18 MUTANT kurulumunun `toprakDengesi` profilini kullanır: seçili lastik × araç toprak tutuşu 1'in altındaysa açığın %55'i bırakılır. Uygun toprak kombinasyonları ve asfalt değişmez. Bu, ham model portunda eksik kalan kurulum kuralıdır; genel lastik modeli/direksiyon/diferansiyel değiştirilmedi. GTTest ham kabul edilmiş GT/asfalt profilinde kalır. HUD bu profili “TS toprak dengesi” olarak belirtir.
 
 | Başlangıçtan Z mesafesi | Bölüm |
 | --- | --- |
@@ -26,6 +26,12 @@ HUD merkez yüzeyini, dört tekerin ayrı yüzeyini, TEMAS/HAVA durumunu ve süs
 4. Düz alanda S ile frenle, durunca geri git; yaklaşık 37 km/sa manevra hızı ve otomatik R beklenir. W ile ileriye dön. Space arka tekerleri kilitlemeli.
 5. R araç, kamera ve biriktiriciyi başlangıca birlikte döndürmeli. Console'da hata/uyarı olmamalı.
 
+### Toprak düzeltmesini yeniden dene
+
+Toprak şeridine geçip gazı bırak veya kısa Space ile yavaşla. 10–20 km/sa civarında W'ye kısa basışlar ve A/D'ye kısa yön düzeltmeleri yap; yön tuşunu bırakınca sürekli savrulma sürmemeli. Ardından 25–35 km/sa civarında kısa bir dönüşten sonra gazı ve direksiyonu bırakıp toparlanmayı değerlendir. Aynı manevrayı asfalt tarafında tekrarla.
+
+Son olarak daha yüksek hızda veya uzun tam gaz/tam direksiyonda kaymanın hâlâ mümkün olduğunu, kısa Space ile arkanın açıldığını ve S ile normal frenlemeyi dene. Klavyede W tam gaz, A/D tam direksiyon isteğidir: bunları uzun süre birlikte tutmak tutuş sınırını aşabilir; düzeltme bütün aşırı girdileri yola yapıştırmaz. Düşük gaz ölçümlerinde toprak kararlı; tam gazdan gaz kesme toparlanması belirgin iyileşmiştir. Ölçüm kartı `docs/isler/2026-10-31-unity-toprak-kararlilik.md`.
+
 Test alanı ödülsüz ve sınırlandırılmış bir gösterimdir: mesh x=±40 m, z=−15…360 m; fizik sorgusu devam eder. Gösterim sınırından çıkarsan R kullan. Duvar/bariyer, çevre nesnesi çarpışması veya tam yarış pisti değildir. Rigidbody/WheelCollider kullanılmaz. Zemin çizimi aynı H fonksiyonundan yarım metrelik örneklerle üretilir; kıvrımlı tümseklerde üçgen çizim ile analitik H arasında küçük örnekleme farkı olabilir.
 
 ## Kısa otomatik kontrol
@@ -34,6 +40,7 @@ Test alanı ödülsüz ve sınırlandırılmış bir gösterimdir: mesh x=±40 m
 
 ```powershell
 node Unity/Validation/export-terrain-reference.mjs --check
+node Unity/Validation/export-dirt-balance-reference.mjs --check
 node Unity/Validation/export-gt-prototype.mjs --check
 dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release
 node Unity/Validation/check-editor-proof.mjs

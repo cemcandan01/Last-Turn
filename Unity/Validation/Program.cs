@@ -2,6 +2,7 @@ using System.Text.Json;
 using LastTurn.Core;
 
 if(args.Contains("--gt-physics")){GtPhysicsValidation.Run();return;}
+if(args.Contains("--dirt-stability")){DirtStabilityValidation.Run();return;}
 
 using var fixture = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Reference/wheel-drive-0.8.18.json")));
 var root = fixture.RootElement;
@@ -109,3 +110,4 @@ VehicleValidation.Run();
 PowertrainValidation.Run();
 GtPhysicsValidation.Run();
 TerrainValidation.Run();
+DirtStabilityValidation.Run();

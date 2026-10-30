@@ -19,12 +19,14 @@ namespace LastTurn.EditorValidation
     private static Keyboard keyboard;private static GtPrototype prototype;
     private static int phase,startTick,restarts;private static double began;
     private static bool air,landed,soil,mixed;private static float peakY,compression,speedBeforeBrake;
+    private static double lowSpeedPeakBeta,lowSpeedFinalBeta;
     private static readonly List<string> checks=new List<string>();
     [Serializable]private sealed class Source{public string path,sha256;}
     [Serializable]private sealed class Proof
     {
       public string result,utc,unityVersion,error;public string[] checks;public Source[] sources;
       public bool air,landed,soil,mixed;public float peakY,maxCompression,speedBeforeBrake,speedAfterBrake;
+      public double lowSpeedPeakBeta,lowSpeedFinalBeta;
     }
     private static Proof proof;
     static TerrainPrototypeValidation(){EditorApplication.playModeStateChanged+=Changed;}
@@ -40,6 +42,7 @@ namespace LastTurn.EditorValidation
       if(state==PlayModeStateChange.EnteredPlayMode && SessionState.GetBool(SessionKey,false))
       {
         phase=0;checks.Clear();air=landed=soil=mixed=false;peakY=compression=0;began=EditorApplication.timeSinceStartup;
+        lowSpeedPeakBeta=lowSpeedFinalBeta=0;
         proof=new Proof{unityVersion=Application.unityVersion};EditorApplication.update+=Tick;
       }
       if(state==PlayModeStateChange.ExitingPlayMode){Cleanup();SessionState.SetBool(SessionKey,false);}
@@ -66,6 +69,13 @@ namespace LastTurn.EditorValidation
           peakY=Math.Max(peakY,(float)s.Position.Y);compression=Math.Max(compression,(float)s.Wheels.Max(w=>w.Compression));
         }
         soil|=s.Wheels.Any(w=>w.SurfaceIndex==0);mixed|=s.Wheels.Select(w=>w.SurfaceIndex).Distinct().Count()>1;
+        if(phase==7 || phase==8)
+        {
+          var f=s.Orientation.Rotate(new BodyVector(0,0,1));
+          double along=s.Velocity.X*f.X+s.Velocity.Z*f.Z,side=s.Velocity.X*f.Z-s.Velocity.Z*f.X;
+          lowSpeedFinalBeta=Math.Abs(Math.Atan2(side,Math.Max(.5,Math.Abs(along))))*180/Math.PI;
+          lowSpeedPeakBeta=Math.Max(lowSpeedPeakBeta,lowSpeedFinalBeta);
+        }
         if(phase==1 && s.Position.Z>145)
         {
           speedBeforeBrake=(float)s.Velocity.Length;Queue(Key.S);phase=2;
@@ -88,6 +98,19 @@ namespace LastTurn.EditorValidation
           Require(soil && mixed,"Klavye ile asfalt/toprak ve karışık teker geçişi");
           Require(s.Wheels.All(w=>w.Compression>=0 && !double.IsNaN(w.Load)),"Yüzey geçişinde sonlu süspansiyon");
           Require(sim.Engine.Gear>0,"Arazi/test otomatik ileri vites");
+          // S durunca kaynak otomatik geri seçer; park aşamasında el frenini kullan.
+          Replay(prototype.RecordedInputs.ToArray(),sim);Queue(Key.Space);phase=5;
+        }
+        else if(phase==5 && s.Velocity.Length<.7)
+        {
+          Require(s.CenterSurface==0,"Düşük hız testi gerçek toprak şeridinde");Queue(Key.W);phase=6;
+        }
+        else if(phase==6 && s.Velocity.Length>=5){startTick=s.Steps;Queue(Key.A);phase=7;}
+        else if(phase==7 && s.Steps-startTick>=12){startTick=s.Steps;Queue();phase=8;}
+        else if(phase==8 && s.Steps-startTick>=60)
+        {
+          Require(s.CenterSurface==0 && s.Velocity.Length>2,"18 km/sa toprak direksiyon darbesi sonrası hareket/temas");
+          Require(lowSpeedPeakBeta<12 && lowSpeedFinalBeta<3,"Düşük hızda küçük direksiyon sonrası kararlı toparlanma");
           Replay(prototype.RecordedInputs.ToArray(),sim);Finish(null);
         }
       }
@@ -104,7 +127,7 @@ namespace LastTurn.EditorValidation
       var expected=Values(original);
       foreach(double delta in new[]{1.0/30,1.0/60,1.0/120})
       {
-        var sim=new PowertrainVehicle(GtPrototypeParameters.Create(),world:new TerrainTestWorld());var runner=new PowertrainFixedStepRunner(sim);double time=0,total=tape.Length/60.0;
+        var sim=new PowertrainVehicle(GtPrototypeParameters.CreateTerrain(),world:new TerrainTestWorld());var runner=new PowertrainFixedStepRunner(sim);double time=0,total=tape.Length/60.0;
         while(time<total-1e-12){double dt=Math.Min(delta,total-time);runner.Advance(dt,k=>tape[k]);time+=dt;}
         Require(sim.Body.Steps==tape.Length && Values(sim).SequenceEqual(expected),"Arazi gerçek girdi kaydı "+(int)Math.Round(1/delta)+" FPS bit eşitliği");
       }
@@ -113,6 +136,7 @@ namespace LastTurn.EditorValidation
     {
       proof.result=error==null?"terrain-play-passed":"failed";proof.utc=DateTime.UtcNow.ToString("O");proof.error=error?.ToString();proof.checks=checks.ToArray();
       proof.air=air;proof.landed=landed;proof.soil=soil;proof.mixed=mixed;proof.peakY=peakY;proof.maxCompression=compression;proof.speedBeforeBrake=speedBeforeBrake;
+      proof.lowSpeedPeakBeta=lowSpeedPeakBeta;proof.lowSpeedFinalBeta=lowSpeedFinalBeta;
       string project=Path.GetDirectoryName(Application.dataPath);
       proof.sources=Directory.GetFiles(Path.Combine(Application.dataPath,"LastTurn"),"*",SearchOption.AllDirectories)
         .Where(p=>p.EndsWith(".cs")||p.EndsWith(".unity")||p.EndsWith(".mat")||p.EndsWith(".meta")||p.EndsWith(".asset")).OrderBy(p=>p,StringComparer.Ordinal)
