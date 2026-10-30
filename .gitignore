@@ -21,3 +21,5 @@ Unity/*.userprefs
 Unity/.vs/
 Unity/Validation/bin/
 Unity/Validation/obj/
+Unity/Assets/LocalRecovery/
+Unity/Assets/LocalRecovery.meta

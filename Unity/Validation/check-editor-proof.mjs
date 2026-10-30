@@ -12,6 +12,7 @@ if (
   proof.smokeSteps !== 600 ||
   proof.vehicleSmokeSteps !== 600 ||
   proof.powertrainSmokeSteps !== 1200 ||
+  proof.prototypeSmokeChecks !== 6 ||
   !proof.coreAssemblyMvid
 )
   throw new Error("Unity derleme/kısa test kanıtı geçersiz.");
@@ -40,3 +41,13 @@ for (const full of [
 console.log(
   `Unity ${proof.unityVersion}: ${files.length} Core dosyası; teker 600 + dört teker 600 + motor 1200 adımlık kısa test geçti. UTC ${proof.utc}; MVID ${proof.coreAssemblyMvid}`,
 );
+for (const p of await readdir(resolve(project, "Assets/LastTurn/Scripts/Prototype"))) {
+  if (!p.endsWith(".cs")) continue;
+  const name = "Assets/LastTurn/Scripts/Prototype/" + p;
+  const hash = createHash("sha256")
+    .update(await readFile(resolve(project, name)))
+    .digest("hex");
+  if (!proof.prototypeSources?.some((s) => s.path === name && s.sha256 === hash))
+    throw new Error("Eski/eksik prototip derlemesi: " + name);
+}
+console.log("Prototip adaptör kaynakları ve 6 gösterim kontrolü doğrulandı.");

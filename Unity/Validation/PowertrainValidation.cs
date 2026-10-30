@@ -31,7 +31,7 @@ internal static class PowertrainValidation
     var errors=new double[limits.Length];
     foreach(var scenario in root.GetProperty("scenarios").EnumerateArray())
     {
-      string name=scenario.GetProperty("name").GetString()!;var parameters=Parameters(scenario);
+      string name=scenario.GetProperty("name").GetString()!;var parameters=name=="accelerate-coast-gt"?GtPrototypeParameters.Create():Parameters(scenario);
       double speed=N(scenario,"initialSpeed");int gear=scenario.GetProperty("initialGear").GetInt32();
       var a=new PowertrainVehicle(parameters,speed,gear);var b=new PowertrainVehicle(parameters,speed,gear);
       var inputs=new List<DrivingInput>();var states=new List<double[]>();

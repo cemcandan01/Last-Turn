@@ -55,6 +55,7 @@ node Unity/Validation/validate-project.mjs
 node Unity/Validation/export-reference.mjs --check
 node Unity/Validation/export-vehicle-reference.mjs --check
 node Unity/Validation/export-powertrain-reference.mjs --check
+node Unity/Validation/export-gt-prototype.mjs --check
 dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release
 ```
 
@@ -101,6 +102,16 @@ Girdi alanları gaz/fren 0–1, direksiyon −1…1, analog gaz/direksiyon bayra
 Yeni TS oracle, sabit kaynaktaki motor ve gaz/direksiyon bloklarını önceki gövde oracle'ıyla birleştirir; rölanti, gaz kesme, büyütme/küçültme, geri/ileri ve gerçek turbo T16 dahil 5×600 adımda 58 değeri karşılaştırır. Eski izler değişmez. .NET 15 Core dosyasını gerçekten derler; Editor kontrolü GT/T16 motor için ayrıca 2×600 kısa adım ister. Editor kanıtı `.NET` sayısal iz testinin veya cihaz/IL2CPP doğrulamasının yerine geçmez.
 
 Sonraki sürülebilir prototip: kaynak gt parametrelerini veri olarak sahneye koy; Input System adaptörünü bu yürütücüye bağla, TS eksenlerini yalnız görüntüleme sınırında dönüştür, Previous/Current/Alpha ile görsel gövde/dört teker/kamera göster. Düz zemin, takip kamerası, hız/RPM/vites/turbo ve kısa PlayMode sürüşü yeterli ilk kapsamdır. Unity Rigidbody/WheelCollider ile ikinci simülasyon ekleme. Ayarlar korunur; manuel mod, engebeli dünya/gp3, MUTANT ve cihaz testleri ayrı görevlerdir.
+
+## İlk sürülebilir GT prototipi (2026-10-31)
+
+`Unity/Assets/LastTurn/Scenes/GTTest.unity` sahnesi Unity 6000.3.9f1'de Play ile sürülür. Yerel primitive materyaller dışında asset yoktur. Açılış/tuşlar ve manuel liste `Unity/GT-PROTOTIP.md`, kapsam/gerçek test kanıtı `docs/isler/2026-10-30-unity-surulebilir-gt.md` içindedir. Bu tanı prototipinde kullanıcı isteğiyle hız/RPM aynı kenar HUD'ında gösterilir; yayınlanan TS HUD düzeni değiştirilmez.
+
+Girdiler InputActionMap üzerinden `PowertrainFixedStepRunner`a gider. Görsel kök, tekerler ve kamera önceki/şimdiki fizik durumlarını okuyup interpolasyon yapar; Core'a transform yazılmaz. TS x-sol gösterimde Unity x-sağa yansıtılır: vektör (-x,y,z), dördey (qx,-qy,-qz,qw). Ön teker Ackermann açısı, süspansiyon ve sürekli dönüş açısı çizilir; kamera yakın profil ölçülerini kullanır, rastgele shake ve gövde roll'u yoktur. Reset araç/kamera/biriktiriciyi birlikte sıfırlar. Runtime C# `Scripts/Prototype/`, GT fabrika verisi `Core/GtPrototypeParameters.cs` içindedir; veri üretim `--check` ile kaynak izine sabitlenir.
+
+Menü `Last Turn → GT Kısa Play Doğrulaması` (Ctrl+F8), gerçek Play ve Input System üzerinden 18 kontrol yapar, girdi kaydını 30/60/120 FPS'de bit düzeyinde tekrarlar, sonra Play'i kapatır. `node Unity/Validation/check-prototype-proof.mjs` son başarılı sahne/CS/material/meta hash kanıtını doğrular; kaynak değişince kontrol yeniden çalıştırılmalıdır. `check-editor-proof.mjs` ayrıca Core ve Runtime adaptör derlemesi/gösterim testini doğrular. Kısa menü kontrolü tam Unity Test Framework paketi/CI Editor/cihaz testi değildir. Adsız Editor sahnesi varsa kurucu veri silmeden ignore edilen `Assets/LocalRecovery/BeforeGT*.unity` dosyasına korur; mevcut sahne dosyasını ezmez.
+
+Test alanı sonsuz düz/asfalt fizik düzleminin gösterimidir; dekorun collider'ları kapalıdır, Rigidbody/WheelCollider yoktur. Engebeli sorgu/engel çarpışması, manuel vites, ses, mobil ve IL2CPP henüz kapsam dışı. Sonraki aşama önce Cem'in klavye/kamera hissi onayı, sonra TS dünya sorgusu/pist fiziği dilimidir.
 
 ## GitHub koruma ayarı
 

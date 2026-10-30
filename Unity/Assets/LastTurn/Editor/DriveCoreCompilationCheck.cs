@@ -16,7 +16,8 @@ namespace LastTurn.EditorValidation
         [Serializable] private sealed class Proof
         {
             public string result, utc, unityVersion, coreAssemblyMvid;
-            public int smokeSteps, vehicleSmokeSteps, powertrainSmokeSteps;
+            public int smokeSteps, vehicleSmokeSteps, powertrainSmokeSteps, prototypeSmokeChecks;
+            public Source[] prototypeSources;
             public Source[] sources;
         }
 
@@ -47,6 +48,7 @@ namespace LastTurn.EditorValidation
             string project = Path.GetDirectoryName(Application.dataPath);
             int vehicleSteps = VehicleCoreSmokeCheck.Run(project);
             int powertrainSteps = PowertrainCoreSmokeCheck.Run(project);
+            int prototypeChecks = GtPrototypeValidation.CheckPresentation();
             string core = Path.Combine(Application.dataPath, "LastTurn/Scripts/Core");
             var proof = new Proof
             {
@@ -55,6 +57,9 @@ namespace LastTurn.EditorValidation
                 coreAssemblyMvid = typeof(WheelDriveBench).Assembly.ManifestModule.ModuleVersionId.ToString(), smokeSteps = 600,
                 vehicleSmokeSteps = vehicleSteps,
                 powertrainSmokeSteps = powertrainSteps,
+                prototypeSmokeChecks = prototypeChecks,
+                prototypeSources = Directory.GetFiles(Path.Combine(Application.dataPath,"LastTurn/Scripts/Prototype"),"*.cs")
+                    .OrderBy(p=>p,StringComparer.Ordinal).Select(p=>new Source { path=p.Substring(project.Length+1).Replace('\\','/'),sha256=Hash(p) }).ToArray(),
                 sources = Directory.GetFiles(core, "*.cs", SearchOption.AllDirectories).OrderBy(p => p, StringComparer.Ordinal)
                     .Select(p => new Source { path = p.Substring(project.Length + 1).Replace('\\', '/'), sha256 = Hash(p) }).ToArray()
             };

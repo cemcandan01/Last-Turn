@@ -1,0 +1,175 @@
+using System;
+using System.Collections.Generic;
+using LastTurn.Core;
+using UnityEngine;
+
+namespace LastTurn.Prototype
+{
+  public sealed class GtPrototype : MonoBehaviour
+  {
+    [SerializeField] private Transform vehicleRoot;
+    [SerializeField] private Transform[] steerPivots = new Transform[4], spinPivots = new Transform[4];
+    [SerializeField] private GtFollowCamera followCamera;
+    [SerializeField] private Transform ground;
+    private PowertrainParameters parameters;
+    private PowertrainFixedStepRunner runner;
+    private GtKeyboardInput input;
+    private double previousSteer;
+    private bool focused = true;
+    private readonly List<DrivingInput> trace = new List<DrivingInput>();
+    private GUIStyle title, digits, text;
+    private float frameSeconds = 1f / 60;
+    public PowertrainVehicle Simulation { get; private set; }
+    public Transform VehicleRoot => vehicleRoot;
+    public Transform[] SteerPivots => steerPivots;
+    public Transform[] SpinPivots => spinPivots;
+    public GtFollowCamera FollowCamera => followCamera;
+    public DrivingInput CurrentInput { get; private set; }
+    public IReadOnlyList<DrivingInput> RecordedInputs => trace;
+    public int RestartCount { get; private set; }
+
+    private void Awake()
+    {
+      parameters = GtPrototypeParameters.Create();
+      if (!vehicleRoot || !followCamera) throw new InvalidOperationException("GTTest sahnesi eksik; Last Turn menüsünden sahneyi oluşturun.");
+      input = new GtKeyboardInput(); ResetVehicle();
+    }
+    private void OnEnable() { input?.Enable(); }
+    private void OnDisable() { input?.Disable(); }
+    private void OnDestroy() { input?.Dispose(); }
+    private void OnApplicationFocus(bool value) { focused = value; if (value) input?.Enable(); else input?.Disable(); }
+    public void ResetVehicle()
+    {
+      Simulation = new PowertrainVehicle(parameters); runner = new PowertrainFixedStepRunner(Simulation);
+      trace.Clear(); previousSteer = 0; CurrentInput = default; RestartCount++;
+      followCamera.ResetFollow(); RenderFrame(0);
+    }
+    private void Update()
+    {
+      if (!focused) return;
+      if (input.ConsumeRestart()) { ResetVehicle(); return; }
+      CurrentInput = input.Read();
+      runner.Advance(Time.deltaTime, _ =>
+      {
+        previousSteer = Simulation.Engine.SteeringAngle;
+        if (trace.Count < 7200) trace.Add(CurrentInput);
+        return CurrentInput;
+      });
+      frameSeconds = Mathf.Lerp(frameSeconds, Time.unscaledDeltaTime, .05f);
+    }
+    private void LateUpdate() { RenderFrame(Mathf.Min(Time.unscaledDeltaTime, .1f)); }
+    private void RenderFrame(float dt)
+    {
+      if (runner == null) return;
+      var a = runner.PreviousBody; var b = runner.CurrentBody; float alpha = (float)runner.Alpha;
+      vehicleRoot.SetPositionAndRotation(Vector3.Lerp(GtPresentation.Position(a.Position), GtPresentation.Position(b.Position), alpha),
+        Quaternion.Slerp(GtPresentation.Rotation(a.Orientation), GtPresentation.Rotation(b.Orientation), alpha));
+      for (int i = 0; i < 4; i++)
+      {
+        var t = parameters.Chassis.Wheels[i];
+        double compression = GtPresentation.Blend(a.Wheels[i].Compression, b.Wheels[i].Compression, alpha);
+        steerPivots[i].localPosition = ModelPoint(t.X, t.AttachmentY - t.RestLength + compression, t.Z, parameters.Chassis);
+        double delta = GtPresentation.Blend(GtPresentation.Steering(t, parameters.Chassis.Wheelbase, previousSteer),
+          GtPresentation.Steering(t, parameters.Chassis.Wheelbase, Simulation.Engine.SteeringAngle), alpha);
+        steerPivots[i].localRotation = Quaternion.AngleAxis(-GtPresentation.Degrees(delta), Vector3.up);
+        spinPivots[i].localRotation = Quaternion.AngleAxis(GtPresentation.Degrees(GtPresentation.Blend(a.Wheels[i].Angle, b.Wheels[i].Angle, alpha)), Vector3.right);
+      }
+      Vector3 origin = vehicleRoot.TransformPoint(ModelPoint(0, 0, 0, parameters.Chassis));
+      followCamera.Render(origin, vehicleRoot.forward, (float)b.Velocity.Length, dt);
+      // Sonsuz H=0 zeminin yalnız görsel döşemesi; simülasyona geri besleme yok.
+      ground.position = new Vector3(vehicleRoot.position.x, 0, vehicleRoot.position.z);
+    }
+    private static Vector3 ModelPoint(double x, double y, double z, VehicleParameters p)
+      => GtPresentation.Position(new BodyVector(x, y - p.CgY, z - p.CgZ));
+
+    // Editor kurucusu bir kez çağırır; primitive nesneler ve referanslar gerçek .unity dosyasına kaydedilir.
+    public void BuildVisuals()
+    {
+      var p = GtPrototypeParameters.Create().Chassis;
+      var materials = new Dictionary<Color, Material>();
+      Material Mat(Color color)
+      {
+        if (!materials.TryGetValue(color, out var m))
+        { m = new Material(Shader.Find("Standard")) { color = color, name = "GT_" + ColorUtility.ToHtmlStringRGB(color) }; m.SetFloat("_Glossiness", .45f); materials.Add(color, m); }
+        return m;
+      }
+      Transform Shape(string name, PrimitiveType type, Transform parent, Vector3 position, Vector3 scale, Color color)
+      {
+        var go = GameObject.CreatePrimitive(type); go.name = name; go.transform.SetParent(parent, false);
+        go.transform.localPosition = position; go.transform.localScale = scale;
+        var collider = go.GetComponent<Collider>(); if (collider) collider.enabled = false;
+        go.GetComponent<Renderer>().sharedMaterial = Mat(color); return go.transform;
+      }
+      var asphalt = new Color(.105f,.12f,.14f); var red = new Color(.72f,.035f,.045f); var dark = new Color(.035f,.045f,.055f);
+      var silver = new Color(.6f,.66f,.7f); var glass = new Color(.11f,.22f,.28f);
+      ground = Shape("Düz asfalt", PrimitiveType.Plane, transform, Vector3.zero, new Vector3(400,1,400), asphalt);
+      for (int n = -20; n <= 20; n++)
+      {
+        Shape("Mesafe çizgisi Z " + n, PrimitiveType.Cube, transform, new Vector3(0,.006f,n*25), new Vector3(1000,.008f,.055f), new Color(.19f,.21f,.23f));
+        Shape("Mesafe çizgisi X " + n, PrimitiveType.Cube, transform, new Vector3(n*25,.006f,0), new Vector3(.055f,.008f,1000), new Color(.19f,.21f,.23f));
+      }
+      for(int n=0;n<18;n++) Shape("Başlangıç karesi", PrimitiveType.Cube, transform, new Vector3((n%9-4)*.6f,.015f,(n/9)*.6f-5),new Vector3(.6f,.015f,.6f),n%2==0?Color.white:dark);
+      vehicleRoot = new GameObject("GT • ağırlık merkezi").transform; vehicleRoot.SetParent(transform, false);
+      void Body(string name, double x, double y, double z, Vector3 scale, Color color)
+        => Shape(name, PrimitiveType.Cube, vehicleRoot, ModelPoint(x,y,z,p), scale, color);
+      Body("GT gövde",0,.48,0,new Vector3(1.8f,.44f,4.35f),red);
+      Body("Kokpit",0,.88,-.25,new Vector3(1.36f,.5f,1.65f),glass);
+      Body("Tavan",0,1.145,-.35,new Vector3(1.3f,.06f,1.25f),red);
+      Body("Ön splitter",0,.24,2.12,new Vector3(1.84f,.08f,.24f),dark);
+      Body("Arka kanat",0,1.03,-1.85,new Vector3(1.86f,.07f,.3f),dark);
+      Body("Sol kanat ayağı",.57,.85,-1.85,new Vector3(.06f,.3f,.1f),dark);
+      Body("Sağ kanat ayağı",-.57,.85,-1.85,new Vector3(.06f,.3f,.1f),dark);
+      foreach(double side in new[]{-.63,.63})
+      {
+        Body("Far",side,.53,2.185,new Vector3(.36f,.12f,.025f),new Color(.9f,.95f,1));
+        Body("Stop",side,.52,-2.185,new Vector3(.38f,.1f,.025f),new Color(1,.06f,.025f));
+      }
+      for (int i = 0; i < 4; i++)
+      {
+        var t = p.Wheels[i];
+        steerPivots[i] = new GameObject("Teker direksiyon " + i).transform; steerPivots[i].SetParent(vehicleRoot, false);
+        spinPivots[i] = new GameObject("Teker dönüş " + i).transform; spinPivots[i].SetParent(steerPivots[i], false);
+        var tire = Shape("Lastik " + i,PrimitiveType.Cylinder,spinPivots[i],Vector3.zero,new Vector3((float)t.Radius*2,.13f,(float)t.Radius*2),dark);
+        tire.localRotation = Quaternion.Euler(0,0,90);
+        var rim = Shape("Jant " + i,PrimitiveType.Cylinder,spinPivots[i],new Vector3(i%2==0?-.14f:.14f,0,0),new Vector3(.43f,.012f,.43f),silver);
+        rim.localRotation = Quaternion.Euler(0,0,90);
+        Shape("Dönüş işareti " + i,PrimitiveType.Cube,spinPivots[i],new Vector3(i%2==0?-.158f:.158f,0,0),new Vector3(.025f,.46f,.045f),dark);
+        steerPivots[i].localPosition = ModelPoint(t.X,t.Radius,t.Z,p);
+      }
+      var cameraObject = new GameObject("GT yakın takip kamera", typeof(Camera), typeof(GtFollowCamera));
+      cameraObject.transform.SetParent(transform, false); cameraObject.tag = "MainCamera";
+      var camera = cameraObject.GetComponent<Camera>(); camera.nearClipPlane = .15f; camera.farClipPlane = 600;
+      camera.backgroundColor = new Color(.4f,.55f,.68f); camera.clearFlags = CameraClearFlags.SolidColor;
+      followCamera = cameraObject.GetComponent<GtFollowCamera>();
+      vehicleRoot.position = GtPresentation.Position(new BodyVector(0,p.CgY,p.CgZ));
+      followCamera.Render(Vector3.zero,Vector3.forward,0,0);
+      var sun = new GameObject("GT güneş", typeof(Light)); sun.transform.SetParent(transform, false);
+      sun.transform.rotation = Quaternion.Euler(45,-30,0); var light = sun.GetComponent<Light>(); light.type = LightType.Directional; light.intensity = 1.15f;
+    }
+
+    private void OnGUI()
+    {
+      if (Simulation == null) return;
+      if (title == null)
+      {
+        title = new GUIStyle(GUI.skin.label) { fontSize = 13, fontStyle = FontStyle.Bold, normal = { textColor = new Color(.95f,.32f,.2f) } };
+        digits = new GUIStyle(GUI.skin.label) { fontSize = 34, fontStyle = FontStyle.Bold, normal = { textColor = Color.white } };
+        text = new GUIStyle(GUI.skin.label) { fontSize = 13, normal = { textColor = new Color(.86f,.89f,.92f) } };
+      }
+      var old = GUI.matrix; float scale = Mathf.Clamp(Screen.width / 1280f,.8f,1.6f); GUI.matrix = Matrix4x4.Scale(new Vector3(scale,scale,1));
+      GUI.Box(new Rect(14,14,300,202), GUIContent.none);
+      GUI.Label(new Rect(28,23,270,22),"LAST TURN  /  GT TEST",title);
+      var s = Simulation.Body; var e = Simulation.Engine;
+      GUI.Label(new Rect(26,42,220,48),$"{s.Velocity.Length*3.6:0} km/sa",digits);
+      GUI.Label(new Rect(235,51,65,38),e.Gear<0?"R":e.Gear.ToString(),digits);
+      GUI.Label(new Rect(28,93,275,22),$"{e.Rpm:0} RPM   •   OTOMATİK   •   Turbo %{e.Turbo*100:0}",text);
+      int contacts = 0; foreach(var wheel in s.Wheels) if(wheel.Contact) contacts++;
+      GUI.Label(new Rect(28,116,275,22),$"Temas {contacts}/4   Ön {s.FrontLoad/1000:0.0} / Arka {s.RearLoad/1000:0.0} kN",text);
+      GUI.Label(new Rect(28,139,275,22),$"60 Hz × 8  |  Adım {s.Steps}  |  {1/Mathf.Max(.001f,frameSeconds):0} FPS",text);
+      GUI.Label(new Rect(28,161,275,22),$"Gaz %{CurrentInput.Throttle*100:0}  Fren %{CurrentInput.Brake*100:0}  El freni {(CurrentInput.Handbrake?"AÇIK":"—")}",text);
+      GUI.Label(new Rect(28,185,275,22),focused?"Düz asfalt · klavye testi":"Duraklatıldı · pencereye dönün",text);
+      GUI.Box(new Rect(14,Screen.height/scale-46,560,32),"W / ↑ Gaz    S / ↓ Fren ve geri    A/D / ←/→ Dönüş    Space El freni    R Başlangıç");
+      GUI.matrix = old;
+    }
+  }
+}
