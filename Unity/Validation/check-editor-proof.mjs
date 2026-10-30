@@ -34,6 +34,7 @@ for (const full of [
     .map((p) => resolve(project, "Assets/LastTurn/Editor", p)),
   resolve(project, "Validation/Reference/four-wheel-0.8.18.json"),
   resolve(project, "Validation/Reference/powertrain-0.8.18.json"),
+  resolve(project, "Validation/Reference/terrain-0.8.18.json"),
 ]) {
   if ((await stat(full)).mtimeMs > Date.parse(proof.utc))
     throw new Error("Editor kanıtından sonra kaynak değişti; Editor Assets > Refresh gerekir.");

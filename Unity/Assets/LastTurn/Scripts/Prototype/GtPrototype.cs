@@ -11,6 +11,9 @@ namespace LastTurn.Prototype
     [SerializeField] private Transform[] steerPivots = new Transform[4], spinPivots = new Transform[4];
     [SerializeField] private GtFollowCamera followCamera;
     [SerializeField] private Transform ground;
+    [SerializeField] private bool terrainMode;
+    private IVehicleWorld world;
+    public bool TerrainMode => terrainMode;
     private PowertrainParameters parameters;
     private PowertrainFixedStepRunner runner;
     private GtKeyboardInput input;
@@ -31,6 +34,7 @@ namespace LastTurn.Prototype
     private void Awake()
     {
       parameters = GtPrototypeParameters.Create();
+      world=terrainMode?(IVehicleWorld)new TerrainTestWorld():FlatAsphaltWorld.Instance;
       if (!vehicleRoot || !followCamera) throw new InvalidOperationException("GTTest sahnesi eksik; Last Turn menüsünden sahneyi oluşturun.");
       input = new GtKeyboardInput(); ResetVehicle();
     }
@@ -40,7 +44,7 @@ namespace LastTurn.Prototype
     private void OnApplicationFocus(bool value) { focused = value; if (value) input?.Enable(); else input?.Disable(); }
     public void ResetVehicle()
     {
-      Simulation = new PowertrainVehicle(parameters); runner = new PowertrainFixedStepRunner(Simulation);
+      Simulation = new PowertrainVehicle(parameters,world:world); runner = new PowertrainFixedStepRunner(Simulation);
       trace.Clear(); previousSteer = 0; CurrentInput = default; RestartCount++;
       followCamera.ResetFollow(); RenderFrame(0);
     }
@@ -77,7 +81,14 @@ namespace LastTurn.Prototype
       Vector3 origin = vehicleRoot.TransformPoint(ModelPoint(0, 0, 0, parameters.Chassis));
       followCamera.Render(origin, vehicleRoot.forward, (float)b.Velocity.Length, dt);
       // Sonsuz H=0 zeminin yalnız görsel döşemesi; simülasyona geri besleme yok.
-      ground.position = new Vector3(vehicleRoot.position.x, 0, vehicleRoot.position.z);
+      if(!terrainMode)ground.position = new Vector3(vehicleRoot.position.x, 0, vehicleRoot.position.z);
+    }
+    // Yalnız ayrı arazi sahnesi kurucusu çağırır; GTTest serialized verisi değişmez.
+    public void ConfigureTerrain()
+    {
+      terrainMode=true;
+      foreach(Transform child in transform)
+        if(child==ground || child.name.StartsWith("Mesafe çizgisi") || child.name=="Başlangıç karesi")child.gameObject.SetActive(false);
     }
     private static Vector3 ModelPoint(double x, double y, double z, VehicleParameters p)
       => GtPresentation.Position(new BodyVector(x, y - p.CgY, z - p.CgZ));
@@ -158,7 +169,7 @@ namespace LastTurn.Prototype
       }
       var old = GUI.matrix; float scale = Mathf.Clamp(Screen.width / 1280f,.8f,1.6f); GUI.matrix = Matrix4x4.Scale(new Vector3(scale,scale,1));
       GUI.Box(new Rect(14,14,300,202), GUIContent.none);
-      GUI.Label(new Rect(28,23,270,22),"LAST TURN  /  GT TEST",title);
+      GUI.Label(new Rect(28,23,270,22),terrainMode?"LAST TURN  /  ARAZİ TESTİ":"LAST TURN  /  GT TEST",title);
       var s = Simulation.Body; var e = Simulation.Engine;
       GUI.Label(new Rect(26,42,220,48),$"{s.Velocity.Length*3.6:0} km/sa",digits);
       GUI.Label(new Rect(235,51,65,38),e.Gear<0?"R":e.Gear.ToString(),digits);
@@ -167,7 +178,19 @@ namespace LastTurn.Prototype
       GUI.Label(new Rect(28,116,275,22),$"Temas {contacts}/4   Ön {s.FrontLoad/1000:0.0} / Arka {s.RearLoad/1000:0.0} kN",text);
       GUI.Label(new Rect(28,139,275,22),$"60 Hz × 8  |  Adım {s.Steps}  |  {1/Mathf.Max(.001f,frameSeconds):0} FPS",text);
       GUI.Label(new Rect(28,161,275,22),$"Gaz %{CurrentInput.Throttle*100:0}  Fren %{CurrentInput.Brake*100:0}  El freni {(CurrentInput.Handbrake?"AÇIK":"—")}",text);
-      GUI.Label(new Rect(28,185,275,22),focused?"Düz asfalt · klavye testi":"Duraklatıldı · pencereye dönün",text);
+      GUI.Label(new Rect(28,185,275,22),focused?(terrainMode?VehicleGround.Name(s.CenterSurface)+" · engebeli zemin":"Düz asfalt · klavye testi"):"Duraklatıldı · pencereye dönün",text);
+      if(terrainMode)
+      {
+        GUI.Box(new Rect(14,225,350,158),GUIContent.none);
+        GUI.Label(new Rect(28,234,325,22),$"Z {s.Position.Z:0.0} m · Y {s.Position.Y:0.00} m · Dikey {s.Velocity.Y:0.0} m/sn",text);
+        for(int i=0;i<4;i++)
+        {
+          var wheel=s.Wheels[i];string corner=new[]{"Ön sol","Ön sağ","Arka sol","Arka sağ"}[i];
+          GUI.Label(new Rect(28,258+i*23,325,22),$"{corner}: {VehicleGround.Name(wheel.SurfaceIndex)} · {(wheel.Contact?"TEMAS":"HAVA")} · {wheel.Compression*100:0.0} cm",text);
+        }
+        GUI.Label(new Rect(28,351,325,22),"20–60 tepe · 70–90 tümsek · 105–120 rampa",text);
+        if(Screen.width/scale>820)GUI.Box(new Rect(380,14,420,53),"Sol şerit TOPRAK (x ≥ 4) · Sağ şerit ASFALT\nW ile ilerle · A/D ile yüzey değiştir · R başa döner");
+      }
       GUI.Box(new Rect(14,Screen.height/scale-46,560,32),"W / ↑ Gaz    S / ↓ Fren ve geri    A/D / ←/→ Dönüş    Space El freni    R Başlangıç");
       GUI.matrix = old;
     }

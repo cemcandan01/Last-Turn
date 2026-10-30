@@ -13,6 +13,8 @@ namespace LastTurn.Core
     public double TanAlpha { get; internal set; }
     public double AbsMultiplier { get; internal set; }
     public bool Contact { get; internal set; }
+    public int SurfaceIndex { get; internal set; }
+    public BodyVector GroundNormal { get; internal set; }
   }
 
   public sealed class VehicleState
@@ -22,6 +24,9 @@ namespace LastTurn.Core
     public BodyVector Velocity { get; internal set; }
     public BodyVector AngularVelocity { get; internal set; }
     public int Steps { get; internal set; }
+    public int CenterSurface { get; internal set; } = 1;
+    public double Wet { get; internal set; }
+    public double Mud { get; internal set; }
     internal readonly VehicleWheelState[] WheelData;
     public IReadOnlyList<VehicleWheelState> Wheels { get; }
     internal VehicleState(BodyVector position, BodyRotation orientation, BodyVector velocity, BodyVector angularVelocity, VehicleWheelState[] wheels, int steps = 0)
@@ -29,7 +34,8 @@ namespace LastTurn.Core
       Position = position; Orientation = orientation; Velocity = velocity; AngularVelocity = angularVelocity; WheelData = wheels;
       Wheels = Array.AsReadOnly(WheelData); Steps = steps;
     }
-    internal VehicleState Copy() => new VehicleState(Position, Orientation, Velocity, AngularVelocity, (VehicleWheelState[])WheelData.Clone(), Steps);
+    internal VehicleState Copy() => new VehicleState(Position, Orientation, Velocity, AngularVelocity, (VehicleWheelState[])WheelData.Clone(), Steps)
+      { CenterSurface=CenterSurface,Wet=Wet,Mud=Mud };
     public double FrontLoad => Wheels[0].Load + Wheels[1].Load;
     public double RearLoad => Wheels[2].Load + Wheels[3].Load;
     public double LeftLoad => Wheels[0].Load + Wheels[2].Load;

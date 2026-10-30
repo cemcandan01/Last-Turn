@@ -22,6 +22,19 @@ const wheels = f.tk
 const tires = s.tires
   .map((p) => "        new TireParameters(" + nums([p.muY, p.muX, p.kp, p.ap, p.C]) + "),")
   .join("\n");
+const terrain = JSON.parse(
+  fs.readFileSync(path.join(root, "Unity/Validation/Reference/terrain-0.8.18.json"), "utf8"),
+);
+if (terrain.baseline !== ref.baseline) throw new Error("GT yüzey kaynak SHA uyuşmazlığı");
+const surfaceTires = terrain.surfaceProfiles
+  .find((p) => p.car.k === "gt")
+  .surfaceTires.map(
+    (row) =>
+      "        new[] { " +
+      row.map((p) => "new TireParameters(" + nums([p.muY, p.muX, p.kp, p.ap, p.C]) + ")").join(", ") +
+      " },",
+  )
+  .join("\n");
 const text = `// Üretici: Unity/Validation/export-gt-prototype.mjs; TS 0.8.18 ${ref.baseline}.
 namespace LastTurn.Core
 {
@@ -35,8 +48,11 @@ ${wheels}
       var tires = new[] {
 ${tires}
       };
+      var surfaceTires = new[] {
+${surfaceTires}
+      };
       var chassis = new VehicleParameters(${f.m}, new BodyVector(${nums(f.I)}), ${nums([f.cgY, f.cgZ, f.aks])}, wheels, tires,
-        ${nums([...f.arb, f.awd, f.fren, f.frenOn, f.CdA, f.ClA, f.diff, c.dk ?? 220, c.w, c.lift ?? 0, c.dmax ?? 0.8])});
+        ${nums([...f.arb, f.awd, f.fren, f.frenOn, f.CdA, f.ClA, f.diff, c.dk ?? 220, c.w, c.lift ?? 0, c.dmax ?? 0.8])}, surfaceTires);
       // TS 0.8.18'den bilinçli fark: GT geri manevra kesicisi 3000 RPM.
       return new PowertrainParameters(chassis, ${nums([f.tork, f.devirMax, f.devirMin, f.kalkis, f.son, f.verim, t.thr, t.lch, t.lock, t.sens, c.tb ?? 0, c.tbs ?? 1, c.tbu ?? 0.6, s.tcs, s.abs])}, reverseMaxRpm: 3000);
     }

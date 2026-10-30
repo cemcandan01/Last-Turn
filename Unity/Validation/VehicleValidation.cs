@@ -10,9 +10,10 @@ internal static class VehicleValidation
     var wheels = f.GetProperty("tk").EnumerateArray().Select(t => new WheelGeometry(N(t,"x"),N(t,"z"),N(t,"r"),t.GetProperty("on").GetBoolean(),N(t,"ay"),N(t,"Lr"),N(t,"k"),N(t,"cb"),N(t,"cr"),N(t,"tampon"),N(t,"c0"),N(t,"Fz0"),N(t,"I"))).ToArray();
     var tires = scenario.GetProperty("tires").EnumerateArray().Select(t => new TireParameters(N(t,"muY"),N(t,"muX"),N(t,"kp"),N(t,"ap"),N(t,"C"))).ToArray();
     var inertia = f.GetProperty("I"); var arb = f.GetProperty("arb");
+    var surfaceTires=scenario.TryGetProperty("surfaceTires",out var table)?table.EnumerateArray().Select(row=>row.EnumerateArray().Select(t=>new TireParameters(N(t,"muY"),N(t,"muX"),N(t,"kp"),N(t,"ap"),N(t,"C"))).ToArray()).ToArray():null!;
     return new VehicleParameters(N(f,"m"),new BodyVector(inertia[0].GetDouble(),inertia[1].GetDouble(),inertia[2].GetDouble()),N(f,"cgY"),N(f,"cgZ"),N(f,"aks"),
       wheels,tires,arb[0].GetDouble(),arb[1].GetDouble(),N(f,"awd"),N(f,"fren"),N(f,"frenOn"),N(f,"CdA"),N(f,"ClA"),N(f,"diff"),
-      car.TryGetProperty("dk",out var dk)?dk.GetDouble():220,N(car,"w"),car.TryGetProperty("lift",out var lift)?lift.GetDouble():0,car.TryGetProperty("dmax",out var dm)?dm.GetDouble():.8);
+      car.TryGetProperty("dk",out var dk)?dk.GetDouble():220,N(car,"w"),car.TryGetProperty("lift",out var lift)?lift.GetDouble():0,car.TryGetProperty("dmax",out var dm)?dm.GetDouble():.8,surfaceTires);
   }
   private static FourWheelVehicle Simulation(JsonElement scenario, VehicleParameters parameters)
   {

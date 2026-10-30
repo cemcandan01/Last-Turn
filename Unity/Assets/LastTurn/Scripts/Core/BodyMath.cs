@@ -27,6 +27,9 @@ namespace LastTurn.Core
     }
     public static BodyRotation Identity => new BodyRotation(0, 0, 0, 1);
     public static BodyRotation Yaw(double yaw) => new BodyRotation(0, Math.Sin(yaw / 2), 0, Math.Cos(yaw / 2));
+    public static BodyRotation Multiply(BodyRotation a,BodyRotation b)=>new BodyRotation(
+      a.W*b.X+a.X*b.W+a.Y*b.Z-a.Z*b.Y,a.W*b.Y-a.X*b.Z+a.Y*b.W+a.Z*b.X,
+      a.W*b.Z+a.X*b.Y-a.Y*b.X+a.Z*b.W,a.W*b.W-a.X*b.X-a.Y*b.Y-a.Z*b.Z);
     public BodyVector Rotate(BodyVector v)
     {
       double tx = 2 * (Y * v.Z - Z * v.Y), ty = 2 * (Z * v.X - X * v.Z), tz = 2 * (X * v.Y - Y * v.X);

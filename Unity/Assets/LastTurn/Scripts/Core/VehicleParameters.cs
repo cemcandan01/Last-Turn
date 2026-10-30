@@ -27,10 +27,13 @@ namespace LastTurn.Core
     public readonly BodyVector Inertia;
     public IReadOnlyList<WheelGeometry> Wheels { get; }
     public IReadOnlyList<TireParameters> Tires { get; }
+    private readonly TireParameters[][] surfaceTires;
+    public TireParameters TireForSurface(int surface,int wheel) { VehicleGround.Validate(surface);return surfaceTires[surface][wheel]; }
     public VehicleParameters(double mass, BodyVector inertia, double cgY, double cgZ, double wheelbase,
       WheelGeometry[] wheels, TireParameters[] tires, double frontAntiRoll, double rearAntiRoll,
       double frontDriveShare, double brakeTorque, double frontBrakeShare, double dragArea, double downforceArea,
-      double rearDifferential, double differentialRate, double width, double lift, double maxSteering)
+      double rearDifferential, double differentialRate, double width, double lift, double maxSteering,
+      TireParameters[][] surfaceTires = null!)
     {
       Numeric.Positive(mass); Numeric.Positive(inertia.X); Numeric.Positive(inertia.Y); Numeric.Positive(inertia.Z);
       Numeric.Positive(cgY); Numeric.Finite(cgZ); Numeric.Positive(wheelbase); Numeric.NonNegative(frontAntiRoll); Numeric.NonNegative(rearAntiRoll);
@@ -45,6 +48,15 @@ namespace LastTurn.Core
       }
       Mass = mass; Inertia = inertia; CgY = cgY; CgZ = cgZ; Wheelbase = wheelbase;
       Wheels = Array.AsReadOnly((WheelGeometry[])wheels.Clone()); Tires = Array.AsReadOnly((TireParameters[])tires.Clone());
+      if(surfaceTires!=null && surfaceTires.Length!=6)throw new ArgumentException("Altı yüzey lastik tablosu gerekli.");
+      this.surfaceTires=new TireParameters[6][];
+      for(int surface=0;surface<6;surface++)
+      {
+        var row=surfaceTires==null?tires:surfaceTires[surface];
+        if(row==null || row.Length!=4)throw new ArgumentException("Her yüzeyde dört lastik gerekli.");
+        foreach(var tire in row)tire.Validate();
+        this.surfaceTires[surface]=(TireParameters[])row.Clone();
+      }
       FrontAntiRoll = frontAntiRoll; RearAntiRoll = rearAntiRoll; FrontDriveShare = frontDriveShare;
       BrakeTorque = brakeTorque; FrontBrakeShare = frontBrakeShare; DragArea = dragArea; DownforceArea = downforceArea;
       RearDifferential = rearDifferential; DifferentialRate = differentialRate; Width = width; Lift = lift; MaxSteering = maxSteering;

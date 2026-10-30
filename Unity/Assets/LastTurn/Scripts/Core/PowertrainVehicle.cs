@@ -9,11 +9,11 @@ namespace LastTurn.Core
     private readonly FourWheelVehicle body;
     public VehicleState Body => body.State;
     public PowertrainState Engine { get; private set; } = null!;
-    public PowertrainVehicle(PowertrainParameters parameters, double initialSpeed = 0, int initialGear = 1)
+    public PowertrainVehicle(PowertrainParameters parameters, double initialSpeed = 0, int initialGear = 1,IVehicleWorld world = null!)
     {
       p = parameters ?? throw new ArgumentNullException(nameof(parameters));
       PowertrainParameters.GearRatio(initialGear);
-      body = new FourWheelVehicle(p.Chassis, initialSpeed);
+      body = new FourWheelVehicle(p.Chassis, initialSpeed,world:world);
       Engine = Initial(initialGear);
     }
     private static PowertrainState Initial(int gear) => new PowertrainState { Rpm = 900, Gear = gear };

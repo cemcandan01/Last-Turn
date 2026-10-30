@@ -13,6 +13,10 @@ Bu depo iki ürünü birlikte taşır:
 4. Saf C# çekirdek kodu `Unity/Assets/LastTurn/Scripts/Core/` altında tutulur; Unity/arayüz bağımlılıkları üst katmanlara kalır.
 5. TypeScript denge formülleri ve davranışları kaynak referanstır. Taşınan bir kuralın TypeScript testi ya da belgelenmiş ölçümü bağlanmadan davranışı yeniden tasarlamayız.
 
+## Güncel vites kararı — 31 Ekim 2026
+
+TS 0.8.18'de manuel vites yoktu. Genel sürüşe manuel vites eklenmeyecek: asfalt, ralli, drift ve serbest sürüş/test otomatik vites kullanır. Manuel vites yalnız gelecekteki **Drag yarışlarının beceri mekaniğidir**. Drag'ın sonraki tasarımında kalkış RPM kontrolü, patinaj, doğru vites zamanlaması ve gerçek tork eğrisine dayalı performans ele alınacak; ayrı manuel debriyaj tuşu ilk aşamada zorunlu olmayacak. Bu bir tasarım kaydıdır; mevcut zemin görevi Drag geliştirmesi içermez. Geçmiş bölümlerdeki “manuel mod sonraki görev” notları bu kararla sınırlanır.
+
 ## Dallar ve çalışma alanları
 
 2026-10-30 yerel düzeni: ana depo `D:/Last Turn/Last-Turn` (`master`), Codex worktree'si `D:/Last Turn/Last-Turn-Codex` (`agents/codex`), Claude worktree'si `D:/Last Turn/Last-Turn-Claude` (`agents/claude`), Unity worktree'si `D:/Last Turn/Last-Turn-Unity` (`unity/yerel-gelistirme`). Bunlar fiziksel çalışma alanlarıdır, kalıcı uzmanlık/üstünlük ataması değildir. Sahip her görevde uzmanlık, bağlam, geçmiş ve bilinen kapasiteyle seçilir. Mevcut worktree'leri yeniden kurma veya kendiliğinden dal değiştirme.
@@ -112,6 +116,14 @@ Girdiler InputActionMap üzerinden `PowertrainFixedStepRunner`a gider. Görsel k
 Menü `Last Turn → GT Kısa Play Doğrulaması` (Ctrl+F8), gerçek Play ve Input System üzerinden 18 kontrol yapar, girdi kaydını 30/60/120 FPS'de bit düzeyinde tekrarlar, sonra Play'i kapatır. `node Unity/Validation/check-prototype-proof.mjs` son başarılı sahne/CS/material/meta hash kanıtını doğrular; kaynak değişince kontrol yeniden çalıştırılmalıdır. `check-editor-proof.mjs` ayrıca Core ve Runtime adaptör derlemesi/gösterim testini doğrular. Kısa menü kontrolü tam Unity Test Framework paketi/CI Editor/cihaz testi değildir. Adsız Editor sahnesi varsa kurucu veri silmeden ignore edilen `Assets/LocalRecovery/BeforeGT*.unity` dosyasına korur; mevcut sahne dosyasını ezmez.
 
 Test alanı sonsuz düz/asfalt fizik düzleminin gösterimidir; dekorun collider'ları kapalıdır, Rigidbody/WheelCollider yoktur. Engebeli sorgu/engel çarpışması, manuel vites, ses, mobil ve IL2CPP henüz kapsam dışı. Sonraki aşama önce Cem'in klavye/kamera hissi onayı, sonra TS dünya sorgusu/pist fiziği dilimidir.
+
+## Engebeli zemin ve yüzey dilimi — 31 Ekim 2026
+
+Kart `docs/isler/2026-10-31-unity-zemin-yuzey.md`, taban `201d7b3`; kabul edilen geri 3000 RPM / teker bazlı TCS korunur. `IVehicleWorld` saf H/yüzey/hava tutuşu sınırıdır. Varsayılan `FlatAsphaltWorld` eski düz GT izlerini korur. Dört tekerin yüzeyi ve .5 m merkezi-fark normali ana adımda; temas yüksekliği sekiz alt adımda yeniden sorgulanır. Temas ışını, zemin düzlemine lastik izdüşümü, gövde-up yay kuvveti ve gövde-zemin teması özgün TS sırasındadır. Reset dört teker altındaki zeminin pitch/roll ve ortalama yüksekliğini kullanır.
+
+GT fabrika verisi, sabit TS oracle'ından üretilen altı yüzey × dört lastik tablosunu içerir; asfalt lastiğini tek tutuş çarpanıyla toprağa çevirmeyiz. `VehicleParameters` özel araç verisinde `surfaceTires` verilmezse eski açık lastik parametrelerini kullanır; yeni çok-yüzeyli araç kurulumunda gerçek yüzey tabloları verilmelidir. Islaklık/çamur izi, yüzeye bağlı yuvarlanma ve temaslı gövde direnci de taşındı. Otomatik vites, motor ve önceki GT düzeltmeleri dünya sorgusundan bağımsız kalır.
+
+Yeni sahne `Unity/Assets/LastTurn/Scenes/TerrainTest.unity`; `Last Turn → Arazi Test Sahnesini Aç` / `Arazi Kısa Play Doğrulaması` menüleri. Rehber `Unity/ARAZI-PROTOTIP.md`. Kamera/görsel teker/klavye aynı adaptörü kullanır; yalnız bu sahnenin arazi bayrağı açıktır. GTTest sahne dosyası korunur. `export-terrain-reference.mjs --check` özgün TS reset/zemin/lastik/alt-adımlarını yedi 600-adımlık senaryoda sınar. `.NET` koşucusu 51 alanı ve 30/60/120 FPS/reset davranışını karşılaştırır. `check-terrain-proof.mjs` gerçek Play kaynak hash'lerini doğrular. Tam dünya/gp3, bariyer/nesne çarpışması, cihaz/IL2CPP ve Drag bu dilimde yoktur.
 
 ## GitHub koruma ayarı
 

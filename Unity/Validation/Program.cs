@@ -108,3 +108,4 @@ Console.WriteLine(JsonSerializer.Serialize(new { result = "passed", baseline, ro
 VehicleValidation.Run();
 PowertrainValidation.Run();
 GtPhysicsValidation.Run();
+TerrainValidation.Run();
