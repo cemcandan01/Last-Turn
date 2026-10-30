@@ -93,3 +93,6 @@ Oracle orijinal TS kaynaklarını **sabit SHA'dan** okur; yalnız ilgili fonksiy
 ### Sonraki tek geliştirme görevi
 
 Sabit düzlem `DunyaSorgusu` sözleşmesi, saf C# vektör/dördey ve rijit gövde durumuyla **dört teker süspansiyon + gövde kuvvet/tork toplamının küçük düz-zemin senaryosunu** taşı. Mevcut teker/lastik çekirdeğini yeniden yazma. Önce sabit SHA'dan bu yeni senaryonun TS izini ve pozisyon/hız/yönelim toleranslarını ekle; sonra C# sonucunu ölç. Motor/vites, pist çarpışması ve gp3 tam 600 adım eşdeğerliğine bundan sonra geç. Girdi/kamera adaptörünü ve sürülebilir sahneyi doğrulanmış gövdeye bağlamak ayrı görevdir; Input System WIP'si yine korunur.
+
+
+Sonraki güvence kaydı: kabul edilmiş bu dilim ve kartı 5aa1b55d712dd4c8e81587ae8c2321c83223b9c3 yerel commit'inde korundu; motor görevi temiz tabandan ayrı dalda başladı. Yukarıdaki commit yapılmadı/HEAD kayıtları ilk teslim anına aittir; push/merge yoktur.

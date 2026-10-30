@@ -54,6 +54,7 @@ Unity dosyası değiştiğinde önce şunları çalıştır:
 node Unity/Validation/validate-project.mjs
 node Unity/Validation/export-reference.mjs --check
 node Unity/Validation/export-vehicle-reference.mjs --check
+node Unity/Validation/export-powertrain-reference.mjs --check
 dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release
 ```
 
@@ -83,6 +84,23 @@ Reset gerektiğinde simülasyonla birlikte yeni yürütücü kur; eski biriktiri
 Yeni oracle sabit SHA'daki orijinal TS alt adım bloğunu ve geometri/lastik/direksiyon/fren hazırlığını çalıştırır. İki gerçek araç, beş 600-adımlık düz-zemin senaryosu, her adımda 45 durum değeri ve önceden belirlenmiş toleranslar karta/ref dosyasına bağlanır. .NET tüm 11 Core dosyasını derler; eski testler ve yeni tekrar/reset/4 kare takvimi/yük transferi testleri birlikte çalışır. Yerel Editor kanıtı eski teker ile yeni dört teker için 600'er kısa adım ister; `node Unity/Validation/check-editor-proof.mjs` hem Core hash'lerini hem Editor kaynakları/referans verisinin zamanını kontrol eder. Editor, Sources/Reference değiştiğinde yeniden Refresh edilmelidir. Bu kanıt CI Editor, IL2CPP veya cihaz doğrulaması değildir.
 
 Claude'un gerçek bağımsız incelemesi ve sınırlaması karttadır; kaynak matematiğini değiştirecek yorumlar otomatik uygulanmaz. Özellikle Unity eksen eşlemesi yalnız gelecek gösterim adaptöründe test edilmelidir; Core'un TypeScript eksenini şimdi çevirmek sayısal sözleşmeyi bozar. Sonraki dilim orijinal motor/vites/aktarma komut üretimidir.
+
+## Motor ve aktarma dilimi (2026-10-30)
+
+Güncel kart `docs/isler/2026-10-30-unity-motor-aktarma.md`, dal `codex/unity-motor-aktarma`, güvence/taban commit'i `5aa1b55`. Kabul edilmiş önceki iki fizik dilimi ve Input System ayarları bu yerel commit'te korunur. `PowertrainParameters` özgün araç/motor/önayar değerlerini alır; `PowertrainVehicle` ham `DrivingInput` girdilerini özgün gaz/direksiyon ve motor hesabından geçirip dört teker çekirdeğine bağlar. Diferansiyeller mevcut gövde alt adımında kalır. Motor/gaz/direksiyon yalnız 1/60 sn ana adımda bir kez, gövde 8 alt adımda ilerler.
+
+```csharp
+var car = new PowertrainVehicle(powertrainParameters);
+var runner = new PowertrainFixedStepRunner(car);
+runner.Advance(renderFrameDelta, tick => recordedInputs[tick]);
+// runner.PreviousBody / CurrentBody / Alpha: görüntüleme; runner.Engine: RPM/vites/turbo göstergeleri.
+```
+
+Girdi alanları gaz/fren 0–1, direksiyon −1…1, analog gaz/direksiyon bayrakları ve el frenidir. ss/sm seçenekleri PowertrainParameters'dadır; drift/ESC/viraj yardım torkları henüz kapsam dışıdır. Orijinal otomatik şanzıman ve otomatik geri/ileri seçimi korunur. Kaynakta manuel vites veya debriyaj pedalı yoktur; Cem'in açık yanıtıyla manuel mod sonraki ayrı göreve bırakıldı. Kaynak kalkış debriyajı bağlı motor devrine uygulanan tabandır; ek motor ataleti/manuel kavrama modeli eklenmez. Süzülen RPM göstergesi tork hesabındaki motor devrinden ayrıdır.
+
+Yeni TS oracle, sabit kaynaktaki motor ve gaz/direksiyon bloklarını önceki gövde oracle'ıyla birleştirir; rölanti, gaz kesme, büyütme/küçültme, geri/ileri ve gerçek turbo T16 dahil 5×600 adımda 58 değeri karşılaştırır. Eski izler değişmez. .NET 15 Core dosyasını gerçekten derler; Editor kontrolü GT/T16 motor için ayrıca 2×600 kısa adım ister. Editor kanıtı `.NET` sayısal iz testinin veya cihaz/IL2CPP doğrulamasının yerine geçmez.
+
+Sonraki sürülebilir prototip: kaynak gt parametrelerini veri olarak sahneye koy; Input System adaptörünü bu yürütücüye bağla, TS eksenlerini yalnız görüntüleme sınırında dönüştür, Previous/Current/Alpha ile görsel gövde/dört teker/kamera göster. Düz zemin, takip kamerası, hız/RPM/vites/turbo ve kısa PlayMode sürüşü yeterli ilk kapsamdır. Unity Rigidbody/WheelCollider ile ikinci simülasyon ekleme. Ayarlar korunur; manuel mod, engebeli dünya/gp3, MUTANT ve cihaz testleri ayrı görevlerdir.
 
 ## GitHub koruma ayarı
 

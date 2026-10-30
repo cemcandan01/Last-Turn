@@ -16,7 +16,7 @@ namespace LastTurn.EditorValidation
         [Serializable] private sealed class Proof
         {
             public string result, utc, unityVersion, coreAssemblyMvid;
-            public int smokeSteps, vehicleSmokeSteps;
+            public int smokeSteps, vehicleSmokeSteps, powertrainSmokeSteps;
             public Source[] sources;
         }
 
@@ -46,6 +46,7 @@ namespace LastTurn.EditorValidation
                 throw new InvalidOperationException("Unity drive core smoke check failed");
             string project = Path.GetDirectoryName(Application.dataPath);
             int vehicleSteps = VehicleCoreSmokeCheck.Run(project);
+            int powertrainSteps = PowertrainCoreSmokeCheck.Run(project);
             string core = Path.Combine(Application.dataPath, "LastTurn/Scripts/Core");
             var proof = new Proof
             {
@@ -53,12 +54,13 @@ namespace LastTurn.EditorValidation
                 unityVersion = Application.unityVersion,
                 coreAssemblyMvid = typeof(WheelDriveBench).Assembly.ManifestModule.ModuleVersionId.ToString(), smokeSteps = 600,
                 vehicleSmokeSteps = vehicleSteps,
+                powertrainSmokeSteps = powertrainSteps,
                 sources = Directory.GetFiles(core, "*.cs", SearchOption.AllDirectories).OrderBy(p => p, StringComparer.Ordinal)
                     .Select(p => new Source { path = p.Substring(project.Length + 1).Replace('\\', '/'), sha256 = Hash(p) }).ToArray()
             };
             Directory.CreateDirectory(Path.Combine(project, "Logs"));
             File.WriteAllText(Path.Combine(project, "Logs/drive-core-compilation.json"), JsonUtility.ToJson(proof, true));
-            Debug.Log("Last Turn: drive core compiled; wheel + four-wheel 600-step repeat smoke passed. Proof: Logs/drive-core-compilation.json");
+            Debug.Log("Last Turn: drive core compiled; wheel + four-wheel + powertrain repeat smoke passed. Proof: Logs/drive-core-compilation.json");
         }
 
         private static string Hash(string path)

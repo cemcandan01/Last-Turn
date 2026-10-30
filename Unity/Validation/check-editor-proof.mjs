@@ -11,6 +11,7 @@ if (
   proof.unityVersion !== "6000.3.9f1" ||
   proof.smokeSteps !== 600 ||
   proof.vehicleSmokeSteps !== 600 ||
+  proof.powertrainSmokeSteps !== 1200 ||
   !proof.coreAssemblyMvid
 )
   throw new Error("Unity derleme/kısa test kanıtı geçersiz.");
@@ -31,10 +32,11 @@ for (const full of [
     .filter((p) => p.endsWith(".cs"))
     .map((p) => resolve(project, "Assets/LastTurn/Editor", p)),
   resolve(project, "Validation/Reference/four-wheel-0.8.18.json"),
+  resolve(project, "Validation/Reference/powertrain-0.8.18.json"),
 ]) {
   if ((await stat(full)).mtimeMs > Date.parse(proof.utc))
     throw new Error("Editor kanıtından sonra kaynak değişti; Editor Assets > Refresh gerekir.");
 }
 console.log(
-  `Unity ${proof.unityVersion}: ${files.length} Core dosyası derlendi; teker ve dört teker için 600'er adımlık kısa test geçti. UTC ${proof.utc}; MVID ${proof.coreAssemblyMvid}`,
+  `Unity ${proof.unityVersion}: ${files.length} Core dosyası; teker 600 + dört teker 600 + motor 1200 adımlık kısa test geçti. UTC ${proof.utc}; MVID ${proof.coreAssemblyMvid}`,
 );

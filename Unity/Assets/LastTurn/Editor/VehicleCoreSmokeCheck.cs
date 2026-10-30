@@ -20,10 +20,10 @@ namespace LastTurn.EditorValidation
       public double[] I,arb;
       public Wheel[] tk;
     }
-    internal static int Run(string project)
+    internal static VehicleParameters Parameters(string project, string relative = "Validation/Reference/four-wheel-0.8.18.json", int index = 0)
     {
-      var fixture = JsonUtility.FromJson<Fixture>(File.ReadAllText(Path.Combine(project, "Validation/Reference/four-wheel-0.8.18.json")));
-      var scenario = fixture.scenarios[0]; var f = scenario.parameters; var car = scenario.car;
+      var fixture = JsonUtility.FromJson<Fixture>(File.ReadAllText(Path.Combine(project, relative)));
+      var scenario = fixture.scenarios[index]; var f = scenario.parameters; var car = scenario.car;
       var wheels = new WheelGeometry[4]; var tires = new TireParameters[4];
       for (int i = 0; i < 4; i++)
       {
@@ -31,8 +31,12 @@ namespace LastTurn.EditorValidation
         wheels[i] = new WheelGeometry(t.x,t.z,t.r,t.on,t.ay,t.Lr,t.k,t.cb,t.cr,t.tampon,t.c0,t.Fz0,t.I);
         tires[i] = new TireParameters(tire.muY,tire.muX,tire.kp,tire.ap,tire.C);
       }
-      var parameters = new VehicleParameters(f.m,new BodyVector(f.I[0],f.I[1],f.I[2]),f.cgY,f.cgZ,f.aks,wheels,tires,
+      return new VehicleParameters(f.m,new BodyVector(f.I[0],f.I[1],f.I[2]),f.cgY,f.cgZ,f.aks,wheels,tires,
         f.arb[0],f.arb[1],f.awd,f.fren,f.frenOn,f.CdA,f.ClA,f.diff,car.dk==0?220:car.dk,car.w,car.lift,car.dmax==0?.8:car.dmax);
+    }
+    internal static int Run(string project)
+    {
+      var parameters = Parameters(project);
       var a = new FourWheelVehicle(parameters,12); var b = new FourWheelVehicle(parameters,12);
       for (int k = 0; k < 600; k++)
       {
@@ -47,7 +51,7 @@ namespace LastTurn.EditorValidation
       if (runner.Advance(1.0/30,_=>new VehicleCommand(0,0,0)) != 2) throw new InvalidOperationException("Unity dört teker sabit adım kontrolü başarısız.");
       return a.State.Steps;
     }
-    private static double[] Values(VehicleState s)
+    internal static double[] Values(VehicleState s)
     {
       var p=s.Position;var q=s.Orientation;var v=s.Velocity;var w=s.AngularVelocity;
       var values=new double[45];var body=new[]{p.X,p.Y,p.Z,q.X,q.Y,q.Z,q.W,v.X,v.Y,v.Z,w.X,w.Y,w.Z};

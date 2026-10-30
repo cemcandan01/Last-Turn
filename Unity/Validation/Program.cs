@@ -104,3 +104,4 @@ var stalled = new FixedStepRunner(new WheelDriveBench(Settings(p0), 2));
 Check(stalled.Advance(1, _ => default) == 6, "100ms stall clamp must be explicit");
 Console.WriteLine(JsonSerializer.Serialize(new { result = "passed", baseline, rowsCompared, checks, maxErrors = names.Select((name, i) => new { name, absoluteError = maxErrors[i], tolerance = limits[i] }) }, new JsonSerializerOptions { WriteIndented = true }));
 VehicleValidation.Run();
+PowertrainValidation.Run();

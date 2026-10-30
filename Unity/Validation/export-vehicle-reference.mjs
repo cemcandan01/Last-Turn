@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import vm from "node:vm";
+import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 
@@ -178,68 +179,89 @@ function scenario(name, carIndex, speed, height, commandAt, yaw = 0) {
   }
   return { name, carIndex, car, parameters: F, tires: LP, initial, rows };
 }
-const reference = {
-  version: 1,
-  baseline,
-  scope:
-    "original 0.8.18 substeps, flat asphalt, explicit drivetrain output torque; no driving assists/engine/gearbox/world objects",
-  dt: 1 / 60,
-  substeps: 8,
-  sources: Object.fromEntries(paths.map((p, i) => [p, createHash("sha256").update(source[i]).digest("hex")])),
-  fields: [
-    ...fields,
-    ...Array.from({ length: 4 }, (_, i) => wheelFields.map((f) => `wheel${i}.${f}`)).flat(),
-  ],
-  tolerances,
-  scenarios: [
-    scenario("rest-rwd", 0, 0, 0, () => [0, 0, 0, false, 0, 1e9]),
-    scenario("accelerate-brake-rwd", 0, 12, 0, (k) => [
-      0,
-      k < 300 ? 1200 : 0,
-      k < 300 ? 0 : 0.5,
-      false,
-      1,
-      3.7,
-    ]),
-    scenario(
-      "turn-awd",
-      1,
-      14,
-      0,
-      (k) => [0.12 * Math.sin(k / 90), 500, 0.03, k >= 420 && k < 480, 1, 3.7],
-      0.37,
+if (path.resolve(process.argv[1] ?? "") === fileURLToPath(import.meta.url)) {
+  const reference = {
+    version: 1,
+    baseline,
+    scope:
+      "original 0.8.18 substeps, flat asphalt, explicit drivetrain output torque; no driving assists/engine/gearbox/world objects",
+    dt: 1 / 60,
+    substeps: 8,
+    sources: Object.fromEntries(
+      paths.map((p, i) => [p, createHash("sha256").update(source[i]).digest("hex")]),
     ),
-    scenario("reverse-awd", 1, -8, 0, (k) => [-0.08, -400, k > 360 ? 0.3 : 0, false, 0, 1e9]),
-    scenario("landing-rwd", 0, 5, 0.7, (k) => [0.03, 200, k > 400 ? 0.1 : 0, false, 0, 1e9]),
-  ],
-};
-for (const scenario of reference.scenarios)
-  for (const row of scenario.rows)
-    if (!row.values.every(Number.isFinite))
-      throw new Error("TS oracle sonlu olmayan durum üretti: " + scenario.name);
-const target = path.join(root, "Unity/Validation/Reference/four-wheel-0.8.18.json");
-if (process.argv.includes("--check")) {
-  const saved = JSON.parse(fs.readFileSync(target, "utf8"));
-  const metadata = (r) => ({
-    ...r,
-    scenarios: r.scenarios.map(({ rows, ...s }) => ({ ...s, commands: rows.map((r) => r.command) })),
-  });
-  if (JSON.stringify(metadata(saved)) !== JSON.stringify(metadata(reference)))
-    throw new Error("Dört teker kaynak/parametre/girdi sözleşmesi değişti");
-  for (let s = 0; s < reference.scenarios.length; s++)
-    for (let k = 0; k < 600; k++)
-      for (let c = 0; c < tolerances.length; c++) {
-        const actual = reference.scenarios[s].rows[k].values[c],
-          expected = saved.scenarios[s].rows[k].values[c];
-        if (
-          !Number.isFinite(actual) ||
-          !Number.isFinite(expected) ||
-          Math.abs(actual - expected) > tolerances[c]
-        )
-          throw new Error(`TS oracle farkı: ${s}/${k}/${c}`);
-      }
-  console.log("TS dört teker referansı doğrulandı: 5 × 600 adım; orijinal alt adım bloğu.");
-} else {
-  fs.writeFileSync(target, JSON.stringify(reference) + "\n");
-  console.log("Dört teker TS referansı üretildi: 5 × 600 adım.");
+    fields: [
+      ...fields,
+      ...Array.from({ length: 4 }, (_, i) => wheelFields.map((f) => `wheel${i}.${f}`)).flat(),
+    ],
+    tolerances,
+    scenarios: [
+      scenario("rest-rwd", 0, 0, 0, () => [0, 0, 0, false, 0, 1e9]),
+      scenario("accelerate-brake-rwd", 0, 12, 0, (k) => [
+        0,
+        k < 300 ? 1200 : 0,
+        k < 300 ? 0 : 0.5,
+        false,
+        1,
+        3.7,
+      ]),
+      scenario(
+        "turn-awd",
+        1,
+        14,
+        0,
+        (k) => [0.12 * Math.sin(k / 90), 500, 0.03, k >= 420 && k < 480, 1, 3.7],
+        0.37,
+      ),
+      scenario("reverse-awd", 1, -8, 0, (k) => [-0.08, -400, k > 360 ? 0.3 : 0, false, 0, 1e9]),
+      scenario("landing-rwd", 0, 5, 0.7, (k) => [0.03, 200, k > 400 ? 0.1 : 0, false, 0, 1e9]),
+    ],
+  };
+  for (const scenario of reference.scenarios)
+    for (const row of scenario.rows)
+      if (!row.values.every(Number.isFinite))
+        throw new Error("TS oracle sonlu olmayan durum üretti: " + scenario.name);
+  const target = path.join(root, "Unity/Validation/Reference/four-wheel-0.8.18.json");
+  if (process.argv.includes("--check")) {
+    const saved = JSON.parse(fs.readFileSync(target, "utf8"));
+    const metadata = (r) => ({
+      ...r,
+      scenarios: r.scenarios.map(({ rows, ...s }) => ({ ...s, commands: rows.map((r) => r.command) })),
+    });
+    if (JSON.stringify(metadata(saved)) !== JSON.stringify(metadata(reference)))
+      throw new Error("Dört teker kaynak/parametre/girdi sözleşmesi değişti");
+    for (let s = 0; s < reference.scenarios.length; s++)
+      for (let k = 0; k < 600; k++)
+        for (let c = 0; c < tolerances.length; c++) {
+          const actual = reference.scenarios[s].rows[k].values[c],
+            expected = saved.scenarios[s].rows[k].values[c];
+          if (
+            !Number.isFinite(actual) ||
+            !Number.isFinite(expected) ||
+            Math.abs(actual - expected) > tolerances[c]
+          )
+            throw new Error(`TS oracle farkı: ${s}/${k}/${c}`);
+        }
+    console.log("TS dört teker referansı doğrulandı: 5 × 600 adım; orijinal alt adım bloğu.");
+  } else {
+    fs.writeFileSync(target, JSON.stringify(reference) + "\n");
+    console.log("Dört teker TS referansı üretildi: 5 × 600 adım.");
+  }
 }
+export {
+  oracle,
+  carValues,
+  presetValue,
+  fields,
+  wheelFields,
+  tolerances,
+  paths,
+  source,
+  baseline,
+  model,
+  geometry,
+  erase,
+  fn,
+  root,
+  block,
+};

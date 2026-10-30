@@ -1,4 +1,4 @@
-﻿# Dört tekerli rijit gövde — düz zemin
+# Dört tekerli rijit gövde — düz zemin
 
 - Sahip: Codex; önceki C# ve doğrulama bağlamı burada. Claude eşit yetkili ajan olarak bağımsız salt okunur kaynak/risk incelemesi yapacak; bu tur dosya yazmayacak.
 - Dal: `codex/unity-dort-teker`; önceki görev dalından, HEAD `cf6aa8ab497114f09104a0306f034cd5698511e5`. Önceki kabul edilen gönderilmemiş çekirdek ve koordinatör WIP korunur. Commit/push/merge yok.
@@ -97,3 +97,6 @@ Mevcut değişiklikleri kaybetme. Her görevin ayrı branch'ini ve görev kartı
 ## Sonraki tek geliştirme görevi
 
 TypeScript'in **motor/devir/vites/turbo + aktarma çıkış torku üretimini** bu doğrulanmış dört teker çekirdeğinin `VehicleCommand.DriveTorque` sınırına bağla; önce orijinal gaz/fren/giriş dizileriyle yeni TS izini ve toleransları kaydet. Garaj/araç kurulumu parametre dönüşümünü aynı kaynaktan tamamla. Bu, düz zeminde tam gaz–vites–fren davranışını kanıtlasın; sonra engebeli dünya sorgusu ve tam gp3 senaryosuna geç. Sonraki sahip o turdaki bağlam/kapasiteye göre seçilir; kalıcı Codex/Claude hiyerarşisi kurulmaz.
+
+
+Sonraki güvence kaydı: kabul edilmiş bu dilim ve kartı 5aa1b55d712dd4c8e81587ae8c2321c83223b9c3 yerel commit'inde korundu; motor görevi temiz tabandan ayrı dalda başladı. Yukarıdaki commit yapılmadı/HEAD kayıtları ilk teslim anına aittir; push/merge yoktur.
