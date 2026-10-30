@@ -34,7 +34,22 @@ const carStart = source[3].lastIndexOf("{", source[3].indexOf('k: "t16"'));
 const turboCar = vm.runInNewContext("(" + block(source[3], carStart).body + ")", {
   GORUNUM: { t16: profile },
 });
-const engineBlock = erase(model.slice(model.indexOf("let gaz ="), model.indexOf("  // frenler ve ABS")));
+const gtFixes = process.argv.includes("--gt-fixes");
+const originalEngineBlock = erase(
+  model.slice(model.indexOf("let gaz ="), model.indexOf("  // frenler ve ABS")),
+);
+const bodySlipCut = "if (as.tcs > 0 && !DR.on && !elFreni) gaz *= 1 - as.tcs * sm(0.12, 0.35, ab);";
+if (!originalEngineBlock.includes(bodySlipCut)) throw new Error("TCS kaynak bloğu değişti");
+// Açık farklar: CG açısıyla gaz kesme çıkarılır; GT geri manevra devri eklenir.
+// Teker bazlı TCS ve özgün birleşik lastik/gövde oracle'ı aynen çalışır.
+const engineBlock = gtFixes
+  ? originalEngineBlock
+      .replace(bodySlipCut, "")
+      .replace(
+        "Te = u < 1.02 ?",
+        'Te = u < 1.02 && (CAR.k != "gt" || Y.vites != -1 || devir < 3000 * 1.02) ?',
+      )
+  : originalEngineBlock;
 const filter = fn(common, "direksiyonVeGaz").replace(/:\s*(SimDurumu|FizikGirdisi|FizikBaglami)\b/g, "");
 const steering = erase(model.slice(model.indexOf("let dlt ="), model.indexOf("  const dw =")));
 const curve = erase(geometry.split("\n").find((s) => s.startsWith("export const torkEgrisi"))).replace(
@@ -206,25 +221,44 @@ const reference = {
     ]),
   ],
 };
-const target = path.join(root, "Unity/Validation/Reference/powertrain-0.8.18.json");
+const output = gtFixes
+  ? {
+      ...reference,
+      correction: "CG gaz kesme kaldırıldı; GT geri manevra 3000 RPM",
+      scenarios: [
+        reference.scenarios[4],
+        scenario("gt-reverse-maneuver", carValues[0], 0, 1, 1, () => [0, 1, 0, false, false, false]),
+        scenario("gt-launch-left", carValues[0], 0, 1, 1, () => [1, 0, 1, false, false, false]),
+        scenario("gt-launch-right", carValues[0], 0, 1, 1, () => [1, 0, -1, false, false, false]),
+      ],
+    }
+  : reference;
+const target = path.join(
+  root,
+  gtFixes
+    ? "Unity/Validation/Reference/powertrain-gt-fixes.json"
+    : "Unity/Validation/Reference/powertrain-0.8.18.json",
+);
 if (process.argv.includes("--check")) {
   const saved = JSON.parse(fs.readFileSync(target, "utf8"));
   const meta = (r) => ({
     ...r,
     scenarios: r.scenarios.map(({ rows, ...s }) => ({ ...s, inputs: rows.map((r) => r.input) })),
   });
-  if (JSON.stringify(meta(saved)) !== JSON.stringify(meta(reference)))
+  if (JSON.stringify(meta(saved)) !== JSON.stringify(meta(output)))
     throw new Error("Motor kaynak/parametre/girdi değişti");
-  for (let s = 0; s < reference.scenarios.length; s++)
+  for (let s = 0; s < output.scenarios.length; s++)
     for (let k = 0; k < 600; k++)
       for (let c = 0; c < reference.fields.length; c++) {
-        const a = reference.scenarios[s].rows[k].values[c],
+        const a = output.scenarios[s].rows[k].values[c],
           b = saved.scenarios[s].rows[k].values[c];
         if (!Number.isFinite(b) || Math.abs(a - b) > reference.tolerances[c])
           throw new Error(`Motor TS farkı ${s}/${k}/${c}`);
       }
-  console.log("TS motor referansı doğrulandı: 5 × 600 adım, özgün motor/girdi blokları.");
+  console.log(
+    `TS motor referansı doğrulandı: ${output.scenarios.length} × 600 adım; ${gtFixes ? "açık TCS düzeltmesi" : "özgün motor/girdi blokları"}.`,
+  );
 } else {
-  fs.writeFileSync(target, JSON.stringify(reference) + "\n");
-  console.log("TS motor referansı üretildi: 5 × 600 adım.");
+  fs.writeFileSync(target, JSON.stringify(output) + "\n");
+  console.log(`TS motor referansı üretildi: ${output.scenarios.length} × 600 adım.`);
 }

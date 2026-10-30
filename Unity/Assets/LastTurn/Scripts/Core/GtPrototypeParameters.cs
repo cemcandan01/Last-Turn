@@ -19,7 +19,8 @@ namespace LastTurn.Core
       };
       var chassis = new VehicleParameters(1240, new BodyVector(2456.6483200000007, 2354.2425601417103, 396.8), 0.42, -0.21619999999999995, 2.66, wheels, tires,
         54637.10036729957, 68206.93789361014, 0, 17723.475000000002, 0.62, 0.8411010463428832, 8.114311793605198, 0.45, 220, 1.8, 0, 0.8);
-      return new PowertrainParameters(chassis, 558.010419341176, 8200, 900, 2710, 3.484037980700342, 0.9, 0.6, 0.35, 0.5, 0.5, 0, 1, 0.6, 1, 1);
+      // TS 0.8.18'den bilinçli fark: GT geri manevra kesicisi 3000 RPM.
+      return new PowertrainParameters(chassis, 558.010419341176, 8200, 900, 2710, 3.484037980700342, 0.9, 0.6, 0.35, 0.5, 0.5, 0, 1, 0.6, 1, 1, reverseMaxRpm: 3000);
     }
   }
 }

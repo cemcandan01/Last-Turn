@@ -1,6 +1,8 @@
 using System.Text.Json;
 using LastTurn.Core;
 
+if(args.Contains("--gt-physics")){GtPhysicsValidation.Run();return;}
+
 using var fixture = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Reference/wheel-drive-0.8.18.json")));
 var root = fixture.RootElement;
 const string baseline = "df3549e709469f0b519ebfbeaa9f63c1040fee05";
@@ -105,3 +107,4 @@ Check(stalled.Advance(1, _ => default) == 6, "100ms stall clamp must be explicit
 Console.WriteLine(JsonSerializer.Serialize(new { result = "passed", baseline, rowsCompared, checks, maxErrors = names.Select((name, i) => new { name, absoluteError = maxErrors[i], tolerance = limits[i] }) }, new JsonSerializerOptions { WriteIndented = true }));
 VehicleValidation.Run();
 PowertrainValidation.Run();
+GtPhysicsValidation.Run();

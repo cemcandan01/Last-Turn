@@ -19,9 +19,13 @@ internal static class PowertrainValidation
   internal static void Run()
   {
     using var fixture=JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,"Reference/powertrain-0.8.18.json")));
+    using var corrected=JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,"Reference/powertrain-gt-fixes.json")));
     var root=fixture.RootElement;int checks=0,rowsCompared=0;
     void Check(bool b,string label){checks++;if(!b)throw new InvalidOperationException(label);}
     Check(root.GetProperty("baseline").GetString()=="df3549e709469f0b519ebfbeaa9f63c1040fee05","Motor baseline");
+    Check(corrected.RootElement.GetProperty("baseline").GetString()==root.GetProperty("baseline").GetString(),"Düzeltme baseline");
+    Check(corrected.RootElement.GetProperty("sources").EnumerateObject().All(s=>root.GetProperty("sources").GetProperty(s.Name).GetString()==s.Value.GetString()),"Düzeltme kaynak hash'leri");
+    Check(corrected.RootElement.GetProperty("tolerances").EnumerateArray().Select(v=>v.GetDouble()).SequenceEqual(root.GetProperty("tolerances").EnumerateArray().Select(v=>v.GetDouble())),"Düzeltme toleransları");
     Check(N(root,"dt")==PowertrainVehicle.FixedDelta && N(root,"substeps")==FourWheelVehicle.Substeps,"Motor fixed step");
     var fields=root.GetProperty("fields").EnumerateArray().Select(v=>v.GetString()!).ToArray();
     double[] limits=new[]{1e-5,1e-5,1e-5,1e-6,1e-6,1e-6,1e-6,1e-5,1e-5,1e-5,1e-5,1e-5,1e-5}
@@ -29,9 +33,12 @@ internal static class PowertrainValidation
       .Concat(new[]{1e-10,1e-10,1e-5,0,1e-10,1e-10,1e-4,1e-4,1e-5,1e-10,1e-10,1e-10,1e-10}).ToArray();
     Check(root.GetProperty("tolerances").EnumerateArray().Select(v=>v.GetDouble()).SequenceEqual(limits),"Motor tolerances changed");
     var errors=new double[limits.Length];
-    foreach(var scenario in root.GetProperty("scenarios").EnumerateArray())
+    foreach(var original in root.GetProperty("scenarios").EnumerateArray().Concat(corrected.RootElement.GetProperty("scenarios").EnumerateArray().Skip(1)))
     {
-      string name=scenario.GetProperty("name").GetString()!;var parameters=name=="accelerate-coast-gt"?GtPrototypeParameters.Create():Parameters(scenario);
+      // Eski fixture korunur. Yalnız CG açısıyla gaz kesmeyi kullanan T16 izi,
+      // sabit TS kaynağına açık tek düzeltme uygulanmış bağımsız oracle ile kıyaslanır.
+      var scenario=original.GetProperty("name").GetString()=="turbo-handbrake-t16"?corrected.RootElement.GetProperty("scenarios")[0]:original;
+      string name=scenario.GetProperty("name").GetString()!;var parameters=name=="accelerate-coast-gt"||name.StartsWith("gt-")?GtPrototypeParameters.Create():Parameters(scenario);
       double speed=N(scenario,"initialSpeed");int gear=scenario.GetProperty("initialGear").GetInt32();
       var a=new PowertrainVehicle(parameters,speed,gear);var b=new PowertrainVehicle(parameters,speed,gear);
       var inputs=new List<DrivingInput>();var states=new List<double[]>();

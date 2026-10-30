@@ -23,6 +23,7 @@ namespace LastTurn.EditorValidation
     private static float speed, maxRelativeCameraStep;
     private static Vector3 previousOffset;
     private static bool hasOffset;
+    private static bool reverseCutSeen;
     private static readonly List<string> passed = new List<string>();
     [Serializable] private sealed class Source { public string path,sha256; }
     [Serializable] private sealed class Proof
@@ -30,6 +31,7 @@ namespace LastTurn.EditorValidation
       public string result,utc,unityVersion,error;
       public string[] checks;
       public float acceleratedSpeed,brakedSpeed,reverseSpeed,maxRelativeCameraStep;
+      public float fullLeftLaunchSpeed,fullRightLaunchSpeed,reverseRpm;
       public Source[] sources;
     }
     private static Proof proof;
@@ -63,7 +65,7 @@ namespace LastTurn.EditorValidation
       if(state==PlayModeStateChange.EnteredPlayMode && SessionState.GetBool(SessionKey,false))
       {
         proof = new Proof { result="running",unityVersion=Application.unityVersion };
-        began=EditorApplication.timeSinceStartup; phase=0; passed.Clear(); hasOffset=false; maxRelativeCameraStep=0;
+        began=EditorApplication.timeSinceStartup; phase=0; passed.Clear(); hasOffset=false; maxRelativeCameraStep=0;reverseCutSeen=false;
         EditorApplication.update += Tick;
       }
       if(state==PlayModeStateChange.ExitingPlayMode) { Cleanup(); SessionState.SetBool(SessionKey,false); }
@@ -86,6 +88,7 @@ namespace LastTurn.EditorValidation
           Queue(Key.UpArrow); phase=1; return;
         }
         var sim=prototype.Simulation; int ticks=sim.Body.Steps-startTick;
+        if(phase==6 && sim.Engine.CoupledRpm>=GtPrototypeParameters.Create().ReverseMaxRpm*1.02 && sim.Engine.EngineTorque==0)reverseCutSeen=true;
         var offset=prototype.FollowCamera.transform.position-prototype.VehicleRoot.position;
         if(phase<=4)
         {
@@ -126,10 +129,13 @@ namespace LastTurn.EditorValidation
           Require(Math.Abs(sim.Body.Position.Z-GtPrototypeParameters.Create().Chassis.CgZ)<.01 && sim.Body.Velocity.Length<.01,"Input System R → başlangıç ve biriktirici sıfırlandı");
           startTick=sim.Body.Steps;Queue(Key.S);phase=6;
         }
-        else if(phase==6 && ticks>=90)
+        else if(phase==6 && ticks>=600)
         {
           proof.reverseSpeed=(float)sim.Body.Velocity.Z;
+          proof.reverseRpm=(float)sim.Engine.Rpm;
           Require(sim.Engine.Gear==-1 && proof.reverseSpeed<-.5f,"Input System S → otomatik geri hareket");
+          Require(reverseCutSeen && Math.Abs(proof.reverseSpeed)*3.6<38 && Math.Abs(proof.reverseSpeed)*3.6>30,
+            "Geri motor kesicisi 3000 RPM → oranla tutarlı manevra hızı");
           restartCount=prototype.RestartCount;Queue(Key.R);phase=7;
         }
         else if(phase==7 && prototype.RestartCount>restartCount)
@@ -137,7 +143,30 @@ namespace LastTurn.EditorValidation
           Require(sim.Body.Velocity.Length<.01 && sim.Engine.Gear==1,"Geri sürüş sonrası yeniden başlatma");
           startTick=sim.Body.Steps;Queue(Key.A,Key.D,Key.LeftArrow,Key.RightArrow);phase=8;
         }
-        else if(phase==8 && ticks>=2) { Require(prototype.CurrentInput.Steering==0,"Zıt ve çapraz klavye yönleri nötr");Finish(null); }
+        else if(phase==8 && ticks>=2)
+        {
+          Require(prototype.CurrentInput.Steering==0,"Zıt ve çapraz klavye yönleri nötr");
+          startTick=sim.Body.Steps;Queue(Key.A);phase=9;
+        }
+        else if(phase==9 && ticks>=120) { startTick=sim.Body.Steps;Queue(Key.W,Key.A);phase=10; }
+        else if(phase==10 && ticks>=60)
+        {
+          proof.fullLeftLaunchSpeed=(float)(sim.Body.Velocity.Length*3.6);
+          Require(proof.fullLeftLaunchSpeed>30 && proof.fullLeftLaunchSpeed<42 && sim.Body.AngularVelocity.Y>1,
+            "Önceden tam sol direksiyon + W → 1 sn dar yay kalkışı");
+          Require(sim.Engine.EffectiveGas==sim.Engine.Gas,"Normal dönüş CG açısıyla gaz kesmiyor");
+          Replay(prototype.RecordedInputs.ToArray(),sim);
+          restartCount=prototype.RestartCount;Queue(Key.R);phase=11;
+        }
+        else if(phase==11 && prototype.RestartCount>restartCount) { startTick=sim.Body.Steps;Queue(Key.D);phase=12; }
+        else if(phase==12 && ticks>=120) { startTick=sim.Body.Steps;Queue(Key.W,Key.D);phase=13; }
+        else if(phase==13 && ticks>=60)
+        {
+          proof.fullRightLaunchSpeed=(float)(sim.Body.Velocity.Length*3.6);
+          Require(proof.fullRightLaunchSpeed>30 && proof.fullRightLaunchSpeed<42 && sim.Body.AngularVelocity.Y< -1,
+            "Önceden tam sağ direksiyon + W → 1 sn dar yay kalkışı");
+          Replay(prototype.RecordedInputs.ToArray(),sim);Finish(null);
+        }
       }
       catch(Exception error) { Finish(error); }
     }

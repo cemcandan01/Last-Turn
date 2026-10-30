@@ -1,8 +1,8 @@
 # GT düz-asfalt prototipi
 
-Unity **6000.3.9f1** ile `Unity/` projesini aç. `Assets/LastTurn/Scenes/GTTest.unity` sahnesini açıp **Play**'e bas; Game penceresine tıkla. Alternatif: **Last Turn → GT Test Sahnesini Aç** (`Ctrl+F7`). Kısa otomatik Play kontrolü **Last Turn → GT Kısa Play Doğrulaması** (`Ctrl+F8`) menüsündedir; test yaklaşık 6–15 saniye sürer ve Play'i kendisi kapatır.
+Unity **6000.3.9f1** ile `Unity/` projesini aç. `Assets/LastTurn/Scenes/GTTest.unity` sahnesini açıp **Play**'e bas; Game penceresine tıkla. Alternatif: **Last Turn → GT Test Sahnesini Aç** (`Ctrl+F7`). Kısa otomatik Play kontrolü **Last Turn → GT Kısa Play Doğrulaması** (`Ctrl+F8`) menüsündedir; test yaklaşık 20–35 saniye sürer ve Play'i kendisi kapatır.
 
-Küçük Editor penceresinde HUD okunmuyorsa Game çözünürlüğünü **Free Aspect**, ölçeği **1x** seç. Sahne gerçek Editor Play'de 18/18 kısa kontrolden geçti; ayrıntılı sonuçlar görev kartındadır. Sürüş hissi için aşağıdaki manuel kontrol hâlâ gereklidir.
+Küçük Editor penceresinde HUD okunmuyorsa Game çözünürlüğünü **Free Aspect**, ölçeği **1x** seç. Güncel fizik düzeltmesi gerçek Editor Play'de 28/28 kısa kontrolden geçti; ayrıntılı sonuçlar görev kartındadır. Sürüş hissi için aşağıdaki manuel kontrol hâlâ gereklidir.
 
 | Tuş | İşlev |
 | --- | --- |
@@ -29,11 +29,16 @@ Bu alan sonsuz düz/asfalt fizik zemininin primitive gösterimidir. Çizgiler/de
 
 ## Doğrulama
 
+31 Ekim fizik düzeltmesi: GT geri viteste 3000 RPM manevra kesicisi kullanır; −3 oran ve son dişli korunur. Kaynak kesicinin %2 eşiği ve teker geçişleriyle düz zeminde yaklaşık 37 km/sa görülür. İleri devir/tork eğrisi aynı kalır. Normal dar dönüşte CG yana hızı artık gazı kesmez; TCS teker torkuna birleşik lastik tutuşu üzerinden uygulanır. Bu iki fark TS 0.8.18 üzerine açık düzeltmelerdir; özgün referans dosyaları korunur.
+
+Yeniden deneme: R → A'yı araç dururken tam çevir → W'yi tut; aynı testi D ile yap. Araç dar yayda kalkmalı. R → S'yi 10 sn tut; yaklaşık 37 km/sa ve 3000 civarı RPM görülmeli. Ardından W ile ileriye geç, düz frenleme ve Space'i dene. Ayrıntı `docs/isler/2026-10-31-unity-gt-fizik-hatalari.md`.
+
 ```powershell
 node Unity/Validation/validate-project.mjs
 node Unity/Validation/export-reference.mjs --check
 node Unity/Validation/export-vehicle-reference.mjs --check
 node Unity/Validation/export-powertrain-reference.mjs --check
+node Unity/Validation/export-powertrain-reference.mjs --gt-fixes --check
 node Unity/Validation/export-gt-prototype.mjs --check
 dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release
 node Unity/Validation/check-editor-proof.mjs

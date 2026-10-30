@@ -40,7 +40,9 @@ namespace LastTurn.Core
       double delta = st * p.SteeringLock * (p.SpeedSensitiveSteering ? 1 - .5 * Math.Pow(spn, .8) * (1 - Smooth(.1, .3, ab)) : 1);
       delta = Clamp(delta, -p.Chassis.MaxSteering, p.Chassis.MaxSteering);
       double throttle = gas, brake = input.Brake;
-      if (p.Tcs > 0 && !input.Handbrake) throttle *= 1 - p.Tcs * Smooth(.12, .35, ab);
+      // Kütle merkezinin yana hızı normal dar dönüşte de vardır; patinaj değildir.
+      // TCS, aşağıdaki kayma sınırıyla her tahrik tekerinin birleşik lastik
+      // kuvvetine uygulanır. Gövde açısıyla ikinci kez gaz kesmek kalkışı boğar.
       int gear = previous.Gear;
       if (brake > 0 && vl < .5 && input.Throttle < .05) gear = -1;
       else if (gear == -1 && input.Throttle > .05) gear = 1;
@@ -78,7 +80,10 @@ namespace LastTurn.Core
       double torque = 0;
       if (timer <= 0)
       {
-        torque = u < 1.02 ? p.PeakTorque * PowertrainParameters.TorqueCurve(u) * throttle * turboFactor : 0;
+        // Geri manevra kesicisi motor torkunu keser; hız/teker durumu kelepçelenmez.
+        // Tork eğrisinin u değeri ileri motor devriyle normalize kalır.
+        torque = u < 1.02 && (gear != -1 || coupled < p.ReverseMaxRpm * 1.02)
+          ? p.PeakTorque * PowertrainParameters.TorqueCurve(u) * throttle * turboFactor : 0;
         if (wheelRpm > p.IdleRpm) torque -= p.PeakTorque * .15 * u * (1 - throttle);
       }
       double drive = torque * ratio * p.Efficiency;

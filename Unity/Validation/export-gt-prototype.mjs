@@ -1,4 +1,4 @@
-// Doğrulanmış, sabit TS izindeki GT/ar kurulumunu oynanabilir prototipe üretir; elle denge değeri yazılmaz.
+// GT/ar kaynak verisi korunur; geri manevra devri açık Unity düzeltmesidir.
 import fs from "node:fs";
 import path from "node:path";
 const root = path.resolve(import.meta.dirname, "../..");
@@ -37,7 +37,8 @@ ${tires}
       };
       var chassis = new VehicleParameters(${f.m}, new BodyVector(${nums(f.I)}), ${nums([f.cgY, f.cgZ, f.aks])}, wheels, tires,
         ${nums([...f.arb, f.awd, f.fren, f.frenOn, f.CdA, f.ClA, f.diff, c.dk ?? 220, c.w, c.lift ?? 0, c.dmax ?? 0.8])});
-      return new PowertrainParameters(chassis, ${nums([f.tork, f.devirMax, f.devirMin, f.kalkis, f.son, f.verim, t.thr, t.lch, t.lock, t.sens, c.tb ?? 0, c.tbs ?? 1, c.tbu ?? 0.6, s.tcs, s.abs])});
+      // TS 0.8.18'den bilinçli fark: GT geri manevra kesicisi 3000 RPM.
+      return new PowertrainParameters(chassis, ${nums([f.tork, f.devirMax, f.devirMin, f.kalkis, f.son, f.verim, t.thr, t.lch, t.lock, t.sens, c.tb ?? 0, c.tbs ?? 1, c.tbu ?? 0.6, s.tcs, s.abs])}, reverseMaxRpm: 3000);
     }
   }
 }
@@ -46,5 +47,5 @@ const target = path.join(root, "Unity/Assets/LastTurn/Scripts/Core/GtPrototypePa
 if (process.argv.includes("--check")) {
   if (fs.readFileSync(target, "utf8") !== text)
     throw new Error("GT üretilmiş parametreleri referansla eşleşmiyor");
-  console.log("GT parametreleri TS 0.8.18 referansıyla aynı.");
+  console.log("GT kaynak parametreleri ve açık 3000 RPM geri manevra ayarı doğrulandı.");
 } else fs.writeFileSync(target, text);

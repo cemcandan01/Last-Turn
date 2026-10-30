@@ -8,11 +8,12 @@ namespace LastTurn.Core
     public VehicleParameters Chassis { get; }
     public readonly bool SmoothSteering, SpeedSensitiveSteering;
     public readonly double PeakTorque, MaxRpm, IdleRpm, LaunchRpm, FinalDrive, Efficiency,
-      ThrottleResponse, LaunchFactor, SteeringLock, SteeringSensitivity, TurboShare, TurboSeconds, TurboThreshold, Tcs, Abs;
+      ThrottleResponse, LaunchFactor, SteeringLock, SteeringSensitivity, TurboShare, TurboSeconds, TurboThreshold, Tcs, Abs, ReverseMaxRpm;
     public PowertrainParameters(VehicleParameters chassis, double peakTorque, double maxRpm, double idleRpm,
       double launchRpm, double finalDrive, double efficiency, double throttleResponse, double launchFactor,
       double steeringLock, double steeringSensitivity, double turboShare = 0, double turboSeconds = 1,
-      double turboThreshold = .6, double tcs = 0, double abs = 0, bool smoothSteering = true, bool speedSensitiveSteering = true)
+      double turboThreshold = .6, double tcs = 0, double abs = 0, bool smoothSteering = true, bool speedSensitiveSteering = true,
+      double reverseMaxRpm = 0)
     {
       Chassis = chassis ?? throw new ArgumentNullException(nameof(chassis));
       Numeric.Positive(peakTorque); Numeric.Positive(maxRpm); Numeric.Positive(idleRpm); Numeric.Positive(launchRpm);
@@ -20,6 +21,9 @@ namespace LastTurn.Core
       Numeric.Positive(steeringLock); Numeric.Positive(steeringSensitivity); Numeric.Positive(turboSeconds); Numeric.Finite(turboThreshold);
       VehicleParameters.Unit(turboShare); VehicleParameters.Unit(tcs); VehicleParameters.Unit(abs);
       if (maxRpm <= idleRpm || launchRpm < idleRpm) throw new ArgumentException("Motor devir aralığı geçersiz.");
+      Numeric.NonNegative(reverseMaxRpm);
+      ReverseMaxRpm = reverseMaxRpm == 0 ? maxRpm : reverseMaxRpm;
+      if (ReverseMaxRpm < launchRpm || ReverseMaxRpm > maxRpm) throw new ArgumentException("Geri devir sınırı kalkış ve azami devir arasında olmalı.");
       PeakTorque = peakTorque; MaxRpm = maxRpm; IdleRpm = idleRpm; LaunchRpm = launchRpm; FinalDrive = finalDrive; Efficiency = efficiency;
       ThrottleResponse = throttleResponse; LaunchFactor = launchFactor; SteeringLock = steeringLock; SteeringSensitivity = steeringSensitivity;
       TurboShare = turboShare; TurboSeconds = turboSeconds; TurboThreshold = turboThreshold; Tcs = tcs; Abs = abs;
