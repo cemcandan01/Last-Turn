@@ -1,4 +1,12 @@
-# Son devir: Unity araç / sınıf / modifiye kataloğu (2026-10-31) — yalnız yerel
+# Son devir: Unity garaj ve kalıcı kayıt (2026-10-31) — yalnız yerel, Editor kanıtı bekliyor
+
+- Dal `codex/unity-garaj-kayit`, taban `cd365a5`; kart `docs/isler/2026-10-31-unity-garaj-kayit.md`. Teslim SHA'sı kartı son değiştiren yerel commit'tir. Push/merge/yayın/uzun regresyon yok. `Unity/Assets/_Recovery/` commit'e girmez.
+- Codex uyguladı (saf `GarageState`/`GarageSaveStore`/`GarageDriveParameters`, `Garage` sahnesi/IMGUI ekranı, oturum, GTTest/TerrainTest adaptörü, TS oracle `export-garage.mjs`, üç .NET doğrulaması, Play doğrulaması) ve 10:37'de kota nedeniyle durdu. Claude TS 0.8.18 ile salt okunur karşılaştırıp devraldı: takılı parçaya dokununca TS gibi sökme, sürümlü `catalogGeneration` geçişi (eski nesil geçirilir, yeni/bilinmeyen kaynak salt okunur), küçük sürümün “gelecek” sayılmaması, kapsam dışı QualitySettings geri alındı. Model claude-opus-5-5; kota bilinmiyor; API/ek kredi yok.
+- **Geçti:** garaj TS–C# 17.947, kayıt 66, sürüş adaptörü 14.761, katalog 983.569 koşul; `export-garage.mjs --check`. Ekonomi/fiyat/kredi formülü değişmedi.
+- **Açık:** Editor kanıtları (Core/katalog derleme, GT, Arazi, Garaj Play) yeni kaynakla alınmadı; Codex'in önceki Garaj Play'i 18/18 (UTC 07:35:38). Cihaz/IL2CPP/CI yok.
+- **Sonraki tek adım:** Unity'de GT → Arazi → Garaj Kısa Play doğrulamalarını çalıştır, beş `check-*-proof.mjs`'yi koş; sonra Cem `Unity/GARAJ.md` listesini denesin.
+
+# Önceki devir: Unity araç / sınıf / modifiye kataloğu (2026-10-31) — yalnız yerel
 
 - Dal `codex/unity-arac-katalogu`, taban `0b341e6`; kart `docs/isler/2026-10-31-unity-arac-katalogu.md`. Teslim SHA'sı kartı son değiştiren yerel commit'tir. Push/merge/yayın/uzun regresyon yok.
 - Sabit TS 0.8.18 `df3549e709469f0b519ebfbeaa9f63c1040fee05` içinden otomatik **15 araç / 42 parça / 12 kategori / 5 paket / 28 lastik / 6 yüzey**, 21 kaynak hash manifesti. `Unity/Validation/export-catalog.mjs --check` sapmayı reddeder. TS kaynakları değişmedi; araç/parça elle kopyalanmadı.
@@ -8,7 +16,7 @@
 - Sahip Codex; ayrı dosyalı `katalog_aktarim`, `katalog_performans` ve salt okunur `katalog_dogrulama` ajanları kullanıldı. Claude CLI resmi aboneliği doğrulanamadı, çalıştırılmadı; API/ek kredi yok, kesin model/kota bilinmiyor. Plan `2fa8a509-5341-4a1c-8089-f826e66e39dc`. Ajanların bulduğu erişim/bozuk veri/test kapsam açıkları kapatıldı.
 - CI adımı eklendi ama çalıştırılmadı; cihaz/IL2CPP/uzun regresyon yapılmadı. Kalıcı satın alma/sahiplik/bulut ve kariyer sürüşü henüz Unity'ye bağlanmış sayılmaz. Ham katalog MUTANT toprak dengesini veya GT'ye özel 3000 RPM düzeltmesini genellemez. Editor'ın `Unity/Assets/_Recovery/` sahnesi korunur, görev commit'ine alınmaz.
 - **Sonraki tek öneri:** katalog üstünden Unity garajı ve araç başına parça sahipliği/kategori yatırımının kalıcı kayıt akışı. Yeni fizik mekaniğine ara kararı sürer.
-# Son devir: TerrainTest toprak kararlılığı (2026-10-31) — yalnız yerel
+# Önceki devir: TerrainTest toprak kararlılığı (2026-10-31) — yalnız yerel
 
 - Dal `codex/unity-toprak-kararlilik`, temiz taban `25690f9`. Kart `docs/isler/2026-10-31-unity-toprak-kararlilik.md`; teslim SHA'sı kartı son değiştiren yerel commit'tir. Push/merge/uzun regresyon/yayın yok.
 - **Kök neden:** önceki TerrainTest ham GT/ar/yarış lastiğini kullanıyordu; TS 0.8.18 gerçek MUTANT kurulumundaki `toprakDengesi` eksikti. Kaynak .55 açık-pay kuralı seçili lastik×araç toprak açığını azaltır; uygun kombinasyonlar ve asfalt değişmez. GT birleşik **.396 → .6678**, ön/arka toprak mu **.31969/.27519 → .53911/.46407**. RX kendi Toprak lastiği **1.4 → 1.4**, GT Toprak lastiği **1.1 → 1.1**. `CreateTerrain()` açık kaynak kurulumunu, `Create()` eski ham GT/asfalt profilini üretir. Genel lastik kuvveti/kayma paydaları/Kp/Ap/C/diferansiyel/direksiyon/fizik kodu değişmedi; yeni ortak bonus yok.

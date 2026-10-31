@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using LastTurn.Core;
 using UnityEngine;
+using LastTurn.Garage;
 
 namespace LastTurn.Prototype
 {
@@ -30,12 +31,17 @@ namespace LastTurn.Prototype
     public DrivingInput CurrentInput { get; private set; }
     public IReadOnlyList<DrivingInput> RecordedInputs => trace;
     public int RestartCount { get; private set; }
+    public PowertrainParameters Parameters => parameters;
+    public string AppliedGarageCarId { get; private set; } = "";
 
     private void Awake()
     {
-      parameters = terrainMode?GtPrototypeParameters.CreateTerrain():GtPrototypeParameters.Create();
+      if (GarageSession.TryDriveParameters(terrainMode,out var garageParameters))
+      { parameters=garageParameters;AppliedGarageCarId=GarageSession.DriveSetup.Car["k"].S(); }
+      else parameters = terrainMode?GtPrototypeParameters.CreateTerrain():GtPrototypeParameters.Create();
       world=terrainMode?(IVehicleWorld)new TerrainTestWorld():FlatAsphaltWorld.Instance;
       if (!vehicleRoot || !followCamera) throw new InvalidOperationException("GTTest sahnesi eksik; Last Turn menüsünden sahneyi oluşturun.");
+      if(AppliedGarageCarId!="")ApplyGarageVisuals(GarageSession.DriveSetup);
       input = new GtKeyboardInput(); ResetVehicle();
     }
     private void OnEnable() { input?.Enable(); }
@@ -92,6 +98,20 @@ namespace LastTurn.Prototype
     }
     private static Vector3 ModelPoint(double x, double y, double z, VehicleParameters p)
       => GtPresentation.Position(new BodyVector(x, y - p.CgY, z - p.CgZ));
+
+    private void ApplyGarageVisuals(CatalogSetup setup)
+    {
+      var old=GtPrototypeParameters.Create().Chassis;var p=parameters.Chassis;
+      foreach(Transform child in vehicleRoot)
+        if(Array.IndexOf(steerPivots,child)<0)child.localPosition+=GtPresentation.Position(new BodyVector(0,old.CgY-p.CgY,old.CgZ-p.CgZ));
+      var body=vehicleRoot.Find("GT gövde");
+      if(body){body.localScale=new Vector3((float)setup.Car["w"].N(),.44f,(float)(p.Wheelbase+1.69));
+        int rgb=(int)setup.Car["col"].N();body.GetComponent<Renderer>().material.color=new Color(((rgb>>16)&255)/255f,((rgb>>8)&255)/255f,(rgb&255)/255f);}
+      for(int i=0;i<4;i++)
+      {
+        var tire=spinPivots[i].Find("Lastik "+i);if(tire)tire.localScale=new Vector3((float)p.Wheels[i].Radius*2,.13f,(float)p.Wheels[i].Radius*2);
+      }
+    }
 
     // Editor kurucusu bir kez çağırır; primitive nesneler ve referanslar gerçek .unity dosyasına kaydedilir.
     public void BuildVisuals()
