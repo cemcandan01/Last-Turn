@@ -10,13 +10,15 @@ namespace LastTurn.Prototype
   // toprak, kar, çamur), kerbler, su birikintileri, başlangıç/bitiş çizgisi, fren tabelaları. Simülasyona geri besleme yok.
   public sealed class RaceTrackVisuals : MonoBehaviour
   {
-    [SerializeField] private Material asphalt, grass, kerbRed, kerbWhite, line, board, dirt, snow, mud, water;
+    [SerializeField] private Material asphalt, grass, kerbRed, kerbWhite, line, board, dirt, snow, mud, water, ghost;
+    public Material GhostMaterial => ghost;
     public int Vertices { get; private set; }
     public string Built { get; private set; } = "";
 
     public void Configure(Material asphalt, Material grass, Material kerbRed, Material kerbWhite, Material line, Material board,
-      Material dirt, Material snow, Material mud, Material water)
+      Material dirt, Material snow, Material mud, Material water, Material ghost)
     {
+      this.ghost = ghost;
       this.asphalt = asphalt; this.grass = grass; this.kerbRed = kerbRed; this.kerbWhite = kerbWhite; this.line = line; this.board = board;
       this.dirt = dirt; this.snow = snow; this.mud = mud; this.water = water;
     }

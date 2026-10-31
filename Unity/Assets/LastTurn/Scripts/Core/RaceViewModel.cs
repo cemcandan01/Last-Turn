@@ -87,7 +87,9 @@ namespace LastTurn.Core
     }
 
     /// TS sonucGoster (rekor satırı hariç). bestStars: kariyerde kayıtlı en iyi yıldız.
-    public static RaceResultModel Result(RaceSession s, int bestStars)
+    public static RaceResultModel Result(RaceSession s, int bestStars) => Result(s, bestStars, double.NaN, false);
+    /// previousBest/newRecord: TS sonucGoster Rekor satırı (NaN: rekor bilgisi yok, satır yazılmaz).
+    public static RaceResultModel Result(RaceSession s, int bestStars, double previousBest, bool newRecord)
     {
       var e = s.Event; var r = new RaceResultModel { Stars = s.Stars, Xp = s.Xp, Money = s.Money };
       string Value(double v) => e.Type == "dp" ? v.ToString(CultureInfo.InvariantCulture) + " puan" : e.Type == "dg" ? Fmt3(v) : RaceSession.FormatTime(v);
@@ -115,6 +117,14 @@ namespace LastTurn.Core
           r.Rows.Add(("Süren", RaceSession.FormatTime(s.Time))); r.Rows.Add(("Hedef", RaceSession.FormatTime(e.Limit)));
           if (e.Laps > 0) r.Rows.Add(("En iyi tur", RaceSession.FormatTime(s.BestLap)));
         }
+      }
+      if (!double.IsNaN(previousBest))
+      {
+        string rec;
+        if (e.Type == "dp") rec = Math.Max(previousBest, s.Drift.Score).ToString(CultureInfo.InvariantCulture) + (newRecord ? " · YENİ" : "");
+        else if (e.Type == "dg") rec = newRecord ? Fmt3(s.Time) + " · YENİ" : previousBest != 0 ? Fmt3(previousBest) : "—";
+        else rec = newRecord ? RaceSession.FormatTime(s.Time) + " · YENİ" : previousBest != 0 ? RaceSession.FormatTime(previousBest) : "—";
+        r.Rows.Add(("Rekor", rec));
       }
       return r;
     }

@@ -98,10 +98,28 @@ namespace LastTurn.Prototype
         steerPivots[i].localRotation = Quaternion.AngleAxis(-GtPresentation.Degrees(delta), Vector3.up);
         spinPivots[i].localRotation = Quaternion.AngleAxis(GtPresentation.Degrees(GtPresentation.Blend(a.Wheels[i].Angle, b.Wheels[i].Angle, alpha)), Vector3.right);
       }
+      RenderGhost();
       Vector3 origin = vehicleRoot.TransformPoint(ModelPoint(0, 0, 0, parameters.Chassis));
       followCamera.Render(origin, vehicleRoot.forward, (float)b.Velocity.Length, dt);
       // Sonsuz H=0 zeminin yalnız görsel döşemesi; simülasyona geri besleme yok.
       if(!terrainMode && ground)ground.position = new Vector3(vehicleRoot.position.x, 0, vehicleRoot.position.z);
+    }
+    // Geçici hayalet görseli: kayıtlı sürüşün ayrı fizikteki gövdesi (kutu).
+    private Transform ghostView;
+    private void RenderGhost()
+    {
+      var ghost = Race?.Ghost;
+      if (ghost == null) { if (ghostView) ghostView.gameObject.SetActive(false); return; }
+      if (!ghostView)
+      {
+        var go = GameObject.CreatePrimitive(PrimitiveType.Cube); go.name = "Rekor hayaleti"; var col = go.GetComponent<Collider>(); if (col) Destroy(col);
+        go.transform.SetParent(transform, false); go.transform.localScale = new Vector3(1.8f, 1.1f, 4.3f);
+        if (trackVisuals && trackVisuals.GhostMaterial) go.GetComponent<Renderer>().sharedMaterial = trackVisuals.GhostMaterial;
+        ghostView = go.transform;
+      }
+      ghostView.gameObject.SetActive(true);
+      var b = ghost.Vehicle.Body;
+      ghostView.SetPositionAndRotation(GtPresentation.Position(b.Position), GtPresentation.Rotation(b.Orientation));
     }
     // ---------- Yarış kipi: TS pist dünyası + yarış oturumu (RaceRun); kural ve ödül saf katmanda/garaj oturumunda.
     private void AwakeRace()
@@ -129,6 +147,10 @@ namespace LastTurn.Prototype
       Simulation = new PowertrainVehicle(parameters, world: world); runner = new PowertrainFixedStepRunner(Simulation);
       Race = new RaceRun(Simulation, RaceWorld, info, hint => new RaceSession(info, track, drive.Career, hint, drive.Career ? GarageRace.Reward : null),
         drive.Setup != null && drive.Parameters != null ? RaceDrift.MaxAngle(drive.Setup) : double.PositiveInfinity);
+      // TS startEvent: kullanım sayacı ve rekor hayaleti; endEvent: rekor/profil/hayalet kaydı.
+      Race.Finished += run => GarageRace.Finished(run, drive);
+      Race.GhostFactory = () => GarageRace.Ghost(info, track, Race.Session.RecordKey); Race.StartGhost();
+      RecordText = RaceRecordText(); if (drive.Parameters != null) GarageRace.Started(drive.Car); raceDrive = drive;
       runner.SyncPrevious(); previousSteer = 0; followCamera.ResetFollow(); RenderFrame(0);
     }
     private void UpdateRace()
@@ -138,18 +160,31 @@ namespace LastTurn.Prototype
       if (ManualStepping) return;
       if (Race.Session.State == RaceState.Countdown) { Race.TickCountdown(Time.deltaTime); return; }
       if (Race.Session.State != RaceState.Running) return;
-      runner.Advance(Time.deltaTime, _ => { previousSteer = Simulation.Engine.SteeringAngle; return CurrentInput; }, AfterRaceStep);
+      runner.Advance(Time.deltaTime, _ => { previousSteer = Simulation.Engine.SteeringAngle; lastQuantized = Race.Record(CurrentInput); return lastQuantized; }, AfterRaceStep);
       frameSeconds = Mathf.Lerp(frameSeconds, Time.unscaledDeltaTime, .05f);
     }
+    private DrivingInput lastQuantized;
     private bool AfterRaceStep()
     {
-      int teleports = Race.Teleports; Race.AfterPhysicsStep(CurrentInput);
+      int teleports = Race.Teleports; Race.AfterPhysicsStep(lastQuantized);
       if (Race.Teleports != teleports) { runner.SyncPrevious(); followCamera.ResetFollow(); }
       return Race.PhysicsRunning;
     }
     /// TS ↺: pist dışı ilk çıkış noktasına ya da en yakın pist noktasına (süre durmaz).
     public void RespawnRace() { if (Race.Respawn()) { runner.SyncPrevious(); followCamera.ResetFollow(); RenderFrame(0); } }
-    public void RestartRace() { Race.Restart(); runner.SyncPrevious(); previousSteer = 0; followCamera.ResetFollow(); RenderFrame(0); RestartCount++; }
+    public string RecordText { get; private set; } = "";
+    private GarageRace.Drive raceDrive;
+    private string RaceRecordText()
+    {
+      try
+      {
+        double best = GarageRace.ProfileStore().Load().Best(Race.Session.RecordKey);
+        string value = best == 0 ? "—" : Race.Event.Type == "dp" ? best.ToString(System.Globalization.CultureInfo.InvariantCulture) + " puan" : RaceSession.FormatTime(best);
+        return "Rekor " + value + " · hayalet " + (Race.Ghost != null ? RaceSession.FormatTime(Race.Ghost.Record.Result) + " (" + Race.Ghost.Record.Inputs.Count + " adım)" : "yok");
+      }
+      catch (Exception e) { return "Rekor okunamadı: " + e.Message; }
+    }
+    public void RestartRace() { if (raceDrive != null && raceDrive.Parameters != null) GarageRace.Started(raceDrive.Car); Race.Restart(); RecordText = RaceRecordText(); runner.SyncPrevious(); previousSteer = 0; followCamera.ResetFollow(); RenderFrame(0); RestartCount++; }
     /// Doğrulama: bir sabit adım (geri sayımda 1/60 sn sayaç, yarışta fizik + yarış adımı).
     public void StepRace(DrivingInput value)
     {

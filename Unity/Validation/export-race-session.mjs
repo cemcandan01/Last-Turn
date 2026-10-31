@@ -18,7 +18,10 @@ export function buildRaceSession() {
     B = load("src/arayuz/bildirim"),
     O = load("src/fizik/ortak"),
     K = load("src/oyun/kariyer"),
-    I = load("src/oyun/ilerleme");
+    I = load("src/oyun/ilerleme"),
+    PR = load("src/oyun/profil"),
+    G = load("src/oyun/hayalet-kayit"),
+    GK = load("src/fizik/girdi-kaydi");
   // Bildirimler (note) yakalanır: arayüz metinleri yarış olaylarının TS karşılığıdır.
   let notes = [];
   B.note = (t) => notes.push(t);
@@ -193,6 +196,9 @@ export function buildRaceSession() {
       driftLimit: azami,
       result: { t: EV.t, bestLap: EV.bestLap, lap: EV.lap, score: EV.score, yildiz: EV.yildiz, xp: EV.xp, para: EV.para, trap: EV.trap ?? null },
       after: { xp: prog.xp, kazanilan: prog.kazanilan, yildiz: prog.yildiz },
+      // TS sonucGoster rekoru (sv_<k>, metin) ve profil sayaçları (startEvent use, endEvent races/wins)
+      record: L.storage.get("sv_" + EV.k) ?? null,
+      prof: { races: PR.PROF.races, wins: PR.PROF.wins, use: { ...PR.PROF.use } },
       finalNotes: notes,
     });
     notes = [];
@@ -299,10 +305,54 @@ export function buildRaceSession() {
     ),
   );
 
+  // --- girdi kaydı nicemlemesi (TS girdiyiKaydet) ---
+  const quantize = [];
+  {
+    const k = GK.kayitBaslat(1, { x: 0, z: 0, h: 0, y: 0 });
+    const values = [-1.2, -1, -0.7, -0.5, -1 / 3, -1e-6, 0, 1e-6, 0.25, 0.5, 1.5 / 32767, 0.999999, 1, 1.3];
+    values.forEach((v, i) => {
+      const gi = { tg: v, g: Math.abs(values[(i + 3) % values.length]), b: Math.abs(values[(i + 7) % values.length]), analogDireksiyon: i % 2 == 0, analogGaz: i % 3 == 0, dbr: i % 4 == 0 };
+      const out = GK.girdiyiKaydet(k, gi);
+      quantize.push({ in: [gi.tg, Math.min(1, gi.g), Math.min(1, gi.b), gi.analogDireksiyon, gi.analogGaz, gi.dbr], out: [out.tg, out.g, out.b], raw: Array.from(k.veri.slice(i * 4, i * 4 + 4)) });
+    });
+  }
+  // --- hayalet kaydetme kuralı (TS hayaletKaydet): sıra bağımlı kabul/ret ---
+  const ghostRules = [];
+  {
+    const kayit = (n, kesik = false, tasti = false) => {
+      const k = GK.kayitBaslat(1, { x: 0, z: 0, h: 0, y: 0 });
+      for (let i = 0; i < n; i++) GK.girdiyiKaydet(k, { tg: 0, g: 1, b: 0, analogDireksiyon: false, analogGaz: false, dbr: false });
+      k.kesik = kesik;
+      k.tasti = tasti;
+      return k;
+    };
+    const kurulum = { car: {}, tu: {}, as: {} };
+    for (const [key, sure, n, drift, kesik, tasti, bas] of [
+      ["zaman", 50, 10, false, false, false, 0],
+      ["zaman", 60, 10, false, false, false, 0],
+      ["zaman", 50, 10, false, false, false, 0],
+      ["zaman", 40, 10, false, false, false, 0],
+      ["zaman", 30, 10, false, true, false, 0],
+      ["zaman", 30, 10, false, false, true, 0],
+      ["zaman", 30, 0, false, false, false, 0],
+      ["zaman", NaN, 10, false, false, false, 0],
+      ["zaman", -1, 10, false, false, false, 0],
+      ["zaman", 30, 10, false, false, false, 10],
+      ["zaman", 0, 10, false, false, false, 9],
+      ["drift", 100, 10, true, false, false, 0],
+      ["drift", 90, 10, true, false, false, 0],
+      ["drift", 100, 10, true, false, false, 0],
+      ["drift", 120, 10, true, false, false, 0],
+    ]) {
+      const ok = G.hayaletKaydet(key, 0, sure, kayit(n, kesik, tasti), drift, kurulum, bas);
+      ghostRules.push({ key, sure: Number.isNaN(sure) ? "NaN" : sure, n, drift, kesik, tasti, bas, ok, stored: G.hayaletOku(key)?.sure ?? null });
+    }
+  }
+
   const sources = Object.fromEntries(Object.entries(L.sources).sort(([a], [b]) => a.localeCompare(b)));
   return {
     resource: { baseline, generator: "Unity/Validation/export-race-session.mjs", types, events },
-    fixture: { baseline, sources, world, scenarios },
+    fixture: { baseline, sources, world, scenarios, quantize, ghostRules },
   };
 }
 

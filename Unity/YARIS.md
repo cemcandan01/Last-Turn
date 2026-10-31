@@ -33,6 +33,13 @@ W/S gaz–fren, A/D direksiyon, Boşluk el freni, R yarışı yeniden başlat. S
 - **Drift (dp_1):** 2 tur; puan yalnız gerçek kayarken (hız > 10 m/s, kayma > ~29°) birikir; çarpan x2…x5, tam çime çıkınca KOMBO YANDI, 1. turun %90'ı driftle geçerse ÇARPAN x6. Unity'de drift yardımı yok: TS'den zordur.
 - **Drag (dg_1):** düz şerit, otomatik vites; sonuçta bitiş hızı. Manuel vites ayrı görev.
 
+## Rekor ve hayalet
+
+- HUD'da “Rekor … · hayalet …” satırı. Kariyer rekoru yalnız hedef süre içinde ve daha hızlı bitirince yazılır (driftte daha yüksek puan); sonuçta “Rekor: … · YENİ”.
+- Piste dönmeden/yeniden doğmadan biten her yarış, daha iyiyse hayalet olarak saklanır. Aynı yarışı yeniden açınca açık mavi kutu kayıtlı sürüşü oynar; geri sayımda bekler, seninle aynı anda kalkar.
+- Pist dışından dönüş ya da **Piste dön** o koşunun hayaletini geçersiz kılar (TS gibi).
+- Dosyalar garaj profilinin yanında `races-<profil>/` dizininde; test profili ayrı.
+
 ## Bilinen eksikler (bu aşamada yok)
 
-Dekor/ağaç/koni/kaya/bariyer çarpışması ve bölge sınır duvarı. Sürüş yardımları (drift desteği/ESC) ve yardım seviyesi ayarı. Kerb sarsıntısı, geri sayım ışığı/sesi, rakip, profil sayaçları. Rekor/hayalet sonraki commit.
+Dekor/ağaç/koni/kaya/bariyer çarpışması ve bölge sınır duvarı. Sürüş yardımları (drift desteği/ESC) ve yardım seviyesi ayarı. Kerb sarsıntısı, geri sayım ışığı/sesi, rakip, geliştirici hayaleti.

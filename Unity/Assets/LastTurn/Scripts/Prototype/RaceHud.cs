@@ -35,10 +35,11 @@ namespace LastTurn.Prototype
         center = new GUIStyle(big) { alignment = TextAnchor.MiddleCenter, fontSize = 54 };
       }
       var s = race.Session; var m = RaceViewModel.Hud(s, race.World.Hint, note);
-      GUILayout.BeginArea(new Rect(12, 12, 460, 150), GUI.skin.box);
+      GUILayout.BeginArea(new Rect(12, 12, 460, 176), GUI.skin.box);
       GUILayout.Label(m.Title, title); GUILayout.Label(m.Big, big); GUILayout.Label(m.Sub, text);
       if (m.Drift != "" || m.X6 != "") GUILayout.Label(m.Drift + "   " + m.X6, text);
       GUILayout.Label(prototype.RaceMessage, text);
+      GUILayout.Label(prototype.RecordText, text);
       GUILayout.EndArea();
       float w = Screen.width, h = Screen.height;
       if (m.Countdown != "") GUI.Label(new Rect(0, h * .3f, w, 80), m.Countdown, center);
@@ -54,8 +55,8 @@ namespace LastTurn.Prototype
     private void Result(RaceSession s)
     {
       var garage = GarageSession.State;
-      var r = RaceViewModel.Result(s, garage != null ? garage.StarsOf(s.Event.Type, s.Event.Level) : 0);
-      GUILayout.BeginArea(new Rect(Screen.width / 2f - 230, Screen.height / 2f - 170, 460, 340), GUI.skin.box);
+      var r = RaceViewModel.Result(s, garage != null ? garage.StarsOf(s.Event.Type, s.Event.Level) : 0, GarageRace.LastPreviousBest, GarageRace.LastNewRecord);
+      GUILayout.BeginArea(new Rect(Screen.width / 2f - 230, Screen.height / 2f - 190, 460, 380), GUI.skin.box);
       GUILayout.Label(r.Header, big);
       foreach (var row in r.Rows) GUILayout.Label(row.Label + ":  " + row.Value, text);
       GUILayout.Label("Yıldız " + r.Stars + " / 3", title);
@@ -63,6 +64,7 @@ namespace LastTurn.Prototype
       GUILayout.Label(r.BestStars, text);
       GUILayout.Label("+" + r.Xp + " XP   +" + r.Money + " para", title);
       if (s.Career) GUILayout.Label(GarageSession.Message, text);
+      if (GarageRace.LastMessage != "") GUILayout.Label(GarageRace.LastMessage, text);
       GUILayout.BeginHorizontal();
       if (GUILayout.Button("Yeniden başlat", GUILayout.Height(34))) prototype.RestartRace();
       if (GUILayout.Button("Garaja dön", GUILayout.Height(34)))

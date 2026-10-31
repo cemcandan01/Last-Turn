@@ -2,7 +2,9 @@
 
 - Dal `claude/unity-yaris-turleri` (taban `745d5d3`). Kart `docs/isler/2026-10-31-unity-yaris-turleri.md` (1. commit); rekor/hayalet ayrı commit ve kart. Açık kartlar: `2026-10-31-drag-manuel-vites.md`, `2026-10-31-unity-surus-yardimlari.md`, `2026-10-31-gt-play-kare-zamanlamasi.md`. Sahip Claude; ikinci ajan yok. Push/merge/yayın/uzun regresyon yok; `_Recovery`, `QualitySettings.asset`, geçici `_ClaudeGeciciTetik` commit dışı.
 - Beş türün TS bölge dünyası + su birikintisi fiziği + kariyer drift algısı; `--race-types` 132.239 koşul. `--race-all` gerçek fizikle **40/40 pist bitti** (rl_3 kariyer aracı TS'de de yokuşta kalır; araç 3 ile biter). Unity Play: Yarış 51/51 (gp_1, rx_1, rl_1, dp_1, dg_1), GT/Arazi/Garaj geçti. Garajda **Yarışlar** listesi, HUD **Piste dön**.
+- **Rekor/hayalet** (2. commit, kart `2026-10-31-unity-rekor-hayalet.md`): TS `sv_` rekor, `lt_prof` sayaçları, nicemlenmiş girdi kaydı ve hayalet kuralı TS ile aynı; hayalet ayrı fizikte bit düzeyinde aynı yol. Unity Play Yarış 69/69 (UTC 12:58), GT/Arazi/Garaj geçti.
 - Açık: sürüş yardımları/yardım seviyesi (drift Unity'de zor), dekor çarpışması, drag manuel vites.
+- **Sonraki tek adım:** sürüş yardımları ve yardım seviyesi kararı.
 
 # Önceki devir: Unity yarış kuralları (Paket A) ve yarış oturumu + gp_1 (Paket B) (2026-10-31) — yalnız yerel
 

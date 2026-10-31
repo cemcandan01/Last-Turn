@@ -27,7 +27,7 @@ namespace LastTurn.EditorValidation
       if (!AssetDatabase.IsValidFolder("Assets/LastTurn/RaceAssets")) AssetDatabase.CreateFolder("Assets/LastTurn", "RaceAssets");
       visuals.Configure(Mat("PistAsfalt", new Color(.2f, .21f, .23f)), Mat("PistCim", new Color(.24f, .42f, .2f)), Mat("PistKerbKirmizi", new Color(.8f, .1f, .08f)),
         Mat("PistKerbBeyaz", new Color(.92f, .92f, .9f)), Mat("PistCizgi", Color.white), Mat("PistTabela", new Color(.95f, .78f, .1f)),
-        Mat("PistToprak", new Color(.52f, .37f, .22f)), Mat("PistKar", new Color(.86f, .89f, .93f)), Mat("PistCamur", new Color(.29f, .2f, .13f)), Mat("PistSu", new Color(.36f, .55f, .72f)));
+        Mat("PistToprak", new Color(.52f, .37f, .22f)), Mat("PistKar", new Color(.86f, .89f, .93f)), Mat("PistCamur", new Color(.29f, .2f, .13f)), Mat("PistSu", new Color(.36f, .55f, .72f)), Mat("PistHayalet", new Color(.45f, .8f, 1f)));
     }
     private static void EnsureScene()
     {
@@ -38,7 +38,7 @@ namespace LastTurn.EditorValidation
       if (File.Exists(ScenePath))
       {
         // Yükseltme kontrolü sahneyi açar: yalnız düzenleme kipinde ve Editor oturumunda bir kez (Play geçişlerinde değil).
-        if (!EditorApplication.isPlaying && !SessionState.GetBool("LastTurn.RaceTest.Upgraded", false)) { SessionState.SetBool("LastTurn.RaceTest.Upgraded", true); Upgrade(previous); }
+        if (!EditorApplication.isPlaying && !SessionState.GetBool("LastTurn.RaceTest.Upgraded2", false)) { SessionState.SetBool("LastTurn.RaceTest.Upgraded2", true); Upgrade(previous); }
         AddToBuild(); return;
       }
       var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive); SceneManager.SetActiveScene(scene);
@@ -72,7 +72,7 @@ namespace LastTurn.EditorValidation
       {
         var visuals = scene.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<RaceTrackVisuals>(true)).FirstOrDefault();
         var so = visuals ? new SerializedObject(visuals) : null;
-        if (so == null || so.FindProperty("water").objectReferenceValue) return;
+        if (so == null || so.FindProperty("ghost").objectReferenceValue) return;
         Configure(visuals); EditorUtility.SetDirty(visuals); EditorSceneManager.SaveScene(scene); AssetDatabase.SaveAssets(); Debug.Log("Last Turn RaceTest zemin malzemeleri bağlandı.");
       }
       finally { if (!open) EditorSceneManager.CloseScene(scene, true); }

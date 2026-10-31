@@ -36,7 +36,7 @@ namespace LastTurn.EditorValidation
     private static readonly List<TrackResult> results = new List<TrackResult>();
     private static Proof proof; private static double began; private static int phase, trackIndex, waited;
     private static GtPrototype prototype; private static RaceTestDriver driver; private static TrackResult current;
-    private static BodyVector startPosition; private static double balanceBefore;
+    private static BodyVector startPosition, ghostCheckpoint; private static double balanceBefore;
 
     static RacePlayValidation() { EditorApplication.playModeStateChanged += Changed; }
 
@@ -98,6 +98,7 @@ namespace LastTurn.EditorValidation
           for (int k = 0; k < 900 && s.State == RaceState.Running; k++)
           {
             prototype.StepRace(driver.Input(r)); current.steps++;
+            if (key == "gp_1" && current.steps == 300) ghostCheckpoint = r.Vehicle.Body.Position;
             if (driver.RespawnIfStuck(r)) current.respawns++;
             var b = r.Vehicle.Body; var p = r.Vehicle.ReferencePoint; double h = r.World.Height(p.X, p.Z);
             current.minHeight = Math.Min(current.minHeight, h); current.maxHeight = Math.Max(current.maxHeight, h); current.surfaces[b.CenterSurface]++;
@@ -123,6 +124,16 @@ namespace LastTurn.EditorValidation
           current.time = s.Time; current.finishTime = RaceSession.FormatTime(s.Time); current.bestLap = RaceSession.FormatTime(s.BestLap); current.stars = s.Stars;
           current.xp = (int)s.Xp; current.money = (int)s.Money; current.score = s.Drift.Score; current.trap = s.Trap ?? 0;
           results.Add(current);
+          // TS rekor (sv_) ve hayalet (lt_hayalet_): geçici profilin yarış dizininde.
+          var store = GarageRace.ProfileStore(); var profile = store.Load();
+          Require(profile.Races == trackIndex + 1 && profile.Km > 0 && profile.Use.TryGetValue(10, out int used) && used >= trackIndex + 1, $"{key}: profil sayaçları (yarış {profile.Races}, km {profile.Km:F1})");
+          if (s.State == RaceState.Finished && (r.Event.Type == "dp" || s.Time <= r.Event.Limit))
+            Require(profile.Best(s.RecordKey) == double.Parse(profile.Records[s.RecordKey], System.Globalization.CultureInfo.InvariantCulture) && GarageRace.LastNewRecord, $"{key}: rekor kaydı {profile.Records[s.RecordKey]}");
+          if (current.respawns == 0)
+          {
+            var ghost = store.LoadGhost(s.RecordKey);
+            Require(GarageRace.LastGhostSaved && ghost != null && ghost.Inputs.Count == current.steps && ghost.Result == s.Result, $"{key}: hayalet kaydedildi ({current.steps} adım)");
+          }
           if (key == "gp_1") { phase = 3; return; }
           trackIndex++; phase = trackIndex < Tracks.Length ? 1 : 4; return;
         }
@@ -130,8 +141,11 @@ namespace LastTurn.EditorValidation
         {
           // gp_1: pist dışında 1+5 sn sonra dönüş, sonra TS ↺ yeniden doğ.
           prototype.InitializeRace("gp_1"); var r = prototype.Race; var s = r.Session;
+          Require(r.Ghost != null && prototype.RecordText.Contains("hayalet 2:"), "gp_1 yeniden: kayıtlı hayalet yüklendi (" + prototype.RecordText + ")");
           while (s.State == RaceState.Countdown) prototype.StepRace(new DrivingInput(0, 0, 0));
+          Require(r.Ghost.Index == 0, "Geri sayımda hayalet bekler");
           for (int k = 0; k < 300; k++) prototype.StepRace(driver.Input(r));
+          Require(r.Ghost.Index == 300 && r.Ghost.Vehicle.Body.Position.Equals(ghostCheckpoint), "Hayalet ayrı fizikte ilk sürüşün 300. adımında (bit düzeyinde)");
           var off = r.World.Geometry.AtTrack(r.World.Hint, 40); r.Vehicle.Place(off.X, off.Z, 0);
           while (r.Teleports == 0 && waited < 600) { prototype.StepRace(new DrivingInput(0, 1, 0)); waited++; }
           var back = r.Vehicle.ReferencePoint;
@@ -140,6 +154,7 @@ namespace LastTurn.EditorValidation
           var off2 = r.World.Geometry.AtTrack(r.World.Hint, 30); r.Vehicle.Place(off2.X, off2.Z, 1); prototype.StepRace(new DrivingInput(0, 0, 0));
           double t0 = s.Time; prototype.RespawnRace(); var p2 = r.Vehicle.ReferencePoint;
           Require(r.Teleports == 2 && s.Time == t0 && TrackRules.Locate(r.World.Geometry, p2.X, p2.Z, r.World.Hint).Distance < 1e-6, "TS ↺ yeniden doğ: pist dışı ilk çıkış noktasına, süre korunur");
+          Require(r.Recording.Cut, "Piste dönüş/yeniden doğ girdi kaydını keser (hayalet kaydedilmez)");
           proof.returnSteps = waited; trackIndex++; phase = 1; return;
         }
         if (phase == 4)

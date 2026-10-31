@@ -47,11 +47,53 @@ internal static class RaceSessionValidation
     Check(races.Find("gp", 1).Laps == 3 && races.Types["dp"].Laps == RaceStars.DriftLaps, "asfalt 3 tur, drift 2 tur");
 
     int worldRows = World(root.GetProperty("world"), tracks);
-    var garage = new GarageState(vehicles);
+    var garage = new GarageState(vehicles); var profile = new RaceProfile();
     int steps = 0, scenarios = 0;
-    foreach (var sc in root.GetProperty("scenarios").EnumerateArray()) { steps += Scenario(sc, tracks, races, vehicles, garage); scenarios++; }
+    foreach (var sc in root.GetProperty("scenarios").EnumerateArray()) { steps += Scenario(sc, tracks, races, vehicles, garage, profile); scenarios++; }
+    // Profil kaydı gidiş-dönüş.
+    where = "profil kaydı";
+    var restored = RaceProfile.Restore(CatalogNode.Parse(profile.Snapshot().ToString()));
+    Check(restored.Snapshot().ToString() == profile.Snapshot().ToString() && restored.Races == profile.Races, "profil gidiş-dönüş");
+    Quantize(root.GetProperty("quantize")); GhostRules(root.GetProperty("ghostRules"));
     Console.WriteLine($"Yarış oturumu TS–C#: {scenarios} senaryo / {steps} adım, bölge dünyası {worldRows} adım (yükseklik, yüzey, ipucu), 40 etkinlik; " +
       $"{checks} koşul geçti. En büyük fark {maxError:G3}; tolerans {Tol:G}.");
+  }
+
+  private static void Quantize(JsonElement list)
+  {
+    where = "girdi nicemleme";
+    var rec = new InputRecording(); int i = 0;
+    foreach (var q in list.EnumerateArray())
+    {
+      var a = q.GetProperty("in");
+      // TS aralık dışı direksiyonu kırpar; DrivingInput aralık dışını kabul etmez (aynı sonuç).
+      var input = new DrivingInput(a[1].GetDouble(), a[2].GetDouble(), Math.Max(-1, Math.Min(1, a[0].GetDouble())), a[4].GetBoolean(), a[3].GetBoolean(), a[5].GetBoolean());
+      var o = rec.Record(input); var e = q.GetProperty("out");
+      Check(o.Steering == e[0].GetDouble() && o.Throttle == e[1].GetDouble() && o.Brake == e[2].GetDouble(), "nicemlenmiş girdi " + i);
+      var back = rec.At(i);
+      Check(back.Steering == o.Steering && back.Throttle == o.Throttle && back.Brake == o.Brake && back.AnalogSteering == input.AnalogSteering && back.AnalogThrottle == input.AnalogThrottle && back.Handbrake == input.Handbrake, "kayıttan okuma " + i);
+      i++;
+    }
+    var copy = InputRecording.FromBase64(rec.Base64(), rec.Count);
+    for (int k = 0; k < rec.Count; k++) Check(copy.At(k).Steering == rec.At(k).Steering && copy.At(k).Throttle == rec.At(k).Throttle && copy.At(k).Handbrake == rec.At(k).Handbrake, "base64 gidiş-dönüş " + k);
+  }
+
+  private static void GhostRules(JsonElement list)
+  {
+    where = "hayalet kuralı";
+    var stored = new Dictionary<string, GhostRecord>();
+    foreach (var g in list.EnumerateArray())
+    {
+      string key = g.GetProperty("key").GetString()!; double result = g.GetProperty("sure").ValueKind == JsonValueKind.String ? double.NaN : g.GetProperty("sure").GetDouble();
+      var inputs = new InputRecording(); for (int n = 0; n < g.GetProperty("n").GetInt32(); n++) inputs.Record(new DrivingInput(1, 0, 0));
+      inputs.Cut = g.GetProperty("kesik").GetBoolean();
+      if (g.GetProperty("tasti").GetBoolean()) inputs.Full = true;
+      stored.TryGetValue(key, out var existing);
+      bool ok = GhostRecord.ShouldSave(existing, result, inputs, g.GetProperty("drift").GetBoolean(), g.GetProperty("bas").GetInt32());
+      Check(ok == g.GetProperty("ok").GetBoolean(), $"{key} {result} kabul TS {g.GetProperty("ok")}");
+      if (ok) stored[key] = new GhostRecord { Key = key, Result = result, Inputs = inputs, StartStep = g.GetProperty("bas").GetInt32() };
+      var st = g.GetProperty("stored"); Check(st.ValueKind == JsonValueKind.Null ? !stored.ContainsKey(key) : stored[key].Result == st.GetDouble(), "saklanan sonuç");
+    }
   }
 
   private static int World(JsonElement list, TrackCatalog tracks)
@@ -89,7 +131,7 @@ internal static class RaceSessionValidation
     Check((e[16].GetInt32() == 1) == s.X6, "x6 " + at); Near(e[17].GetDouble(), s.DriftMultiplier, "drift çarpanı " + at);
   }
 
-  private static int Scenario(JsonElement sc, TrackCatalog tracks, RaceEventCatalog races, VehicleCatalog vehicles, GarageState garage)
+  private static int Scenario(JsonElement sc, TrackCatalog tracks, RaceEventCatalog races, VehicleCatalog vehicles, GarageState garage, RaceProfile profile)
   {
     where = sc.GetProperty("name").GetString()!;
     var info = races.Events[sc.GetProperty("event").GetInt32()]; var track = tracks.Tracks[info.Index]; var g = track.Geometry;
@@ -102,6 +144,7 @@ internal static class RaceSessionValidation
     int hint = g.Nearest(info.StartX, info.StartZ, 0, true).Index;
     Check(hint == sc.GetProperty("startHint").GetInt32(), "başlangıç ipucu");
     var session = new RaceSession(info, track, career, hint, garage.RaceFinished);
+    profile.Started(car);
     Check(session.RecordKey == sc.GetProperty("k").GetString(), "rekor anahtarı");
     int countdown = 0;
     while (session.State == RaceState.Countdown) { session.TickCountdown(1.0 / 60); countdown++; }
@@ -148,6 +191,14 @@ internal static class RaceSessionValidation
     Check(r.GetProperty("xp").GetDouble() == session.Xp && r.GetProperty("para").GetDouble() == session.Money, $"ödül TS {r.GetProperty("xp")}/{r.GetProperty("para")} C# {session.Xp}/{session.Money}");
     NearOrNull(r.GetProperty("trap"), session.Trap, "tuzak hızı");
     Check(sc.GetProperty("finalNotes").GetArrayLength() == 0, "bitiş sonrası bildirim yok");
+    // TS sonucGoster rekoru ve profil sayaçları.
+    profile.Finished(session);
+    var rec = sc.GetProperty("record");
+    Check(rec.ValueKind == JsonValueKind.Null ? !profile.Records.ContainsKey(session.RecordKey) : profile.Records[session.RecordKey] == rec.GetString(),
+      $"rekor metni TS {rec} C# {(profile.Records.TryGetValue(session.RecordKey, out var mine) ? mine : "yok")}");
+    var prof = sc.GetProperty("prof");
+    Check(prof.GetProperty("races").GetInt32() == profile.Races && prof.GetProperty("wins").GetInt32() == profile.Wins, "yarış/galibiyet sayacı");
+    Check(prof.GetProperty("use").EnumerateObject().All(u => profile.Use[int.Parse(u.Name)] == u.Value.GetInt32()) && prof.GetProperty("use").EnumerateObject().Count() == profile.Use.Count, "araç kullanım sayacı");
     var after = sc.GetProperty("after");
     Near(after.GetProperty("xp").GetDouble(), garage.Xp, "sonraki XP"); Near(after.GetProperty("kazanilan").GetDouble(), garage.Balance, "sonraki para");
     foreach (var p in after.GetProperty("yildiz").EnumerateObject())

@@ -66,10 +66,26 @@ internal static class RaceDriveValidation
       && a.Garage.StarsOf("gp", 1) == session.Stars, "ödül garaja işlendi (TS yarisBitti)");
     string summary = $"gp_1 {session.Time:F2} sn ({RaceSession.FormatTime(session.Time)}), en iyi tur {RaceSession.FormatTime(session.BestLap)}, {session.Stars}★, +{session.Xp} XP +{session.Money} para";
 
+    // Hayalet (TS rekorHayaleti): kayıt kesintisiz, kaydetme kuralı, kayıt gidiş-dönüş, ayrı fizikle adım adım aynı yol.
+    Check(!a.Run.Recording.Cut && a.Run.Recording.Count == drive.Steps, $"girdi kaydı kesintisiz ({a.Run.Recording.Count} adım)");
+    var ghostRecord = new GhostRecord { Key = session.RecordKey, Car = a.Garage.SelectedCar, RaceType = "gp", Result = session.Time, Inputs = a.Run.Recording, Parts = a.Garage.Equipped(a.Garage.SelectedCar) };
+    Check(GhostRecord.ShouldSave(null, session.Time, a.Run.Recording, false), "hayalet kaydedilir");
+    GhostRecord loaded = GhostRecord.Restore(CatalogNode.Parse(ghostRecord.Snapshot().ToString()), session.RecordKey)!;
+    Check(loaded.Inputs.Count == drive.Steps && loaded.Car == ghostRecord.Car && loaded.Result == session.Time, "hayalet kayıt gidiş-dönüş");
+    Check(GhostRecord.Restore(CatalogNode.Parse(ghostRecord.Snapshot().ToString()), "baska") == null, "yanlış anahtarlı hayalet reddedilir");
+    var ghostParams = GarageDriveParameters.Create(a.Vehicles, a.Vehicles.Setup(loaded.Car, loaded.Parts), false, loaded.RaceType);
+    var ghost = new GhostPlayer(loaded, ghostParams, a.Tracks.Tracks[a.Run.Event.Index], a.Run.Event);
+    while (!ghost.Done) ghost.Step();
+    Check(ghost.Vehicle.Body.Position.Equals(a.Run.Vehicle.Body.Position) && ghost.Vehicle.Body.Velocity.Equals(a.Run.Vehicle.Body.Velocity), "hayalet ayrı fizikle aynı yolu bitirdi (bit düzeyinde)");
+
     // Belirlenimcilik: aynı girdiler aynı sonuç (bit düzeyinde).
     var b = Create("gp", 1);
+    // İkinci yarışta hayalet oyuncuyla eş adımlı: oyuncunun her fizik adımında bir girdi; geri sayımda bekler.
+    b.Run.GhostFactory = () => new GhostPlayer(loaded, ghostParams, b.Tracks.Tracks[b.Run.Event.Index], b.Run.Event); b.Run.StartGhost();
     while (b.Run.Session.State == RaceState.Countdown) b.Run.TickCountdown(1.0 / 60);
+    Check(b.Run.Ghost!.Index == 0, "geri sayımda hayalet bekler");
     Drive(b, new RaceTestDriver(), 40000);
+    Check(b.Run.Ghost!.Done && b.Run.Ghost.Vehicle.Body.Position.Equals(b.Run.Vehicle.Body.Position), "aynı sürüşte hayalet ve oyuncu aynı noktada bitirdi");
     Check(BitConverter.DoubleToInt64Bits(b.Run.Session.Time) == BitConverter.DoubleToInt64Bits(session.Time) && b.Run.Vehicle.Body.Position.Equals(a.Run.Vehicle.Body.Position), "tekrar koşu bit düzeyinde aynı");
 
     // Piste dönüş gerçek fizikle: aracı 40 m dışarı koy, 6 sn fren; oturum dönüş noktasına taşır, tur sayılmaz.
@@ -84,6 +100,7 @@ internal static class RaceDriveValidation
     var back = c.Run.Vehicle.ReferencePoint;
     Check(c.Run.Teleports == 1 && waited >= 360 && waited <= 362 && c.Run.Session.Lap == 0, $"1+5 sn sonra piste dönüş ({waited} adım)");
     Check(TrackRules.Locate(gg, back.X, back.Z, c.Run.World.Hint).Distance < 1 && c.Run.World.Surface(back.X, back.Z) == 1, "dönüş noktası pistte, asfalt");
+    Check(c.Run.Recording.Cut && !GhostRecord.ShouldSave(null, 100, c.Run.Recording, false), "piste dönüş kaydı keser: hayalet kaydedilmez (TS kesik)");
     Drive(c, driver, 40000);
     Check(c.Run.Session.State == RaceState.Finished && c.Run.Session.Time > 0, "dönüşten sonra yarış bitti");
     Console.WriteLine($"Yarış sürüşü (gerçek fizik + pist dünyası): {summary}; geri sayım 181 kare; yükseklik {drive.MinHeight:F2}–{drive.MaxHeight:F2} m; " +

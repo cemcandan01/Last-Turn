@@ -14,6 +14,15 @@ namespace LastTurn.Core
     private readonly Func<int, RaceSession> create;
     public RaceSession Session { get; private set; }
     public int Teleports { get; private set; }
+    /// TS girdi kaydı (yarış başında sıfırlanır; dışarıdan taşınma kaydı keser).
+    public readonly InputRecording Recording = new();
+    /// Bu yarışta sürülen yol (TS PROF.km katkısı).
+    public double Km { get; private set; }
+    /// TS rekor hayaleti: oyuncunun her fizik adımında bir kayıtlı girdi (ayrı fizik). Yeniden başlatmada fabrikadan.
+    public Func<GhostPlayer?>? GhostFactory;
+    public GhostPlayer? Ghost { get; private set; }
+    /// Yarış bittiğinde bir kez (rekor, profil, hayalet kaydı).
+    public event Action<RaceRun>? Finished;
 
     /// Drift yarışında komboyu yakan açı: TS driftYarisProfili(kurulum).azami + 0,12 (RaceDrift.MaxAngle).
     public readonly double DriftBetaLimit;
@@ -32,15 +41,21 @@ namespace LastTurn.Core
     /// TS reset: araç zemine oturtulur, sonra pist ipucu tam taramayla yenilenir.
     private void Place(double x, double z, double heading) { Vehicle.Place(x, z, heading); World.ResetHint(x, z); }
 
-    /// Aynı yarış sıfırdan geri sayımla (TS yarisiYenidenBaslat).
-    public void Restart() { Session = create(PlaceAtStart()); Teleports = 0; }
+    /// Aynı yarış sıfırdan geri sayımla (TS yarisiYenidenBaslat): kayıt ve hayalet baştan.
+    public void Restart() { Session = create(PlaceAtStart()); Teleports = 0; Recording.Clear(); Km = 0; Ghost = GhostFactory?.Invoke(); }
+
+    /// Hayaleti şimdi kur (ilk yarış; sonraki başlatmalar Restart'ta).
+    public void StartGhost() => Ghost = GhostFactory?.Invoke();
+
+    /// TS girdiyiKaydet: kaydeder ve fiziğe verilecek nicemlenmiş girdiyi döndürür.
+    public DrivingInput Record(DrivingInput input) => Recording.Record(input);
 
     /// TS ↺ yeniden doğ: yarışta pist dışı ilk çıkış noktasına ya da en yakın pist noktasına (süre durmaz).
     public bool Respawn()
     {
       var p = Vehicle.ReferencePoint; var back = Session.ManualReturn(p.X, p.Z, World.Hint);
       if (back == null) return false;
-      Place(back.Value.X, back.Value.Z, back.Value.Heading); Teleports++; return true;
+      Place(back.Value.X, back.Value.Z, back.Value.Heading); Teleports++; Recording.Cut = true; return true;
     }
 
     /// Geri sayım (fizik donuk). TS'de kare süresiyle azalır.
@@ -52,8 +67,9 @@ namespace LastTurn.Core
     public bool Step(DrivingInput input)
     {
       if (!PhysicsRunning) return false;
-      Vehicle.Step(input);
-      AfterPhysicsStep(input);
+      var quantized = Record(input);
+      Vehicle.Step(quantized);
+      AfterPhysicsStep(quantized);
       return true;
     }
 
@@ -67,8 +83,13 @@ namespace LastTurn.Core
         DriftActive = drift.Active, Beta = drift.Beta, GrassWheels = RaceDrift.GrassWheels(body), Steer = command.Steering,
         SimTime = body.Steps * PowertrainVehicle.FixedDelta, SinceHit = double.PositiveInfinity, BetaLimit = DriftBetaLimit,
       };
+      Km += JsMath.Hypot(v.X, v.Z) * PowertrainVehicle.FixedDelta / 1000;
+      bool running = Session.State == RaceState.Running;
       var back = Session.Step(input, PowertrainVehicle.FixedDelta);
-      if (back != null) { Place(back.Value.X, back.Value.Z, back.Value.Heading); Teleports++; }
+      if (back != null) { Place(back.Value.X, back.Value.Z, back.Value.Heading); Teleports++; Recording.Cut = true; }
+      // TS uzakAdimi: yarış adımından sonra hayalet bir adım.
+      Ghost?.Step();
+      if (running && Session.State == RaceState.Finished) Finished?.Invoke(this);
     }
   }
 }
