@@ -141,3 +141,7 @@ Bu bağlı GitHub entegrasyonunun yönetici izni koruma kuralını değiştirmey
 - Force-push ve dal silme engelli.
 
 `gelistirme` için en az `Denetim / denetim` kontrolünü gerekli tut; `master`a yalnız regresyon PR'ı aç.
+
+## Araç kataloğu ve modifiye veri katmanı — 31 Ekim 2026
+
+Kart `docs/isler/2026-10-31-unity-arac-katalogu.md`, rehber `Unity/ARAC-KATALOGU.md`. Sabit TS 0.8.18 kaynaklarından otomatik JSON + SHA256 manifesti; 15 araç/42 parça/5 paket/28 lastik. Saf C# kurulum, sınıf/performans, fizik parametreleri ve fiyat/erişim kuralları vardır. `export-catalog.mjs --check` ve `.NET --catalog` üretim/eşdeğerlik sınırıdır. Editor menüsü **Last Turn → Araç ve Modifiye Kataloğu**, ayrı kısa veri kontrolü ve `check-catalog-proof.mjs` güncel derleme/hash kanıtını denetler. Sürüş sahneleri mevcut fabrikalarını korur; ham katalog MUTANT dengesini veya GT geri manevra düzeltmesini genellemez. Kalıcı kayıt/garaj satın alma akışı sonraki iştir; fizik mekaniklerine ara sürer.

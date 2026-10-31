@@ -38,7 +38,7 @@ namespace LastTurn.Core
       Numeric.Positive(mass); Numeric.Positive(inertia.X); Numeric.Positive(inertia.Y); Numeric.Positive(inertia.Z);
       Numeric.Positive(cgY); Numeric.Finite(cgZ); Numeric.Positive(wheelbase); Numeric.NonNegative(frontAntiRoll); Numeric.NonNegative(rearAntiRoll);
       Numeric.NonNegative(brakeTorque); Numeric.NonNegative(dragArea); Numeric.NonNegative(downforceArea);
-      Numeric.NonNegative(differentialRate); Numeric.Positive(width); Numeric.NonNegative(lift); Numeric.Positive(maxSteering);
+      Numeric.NonNegative(differentialRate); Numeric.Positive(width); Numeric.Finite(lift); Numeric.Positive(maxSteering);
       Unit(frontDriveShare); Unit(frontBrakeShare); Unit(rearDifferential);
       if (wheels == null || tires == null || wheels.Length != 4 || tires.Length != 4) throw new ArgumentException("Dört teker/lastik gerekli.");
       for (int i = 0; i < 4; i++)

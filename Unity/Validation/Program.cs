@@ -1,6 +1,8 @@
 using System.Text.Json;
 using LastTurn.Core;
 
+if(args.Contains("--catalog")){CatalogValidation.Run();return;}
+
 if(args.Contains("--gt-physics")){GtPhysicsValidation.Run();return;}
 if(args.Contains("--dirt-stability")){DirtStabilityValidation.Run();return;}
 
