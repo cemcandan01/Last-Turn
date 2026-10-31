@@ -113,7 +113,8 @@ namespace LastTurn.Garage
       var modes=GarageViewModel.DriveTireModes;int mode=Array.FindIndex(modes,m=>m.Key==GarageSession.RaceType);
       mode=GUILayout.SelectionGrid(Math.Max(0,mode),modes.Select(m=>m.Label).ToArray(),6,GUILayout.Width(500),GUILayout.Height(36));GarageSession.RaceType=modes[mode].Key;
       if(GUILayout.Button("GTTest'te sür",GUILayout.Height(36)))GarageSession.Launch("GTTest");
-      if(GUILayout.Button("TerrainTest'te sür",GUILayout.Height(36)))GarageSession.Launch("TerrainTest");GUILayout.EndHorizontal();
+      if(GUILayout.Button("TerrainTest'te sür",GUILayout.Height(36)))GarageSession.Launch("TerrainTest");
+      if(GUILayout.Button("Yarış: gp_1",GUILayout.Height(36)))GarageSession.Launch("RaceTest");GUILayout.EndHorizontal();
       GUILayout.Label("Sökme/değiştirme iade üretmez. Kategoriye ödenmiş gerçek bedel sonraki yükseltmeye kredi olur.",small);GUILayout.EndArea();GUI.matrix=matrix;
     }
   }

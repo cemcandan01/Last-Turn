@@ -47,11 +47,11 @@ Sonuç: yaprak modüller (`yaris-kurallari`, `pist-ciz`, `pist`) önce taşını
 ## 3. Aktarım sırası
 
 1. **[Tamamlandı 31 Ekim — `docs/isler/2026-10-31-unity-pist-aktarimi.md`, dal `claude/unity-pist-aktarimi`; tolerans 1e-9, bölge yüksekliği/yüzey sonraki aşamaya kaldı]** **Veri + geometri:** `export-races.mjs`, `RaceCatalog` (saf), pist sorguları. Ölçüt: 40 pist, her pistte N nokta/uzunluk/en yakın nokta TS ile 1e-9 m.
-2. **Saf kurallar:** `yaris-kurallari` (drift/ters), `piste-donus` (pist dışı/kesme), `yildiz`. Ölçüt: TS birim testlerinin girdileriyle aynı olay dizisi ve puan.
-3. **Yarış durum makinesi:** `RaceSession` (saf) = `startEvent` kural kısmı (kilit, kariyere uygunluk → `deneme_` anahtarı, yarış lastiği, geri sayım 3 sn) + `evTick` (tur/armed/prev, A→B ve drag bitişi, tuzak hızı) + `endEvent` (yıldız, ödül, kazanma). DOM/not çağrıları olay listesine dönüşür (`RaceEvent`: TUR, KOMBO YANDI, x6, PİSTE DÖNDÜN, PİST KESME); sunum bunları gösterir.
-4. **Ekonomi bağı:** `GarageState.RaceFinished(tür, lv, yıldız)` = TS `yarisBitti` (önceki en iyi yıldız, `yildizKaydet`, para+XP). Kariyer dışı (`kariyer=false`) ödülsüz. Kayıt `GarageSaveStore`'un aynı zarfı; yeni alan yoksa sürüm artmaz.
-5. **Sürüş bağı:** nötr `DriveRequest` (araç kurulumu + yarış türü + pist) — `GtPrototype`'ın `GarageSession` bağımlılığı burada kalkar. Pist dünyası `IVehicleWorld` olarak, önce düz/örneklenmiş yükseklikle.
-6. **Geçici sunum:** etkinlik listesi, geri sayım, tur/puan HUD'ı, sonuç ekranı — yalnız görünüm modelleri.
+2. **[Tamamlandı — Paket A, `2026-10-31-unity-yaris-kurallari.md`]** **Saf kurallar:** `yaris-kurallari` (drift/ters), `piste-donus` (pist dışı/kesme), `yildiz`. Ölçüt: TS birim testlerinin girdileriyle aynı olay dizisi ve puan.
+3. **[Tamamlandı — Paket B, `2026-10-31-unity-yaris-oturumu.md`]** **Yarış durum makinesi:** `RaceSession` (saf) = `startEvent` kural kısmı (kilit, kariyere uygunluk → `deneme_` anahtarı, yarış lastiği, geri sayım 3 sn) + `evTick` (tur/armed/prev, A→B ve drag bitişi, tuzak hızı) + `endEvent` (yıldız, ödül, kazanma). DOM/not çağrıları olay listesine dönüşür (`RaceEvent`: TUR, KOMBO YANDI, x6, PİSTE DÖNDÜN, PİST KESME); sunum bunları gösterir.
+4. **[Tamamlandı — Paket B]** **Ekonomi bağı:** `GarageState.RaceFinished(tür, lv, yıldız)` = TS `yarisBitti` (önceki en iyi yıldız, `yildizKaydet`, para+XP). Kariyer dışı (`kariyer=false`) ödülsüz. Kayıt `GarageSaveStore`'un aynı zarfı; yeni alan yoksa sürüm artmaz.
+5. **[Kısmen — Paket B: gp/dp bölge dünyası `TrackWorld` + `RaceRun`; nötr `DriveRequest` yerine `GarageRace` köprüsü, rx/rl/dg dünyası yok]** **Sürüş bağı:** nötr `DriveRequest` (araç kurulumu + yarış türü + pist) — `GtPrototype`'ın `GarageSession` bağımlılığı burada kalkar. Pist dünyası `IVehicleWorld` olarak, önce düz/örneklenmiş yükseklikle.
+6. **[gp_1 için tamamlandı — Paket B `RaceHud`/`RaceViewModel`/`RaceTrackVisuals`; etkinlik listesi yok]** **Geçici sunum:** etkinlik listesi, geri sayım, tur/puan HUD'ı, sonuç ekranı — yalnız görünüm modelleri.
 7. Sonra: hayalet/rekor, YZ rakip (MUTANT), sokak yarışları, MUTANT.
 
 ## 4. Test stratejisi

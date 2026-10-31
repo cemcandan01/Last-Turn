@@ -23,6 +23,14 @@ namespace LastTurn.Core
       body.Reset(initialSpeed);
       Engine = Initial(initialGear);
     }
+    /// Yarış başlangıcı / piste dönüş (TS reset karşılığı): araç durur, zemine oturtulur, motor ilk durumuna döner.
+    public void Place(double x, double z, double heading)
+    {
+      body.Reset(0, 0, heading, x, z);
+      Engine = Initial(1);
+    }
+    /// Gövdenin (0, 0, 0) referans noktası: TS S.x/S.z; yüzey ve yarış sorguları buradan yapılır.
+    public BodyVector ReferencePoint => Body.Orientation.Rotate(new BodyVector(0, -p.Chassis.CgY, -p.Chassis.CgZ)) + Body.Position;
     private static double Clamp(double x, double a, double b) => Math.Max(a, Math.Min(b, x));
     private static double Smooth(double a, double b, double x) { double t = Clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); }
     public void Step(DrivingInput input)

@@ -15,7 +15,8 @@ namespace LastTurn.EditorValidation
     [Serializable] private sealed class Source { public string path,sha256; }
     [Serializable] private sealed class Proof { public string result,utc,unityVersion,error,maxErrorAt;public int tracks,points,samples,checks;public double maxError,tolerance;public Source[] sources; }
     public const string Asset="Assets/LastTurn/Resources/track-catalog.json",Fixture="Validation/Reference/track-queries-0.8.18.json";
-    [DidReloadScripts] private static void Reload(){EditorApplication.delayCall+=Run;}
+    // Play'e girerken yeniden yüklemede koşmaz: kare süresine bağlı Play doğrulamalarını bekletmesin (kanıt derleme içindir).
+    [DidReloadScripts] private static void Reload(){if(!EditorApplication.isPlayingOrWillChangePlaymode)EditorApplication.delayCall+=Run;}
     [MenuItem("Last Turn/Pist Verisini Doğrula")]
     public static void Run()
     {

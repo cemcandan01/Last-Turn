@@ -203,6 +203,28 @@ namespace LastTurn.Core
       xp += addition;
     }
 
+    public int StarsOf(string type, int level) => ReadStars(type, level);
+
+    /// TS ilerleme.pistAcikMi (admin kipi yok): seviye, ek açık liste ya da kariyer yıldız kapısı.
+    public bool TrackOpen(string type, int level)
+    {
+      var unlock = Catalog.Data["career"]["unlocks"]["pist"][type][level - 1];
+      return Level >= (unlock.IsNumber ? unlock.N() : 1) || extraOpen.Contains(RaceStars.Key(type, level))
+        || Catalog.StarGate(type, level, ReadStars)["acik"].B();
+    }
+
+    /// TS ilerleme.yarisBitti: ödül önceki en iyi yıldıza göre; yıldız yalnız daha iyiyse yazılır; para ve XP eklenir.
+    public (double Xp, double Money) RaceFinished(string type, int level, int earnedStars)
+    {
+      if (earnedStars < 0 || earnedStars > 3) throw new ArgumentOutOfRangeException(nameof(earnedStars));
+      int previous = ReadStars(type, level);
+      var reward = Catalog.Reward(type, level, earnedStars, previous);
+      double gainedXp = reward["xp"].N(), money = reward["para"].N();
+      if (earnedStars > previous) stars[RaceStars.Key(type, level)] = earnedStars;
+      AddMoney(money); AddXp(gainedXp);
+      return (gainedXp, money);
+    }
+
     public CatalogSetup Setup(int car, string level = "norm") => Catalog.Setup(car, Equipped(car), level);
 
     public CatalogNode Snapshot()

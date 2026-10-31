@@ -1,4 +1,13 @@
-# Son devir: Unity pist aktarımı — yarış planı 1. aşama (2026-10-31) — yalnız yerel
+# Son devir: Unity yarış kuralları (Paket A) ve yarış oturumu + gp_1 (Paket B) (2026-10-31) — yalnız yerel
+
+- Dal `claude/unity-yaris-kurallari` (taban `03787f2`); Paket A commit'i `4f9b19d`, Paket B ayrı commit. Kartlar `docs/isler/2026-10-31-unity-yaris-kurallari.md`, `…-unity-yaris-oturumu.md`; teknik borç `…-gt-play-kare-zamanlamasi.md`. Sahip Claude (Codex kotası dolu), ikinci ajan yok. Push/merge/yayın/uzun regresyon yok; `_Recovery` ve `QualitySettings.asset` commit dışı.
+- **A:** `RaceRules` (drift/bonus/x6, ters, pist dışı/dönüş, kesme algısı, yıldız). Kariyerde kesme yalnız bildirim (ceza TS'de MUTANT'a ait). `--race-rules` 266.363 iz koşulu + 37 TS birim iddiası, en büyük fark 3,4e-13.
+- **B:** TS bölge/yarış dosyaları taklit kipli yükleyiciyle sabit SHA'dan çalıştırılarak oracle (`export-race-session.mjs`). Core `TrackWorld`, `RaceSession`, `RaceRun`, `RaceViewModel`, `GarageState.RaceFinished/TrackOpen`. Unity `RaceTest` sahnesi, `GtPrototype` yarış kipi, `RaceHud`, `RaceTrackVisuals`, garajda **Yarış: gp_1**. `--race-session` 293.352 koşul (fark 1,3e-15); `--race-drive` gerçek fizikle gp_1 2:14.6, 2★, ödül garajda.
+- **Unity Play (UTC 10:45–10:46):** Yarış 16/16 (aynı 2:14.6, ödül geçici profilde kalıcı, piste dönüş 361 adım), GT 28/28, Arazi 23/23, Garaj 20/20; editor/catalog/track kanıtları geçti. Manuel rehber `Unity/YARIS.md`.
+- Açık: rx/rl/dg sürüş dünyası, dekor çarpışması/sınır duvarı, drift fizik bağı, rekor/hayalet/rakip/profil sayaçları.
+- **Sonraki tek adım:** rallikros/ralli bölge dünyası `TrackWorld`e (aynı taklit oracle'ı).
+
+# Önceki devir: Unity pist aktarımı — yarış planı 1. aşama (2026-10-31) — yalnız yerel
 
 - Dal `claude/unity-pist-aktarimi`, taban `62e5ba6`; kart `docs/isler/2026-10-31-unity-pist-aktarimi.md`. Teslim SHA'sı kartı son değiştiren yerel commit'tir. Sahip Claude (Codex kotası dolu); ikinci ajan yok. Push/merge/yayın/uzun regresyon yok; `_Recovery` ve `QualitySettings.asset` commit dışı.
 - `export-tracks.mjs` sabit TS 0.8.18'den 40 pistin ham tanımı + `mkTrack` geometrisi (`Resources/track-catalog.json`) ve sorgu oracle'ı; THREE'li bölge/yarış dosyalarının 12 bileşim satırı birebir denetlenir. Core `TrackGeometry` (pist.ts sorguları) + `TrackCatalog`/`TrackLayout` (kerb, tabela, rampa, çamur, su, asfalt, başlangıç). Eğri üretimi C#'a yazılmadı.

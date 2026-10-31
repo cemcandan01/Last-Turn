@@ -13,6 +13,10 @@ namespace LastTurn.Prototype
     [SerializeField] private GtFollowCamera followCamera;
     [SerializeField] private Transform ground;
     [SerializeField] private bool terrainMode;
+    // Yarış kipi (RaceTest sahnesi): "gp_1" gibi tür_seviye. Boşsa GTTest/TerrainTest davranışı aynen kalır.
+    [SerializeField] private string raceTrack = "";
+    [SerializeField] private RaceTrackVisuals trackVisuals;
+    private string visualCar = "";
     private IVehicleWorld world;
     public bool TerrainMode => terrainMode;
     private PowertrainParameters parameters;
@@ -33,9 +37,17 @@ namespace LastTurn.Prototype
     public int RestartCount { get; private set; }
     public PowertrainParameters Parameters => parameters;
     public string AppliedGarageCarId { get; private set; } = "";
+    public string RaceTrack => raceTrack;
+    public RaceRun Race { get; private set; }
+    public TrackWorld RaceWorld { get; private set; }
+    public string RaceMessage { get; private set; } = "";
+    public RaceTrackVisuals TrackVisuals => trackVisuals;
+    /// Doğrulama sabit adımları kendisi verir (StepRace); Update fiziği ilerletmez.
+    public bool ManualStepping { get; set; }
 
     private void Awake()
     {
+      if (raceTrack != "") { AwakeRace(); return; }
       if (GarageSession.TryDriveParameters(terrainMode,out var garageParameters))
       { parameters=garageParameters;AppliedGarageCarId=GarageSession.DriveSetup.Car["k"].S(); }
       else parameters = terrainMode?GtPrototypeParameters.CreateTerrain():GtPrototypeParameters.Create();
@@ -57,6 +69,7 @@ namespace LastTurn.Prototype
     private void Update()
     {
       if (!focused) return;
+      if (Race != null) { UpdateRace(); return; }
       if (input.ConsumeRestart()) { ResetVehicle(); return; }
       CurrentInput = input.Read();
       runner.Advance(Time.deltaTime, _ =>
@@ -87,7 +100,66 @@ namespace LastTurn.Prototype
       Vector3 origin = vehicleRoot.TransformPoint(ModelPoint(0, 0, 0, parameters.Chassis));
       followCamera.Render(origin, vehicleRoot.forward, (float)b.Velocity.Length, dt);
       // Sonsuz H=0 zeminin yalnız görsel döşemesi; simülasyona geri besleme yok.
-      if(!terrainMode)ground.position = new Vector3(vehicleRoot.position.x, 0, vehicleRoot.position.z);
+      if(!terrainMode && ground)ground.position = new Vector3(vehicleRoot.position.x, 0, vehicleRoot.position.z);
+    }
+    // ---------- Yarış kipi: TS pist dünyası + yarış oturumu (RaceRun); kural ve ödül saf katmanda/garaj oturumunda.
+    private void AwakeRace()
+    {
+      if (!vehicleRoot || !followCamera || !trackVisuals) throw new InvalidOperationException("RaceTest sahnesi eksik; Last Turn menüsünden sahneyi oluşturun.");
+      var data = RaceData.Load(); var info = data.Event(raceTrack);
+      trackVisuals.Build(data.Tracks.Tracks[info.Index]);
+      input = new GtKeyboardInput();
+      InitializeRace();
+    }
+    /// Garaj oturumundan araç/kariyer/ödül bağını kurup yarışı baştan hazırlar (doğrulama ayrı profil açınca da çağırır).
+    public void InitializeRace()
+    {
+      var data = RaceData.Load(); var info = data.Event(raceTrack); var track = data.Tracks.Tracks[info.Index];
+      var drive = GarageRace.Prepare(info);
+      parameters = drive.Parameters ?? GtPrototypeParameters.Create(); RaceMessage = drive.Message;
+      AppliedGarageCarId = "";
+      if (drive.Setup != null && drive.Parameters != null)
+      {
+        AppliedGarageCarId = drive.Setup.Car["k"].S();
+        // Görsel uyarlama parça konumlarını kaydırır: aynı sahnede bir kez.
+        if (visualCar == "") { ApplyGarageVisuals(drive.Setup); visualCar = AppliedGarageCarId; }
+      }
+      RaceWorld = new TrackWorld(track); world = RaceWorld;
+      Simulation = new PowertrainVehicle(parameters, world: world); runner = new PowertrainFixedStepRunner(Simulation);
+      Race = new RaceRun(Simulation, RaceWorld, info, hint => new RaceSession(info, track, drive.Career, hint, drive.Career ? GarageRace.Reward : null));
+      runner.SyncPrevious(); previousSteer = 0; followCamera.ResetFollow(); RenderFrame(0);
+    }
+    private void UpdateRace()
+    {
+      if (input.ConsumeRestart()) { RestartRace(); return; }
+      CurrentInput = input.Read();
+      if (ManualStepping) return;
+      if (Race.Session.State == RaceState.Countdown) { Race.TickCountdown(Time.deltaTime); return; }
+      if (Race.Session.State != RaceState.Running) return;
+      runner.Advance(Time.deltaTime, _ => { previousSteer = Simulation.Engine.SteeringAngle; return CurrentInput; }, AfterRaceStep);
+      frameSeconds = Mathf.Lerp(frameSeconds, Time.unscaledDeltaTime, .05f);
+    }
+    private bool AfterRaceStep()
+    {
+      int teleports = Race.Teleports; Race.AfterPhysicsStep();
+      if (Race.Teleports != teleports) { runner.SyncPrevious(); followCamera.ResetFollow(); }
+      return Race.PhysicsRunning;
+    }
+    public void RestartRace() { Race.Restart(); runner.SyncPrevious(); previousSteer = 0; followCamera.ResetFollow(); RenderFrame(0); RestartCount++; }
+    /// Doğrulama: bir sabit adım (geri sayımda 1/60 sn sayaç, yarışta fizik + yarış adımı).
+    public void StepRace(DrivingInput value)
+    {
+      CurrentInput = value;
+      if (Race.Session.State == RaceState.Countdown) { Race.TickCountdown(PowertrainVehicle.FixedDelta); return; }
+      if (Race.Session.State != RaceState.Running) return;
+      previousSteer = Simulation.Engine.SteeringAngle;
+      Race.Step(value); runner.SyncPrevious();
+    }
+    public void ConfigureRace(string key, RaceTrackVisuals visuals)
+    {
+      raceTrack = key; trackVisuals = visuals;
+      foreach(Transform child in transform)
+        if(child==ground || child.name.StartsWith("Mesafe çizgisi") || child.name=="Başlangıç karesi")child.gameObject.SetActive(false);
     }
     // Yalnız ayrı arazi sahnesi kurucusu çağırır; GTTest serialized verisi değişmez.
     public void ConfigureTerrain()

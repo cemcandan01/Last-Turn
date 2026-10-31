@@ -10,7 +10,21 @@ import ts from "typescript";
 export const baseline = "df3549e709469f0b519ebfbeaa9f63c1040fee05";
 export const root = path.resolve(import.meta.dirname, "../..");
 
-export function createBaselineLoader() {
+// THREE/DOM'a bağlı TS dosyalarını (bölge kurulumu) saf sorguları için yüklerken kullanılan her şeyi kabul eden taklit:
+// özelliği, çağrısı ve kurucusu yine kendisidir; görsel kurulum hiç çalıştırılmaz, yalnız modül üst düzeyi geçer.
+function universalStub() {
+  const target = function () {};
+  const proxy = new Proxy(target, {
+    get: (_t, key) => (key === Symbol.toPrimitive ? () => 0 : key === "prototype" ? {} : proxy),
+    apply: () => proxy,
+    construct: () => proxy,
+    set: () => true,
+    has: () => true,
+  });
+  return proxy;
+}
+
+export function createBaselineLoader({ stubs = false } = {}) {
   const modules = new Map(),
     sources = {},
     storage = new Map();
@@ -23,7 +37,17 @@ export function createBaselineLoader() {
     sources[name] = createHash("sha256").update(source).digest("hex");
     return source;
   };
+  const globals = stubs
+    ? Object.fromEntries(
+        ["document", "window", "navigator", "HTMLCanvasElement", "Image", "requestAnimationFrame", "addEventListener",
+          "matchMedia", "AudioContext", "location", "performance", "setTimeout", "clearTimeout", "devicePixelRatio",
+          "innerWidth", "innerHeight", "screen", "fetch", "OffscreenCanvas"].map((k) => [k, universalStub()]),
+      )
+    : {};
   const context = vm.createContext({
+    ...globals,
+    console,
+    structuredClone,
     localStorage: {
       getItem: (k) => storage.get(k) ?? null,
       setItem: (k, v) => storage.set(k, String(v)),
@@ -40,11 +64,16 @@ export function createBaselineLoader() {
     // Salt veri olan özel tabloları dışarı aç; hesaplama gövdeleri aynen çalışır.
     if (name === "src/fizik/yeni/arac-fizigi.ts") source += "\nexport { FREKANS as catalogFrequencies };";
     if (name === "src/arac/performans.ts") source += "\nexport { referanslar as catalogTracks };";
+    // Vite ortamı: taklit modunda üretim dışı sabit değerler (geliştirici/deneme bayrakları kapalı).
+    if (stubs) source = source.replaceAll("import.meta.env", '({ MODE: "test", DEV: false, PROD: true, BASE_URL: "/" })').replaceAll("import.meta.url", '"file:///baseline/"');
     const code = ts.transpileModule(source, {
       compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
     }).outputText;
     const require = (specifier) => {
-      if (!specifier.startsWith(".")) throw new Error("Harici modül yürütülmez: " + specifier);
+      if (!specifier.startsWith(".")) {
+        if (stubs) return universalStub();
+        throw new Error("Harici modül yürütülmez: " + specifier);
+      }
       return load(path.posix.join(path.posix.dirname(name), specifier));
     };
     new vm.Script("(function(require,module,exports){" + code + "\n})", {

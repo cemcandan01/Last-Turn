@@ -14,5 +14,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/LastTurn/Scenes/TerrainTest.unity
     guid: d3d5b19b70b3dac498815d066423d5bc
+  - enabled: 1
+    path: Assets/LastTurn/Scenes/RaceTest.unity
+    guid: e88996eb1d391834b8b7bbfa1ade4fa6
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
