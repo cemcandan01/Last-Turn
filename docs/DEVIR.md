@@ -1,4 +1,13 @@
-# Son devir: Unity garaj ve kalıcı kayıt (2026-10-31) — yalnız yerel, tamamlandı
+# Son devir: Unity pist aktarımı — yarış planı 1. aşama (2026-10-31) — yalnız yerel
+
+- Dal `claude/unity-pist-aktarimi`, taban `62e5ba6`; kart `docs/isler/2026-10-31-unity-pist-aktarimi.md`. Teslim SHA'sı kartı son değiştiren yerel commit'tir. Sahip Claude (Codex kotası dolu); ikinci ajan yok. Push/merge/yayın/uzun regresyon yok; `_Recovery` ve `QualitySettings.asset` commit dışı.
+- `export-tracks.mjs` sabit TS 0.8.18'den 40 pistin ham tanımı + `mkTrack` geometrisi (`Resources/track-catalog.json`) ve sorgu oracle'ı; THREE'li bölge/yarış dosyalarının 12 bileşim satırı birebir denetlenir. Core `TrackGeometry` (pist.ts sorguları) + `TrackCatalog`/`TrackLayout` (kerb, tabela, rampa, çamur, su, asfalt, başlangıç). Eğri üretimi C#'a yazılmadı.
+- **Geçti:** `--tracks` 70.761 koşul, en büyük fark 1,14e-13 (.NET) / 3,58e-12 (Unity Mono), tolerans 1e-9; `gp_1` N=397, 1491,283 m. Unity UTC 09:36: pist kanıtı, editor (27 Core), katalog, GT 28/28, Arazi 23/23, Garaj 20/20. Kısa garaj regresyonu ve `--check`'ler geçti.
+- Geçici geliştirici görünümü: **Last Turn → Pist Kataloğu** (çizim + fare altında canlı sorgu).
+- Kalıcı karar: `docs/UNITY-GECIS.md` → “Sunum katmanı ayrımı” (kesin; görevlerde yeniden tartışılmaz).
+- **Sonraki tek adım:** yarış planı 2. aşama — `yaris-kurallari`, `piste-donus`, `yildiz` saf C# + TS birim testi girdileriyle oracle.
+
+# Önceki devir: Unity garaj ve kalıcı kayıt (2026-10-31) — yalnız yerel, tamamlandı
 
 - Dal `codex/unity-garaj-kayit`, taban `cd365a5`; kart `docs/isler/2026-10-31-unity-garaj-kayit.md`. Teslim SHA'sı kartı son değiştiren yerel commit'tir. Push/merge/yayın/uzun regresyon yok. `Unity/Assets/_Recovery/` commit'e girmez; Unity'nin tekrar tekrar sildiği `QualitySettings.asset` platform tablosu geri alınmış tutulur.
 - Codex uyguladı (Core garaj/kayıt/sürüş adaptörü, sahne, oturum, TS oracle, üç .NET doğrulaması, Play doğrulaması) ve 10:37'de kota nedeniyle durdu. Claude devraldı: TS 0.8.18 bağımsız inceleme, takılı parçaya dokununca sökme, `catalogGeneration` geçişi (eski nesil geçirilir, yeni/bilinmeyen kaynak salt okunur), küçük sürüm “gelecek” sayılmaz, saf `GarageCommand`/`GarageViewModel` sunum ayrımı. Model claude-opus-5-5; kota bilinmiyor; API/ek kredi yok.

@@ -8,6 +8,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../Assets/LastTurn/Scripts/Core/**/*.cs" LinkBase="Core" />
+    <Compile Include="../Assets/LastTurn/Editor/TrackReferenceComparison.cs" Link="Editor/TrackReferenceComparison.cs" />
     <None Update="Reference/**/*.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
