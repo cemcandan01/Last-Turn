@@ -81,7 +81,7 @@ namespace LastTurn.EditorValidation
         if (phase == 1)
         {
           prototype.InitializeRace(key);
-          var race = prototype.Race; var world = prototype.RaceWorld; driver = RaceTestDriver.For(race.Event.Type);
+          var race = prototype.Race; var world = prototype.RaceWorld; driver = RaceTestDriver.For(race.Event.Type); driver.Digital = race.Event.Type == "dp";
           current = new TrackResult { key = key, minHeight = 1e9, maxHeight = -1e9, surfaces = new int[6], vertices = prototype.TrackVisuals.Vertices };
           Require(prototype.RaceTrack == key && prototype.TrackVisuals.Built == key && current.vertices > 2000, $"{key}: TS pist görseli ({current.vertices} köşe)");
           var p = race.Vehicle.ReferencePoint; double ground = world.Height(race.Event.StartX, race.Event.StartZ);
@@ -104,7 +104,7 @@ namespace LastTurn.EditorValidation
             current.minHeight = Math.Min(current.minHeight, h); current.maxHeight = Math.Max(current.maxHeight, h); current.surfaces[b.CenterSurface]++;
             if (!b.Wheels.Any(w => w.Contact)) current.airborne++;
             if (b.Wet == 1) current.wet++;
-            if (RaceDrift.Detect(b).Active) current.drift++;
+            if (RaceDrift.Detect(b, r.Vehicle.Assist.On).Active) current.drift++;
           }
           if (s.State == RaceState.Running) { if (current.steps > 40000) throw new InvalidOperationException(key + " bitmedi"); return; }
           Require(s.State == RaceState.Finished, $"{key}: gerçek fizikle bitti ({current.steps} adım, {RaceSession.FormatTime(s.Time)})");

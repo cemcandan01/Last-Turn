@@ -33,6 +33,12 @@ W/S gaz–fren, A/D direksiyon, Boşluk el freni, R yarışı yeniden başlat. S
 - **Drift (dp_1):** 2 tur; puan yalnız gerçek kayarken (hız > 10 m/s, kayma > ~29°) birikir; çarpan x2…x5, tam çime çıkınca KOMBO YANDI, 1. turun %90'ı driftle geçerse ÇARPAN x6. Unity'de drift yardımı yok: TS'den zordur.
 - **Drag (dg_1):** düz şerit, otomatik vites; sonuçta bitiş hızı. Manuel vites ayrı görev.
 
+## Sürüş yardımı (geçici geliştirici ayarı)
+
+- Garaj üst satırında **Sürüş yardımı:** Eğlence (arc) / Dengeli (norm, varsayılan) / Gerçekçi (real). Seçim garaj kaydında kalır; yeniden açılışta korunur.
+- Etki (TS ile aynı): norm/arc'ta viraj desteği ve denge kontrolü kaymayı söndürür, TCS gazı keser; real'de yalnız drift desteği (0,4). Drift yardımı drift başlayınca karşı direksiyona ve hızı korumaya yardım eder; açı ve hat yine sende.
+- Drift denemesi: virajda tam direksiyon + gaz (ya da el freni) ile kıçı kaydır, açıyı direksiyonla tut; çok açılırsa karşı direksiyon. Gerçekçi'de drift en kolay sürdürülür.
+
 ## Rekor ve hayalet
 
 - HUD'da “Rekor … · hayalet …” satırı. Kariyer rekoru yalnız hedef süre içinde ve daha hızlı bitirince yazılır (driftte daha yüksek puan); sonuçta “Rekor: … · YENİ”.
@@ -42,4 +48,4 @@ W/S gaz–fren, A/D direksiyon, Boşluk el freni, R yarışı yeniden başlat. S
 
 ## Bilinen eksikler (bu aşamada yok)
 
-Dekor/ağaç/koni/kaya/bariyer çarpışması ve bölge sınır duvarı. Sürüş yardımları (drift desteği/ESC) ve yardım seviyesi ayarı. Kerb sarsıntısı, geri sayım ışığı/sesi, rakip, geliştirici hayaleti.
+Dekor/ağaç/koni/kaya/bariyer çarpışması ve bölge sınır duvarı. Kerb sarsıntısı, geri sayım ışığı/sesi, rakip, geliştirici hayaleti.

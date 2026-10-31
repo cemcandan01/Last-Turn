@@ -2,6 +2,19 @@ using System;
 
 namespace LastTurn.Core
 {
+  // TS 0.8.18 kurulum.as (LEVELS arc/norm/real + önayar ast/cap). Tutuş (grip), ivme (acc), fren (bra), ABS ve TCS kayma
+  // sınırı parametre kurulumunda; burada yalnız adım içi yardımlar: viraj desteği (str), denge (stm), drift desteği (dft),
+  // drift başlatma (ini). TCS'nin gövde açısıyla gaz kesmesi kabul edilmiş GT düzeltmesiyle (201d7b3) kullanılmaz.
+  public sealed class DrivingAssists
+  {
+    public double Str, Stm, Dft, Ini;
+    /// TS DRIFT_ONAYARLARI (dr, fd, fa): drift girişi eşiği 0,35 rad (diğerleri 0,55).
+    public bool DriftPreset;
+    /// TS F.vTasarim (driftte hız koruma hedefi) ve tu.aero × CAR.ae (viraj desteği Aeq).
+    public double DesignSpeed, AeroFactor;
+    public bool Any => Str != 0 || Stm != 0 || Dft != 0 || Ini != 0;
+  }
+
   // Kaynak aracFizigi / araç / önayar değerleri; yeni motor veya araç dengesi türetilmez.
   public sealed class PowertrainParameters
   {
@@ -29,6 +42,9 @@ namespace LastTurn.Core
       TurboShare = turboShare; TurboSeconds = turboSeconds; TurboThreshold = turboThreshold; Tcs = tcs; Abs = abs;
       SmoothSteering = smoothSteering; SpeedSensitiveSteering = speedSensitiveSteering;
     }
+    /// TS yardım değerleri (kurulum.as) ve drift yardımının ihtiyaç duyduğu araç bilgisi. null: yardım dalları yok
+    /// (GT/Arazi prototipi; kabul edilmiş davranış aynen).
+    public DrivingAssists Assists { get; internal set; } = null!;
     public static double TorqueCurve(double u) { Numeric.Finite(u); return Math.Max(.45, 1 - 1.4 * (u - .55) * (u - .55)); }
     public static double GearRatio(int gear)
     {

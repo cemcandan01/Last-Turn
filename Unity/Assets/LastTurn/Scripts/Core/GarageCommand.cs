@@ -2,7 +2,7 @@ using System;
 
 namespace LastTurn.Core
 {
-  public enum GarageCommandKind { SelectCar, BuyCar, BuyAndEquipPart, EquipPart, UnequipCategory, BuyAndEquipPackage, EquipPackage, Stock }
+  public enum GarageCommandKind { SelectCar, BuyCar, BuyAndEquipPart, EquipPart, UnequipCategory, BuyAndEquipPackage, EquipPackage, Stock, SetAssistLevel }
 
   // Garaj işlemleri veri olarak tanımlanır; arayüz yalnız komutu seçer ve oturuma verir. Bileşik akış TS 0.8.18
   // garaj.ts onay düğmesidir: satın alma başarılıysa aynı işlemde takılır, sökme iade üretmez.
@@ -22,6 +22,8 @@ namespace LastTurn.Core
     public static GarageCommand BuyAndEquipPackage(int car, string package) => new GarageCommand(GarageCommandKind.BuyAndEquipPackage, car, package);
     public static GarageCommand EquipPackage(int car, string package) => new GarageCommand(GarageCommandKind.EquipPackage, car, package);
     public static GarageCommand Stock(int car) => new GarageCommand(GarageCommandKind.Stock, car);
+    /// TS kurulum.lk: yardım seviyesi (arc/norm/real); para harcamaz, kaydedilir.
+    public static GarageCommand SetAssistLevel(string level) => new GarageCommand(GarageCommandKind.SetAssistLevel, -1, level);
 
     // Para harcayan işlemler sunumda ikinci onay ister (TS: 3 sn içinde ikinci dokunuş).
     public bool SpendsMoney => Kind == GarageCommandKind.BuyCar || Kind == GarageCommandKind.BuyAndEquipPart || Kind == GarageCommandKind.BuyAndEquipPackage;
@@ -39,6 +41,7 @@ namespace LastTurn.Core
         case GarageCommandKind.BuyAndEquipPackage: return state.BuyParts(Car, PackageParts(state, Id)) && state.EquipPackage(Car, Id);
         case GarageCommandKind.EquipPackage: return state.EquipPackage(Car, Id);
         case GarageCommandKind.Stock: return state.Stock(Car);
+        case GarageCommandKind.SetAssistLevel: return state.SetAssistLevel(Id);
         default: return false;
       }
     }
@@ -68,6 +71,7 @@ namespace LastTurn.Core
           case GarageCommandKind.UnequipCategory: return "Parça söküldü. Para iadesi yok; yatırım kredisi korundu.";
           case GarageCommandKind.BuyAndEquipPackage: return "Paket satın alındı, takıldı ve kaydedildi.";
           case GarageCommandKind.EquipPackage: return "Paket takıldı ve kaydedildi.";
+          case GarageCommandKind.SetAssistLevel: return "Sürüş yardımı seviyesi kaydedildi.";
           default: return "Stoka dönüldü. Satın alınmış parçalar ve yatırım korundu.";
         }
       }

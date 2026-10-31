@@ -8,7 +8,7 @@ namespace LastTurn.Core
   public static class RaceDrift
   {
     /// TS driftSkoru: β = atan2(vt, max(|vl|, 1)); drift = havada değil ∧ v > 10 ∧ (DR.on ∨ |β| > 0,5).
-    /// DR.on TS drift yardımının durumudur; Unity sürüşünde yardımlar kapalı olduğundan yanlıştır.
+    /// DR.on: TS drift yardımının durumu (PowertrainVehicle.Assist.On; yardımsız araçta hep yanlış).
     public static (bool Active, double Beta, double Speed) Detect(VehicleState s, bool driftAssistOn = false)
     {
       var f = s.Orientation.Rotate(new BodyVector(0, 0, 1));

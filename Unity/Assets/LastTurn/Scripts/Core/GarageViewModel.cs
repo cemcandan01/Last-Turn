@@ -45,6 +45,10 @@ namespace LastTurn.Core
     public static readonly (string Key, string Label)[] DriveTireModes =
       { ("", "Takılı"), ("gp", "Asfalt"), ("rx", "Rallikros"), ("rl", "Ralli"), ("dp", "Drift"), ("dg", "Drag") };
 
+    /// TS LEVELS: yardım seviyeleri (anahtar, ad, açıklama) ve seçili olan.
+    public static (string Key, string Name, string Description, bool Selected)[] AssistLevels(GarageState state)
+      => state.Catalog.Data["levels"].Fields.Select(l => (l.Key, l.Value["n"].S(), l.Value["d"].S(), l.Key == state.AssistLevel)).ToArray();
+
     public static string BlockText(string block)
     {
       switch (block)

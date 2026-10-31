@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace LastTurn.Core
@@ -71,6 +72,18 @@ namespace LastTurn.Core
         var tire=p.TireForSurface(s.WheelData[i].SurfaceIndex,i);
         double factor=grip*(1-.3*s.Wet)/(1+.5*s.Mud);
         tires[i]=factor==1?tire:new TireParameters(tire.MuY*factor,tire.MuX*factor,tire.Kp,tire.Ap,tire.C);
+        var assistTires=command.Assist;
+        if(assistTires!=null)
+        {
+          // TS model.ts: ini arka tutuşu azaltır; asfaltta drift (kz) lastiği yumuşak ve uzun kaydırır.
+          var tr=tires[i];double mu=i>=2?assistTires.RearGrip:1,ap=tr.Ap,shape=tr.C;
+          if(s.WheelData[i].SurfaceIndex==1 && assistTires.Kz>0)
+          {
+            double kz=assistTires.Kz,b=Math.Tan(Math.PI/(2*Math.Max(1.05,shape)))/ap;
+            b*=i<2?1-.2*kz:1-.45*kz;if(i>=2)mu*=1-.1*kz;shape+=(1.3-shape)*kz;ap=Math.Tan(Math.PI/(2*Math.Max(1.05,shape)))/b;
+          }
+          if(mu!=1 || ap!=tr.Ap || shape!=tr.C)tires[i]=new TireParameters(tr.MuY*mu,tr.MuX*mu,tr.Kp,ap,shape);
+        }
         var t=p.Wheels[i];var a=Point(s,t.X,0,t.Z);normals[i]=VehicleGround.Normal(world,a.X,a.Z);
         var wheel=s.WheelData[i];wheel.GroundNormal=normals[i];s.WheelData[i]=wheel;
       }
@@ -94,7 +107,19 @@ namespace LastTurn.Core
         if (a.Y-world.Height(a.X,a.Z) < .6 + Math.Abs(s.Velocity.Y) * FixedDelta * 2) points.Add(point);
       }
       double startSpeed = Math.Sqrt(s.Velocity.X * s.Velocity.X + s.Velocity.Z * s.Velocity.Z);
+      if (command.Assist != null) { double muAverage = 0; for (int i = 0; i < 4; i++) muAverage += tires[i].MuY / 4; assistAeq = 30 * muAverage * (1 + .5 * command.Assist.AeroFactor * command.Assist.Spn * command.Assist.Spn); }
       for (int n = 0; n < Substeps; n++) Substep(s, command, steer, drive, brake, points,normals,tires);
+      // TS drift desteği hızı korur: driftte kaybedilen hızın çoğu geri verilir, araç drift hızına itilir (yerdeyken).
+      var sup = command.Assist;
+      if (sup != null && sup.Support > 0 && s.WheelData.Any(w => w.Contact))
+      {
+        double v1 = Math.Sqrt(s.Velocity.X * s.Velocity.X + s.Velocity.Z * s.Velocity.Z);
+        if (v1 > 1)
+        {
+          double dv = Math.Max(0, startSpeed - v1) * .75 * sup.Support + Math.Max(0, sup.SupportTarget - v1) * .35 * sup.Support * FixedDelta, k = (v1 + dv) / v1;
+          s.Velocity = new BodyVector(s.Velocity.X * k, s.Velocity.Y, s.Velocity.Z * k);
+        }
+      }
       // TS carpismalar: yalnız su birikintisi dalı (dekor/bariyer/sınır duvarı henüz yok). Su sağlamayan dünyada adım aynı.
       if (world is IVehicleWaterWorld water)
       {
@@ -108,6 +133,7 @@ namespace LastTurn.Core
       s.Steps = checked(s.Steps + 1);
       State = s;
     }
+    private double assistAeq;
     private void Substep(VehicleState s, VehicleCommand command, double[] steer, double[] drive, double[] brake, List<BodyVector> points,BodyVector[] normals,TireParameters[] tires)
     {
       double h = FixedDelta / Substeps;
@@ -216,6 +242,28 @@ namespace LastTurn.Core
         var tangent = velocity-normal*vn; double speed = tangent.Length;
         double friction = Math.Min(.5 * normalForce, p.Mass * (speed == 0 ? 1 : speed) / (8 * h));
         Apply(a, normal*normalForce - tangent * (friction / (speed == 0 ? 1 : speed)));
+      }
+      // TS sürüş yardımları (yalpa torku ve yanal kuvvet; yalnız bu ara adımda yerdeyken).
+      var assist = command.Assist;
+      if (assist != null && s.WheelData.Any(w => w.Contact))
+      {
+        double fx = Math.Sin(assist.Heading), fz = Math.Cos(assist.Heading), vx = s.Velocity.X, vz = s.Velocity.Z;
+        double vlA = vx * fx + vz * fz, vtA = vx * fz - vz * fx, sp = Math.Sqrt(vx * vx + vz * vz), oy = s.AngularVelocity.Y, iy = p.Inertia.Y, ty = 0;
+        double tanD = Math.Tan(Clamp(command.SteeringAngle, -p.MaxSteering, p.MaxSteering));
+        if (assist.Kin > 0 && sp > 2)
+        {
+          double lim = assistAeq * 1.1 / Math.Max(sp, 1), wk = Clamp(vlA / p.Wheelbase * tanD, -lim, lim);
+          ty += iy * assist.Kin * (wk - oy);
+          double side = -p.Mass * assist.Al * vtA;
+          force += new BodyVector(side * fz, 0, -side * fx);
+        }
+        if (assist.Esc > 0 && sp > 3)
+        {
+          double wRef = Clamp(vlA / p.Wheelbase * tanD, -(assistAeq / sp), assistAeq / sp), extra = oy - Clamp(oy, -Math.Abs(wRef) - .05, Math.Abs(wRef) + .05);
+          ty -= iy * assist.Esc * 2 * extra;
+        }
+        if (assist.Dw > 0) ty += iy * 10 * assist.Dw * (assist.Wd - oy);
+        torque += new BodyVector(0, ty, 0);
       }
       // TS aynı sırayı kullanır; jiroskopik omega×Iomega veya ek analitik yük transferi eklenmez.
       s.Velocity += new BodyVector(force.X / p.Mass * h, force.Y / p.Mass * h, force.Z / p.Mass * h);

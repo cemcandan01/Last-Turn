@@ -22,6 +22,9 @@ namespace LastTurn.EditorValidation
     public double LastWanted, LastCurvature, LastThrottle;
     /// Drift kipi (dp): virajda el freniyle kayma başlatır, hız vektörünü pist hedefine çevirir, gazla kaymayı sürdürür.
     public bool Drift;
+    /// Klavye gibi girdi (Unity GtKeyboardInput): direksiyon −1/0/1, gaz ve fren 0/1, el freni tuşu.
+    public bool Digital;
+    private static DrivingInput Keys(DrivingInput i) => new DrivingInput(i.Throttle >= .5 ? 1 : 0, i.Brake >= .5 ? 1 : 0, Math.Abs(i.Steering) < .33 ? 0 : Math.Sign(i.Steering), false, false, i.Handbrake);
     private int handbrake;
     private int stuck;
     /// Oyuncu gibi: 3 sn hızı 1 m/s altında kalırsa ya da 2 sn temassızsa TS ↺ yeniden doğ.
@@ -33,7 +36,9 @@ namespace LastTurn.EditorValidation
       stuck = 0; return run.Respawn();
     }
 
-    public DrivingInput Input(RaceRun run)
+    public DrivingInput Input(RaceRun run) => Digital ? Keys(Raw(run)) : Raw(run);
+
+    private DrivingInput Raw(RaceRun run)
     {
       var g = run.World.Geometry; var vehicle = run.Vehicle;
       var p = vehicle.ReferencePoint; var f = vehicle.Body.Orientation.Rotate(new BodyVector(0, 0, 1));
@@ -48,6 +53,18 @@ namespace LastTurn.EditorValidation
       // İstenen hızın altındayken en az yarım gaz: dik yokuşta durmasın.
       double throttle = v < wanted ? Math.Min(1, 0.5 + (wanted - v) * 0.4) : 0, brake = v > wanted + 1 ? Math.Min(1, (v - wanted) * 0.3) : 0;
       LastWanted = wanted; LastCurvature = curvature; LastThrottle = throttle;
+      if (Drift && Digital && v > 11)
+      {
+        // Klavye drift tekniği (TS yardımıyla): virajda tam direksiyon + gaz; kayma açısı ~0,45–0,8 rad'da tutulur,
+        // aşılırsa karşı direksiyon. Açı ve yön yalnız oyuncunun gördüğü araç durumundan.
+        double vx = vehicle.Body.Velocity.X, vz = vehicle.Body.Velocity.Z, course = Math.Atan2(vx, vz);
+        double slip = TrackGeometry.AngleDelta(heading - course), turn = Math.Sign(error);
+        bool corner = Math.Abs(g.Curvature(s + 10)) > .006 || Math.Abs(slip) > .3;
+        if (!corner) return new DrivingInput(v < wanted ? 1 : 0, 0, Math.Abs(steer) < .33 ? 0 : Math.Sign(steer), false, false);
+        double into = slip * turn;
+        double key = into < .45 ? turn : into > .8 ? -turn : (Math.Abs(error) > .25 ? turn : 0);
+        return new DrivingInput(1, 0, key, false, false, into < .2 && Math.Abs(g.Curvature(s + 10)) > .012);
+      }
       if (Drift && v > 11)
       {
         double vx = vehicle.Body.Velocity.X, vz = vehicle.Body.Velocity.Z, course = Math.Atan2(vx, vz);

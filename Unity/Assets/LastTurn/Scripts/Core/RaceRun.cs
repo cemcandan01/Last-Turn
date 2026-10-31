@@ -76,7 +76,7 @@ namespace LastTurn.Core
     /// Dışarıdan ilerletilen fizik adımından sonra çağrılır (Unity sabit adım koşucusu). input: o adımın girdisi.
     public void AfterPhysicsStep(DrivingInput command)
     {
-      var body = Vehicle.Body; var p = Vehicle.ReferencePoint; var v = body.Velocity; var drift = RaceDrift.Detect(body);
+      var body = Vehicle.Body; var p = Vehicle.ReferencePoint; var v = body.Velocity; var drift = RaceDrift.Detect(body, Vehicle.Assist.On);
       var input = new RaceStepInput
       {
         X = p.X, Z = p.Z, Vx = v.X, Vz = v.Z, Speed = drift.Speed, Hint = World.Hint,

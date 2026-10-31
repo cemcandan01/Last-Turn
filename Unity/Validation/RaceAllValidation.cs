@@ -28,7 +28,7 @@ internal static class RaceAllValidation
       o.MinH = Math.Min(o.MinH, h); o.MaxH = Math.Max(o.MaxH, h); o.Surfaces[b.CenterSurface]++;
       if (!b.Wheels.Any(w => w.Contact)) o.Airborne++;
       if (b.Wet == 1) o.Wet++;
-      if (RaceDrift.Detect(b).Active) o.DriftSteps++;
+      if (RaceDrift.Detect(b, vehicle.Assist.On).Active) o.DriftSteps++;
       if (Environment.GetEnvironmentVariable("DEBUG_KEY") == o.Key && o.Steps % 300 == 1)
         Console.WriteLine($"  {o.Steps} p=({p.X:F1},{p.Y:F2},{p.Z:F1}) zemin={h:F2} v={b.Velocity.Length:F1} ipucu={world.Hint}/{track.Geometry.N} temas={b.Wheels.Count(w => w.Contact)} vites={vehicle.Engine.Gear} rpm={vehicle.Engine.Rpm:F0} istenen={driver.LastWanted:F1} eğrilik={driver.LastCurvature:F3} gaz={driver.LastThrottle:F2}");
     }

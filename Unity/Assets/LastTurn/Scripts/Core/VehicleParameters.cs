@@ -64,14 +64,24 @@ namespace LastTurn.Core
     internal static void Unit(double x) { Numeric.NonNegative(x); if (x > 1) throw new ArgumentOutOfRangeException(nameof(x)); }
   }
 
+  /// TS adım içi yardım hedefleri (model.ts): lastik drift yumuşatması kz, ini arka tutuş, viraj desteği kin/al, denge esc,
+  /// drift yalpa desteği dw/wd, driftte hız koruma. Yoksa (null) gövde adımı yardımsız dalla aynıdır.
+  public sealed class AssistCommand
+  {
+    public double Kz, RearGrip = 1, Kin, Al, Esc, Dw, Wd, AeroFactor, Spn, Support, SupportTarget, Heading;
+  }
+
   public readonly struct VehicleCommand
   {
     public readonly double SteeringAngle, DriveTorque, Brake, AbsStrength, SlipLimit;
     public readonly bool Handbrake;
+    public readonly AssistCommand Assist;
+    public VehicleCommand(double steeringAngle, double driveTorque, double brake, bool handbrake, double absStrength, double slipLimit, AssistCommand assist)
+      : this(steeringAngle, driveTorque, brake, handbrake, absStrength, slipLimit) { Assist = assist; }
     public VehicleCommand(double steeringAngle, double driveTorque, double brake, bool handbrake = false, double absStrength = 0, double slipLimit = 1e9)
     {
       Numeric.Finite(steeringAngle); Numeric.Finite(driveTorque); VehicleParameters.Unit(brake); VehicleParameters.Unit(absStrength); Numeric.NonNegative(slipLimit);
-      SteeringAngle = steeringAngle; DriveTorque = driveTorque; Brake = brake; Handbrake = handbrake; AbsStrength = absStrength; SlipLimit = slipLimit;
+      SteeringAngle = steeringAngle; DriveTorque = driveTorque; Brake = brake; Handbrake = handbrake; AbsStrength = absStrength; SlipLimit = slipLimit; Assist = null!;
     }
   }
 }

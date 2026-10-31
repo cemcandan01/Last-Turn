@@ -67,7 +67,7 @@ namespace LastTurn.Garage
           var existing = store.LoadGhost(s.RecordKey); var inputs = run.Recording;
           if (GhostRecord.ShouldSave(existing, s.Result, inputs, s.IsDrift))
           {
-            store.SaveGhost(new GhostRecord { Key = s.RecordKey, Car = drive.Car, RaceType = run.Event.Type, AssistLevel = "norm", Result = s.Result, Parts = drive.Setup.Parts, Inputs = inputs });
+            store.SaveGhost(new GhostRecord { Key = s.RecordKey, Car = drive.Car, RaceType = run.Event.Type, AssistLevel = GarageSession.State.AssistLevel, Result = s.Result, Parts = drive.Setup.Parts, Inputs = inputs });
             LastGhostSaved = true;
           }
         }

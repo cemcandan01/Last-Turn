@@ -61,14 +61,20 @@ namespace LastTurn.Garage
       var state=GarageSession.State;var cars=GarageViewModel.Cars(state);var car=cars[viewCar];bool writable=!GarageSession.Store.ReadOnly;
       float scale=Mathf.Min(Screen.width/1280f,Screen.height/760f);var matrix=GUI.matrix;GUI.matrix=Matrix4x4.Scale(new Vector3(scale,scale,1));
       GUI.Box(new Rect(10,10,1260,740),GUIContent.none);
-      GUILayout.BeginArea(new Rect(28,22,1224,102));
+      GUILayout.BeginArea(new Rect(28,16,1224,112));
       GUILayout.BeginHorizontal();GUILayout.Label("LAST TURN  /  GARAJ",title);GUILayout.FlexibleSpace();
       GUILayout.Label($"Bakiye  {state.Balance:N0}     Seviye {state.Level}",heading);GUILayout.EndHorizontal();
       GUILayout.BeginHorizontal();GUILayout.Label(GarageSession.DeveloperProfile?"GELİŞTİRİCİ TEST PROFİLİ • normal kayıttan ayrı":"Yerel oyuncu profili • işlemler otomatik kaydedilir",small);GUILayout.FlexibleSpace();
       if(GUILayout.Button("Kaydet",GUILayout.Width(96),GUILayout.Height(30))){GarageSession.Save();localMessage="";}
       if(GUILayout.Button("Yeniden yükle",GUILayout.Width(120),GUILayout.Height(30))){GarageSession.Reload();ViewCar(GarageSession.State.SelectedCar);localMessage="";}
       if(GUILayout.Button(GarageSession.DeveloperProfile?"Oyuncu profiline dön":"Ayrı test profilini aç",GUILayout.Width(190),GUILayout.Height(30))){GarageSession.SwitchProfile(!GarageSession.DeveloperProfile);ViewCar(GarageSession.State.SelectedCar);localMessage="";}
-      GUILayout.EndHorizontal();GUILayout.Label(localMessage!=""?localMessage:GarageSession.Message,small);GUILayout.EndArea();
+      GUILayout.EndHorizontal();
+      // Geçici geliştirici ayarı: TS yardım seviyesi (kalıcı garaj kaydında).
+      GUILayout.BeginHorizontal();GUILayout.Label("Sürüş yardımı:",small,GUILayout.Width(100));GUI.enabled=writable;
+      foreach(var level in GarageViewModel.AssistLevels(state))
+        if(GUILayout.Toggle(level.Selected,level.Name+" ("+level.Key+")","Button",GUILayout.Width(150),GUILayout.Height(22))!=level.Selected && !level.Selected)Run(GarageCommand.SetAssistLevel(level.Key));
+      GUI.enabled=true;GUILayout.EndHorizontal();
+      GUILayout.Label(localMessage!=""?localMessage:GarageSession.Message,small);GUILayout.EndArea();
 
       GUILayout.BeginArea(new Rect(28,130,260,534),GUI.skin.box);
       tab=GUILayout.SelectionGrid(tab,new[]{"Garaj","Mağaza"},2,GUILayout.Height(34));carsScroll=GUILayout.BeginScrollView(carsScroll);

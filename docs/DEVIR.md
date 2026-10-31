@@ -1,4 +1,11 @@
-# Son devir: Unity yarış türleri (rx/rl/dp/dg) oynanabilir + rekor/hayalet (2026-10-31) — yalnız yerel
+# Son devir: Unity sürüş yardımları ve drift oynanışı (2026-10-31) — yalnız yerel
+
+- Dal `claude/unity-surus-yardimlari` (taban `74546cf`); kart `docs/isler/2026-10-31-unity-surus-yardimlari.md`; içerik kaydı `2026-10-31-rl3-icerik-dengesi.md`. Sahip Claude; ikinci ajan yok. Push/merge/yayın/uzun regresyon yok.
+- TS yardımları (drift penceresi, kz/ini lastik, str/stm/dft kuvvetleri, hız koruma, TCS gaz kesme yalnız yardımlı araçta) Core'da; `--assists` 24 durum TS tam simülasyonuyla 5,1e-12. Tercih garaj kaydında (`assistLevel`, varsayılan norm); garajda geçici seçici. GT/Arazi prototipi bit düzeyinde aynı.
+- Drift: kariyer algısı `DR.on || |β|>0,5`; klavye tekniğiyle real dp_1 1129/700 = 1★; norm/arc'ta yıldız yok (sayılar kartta). Eşikler değişmedi. 40/40 pist norm ile bitti. Unity Play Yarış 69/69, GT/Arazi/Garaj geçti (UTC 13:43); `--catalog` 983.569 koşul.
+- **Karar bekleyen:** yardımlı araçta TCS gaz kesme (TS) korunsun mu (GT düzeltmesi 201d7b3 yardımsız prototipte geçerli). rl_3 içerik dengesi.
+
+# Önceki devir: Unity yarış türleri (rx/rl/dp/dg) oynanabilir + rekor/hayalet (2026-10-31) — yalnız yerel
 
 - Dal `claude/unity-yaris-turleri` (taban `745d5d3`). Kart `docs/isler/2026-10-31-unity-yaris-turleri.md` (1. commit); rekor/hayalet ayrı commit ve kart. Açık kartlar: `2026-10-31-drag-manuel-vites.md`, `2026-10-31-unity-surus-yardimlari.md`, `2026-10-31-gt-play-kare-zamanlamasi.md`. Sahip Claude; ikinci ajan yok. Push/merge/yayın/uzun regresyon yok; `_Recovery`, `QualitySettings.asset`, geçici `_ClaudeGeciciTetik` commit dışı.
 - Beş türün TS bölge dünyası + su birikintisi fiziği + kariyer drift algısı; `--race-types` 132.239 koşul. `--race-all` gerçek fizikle **40/40 pist bitti** (rl_3 kariyer aracı TS'de de yokuşta kalır; araç 3 ile biter). Unity Play: Yarış 51/51 (gp_1, rx_1, rl_1, dp_1, dg_1), GT/Arazi/Garaj geçti. Garajda **Yarışlar** listesi, HUD **Piste dön**.

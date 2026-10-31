@@ -225,7 +225,15 @@ namespace LastTurn.Core
       return (gainedXp, money);
     }
 
-    public CatalogSetup Setup(int car, string level = "norm") => Catalog.Setup(car, Equipped(car), level);
+    /// TS kurulum.lk: oyuncunun yardım seviyesi (arc/norm/real); Unity varsayılanı norm (Cem kararı). Kalıcı.
+    public string AssistLevel { get; private set; } = "norm";
+    public bool SetAssistLevel(string level)
+    {
+      if (!Catalog.Data["levels"].Has(level)) return false;
+      AssistLevel = level; return true;
+    }
+    public CatalogSetup Setup(int car) => Catalog.Setup(car, Equipped(car), AssistLevel);
+    public CatalogSetup Setup(int car, string level) => Catalog.Setup(car, Equipped(car), level);
 
     public CatalogNode Snapshot()
     {
@@ -234,6 +242,7 @@ namespace LastTurn.Core
       root.Set("baseline", CatalogNode.Str(VehicleCatalog.Baseline));
       root.Set("catalogGeneration", CatalogNode.Num(CatalogGeneration));
       root.Set("selectedCar", CatalogNode.Num(SelectedCar));
+      root.Set("assistLevel", CatalogNode.Str(AssistLevel));
       var progress = CatalogNode.Obj();
       progress.Set("surum", CatalogNode.Num(3));
       progress.Set("xp", CatalogNode.Num(xp));
@@ -343,6 +352,8 @@ namespace LastTurn.Core
           state.SetEquipped(car, ids);
         }
       }
+      // Eski kayıtta alan yok: norm. Bilinmeyen seviye bozuk kayıttır.
+      if (snapshot.Has("assistLevel") && !state.SetAssistLevel(snapshot["assistLevel"].S())) throw new ArgumentException("Yardım seviyesi geçersiz.");
       if (snapshot.Has("selectedCar"))
       {
         int car = Integer(snapshot["selectedCar"], "Seçili araç", 0, int.MaxValue);
