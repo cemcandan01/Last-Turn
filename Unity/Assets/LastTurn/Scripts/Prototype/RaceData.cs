@@ -10,6 +10,9 @@ namespace LastTurn.Prototype
     public readonly TrackCatalog Tracks;
     public readonly RaceEventCatalog Events;
     private static RaceData cached;
+    /// Garajdan seçilen etkinlik ("rx_1" gibi); boşsa sahnenin varsayılanı. Sahne geçişinde korunur.
+    public static string Selected = "";
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)] private static void ResetStatics() { Selected = ""; }
     private RaceData(TrackCatalog tracks, RaceEventCatalog events) { Tracks = tracks; Events = events; }
     public static RaceData Load()
     {

@@ -24,7 +24,7 @@ function universalStub() {
   return proxy;
 }
 
-export function createBaselineLoader({ stubs = false } = {}) {
+export function createBaselineLoader({ stubs = false, extraExports = {} } = {}) {
   const modules = new Map(),
     sources = {},
     storage = new Map();
@@ -56,7 +56,7 @@ export function createBaselineLoader({ stubs = false } = {}) {
   });
   function load(name) {
     name = path.posix.normalize(name.endsWith(".ts") ? name : name + ".ts");
-    if (!name.startsWith("src/")) throw new Error("Katalog dışı modül: " + name);
+    if (!name.startsWith("src/") && !(stubs && name.startsWith("tests/yardimci/"))) throw new Error("Katalog dışı modül: " + name);
     if (modules.has(name)) return modules.get(name).exports;
     const module = { exports: {} };
     modules.set(name, module);
@@ -64,6 +64,8 @@ export function createBaselineLoader({ stubs = false } = {}) {
     // Salt veri olan özel tabloları dışarı aç; hesaplama gövdeleri aynen çalışır.
     if (name === "src/fizik/yeni/arac-fizigi.ts") source += "\nexport { FREKANS as catalogFrequencies };";
     if (name === "src/arac/performans.ts") source += "\nexport { referanslar as catalogTracks };";
+    // Doğrulama için kaynakta iç fonksiyonu dışa aç (gövde değişmez).
+    if (extraExports[name]) source += "\nexport { " + extraExports[name].join(", ") + " };";
     // Vite ortamı: taklit modunda üretim dışı sabit değerler (geliştirici/deneme bayrakları kapalı).
     if (stubs) source = source.replaceAll("import.meta.env", '({ MODE: "test", DEV: false, PROD: true, BASE_URL: "/" })').replaceAll("import.meta.url", '"file:///baseline/"');
     const code = ts.transpileModule(source, {

@@ -11,6 +11,8 @@ if(args.Contains("--tracks")){TrackValidation.Run();return;}
 if(args.Contains("--race-rules")){RaceRulesValidation.Run();return;}
 if(args.Contains("--race-session")){RaceSessionValidation.Run();return;}
 if(args.Contains("--race-drive")){RaceDriveValidation.Run();return;}
+if(args.Contains("--race-types")){RaceTypesValidation.Run();return;}
+if(args.Contains("--race-all")){RaceAllValidation.Run();return;}
 
 if(args.Contains("--gt-physics")){GtPhysicsValidation.Run();return;}
 if(args.Contains("--dirt-stability")){DirtStabilityValidation.Run();return;}

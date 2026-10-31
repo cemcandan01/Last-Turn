@@ -10,6 +10,23 @@ namespace LastTurn.Core
     double GripMultiplier { get; }
   }
 
+  // TS çarpışma ızgarasındaki su birikintileri (model.ts carpismalar "water" dalı). Uygulamayan dünyada su yoktur.
+  public interface IVehicleWaterWorld
+  {
+    /// Referans noktasının içinde kaldığı birikinti sayısı.
+    int WaterCount(double x, double z);
+  }
+
+  public static class VehicleWater
+  {
+    /// TS: içindeyken ıslaklık 1; yatay hız her birikinti için exp(−1,2·dt·min(1, v/10)) ile söner (v: adım başı yatay hız).
+    public static (double Vx, double Vz, bool Wet) Apply(double vx, double vz, double startSpeed, double dt, int count)
+    {
+      for (int i = 0; i < count; i++) { double k = Math.Exp(-1.2 * dt * Math.Min(1, startSpeed / 10)); vx *= k; vz *= k; }
+      return (vx, vz, count > 0);
+    }
+  }
+
   public sealed class FlatAsphaltWorld : IVehicleWorld
   {
     public static readonly FlatAsphaltWorld Instance = new FlatAsphaltWorld();

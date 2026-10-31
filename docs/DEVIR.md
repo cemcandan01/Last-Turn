@@ -1,4 +1,10 @@
-# Son devir: Unity yarış kuralları (Paket A) ve yarış oturumu + gp_1 (Paket B) (2026-10-31) — yalnız yerel
+# Son devir: Unity yarış türleri (rx/rl/dp/dg) oynanabilir + rekor/hayalet (2026-10-31) — yalnız yerel
+
+- Dal `claude/unity-yaris-turleri` (taban `745d5d3`). Kart `docs/isler/2026-10-31-unity-yaris-turleri.md` (1. commit); rekor/hayalet ayrı commit ve kart. Açık kartlar: `2026-10-31-drag-manuel-vites.md`, `2026-10-31-unity-surus-yardimlari.md`, `2026-10-31-gt-play-kare-zamanlamasi.md`. Sahip Claude; ikinci ajan yok. Push/merge/yayın/uzun regresyon yok; `_Recovery`, `QualitySettings.asset`, geçici `_ClaudeGeciciTetik` commit dışı.
+- Beş türün TS bölge dünyası + su birikintisi fiziği + kariyer drift algısı; `--race-types` 132.239 koşul. `--race-all` gerçek fizikle **40/40 pist bitti** (rl_3 kariyer aracı TS'de de yokuşta kalır; araç 3 ile biter). Unity Play: Yarış 51/51 (gp_1, rx_1, rl_1, dp_1, dg_1), GT/Arazi/Garaj geçti. Garajda **Yarışlar** listesi, HUD **Piste dön**.
+- Açık: sürüş yardımları/yardım seviyesi (drift Unity'de zor), dekor çarpışması, drag manuel vites.
+
+# Önceki devir: Unity yarış kuralları (Paket A) ve yarış oturumu + gp_1 (Paket B) (2026-10-31) — yalnız yerel
 
 - Dal `claude/unity-yaris-kurallari` (taban `03787f2`); Paket A commit'i `4f9b19d`, Paket B ayrı commit. Kartlar `docs/isler/2026-10-31-unity-yaris-kurallari.md`, `…-unity-yaris-oturumu.md`; teknik borç `…-gt-play-kare-zamanlamasi.md`. Sahip Claude (Codex kotası dolu), ikinci ajan yok. Push/merge/yayın/uzun regresyon yok; `_Recovery` ve `QualitySettings.asset` commit dışı.
 - **A:** `RaceRules` (drift/bonus/x6, ters, pist dışı/dönüş, kesme algısı, yıldız). Kariyerde kesme yalnız bildirim (ceza TS'de MUTANT'a ait). `--race-rules` 266.363 iz koşulu + 37 TS birim iddiası, en büyük fark 3,4e-13.

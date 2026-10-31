@@ -46,6 +46,8 @@ namespace LastTurn.Prototype
       if (m.Return != "") GUI.Label(new Rect(0, h * .5f, w, 60), m.Return, center);
       if (m.WrongWay) GUI.Label(new Rect(0, h * .2f, w, 60), "GERİ DÖN", center);
       GUI.Label(new Rect(12, h - 34, w - 24, 26), "W/S gaz-fren · A/D direksiyon · Boşluk el freni · R yeniden başlat", text);
+      // TS ↺ yeniden doğ: pist dışı ilk çıkışa ya da en yakın pist noktasına; süre durmaz.
+      if (s.State == RaceState.Running && GUI.Button(new Rect(w - 152, 12, 140, 40), "Piste dön")) prototype.RespawnRace();
       if (s.State == RaceState.Finished) Result(s);
     }
 

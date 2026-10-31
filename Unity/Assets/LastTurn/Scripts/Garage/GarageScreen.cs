@@ -28,6 +28,25 @@ namespace LastTurn.Garage
       {confirmKey=Key(command);confirmUntil=Time.unscaledTime+3;localMessage="Satın almak için 3 saniye içinde aynı düğmeye tekrar basın.";return;}
       GarageSession.Execute(command);confirmKey="";localMessage="";Refresh();
     }
+    // Geçici etkinlik listesi (TS menü kartları yerine): satırlar RaceViewModel.Events'ten; kural yok.
+    private bool eventsOpen;private Vector2 eventsScroll;private RaceEventRow[] eventRows;private GarageState eventsState;
+    private void Events(GarageState state)
+    {
+      GUILayout.BeginArea(new Rect(300,130,952,534),GUI.skin.box);
+      GUILayout.Label("YARIŞLAR • seçili araç: "+GarageViewModel.Cars(state)[state.SelectedCar].Name,heading);
+      eventsScroll=GUILayout.BeginScrollView(eventsScroll);
+      if(eventsState!=state || eventRows==null){eventRows=RaceViewModel.Events(state,LastTurn.Prototype.RaceData.Load().Events);eventsState=state;}
+      foreach(var row in eventRows)
+      {
+        GUILayout.BeginHorizontal(GUI.skin.box);
+        GUILayout.Label(row.Key+"  "+row.Name,stat,GUILayout.Width(300));
+        GUILayout.Label(row.TypeName+" • sv "+row.Difficulty+" • hedef "+row.Target+" • en iyi "+row.BestStars+"/3"+(row.Career?"":" • bütçe dışı: ödülsüz deneme"),small,GUILayout.Width(470));
+        GUI.enabled=row.Open;
+        if(GUILayout.Button(row.Open?"Yarış":"Kilitli",GUILayout.Width(120),GUILayout.Height(28))){LastTurn.Prototype.RaceData.Selected=row.Key;GarageSession.Launch("RaceTest");}
+        GUI.enabled=true;GUILayout.EndHorizontal();
+      }
+      GUILayout.EndScrollView();GUILayout.EndArea();
+    }
     private string Label(GarageCommand command,string label)=>confirmKey==Key(command) && Time.unscaledTime<=confirmUntil?"Onayla • "+label:label;
     private void OnGUI()
     {
@@ -114,8 +133,10 @@ namespace LastTurn.Garage
       mode=GUILayout.SelectionGrid(Math.Max(0,mode),modes.Select(m=>m.Label).ToArray(),6,GUILayout.Width(500),GUILayout.Height(36));GarageSession.RaceType=modes[mode].Key;
       if(GUILayout.Button("GTTest'te sür",GUILayout.Height(36)))GarageSession.Launch("GTTest");
       if(GUILayout.Button("TerrainTest'te sür",GUILayout.Height(36)))GarageSession.Launch("TerrainTest");
-      if(GUILayout.Button("Yarış: gp_1",GUILayout.Height(36)))GarageSession.Launch("RaceTest");GUILayout.EndHorizontal();
-      GUILayout.Label("Sökme/değiştirme iade üretmez. Kategoriye ödenmiş gerçek bedel sonraki yükseltmeye kredi olur.",small);GUILayout.EndArea();GUI.matrix=matrix;
+      if(GUILayout.Button(eventsOpen?"Yarışları kapat":"Yarışlar",GUILayout.Height(36)))eventsOpen=!eventsOpen;GUILayout.EndHorizontal();
+      GUILayout.Label("Sökme/değiştirme iade üretmez. Kategoriye ödenmiş gerçek bedel sonraki yükseltmeye kredi olur.",small);GUILayout.EndArea();
+      if(eventsOpen)Events(state);
+      GUI.matrix=matrix;
     }
   }
 }

@@ -9,6 +9,30 @@ namespace LastTurn.EditorValidation
   {
     public double LateralAcceleration = 18, MaxSpeed = 60;
 
+    /// Türe göre: toprak/kar yolda daha düşük viraj ivmesi, drag'de hız sınırı yok.
+    public static RaceTestDriver For(string type) => type switch
+    {
+      "rx" => new RaceTestDriver { LateralAcceleration = 10, MaxSpeed = 40 },
+      "rl" => new RaceTestDriver { LateralAcceleration = 8, MaxSpeed = 38 },
+      "dg" => new RaceTestDriver { MaxSpeed = 300 },
+      "dp" => new RaceTestDriver { Drift = true, LateralAcceleration = 14, MaxSpeed = 32 },
+      _ => new RaceTestDriver(),
+    };
+
+    public double LastWanted, LastCurvature, LastThrottle;
+    /// Drift kipi (dp): virajda el freniyle kayma başlatır, hız vektörünü pist hedefine çevirir, gazla kaymayı sürdürür.
+    public bool Drift;
+    private int handbrake;
+    private int stuck;
+    /// Oyuncu gibi: 3 sn hızı 1 m/s altında kalırsa ya da 2 sn temassızsa TS ↺ yeniden doğ.
+    public bool RespawnIfStuck(RaceRun run)
+    {
+      var b = run.Vehicle.Body; bool air = !System.Linq.Enumerable.Any(b.Wheels, w => w.Contact);
+      stuck = b.Velocity.Length < 1 || air ? stuck + 1 : 0;
+      if (stuck < (air ? 120 : 180)) return false;
+      stuck = 0; return run.Respawn();
+    }
+
     public DrivingInput Input(RaceRun run)
     {
       var g = run.World.Geometry; var vehicle = run.Vehicle;
@@ -21,7 +45,24 @@ namespace LastTurn.EditorValidation
       double curvature = 0;
       for (double d = 0; d <= 25 + 2.5 * Math.Max(0, v); d += 5) curvature = Math.Max(curvature, Math.Abs(g.Curvature(s + d)));
       double wanted = Math.Min(MaxSpeed, Math.Sqrt(LateralAcceleration / (curvature + 1e-4)));
-      double throttle = Math.Max(0, Math.Min(1, (wanted - v) * 0.4)), brake = v > wanted + 1 ? Math.Min(1, (v - wanted) * 0.3) : 0;
+      // İstenen hızın altındayken en az yarım gaz: dik yokuşta durmasın.
+      double throttle = v < wanted ? Math.Min(1, 0.5 + (wanted - v) * 0.4) : 0, brake = v > wanted + 1 ? Math.Min(1, (v - wanted) * 0.3) : 0;
+      LastWanted = wanted; LastCurvature = curvature; LastThrottle = throttle;
+      if (Drift && v > 11)
+      {
+        double vx = vehicle.Body.Velocity.X, vz = vehicle.Body.Velocity.Z, course = Math.Atan2(vx, vz);
+        double beta = TrackGeometry.AngleDelta(course - heading), courseError = TrackGeometry.AngleDelta(Math.Atan2(target.X - p.X, target.Z - p.Z) - course);
+        double near = Math.Abs(g.Curvature(s + 12));
+        if (near > 0.006 && Math.Abs(beta) < 0.45 && handbrake <= 0) handbrake = 18;
+        bool pull = handbrake-- > 0;
+        if (Math.Abs(beta) > 0.35)
+        {
+          // Karşı direksiyon: kaymanın yönüne, hız vektörü hedefe dönsün; açı 0,9 rad'ı geçmesin.
+          double counter = Math.Max(-1, Math.Min(1, -0.5 * beta + 2.5 * courseError - (Math.Abs(beta) > 0.9 ? 0.8 * Math.Sign(beta) : 0)));
+          return new DrivingInput(v < wanted + 6 ? 1 : 0.6, 0, counter, true, true, pull);
+        }
+        return new DrivingInput(1, 0, steer, true, true, pull);
+      }
       return new DrivingInput(brake > 0 ? 0 : throttle, brake, steer);
     }
   }

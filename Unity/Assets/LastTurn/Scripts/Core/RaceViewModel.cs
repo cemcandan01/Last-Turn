@@ -23,8 +23,26 @@ namespace LastTurn.Core
     public readonly List<(string Text, bool Earned)> StarRows = new();
   }
 
+  public sealed class RaceEventRow
+  {
+    public string Key = "", Name = "", TypeName = "", Target = ""; public int Difficulty, BestStars; public bool Open, Career;
+  }
+
   public static class RaceViewModel
   {
+    /// Etkinlik listesi (TS menü kartları): kilit (pistAcikMi), seçili aracın kariyer uygunluğu (bütçe), en iyi yıldız, hedef.
+    public static RaceEventRow[] Events(GarageState state, RaceEventCatalog races)
+    {
+      int car = state.SelectedCar; var parts = state.Equipped(car);
+      return races.Events.Select(e => new RaceEventRow
+      {
+        Key = e.Type + "_" + e.Level, Name = e.Name, TypeName = races.Types[e.Type].Name, Difficulty = e.Difficulty,
+        BestStars = state.StarsOf(e.Type, e.Level), Open = state.TrackOpen(e.Type, e.Level),
+        Career = state.Catalog.CareerEligible(e.Type, e.Level, car, parts),
+        Target = e.Type == "dp" ? e.Limit.ToString(CultureInfo.InvariantCulture) + " puan" : e.Type == "dg" ? F(e.Limit, 3) + " sn" : RaceSession.FormatTime(e.Limit),
+      }).ToArray();
+    }
+
     private static string F(double v, int digits) => v.ToString("F" + digits, CultureInfo.InvariantCulture);
     private static string Fmt3(double v) => F(v, 3) + " sn";
 

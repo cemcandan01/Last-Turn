@@ -37,7 +37,8 @@ namespace LastTurn.Prototype
     public int RestartCount { get; private set; }
     public PowertrainParameters Parameters => parameters;
     public string AppliedGarageCarId { get; private set; } = "";
-    public string RaceTrack => raceTrack;
+    /// Etkin yarış: garajdan seçilen (RaceData.Selected) ya da sahnedeki varsayılan.
+    public string RaceTrack { get; private set; } = "";
     public RaceRun Race { get; private set; }
     public TrackWorld RaceWorld { get; private set; }
     public string RaceMessage { get; private set; } = "";
@@ -106,15 +107,15 @@ namespace LastTurn.Prototype
     private void AwakeRace()
     {
       if (!vehicleRoot || !followCamera || !trackVisuals) throw new InvalidOperationException("RaceTest sahnesi eksik; Last Turn menüsünden sahneyi oluşturun.");
-      var data = RaceData.Load(); var info = data.Event(raceTrack);
-      trackVisuals.Build(data.Tracks.Tracks[info.Index]);
       input = new GtKeyboardInput();
-      InitializeRace();
+      InitializeRace(string.IsNullOrEmpty(RaceData.Selected) ? raceTrack : RaceData.Selected);
     }
     /// Garaj oturumundan araç/kariyer/ödül bağını kurup yarışı baştan hazırlar (doğrulama ayrı profil açınca da çağırır).
-    public void InitializeRace()
+    public void InitializeRace() => InitializeRace(RaceTrack);
+    public void InitializeRace(string key)
     {
-      var data = RaceData.Load(); var info = data.Event(raceTrack); var track = data.Tracks.Tracks[info.Index];
+      var data = RaceData.Load(); var info = data.Event(key); var track = data.Tracks.Tracks[info.Index];
+      if (key != RaceTrack) { trackVisuals.Build(track); RaceTrack = key; }
       var drive = GarageRace.Prepare(info);
       parameters = drive.Parameters ?? GtPrototypeParameters.Create(); RaceMessage = drive.Message;
       AppliedGarageCarId = "";
@@ -126,7 +127,8 @@ namespace LastTurn.Prototype
       }
       RaceWorld = new TrackWorld(track); world = RaceWorld;
       Simulation = new PowertrainVehicle(parameters, world: world); runner = new PowertrainFixedStepRunner(Simulation);
-      Race = new RaceRun(Simulation, RaceWorld, info, hint => new RaceSession(info, track, drive.Career, hint, drive.Career ? GarageRace.Reward : null));
+      Race = new RaceRun(Simulation, RaceWorld, info, hint => new RaceSession(info, track, drive.Career, hint, drive.Career ? GarageRace.Reward : null),
+        drive.Setup != null && drive.Parameters != null ? RaceDrift.MaxAngle(drive.Setup) : double.PositiveInfinity);
       runner.SyncPrevious(); previousSteer = 0; followCamera.ResetFollow(); RenderFrame(0);
     }
     private void UpdateRace()
@@ -141,10 +143,12 @@ namespace LastTurn.Prototype
     }
     private bool AfterRaceStep()
     {
-      int teleports = Race.Teleports; Race.AfterPhysicsStep();
+      int teleports = Race.Teleports; Race.AfterPhysicsStep(CurrentInput);
       if (Race.Teleports != teleports) { runner.SyncPrevious(); followCamera.ResetFollow(); }
       return Race.PhysicsRunning;
     }
+    /// TS ↺: pist dışı ilk çıkış noktasına ya da en yakın pist noktasına (süre durmaz).
+    public void RespawnRace() { if (Race.Respawn()) { runner.SyncPrevious(); followCamera.ResetFollow(); RenderFrame(0); } }
     public void RestartRace() { Race.Restart(); runner.SyncPrevious(); previousSteer = 0; followCamera.ResetFollow(); RenderFrame(0); RestartCount++; }
     /// Doğrulama: bir sabit adım (geri sayımda 1/60 sn sayaç, yarışta fizik + yarış adımı).
     public void StepRace(DrivingInput value)

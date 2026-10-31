@@ -9,7 +9,7 @@ import { baseline, createBaselineLoader, root } from "./export-catalog.mjs";
 const DT = 1 / 60;
 
 export function buildRaceSession() {
-  const L = createBaselineLoader({ stubs: true }),
+  const L = createBaselineLoader({ stubs: true, extraExports: { "src/oyun/surus.ts": ["surusKurulumu"] } }),
     { load } = L;
   const Y = load("src/oyun/yarislar"),
     S = load("src/oyun/surus"),
@@ -134,7 +134,7 @@ export function buildRaceSession() {
     }
     out.startNotes = notes;
     notes = [];
-    const azami = O.driftYarisProfili(S.yerel.cx.kurulum).azami + 0.12;
+    const azami = O.driftYarisProfili(S.surusKurulumu()).azami + 0.12;
     const ctx = { s: P.trackAt(TR, TR.S[EV.prev]).x == undefined ? 0 : TR.S[EV.prev], lat: 0, n: 0 };
     ctx.s = TR.open ? 0 : TR.S[EV.prev];
     for (let n = 0; n < maxSteps && EV.state == "run"; n++) {
@@ -160,6 +160,8 @@ export function buildRaceSession() {
       // fizik adımının son yüzey sorgusu araç merkezidir (model.ts): ipucu oradan
       P.ipucu.ti = P.nearest(TR, x, z, P.ipucu.ti)[0];
       const ti = P.ipucu.ti;
+      // TS surusAdimi: her adımda yerel.cx.kurulum yenilenir (drift yarışında açı sınırı buradan).
+      S.yerel.cx.kurulum = S.surusKurulumu();
       S.sim.d.D = { act: !!c.act, beta: c.beta ?? 0 };
       S.sim.d.zaman = (S.sim.d.zaman || 0) + DT;
       const o = { v: Math.abs(v), cimTeker: c.grass ?? 0 };

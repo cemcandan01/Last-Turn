@@ -12048,6 +12048,10 @@ MonoBehaviour:
   kerbWhite: {fileID: 2100000, guid: 219013f4596509a40a37f4646a4ab8b6, type: 2}
   line: {fileID: 2100000, guid: 1027243d8a0670e4e953126ee74a5a0e, type: 2}
   board: {fileID: 2100000, guid: a894a3a40b2659745ab3926e04aab843, type: 2}
+  dirt: {fileID: 2100000, guid: e5803d77ca42385498ddaca21eb1d1dc, type: 2}
+  snow: {fileID: 2100000, guid: 2a6e761a2232aa14681233985aa7531a, type: 2}
+  mud: {fileID: 2100000, guid: 9ef1c4eedfd0aaf42a53a177e1b04d66, type: 2}
+  water: {fileID: 2100000, guid: a96d8b35463fdda43b48551593eaa6cf, type: 2}
 --- !u!4 &1734954903
 Transform:
   m_ObjectHideFlags: 0

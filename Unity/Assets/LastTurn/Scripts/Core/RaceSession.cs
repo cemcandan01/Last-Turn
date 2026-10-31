@@ -193,6 +193,16 @@ namespace LastTurn.Core
       return null;
     }
 
+    /// TS ↺ yeniden doğ (surus-tuslari.ts yenidenDog): pist dışındaysa ilk çıkış noktasına, değilse pistteki en yakın
+    /// izdüşüme konur; süre işlemeye devam eder. Dönen nokta aracın konacağı yerdir.
+    public TrackReturnPoint? ManualReturn(double x, double z, int hint)
+    {
+      if (State != RaceState.Running) return null;
+      var p = OffTrack.First ?? TrackRules.Locate(g, x, z, hint).Point;
+      ReturnToTrack(p);
+      return p;
+    }
+
     /// TS yaristaPisteDon: süre/tur/puan korunur; sayaçlar ve kombo sıfırlanır; ipucu dönüş noktasında tam taramayla.
     private void ReturnToTrack(TrackReturnPoint p)
     {

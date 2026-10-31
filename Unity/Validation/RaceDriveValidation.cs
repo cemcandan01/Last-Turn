@@ -25,7 +25,7 @@ internal static class RaceDriveValidation
     var world = new TrackWorld(track);
     var vehicle = new PowertrainVehicle(GarageDriveParameters.Create(s.Vehicles, setup, false, type), world: world);
     bool career = s.Vehicles.CareerEligible(type, level, car, s.Garage.Equipped(car));
-    s.Run = new RaceRun(vehicle, world, info, hint => new RaceSession(info, track, career, hint, s.Garage.RaceFinished));
+    s.Run = new RaceRun(vehicle, world, info, hint => new RaceSession(info, track, career, hint, s.Garage.RaceFinished), RaceDrift.MaxAngle(GarageDriveParameters.Configure(s.Vehicles, setup, false, type)));
     return s;
   }
 

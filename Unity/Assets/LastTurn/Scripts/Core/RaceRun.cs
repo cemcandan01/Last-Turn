@@ -15,9 +15,13 @@ namespace LastTurn.Core
     public RaceSession Session { get; private set; }
     public int Teleports { get; private set; }
 
+    /// Drift yarışında komboyu yakan açı: TS driftYarisProfili(kurulum).azami + 0,12 (RaceDrift.MaxAngle).
+    public readonly double DriftBetaLimit;
+
     /// world: aracın sürüldüğü pist dünyası (PowertrainVehicle'a verilen aynı nesne). session: başlangıç ipucuyla oturum.
-    public RaceRun(PowertrainVehicle vehicle, TrackWorld world, RaceEventInfo info, Func<int, RaceSession> session)
+    public RaceRun(PowertrainVehicle vehicle, TrackWorld world, RaceEventInfo info, Func<int, RaceSession> session, double driftMaxAngle = double.PositiveInfinity)
     {
+      DriftBetaLimit = driftMaxAngle + 0.12;
       Vehicle = vehicle ?? throw new ArgumentNullException(nameof(vehicle)); World = world ?? throw new ArgumentNullException(nameof(world));
       Event = info ?? throw new ArgumentNullException(nameof(info)); create = session ?? throw new ArgumentNullException(nameof(session));
       Session = create(PlaceAtStart());
@@ -31,6 +35,14 @@ namespace LastTurn.Core
     /// Aynı yarış sıfırdan geri sayımla (TS yarisiYenidenBaslat).
     public void Restart() { Session = create(PlaceAtStart()); Teleports = 0; }
 
+    /// TS ↺ yeniden doğ: yarışta pist dışı ilk çıkış noktasına ya da en yakın pist noktasına (süre durmaz).
+    public bool Respawn()
+    {
+      var p = Vehicle.ReferencePoint; var back = Session.ManualReturn(p.X, p.Z, World.Hint);
+      if (back == null) return false;
+      Place(back.Value.X, back.Value.Z, back.Value.Heading); Teleports++; return true;
+    }
+
     /// Geri sayım (fizik donuk). TS'de kare süresiyle azalır.
     public void TickCountdown(double dt) => Session.TickCountdown(dt);
 
@@ -41,15 +53,20 @@ namespace LastTurn.Core
     {
       if (!PhysicsRunning) return false;
       Vehicle.Step(input);
-      AfterPhysicsStep();
+      AfterPhysicsStep(input);
       return true;
     }
 
-    /// Dışarıdan ilerletilen fizik adımından sonra çağrılır (Unity sabit adım koşucusu).
-    public void AfterPhysicsStep()
+    /// Dışarıdan ilerletilen fizik adımından sonra çağrılır (Unity sabit adım koşucusu). input: o adımın girdisi.
+    public void AfterPhysicsStep(DrivingInput command)
     {
-      var p = Vehicle.ReferencePoint; var v = Vehicle.Body.Velocity;
-      var input = new RaceStepInput { X = p.X, Z = p.Z, Vx = v.X, Vz = v.Z, Speed = JsMath.Hypot(v.X, v.Z), Hint = World.Hint, Steer = Vehicle.Engine.Steering };
+      var body = Vehicle.Body; var p = Vehicle.ReferencePoint; var v = body.Velocity; var drift = RaceDrift.Detect(body);
+      var input = new RaceStepInput
+      {
+        X = p.X, Z = p.Z, Vx = v.X, Vz = v.Z, Speed = drift.Speed, Hint = World.Hint,
+        DriftActive = drift.Active, Beta = drift.Beta, GrassWheels = RaceDrift.GrassWheels(body), Steer = command.Steering,
+        SimTime = body.Steps * PowertrainVehicle.FixedDelta, SinceHit = double.PositiveInfinity, BetaLimit = DriftBetaLimit,
+      };
       var back = Session.Step(input, PowertrainVehicle.FixedDelta);
       if (back != null) { Place(back.Value.X, back.Value.Z, back.Value.Heading); Teleports++; }
     }

@@ -93,7 +93,18 @@ namespace LastTurn.Core
         var a=Point(s,point.X,point.Y,point.Z);
         if (a.Y-world.Height(a.X,a.Z) < .6 + Math.Abs(s.Velocity.Y) * FixedDelta * 2) points.Add(point);
       }
+      double startSpeed = Math.Sqrt(s.Velocity.X * s.Velocity.X + s.Velocity.Z * s.Velocity.Z);
       for (int n = 0; n < Substeps; n++) Substep(s, command, steer, drive, brake, points,normals,tires);
+      // TS carpismalar: yalnız su birikintisi dalı (dekor/bariyer/sınır duvarı henüz yok). Su sağlamayan dünyada adım aynı.
+      if (world is IVehicleWaterWorld water)
+      {
+        var origin2 = Point(s, 0, 0, 0); int count = water.WaterCount(origin2.X, origin2.Z);
+        if (count > 0)
+        {
+          var w = VehicleWater.Apply(s.Velocity.X, s.Velocity.Z, startSpeed, FixedDelta, count);
+          s.Velocity = new BodyVector(w.Vx, s.Velocity.Y, w.Vz); s.Wet = 1;
+        }
+      }
       s.Steps = checked(s.Steps + 1);
       State = s;
     }
