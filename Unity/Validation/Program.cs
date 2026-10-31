@@ -4,6 +4,7 @@ using LastTurn.Core;
 if(args.Contains("--garage")){GarageValidation.Run();return;}
 if(args.Contains("--garage-storage")){GarageStorageValidation.Run();return;}
 if(args.Contains("--garage-drive")){GarageDriveValidation.Run();return;}
+if(args.Contains("--garage-ui")){GarageUiValidation.Run();return;}
 
 if(args.Contains("--catalog")){CatalogValidation.Run();return;}
 

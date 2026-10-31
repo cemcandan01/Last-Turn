@@ -37,6 +37,7 @@ namespace LastTurn.Garage
       }
       catch(Exception e){Message="Kayıt yazılamadı; mevcut durum korundu. "+e.Message;return false;}
     }
+    public static bool Execute(GarageCommand command) => Transact(command.Apply,command.SuccessMessage);
     public static bool Save() => Transact(_=>true,"Garaj kaydedildi.");
     public static void Reload() { EnsureLoaded();Open(Store.FilePath,DeveloperProfile); }
     public static void SwitchProfile(bool developer)

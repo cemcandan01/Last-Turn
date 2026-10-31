@@ -145,3 +145,16 @@ Bu bağlı GitHub entegrasyonunun yönetici izni koruma kuralını değiştirmey
 ## Araç kataloğu ve modifiye veri katmanı — 31 Ekim 2026
 
 Kart `docs/isler/2026-10-31-unity-arac-katalogu.md`, rehber `Unity/ARAC-KATALOGU.md`. Sabit TS 0.8.18 kaynaklarından otomatik JSON + SHA256 manifesti; 15 araç/42 parça/5 paket/28 lastik. Saf C# kurulum, sınıf/performans, fizik parametreleri ve fiyat/erişim kuralları vardır. `export-catalog.mjs --check` ve `.NET --catalog` üretim/eşdeğerlik sınırıdır. Editor menüsü **Last Turn → Araç ve Modifiye Kataloğu**, ayrı kısa veri kontrolü ve `check-catalog-proof.mjs` güncel derleme/hash kanıtını denetler. Sürüş sahneleri mevcut fabrikalarını korur; ham katalog MUTANT dengesini veya GT geri manevra düzeltmesini genellemez. Kalıcı kayıt/garaj satın alma akışı sonraki iştir; fizik mekaniklerine ara sürer.
+
+## Sunum katmanı ayrımı — 31 Ekim 2026 (Cem kararı, kesin; görevlerde yeniden tartışılmaz)
+
+Amaç TS 0.8.18 oyununu Unity'ye **işlevsel olarak** taşımaktır. Garaj, HUD, kariyer, MUTANT, yarış, market ve diğer ekranlar şimdilik basit olabilir; görsel tasarım ileride baştan, profesyonel kalitede yapılacak. Bu yüzden:
+
+1. Katmanlar: **Core** (saf C# kural/veri/kayıt: `GarageState`, `GarageSaveStore`, katalog, fizik) → **komut + görünüm modeli** (saf C#: `GarageCommand`, `GarageViewModel`) → **oturum/servis** (Unity yaşam döngüsü, dosya yolu, sahne geçişi: `GarageSession`) → **görünüm** (IMGUI/UI Toolkit/UGUI, HUD, primitive modeller).
+2. Görünüm satın alma, fiyat/kredi, ödül, erişim, fizik veya kayıt kuralı içermez; katalog JSON anahtarlarını okumaz. Görünüm modelinin tipli satırlarını çizer, satırdaki komutu oturuma verir (`GarageSession.Execute`). Onay süresi, kaydırma, seçim gibi yalnız sunum durumu görünümde kalabilir.
+3. Yeni ekran önce saf görünüm modeli ve komutlarıyla .NET'te sınanır (`--garage-ui` örneği), sonra geçici görünüme bağlanır. Ekran yenilenince yalnız görünüm katmanı değişir.
+4. Primitive araç/pist modelleri, IMGUI ekranları ve HUD'lar **geçicidir**, nihai tasarım sayılmaz ve beğeni kanıtı olarak sunulmaz. Görsel sadeleştirme TS özelliklerini eksiltmez: TS ekranındaki her bilgi/işlem görünüm modelinde bulunur, gösterilmiyorsa kartta açıkça yazılır.
+5. Kapsamlı görsel tasarım, animasyon veya efekt işi bu aşamada açılmaz. Düzeltilen yalnız: işlemi engelleyen temel kullanılabilirlik sorunu (düğmeye ulaşılamaması, okunamayan/kaybolan bilgi gibi) ve yeniden tasarımı zorlaştıracak bağımlılık; ikisi de dar kapsamla.
+6. Geçici ekranlar bütünüyle değiştirilebilir kalır: yeni ekran yalnız görünüm modeli + komut + oturum arayüzüne bağlanır, Core'a/kayda dokunmaz.
+
+Bilinen geçici bağımlılık: `GtPrototype` sürüş kurulumunu doğrudan `GarageSession`dan okur ve `GarageDriveOverlay` oturum dosyasında durur. Yarış oturumu taşınırken nötr bir sürüş isteği (araç kurulumu + yarış türü) ile değiştirilir; garaj ve yarış birbirinin oturumunu okumaz.

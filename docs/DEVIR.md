@@ -1,10 +1,11 @@
-# Son devir: Unity garaj ve kalıcı kayıt (2026-10-31) — yalnız yerel, Editor kanıtı bekliyor
+# Son devir: Unity garaj ve kalıcı kayıt (2026-10-31) — yalnız yerel, tamamlandı
 
-- Dal `codex/unity-garaj-kayit`, taban `cd365a5`; kart `docs/isler/2026-10-31-unity-garaj-kayit.md`. Teslim SHA'sı kartı son değiştiren yerel commit'tir. Push/merge/yayın/uzun regresyon yok. `Unity/Assets/_Recovery/` commit'e girmez.
-- Codex uyguladı (saf `GarageState`/`GarageSaveStore`/`GarageDriveParameters`, `Garage` sahnesi/IMGUI ekranı, oturum, GTTest/TerrainTest adaptörü, TS oracle `export-garage.mjs`, üç .NET doğrulaması, Play doğrulaması) ve 10:37'de kota nedeniyle durdu. Claude TS 0.8.18 ile salt okunur karşılaştırıp devraldı: takılı parçaya dokununca TS gibi sökme, sürümlü `catalogGeneration` geçişi (eski nesil geçirilir, yeni/bilinmeyen kaynak salt okunur), küçük sürümün “gelecek” sayılmaması, kapsam dışı QualitySettings geri alındı. Model claude-opus-5-5; kota bilinmiyor; API/ek kredi yok.
-- **Geçti:** garaj TS–C# 17.947, kayıt 66, sürüş adaptörü 14.761, katalog 983.569 koşul; `export-garage.mjs --check`. Ekonomi/fiyat/kredi formülü değişmedi.
-- **Açık:** Editor kanıtları (Core/katalog derleme, GT, Arazi, Garaj Play) yeni kaynakla alınmadı; Codex'in önceki Garaj Play'i 18/18 (UTC 07:35:38). Cihaz/IL2CPP/CI yok.
-- **Sonraki tek adım:** Unity'de GT → Arazi → Garaj Kısa Play doğrulamalarını çalıştır, beş `check-*-proof.mjs`'yi koş; sonra Cem `Unity/GARAJ.md` listesini denesin.
+- Dal `codex/unity-garaj-kayit`, taban `cd365a5`; kart `docs/isler/2026-10-31-unity-garaj-kayit.md`. Teslim SHA'sı kartı son değiştiren yerel commit'tir. Push/merge/yayın/uzun regresyon yok. `Unity/Assets/_Recovery/` commit'e girmez; Unity'nin tekrar tekrar sildiği `QualitySettings.asset` platform tablosu geri alınmış tutulur.
+- Codex uyguladı (Core garaj/kayıt/sürüş adaptörü, sahne, oturum, TS oracle, üç .NET doğrulaması, Play doğrulaması) ve 10:37'de kota nedeniyle durdu. Claude devraldı: TS 0.8.18 bağımsız inceleme, takılı parçaya dokununca sökme, `catalogGeneration` geçişi (eski nesil geçirilir, yeni/bilinmeyen kaynak salt okunur), küçük sürüm “gelecek” sayılmaz, saf `GarageCommand`/`GarageViewModel` sunum ayrımı. Model claude-opus-5-5; kota bilinmiyor; API/ek kredi yok.
+- **Geçti:** garaj TS–C# 17.947, kayıt 66, sürüş 14.761, sunum 117, katalog 983.569 koşul; `export-garage.mjs --check`. Unity (UTC 09:22): GT Play 28/28, Arazi 23/23, Garaj 20/20; derleme 25 Core + katalog 30; beş `check-*-proof.mjs` geçti. Ekonomi/fiyat/kredi formülü değişmedi.
+- **Not:** aynı kaynakla ilk GT Play koşusu “A → sol dönüş” kontrolünde kaldı, ikinci koşu 28/28 geçti; doğrulayıcı adımı Editor karesinde ölçtüğü için kare zamanlamasına duyarlı görünüyor (kanıt `tests/cikti/unity-garaj/gt-play-ilk-kalan.json`). Ayrı küçük iş. Play menülerini Claude, Editor'de geçici (silinen, commit dışı) tetik betiğiyle çalıştırdı.
+- Kalıcı mimari kararı: `docs/UNITY-GECIS.md` → “Sunum katmanı ayrımı” (kesin; geçici garaj/HUD/kariyer/yarış/MUTANT ekranları kabul, TS işlevi eksiltilmez, yalnız işlemi engelleyen kullanılabilirlik düzeltilir). Yarış planı: `docs/isler/2026-10-31-unity-yaris-plani.md`.
+- **Sonraki tek adım:** yeni dal `claude/unity-pist-aktarimi`, yarış planı 1. aşama (pist verisi/geometri/sorgular, `gp_1` referans).
 
 # Önceki devir: Unity araç / sınıf / modifiye kataloğu (2026-10-31) — yalnız yerel
 
