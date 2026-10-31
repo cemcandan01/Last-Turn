@@ -8,6 +8,7 @@ if(args.Contains("--garage-ui")){GarageUiValidation.Run();return;}
 
 if(args.Contains("--catalog")){CatalogValidation.Run();return;}
 if(args.Contains("--tracks")){TrackValidation.Run();return;}
+if(args.Contains("--race-rules")){RaceRulesValidation.Run();return;}
 
 if(args.Contains("--gt-physics")){GtPhysicsValidation.Run();return;}
 if(args.Contains("--dirt-stability")){DirtStabilityValidation.Run();return;}

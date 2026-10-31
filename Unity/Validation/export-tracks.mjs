@@ -26,24 +26,36 @@ const composition = {
 
 const KW_SAMPLES = 48;
 
+/** TS bolgeler.ts mkReg'deki pist bileşimi (yukarıdaki satırlar kaynakta denetlenir). */
+export function regionTrack(P, defs, k) {
+  const def = defs.TDEF[k],
+    open = def.t == "rl" || def.t == "dg",
+    c = [((k % 4) - 1.5) * 2600, 3200 + Math.floor(k / 4) * 2600],
+    TR = P.mkTrack(P.off(P.recenter(defs.pistNoktalari(def)), c[0], c[1]), def.hw, open);
+  return { def, open, c, TR };
+}
+
+/** Bileşim satırlarını sabit kaynakta doğrula (bölge/yarış dosyaları THREE'ye bağlı olduğu için yüklenmez). */
+export function checkComposition(loader) {
+  const hashes = {};
+  for (const [file, lines] of Object.entries(composition)) {
+    const text = loader.read(file);
+    for (const line of lines) if (!text.includes(line)) throw new Error(file + " bileşim satırı değişmiş: " + line);
+    hashes[file] = loader.sources[file];
+  }
+  return hashes;
+}
+
 export function buildTracks() {
   const loader = createBaselineLoader(),
-    { load, read } = loader;
-  const compositionHashes = {};
-  for (const [file, lines] of Object.entries(composition)) {
-    const text = read(file);
-    for (const line of lines)
-      if (!text.includes(line)) throw new Error(file + " bileşim satırı değişmiş: " + line);
-    compositionHashes[file] = loader.sources[file];
-  }
+    { load } = loader;
+  const compositionHashes = checkComposition(loader);
   const defs = load("src/dunya/pist-tanimlari");
   const P = load("src/dunya/pist");
   const tracks = [],
     cases = [];
   defs.TDEF.forEach((def, k) => {
-    const open = def.t == "rl" || def.t == "dg";
-    const c = [((k % 4) - 1.5) * 2600, 3200 + Math.floor(k / 4) * 2600];
-    const TR = P.mkTrack(P.off(P.recenter(defs.pistNoktalari(def)), c[0], c[1]), def.hw, open);
+    const { open, c, TR } = regionTrack(P, defs, k);
     // Ham tanım alanları aynen (nokta listesi tarif yoksa zaten içinde).
     const raw = { ...def };
     tracks.push({
