@@ -61,6 +61,18 @@ namespace LastTurn.Core
     /// Geri sayım (fizik donuk). TS'de kare süresiyle azalır.
     public void TickCountdown(double dt) => Session.TickCountdown(dt);
 
+    /// Drag manuel: geri sayımda motor gazla serbest devirde tutulur (araç durur). Yarış başlarken motor durumu hayalete yazılır.
+    public void TickCountdown(double dt, DrivingInput input)
+    {
+      if (Session.State == RaceState.Countdown) Vehicle.PreRev(input);
+      Session.TickCountdown(dt);
+      if (Session.State == RaceState.Running) { var e = Vehicle.Engine; StartGas = e.Gas; StartRpm = e.Rpm; StartHold = e.LaunchHold; }
+    }
+    public double StartGas { get; private set; }
+    public double StartRpm { get; private set; } = 900;
+    public double StartHold { get; private set; }
+    public bool Manual => Vehicle.Parameters.ManualGearbox;
+
     public bool PhysicsRunning => Session.State == RaceState.Running;
 
     /// Fizik adımı + yarış adımı. Yarış çalışmıyorsa (geri sayım/bitti) fizik ilerlemez (TS: donuk / sonuç ekranı).

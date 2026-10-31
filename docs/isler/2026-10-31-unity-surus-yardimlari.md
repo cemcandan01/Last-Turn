@@ -50,6 +50,11 @@ Sahip/uygulayıcı Claude; dal `claude/unity-surus-yardimlari` (taban `74546cf`)
 - Dekor/bariyer çarpışması, rakipler, görsel yenileme: kapsam dışı.
 - Ayar ekranı geçici (garaj üst satırı); kalıcı tercih garaj kaydında, ekrandan bağımsız.
 
+## Cem kararları (31 Ekim)
+
+- TCS: TS 0.8.18 eşdeğer davranış korunur (yardımlı araçta gaz kesme); GT/Arazi düzeltmesi geri alınmaz. Gaz tepkisi manuel sürüşte değerlendirilecek; katsayı/yardım değişmez.
+- Drift: yıldız eşikleri değişmez. **Tasarım inceleme konusu:** Gerçekçi seviyede driftin daha kolay sürdürülmesi; Dengeli/Eğlence drift deneyimi manuel oynanış testinde değerlendirilecek.
+
 ## Sonraki tek adım
 
 Cem kararı: yardımlı araçta TCS gaz kesme (TS) korunsun mu; ardından drift oynanışını gerçek oyuncuyla elle değerlendirme (`Unity/YARIS.md`).

@@ -74,6 +74,7 @@ namespace LastTurn.EditorValidation
           // Ayrı geçici profil: ödül oyuncu kaydına değil buraya yazılır.
           GarageSession.Open(SessionState.GetString(PathKey, ""), true);
           Require(GarageSession.State.Balance == 0 && GarageSession.State.SelectedCar == 10, "Geçici profil: 0 para, başlangıç aracı");
+          Require(!GarageRace.Prepare(RaceData.Load().Event("gp_1")).Parameters.ManualGearbox && GarageRace.Prepare(RaceData.Load().Event("dg_1")).Parameters.ManualGearbox, "Manuel vites yalnız drag yarışında");
           Require(prototype.GetComponent<RaceHud>() != null, "Geçici HUD bağlı");
           prototype.ManualStepping = true; phase = 1; return;
         }
@@ -88,8 +89,13 @@ namespace LastTurn.EditorValidation
           Require(Math.Abs(p.X - race.Event.StartX) < 1e-9 && Math.Abs(p.Z - race.Event.StartZ) < 1e-9 && Math.Abs(p.Y - ground) < 0.3, $"{key}: araç TS başlangıcında, zemin {ground:F2} m");
           Require(race.Session.Career && world.Hint == race.Session.Previous, $"{key}: kariyer yarışı, ipucu oturumla aynı");
           startPosition = race.Vehicle.Body.Position; balanceBefore = GarageSession.State.Balance;
-          while (race.Session.State == RaceState.Countdown) { prototype.StepRace(new DrivingInput(1, 0, 0)); current.countdownSteps++; }
+          while (race.Session.State == RaceState.Countdown) { prototype.StepRace(driver.Countdown(race)); current.countdownSteps++; }
           Require(current.countdownSteps == 181 && race.Vehicle.Body.Position.Equals(startPosition), $"{key}: geri sayımda fizik donuk");
+          if (race.Event.Type == "dg")
+          {
+            var band = DragGearAdvisor.LaunchBand(race.Vehicle.Parameters); double rpm = race.Vehicle.Engine.Rpm;
+            Require(race.Manual && rpm >= band.Low && rpm <= band.High, "dg_1: manuel şanzıman; geri sayımda kalkış devri bantta (" + rpm.ToString("F0") + ")");
+          }
           phase = 2; return;
         }
         if (phase == 2)
@@ -115,7 +121,7 @@ namespace LastTurn.EditorValidation
             case "rx": Require(current.surfaces[3] > 0 && current.airborne > 0 && current.surfaces[0] > 0 && s.Lap == 3, $"rx_1: toprak, çamur ({current.surfaces[3]}), rampadan havalanma ({current.airborne}), 3 tur"); break;
             case "rl": Require(current.wet > 0 && current.maxHeight - current.minHeight > 10 && current.surfaces[0] > 0, $"rl_1: su birikintisi ({current.wet} adım ıslak), tepeler ({current.minHeight:F1}–{current.maxHeight:F1} m), toprak"); break;
             case "dp": Require(current.drift > 0 && s.Drift.Score > 0 && s.Lap == 2, $"dp_1: gerçek kaymadan drift ({current.drift} adım, {s.Drift.Score} puan), 2 tur"); break;
-            case "dg": Require(s.Trap > 0 && current.surfaces[1] == current.steps, $"dg_1: drag şeridi asfalt, tuzak hızı {s.Trap:F0} km/sa"); break;
+            case "dg": Require(s.Trap > 0 && current.surfaces[1] == current.steps && r.Vehicle.ShiftsUp > 0 && r.Vehicle.RejectedShifts == 0, $"dg_1: manuel vitesle bitti ({r.Vehicle.ShiftsUp} vites, tuzak {s.Trap:F0} km/sa)"); break;
           }
           var expected = GarageSession.Catalog.Reward(r.Event.Type, r.Event.Level, s.Stars, 0);
           Require(s.Xp == expected["xp"].N() && s.Money == expected["para"].N(), $"{key}: ödül TS yarisBitti (+{s.Xp} XP +{s.Money})");

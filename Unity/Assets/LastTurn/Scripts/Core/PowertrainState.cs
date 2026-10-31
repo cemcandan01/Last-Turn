@@ -15,5 +15,7 @@ namespace LastTurn.Core
     public double EffectiveBrake { get; internal set; }
     public double SlipLimit { get; internal set; }
     public double SteeringAngle { get; internal set; }
+    /// Manuel kalkış: debriyaj kayarken motorun tutulduğu devir (0: henüz yok, rölanti; −1: debriyaj kavradı).
+    public double LaunchHold { get; internal set; }
   }
 }

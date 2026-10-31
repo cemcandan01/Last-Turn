@@ -45,6 +45,13 @@ namespace LastTurn.Core
     /// TS yardım değerleri (kurulum.as) ve drift yardımının ihtiyaç duyduğu araç bilgisi. null: yardım dalları yok
     /// (GT/Arazi prototipi; kabul edilmiş davranış aynen).
     public DrivingAssists Assists { get; internal set; } = null!;
+    /// Drag'e özel beceri (TS'de yok, Cem kararı): otomatik vites kapalı, oyuncu vites değiştirir ve kalkış devrini tutar.
+    /// Tork eğrisi, oranlar, vites geçiş süresi ve lastik çekişi aynı fizik; bonus yok. Diğer türlerde hep kapalı.
+    public bool ManualGearbox { get; set; }
+    /// Manuel kalkış: gaz basılıyken serbest motor devrinin hedefe yaklaşma hızı (1/sn) ve hedefin üst sınırı (kesici).
+    public const double FreeRevRate = 3, RevLimit = 1.02;
+    /// Kalkışta debriyajın kayan devri teker devrine bu hızla (1/sn) iner (~0,25 sn).
+    public const double EngageRate = 4;
     public static double TorqueCurve(double u) { Numeric.Finite(u); return Math.Max(.45, 1 - 1.4 * (u - .55) * (u - .55)); }
     public static double GearRatio(int gear)
     {
@@ -56,11 +63,14 @@ namespace LastTurn.Core
   {
     public readonly double Throttle, Brake, Steering;
     public readonly bool AnalogThrottle, AnalogSteering, Handbrake;
-    public DrivingInput(double throttle, double brake, double steering, bool analogThrottle = true, bool analogSteering = true, bool handbrake = false)
+    /// Yalnız manuel şanzımanda (drag): +1 vites yükselt, −1 düşür, 0 yok. Otomatikte yok sayılır.
+    public readonly int Shift;
+    public DrivingInput(double throttle, double brake, double steering, bool analogThrottle = true, bool analogSteering = true, bool handbrake = false, int shift = 0)
     {
       VehicleParameters.Unit(throttle); VehicleParameters.Unit(brake); Numeric.Finite(steering);
       if (Math.Abs(steering) > 1) throw new ArgumentOutOfRangeException(nameof(steering));
-      Throttle = throttle; Brake = brake; Steering = steering; AnalogThrottle = analogThrottle; AnalogSteering = analogSteering; Handbrake = handbrake;
+      if (shift < -1 || shift > 1) throw new ArgumentOutOfRangeException(nameof(shift));
+      Throttle = throttle; Brake = brake; Steering = steering; AnalogThrottle = analogThrottle; AnalogSteering = analogSteering; Handbrake = handbrake; Shift = shift;
     }
   }
 }

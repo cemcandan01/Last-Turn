@@ -49,6 +49,19 @@ namespace LastTurn.Prototype
       GUI.Label(new Rect(12, h - 34, w - 24, 26), "W/S gaz-fren · A/D direksiyon · Boşluk el freni · R yeniden başlat", text);
       // TS ↺ yeniden doğ: pist dışı ilk çıkışa ya da en yakın pist noktasına; süre durmaz.
       if (s.State == RaceState.Running && GUI.Button(new Rect(w - 152, 12, 140, 40), "Piste dön")) prototype.RespawnRace();
+      // Drag manuel: devir göstergesi, vites, kalkış bandı ve uyarı (otomatik vites yok).
+      var d = DragViewModel.Hud(race.Vehicle, s);
+      if (d.Manual)
+      {
+        var bar = new Rect(w / 2f - 220, h - 96, 440, 26); GUI.Box(bar, GUIContent.none);
+        float F(double rpm) => bar.x + bar.width * Mathf.Clamp01((float)(rpm / (d.MaxRpm * PowertrainParameters.RevLimit)));
+        var old = GUI.color;
+        if (s.State == RaceState.Countdown) { GUI.color = new Color(.2f, .8f, .3f, .5f); GUI.DrawTexture(new Rect(F(d.LaunchLow), bar.y, F(d.LaunchHigh) - F(d.LaunchLow), bar.height), Texture2D.whiteTexture); }
+        GUI.color = new Color(.95f, .75f, .1f, .5f); GUI.DrawTexture(new Rect(F(d.ShiftRpm), bar.y, F(d.MaxRpm) - F(d.ShiftRpm), bar.height), Texture2D.whiteTexture);
+        GUI.color = d.Light == "KESİCİ" ? Color.red : Color.white; GUI.DrawTexture(new Rect(bar.x, bar.y + 8, F(d.Rpm) - bar.x, 10), Texture2D.whiteTexture); GUI.color = old;
+        GUI.Label(new Rect(bar.x, bar.y - 30, 440, 28), "Vites " + d.Gear + " · " + d.Rpm.ToString("F0") + " devir   " + d.Light, big);
+        GUI.Label(new Rect(bar.x, bar.y + 28, 600, 24), d.Help, text);
+      }
       if (s.State == RaceState.Finished) Result(s);
     }
 

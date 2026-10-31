@@ -1,4 +1,12 @@
-# Son devir: Unity sürüş yardımları ve drift oynanışı (2026-10-31) — yalnız yerel
+# Son devir: Drag'e özel manuel vites ve kalkış (2026-10-31) — yalnız yerel, Unity Play bekliyor
+
+- Dal `claude/unity-drag-manuel-vites` (taban `fcac30e`); kart `docs/isler/2026-10-31-drag-manuel-vites.md`. Sahip Claude; ikinci ajan yok. Push/merge/yayın yok.
+- Manuel şanzıman yalnız drag'de; kalkış devri geri sayımda, debriyaj ~0,25 sn'de kavrar; gösterge (geçiş devri, kalkış bandı, uyarılar), E/Q; hayalet vites + kalkış durumu. `--drag` 20 koşul: uygun vites otomatikle ±0,05 sn, erken/geç/hiç/rölanti/kesici kalkış yavaş; 8 drag pisti manuel biter.
+- Drag dışı: vites girdisi bit düzeyinde etkisiz; `--assists`, `--race-session`, varsayılan fizik testleri geçti.
+- **Açık:** Unity Kısa Play (GT/Arazi/Garaj/Yarış) koşulmadı — Cem başka uygulamadayken Unity'ye odak zorlanmadı. Derleme kanıtları geçti.
+- Kayıtlı Cem kararları: TCS TS eşdeğer kalır; drift eşikleri değişmez, Gerçekçi'de kolay drift tasarım incelemesi.
+
+# Önceki devir: Unity sürüş yardımları ve drift oynanışı (2026-10-31) — yalnız yerel
 
 - Dal `claude/unity-surus-yardimlari` (taban `74546cf`); kart `docs/isler/2026-10-31-unity-surus-yardimlari.md`; içerik kaydı `2026-10-31-rl3-icerik-dengesi.md`. Sahip Claude; ikinci ajan yok. Push/merge/yayın/uzun regresyon yok.
 - TS yardımları (drift penceresi, kz/ini lastik, str/stm/dft kuvvetleri, hız koruma, TCS gaz kesme yalnız yardımlı araçta) Core'da; `--assists` 24 durum TS tam simülasyonuyla 5,1e-12. Tercih garaj kaydında (`assistLevel`, varsayılan norm); garajda geçici seçici. GT/Arazi prototipi bit düzeyinde aynı.

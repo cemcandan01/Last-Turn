@@ -7,6 +7,7 @@ namespace LastTurn.Core
   {
     public const double FixedDelta = FourWheelVehicle.FixedDelta;
     private readonly PowertrainParameters p;
+    public PowertrainParameters Parameters => p;
     private readonly FourWheelVehicle body;
     public VehicleState Body => body.State;
     public PowertrainState Engine { get; private set; } = null!;
@@ -100,7 +101,17 @@ namespace LastTurn.Core
         + p.Chassis.FrontDriveShare * ((wheels[0].Omega + wheels[1].Omega) / 2);
       double wheelRpm = Math.Abs(driven * ratio) * 60 / (2 * Math.PI);
       double timer = previous.ShiftTimer - dt;
-      if (!input.Handbrake && timer < -.6 && gear > 0)
+      if (p.ManualGearbox)
+      {
+        // Drag manuel: istek yalnız geçiş bitmişken; geçiş süresi ve tork kesmesi otomatikle aynı. Sınır dışı istek reddedilir.
+        if (gear > 0 && input.Shift != 0)
+        {
+          if (timer <= 0 && input.Shift > 0 && gear < 6) { gear++; timer = .12; ShiftsUp++; }
+          else if (timer <= 0 && input.Shift < 0 && gear > 1) { gear--; timer = .1; ShiftsDown++; }
+          else RejectedShifts++;
+        }
+      }
+      else if (!input.Handbrake && timer < -.6 && gear > 0)
       {
         double groundRpm = Math.Abs(vl / p.Chassis.Wheels[2].Radius) * Math.Abs(ratio) * 60 / (2 * Math.PI);
         if (Math.Min(wheelRpm, groundRpm * 1.15) > .95 * p.MaxRpm && gear < 6) { gear++; timer = .12; }
@@ -110,7 +121,17 @@ namespace LastTurn.Core
       }
       // devirT kaynakta eski oranla hesaplanır; geçiş sonrası Tw yeni oranı kullanır. Sıra değiştirilmez.
       ratio = PowertrainParameters.GearRatio(gear) * p.FinalDrive;
-      double launch = p.IdleRpm + (p.LaunchRpm - p.IdleRpm) * Math.Min(1, throttle * 1.5);
+      // Manuel kalkış: geri sayımda tutulan devirden debriyaj bırakılır; kayan debriyaj devri teker devrine iner
+      // (EngageRate), yetişince kavrar (−1) ve motor teker devriyle döner. Kalkış devri yalnız bu kayma süresinde etkili.
+      double hold = 0;
+      if (p.ManualGearbox && previous.LaunchHold >= 0)
+      {
+        double h0 = previous.LaunchHold == 0 ? p.IdleRpm : previous.LaunchHold;
+        hold = h0 + (wheelRpm - h0) * Math.Min(1, dt * PowertrainParameters.EngageRate);
+        if (hold - wheelRpm <= 25) hold = -1;
+      }
+      else if (p.ManualGearbox) hold = -1;
+      double launch = p.ManualGearbox ? (hold > 0 ? hold : p.IdleRpm) : p.IdleRpm + (p.LaunchRpm - p.IdleRpm) * Math.Min(1, throttle * 1.5);
       double coupled = Math.Max(wheelRpm, throttle > .05 ? launch : p.IdleRpm), u = coupled / p.MaxRpm;
       double rpm = previous.Rpm + (coupled - previous.Rpm) * Math.Min(1, dt * 12);
       double boost = previous.Turbo, turboFactor = 1;
@@ -130,14 +151,43 @@ namespace LastTurn.Core
         if (wheelRpm > p.IdleRpm) torque -= p.PeakTorque * .15 * u * (1 - throttle);
       }
       double drive = torque * ratio * p.Efficiency;
-      double hold = Math.Abs(vl) < .6 && throttle < .05 && brake < .05 ? .3 : 0;
+      double holdBrake = Math.Abs(vl) < .6 && throttle < .05 && brake < .05 ? .3 : 0;
       var next = new PowertrainState { Gas = gas, Steering = st, Rpm = rpm, Gear = gear, ShiftTimer = timer,
         Turbo = boost, EngineTorque = torque, DriveTorque = drive, CoupledRpm = coupled, EffectiveGas = throttle,
-        EffectiveBrake = brake + hold, SlipLimit = slipLimit, SteeringAngle = delta };
+        EffectiveBrake = brake + holdBrake, SlipLimit = slipLimit, SteeringAngle = delta, LaunchHold = hold };
       // Gövde başarısızsa motorun kısmen ilerlemiş durumu yayımlanmaz.
-      body.Step(new VehicleCommand(delta, drive, brake + hold, input.Handbrake, p.Abs, slipLimit, assist));
+      body.Step(new VehicleCommand(delta, drive, brake + holdBrake, input.Handbrake, p.Abs, slipLimit, assist));
       Engine = next;
     }
+    public int ShiftsUp { get; private set; }
+    public int ShiftsDown { get; private set; }
+    public int RejectedShifts { get; private set; }
+
+    /// Geri sayım kalkış devri: gaz basılıyken serbest devir hedefe (rölanti + gaz × (kesici − rölanti)) yaklaşır, bırakınca rölantiye.
+    private double Hold(double previousHold, double throttle, double dt)
+    {
+      double h = previousHold == 0 ? p.IdleRpm : previousHold;
+      double target = throttle > .05 ? p.IdleRpm + (p.MaxRpm * PowertrainParameters.RevLimit - p.IdleRpm) * throttle : p.IdleRpm;
+      return h + (target - h) * Math.Min(1, dt * PowertrainParameters.FreeRevRate);
+    }
+
+    /// Drag geri sayımı: araç durur (fizik donuk); yalnız motor serbest devirde gazla tutulur (manuel kalkış hazırlığı).
+    public void PreRev(DrivingInput input)
+    {
+      if (!p.ManualGearbox) return;
+      double dt = FixedDelta; var previous = Engine;
+      double gas = previous.Gas + (input.Throttle - previous.Gas) * Math.Min(1, dt * (2 + 18 * p.ThrottleResponse));
+      double hold = Hold(previous.LaunchHold, gas, dt);
+      Engine = new PowertrainState { Gas = gas, Steering = previous.Steering, Rpm = previous.Rpm + (hold - previous.Rpm) * Math.Min(1, dt * 12), Gear = previous.Gear,
+        ShiftTimer = previous.ShiftTimer, Turbo = previous.Turbo, CoupledRpm = hold, LaunchHold = hold, EffectiveGas = gas };
+    }
+
+    /// Hayalet: kayıt başındaki motor durumu (geri sayım hazırlığı) aynen kurulur.
+    public void SetStartEngine(double gas, double rpm, double hold)
+    {
+      Engine = new PowertrainState { Gas = gas, Rpm = rpm, Gear = 1, LaunchHold = hold, CoupledRpm = hold };
+    }
+
     /// TS driftSiniri: hızla daralan drift açısı sınırı.
     public static double DriftLimit(double v) => .9 - .35 * Clamp((v - 10) / 45, 0, 1);
 

@@ -31,7 +31,7 @@ W/S gaz–fren, A/D direksiyon, Boşluk el freni, R yarışı yeniden başlat. S
 - **Rallikros (rx_1):** toprak yol, kısmen asfalt aralığı (rx_3), çamur (koyu kahverengi; tutuş düşer, geçtikten sonra yavaş temizlenir), su birikintisi (mavi daire; içinden geçince araç yavaşlar ve bir süre ıslak kalır), rampalar (havalanma). 3 tur.
 - **Ralli (rl_1):** A’dan B’ye, tepeli orman yolu; yol enine düz, kenarı tepeye karışır. rl_6 karlı (kar, yol dışı derin kar). rl_3 kariyer aracıyla (Haki Keçi) dik yokuşta durabilir: TS'de de aynı (bkz. kart); Mavi Yıldız ile biter.
 - **Drift (dp_1):** 2 tur; puan yalnız gerçek kayarken (hız > 10 m/s, kayma > ~29°) birikir; çarpan x2…x5, tam çime çıkınca KOMBO YANDI, 1. turun %90'ı driftle geçerse ÇARPAN x6. Unity'de drift yardımı yok: TS'den zordur.
-- **Drag (dg_1):** düz şerit, otomatik vites; sonuçta bitiş hızı. Manuel vites ayrı görev.
+- **Drag (dg_1, manuel vites):** geri sayımda **W** ile devri yeşil bantta tut (KALKIŞ HAZIR); yeşil ışıkta tam gaz. Devir sarı bölgeye girince **VİTES ↑** — **E** ile yükselt (**Q** düşürür). Geç kalırsan KESİCİ (tork kesilir), erken basarsan DÜŞÜK DEVİR. Vites otomatik değişmez; sonuçta bitiş hızı. Diğer türlerde vites otomatik.
 
 ## Sürüş yardımı (geçici geliştirici ayarı)
 

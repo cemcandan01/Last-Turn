@@ -25,6 +25,8 @@ namespace LastTurn.Garage
         d.Setup = GarageSession.DriveActive && GarageSession.DriveSetup != null ? GarageSession.DriveSetup : state.Setup(car);
         // TS startEvent: etkinlik türünün yarış lastiği takılır.
         d.Parameters = GarageDriveParameters.Create(GarageSession.Catalog, d.Setup, false, info.Type);
+        // Drag'e özel manuel vites ve kalkış (Cem kararı); diğer türlerde otomatik.
+        d.Parameters.ManualGearbox = info.Type == "dg";
         bool open = state.TrackOpen(info.Type, info.Level);
         d.Career = open && GarageSession.Catalog.CareerEligible(info.Type, info.Level, car, state.Equipped(car));
         d.Message = !open ? "Pist kilitli: ödülsüz deneme." : d.Career ? "Kariyer yarışı: ödül garaja işlenir." : "Deneme: araç bu yarışın puan bütçesini aşıyor, ödül yok.";
@@ -67,7 +69,8 @@ namespace LastTurn.Garage
           var existing = store.LoadGhost(s.RecordKey); var inputs = run.Recording;
           if (GhostRecord.ShouldSave(existing, s.Result, inputs, s.IsDrift))
           {
-            store.SaveGhost(new GhostRecord { Key = s.RecordKey, Car = drive.Car, RaceType = run.Event.Type, AssistLevel = GarageSession.State.AssistLevel, Result = s.Result, Parts = drive.Setup.Parts, Inputs = inputs });
+            store.SaveGhost(new GhostRecord { Key = s.RecordKey, Car = drive.Car, RaceType = run.Event.Type, AssistLevel = GarageSession.State.AssistLevel, Result = s.Result, Parts = drive.Setup.Parts, Inputs = inputs,
+              Manual = run.Manual, StartGas = run.StartGas, StartRpm = run.StartRpm, StartHold = run.StartHold });
             LastGhostSaved = true;
           }
         }
@@ -85,7 +88,8 @@ namespace LastTurn.Garage
         GarageSession.EnsureLoaded(); var g = ProfileStore().LoadGhost(recordKey);
         if (g == null || g.Car >= GarageSession.Catalog.Data["cars"].Items.Count()) return null;
         var setup = GarageSession.Catalog.Setup(g.Car, g.Parts, g.AssistLevel);
-        return new GhostPlayer(g, GarageDriveParameters.Create(GarageSession.Catalog, setup, false, g.RaceType), track, info);
+        var parameters = GarageDriveParameters.Create(GarageSession.Catalog, setup, false, g.RaceType); parameters.ManualGearbox = g.Manual;
+        return new GhostPlayer(g, parameters, track, info);
       }
       catch (Exception e) when (e is IOException || e is ArgumentException || e is FormatException) { LastMessage = "Hayalet açılamadı: " + e.Message; return null; }
     }

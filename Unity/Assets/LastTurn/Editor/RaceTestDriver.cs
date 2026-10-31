@@ -36,7 +36,21 @@ namespace LastTurn.EditorValidation
       stuck = 0; return run.Respawn();
     }
 
-    public DrivingInput Input(RaceRun run) => Digital ? Keys(Raw(run)) : Raw(run);
+    public DrivingInput Input(RaceRun run)
+    {
+      var i = Digital ? Keys(Raw(run)) : Raw(run); var e = run.Vehicle.Engine; var p = run.Vehicle.Parameters;
+      // Drag manuel: gösterge noktasında (VİTES ışığı) oyuncu gibi E'ye basar; otomatik vites yok.
+      int shift = p.ManualGearbox && e.Gear >= 1 && e.Gear < 6 && e.ShiftTimer <= 0 && e.Rpm >= DragGearAdvisor.ShiftRpm(p, e.Gear) * .97 ? 1 : 0;
+      return shift == 0 ? i : new DrivingInput(i.Throttle, i.Brake, i.Steering, i.AnalogThrottle, i.AnalogSteering, i.Handbrake, shift);
+    }
+
+    /// Geri sayım: drag manuelde devri kalkış bandının ortasında tutmak için gaza bas/bırak (klavye gibi).
+    public DrivingInput Countdown(RaceRun run)
+    {
+      var p = run.Vehicle.Parameters; if (!p.ManualGearbox) return new DrivingInput(1, 0, 0);
+      var band = DragGearAdvisor.LaunchBand(p);
+      return new DrivingInput(run.Vehicle.Engine.Rpm < (band.Low + band.High) / 2 ? 1 : 0, 0, 0, false, false);
+    }
 
     private DrivingInput Raw(RaceRun run)
     {

@@ -15,6 +15,7 @@ if(args.Contains("--race-types")){RaceTypesValidation.Run();return;}
 if(args.Contains("--race-all")){RaceAllValidation.Run();return;}
 if(args.Contains("--assists")){AssistValidation.Run();return;}
 if(args.Contains("--assist-levels")){AssistLevelsValidation.Run();return;}
+if(args.Contains("--drag")){DragValidation.Run();return;}
 
 if(args.Contains("--gt-physics")){GtPhysicsValidation.Run();return;}
 if(args.Contains("--dirt-stability")){DirtStabilityValidation.Run();return;}

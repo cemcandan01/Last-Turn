@@ -158,12 +158,25 @@ namespace LastTurn.Prototype
       if (input.ConsumeRestart()) { RestartRace(); return; }
       CurrentInput = input.Read();
       if (ManualStepping) return;
-      if (Race.Session.State == RaceState.Countdown) { Race.TickCountdown(Time.deltaTime); return; }
+      if (Race.Session.State == RaceState.Countdown)
+      {
+        // Geri sayım sabit adımla; drag manuelde motor devri bu sırada gazla tutulur (araç durur).
+        countdownTime += Math.Min(Time.deltaTime, .1);
+        while (countdownTime >= PowertrainVehicle.FixedDelta && Race.Session.State == RaceState.Countdown)
+        { Race.TickCountdown(PowertrainVehicle.FixedDelta, CurrentInput); countdownTime -= PowertrainVehicle.FixedDelta; }
+        return;
+      }
+      countdownTime = 0;
       if (Race.Session.State != RaceState.Running) return;
-      runner.Advance(Time.deltaTime, _ => { previousSteer = Simulation.Engine.SteeringAngle; lastQuantized = Race.Record(CurrentInput); return lastQuantized; }, AfterRaceStep);
+      runner.Advance(Time.deltaTime, _ =>
+      {
+        previousSteer = Simulation.Engine.SteeringAngle; var i = CurrentInput; int shift = input.ConsumeShift();
+        lastQuantized = Race.Record(new DrivingInput(i.Throttle, i.Brake, i.Steering, i.AnalogThrottle, i.AnalogSteering, i.Handbrake, shift));
+        return lastQuantized;
+      }, AfterRaceStep);
       frameSeconds = Mathf.Lerp(frameSeconds, Time.unscaledDeltaTime, .05f);
     }
-    private DrivingInput lastQuantized;
+    private DrivingInput lastQuantized; private double countdownTime;
     private bool AfterRaceStep()
     {
       int teleports = Race.Teleports; Race.AfterPhysicsStep(lastQuantized);
@@ -189,7 +202,7 @@ namespace LastTurn.Prototype
     public void StepRace(DrivingInput value)
     {
       CurrentInput = value;
-      if (Race.Session.State == RaceState.Countdown) { Race.TickCountdown(PowertrainVehicle.FixedDelta); return; }
+      if (Race.Session.State == RaceState.Countdown) { Race.TickCountdown(PowertrainVehicle.FixedDelta, value); return; }
       if (Race.Session.State != RaceState.Running) return;
       previousSteer = Simulation.Engine.SteeringAngle;
       Race.Step(value); runner.SyncPrevious();

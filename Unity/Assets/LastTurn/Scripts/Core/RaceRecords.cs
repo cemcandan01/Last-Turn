@@ -103,7 +103,7 @@ namespace LastTurn.Core
   // 4 el freni); -1..1 → ×32767, JS Math.round. Fiziğe nicemlenmiş girdi verilir: kayıt oynatılınca aynı sürüş.
   public sealed class InputRecording
   {
-    public const int Scale = 32767, Fields = 4, MaxSteps = 60 * 60 * 60, FormatVersion = 1;
+    public const int Scale = 32767, Fields = 4, MaxSteps = 60 * 60 * 60, FormatVersion = 2;
     private short[] data = new short[Fields * 1024];
     public int Count { get; private set; }
     /// TS kesik: kayıt sırasında araç dışarıdan taşındı (piste dönüş, yeniden doğ) → hayalet güvenilmez.
@@ -119,11 +119,11 @@ namespace LastTurn.Core
     public DrivingInput Record(DrivingInput input)
     {
       short a = Quantize(input.Steering), g = Quantize(input.Throttle), b = Quantize(input.Brake);
-      var output = new DrivingInput(g / (double)Scale, b / (double)Scale, a / (double)Scale, input.AnalogThrottle, input.AnalogSteering, input.Handbrake);
+      var output = new DrivingInput(g / (double)Scale, b / (double)Scale, a / (double)Scale, input.AnalogThrottle, input.AnalogSteering, input.Handbrake, input.Shift);
       if (Count >= MaxSteps) { Full = true; return output; }
       if ((Count + 1) * Fields > data.Length) Array.Resize(ref data, Math.Min(MaxSteps * Fields, data.Length * 2));
       int o = Count * Fields;
-      data[o] = a; data[o + 1] = g; data[o + 2] = b; data[o + 3] = (short)((input.AnalogSteering ? 1 : 0) | (input.AnalogThrottle ? 2 : 0) | (input.Handbrake ? 4 : 0));
+      data[o] = a; data[o + 1] = g; data[o + 2] = b; data[o + 3] = (short)((input.AnalogSteering ? 1 : 0) | (input.AnalogThrottle ? 2 : 0) | (input.Handbrake ? 4 : 0) | (input.Shift > 0 ? 8 : 0) | (input.Shift < 0 ? 16 : 0));
       Count++;
       return output;
     }
@@ -133,7 +133,7 @@ namespace LastTurn.Core
     {
       if (i < 0 || i >= Count) throw new ArgumentOutOfRangeException(nameof(i));
       int o = i * Fields;
-      return new DrivingInput(data[o + 1] / (double)Scale, data[o + 2] / (double)Scale, data[o] / (double)Scale, (data[o + 3] & 2) != 0, (data[o + 3] & 1) != 0, (data[o + 3] & 4) != 0);
+      return new DrivingInput(data[o + 1] / (double)Scale, data[o + 2] / (double)Scale, data[o] / (double)Scale, (data[o + 3] & 2) != 0, (data[o + 3] & 1) != 0, (data[o + 3] & 4) != 0, (data[o + 3] & 8) != 0 ? 1 : (data[o + 3] & 16) != 0 ? -1 : 0);
     }
 
     /// TS kaydiSerilestir'in veri kısmı: küçük-sonlu int16, base64.
@@ -153,7 +153,7 @@ namespace LastTurn.Core
       for (int i = 0; i < count; i++)
       {
         int o = i * Fields;
-        if (r.data[o] < -Scale || r.data[o + 1] < 0 || r.data[o + 2] < 0 || (r.data[o + 3] & ~7) != 0) throw new FormatException("Girdi kaydı değeri bozuk.");
+        if (r.data[o] < -Scale || r.data[o + 1] < 0 || r.data[o + 2] < 0 || (r.data[o + 3] & ~31) != 0 || (r.data[o + 3] & 24) == 24) throw new FormatException("Girdi kaydı değeri bozuk.");
       }
       return r;
     }
@@ -165,6 +165,8 @@ namespace LastTurn.Core
   {
     public const int Version = 3;
     public string Key = "", RaceType = "", AssistLevel = "norm"; public int Car, StartStep; public double Result; public string[] Parts = Array.Empty<string>();
+    /// Drag manuel: kayıt başındaki motor durumu (geri sayım kalkış hazırlığı) ve şanzıman kipi.
+    public bool Manual; public double StartGas, StartRpm = 900, StartHold;
     public InputRecording Inputs = new();
 
     /// TS hayaletKaydet koşulları: sonlu, negatif değil, kayıt kesik/taşmış/boş değil; var olanı (sürüm 3) iyileştirir
@@ -183,6 +185,7 @@ namespace LastTurn.Core
       n.Set("k", CatalogNode.Str(Key)); n.Set("arac", CatalogNode.Num(Car)); n.Set("surum", CatalogNode.Num(Version)); n.Set("baslangicAdimi", CatalogNode.Num(StartStep));
       n.Set("sure", CatalogNode.Num(Result)); n.Set("tur", CatalogNode.Str(RaceType)); n.Set("yardim", CatalogNode.Str(AssistLevel));
       n.Set("parcalar", CatalogNode.Arr(Parts.Select(CatalogNode.Str)));
+      n.Set("manuel", CatalogNode.Num(Manual ? 1 : 0)); n.Set("basGaz", CatalogNode.Num(StartGas)); n.Set("basDevir", CatalogNode.Num(StartRpm)); n.Set("basTutma", CatalogNode.Num(StartHold));
       n.Set("girdiSurum", CatalogNode.Num(InputRecording.FormatVersion)); n.Set("n", CatalogNode.Num(Inputs.Count)); n.Set("veri", CatalogNode.Str(Inputs.Base64()));
       return n;
     }
@@ -192,11 +195,12 @@ namespace LastTurn.Core
     {
       try
       {
-        if ((int)n["surum"].N(-1) != Version || n["k"].S() != key || (int)n["girdiSurum"].N(-1) != InputRecording.FormatVersion) return null;
+        if ((int)n["surum"].N(-1) != Version || n["k"].S() != key || ((int)n["girdiSurum"].N(-1) is not 1 and not InputRecording.FormatVersion)) return null;
         var g = new GhostRecord
         {
           Key = key, Car = (int)n["arac"].N(-1), StartStep = (int)n["baslangicAdimi"].N(-1), Result = n["sure"].N(double.NaN), RaceType = n["tur"].S(),
           AssistLevel = n["yardim"].S("norm"), Parts = n["parcalar"].Items.Select(p => p.S()).ToArray(),
+          Manual = n["manuel"].N() == 1, StartGas = n["basGaz"].N(), StartRpm = n["basDevir"].N(900), StartHold = n["basTutma"].N(),
         };
         g.Inputs = InputRecording.FromBase64(n["veri"].S(), (int)n["n"].N(-1));
         if (g.Car < 0 || !double.IsFinite(g.Result) || g.StartStep < 0 || g.StartStep >= g.Inputs.Count) return null;
@@ -221,6 +225,7 @@ namespace LastTurn.Core
     {
       Record = record; World = new TrackWorld(track); Vehicle = new PowertrainVehicle(parameters, world: World);
       Vehicle.Place(info.StartX, info.StartZ, info.StartHeading); World.ResetHint(info.StartX, info.StartZ);
+      if (record.Manual) Vehicle.SetStartEngine(record.StartGas, record.StartRpm, record.StartHold);
       for (int n = 0; n < record.StartStep; n++) Vehicle.Step(record.Inputs.At(n));
       Index = record.StartStep;
     }
