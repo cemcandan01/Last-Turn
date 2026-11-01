@@ -43,8 +43,10 @@ for (const type of ["gp", "rx", "rl", "dp", "dg"])
 for (const type of ["gp", "rx", "rl", "dp", "dg"])
   for (let level = 2; level <= 8; level++) ops.push({ type, level, stars: 3 });
 function state() {
+  // Bulut eşitleme saati oyun kuralı değildir; export-garage hattıyla aynı kalıcı oyun alanlarını karşılaştır.
+  const { updatedAt, ...progress } = p.ilerlemeVerisi();
   return {
-    progress: p.ilerlemeVerisi(),
+    progress,
     money: p.para(),
     level: p.seviye().lv,
     open: Object.fromEntries(

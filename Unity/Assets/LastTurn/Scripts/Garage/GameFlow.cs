@@ -45,10 +45,11 @@ namespace LastTurn.Garage
     }
     public static void LeaveDrive(int tab=2,bool home=false)
     {
-      var p=UnityEngine.Object.FindFirstObjectByType<GtPrototype>();if(p)p.FlushProfileDistance();
+      var p=UnityEngine.Object.FindFirstObjectByType<GtPrototype>();
+      if(p && !p.FlushProfileDistance()){Message=GarageRace.LastMessage;return;}
       // İşlem başına disk yazılır; burada son bir güvenli yazım, başarısızsa açık hata.
       if(!GarageSession.Save()){Message=GarageSession.Message;return;}
-      Home=home;Profile=false;GarageTab=tab;Paused=false;
+      Home=home;Profile=false;GarageTab=tab;Paused=false;Message="";
       GarageSession.ReturnToGarage();
     }
   }

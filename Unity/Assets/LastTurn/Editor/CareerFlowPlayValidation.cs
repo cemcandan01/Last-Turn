@@ -24,6 +24,7 @@ namespace LastTurn.EditorValidation
     [Serializable]private sealed class Proof{public string result,utc,error,state,profile;public List<string> checks=new List<string>();public Source[] sources,userFiles;}
     private static Proof proof;private static int phase,index,steps;private static double began,balance;private static RaceTestDriver driver;private static GtPrototype p;
     private static bool droveFree,abandoned;private static Keyboard keyboard;private static double kmBefore,pauseTime;private static int pauseTick;
+    private static double resultAt;private static bool captured;
     private static string Project=>System.IO.Path.GetDirectoryName(Application.dataPath);
     private static string Running=>System.IO.Path.Combine(Project,"Logs/p1-running.json");
     static CareerFlowPlayValidation(){EditorApplication.playModeStateChanged+=Changed;}
@@ -52,6 +53,11 @@ namespace LastTurn.EditorValidation
       {
         if(EditorApplication.timeSinceStartup-began>120)throw new TimeoutException("P1 kısa Play süre sınırı.");
         var screen=UnityEngine.Object.FindFirstObjectByType<GarageScreen>();
+        if(phase==30)
+        {
+          if(!captured && EditorApplication.timeSinceStartup-resultAt>.2){ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(Project,"Logs/p1-result-"+keys[index]+".png"));captured=true;}
+          if(EditorApplication.timeSinceStartup-resultAt>.5){GameFlow.LeaveDrive();index++;phase=4;}return;
+        }
         if(phase==10)
         {
           p=UnityEngine.Object.FindFirstObjectByType<GtPrototype>();if(!p || p.Race!=null)return;
@@ -63,12 +69,22 @@ namespace LastTurn.EditorValidation
         {
           Check(p.Simulation.Body.Steps==pauseTick,"Gerçek Update duraklatmada fizik ilerlemedi");
           p.FlushProfileDistance();Check(GarageRace.ProfileStore().Load().Km>kmBefore,"Yarış dışı gerçek klavye sürüşü km kaydına işlendi");
+          ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(Project,"Logs/p1-pause.png"));pauseTime=EditorApplication.timeSinceStartup;phase=13;return;
+        }
+        if(phase==13 && EditorApplication.timeSinceStartup-pauseTime>.3)
+        {
           if(keyboard!=null && keyboard.added)InputSystem.RemoveDevice(keyboard);keyboard=null;droveFree=true;GameFlow.LeaveDrive();phase=4;return;
         }
         if(phase==20)
         {
           p=UnityEngine.Object.FindFirstObjectByType<GtPrototype>();if(!p||p.Race==null)return;p.ManualStepping=true;driver=RaceTestDriver.For("gp");
           while(p.Race.Session.State==RaceState.Countdown)p.StepRace(driver.Countdown(p.Race));for(int n=0;n<180;n++)p.StepRace(driver.Input(p.Race));
+          // Gerçek geçici profilin atomik yazım yolunu kısa süre kapat: veri yazılamazsa sahneden çıkıp km'yi kaybetme.
+          string blocked=System.IO.Path.Combine(GarageRace.ProfileStore().Directory,"races.json.tmp");
+          Check(!File.Exists(blocked)&&!Directory.Exists(blocked),"Geçici hata yolu test profiline ait ve boş");
+          Directory.CreateDirectory(blocked);
+          try{GameFlow.LeaveDrive();Check(SceneManager.GetActiveScene().name=="RaceTest" && GameFlow.Message.Contains("Kilometre"),"I/O hatasında dönüş iptal, km bellekte ve hata görünür");}
+          finally{Directory.Delete(blocked);}
           GameFlow.LeaveDrive();abandoned=true;phase=4;return;
         }
         if(phase==90 && screen)
@@ -105,7 +121,7 @@ namespace LastTurn.EditorValidation
           var expected=GarageSession.Catalog.Reward(p.Race.Event.Type,1,s.Stars,0);
           Check(s.Xp==expected["xp"].N() && s.Money==expected["para"].N() && GarageSession.State.Balance==balance+s.Money,"TS ödül gerçek kayda işlendi "+keys[index]);
           double km=GarageRace.ProfileStore().Load().Km;p.FlushProfileDistance();p.FlushProfileDistance();Check(GarageRace.ProfileStore().Load().Km==km,"Tekrarlı flush km çoğaltmadı "+keys[index]);
-          GameFlow.LeaveDrive();index++;phase=4;return;
+          resultAt=EditorApplication.timeSinceStartup;captured=false;phase=30;return;
         }
         if(phase==4 && screen)
         {

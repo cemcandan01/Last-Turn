@@ -9,7 +9,7 @@ namespace LastTurn.Prototype
   public sealed class RaceHud : MonoBehaviour
   {
     private GtPrototype prototype;
-    private GUIStyle big, text, center, title;
+    private GUIStyle big, text, center, title, resultButton;
     private string note = ""; private float noteUntil; private int seenNotes;
     private RaceSession seenSession;
 
@@ -33,8 +33,10 @@ namespace LastTurn.Prototype
         text = new GUIStyle(GUI.skin.label) { fontSize = 16, wordWrap = true };
         title = new GUIStyle(text) { fontStyle = FontStyle.Bold };
         center = new GUIStyle(big) { alignment = TextAnchor.MiddleCenter, fontSize = 54 };
+        resultButton=new GUIStyle(GUI.skin.button){fontSize=18,wordWrap=true};
       }
-      var s = race.Session; var m = RaceViewModel.Hud(s, race.World.Hint, note);
+      var s = race.Session;if(s.State==RaceState.Finished){Result(s);return;}
+      var m = RaceViewModel.Hud(s, race.World.Hint, note);
       GUILayout.BeginArea(new Rect(12, 12, 460, 176), GUI.skin.box);
       GUILayout.Label(m.Title, title); GUILayout.Label(m.Big, big); GUILayout.Label(m.Sub, text);
       if (m.Drift != "" || m.X6 != "") GUILayout.Label(m.Drift + "   " + m.X6, text);
@@ -62,7 +64,6 @@ namespace LastTurn.Prototype
         GUI.Label(new Rect(bar.x, bar.y - 30, 440, 28), "Vites " + d.Gear + " · " + d.Rpm.ToString("F0") + " devir   " + d.Light, big);
         GUI.Label(new Rect(bar.x, bar.y + 28, 600, 24), d.Help, text);
       }
-      if (s.State == RaceState.Finished) Result(s);
     }
 
     private void Result(RaceSession s)
@@ -70,7 +71,9 @@ namespace LastTurn.Prototype
       var garage = GarageSession.State;
       var r = RaceViewModel.Result(s, garage != null ? garage.StarsOf(s.Event.Type, s.Event.Level) : 0, GarageRace.LastPreviousBest, GarageRace.LastNewRecord);
       float width=Mathf.Min(520,Screen.width-24),height=Mathf.Min(580,Screen.height-24);
-      GUILayout.BeginArea(new Rect((Screen.width-width)/2,(Screen.height-height)/2,width,height), GUI.skin.box);
+      var area=new Rect((Screen.width-width)/2,(Screen.height-height)/2,width,height);
+      var oldColor=GUI.color;GUI.color=new Color(.035f,.045f,.06f);GUI.DrawTexture(area,Texture2D.whiteTexture);GUI.color=oldColor;
+      GUILayout.BeginArea(area, GUI.skin.box);
       resultScroll=GUILayout.BeginScrollView(resultScroll);
       GUILayout.Label(r.Header, big);
       foreach (var row in r.Rows) GUILayout.Label(row.Label + ":  " + row.Value, text);
@@ -81,10 +84,10 @@ namespace LastTurn.Prototype
       if (s.Career) GUILayout.Label(GarageSession.Message, text);
       if (GarageRace.LastMessage != "") GUILayout.Label(GarageRace.LastMessage, text);
       GUILayout.BeginHorizontal();
-      if (GUILayout.Button("Yeniden başlat", GUILayout.Height(34))) prototype.RestartRace();
-      if (GUILayout.Button("Kariyere dön", GUILayout.Height(46)))GameFlow.LeaveDrive();
+      if (GUILayout.Button("Yeniden başlat",resultButton,GUILayout.Height(46))) prototype.RestartRace();
+      if (GUILayout.Button("Kariyere dön",resultButton,GUILayout.Height(46)))GameFlow.LeaveDrive();
       GUILayout.EndHorizontal();
-      if(GUILayout.Button("Garaja dön",GUILayout.Height(46)))GameFlow.LeaveDrive(0);
+      if(GUILayout.Button("Garaja dön",resultButton,GUILayout.Height(46)))GameFlow.LeaveDrive(0);
       GUILayout.EndScrollView();
       GUILayout.EndArea();
     }

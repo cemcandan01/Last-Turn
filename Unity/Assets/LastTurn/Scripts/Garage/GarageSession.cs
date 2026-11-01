@@ -76,7 +76,7 @@ namespace LastTurn.Garage
     {if(GarageSession.DriveActive && (scene.name=="GTTest" || scene.name=="TerrainTest"))new GameObject("Garaja dönüş").AddComponent<GarageDriveOverlay>();}
     private void OnGUI()
     {
-      if(!GarageSession.DriveActive)return;
+      if(!GarageSession.DriveActive || GameFlow.Paused)return;
       GUILayout.BeginArea(new Rect(Screen.width-350,12,336,110),GUI.skin.box);
       GUILayout.Label(GarageSession.DriveSetup.Car["n"].S()+" • kayıtlı garaj kurulumu");
       GUILayout.Label("Takılı: "+(GarageSession.DriveSetup.Parts.Length==0?"Stok":string.Join(", ",GarageSession.DriveSetup.Parts)));

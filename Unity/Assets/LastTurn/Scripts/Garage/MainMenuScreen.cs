@@ -27,7 +27,9 @@ namespace LastTurn.Garage
       {if(GUI.Button(new Rect(Screen.width-152,58,140,44),"Duraklat / Esc",button))GameFlow.Pause(true);return;}
       if(garage && !GameFlow.Home && !GameFlow.Profile){editing=false;return;}
       float width=Mathf.Min(820,Screen.width-24);
-      GUILayout.BeginArea(new Rect((Screen.width-width)/2,12,width,Screen.height-24),GUI.skin.box);
+      var area=new Rect((Screen.width-width)/2,12,width,Screen.height-24);
+      var oldColor=GUI.color;GUI.color=new Color(.035f,.045f,.06f);GUI.DrawTexture(area,Texture2D.whiteTexture);GUI.color=oldColor;
+      GUILayout.BeginArea(area,GUI.skin.box);
       scroll=GUILayout.BeginScrollView(scroll);
       if(!garage)
       {

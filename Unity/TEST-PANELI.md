@@ -1,6 +1,6 @@
 # Test paneli — kısa kullanım
 
-1. **Last Turn → Garaj Sahnesini Aç**, sonra **Play**. Game alanı küçükse Game sekmesine sağ tık → **Maximize**. Panel yazıyı küçültmez; dar alanda Test sekmesi kısa adla görünür ve bölüm içeriği kaydırılır.
+1. **Last Turn → Ana Menüyü Aç**, sonra **Play**. Ana menüden **Garaj / Mağaza**, **Kariyer / Yarışlar** veya **Test / Geliştirici** seç. Game alanı küçükse Game sekmesine sağ tık → **Maximize**. Panel yazıyı küçültmez; dar alanda Test sekmesi kısa adla görünür ve bölüm içeriği kaydırılır.
 2. **Garaj:** sahip olunan araç / mağaza, araç seçimi ve istatistikler. **Modifiye:** parça önizleme, al/tak/sök, paketler. Satın alma ikinci basışla onaylanır.
 3. **Yarışlar → Drag → ilk pist (dg_1) → Yarışı Başlat**. Başlatma düğmesi alt satırda kalır. Asfalt, Rallikros, Ralli ve Drift de aynı yerde; her türün sekiz pisti vardır. Kilitli seçim nedenini mesaj satırında açıklar.
 4. **Test / Geliştirici:** tek tıklamayla dg_1, GTTest, TerrainTest ve RaceTest; ayrı test profili, kaydet ve yeniden yükle. Oyuncu kaydını değiştirmeden denemek için önce ayrı test profilini aç.

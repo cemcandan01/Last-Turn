@@ -1,4 +1,12 @@
-# Son devir: P1 kariyer uygulaması (2026-11-01) — son Play kullanıcı Esc'iyle kesildi
+# Son devir: P1 tamamlandı ve doğrulandı (2026-11-01) — P2 onayı bekleniyor
+
+- Dal `codex/unity-p1-kariyer`, ara commit `0f83963`; aynı kart `docs/isler/2026-11-01-unity-tam-aktarim.md`. Kapanış SHA'sı kartı son değiştiren yerel commit'tir. Tek Codex; Claude/alt ajan/API/ek kredi yok. **P1 kapandı, P2 başlatılmadı.** Push/merge/yayın/uzun regresyon yok.
+- Ana menü → garaj/kariyer → gerçek yarış → sonuç/ödül → kariyer; profil adı/sayaç/km ve pause/devam/dönüş bağları çalışır. Ekonomi/XP/yıldız/kapılar eski servislerden. Kilometre yazılamazsa sahneden çıkış iptal edilip hata görünür; gerçek I/O ret/yeniden deneme testli. Sonuç/pause taşmaları kapandı; rehber `Unity/KARIYER-AKISI.md`.
+- Son **P1 Play 65/65**, UTC **15:35:48**, 187 kaynak hash'i güncel: beş tür tamamlandı, gerçek GT klavye sürüşü/pause, yarım yarışın ödülsüz km kaydı, iki Play oturumunda ilerleme/profil aynı, oyuncu dosyaları değişmedi. Görseller `Unity/Logs/p1-result-*.png`, `p1-pause.png`; ajan görsel denetimi yapıldı, Cem'in manuel kabulü değildir.
+- .NET P1 **3597**, sayısal fark **0**; Release 0 hata/uyarı. Yarış **293455**, kayıt **66** önceki aynı Core kanıtı yeniden kullanılır. Oracle'ın değişken `updatedAt` saati ayrıldı; diğer 61 snapshot alanları/sayıları değişmedi; peş peşe export ve `--check` başarılı. Dar CI adımları eklendi; uzak CI koşmadı. Editor 37 Core/600+600+1200+6 smoke başarılı. Kanıtlar `tests/cikti/p1-*.txt`.
+- **Sonraki tek adım:** Cem'in yeni onayıyla P2 (fiziksel dünya/engel çarpışması/açık dünya/YZ) aynı karttan ayrı dalda başlatılabilir. Kariyere yeni rakip/denge kuralı eklenmez. `_Recovery` korunur; Editor'ın otomatik QualitySettings değişikliği teslim dışıdır.
+
+# Önceki devir: P1 kariyer uygulaması (2026-11-01) — son Play kullanıcı Esc'iyle kesildi
 
 - Dal `codex/unity-p1-kariyer`, taban `bbdebfe`; aynı kart `docs/isler/2026-11-01-unity-tam-aktarim.md`. Sahip tek Codex, Cem açıkça seçti; Claude/alt ajan/API/ek kredi çağrısı yok. **P1 henüz kapanmadı; P2 başlamaz.**
 - Ana menü/garaj/kariyer/profil bağları, pause/devam/dönüş, sonuçtan kariyere dönüş, ad ve eksik km kayıt akışları uygulandı. Mevcut ekonomi/ödül/kapı/fizik korunur. Manuel rehber `Unity/KARIYER-AKISI.md`.
