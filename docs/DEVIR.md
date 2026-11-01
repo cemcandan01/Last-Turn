@@ -1,4 +1,12 @@
-# Son devir: Unity tam aktarım kapsam denetimi (2026-11-01) — uygulama sahibi teyidi bekliyor
+# Son devir: P1 kariyer uygulaması (2026-11-01) — son Play kullanıcı Esc'iyle kesildi
+
+- Dal `codex/unity-p1-kariyer`, taban `bbdebfe`; aynı kart `docs/isler/2026-11-01-unity-tam-aktarim.md`. Sahip tek Codex, Cem açıkça seçti; Claude/alt ajan/API/ek kredi çağrısı yok. **P1 henüz kapanmadı; P2 başlamaz.**
+- Ana menü/garaj/kariyer/profil bağları, pause/devam/dönüş, sonuçtan kariyere dönüş, ad ve eksik km kayıt akışları uygulandı. Mevcut ekonomi/ödül/kapı/fizik korunur. Manuel rehber `Unity/KARIYER-AKISI.md`.
+- .NET: yeni TS–C# P1 **3597**, fark 0; yarış oturumu **293455**, fark 1,33e−15; kayıt **66**, Release 0 hata/uyarı. İlk gerçek P1 Play menüden beş yarışı bitirdi, ödülü ve iki Play oturumunda yeniden açmayı doğruladı; oyuncu dosyaları korundu (UTC 15:25:38).
+- Sonrasında test kapsamına yarım yarış ve gerçek klavye GT km/pause kontrolü eklendi. Son kaynak için Play yeniden koşulmadan kullanıcı fiziksel Esc ile Computer Use'u durdurdu; tekrar UI girdisi gönderilmedi. Eski Play kanıtı güncel sayılmaz.
+- **Sonraki tek adım:** kullanıcı devamından sonra P1 kısa Play ve `check-career-flow-proof.mjs`, temel menü/sonuç görsel kontrolü; sonra P1 kapanışı + yerel commit ve P2 onayı bekle. `_Recovery` korunur; push/merge/yayın/uzun regresyon yok.
+
+# Önceki devir: Unity tam aktarım kapsam denetimi (2026-11-01) — uygulama sahibi teyidi bekliyor
 
 - Dal `codex/unity-aktarim-matrisi`, taban `a991221`; tek kart `docs/isler/2026-11-01-unity-tam-aktarim.md`. Matris ve beş büyük paket hazır; **P1 uygulanmadı**. Tamamlandı iddiası yok. Kullanıcı Claude devam edecek dedi; mesaj Codex'e geldi. Uygulayıcı tercihi soruldu; yanıt gelmeden paralel kod yazılmadı.
 - TS sabit SHA'daki **122/122 kaynak dosyası** hash'li envanterde; `node Unity/Validation/check-migration-scope.mjs` kapsamı, TS çalışma kaynağını ve matris bağlantılarını denetler. Bu davranış eşdeğerliği testi değildir. Sekiz mevcut Editor/Play kanıt okuyucusu güncel kaynakla başarılı; uzun regresyon ve yeni Play tekrarlanmadı.

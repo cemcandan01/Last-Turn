@@ -24,6 +24,7 @@ namespace LastTurn.Prototype
     private GtKeyboardInput input;
     private double previousSteer;
     private bool focused = true;
+    private double pendingProfileKm,observedRaceKm;
     private readonly List<DrivingInput> trace = new List<DrivingInput>();
     private GUIStyle title, digits, text;
     private float frameSeconds = 1f / 60;
@@ -58,18 +59,27 @@ namespace LastTurn.Prototype
       input = new GtKeyboardInput(); ResetVehicle();
     }
     private void OnEnable() { input?.Enable(); }
-    private void OnDisable() { input?.Disable(); }
+    private void OnDisable() { FlushProfileDistance();input?.Disable(); }
+    private void OnApplicationQuit(){FlushProfileDistance();}
+    private void OnApplicationPause(bool paused){if(paused)FlushProfileDistance();}
+    private void ObserveRaceDistance(){if(Race==null)return;pendingProfileKm+=Math.Max(0,Race.Km-observedRaceKm);observedRaceKm=Race.Km;}
+    public bool FlushProfileDistance()
+    {
+      ObserveRaceDistance();if(pendingProfileKm==0)return true;
+      if(!GarageRace.Distance(pendingProfileKm))return false;pendingProfileKm=0;return true;
+    }
     private void OnDestroy() { input?.Dispose(); }
     private void OnApplicationFocus(bool value) { focused = value; if (value) input?.Enable(); else input?.Disable(); }
     public void ResetVehicle()
     {
+      FlushProfileDistance();
       Simulation = new PowertrainVehicle(parameters,world:world); runner = new PowertrainFixedStepRunner(Simulation);
       trace.Clear(); previousSteer = 0; CurrentInput = default; RestartCount++;
       followCamera.ResetFollow(); RenderFrame(0);
     }
     private void Update()
     {
-      if (!focused) return;
+      if (!focused || GameFlow.Paused) return;
       if (Race != null) { UpdateRace(); return; }
       if (input.ConsumeRestart()) { ResetVehicle(); return; }
       CurrentInput = input.Read();
@@ -78,7 +88,8 @@ namespace LastTurn.Prototype
         previousSteer = Simulation.Engine.SteeringAngle;
         if (trace.Count < 7200) trace.Add(CurrentInput);
         return CurrentInput;
-      });
+      },()=>{if(GarageSession.DriveActive){var v=Simulation.Body.Velocity;pendingProfileKm+=JsMath.Hypot(v.X,v.Z)*PowertrainVehicle.FixedDelta/1000;
+        if(Simulation.Body.Steps%1200==0)FlushProfileDistance();}return true;});
       frameSeconds = Mathf.Lerp(frameSeconds, Time.unscaledDeltaTime, .05f);
     }
     private void LateUpdate() { RenderFrame(Mathf.Min(Time.unscaledDeltaTime, .1f)); }
@@ -132,6 +143,7 @@ namespace LastTurn.Prototype
     public void InitializeRace() => InitializeRace(RaceTrack);
     public void InitializeRace(string key)
     {
+      FlushProfileDistance();observedRaceKm=0;
       var data = RaceData.Load(); var info = data.Event(key); var track = data.Tracks.Tracks[info.Index];
       if (key != RaceTrack) { trackVisuals.Build(track); RaceTrack = key; }
       var drive = GarageRace.Prepare(info);
@@ -148,7 +160,7 @@ namespace LastTurn.Prototype
       Race = new RaceRun(Simulation, RaceWorld, info, hint => new RaceSession(info, track, drive.Career, hint, drive.Career ? GarageRace.Reward : null),
         drive.Setup != null && drive.Parameters != null ? RaceDrift.MaxAngle(drive.Setup) : double.PositiveInfinity);
       // TS startEvent: kullanım sayacı ve rekor hayaleti; endEvent: rekor/profil/hayalet kaydı.
-      Race.Finished += run => GarageRace.Finished(run, drive);
+      Race.Finished += run => {FlushProfileDistance();GarageRace.Finished(run, drive);};
       Race.GhostFactory = () => GarageRace.Ghost(info, track, Race.Session.RecordKey); Race.StartGhost();
       RecordText = RaceRecordText(); if (drive.Parameters != null) GarageRace.Started(drive.Car); raceDrive = drive;
       runner.SyncPrevious(); previousSteer = 0; followCamera.ResetFollow(); RenderFrame(0);
@@ -180,6 +192,7 @@ namespace LastTurn.Prototype
     private bool AfterRaceStep()
     {
       int teleports = Race.Teleports; Race.AfterPhysicsStep(lastQuantized);
+      ObserveRaceDistance();if(Simulation.Body.Steps%1200==0)FlushProfileDistance();
       if (Race.Teleports != teleports) { runner.SyncPrevious(); followCamera.ResetFollow(); }
       return Race.PhysicsRunning;
     }
@@ -197,15 +210,16 @@ namespace LastTurn.Prototype
       }
       catch (Exception e) { return "Rekor okunamadı: " + e.Message; }
     }
-    public void RestartRace() { if (raceDrive != null && raceDrive.Parameters != null) GarageRace.Started(raceDrive.Car); Race.Restart(); RecordText = RaceRecordText(); runner.SyncPrevious(); previousSteer = 0; followCamera.ResetFollow(); RenderFrame(0); RestartCount++; }
+    public void RestartRace() { FlushProfileDistance();if (raceDrive != null && raceDrive.Parameters != null) GarageRace.Started(raceDrive.Car); Race.Restart(); observedRaceKm=0;RecordText = RaceRecordText(); runner.SyncPrevious(); previousSteer = 0; followCamera.ResetFollow(); RenderFrame(0); RestartCount++; }
     /// Doğrulama: bir sabit adım (geri sayımda 1/60 sn sayaç, yarışta fizik + yarış adımı).
     public void StepRace(DrivingInput value)
     {
+      if(GameFlow.Paused)return;
       CurrentInput = value;
       if (Race.Session.State == RaceState.Countdown) { Race.TickCountdown(PowertrainVehicle.FixedDelta, value); return; }
       if (Race.Session.State != RaceState.Running) return;
       previousSteer = Simulation.Engine.SteeringAngle;
-      Race.Step(value); runner.SyncPrevious();
+      Race.Step(value); ObserveRaceDistance();if(Simulation.Body.Steps%1200==0)FlushProfileDistance();runner.SyncPrevious();
     }
     public void ConfigureRace(string key, RaceTrackVisuals visuals)
     {
@@ -304,7 +318,7 @@ namespace LastTurn.Prototype
 
     private void OnGUI()
     {
-      if (Simulation == null) return;
+      if (Simulation == null || GameFlow.Paused || Race!=null) return;
       if (title == null)
       {
         title = new GUIStyle(GUI.skin.label) { fontSize = 13, fontStyle = FontStyle.Bold, normal = { textColor = new Color(.95f,.32f,.2f) } };

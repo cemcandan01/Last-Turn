@@ -24,7 +24,7 @@ namespace LastTurn.Garage
       if(row==null){Error="Yarış bulunamadı: "+key;return false;}
       if(!row.Open){Error=row.Name+" ("+key+") kilitli. XP seviyesi veya önceki kupa başarısı gerekli. Ayrı test profili Test / Geliştirici bölümündedir.";return false;}
       string old=RaceData.Selected;RaceData.Selected=key;
-      if(OpenScene("RaceTest"))return true;RaceData.Selected=old;return false;
+      if(OpenScene("RaceTest")){GameFlow.LastRaceKey=key;return true;}RaceData.Selected=old;return false;
     }
     public static bool OpenScene(string scene)
     {

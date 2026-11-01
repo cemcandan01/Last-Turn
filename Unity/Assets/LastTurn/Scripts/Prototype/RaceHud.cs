@@ -26,7 +26,7 @@ namespace LastTurn.Prototype
 
     private void OnGUI()
     {
-      var race = prototype ? prototype.Race : null; if (race == null) return;
+      var race = prototype ? prototype.Race : null; if (race == null || GameFlow.Paused) return;
       if (big == null)
       {
         big = new GUIStyle(GUI.skin.label) { fontSize = 30, fontStyle = FontStyle.Bold };
@@ -69,7 +69,9 @@ namespace LastTurn.Prototype
     {
       var garage = GarageSession.State;
       var r = RaceViewModel.Result(s, garage != null ? garage.StarsOf(s.Event.Type, s.Event.Level) : 0, GarageRace.LastPreviousBest, GarageRace.LastNewRecord);
-      GUILayout.BeginArea(new Rect(Screen.width / 2f - 230, Screen.height / 2f - 190, 460, 380), GUI.skin.box);
+      float width=Mathf.Min(520,Screen.width-24),height=Mathf.Min(580,Screen.height-24);
+      GUILayout.BeginArea(new Rect((Screen.width-width)/2,(Screen.height-height)/2,width,height), GUI.skin.box);
+      resultScroll=GUILayout.BeginScrollView(resultScroll);
       GUILayout.Label(r.Header, big);
       foreach (var row in r.Rows) GUILayout.Label(row.Label + ":  " + row.Value, text);
       GUILayout.Label("Yıldız " + r.Stars + " / 3", title);
@@ -80,10 +82,12 @@ namespace LastTurn.Prototype
       if (GarageRace.LastMessage != "") GUILayout.Label(GarageRace.LastMessage, text);
       GUILayout.BeginHorizontal();
       if (GUILayout.Button("Yeniden başlat", GUILayout.Height(34))) prototype.RestartRace();
-      if (GUILayout.Button("Garaja dön", GUILayout.Height(34)))
-      { if (GarageSession.DriveActive) GarageSession.ReturnToGarage(); else SceneManager.LoadScene("Garage"); }
+      if (GUILayout.Button("Kariyere dön", GUILayout.Height(46)))GameFlow.LeaveDrive();
       GUILayout.EndHorizontal();
+      if(GUILayout.Button("Garaja dön",GUILayout.Height(46)))GameFlow.LeaveDrive(0);
+      GUILayout.EndScrollView();
       GUILayout.EndArea();
     }
+    private Vector2 resultScroll;
   }
 }

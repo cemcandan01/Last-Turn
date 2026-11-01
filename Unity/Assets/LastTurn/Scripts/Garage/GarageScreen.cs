@@ -19,7 +19,7 @@ namespace LastTurn.Garage
     public int ViewedCar=>viewCar;
     public int SelectedTab=>section;
     public string SelectedRaceKey=>raceKey;
-    private void Awake(){GarageSession.EnsureLoaded();viewCar=GarageSession.State.SelectedCar;Refresh();}
+    private void Awake(){GarageSession.EnsureLoaded();viewCar=GarageSession.State.SelectedCar;section=GameFlow.GarageTab;Refresh();SelectTrack(GameFlow.LastRaceKey);}
     public void ViewCar(int index){viewCar=index;previewPart="";confirmKey="";Refresh();}
     private void Refresh(){if(GarageSession.State==null)return;detail=GarageViewModel.Detail(GarageSession.State,viewCar,previewPart);seenState=GarageSession.State;}
     public void SelectTab(int value){section=Mathf.Clamp(value,0,4);scroll=Vector2.zero;confirmKey="";localMessage="";TestPanelActions.ClearError();}
@@ -50,10 +50,11 @@ namespace LastTurn.Garage
     }
     private void OnGUI()
     {
-      if(GarageSession.State==null)return;Styles();if(seenState!=GarageSession.State)Refresh();
+      if(GarageSession.State==null || GameFlow.Home || GameFlow.Profile)return;Styles();if(seenState!=GarageSession.State)Refresh();
       float width=Screen.width-24;
       GUILayout.BeginArea(new Rect(12,12,width,Math.Max(120,Screen.height-24)),GUI.skin.box);
-      GUILayout.Label("LAST TURN / TEST PANELİ",title);
+      if(Button("Ana Menü",height:44))GameFlow.MainMenu();
+      GUILayout.Label(section==2?"KARİYER / YARIŞLAR":"LAST TURN / GARAJ",title);
       GUILayout.Label("Sürüş: "+GarageViewModel.Cars(GarageSession.State)[GarageSession.State.SelectedCar].Name+"   |   Bakiye "+GarageSession.State.Balance.ToString("N0")+"   |   Seviye "+GarageSession.State.Level,text);
       var navStyle=width>=760?button:new GUIStyle(button){fontSize=width<480?14:16,padding=new RectOffset(4,4,8,8)};
       var tabs=width>=760?TestPanelModel.Tabs:new[]{"Garaj","Modifiye","Yarışlar","Test","Ayarlar"};

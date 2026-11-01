@@ -63,7 +63,7 @@ namespace LastTurn.Garage
       try
       {
         var store = ProfileStore(); var p = store.Load(); var s = run.Session;
-        LastNewRecord = p.Finished(s, out LastPreviousBest); p.Km += run.Km; store.Save(p);
+        LastNewRecord = p.Finished(s, out LastPreviousBest); store.Save(p);
         if (drive.Setup != null && drive.Parameters != null)
         {
           var existing = store.LoadGhost(s.RecordKey); var inputs = run.Recording;
@@ -79,6 +79,15 @@ namespace LastTurn.Garage
       catch (IOException e) { LastMessage = "Rekor/hayalet yazılamadı: " + e.Message; }
     }
     private static string inputsNote(RaceRun run) => run.Recording.Cut ? "Piste dönüş/yeniden doğ kaydı kesti: hayalet yok." : "";
+
+    // TS surusAdimi: yarış dışındaki yol ve yarıda bırakılan yarış da toplam yola dahildir.
+    public static bool Distance(double km)
+    {
+      if(double.IsNaN(km)||double.IsInfinity(km)||km<0)return false;if(km==0)return true;
+      if(GarageSession.Store==null || GarageSession.Store.ReadOnly)return false;
+      try { var store=ProfileStore();var p=store.Load();p.Drove(km*1000,0,1);store.Save(p);return true; }
+      catch(Exception e) { LastMessage="Kilometre kaydedilemedi: "+e.Message;return false; }
+    }
 
     /// Kayıtlı hayaleti kendi araç kurulumuyla oyuncudan ayrı fizikte oynat (yoksa null).
     public static GhostPlayer Ghost(RaceEventInfo info, TrackDefinition track, string recordKey)

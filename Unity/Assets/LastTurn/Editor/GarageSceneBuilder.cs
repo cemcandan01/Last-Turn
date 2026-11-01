@@ -41,5 +41,7 @@ namespace LastTurn.EditorValidation
     [MenuItem("Last Turn/Garaj Sahnesini Aç")]
     public static void Open()
     {EnsureScene();if(!EditorApplication.isPlayingOrWillChangePlaymode && EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())EditorSceneManager.OpenScene(ScenePath,OpenSceneMode.Single);}
+    [MenuItem("Last Turn/Ana Menüyü Aç")]
+    public static void OpenMainMenu()=>Open();
   }
 }

@@ -12,6 +12,7 @@ namespace LastTurn.Core
   {
     public readonly string Directory;
     public string Message { get; private set; } = "";
+    public bool ReadOnly { get; private set; }
     public RaceProfileStore(string directory) { Directory = directory; }
     private string ProfilePath => System.IO.Path.Combine(Directory, "races.json");
     private string GhostPath(string key) => System.IO.Path.Combine(Directory, "ghost-" + string.Concat(key.Select(c => char.IsLetterOrDigit(c) || c == '_' ? c : '-')) + ".json");
@@ -19,9 +20,9 @@ namespace LastTurn.Core
     public RaceProfile Load()
     {
       try { return System.IO.File.Exists(ProfilePath) ? RaceProfile.Restore(CatalogNode.Parse(System.IO.File.ReadAllText(ProfilePath))) : new RaceProfile(); }
-      catch (Exception e) when (e is FormatException || e is System.IO.IOException || e is ArgumentException) { Message = "Yarış profili okunamadı, boş başlatıldı: " + e.Message; return new RaceProfile(); }
+      catch (Exception e) when (e is FormatException || e is System.IO.IOException || e is ArgumentException || e is UnauthorizedAccessException) { ReadOnly = true; Message = "Profil okunamadı; dosya korunuyor, yazma kapalı: " + e.Message; return new RaceProfile(); }
     }
-    public void Save(RaceProfile profile) => Write(ProfilePath, profile.Snapshot().ToString());
+    public void Save(RaceProfile profile) { if(ReadOnly)throw new System.IO.IOException(Message); Write(ProfilePath, profile.Snapshot().ToString()); }
 
     public GhostRecord? LoadGhost(string key)
     {
@@ -43,6 +44,13 @@ namespace LastTurn.Core
   public sealed class RaceProfile
   {
     public const int Version = 1;
+    public string Name = "Sürücü";
+    // TS menu.ts: trim().slice(0,20) || "Sürücü" (UTF-16 kod birimleri).
+    public void Rename(string value)
+    {
+      string s=(value??"").Trim(' ','\t','\n','\r','\v','\f','\u00a0','\u1680','\u2000','\u2001','\u2002','\u2003','\u2004','\u2005','\u2006','\u2007','\u2008','\u2009','\u200a','\u2028','\u2029','\u202f','\u205f','\u3000','\ufeff');
+      Name=s.Length==0?"Sürücü":s.Substring(0,Math.Min(20,s.Length));
+    }
     /// TS sv_<k>: rekor metin olarak (zamanlı: toFixed(2|3), drift: puan).
     public readonly Dictionary<string, string> Records = new(StringComparer.Ordinal);
     public int Races, Wins;
@@ -82,7 +90,7 @@ namespace LastTurn.Core
     {
       var n = CatalogNode.Obj(); n.Set("surum", CatalogNode.Num(Version));
       var rec = CatalogNode.Obj(); foreach (var p in Records.OrderBy(p => p.Key, StringComparer.Ordinal)) rec.Set(p.Key, CatalogNode.Str(p.Value)); n.Set("sv", rec);
-      var prof = CatalogNode.Obj(); prof.Set("races", CatalogNode.Num(Races)); prof.Set("wins", CatalogNode.Num(Wins)); prof.Set("km", CatalogNode.Num(Km));
+      var prof = CatalogNode.Obj(); prof.Set("name", CatalogNode.Str(Name)); prof.Set("races", CatalogNode.Num(Races)); prof.Set("wins", CatalogNode.Num(Wins)); prof.Set("km", CatalogNode.Num(Km));
       var use = CatalogNode.Obj(); foreach (var p in Use.OrderBy(p => p.Key)) use.Set(p.Key.ToString(CultureInfo.InvariantCulture), CatalogNode.Num(p.Value)); prof.Set("use", use);
       n.Set("prof", prof); return n;
     }
@@ -93,6 +101,7 @@ namespace LastTurn.Core
       var p = new RaceProfile();
       foreach (var r in n["sv"].Fields) p.Records[r.Key] = r.Value.S();
       var prof = n["prof"]; p.Races = (int)prof["races"].N(); p.Wins = (int)prof["wins"].N(); p.Km = prof["km"].N();
+      p.Name=prof["name"].S("Sürücü");
       foreach (var u in prof["use"].Fields) p.Use[int.Parse(u.Key, CultureInfo.InvariantCulture)] = (int)u.Value.N();
       if (p.Races < 0 || p.Wins < 0 || p.Wins > p.Races || !(p.Km >= 0)) throw new FormatException("Yarış profili sayaçları bozuk.");
       return p;

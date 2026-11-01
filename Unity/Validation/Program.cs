@@ -1,6 +1,8 @@
 using System.Text.Json;
 using LastTurn.Core;
 
+if(args.Contains("--career-flow")){CareerFlowValidation.Run();return;}
+
 if(args.Contains("--panel")){TestPanelValidation.Run();return;}
 
 if(args.Contains("--garage")){GarageValidation.Run();return;}
