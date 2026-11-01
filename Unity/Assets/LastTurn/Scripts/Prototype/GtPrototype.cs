@@ -359,7 +359,7 @@ namespace LastTurn.Prototype
       }
       var old = GUI.matrix; float scale = Mathf.Clamp(Screen.width / 1280f,.8f,1.6f); GUI.matrix = Matrix4x4.Scale(new Vector3(scale,scale,1));
       GUI.Box(new Rect(14,14,300,202), GUIContent.none);
-      GUI.Label(new Rect(28,23,270,22),terrainMode?"LAST TURN  /  ARAZİ TESTİ":"LAST TURN  /  GT TEST",title);
+      GUI.Label(new Rect(28,23,270,22),OpenTerrain!=null?"LAST TURN  /  "+OpenTerrain.Region.Name:terrainMode?"LAST TURN  /  ARAZİ TESTİ":"LAST TURN  /  GT TEST",title);
       var s = Simulation.Body; var e = Simulation.Engine;
       GUI.Label(new Rect(26,42,220,48),$"{s.Velocity.Length*3.6:0} km/sa",digits);
       GUI.Label(new Rect(235,51,65,38),e.Gear<0?"R":e.Gear.ToString(),digits);
@@ -368,8 +368,8 @@ namespace LastTurn.Prototype
       GUI.Label(new Rect(28,116,275,22),$"Temas {contacts}/4   Ön {s.FrontLoad/1000:0.0} / Arka {s.RearLoad/1000:0.0} kN",text);
       GUI.Label(new Rect(28,139,275,22),$"60 Hz × 8  |  Adım {s.Steps}  |  {1/Mathf.Max(.001f,frameSeconds):0} FPS",text);
       GUI.Label(new Rect(28,161,275,22),$"Gaz %{CurrentInput.Throttle*100:0}  Fren %{CurrentInput.Brake*100:0}  El freni {(CurrentInput.Handbrake?"AÇIK":"—")}",text);
-      GUI.Label(new Rect(28,185,275,22),focused?(terrainMode?VehicleGround.Name(s.CenterSurface)+" · TS toprak dengesi":"Düz asfalt · klavye testi"):"Duraklatıldı · pencereye dönün",text);
-      if(terrainMode)
+      GUI.Label(new Rect(28,185,275,22),focused?(OpenTerrain!=null?VehicleGround.Name(s.CenterSurface)+" · kaynak dünya":terrainMode?VehicleGround.Name(s.CenterSurface)+" · TS toprak dengesi":"Düz asfalt · klavye testi"):"Duraklatıldı · pencereye dönün",text);
+      if(terrainMode && OpenTerrain==null)
       {
         GUI.Box(new Rect(14,225,350,158),GUIContent.none);
         GUI.Label(new Rect(28,234,325,22),$"Z {s.Position.Z:0.0} m · Y {s.Position.Y:0.00} m · Dikey {s.Velocity.Y:0.0} m/sn",text);

@@ -36,6 +36,7 @@ internal static class OpponentValidation
         Check(row["finish"].IsNumber==r.FinishTime.HasValue,"bitiş boş/dolu");if(r.FinishTime.HasValue)Near(row["finish"].N(),r.FinishTime.Value,"bitiş süresi");
       }
       Check(r.Vehicle.Body.Steps>0 && r.Vehicle.ReferencePoint.X!=start["x"].N(),"rakip gerçek fizikle ilerledi");
+      if(r.FinishTime.HasValue){Check(!r.PlayerWon(r.FinishTime.Value)&&r.PlayerWon(r.FinishTime.Value-1e-6),"kaynak önce bitirme/eşitlik kuralı");Check(r.Rank(0,0,false).Rank==2&&r.Rank(0,0,false).Finished,"bitmiş rakip sıra/farkı");}
     }
     Console.WriteLine($"Rakip TS–C#: {checks} koşul, 120 otomatik plan; 10800 sentetik pilot ve 4800 gerçek fizik adımı. En büyük fark {error:G3}.");
   }

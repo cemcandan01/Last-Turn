@@ -43,7 +43,8 @@ namespace LastTurn.Prototype
       {
         const int n=160;var vertices=new List<Vector3>();var colors=new List<Color>();var indices=new List<int>();
         for(int z=0;z<=n;z++)for(int x=0;x<=n;x++)
-        {double px=b[0]+(b[1]-b[0])*x/n,pz=b[2]+(b[3]-b[2])*z/n;vertices.Add(GtPresentation.Position(new BodyVector(px,world.Height(px,pz),pz)));int s=world.Surface(px,pz);colors.Add(s==1?new Color(.2f,.22f,.25f):s==3?new Color(.2f,.3f,.4f):s==0?new Color(.4f,.3f,.19f):new Color(.27f,.4f,.18f));
+        // Şehrin çatı basamakları bina hacimlerinde çizilir; kaba zemin üçgeni çatıyı yola eğimle bağlamamalı.
+        {double px=b[0]+(b[1]-b[0])*x/n,pz=b[2]+(b[3]-b[2])*z/n;vertices.Add(GtPresentation.Position(new BodyVector(px,region.Key=="city"?0:world.Height(px,pz),pz)));int s=world.Surface(px,pz);colors.Add(s==1?new Color(.2f,.22f,.25f):s==3?new Color(.2f,.3f,.4f):s==0?new Color(.4f,.3f,.19f):new Color(.27f,.4f,.18f));
           if(x<n&&z<n){int a=z*(n+1)+x;indices.AddRange(new[]{a,a+1,a+n+1,a+1,a+n+2,a+n+1});}}
         var mesh=new Mesh{indexFormat=IndexFormat.UInt32,name="TS açık dünya zemini"};mesh.SetVertices(vertices);mesh.SetColors(colors);mesh.SetTriangles(indices,0);mesh.RecalculateNormals();
         var floor=new GameObject("Zemin",typeof(MeshFilter),typeof(MeshRenderer));floor.transform.SetParent(content,false);floor.GetComponent<MeshFilter>().sharedMesh=mesh;

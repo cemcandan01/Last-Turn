@@ -14,6 +14,9 @@ internal static class WorldValidation
     Check(worlds.Streets.Length==9&&worlds.Streets.Select(r=>r.Key).Distinct().Count()==9,"Dokuz kaynak şehir rotası");
     foreach(var r in worlds.Streets){Check(r.Geometry.N>2&&r.Geometry.Length>0&&r.Stars.Length==3,"Kaynak rota geometrisi "+r.Key);Check(r.Geometry.Open==(r.Kind=="ab")&&(r.Geometry.Open?r.Laps==0:r.Laps>0),"Kaynak açık/kapalı rota "+r.Key);}
     foreach(var q in oracle["queries"].Items){var r=worlds.Region(q["key"].S());foreach(var point in q["points"].Items){var indices=r.Grid.Near(point["x"].N(),point["z"].N()).Select(o=>Array.IndexOf(r.Objects,o));Check(indices.SequenceEqual(point["indices"].Items.Select(n=>(int)n.N())),"TS ızgara sorgusu/kimlik/sıra "+r.Key);}}
+    var city=new OpenWorld(worlds,"city");var building=city.Region.Objects.First(o=>o.Top>0);
+    Check(city.Near(building.X,building.Z,building.Top-1).Contains(building)&&!city.Near(building.X,building.Z,building.Top+10).Contains(building),"Şehir bina collider'ı yalnız kaynak yükseklik sınırının altında");
+    var hub=new OpenWorld(worlds,"hub");var obstacle=hub.Region.Objects.First(o=>o.Type=="solid");var driven=new PowertrainVehicle(GarageDriveParameters.Create(vehicles,vehicles.Setup(11,Array.Empty<string>(),"real"),false),world:hub);driven.Place(obstacle.X-obstacle.Radius-8,obstacle.Z,Math.PI/2);for(int i=0;i<600;i++)driven.Step(new DrivingInput(1,0,0));Check(driven.Body.CollisionCount>0&&driven.Body.LastHitTime>=0,"RX gerçek dünya yaklaşma/darbe; x="+driven.ReferencePoint.X+" hedef="+obstacle.X);
     var collisions=CatalogNode.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,"Reference/collisions-0.8.18.json")));
     var parameters=vehicles.CreatePhysics(vehicles.Setup(0,Array.Empty<string>(),"real")).Chassis;
     Near(parameters.Mass,collisions["physics"]["mass"].N(),"kütle");Near(parameters.Inertia.Y,collisions["physics"]["iy"].N(),"atalet");
