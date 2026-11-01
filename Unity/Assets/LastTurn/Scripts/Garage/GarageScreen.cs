@@ -1,148 +1,170 @@
 using System;
 using System.Linq;
 using LastTurn.Core;
+using LastTurn.Prototype;
 using UnityEngine;
 
 namespace LastTurn.Garage
 {
-  // Geçici IMGUI garajı: nihai tasarım değildir. Yalnız GarageViewModel satırlarını çizer ve komutlarını
-  // GarageSession.Execute ile çalıştırır; satın alma/ekonomi/kayıt kuralı içermez.
+  // Geçici geliştirici paneli: yalnız görünüm modelleri, komutlar ve sahne servisi kullanır.
   public sealed class GarageScreen : MonoBehaviour
   {
-    private int viewCar=10,category,tab;
-    private Vector2 carsScroll,partsScroll,statsScroll;
-    private string previewPart="",confirmKey="",localMessage="";
+    private int viewCar=10,category,shop,section,raceType;
+    private string previewPart="",confirmKey="",localMessage="",raceKey="gp_1";
     private float confirmUntil;
+    private Vector2 scroll,carsScroll;
     private GarageCarDetail detail;
-    private GUIStyle heading,small,stat,title;
     private GarageState seenState;
+    private GUIStyle heading,text,title,button,selected,status;
+    public int ViewedCar=>viewCar;
+    public int SelectedTab=>section;
+    public string SelectedRaceKey=>raceKey;
     private void Awake(){GarageSession.EnsureLoaded();viewCar=GarageSession.State.SelectedCar;Refresh();}
-    public int ViewedCar => viewCar;
     public void ViewCar(int index){viewCar=index;previewPart="";confirmKey="";Refresh();}
-    private void Refresh(){var state=GarageSession.State;if(state==null)return;detail=GarageViewModel.Detail(state,viewCar,previewPart);seenState=state;}
+    private void Refresh(){if(GarageSession.State==null)return;detail=GarageViewModel.Detail(GarageSession.State,viewCar,previewPart);seenState=GarageSession.State;}
+    public void SelectTab(int value){section=Mathf.Clamp(value,0,4);scroll=Vector2.zero;confirmKey="";localMessage="";TestPanelActions.ClearError();}
+    public void SelectRaceType(string type){raceType=Array.IndexOf(TestPanelModel.Types,type);if(raceType<0)raceType=0;raceKey=TestPanelModel.Types[raceType]+"_1";}
+    public void SelectTrack(string key){if(TestPanelActions.Events().Any(e=>e.Key==key)){raceKey=key;raceType=Array.IndexOf(TestPanelModel.Types,key.Split('_')[0]);}}
+    public bool StartSelectedRace()=>TestPanelActions.StartRace(raceKey);
     private static string Key(GarageCommand c)=>c.Kind+":"+c.Car+":"+c.Id;
-    // Para harcayan komut 3 sn içinde ikinci basışı ister; zamanlama sunumdadır, kural komuttadır.
     private void Run(GarageCommand command)
     {
       if(command.SpendsMoney && !(confirmKey==Key(command) && Time.unscaledTime<=confirmUntil))
-      {confirmKey=Key(command);confirmUntil=Time.unscaledTime+3;localMessage="Satın almak için 3 saniye içinde aynı düğmeye tekrar basın.";return;}
+      {confirmKey=Key(command);confirmUntil=Time.unscaledTime+3;localMessage="Onaylamak için aynı satın alma düğmesine 3 saniye içinde tekrar basın.";return;}
       GarageSession.Execute(command);confirmKey="";localMessage="";Refresh();
     }
-    // Geçici etkinlik listesi (TS menü kartları yerine): satırlar RaceViewModel.Events'ten; kural yok.
-    private bool eventsOpen;private Vector2 eventsScroll;private RaceEventRow[] eventRows;private GarageState eventsState;
-    private void Events(GarageState state)
+    private string Label(GarageCommand c,string label)=>confirmKey==Key(c)&&Time.unscaledTime<=confirmUntil?"Onayla • "+label:label;
+    private bool Button(string label,bool on=false,bool enabled=true,float height=46)
+    {bool old=GUI.enabled;GUI.enabled=old&&enabled;bool click=GUILayout.Button(label,on?selected:button,GUILayout.MinHeight(height));GUI.enabled=old;return click;}
+    private void Styles()
     {
-      GUILayout.BeginArea(new Rect(300,130,952,534),GUI.skin.box);
-      GUILayout.Label("YARIŞLAR • seçili araç: "+GarageViewModel.Cars(state)[state.SelectedCar].Name,heading);
-      eventsScroll=GUILayout.BeginScrollView(eventsScroll);
-      if(eventsState!=state || eventRows==null){eventRows=RaceViewModel.Events(state,LastTurn.Prototype.RaceData.Load().Events);eventsState=state;}
-      foreach(var row in eventRows)
-      {
-        GUILayout.BeginHorizontal(GUI.skin.box);
-        GUILayout.Label(row.Key+"  "+row.Name,stat,GUILayout.Width(300));
-        GUILayout.Label(row.TypeName+" • sv "+row.Difficulty+" • hedef "+row.Target+" • en iyi "+row.BestStars+"/3"+(row.Career?"":" • bütçe dışı: ödülsüz deneme"),small,GUILayout.Width(470));
-        GUI.enabled=row.Open;
-        if(GUILayout.Button(row.Open?"Yarış":"Kilitli",GUILayout.Width(120),GUILayout.Height(28))){LastTurn.Prototype.RaceData.Selected=row.Key;GarageSession.Launch("RaceTest");}
-        GUI.enabled=true;GUILayout.EndHorizontal();
-      }
-      GUILayout.EndScrollView();GUILayout.EndArea();
+      if(button!=null)return;
+      text=new GUIStyle(GUI.skin.label){fontSize=18,wordWrap=true,stretchWidth=true};text.normal.textColor=Color.white;
+      heading=new GUIStyle(text){fontSize=22,fontStyle=FontStyle.Bold};title=new GUIStyle(heading){fontSize=26};
+      button=new GUIStyle(GUI.skin.button){fontSize=18,wordWrap=true,padding=new RectOffset(12,12,10,10),stretchWidth=true};
+      button.onNormal.textColor=new Color(.4f,1,.95f);button.onFocused.textColor=new Color(.4f,1,.95f);
+      button.onHover.textColor=button.onNormal.textColor;button.onActive.textColor=button.onNormal.textColor;
+      selected=new GUIStyle(button){fontStyle=FontStyle.Bold};selected.normal.textColor=new Color(.4f,1,.95f);
+      selected.hover.textColor=selected.normal.textColor;selected.active.textColor=selected.normal.textColor;selected.focused.textColor=selected.normal.textColor;
+      status=new GUIStyle(text){fontSize=16};
     }
-    private string Label(GarageCommand command,string label)=>confirmKey==Key(command) && Time.unscaledTime<=confirmUntil?"Onayla • "+label:label;
     private void OnGUI()
     {
-      if(GarageSession.State==null)return;
-      if(heading==null)
+      if(GarageSession.State==null)return;Styles();if(seenState!=GarageSession.State)Refresh();
+      float width=Screen.width-24;
+      GUILayout.BeginArea(new Rect(12,12,width,Math.Max(120,Screen.height-24)),GUI.skin.box);
+      GUILayout.Label("LAST TURN / TEST PANELİ",title);
+      GUILayout.Label("Sürüş: "+GarageViewModel.Cars(GarageSession.State)[GarageSession.State.SelectedCar].Name+"   |   Bakiye "+GarageSession.State.Balance.ToString("N0")+"   |   Seviye "+GarageSession.State.Level,text);
+      var navStyle=width>=760?button:new GUIStyle(button){fontSize=width<480?14:16,padding=new RectOffset(4,4,8,8)};
+      var tabs=width>=760?TestPanelModel.Tabs:new[]{"Garaj","Modifiye","Yarışlar","Test","Ayarlar"};
+      int next=GUILayout.SelectionGrid(section,tabs,5,navStyle,GUILayout.Height(54));
+      if(next!=section)SelectTab(next);
+      string message=!string.IsNullOrEmpty(TestPanelActions.Error)?TestPanelActions.Error:!string.IsNullOrEmpty(localMessage)?localMessage:GarageSession.Message;
+      var color=GUI.color;if(!string.IsNullOrEmpty(TestPanelActions.Error))GUI.color=new Color(1,.72f,.45f);
+      GUILayout.Label(string.IsNullOrEmpty(message)?"Hazır. Bir bölüm seçin.":message,status);GUI.color=color;
+      scroll=GUILayout.BeginScrollView(scroll,false,false);
+      if(section==0)Garage(width);else if(section==1)Mods(width);else if(section==2)Races(width);else if(section==3)Developer();else Settings();
+      GUILayout.Space(12);GUILayout.EndScrollView();
+      if(section==2)
       {
-        heading=new GUIStyle(GUI.skin.label){fontSize=19,fontStyle=FontStyle.Bold,wordWrap=true};
-        title=new GUIStyle(heading){fontSize=27};small=new GUIStyle(GUI.skin.label){fontSize=13,wordWrap=true};
-        stat=new GUIStyle(GUI.skin.label){fontSize=15,wordWrap=true};
+        var row=TestPanelActions.Events().FirstOrDefault(e=>e.Key==raceKey);
+        if(Button("Yarışı Başlat • "+(row==null?raceKey:row.Name+" / "+raceKey),true,height:58))StartSelectedRace();
       }
-      if(seenState!=GarageSession.State)Refresh();
-      var state=GarageSession.State;var cars=GarageViewModel.Cars(state);var car=cars[viewCar];bool writable=!GarageSession.Store.ReadOnly;
-      float scale=Mathf.Min(Screen.width/1280f,Screen.height/760f);var matrix=GUI.matrix;GUI.matrix=Matrix4x4.Scale(new Vector3(scale,scale,1));
-      GUI.Box(new Rect(10,10,1260,740),GUIContent.none);
-      GUILayout.BeginArea(new Rect(28,16,1224,112));
-      GUILayout.BeginHorizontal();GUILayout.Label("LAST TURN  /  GARAJ",title);GUILayout.FlexibleSpace();
-      GUILayout.Label($"Bakiye  {state.Balance:N0}     Seviye {state.Level}",heading);GUILayout.EndHorizontal();
-      GUILayout.BeginHorizontal();GUILayout.Label(GarageSession.DeveloperProfile?"GELİŞTİRİCİ TEST PROFİLİ • normal kayıttan ayrı":"Yerel oyuncu profili • işlemler otomatik kaydedilir",small);GUILayout.FlexibleSpace();
-      if(GUILayout.Button("Kaydet",GUILayout.Width(96),GUILayout.Height(30))){GarageSession.Save();localMessage="";}
-      if(GUILayout.Button("Yeniden yükle",GUILayout.Width(120),GUILayout.Height(30))){GarageSession.Reload();ViewCar(GarageSession.State.SelectedCar);localMessage="";}
-      if(GUILayout.Button(GarageSession.DeveloperProfile?"Oyuncu profiline dön":"Ayrı test profilini aç",GUILayout.Width(190),GUILayout.Height(30))){GarageSession.SwitchProfile(!GarageSession.DeveloperProfile);ViewCar(GarageSession.State.SelectedCar);localMessage="";}
-      GUILayout.EndHorizontal();
-      // Geçici geliştirici ayarı: TS yardım seviyesi (kalıcı garaj kaydında).
-      GUILayout.BeginHorizontal();GUILayout.Label("Sürüş yardımı:",small,GUILayout.Width(100));GUI.enabled=writable;
-      foreach(var level in GarageViewModel.AssistLevels(state))
-        if(GUILayout.Toggle(level.Selected,level.Name+" ("+level.Key+")","Button",GUILayout.Width(150),GUILayout.Height(22))!=level.Selected && !level.Selected)Run(GarageCommand.SetAssistLevel(level.Key));
-      GUI.enabled=true;GUILayout.EndHorizontal();
-      GUILayout.Label(localMessage!=""?localMessage:GarageSession.Message,small);GUILayout.EndArea();
-
-      GUILayout.BeginArea(new Rect(28,130,260,534),GUI.skin.box);
-      tab=GUILayout.SelectionGrid(tab,new[]{"Garaj","Mağaza"},2,GUILayout.Height(34));carsScroll=GUILayout.BeginScrollView(carsScroll);
-      foreach(var row in cars)
+      GUILayout.EndArea();
+    }
+    private void Garage(float width)
+    {
+      var state=GarageSession.State;var cars=GarageViewModel.Cars(state);
+      GUILayout.Label("Araçlar",heading);
+      int next=GUILayout.SelectionGrid(shop,new[]{"Sahip olunanlar","Mağaza"},2,button,GUILayout.Height(48));
+      if(next!=shop){shop=next;var first=cars.FirstOrDefault(c=>c.Owned==(shop==0));if(first!=null)ViewCar(first.Index);}
+      bool wide=width>=900;if(wide)GUILayout.BeginHorizontal();
+      if(wide)GUILayout.BeginVertical(GUILayout.Width(320));else GUILayout.BeginVertical();
+      carsScroll=GUILayout.BeginScrollView(carsScroll,GUILayout.Height(wide?440:240));
+      foreach(var c in cars.Where(c=>c.Owned==(shop==0)))
+        if(Button(c.Name+"\n"+(c.Owned?(c.Selected?"Sürüş için seçili":"Sahip olunan"):c.Price.ToString("N0")+" • seviye "+c.RequiredLevel),c.Index==viewCar,height:72))ViewCar(c.Index);
+      GUILayout.EndScrollView();GUILayout.EndVertical();
+      GUILayout.BeginVertical();var car=cars[viewCar];GUILayout.Label(detail.Name,heading);GUILayout.Label(detail.Description,text);
+      GUILayout.Label(detail.Class+detail.Score+"  •  "+detail.Power.ToString("0.##")+" hp  •  "+detail.Mass.ToString("0.##")+" kg",heading);
+      GUILayout.Label(car.BlockText,text);
+      if(Button(Label(car.Primary,car.Owned?(car.Selected?"Sürüş için seçili":"Sürüş için seç"):"Aracı satın al • "+car.Price.ToString("N0")),car.Selected,!GarageSession.Store.ReadOnly&&(car.Owned||car.Block=="")))Run(car.Primary);
+      Stats();if(Button("Bu aracı modifiye et",enabled:car.Owned))SelectTab(1);
+      GUILayout.EndVertical();if(wide)GUILayout.EndHorizontal();
+    }
+    private void Stats()
+    {
+      foreach(var s in detail.Stats)GUILayout.Label(s.Label+": "+s.Current.ToString("0.00")+(previewPart==""?"":" → "+s.Preview.ToString("0.00")),text);
+      GUILayout.Label("Lastik: "+detail.TireName,text);GUILayout.Label("Takılı parçalar: "+(detail.Parts.Length==0?"Stok":string.Join(", ",detail.Parts)),text);
+      GUILayout.Label("Özellik puanları: "+string.Join(" • ",detail.Features.Select(f=>f.Name+" "+f.Score)),status);
+    }
+    private void Mods(float width)
+    {
+      var state=GarageSession.State;bool can=state.OwnsCar(viewCar)&&!GarageSession.Store.ReadOnly;
+      GUILayout.Label("Modifiye edilen araç: "+detail.Name,heading);
+      if(Button("Araç değiştirmek için Garaj'a git"))SelectTab(0);
+      if(!state.OwnsCar(viewCar))GUILayout.Label("Önce sahip olduğunuz bir aracı Garaj'dan seçin.",text);
+      var categories=GarageViewModel.Categories(GarageSession.Catalog);int cols=width>=760?4:width>=480?3:2;
+      int next=GUILayout.SelectionGrid(category,categories.Select(c=>c.Label).ToArray(),cols,button,GUILayout.Height((float)Math.Ceiling((double)categories.Length/cols)*54));
+      if(next!=category){category=next;previewPart="";Refresh();}
+      string kat=categories[category].Id;
+      GUILayout.Label(categories[category].Label,heading);
+      foreach(var p in GarageViewModel.Parts(state,viewCar,kat))
       {
-        if((tab==0)!=row.Owned)continue;
-        var color=GUI.backgroundColor;if(row.Index==viewCar)GUI.backgroundColor=new Color(.25f,.65f,.74f);
-        string line=row.Name+"\n"+(row.Owned?(row.Selected?"SEÇİLİ":"Sahip olunan"):row.Price.ToString("N0")+" • sv "+row.RequiredLevel);
-        if(GUILayout.Button(line,GUILayout.Height(58)))ViewCar(row.Index);GUI.backgroundColor=color;
+        GUILayout.BeginVertical(GUI.skin.box);
+        if(Button(p.Name+(p.Equipped?" • TAKILI":""),previewPart==p.Id)) {previewPart=p.Id;Refresh();}
+        GUILayout.Label(p.Description,text);
+        if(Button(Label(p.Command,p.Equipped?"Sök":p.Owned?"Tak":"Satın al ve tak • "+p.Cost.ToString("N0")),enabled:can))Run(p.Command);
+        GUILayout.EndVertical();
       }
-      GUILayout.EndScrollView();GUILayout.EndArea();
-
-      GUILayout.BeginArea(new Rect(300,130,354,534),GUI.skin.box);
-      GUILayout.Label(detail.Name,heading);GUILayout.Label(detail.Description,small);
-      GUILayout.Label(detail.Class+detail.Score+(previewPart!=""?"  →  "+detail.PreviewClass+detail.PreviewScore:""),title);
-      if(car.Owned)
+      GUILayout.Label("Paketler",heading);
+      foreach(var p in GarageViewModel.Packages(state,viewCar))
+        if(Button(Label(p.Command,p.Name+" • "+(p.Owned?"Paketi tak":"Satın al ve tak: "+p.Cost.ToString("N0"))),enabled:can))Run(p.Command);
+      if(Button("Bu kategoriyi sök",enabled:can))Run(GarageCommand.UnequipCategory(viewCar,kat));
+      if(Button("Tüm parçaları sök / stoka dön",enabled:can))Run(GarageCommand.Stock(viewCar));
+      GUILayout.Label("Sökme para iadesi üretmez; sahiplik ve yatırım kredisi korunur.",status);
+      GUILayout.Label("Kurulum / önizleme",heading);GUILayout.Label(detail.Class+detail.Score+(previewPart==""?"":" → "+detail.PreviewClass+detail.PreviewScore),heading);Stats();
+    }
+    private void Races(float width)
+    {
+      GUILayout.Label("Yarış türü",heading);int cols=TestPanelModel.Columns(width);
+      int next=GUILayout.SelectionGrid(raceType,TestPanelModel.TypeNames,cols,button,GUILayout.Height((float)Math.Ceiling(5.0/cols)*50));
+      if(next!=raceType)SelectRaceType(TestPanelModel.Types[next]);
+      var rows=TestPanelModel.Tracks(TestPanelActions.Events(),TestPanelModel.Types[raceType]);
+      GUILayout.Label(TestPanelModel.TypeNames[raceType]+" • "+rows.Length+" pist",heading);
+      foreach(var r in rows)
       {
-        if(GUILayout.Button(car.Selected?"Sürüş için seçili":"Sürüş için seç",GUILayout.Height(32)))Run(car.Primary);
+        if(Button(r.Name+" / "+r.Key+(r.Open?"":" • KİLİTLİ"),r.Key==raceKey))SelectTrack(r.Key);
+        if(r.Key==raceKey)
+        {
+          GUILayout.Label(r.TypeName+" • Hedef "+r.Target+" • En iyi "+r.BestStars+"/3",text);
+          GUILayout.Label(!r.Open?"Bu pist kilitli; başlat düğmesi erişim nedenini açıklar.":r.Career?"Kariyer yarışı":"Bütçe dışı: ödülsüz deneme",status);
+          if(r.Key.StartsWith("dg_",StringComparison.Ordinal))GUILayout.Label("Drag: W kalkış devri, E vites yükselt, Q düşür. Yalnız Drag manuel vites kullanır.",text);
+        }
       }
-      else
-      {
-        GUILayout.Label(car.BlockText,small);
-        GUI.enabled=car.Block=="" && writable;
-        if(GUILayout.Button(Label(car.Primary,"Aracı satın al • "+car.Price.ToString("N0")),GUILayout.Height(34)))Run(car.Primary);GUI.enabled=true;
-      }
-      statsScroll=GUILayout.BeginScrollView(statsScroll);
-      GUILayout.Label(previewPart==""?"Mevcut kurulum":"Mevcut → parça önizlemesi",heading);
-      foreach(var s in detail.Stats)GUILayout.Label(s.Label+"   "+s.Current.ToString("0.00")+(previewPart==""?"":" → "+s.Preview.ToString("0.00")),stat);
-      GUILayout.Label($"Güç {detail.Power:0.##} hp   Kütle {detail.Mass:0.##} kg",stat);
-      GUILayout.Label("Lastik: "+detail.TireName,stat);
-      GUILayout.Label("Takılı: "+(detail.Parts.Length==0?"Stok":string.Join(", ",detail.Parts)),small);
-      foreach(var f in detail.Features)GUILayout.Label(f.Name+": "+f.Score,small);
-      GUILayout.EndScrollView();GUILayout.EndArea();
-
-      GUILayout.BeginArea(new Rect(666,130,586,534),GUI.skin.box);
-      GUILayout.Label("MODİFİYE",heading);var categories=GarageViewModel.Categories(GarageSession.Catalog);
-      int next=GUILayout.SelectionGrid(category,categories.Select(c=>c.Label).ToArray(),3,GUILayout.Height(100));if(next!=category){category=next;previewPart="";Refresh();}
-      string kat=categories[category].Id;GUI.enabled=car.Owned && writable;
-      if(GUILayout.Button("Bu kategoriyi sök • sahiplik ve yatırım korunur",GUILayout.Height(30)))Run(GarageCommand.UnequipCategory(viewCar,kat));
-      partsScroll=GUILayout.BeginScrollView(partsScroll);
-      foreach(var part in GarageViewModel.Parts(state,viewCar,kat))
-      {
-        GUILayout.BeginVertical(GUI.skin.box);GUILayout.BeginHorizontal();
-        if(GUILayout.Button(part.Name+(part.Equipped?" • TAKILI":""),GUILayout.Width(300),GUILayout.Height(30))){previewPart=part.Id;Refresh();}
-        string action=part.Equipped?"Sök":part.Owned?"Tak":"Al • "+part.Cost.ToString("N0");
-        if(GUILayout.Button(Label(part.Command,action),GUILayout.Height(30)))Run(part.Command);
-        GUILayout.EndHorizontal();GUILayout.Label(part.Description,small);GUILayout.EndVertical();
-      }
-      GUILayout.Space(8);GUILayout.Label("PAKETLER",heading);
-      foreach(var pack in GarageViewModel.Packages(state,viewCar))
-      {
-        GUILayout.BeginHorizontal();GUILayout.Label(pack.Name,stat,GUILayout.Width(275));
-        if(GUILayout.Button(Label(pack.Command,pack.Owned?"Paketi tak":"Al • "+pack.Cost.ToString("N0")),GUILayout.Height(28)))Run(pack.Command);
-        GUILayout.EndHorizontal();
-      }
-      if(GUILayout.Button("Tüm parçaları sök • stoka dön",GUILayout.Height(30)))Run(GarageCommand.Stock(viewCar));
-      GUILayout.EndScrollView();GUI.enabled=true;GUILayout.EndArea();
-
-      GUILayout.BeginArea(new Rect(28,674,1224,60));GUILayout.BeginHorizontal();
-      GUILayout.Label("Sürüş: "+cars[state.SelectedCar].Name,heading,GUILayout.Width(330));
-      var modes=GarageViewModel.DriveTireModes;int mode=Array.FindIndex(modes,m=>m.Key==GarageSession.RaceType);
-      mode=GUILayout.SelectionGrid(Math.Max(0,mode),modes.Select(m=>m.Label).ToArray(),6,GUILayout.Width(500),GUILayout.Height(36));GarageSession.RaceType=modes[mode].Key;
-      if(GUILayout.Button("GTTest'te sür",GUILayout.Height(36)))GarageSession.Launch("GTTest");
-      if(GUILayout.Button("TerrainTest'te sür",GUILayout.Height(36)))GarageSession.Launch("TerrainTest");
-      if(GUILayout.Button(eventsOpen?"Yarışları kapat":"Yarışlar",GUILayout.Height(36)))eventsOpen=!eventsOpen;GUILayout.EndHorizontal();
-      GUILayout.Label("Sökme/değiştirme iade üretmez. Kategoriye ödenmiş gerçek bedel sonraki yükseltmeye kredi olur.",small);GUILayout.EndArea();
-      if(eventsOpen)Events(state);
-      GUI.matrix=matrix;
+    }
+    private void Developer()
+    {
+      GUILayout.Label("Tek tıklamayla aç",heading);
+      if(Button("Drag dg_1 • doğrudan yarış",true))TestPanelActions.StartRace("dg_1");
+      if(Button("GTTest • düz asfalt sürüşü"))TestPanelActions.OpenScene("GTTest");
+      if(Button("TerrainTest • arazi sürüşü"))TestPanelActions.OpenScene("TerrainTest");
+      if(Button("RaceTest • Asfalt gp_1"))TestPanelActions.StartRace("gp_1");
+      GUILayout.Space(12);GUILayout.Label("Kayıt ve test profili",heading);
+      GUILayout.Label(GarageSession.DeveloperProfile?"Ayrı geliştirici test profili açık.":"Oyuncu profili açık. Yarış sonuçları bu profile yazılır.",text);
+      if(Button(GarageSession.DeveloperProfile?"Oyuncu profiline dön":"Ayrı test profilini aç")){GarageSession.SwitchProfile(!GarageSession.DeveloperProfile);ViewCar(GarageSession.State.SelectedCar);localMessage="";}
+      if(Button("Kaydet",enabled:!GarageSession.Store.ReadOnly)){GarageSession.Save();localMessage="";}
+      if(Button("Kayıtlı garajı yeniden yükle")){GarageSession.Reload();ViewCar(GarageSession.State.SelectedCar);localMessage="";}
+      GUILayout.Label(GarageSession.Store.Status,text);
+    }
+    private void Settings()
+    {
+      GUILayout.Label("Sürüş yardımı",heading);
+      foreach(var l in GarageViewModel.AssistLevels(GarageSession.State))
+      {if(Button(l.Name+" ("+l.Key+")"+(l.Selected?" • SEÇİLİ":""),l.Selected,!GarageSession.Store.ReadOnly))Run(GarageCommand.SetAssistLevel(l.Key));GUILayout.Label(l.Description,text);}
+      GUILayout.Space(12);GUILayout.Label("Sürüş testi lastiği",heading);
+      foreach(var m in GarageViewModel.DriveTireModes)if(Button(m.Label,GarageSession.RaceType==m.Key))GarageSession.RaceType=m.Key;
+      GUILayout.Label("Yarışlar etkinlik türünün lastiğini otomatik kullanır. Bu seçim GTTest ve TerrainTest içindir.",status);
+      GUILayout.Label("Klavye: W/S gaz–fren, A/D yön, Space el freni, R yeniden başlat. Drag: E/Q vites.",text);
     }
   }
 }

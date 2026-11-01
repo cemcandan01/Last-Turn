@@ -1,4 +1,12 @@
-# Son devir: Drag'e özel manuel vites ve kalkış (2026-10-31) — yalnız yerel, Unity Play bekliyor
+# Son devir: Unity test paneli kullanılabilirliği (2026-11-01) — yalnız yerel
+
+- Dal `codex/unity-test-paneli`, taban `a49d45e`; kart `docs/isler/2026-11-01-unity-test-paneli.md`. Tek Codex; Claude/alt ajan çağrısı yok. Push/merge/uzun regresyon/yayın yok. Teslim SHA'sı kartı son değiştiren yerel commit'tir.
+- Garaj / Modifiye / Yarışlar / Test-Geliştirici / Ayarlar; beş tür × sekiz pist, sabit Yarışı Başlat, dg_1 ve GTTest/TerrainTest/RaceTest kısayolları, anlaşılır kilit/sahne hataları. Mevcut komut/oturum servisleri kullanılır; fizik/yarış/ekonomi/TS/kayıt biçimi değişmedi.
+- Gerçek Editor fare akışıyla Garaj → Drag dg_1 açıldı; 640×480, 1920×1080 ve serbest Game görünümü incelendi. Yerel görüntüler `tests/cikti/panel-*.jpg`; kısa rehber `Unity/TEST-PANELI.md`. Küçük ekranda mevcut sürüş HUD'u üst üste yazıyor; panel kapsamı dışı, ayrı sonraki UI işi önerisi.
+- .NET: panel 54/54, mevcut garaj sunumu 117/117, derleme 0 hata/uyarı. Unity kısa panel erişimi 41/41; beş tür yarış 71/71 (dg_1 11,4 sn tamamlandı). Mevcut GT/Arazi/Garaj kısa testleri ve kaynak hash kanıtları kartta. Bu tur önceki Drag devir notundaki kısa Play açığını da kontrol eder.
+- `_Recovery` korunur, Editor'ın otomatik QualitySettings değişikliği teslim dışı. Sonraki tek öneri: sürüş HUD'unu dar ekran için düzenlemek; yeni mekanik yok.
+
+# Önceki devir: Drag'e özel manuel vites ve kalkış (2026-10-31) — yalnız yerel, Unity Play bekliyor
 
 - Dal `claude/unity-drag-manuel-vites` (taban `fcac30e`); kart `docs/isler/2026-10-31-drag-manuel-vites.md`. Sahip Claude; ikinci ajan yok. Push/merge/yayın yok.
 - Manuel şanzıman yalnız drag'de; kalkış devri geri sayımda, debriyaj ~0,25 sn'de kavrar; gösterge (geçiş devri, kalkış bandı, uyarılar), E/Q; hayalet vites + kalkış durumu. `--drag` 20 koşul: uygun vites otomatikle ±0,05 sn, erken/geç/hiç/rölanti/kesici kalkış yavaş; 8 drag pisti manuel biter.

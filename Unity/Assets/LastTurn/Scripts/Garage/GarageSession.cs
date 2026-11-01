@@ -53,9 +53,11 @@ namespace LastTurn.Garage
       DriveSetup=State.Setup(State.SelectedCar);DriveActive=true;return true;
     }
     public static void Launch(string scene)
+      => TryLaunch(scene);
+    public static bool TryLaunch(string scene)
     {
-      if(!PrepareDrive())return;
-      try{SceneManager.LoadScene(scene);}catch(Exception e){DriveActive=false;Message="Sürüş sahnesi açılamadı. "+e.Message;}
+      if(!PrepareDrive())return false;
+      try{SceneManager.LoadScene(scene);return true;}catch(Exception e){DriveActive=false;Message="Sürüş sahnesi açılamadı. "+e.Message;return false;}
     }
     public static bool TryDriveParameters(bool terrain,out PowertrainParameters parameters)
     {

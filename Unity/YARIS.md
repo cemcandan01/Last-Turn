@@ -5,7 +5,7 @@ Otomatik kanıt: **Last Turn → Yarış Kısa Play Doğrulaması (5 tür)** + `
 
 ## Açma
 
-- Garajdan: **Garaj** sahnesi → Play → alttaki **Yarışlar** → listeden etkinlik → **Yarış**. Seçili aracın kurulumu ve etkinlik türünün yarış lastiği uygulanır. Kilitli etkinlik başlamaz; “bütçe dışı” etkinlik ödülsüz denemedir.
+- Garajdan: **Garaj** sahnesi → Play → **Yarışlar** sekmesi → yarış türü → sekiz pistten biri → **Yarışı Başlat**. Seçili aracın kurulumu ve etkinlik türünün yarış lastiği uygulanır. Kilitli etkinlik başlamaz; “bütçe dışı” etkinlik ödülsüz denemedir.
 - Doğrudan: **Last Turn → Yarış Test Sahnesini Aç** → Play (varsayılan gp_1).
 - Ödül oyuncu kaydına yazılır. Gerçek kaydı değiştirmek istemiyorsan önce garajda **Ayrı test profilini aç**.
 
@@ -35,7 +35,7 @@ W/S gaz–fren, A/D direksiyon, Boşluk el freni, R yarışı yeniden başlat. S
 
 ## Sürüş yardımı (geçici geliştirici ayarı)
 
-- Garaj üst satırında **Sürüş yardımı:** Eğlence (arc) / Dengeli (norm, varsayılan) / Gerçekçi (real). Seçim garaj kaydında kalır; yeniden açılışta korunur.
+- Garajın **Ayarlar** sekmesinde **Sürüş yardımı:** Eğlence (arc) / Dengeli (norm, varsayılan) / Gerçekçi (real). Seçim garaj kaydında kalır; yeniden açılışta korunur.
 - Etki (TS ile aynı): norm/arc'ta viraj desteği ve denge kontrolü kaymayı söndürür, TCS gazı keser; real'de yalnız drift desteği (0,4). Drift yardımı drift başlayınca karşı direksiyona ve hızı korumaya yardım eder; açı ve hat yine sende.
 - Drift denemesi: virajda tam direksiyon + gaz (ya da el freni) ile kıçı kaydır, açıyı direksiyonla tut; çok açılırsa karşı direksiyon. Gerçekçi'de drift en kolay sürdürülür.
 

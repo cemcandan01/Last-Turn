@@ -1,6 +1,8 @@
 using System.Text.Json;
 using LastTurn.Core;
 
+if(args.Contains("--panel")){TestPanelValidation.Run();return;}
+
 if(args.Contains("--garage")){GarageValidation.Run();return;}
 if(args.Contains("--garage-storage")){GarageStorageValidation.Run();return;}
 if(args.Contains("--garage-drive")){GarageDriveValidation.Run();return;}
