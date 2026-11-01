@@ -7,6 +7,8 @@ Bu depo iki ürünü birlikte taşır:
 
 ## Değişmez güvenlik sınırları
 
+Güncel öncelik (Cem, 1 Kasım 2026): TS 0.8.18'in işlevsel aktarımını kapat; küçük fonksiyonlara ayrı görev açma. Gerçek kaynak/kanıt matrisi ve beş büyük paket [tam aktarım kartında](isler/2026-11-01-unity-tam-aktarim.md): P1 oyun akışı/kariyer, P2 dünya/rakip, P3 Mutant koşusu/ekonomisi, P4 skill/enerji/fizik etkileri, P5 oyuncu yüzeyi/son eşdeğerlik. Aşağıdaki eski dilim planları tarihsel kanıttır; yeni görev sırasını bu kart belirler. Paket içinde ara commit ve yalnız etkilenen kısa kontroller; değişmeyen uzun regresyon tekrarlanmaz. Otomatik doğrulama, ajan manuel denemesi ve Cem'in manuel kabulü ayrı yazılır. Yeni özellik/denge ve profesyonel görsel faz, işlevsel aktarım kabulünden sonradır.
+
 1. `master` canlı TypeScript sürümüdür. Ajanlar doğrudan bu dala gönderim yapmaz.
 2. Özellik PR'ları `gelistirme`yi hedefler. Canlıya geçiş, mevcut regresyon akışı ve Cem'in açık onayıyla yapılır.
 3. Aynı Unity sahnesi (`.unity`), prefab veya ScriptableObject aynı anda yalnız bir ajan tarafından değiştirilir.

@@ -1,4 +1,11 @@
-# Son devir: Unity test paneli kullanılabilirliği (2026-11-01) — yalnız yerel
+# Son devir: Unity tam aktarım kapsam denetimi (2026-11-01) — uygulama sahibi teyidi bekliyor
+
+- Dal `codex/unity-aktarim-matrisi`, taban `a991221`; tek kart `docs/isler/2026-11-01-unity-tam-aktarim.md`. Matris ve beş büyük paket hazır; **P1 uygulanmadı**. Tamamlandı iddiası yok. Kullanıcı Claude devam edecek dedi; mesaj Codex'e geldi. Uygulayıcı tercihi soruldu; yanıt gelmeden paralel kod yazılmadı.
+- TS sabit SHA'daki **122/122 kaynak dosyası** hash'li envanterde; `node Unity/Validation/check-migration-scope.mjs` kapsamı, TS çalışma kaynağını ve matris bağlantılarını denetler. Bu davranış eşdeğerliği testi değildir. Sekiz mevcut Editor/Play kanıt okuyucusu güncel kaynakla başarılı; uzun regresyon ve yeni Play tekrarlanmadı.
+- Ana fark: garaj/kariyer yarış çekirdeği var; ana oyun akışı kısmi, Mutant run/skill/YZ/açık dünya yok; çevre çarpışması/ses/mobil kontrol/bulut da kapanmadı. Beş paket aynı kartta ilerler; küçük fonksiyon kartları açılmaz. Ayrıntılı görsel faz sonraya.
+- Claude CLI aboneliği claude.ai Pro doğrulandı; ek kullanım manuel ayarı doğrulanmadığından yeni Claude süreci açılmadı. API/ek kredi yok. Mevcut kullanıcının Claude oturumunda devralması veya Codex'in devam etmesi tercihine göre **ilk adım P1'i uygulamak**. `_Recovery` korunur; push/merge/yayın yok.
+
+# Önceki devir: Unity test paneli kullanılabilirliği (2026-11-01) — yalnız yerel
 
 - Dal `codex/unity-test-paneli`, taban `a49d45e`; kart `docs/isler/2026-11-01-unity-test-paneli.md`. Tek Codex; Claude/alt ajan çağrısı yok. Push/merge/uzun regresyon/yayın yok. Teslim SHA'sı kartı son değiştiren yerel commit'tir.
 - Garaj / Modifiye / Yarışlar / Test-Geliştirici / Ayarlar; beş tür × sekiz pist, sabit Yarışı Başlat, dg_1 ve GTTest/TerrainTest/RaceTest kısayolları, anlaşılır kilit/sahne hataları. Mevcut komut/oturum servisleri kullanılır; fizik/yarış/ekonomi/TS/kayıt biçimi değişmedi.
