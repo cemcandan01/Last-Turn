@@ -10,8 +10,12 @@ namespace LastTurn.Core
   // - drag (dg): düz; şerit kutusu asfalt, dışı çim.
   // Bölge kutusu dışında yükseklik 0, çim. Her yüzey sorgusu pist ipucunu (ipucu.ti) günceller; fizik adımında son sorgu araç
   // merkezidir, yarış kuralları bu ipucunu kullanır. Su birikintileri TS'de çarpışma nesnesidir (InWater).
-  public sealed class TrackWorld : IVehicleWorld, IVehicleWaterWorld
+  public sealed class TrackWorld : IVehicleWorld, IVehicleWaterWorld, IVehicleCollisionWorld
   {
+    public EnvironmentRegion Environment{get;set;}=null!;
+    public bool CollisionEnabled=>Environment!=null;
+    public (double MinX,double MaxX,double MinZ,double MaxZ) CollisionBounds=>Environment!=null?Environment.Box:Region;
+    public System.Collections.Generic.IEnumerable<WorldObstacle> Near(double x,double z,double y)=>Environment!=null?Environment.QueryGrid.Near(x,z):Array.Empty<WorldObstacle>();
     public readonly TrackDefinition Track;
     public readonly TrackGeometry Geometry;
     private readonly TrackLayout layout;

@@ -121,7 +121,8 @@ namespace LastTurn.Core
         }
       }
       // TS carpismalar: yalnız su birikintisi dalı (dekor/bariyer/sınır duvarı henüz yok). Su sağlamayan dünyada adım aynı.
-      if (world is IVehicleWaterWorld water)
+      if(world is IVehicleCollisionWorld collisions && collisions.CollisionEnabled)EnvironmentCollision.Apply(s,p,collisions,FixedDelta,startSpeed);
+      else if (world is IVehicleWaterWorld water)
       {
         var origin2 = Point(s, 0, 0, 0); int count = water.WaterCount(origin2.X, origin2.Z);
         if (count > 0)

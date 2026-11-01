@@ -93,7 +93,7 @@ namespace LastTurn.Core
       {
         X = p.X, Z = p.Z, Vx = v.X, Vz = v.Z, Speed = drift.Speed, Hint = World.Hint,
         DriftActive = drift.Active, Beta = drift.Beta, GrassWheels = RaceDrift.GrassWheels(body), Steer = command.Steering,
-        SimTime = body.Steps * PowertrainVehicle.FixedDelta, SinceHit = double.PositiveInfinity, BetaLimit = DriftBetaLimit,
+        SimTime = body.Steps * PowertrainVehicle.FixedDelta, SinceHit = body.Steps*PowertrainVehicle.FixedDelta-body.LastHitTime, BetaLimit = DriftBetaLimit,
       };
       Km += JsMath.Hypot(v.X, v.Z) * PowertrainVehicle.FixedDelta / 1000;
       bool running = Session.State == RaceState.Running;

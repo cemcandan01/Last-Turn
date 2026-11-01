@@ -37,11 +37,12 @@ namespace LastTurn.Prototype
       }
       var s = race.Session;if(s.State==RaceState.Finished){Result(s);return;}
       var m = RaceViewModel.Hud(s, race.World.Hint, note);
-      GUILayout.BeginArea(new Rect(12, 12, 460, 176), GUI.skin.box);
+      GUILayout.BeginArea(new Rect(12, 12, Mathf.Min(460,Screen.width-24), prototype.Opponent!=null?230:176), GUI.skin.box);
       GUILayout.Label(m.Title, title); GUILayout.Label(m.Big, big); GUILayout.Label(m.Sub, text);
       if (m.Drift != "" || m.X6 != "") GUILayout.Label(m.Drift + "   " + m.X6, text);
       GUILayout.Label(prototype.RaceMessage, text);
       GUILayout.Label(prototype.RecordText, text);
+      if(prototype.Opponent!=null)GUILayout.Label(prototype.OpponentText(),text);
       GUILayout.EndArea();
       float w = Screen.width, h = Screen.height;
       if (m.Countdown != "") GUI.Label(new Rect(0, h * .3f, w, 80), m.Countdown, center);
@@ -76,6 +77,7 @@ namespace LastTurn.Prototype
       GUILayout.BeginArea(area, GUI.skin.box);
       resultScroll=GUILayout.BeginScrollView(resultScroll);
       GUILayout.Label(r.Header, big);
+      if(prototype.Opponent!=null)GUILayout.Label(prototype.OpponentText(),text);
       foreach (var row in r.Rows) GUILayout.Label(row.Label + ":  " + row.Value, text);
       GUILayout.Label("Yıldız " + r.Stars + " / 3", title);
       foreach (var star in r.StarRows) GUILayout.Label((star.Earned ? "● " : "○ ") + star.Text, text);

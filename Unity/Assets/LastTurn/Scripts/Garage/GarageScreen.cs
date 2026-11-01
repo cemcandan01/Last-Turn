@@ -25,7 +25,7 @@ namespace LastTurn.Garage
     public void SelectTab(int value){section=Mathf.Clamp(value,0,4);scroll=Vector2.zero;confirmKey="";localMessage="";TestPanelActions.ClearError();}
     public void SelectRaceType(string type){raceType=Array.IndexOf(TestPanelModel.Types,type);if(raceType<0)raceType=0;raceKey=TestPanelModel.Types[raceType]+"_1";}
     public void SelectTrack(string key){if(TestPanelActions.Events().Any(e=>e.Key==key)){raceKey=key;raceType=Array.IndexOf(TestPanelModel.Types,key.Split('_')[0]);}}
-    public bool StartSelectedRace()=>TestPanelActions.StartRace(raceKey);
+    public bool StartSelectedRace()=>WorldData.StartCareer(raceKey);
     private static string Key(GarageCommand c)=>c.Kind+":"+c.Car+":"+c.Id;
     private void Run(GarageCommand command)
     {
@@ -146,6 +146,10 @@ namespace LastTurn.Garage
     private void Developer()
     {
       GUILayout.Label("Tek tıklamayla aç",heading);
+      GUILayout.Label("Fiziksel dünya / kaynak YZ",heading);
+      foreach(string key in new[]{"hub","park","city"})if(Button(WorldData.Catalog.Region(key).Name+" • açık dünya"))WorldData.Open(key);
+      foreach(string key in new[]{"gp_1","rx_1","rl_1","dg_1"})if(Button(key+" • fiziksel YZ yarışı (ödülsüz)"))WorldData.StartOpponent(key);
+      GUILayout.Label("Kaynakta araç–araç teması yok; yeni temas tasarımı ayrı fazda. Koniler kaynakta görsel işarettir.",status);
       if(Button("Drag dg_1 • doğrudan yarış",true))TestPanelActions.StartRace("dg_1");
       if(Button("GTTest • düz asfalt sürüşü"))TestPanelActions.OpenScene("GTTest");
       if(Button("TerrainTest • arazi sürüşü"))TestPanelActions.OpenScene("TerrainTest");

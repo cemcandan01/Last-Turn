@@ -1,5 +1,8 @@
 using System.Text.Json;
 using LastTurn.Core;
+if(args.Contains("--opponent-drive")){OpponentDriveValidation.Run();return;}
+if(args.Contains("--world")){WorldValidation.Run();return;}
+if(args.Contains("--opponents")){OpponentValidation.Run();return;}
 
 if(args.Contains("--career-flow")){CareerFlowValidation.Run();return;}
 
