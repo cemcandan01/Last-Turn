@@ -13,7 +13,8 @@ namespace LastTurn.Core
     {
       var data=CatalogNode.Parse(json);if(data["baseline"].S()!=TrackCatalog.Baseline)throw new FormatException("Rakip kataloğu kaynağı farklı.");
       foreach(var row in data["plans"].Items){var p=new OpponentPlan(row,data["personalities"][row["personality"].S()]);plans.Add(p.TrackKey+":"+p.Personality,p);}
-      if(plans.Count!=120)throw new FormatException("Rakip kataloğu 40 pist × 3 kişilik içermeli.");
+      int streets=plans.Values.Count(p=>p.TrackKey.StartsWith("sokak_",StringComparison.Ordinal));
+      if(plans.Count-streets!=120 || (streets!=0&&streets!=27))throw new FormatException("Rakip kataloğu 40 pist × 3 kişilik ve varsa 9 sokak × 3 kişilik içermeli.");
     }
     public OpponentPlan Plan(string trackKey,string personality="deneyimli")=>plans.TryGetValue(trackKey+":"+personality,out var p)?p:throw new ArgumentException("Rakip planı yok: "+trackKey+" / "+personality);
   }

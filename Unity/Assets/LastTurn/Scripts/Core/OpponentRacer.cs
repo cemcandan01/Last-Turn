@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace LastTurn.Core
 {
@@ -17,6 +18,14 @@ namespace LastTurn.Core
     // TS rakipKurulumu: kaynak motor sınırı ve yarışın stok lastiği; GTTest'e özel geri kesicisi uygulanmaz.
     public static PowertrainParameters CreateParameters(VehicleCatalog catalog,CatalogSetup setup,string type)
     {var copy=GarageDriveParameters.Configure(catalog,setup,false);copy.Tire=catalog.RaceTire(type,Array.Empty<string>());return catalog.CreatePhysics(copy);}
+    // TS oyun/rakip.ts: Mutant'ta yarış lastiği kullanılmaz; parça/önayar lastiği ve pasif/toprak dengesi korunur.
+    public static CatalogSetup CreateMutantSetup(VehicleCatalog catalog,CatalogSetup setup,IEnumerable<string> passives=null!)
+    {
+      var state=CatalogNode.Obj();state.Set("pasifler",CatalogNode.Arr((passives??Array.Empty<string>()).Select(CatalogNode.Str)));state.Set("govde",CatalogNode.Num(100));
+      return MutantVehicle.Configure(catalog,setup,state);
+    }
+    public static PowertrainParameters CreateMutantParameters(VehicleCatalog catalog,CatalogSetup setup,IEnumerable<string> passives=null!)
+      =>catalog.CreatePhysics(CreateMutantSetup(catalog,setup,passives));
     public OpponentRacer(PowertrainParameters parameters,IVehicleWorld world,TrackDefinition track,RaceEventInfo info,OpponentPlan plan,uint seed,double startX,double startZ,double startHeading)
     {
       if(plan.TrackKey!=track.Key)throw new ArgumentException("Rakip planı pistle uyuşmuyor.");

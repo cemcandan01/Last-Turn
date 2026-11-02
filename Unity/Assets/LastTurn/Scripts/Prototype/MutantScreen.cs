@@ -1,0 +1,90 @@
+using System;
+using System.Linq;
+using LastTurn.Core;
+using LastTurn.Garage;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
+
+namespace LastTurn.Prototype
+{
+  // Geçici görünüm: yalnız görünüm modelini çizer ve komut gönderir.
+  public sealed class MutantScreen:MonoBehaviour
+  {
+    private GUIStyle text,title,button;private Vector2 scroll;private string replacing="";
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    private static void Install(){SceneManager.sceneLoaded-=Loaded;SceneManager.sceneLoaded+=Loaded;Loaded(SceneManager.GetActiveScene(),LoadSceneMode.Single);}
+    private static void Loaded(Scene s,LoadSceneMode m){new GameObject("Mutant arayüzü").AddComponent<MutantScreen>();}
+    private void Update()
+    {
+      if(!MutantRuntime.Active)return;
+      if(Keyboard.current!=null&&Keyboard.current.escapeKey.wasPressedThisFrame)GameFlow.Pause(!GameFlow.Paused);
+    }
+    private bool Button(string name)=>GUILayout.Button(name,button,GUILayout.MinHeight(44));
+    private void OnGUI()
+    {
+      if(!MutantRuntime.Active)return;
+      if(text==null){text=new GUIStyle(GUI.skin.label){fontSize=17,wordWrap=true};text.normal.textColor=Color.white;title=new GUIStyle(text){fontSize=25,fontStyle=FontStyle.Bold};button=new GUIStyle(GUI.skin.button){fontSize=17,wordWrap=true};}
+      var m=MutantRuntime.Model;
+      GUILayout.BeginArea(new Rect(12,12,Mathf.Min(Screen.width-24,780),110),GUI.skin.box);
+      GUILayout.Label("MUTANT  •  Bölge "+m.Region+"  •  Boss "+m.Timer+"  •  Gövde "+m.Body.ToString("0")+"  •  "+m.Money.ToString("0")+" para",text);
+      GUILayout.Label(m.BossName+"  •  "+m.CarName+"  •  Seviye "+m.Level,text);
+      if(Button("Duraklat / Esc"))GameFlow.Pause(!GameFlow.Paused);GUILayout.EndArea();
+      if(MutantRuntime.Panel==""&&!GameFlow.Paused)
+      {
+        GUILayout.BeginArea(new Rect(12,Screen.height-112,Mathf.Min(Screen.width-24,800),100),GUI.skin.box);
+        GUILayout.Label("WASD / oklar: sürüş   •   Boşluk: el freni   •   İşaretin içinde durarak etkileş.",text);
+        var p=FindFirstObjectByType<GtPrototype>();if(p&&p.Opponent!=null)GUILayout.Label(p.OpponentText(),text);
+        if(MutantRuntime.Message!="")GUILayout.Label(MutantRuntime.Message,text);
+        GUILayout.EndArea();return;
+      }
+      float width=Mathf.Min(800,Screen.width-24);var area=new Rect((Screen.width-width)/2,132,width,Mathf.Max(90,Screen.height-144));
+      var color=GUI.color;GUI.color=new Color(.035f,.045f,.06f);GUI.DrawTexture(area,Texture2D.whiteTexture);GUI.color=color;
+      GUILayout.BeginArea(area,GUI.skin.box);scroll=GUILayout.BeginScrollView(scroll);
+      if(GameFlow.Paused)
+      {GUILayout.Label("DURAKLATILDI",title);if(Button("Devam et"))GameFlow.Pause(false);if(Button("Koşudan çık"))MutantRuntime.Exit();}
+      else switch(MutantRuntime.Panel)
+      {
+        case "start":
+          GUILayout.Label("MUTANT",title);GUILayout.Label(m.BossName+" — "+m.BossDescription,text);
+          GUILayout.Label("Başlangıç aracını seç.",text);
+          foreach(var c in m.StartingCarsCards)
+          {if(Button(c.Name+" • "+c.Hp.ToString("0")+" HP"))MutantRuntime.SelectCar(c.Id);}
+          break;
+        case "choice":
+          GUILayout.Label("Yetenek seç",title);
+          if(replacing=="")foreach(var c in m.Choices){if(Button(c.Name+"\n"+c.Description)&&!MutantRuntime.Choose(c.Id))replacing=c.Id;}
+          else
+          {GUILayout.Label("Yerine bırakılacak skill'i seç.",text);foreach(var skill in m.OwnedSkills){if(Button(skill.Name)&&MutantRuntime.Choose(replacing,skill.Id))replacing="";}if(Button("Geri"))replacing="";}
+          break;
+        case "event":
+          var e=m.Events.FirstOrDefault(x=>x.Id==MutantRuntime.MarkerId);if(e!=null)
+          {GUILayout.Label(e.Name,title);GUILayout.Label(e.Title,text);foreach(var r in e.Risks)if(Button(r.Name+" • Hedef "+r.Target.ToString("0.0")+" • "+r.Money.ToString("0")+" para"))MutantRuntime.StartRace(e.Id,r.Risk);}
+          if(Button("Geri"))MutantRuntime.ClosePanel();break;
+        case "shop":
+          GUILayout.Label("ATÖLYE",title);GUILayout.Label("Güç kaybı %"+m.PowerLossPercent.ToString("0"),text);
+          GUI.enabled=m.CanRepair;if(Button("Tamir • "+m.RepairCost.ToString("0")+" para"))MutantRuntime.Repair();GUI.enabled=true;
+          foreach(var s in m.Stock){GUI.enabled=s.CanBuy;if(Button(s.Name+" • "+s.Price.ToString("0")+" para\n"+s.Description))MutantRuntime.Buy(s.Id);GUI.enabled=true;}
+          GUI.enabled=m.CanRefresh;if(Button("Stoğu yenile • "+m.RefreshCost.ToString("0")+" para"))MutantRuntime.RefreshStock();GUI.enabled=true;
+          if(Button("Geri"))MutantRuntime.ClosePanel();break;
+        case "chest":
+          var chest=m.Chests.First(x=>x.Id==MutantRuntime.MarkerId);GUILayout.Label(chest.Title,title);GUILayout.Label(chest.Name+"\n"+chest.Description,text);
+          if(chest.Cursed)GUILayout.Label(chest.CurseName+" • "+chest.CurseDescription,text);
+          if(Button("Al"))MutantRuntime.Chest(true);if(Button("Reddet"))MutantRuntime.Chest(false);break;
+        case "boss":
+          GUILayout.Label(m.BossName,title);GUILayout.Label(m.BossDescription+"\n"+m.BossWeakness,text);
+          foreach(string ability in m.BossAbilities)GUILayout.Label(ability,text);
+          if(Button("Boss'a meydan oku"))MutantRuntime.StartRace(-1,0,true);
+          if(m.Remaining>0&&Button("Geri"))MutantRuntime.ClosePanel();break;
+        case "result":
+          GUILayout.Label("YARIŞ SONUCU",title);GUILayout.Label(MutantRuntime.Message,text);
+          if(Button("Devam"))MutantRuntime.Continue();break;
+        case "summary":
+          GUILayout.Label("KOŞU BİTTİ",title);GUILayout.Label("Bölge "+m.Region+" • "+m.DefeatedBosses+" boss",text);
+          GUILayout.Label(MutantRuntime.Message,text);if(Button("Ana menü"))MutantRuntime.Exit();break;
+      }
+      if(MutantRuntime.Panel!="result"&&MutantRuntime.Panel!="summary"&&MutantRuntime.Message!="")GUILayout.Label(MutantRuntime.Message,text);
+      GUILayout.EndScrollView();GUILayout.EndArea();
+    }
+  }
+}

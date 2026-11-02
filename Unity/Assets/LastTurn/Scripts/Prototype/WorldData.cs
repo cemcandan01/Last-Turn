@@ -15,6 +15,7 @@ namespace LastTurn.Prototype
     private static string Text(string name){var t=Resources.Load<TextAsset>(name);if(!t)throw new InvalidOperationException(name+" verisi eksik.");return t.text;}
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]private static void Reset(){OpenKey="";OpponentTest=false;catalog=null;opponents=null;}
     public static void Clear(){OpenKey="";OpponentTest=false;}
+    public static void PrepareMutantWorld(string key){Catalog.Region(key);OpenKey=key;OpponentTest=false;}
     public static bool Open(string key)
     {
       Catalog.Region(key);OpenKey=key;OpponentTest=false;

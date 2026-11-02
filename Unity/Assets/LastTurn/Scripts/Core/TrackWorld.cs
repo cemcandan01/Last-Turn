@@ -15,7 +15,7 @@ namespace LastTurn.Core
     public EnvironmentRegion Environment{get;set;}=null!;
     public bool CollisionEnabled=>Environment!=null;
     public (double MinX,double MaxX,double MinZ,double MaxZ) CollisionBounds=>Environment!=null?Environment.Box:Region;
-    public System.Collections.Generic.IEnumerable<WorldObstacle> Near(double x,double z,double y)=>Environment!=null?Environment.QueryGrid.Near(x,z):Array.Empty<WorldObstacle>();
+    public System.Collections.Generic.IEnumerable<WorldObstacle> Near(double x,double z,double y)=>Environment!=null?(streetWorld!=null?Environment.QueryGrid.Near(x,z).Where(o=>o.Top==0||y-.6<o.Top):Environment.QueryGrid.Near(x,z)):Array.Empty<WorldObstacle>();
     public readonly TrackDefinition Track;
     public readonly TrackGeometry Geometry;
     private readonly TrackLayout layout;
@@ -28,6 +28,7 @@ namespace LastTurn.Core
     private readonly double half, hillScale, cx, cz; private readonly double[] ph = new double[3]; private readonly bool snow;
     // dg
     private readonly double dragX, dragZa, dragZb;
+    private readonly WorldCatalog streetWorld = null!;
     /// TS ipucu.ti: son en yakın pist noktası.
     public int Hint { get; set; }
 
@@ -50,6 +51,14 @@ namespace LastTurn.Core
         minX = dragX - 120; maxX = dragX + 140; minZ = dragZa - 40; maxZ = dragZb + 40;
       }
       else if (type != "rx") throw new NotSupportedException("Pist türü: " + track.Key);
+    }
+
+    // Kaynak mkSehir.surf: yalnız aktif rota ipucunu günceller; zemin/yükseklik şehirden gelir.
+    public TrackWorld(TrackDefinition track,WorldCatalog catalog):this(track)
+    {
+      if(!track.IsStreet)throw new ArgumentException("Şehir rotası bekleniyor.",nameof(track));
+      streetWorld=catalog??throw new ArgumentNullException(nameof(catalog));Environment=catalog.Activate("city");
+      (minX,maxX,minZ,maxZ)=Environment.Box;
     }
 
     public double GripMultiplier => 1;
@@ -80,6 +89,7 @@ namespace LastTurn.Core
     /// Rampa/kerb hariç taban yükseklik (TS gp Hb, rl H0 yaslaması; rx/dg 0).
     public double BaseHeight(double x, double z)
     {
+      if(streetWorld!=null)return streetWorld.Height(x,z);
       if (type == "gp" || type == "dp")
       {
         if (amplitude == 0) return 0;
@@ -101,6 +111,7 @@ namespace LastTurn.Core
 
     public double Height(double x, double z)
     {
+      if(streetWorld!=null)return streetWorld.Height(x,z);
       if (!InRegion(x, z)) return 0;
       switch (type)
       {
@@ -113,6 +124,7 @@ namespace LastTurn.Core
 
     public int Surface(double x, double z)
     {
+      if(streetWorld!=null){if(InRegion(x,z))Hint=Geometry.Nearest(x,z,Hint).Index;return streetWorld.Surface(x,z);}
       if (!InRegion(x, z)) return 2;
       var (i, d) = Geometry.Nearest(x, z, Hint);
       Hint = i;

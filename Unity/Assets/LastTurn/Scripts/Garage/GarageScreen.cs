@@ -50,6 +50,7 @@ namespace LastTurn.Garage
     }
     private void OnGUI()
     {
+      if(LastTurn.Prototype.MutantRuntime.Active)return;
       if(GarageSession.State==null || GameFlow.Home || GameFlow.Profile)return;Styles();if(seenState!=GarageSession.State)Refresh();
       float width=Screen.width-24;
       GUILayout.BeginArea(new Rect(12,12,width,Math.Max(120,Screen.height-24)),GUI.skin.box);

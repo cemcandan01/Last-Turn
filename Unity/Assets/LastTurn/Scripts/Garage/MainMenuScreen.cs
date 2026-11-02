@@ -15,11 +15,13 @@ namespace LastTurn.Garage
     {if(scene.name=="Garage"||scene.name=="RaceTest"||scene.name=="GTTest"||scene.name=="TerrainTest")new GameObject("Oyun akışı").AddComponent<MainMenuScreen>();}
     private void Update()
     {
+      if(MutantRuntime.Active)return;
       if(SceneManager.GetActiveScene().name!="Garage" && Keyboard.current!=null && Keyboard.current.escapeKey.wasPressedThisFrame)GameFlow.Pause(!GameFlow.Paused);
     }
     private bool Button(string label)=>GUILayout.Button(label,button,GUILayout.MinHeight(48));
     private void OnGUI()
     {
+      if(MutantRuntime.Active)return;
       if(text==null)
       {text=new GUIStyle(GUI.skin.label){fontSize=18,wordWrap=true};text.normal.textColor=Color.white;title=new GUIStyle(text){fontSize=26,fontStyle=FontStyle.Bold};button=new GUIStyle(GUI.skin.button){fontSize=18,wordWrap=true,padding=new RectOffset(12,12,10,10)};}
       bool garage=SceneManager.GetActiveScene().name=="Garage";
@@ -59,6 +61,7 @@ namespace LastTurn.Garage
         else
         {
           if(Button("Kariyer / Yarışlar"))GameFlow.Browse(2);
+          if(Button("Mutant"))MutantRuntime.Start(unchecked((uint)System.Environment.TickCount));
           if(Button("Garaj / Mağaza"))GameFlow.Browse(0);
           if(Button("Profil"))GameFlow.OpenProfile();
           if(Button("Ayarlar"))GameFlow.Browse(4);

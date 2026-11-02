@@ -10,7 +10,8 @@ namespace LastTurn.Core
     public const double FixedDelta = 1.0 / 60;
     public const int Substeps = 8;
     public const double Gravity = 24;
-    private readonly VehicleParameters p;
+    private VehicleParameters p;
+    public VehicleParameters Parameters => p;
     private readonly IVehicleWorld world;
     public VehicleState State { get; private set; } = null!;
     public FourWheelVehicle(VehicleParameters parameters, double initialSpeed = 0, double heightOffset = 0, double yaw = 0, IVehicleWorld world = null!)
@@ -18,6 +19,13 @@ namespace LastTurn.Core
       p = parameters ?? throw new ArgumentNullException(nameof(parameters));
       this.world=world ?? FlatAsphaltWorld.Instance;
       Reset(initialSpeed, heightOffset, yaw);
+    }
+    // TS her adımda güncel aracFizigi okur. Gövde/teker/dünya ve adım sayacı aynen kalır.
+    public void Reconfigure(VehicleParameters parameters)
+    {
+      if(parameters==null)throw new ArgumentNullException(nameof(parameters));
+      // VehicleParameters kurucusu tüm sayıları ve altı yüzey tablosunu doğrular; nesne değişmezdir.
+      p=parameters;
     }
     public void Reset(double initialSpeed = 0, double heightOffset = 0, double yaw = 0, double x = 0, double z = 0)
     {

@@ -26,6 +26,7 @@ namespace LastTurn.Prototype
 
     private void OnGUI()
     {
+      if(MutantRuntime.Active)return;
       var race = prototype ? prototype.Race : null; if (race == null || GameFlow.Paused) return;
       if (big == null)
       {

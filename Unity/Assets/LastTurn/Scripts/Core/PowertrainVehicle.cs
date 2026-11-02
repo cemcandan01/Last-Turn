@@ -6,7 +6,7 @@ namespace LastTurn.Core
   public sealed class PowertrainVehicle
   {
     public const double FixedDelta = FourWheelVehicle.FixedDelta;
-    private readonly PowertrainParameters p;
+    private PowertrainParameters p;
     public PowertrainParameters Parameters => p;
     private readonly FourWheelVehicle body;
     public VehicleState Body => body.State;
@@ -23,6 +23,19 @@ namespace LastTurn.Core
       PowertrainParameters.GearRatio(initialGear);
       body = new FourWheelVehicle(p.Chassis, initialSpeed,world:world);
       Engine = Initial(initialGear);
+    }
+    // MUTANT güç/hasar/pasif güncellemesi sıfırlama değildir: motor, gövde, drift ve geçmiş hız yönü korunur.
+    public void Reconfigure(PowertrainParameters parameters)
+    {
+      if(parameters==null)throw new ArgumentNullException(nameof(parameters));
+      var a=parameters.Assists;
+      if(a!=null)
+      {
+        // Sayısal parametreler kurucuda doğrulanır; yalnız yardım nesnesinin alanları sonradan değişebilir.
+        Numeric.Finite(a.Str);Numeric.Finite(a.Stm);Numeric.Finite(a.Dft);Numeric.Finite(a.Ini);
+        Numeric.Finite(a.DesignSpeed);Numeric.Finite(a.AeroFactor);
+      }
+      body.Reconfigure(parameters.Chassis);p=parameters;
     }
     private static PowertrainState Initial(int gear) => new PowertrainState { Rpm = 900, Gear = gear };
     public void Reset(double initialSpeed = 0, int initialGear = 1)

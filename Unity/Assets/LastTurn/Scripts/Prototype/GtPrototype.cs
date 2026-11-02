@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using LastTurn.Core;
 using UnityEngine;
 using LastTurn.Garage;
@@ -24,6 +25,7 @@ namespace LastTurn.Prototype
     private GtKeyboardInput input;
     private double previousSteer;
     private bool focused = true;
+    private bool mutantDrive;
     private double pendingProfileKm,observedRaceKm;
     private readonly List<DrivingInput> trace = new List<DrivingInput>();
     private GUIStyle title, digits, text;
@@ -53,8 +55,11 @@ namespace LastTurn.Prototype
 
     private void Awake()
     {
+      mutantDrive=MutantRuntime.Active;
       if (raceTrack != "") { AwakeRace(); return; }
-      if (GarageSession.TryDriveParameters(terrainMode,out var garageParameters))
+      if(MutantRuntime.Active&&MutantRuntime.Session!=null)
+      {parameters=MutantRuntime.Session.BuildPhysics();AppliedGarageCarId=MutantRuntime.Session.BuildSetup().Car["k"].S();}
+      else if (GarageSession.TryDriveParameters(terrainMode,out var garageParameters))
       { parameters=garageParameters;AppliedGarageCarId=GarageSession.DriveSetup.Car["k"].S(); }
       else parameters = terrainMode?GtPrototypeParameters.CreateTerrain():GtPrototypeParameters.Create();
       world=terrainMode?(IVehicleWorld)new TerrainTestWorld():FlatAsphaltWorld.Instance;
@@ -62,19 +67,21 @@ namespace LastTurn.Prototype
       {
         OpenTerrain=new OpenWorld(WorldData.Catalog,WorldData.OpenKey);world=OpenTerrain;
         ConfigureTerrain();EnvironmentVisuals=gameObject.AddComponent<PhysicalWorldVisuals>();EnvironmentVisuals.Build(world,OpenTerrain.Region,true);
-        gameObject.AddComponent<WorldDrivePanel>();
+        if(!MutantRuntime.Active)gameObject.AddComponent<WorldDrivePanel>();
+        else gameObject.AddComponent<MutantWorldMarkers>();
       }
       if (!vehicleRoot || !followCamera) throw new InvalidOperationException("GTTest sahnesi eksik; Last Turn menüsünden sahneyi oluşturun.");
-      if(AppliedGarageCarId!="")ApplyGarageVisuals(GarageSession.DriveSetup);
+      if(AppliedGarageCarId!="")ApplyGarageVisuals(MutantRuntime.Active?MutantRuntime.Session.BuildSetup():GarageSession.DriveSetup);
       input = new GtKeyboardInput(); ResetVehicle();
     }
     private void OnEnable() { input?.Enable(); }
     private void OnDisable() { FlushProfileDistance();input?.Disable(); }
     private void OnApplicationQuit(){FlushProfileDistance();}
     private void OnApplicationPause(bool paused){if(paused)FlushProfileDistance();}
-    private void ObserveRaceDistance(){if(Race==null)return;pendingProfileKm+=Math.Max(0,Race.Km-observedRaceKm);observedRaceKm=Race.Km;}
+    private void ObserveRaceDistance(){if(Race==null||mutantDrive)return;pendingProfileKm+=Math.Max(0,Race.Km-observedRaceKm);observedRaceKm=Race.Km;}
     public bool FlushProfileDistance()
     {
+      if(mutantDrive){pendingProfileKm=0;return true;}
       ObserveRaceDistance();if(pendingProfileKm==0)return true;
       if(!GarageRace.Distance(pendingProfileKm))return false;pendingProfileKm=0;return true;
     }
@@ -85,12 +92,14 @@ namespace LastTurn.Prototype
       FlushProfileDistance();
       Simulation = new PowertrainVehicle(parameters,world:world); runner = new PowertrainFixedStepRunner(Simulation);
       if(OpenTerrain!=null){var t=OpenTerrain.Region.Teleports[openSpawn];Simulation.Place(t.X,t.Z,t.Heading);runner.SyncPrevious();}
+      if(MutantRuntime.Active&&OpenTerrain!=null){MutantRuntime.PlaceWorld(Simulation);runner.SyncPrevious();}
       trace.Clear(); previousSteer = 0; CurrentInput = default; RestartCount++;
       followCamera.ResetFollow(); RenderFrame(0);
     }
     private void Update()
     {
-      if (!focused || GameFlow.Paused) return;
+      if (!focused || GameFlow.Paused || MutantRuntime.Blocked) return;
+      if(ManualStepping&&Race==null)return;
       if (Race != null) { UpdateRace(); return; }
       if (input.ConsumeRestart()) { ResetVehicle(); return; }
       CurrentInput = input.Read();
@@ -99,22 +108,40 @@ namespace LastTurn.Prototype
         previousSteer = Simulation.Engine.SteeringAngle;
         if (trace.Count < 7200) trace.Add(CurrentInput);
         return CurrentInput;
-      },()=>{if(GarageSession.DriveActive){var v=Simulation.Body.Velocity;pendingProfileKm+=JsMath.Hypot(v.X,v.Z)*PowertrainVehicle.FixedDelta/1000;
+      },()=>{if(MutantRuntime.Active){bool go=MutantRuntime.AfterPhysics(Simulation,world);parameters=Simulation.Parameters;return go;}
+        if(GarageSession.DriveActive){var v=Simulation.Body.Velocity;pendingProfileKm+=JsMath.Hypot(v.X,v.Z)*PowertrainVehicle.FixedDelta/1000;
         if(Simulation.Body.Steps%1200==0)FlushProfileDistance();}return true;});
       frameSeconds = Mathf.Lerp(frameSeconds, Time.unscaledDeltaTime, .05f);
     }
     private void LateUpdate() { RenderFrame(Mathf.Min(Time.unscaledDeltaTime, .1f));if(opponentVisual && Opponent!=null){opponentVisual.SetPositionAndRotation(GtPresentation.Position(Opponent.Vehicle.Body.Position),GtPresentation.Rotation(Opponent.Vehicle.Body.Orientation));} }
     public void TeleportWorld(int index){if(OpenTerrain==null||index<0||index>=OpenTerrain.Region.Teleports.Length)return;openSpawn=index;ResetVehicle();}
+    public void StepWorld(DrivingInput value)
+    {
+      if(Race!=null||GameFlow.Paused||MutantRuntime.Blocked)return;
+      CurrentInput=value;previousSteer=Simulation.Engine.SteeringAngle;Simulation.Step(value);
+      if(MutantRuntime.Active){MutantRuntime.AfterPhysics(Simulation,world);parameters=Simulation.Parameters;}
+      runner.SyncPrevious();
+    }
     private void CreateOpponent()
     {
       Opponent=null;if(opponentVisual){opponentVisual.gameObject.SetActive(false);Destroy(opponentVisual.gameObject);}
+      if(MutantRuntime.Active)
+      {
+        var plan=MutantRuntime.RacePlan;if(plan==null||plan.Opponent==null)return;
+        var spec=plan.Opponent;var opSetup=GarageSession.Catalog.Setup((int)spec["arac"].N(),spec["parca"].Items.Select(x=>x.S()));
+        var opParameters=OpponentRacer.CreateMutantParameters(GarageSession.Catalog,opSetup,spec["pasif"].Items.Select(x=>x.S()));
+        var spawn=plan.OpponentStart();var mutantWorld=plan.Track.IsStreet?new TrackWorld(plan.Track,WorldData.Catalog):new TrackWorld(plan.Track){Environment=RaceWorld.Environment};
+        Opponent=new OpponentRacer(opParameters,mutantWorld,plan.Track,plan.Event,WorldData.Opponents.Plan(plan.Track.Key,spec["kisilik"].S()),(uint)spec["tohum"].N(),spawn.X,spawn.Z,spawn.Heading);
+        CreateOpponentVisual();return;
+      }
       if(!WorldData.OpponentTest)return;
       var info=Race.Event;var track=RaceWorld.Track;var g=track.Geometry;int i=g.Nearest(info.StartX,info.StartZ,0,true).Index;
       var opWorld=new TrackWorld(track){Environment=RaceWorld.Environment};
       var opponentParameters=raceDrive.Setup!=null?OpponentRacer.CreateParameters(GarageSession.Catalog,raceDrive.Setup,info.Type):parameters;
       Opponent=new OpponentRacer(opponentParameters,opWorld,track,info,WorldData.Opponents.Plan(track.Key),731,info.StartX+g.Tz[i]*OpponentRacer.GridOffset,info.StartZ-g.Tx[i]*OpponentRacer.GridOffset,info.StartHeading);
-      var o=GameObject.CreatePrimitive(PrimitiveType.Cube);o.name="Fiziksel YZ rakip";o.GetComponent<Collider>().enabled=false;Destroy(o.GetComponent<Collider>());o.transform.localScale=new Vector3((float)parameters.Chassis.Width,.7f,(float)(parameters.Chassis.Wheelbase+1.69));o.GetComponent<Renderer>().material.color=new Color(.1f,.45f,.9f);opponentVisual=o.transform;
+      CreateOpponentVisual();
     }
+    private void CreateOpponentVisual(){var o=GameObject.CreatePrimitive(PrimitiveType.Cube);o.name="Fiziksel YZ rakip";o.GetComponent<Collider>().enabled=false;Destroy(o.GetComponent<Collider>());o.transform.localScale=new Vector3((float)parameters.Chassis.Width,.7f,(float)(parameters.Chassis.Wheelbase+1.69));o.GetComponent<Renderer>().material.color=new Color(.1f,.45f,.9f);opponentVisual=o.transform;}
     public string OpponentText()
     {
       if(Opponent==null)return "";var rank=Opponent.Rank(Race.Session.Lap,RaceWorld.Hint,Race.Session.Armed!=0);
@@ -172,9 +199,10 @@ namespace LastTurn.Prototype
     public void InitializeRace(string key)
     {
       FlushProfileDistance();observedRaceKm=0;
-      var data = RaceData.Load(); var info = data.Event(key); var track = data.Tracks.Tracks[info.Index];
-      if (key != RaceTrack) { trackVisuals.Build(track); RaceTrack = key; }
-      var drive = GarageRace.Prepare(info);
+      var data = RaceData.Load();var mutant=MutantRuntime.Active?MutantRuntime.RacePlan:null;
+      var info = mutant!=null?mutant.Event:data.Event(key); var track = mutant!=null?mutant.Track:data.Tracks.Tracks[info.Index];
+      if (key != RaceTrack) { trackVisuals.Build(track,mutant?.World); RaceTrack = key; }
+      var drive = mutant!=null?new GarageRace.Drive{Parameters=MutantRuntime.Session.BuildPhysics(),Setup=MutantRuntime.Session.BuildSetup(),Car=MutantRuntime.Car,Career=false,Message="Mutant koşusu"}:GarageRace.Prepare(info);
       parameters = drive.Parameters ?? GtPrototypeParameters.Create(); RaceMessage = drive.Message;
       AppliedGarageCarId = "";
       if (drive.Setup != null && drive.Parameters != null)
@@ -183,16 +211,17 @@ namespace LastTurn.Prototype
         // Görsel uyarlama parça konumlarını kaydırır: aynı sahnede bir kez.
         if (visualCar == "") { ApplyGarageVisuals(drive.Setup); visualCar = AppliedGarageCarId; }
       }
-      RaceWorld = new TrackWorld(track); world = RaceWorld;
-      RaceWorld.Environment=WorldData.Catalog.Activate(key);
+      RaceWorld = mutant!=null?mutant.World:new TrackWorld(track); world = RaceWorld;
+      if(mutant==null)RaceWorld.Environment=WorldData.Catalog.Activate(key);
       if(!EnvironmentVisuals)EnvironmentVisuals=gameObject.AddComponent<PhysicalWorldVisuals>();EnvironmentVisuals.Build(world,RaceWorld.Environment,false);
       Simulation = new PowertrainVehicle(parameters, world: world); runner = new PowertrainFixedStepRunner(Simulation);
-      Race = new RaceRun(Simulation, RaceWorld, info, hint => new RaceSession(info, track, drive.Career, hint, drive.Career ? GarageRace.Reward : null),
+      Race = new RaceRun(Simulation, RaceWorld, info, hint => new RaceSession(info, track, drive.Career, hint, drive.Career ? GarageRace.Reward : null,
+        mutant!=null?(Action<double>)(metres=>MutantRuntime.Run.CutPenalty(metres)):null,mutant:mutant!=null),
         drive.Setup != null && drive.Parameters != null ? RaceDrift.MaxAngle(drive.Setup) : double.PositiveInfinity);
       // TS startEvent: kullanım sayacı ve rekor hayaleti; endEvent: rekor/profil/hayalet kaydı.
-      Race.Finished += run => {FlushProfileDistance();GarageRace.Finished(run, drive);};
-      Race.GhostFactory = () => GarageRace.Ghost(info, track, Race.Session.RecordKey); Race.StartGhost();
-      RecordText = RaceRecordText(); if (drive.Parameters != null) GarageRace.Started(drive.Car); raceDrive = drive;
+      Race.Finished += run => {if(mutant!=null)MutantRuntime.Finished(run,Opponent);else{FlushProfileDistance();GarageRace.Finished(run, drive);}};
+      if(mutant==null){Race.GhostFactory = () => GarageRace.Ghost(info, track, Race.Session.RecordKey); Race.StartGhost();}
+      RecordText = mutant!=null?"Mutant koşusu":RaceRecordText(); if (drive.Parameters != null&&mutant==null) GarageRace.Started(drive.Car); raceDrive = drive;
       CreateOpponent();
       runner.SyncPrevious(); previousSteer = 0; followCamera.ResetFollow(); RenderFrame(0);
     }
@@ -222,11 +251,13 @@ namespace LastTurn.Prototype
     private DrivingInput lastQuantized; private double countdownTime;
     private bool AfterRaceStep()
     {
+      bool mutantContinue=true;
+      if(mutantDrive){mutantContinue=MutantRuntime.AfterPhysics(Simulation,world);parameters=Simulation.Parameters;}
       int teleports = Race.Teleports; Race.AfterPhysicsStep(lastQuantized);
       Opponent?.Step();
       ObserveRaceDistance();if(Simulation.Body.Steps%1200==0)FlushProfileDistance();
       if (Race.Teleports != teleports) { runner.SyncPrevious(); followCamera.ResetFollow(); }
-      return Race.PhysicsRunning;
+      return Race.PhysicsRunning&&mutantContinue;
     }
     /// TS ↺: pist dışı ilk çıkış noktasına ya da en yakın pist noktasına (süre durmaz).
     public void RespawnRace() { if (Race.Respawn()) { runner.SyncPrevious(); followCamera.ResetFollow(); RenderFrame(0); } }
@@ -242,16 +273,17 @@ namespace LastTurn.Prototype
       }
       catch (Exception e) { return "Rekor okunamadı: " + e.Message; }
     }
-    public void RestartRace() { FlushProfileDistance();if (raceDrive != null && raceDrive.Parameters != null) GarageRace.Started(raceDrive.Car); Race.Restart();CreateOpponent(); observedRaceKm=0;RecordText = RaceRecordText(); runner.SyncPrevious(); previousSteer = 0; followCamera.ResetFollow(); RenderFrame(0); RestartCount++; }
+    public void RestartRace() { if(mutantDrive){InitializeRace(MutantRuntime.RacePlan.Track.Key);return;}FlushProfileDistance();if (raceDrive != null && raceDrive.Parameters != null) GarageRace.Started(raceDrive.Car); Race.Restart();CreateOpponent(); observedRaceKm=0;RecordText = RaceRecordText(); runner.SyncPrevious(); previousSteer = 0; followCamera.ResetFollow(); RenderFrame(0); RestartCount++; }
     /// Doğrulama: bir sabit adım (geri sayımda 1/60 sn sayaç, yarışta fizik + yarış adımı).
     public void StepRace(DrivingInput value)
     {
-      if(GameFlow.Paused)return;
+      if(GameFlow.Paused||MutantRuntime.Blocked)return;
       CurrentInput = value;
       if (Race.Session.State == RaceState.Countdown) { Race.TickCountdown(PowertrainVehicle.FixedDelta, value); Opponent?.Step(false); return; }
       if (Race.Session.State != RaceState.Running) return;
       previousSteer = Simulation.Engine.SteeringAngle;
-      Race.Step(value);Opponent?.Step(); ObserveRaceDistance();if(Simulation.Body.Steps%1200==0)FlushProfileDistance();runner.SyncPrevious();
+      if(mutantDrive){var q=Race.Record(value);Simulation.Step(q);MutantRuntime.AfterPhysics(Simulation,world);parameters=Simulation.Parameters;Race.AfterPhysicsStep(q);}else Race.Step(value);
+      Opponent?.Step();ObserveRaceDistance();if(Simulation.Body.Steps%1200==0)FlushProfileDistance();runner.SyncPrevious();
     }
     public void ConfigureRace(string key, RaceTrackVisuals visuals)
     {

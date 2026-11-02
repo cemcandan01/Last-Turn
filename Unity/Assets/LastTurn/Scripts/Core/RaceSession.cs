@@ -81,10 +81,14 @@ namespace LastTurn.Core
     public readonly RaceEventInfo Event;
     public readonly TrackDefinition Track;
     public readonly bool Career;
+    public readonly bool Mutant;
     public readonly string RecordKey;
     private readonly TrackGeometry g;
     private readonly double edge;
     private readonly Func<string, int, int, (double Xp, double Money)>? reward;
+    private readonly Action<double>? cutPenalty;
+    /// Son Step'in kaynak kesmeAdimi sonucu; gövde cezası Mutant koşusunun sorumluluğudur.
+    public double LastCutMeters {get;private set;}
 
     public RaceState State { get; private set; } = RaceState.Countdown;
     public double Countdown { get; private set; } = 3;
@@ -111,11 +115,11 @@ namespace LastTurn.Core
 
     /// startHint: başlangıç noktasında tam taramalı en yakın nokta (TS reset). career: kariyere uygun (TS kariyereUygun);
     /// değilse rekor anahtarı deneme_ ve ödül yok. reward: kariyerde (tür, seviye, yıldız) → kazanılan (TS yarisBitti).
-    public RaceSession(RaceEventInfo info, TrackDefinition track, bool career, int startHint, Func<string, int, int, (double, double)>? reward = null)
+    public RaceSession(RaceEventInfo info, TrackDefinition track, bool career, int startHint, Func<string, int, int, (double, double)>? reward = null,Action<double>? cutPenalty=null,bool mutant=false)
     {
       if (info.Type != track.Type || info.Level != track.Level) throw new ArgumentException("Etkinlik ve pist uyuşmuyor.");
-      Event = info; Track = track; Career = career; g = track.Geometry; edge = TrackRules.Edge(g, track.Layout.Kerbs.Length > 0);
-      RecordKey = career ? info.Key : "deneme_" + info.Key; this.reward = career ? reward : null; Previous = startHint;
+      Event = info; Track = track; Career = career&&!mutant; Mutant=mutant;g = track.Geometry; edge = TrackRules.Edge(g, track.Layout.Kerbs.Length > 0);
+      RecordKey = mutant?"mutant_"+info.Key:career ? info.Key : "deneme_" + info.Key; this.reward = Career ? reward : null; this.cutPenalty=cutPenalty;Previous = startHint;
     }
 
     public bool IsDrift => Event.Type == "dp";
@@ -133,11 +137,13 @@ namespace LastTurn.Core
     /// TS evTick (her fizik adımından sonra). Pist dışında 1 + 5 sn kalınca dönüş noktası döner: araç oraya konur.
     public TrackReturnPoint? Step(in RaceStepInput s, double dt)
     {
+      LastCutMeters=0;
       if (State != RaceState.Running) return null;
       int ti = s.Hint;
       Time += dt;
       // Kariyerde pist kesme yalnız bildirilir; ceza (gövde) MUTANT kuralıdır.
-      if (Cut.Step(g, edge, s.X, s.Z, ti) > 0) Notes.Add(new RaceNote(RaceNoteKind.Cut));
+      LastCutMeters=Cut.Step(g, edge, s.X, s.Z, ti);
+      if (LastCutMeters > 0) {cutPenalty?.Invoke(LastCutMeters);Notes.Add(new RaceNote(RaceNoteKind.Cut));}
       var back = OffTrack.Step(g, edge, s.X, s.Z, ti, dt);
       if (back != null) { ReturnToTrack(back.Value); Notes.Add(new RaceNote(RaceNoteKind.Returned)); return back; }
       if (OffTrack.First != null)
@@ -216,6 +222,8 @@ namespace LastTurn.Core
     {
       if (State != RaceState.Running || !(Time > 0)) return;
       State = RaceState.Finished;
+      // Kaynak endEvent Mutant dalı koşu sonucuna döner; kariyer yıldızı/ödülü hesaplamaz.
+      if(Mutant)return;
       Stars = RaceStars.Count(Event.Type, Result, Event.Stars);
       if (reward != null) (Xp, Money) = reward(Event.Type, Event.Level, Stars);
       Won = Career && (IsDrift ? Drift.Score > 0 && Drift.Score >= Event.Limit : Time <= Event.Limit);

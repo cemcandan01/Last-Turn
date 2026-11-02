@@ -30,6 +30,8 @@ namespace LastTurn.Core
     public readonly int Index, Level, Difficulty;
     public readonly string Type, Key, Name, Description;
     public readonly bool Open;
+    public readonly bool IsStreet;
+    public readonly string StreetKind = "";
     public readonly double CenterX, CenterZ;
     /// Ham TS tanımı (tarif/p, tema, el/ep/ek, j/m/w/as, tg/hp/ys, odulSn ...): sonraki aşamalar buradan okur.
     public readonly CatalogNode Raw;
@@ -48,6 +50,21 @@ namespace LastTurn.Core
       double[] Arr(string k) => g[k].Items.Select(n => n.N()).ToArray();
       Geometry = new TrackGeometry(Arr("P"), Arr("T"), Arr("S"), g["len"].N(), g["hw"].N(), Open);
       if (Geometry.N != (int)g["N"].N() || Geometry.HalfWidth != Raw["hw"].N()) throw new FormatException("Pist geometrisi tanımla uyuşmuyor: " + Key);
+    }
+
+    // Kaynak SOKAK_ETKINLIKLERI: kariyer kataloğu dışındaki dokuz şehir rotası.
+    // Eski 40 pistin indeks/anahtar/açıklık doğrulaması ayrı constructor'da aynen kalır.
+    public static TrackDefinition FromStreet(StreetRoute route,int index) => new TrackDefinition(route,index);
+    private TrackDefinition(StreetRoute route,int index)
+    {
+      if(route==null)throw new ArgumentNullException(nameof(route));
+      if(index<40||index>=49)throw new ArgumentOutOfRangeException(nameof(index));
+      Index=index;Level=100+index-40;Difficulty=route.Difficulty;Type=route.Geometry.Open?"rl":"gp";
+      Key="sokak_"+route.Key;Name=route.Name;StreetKind=route.Kind;IsStreet=true;Open=route.Geometry.Open;
+      Description=route.Kind=="ab"?"Sokaklarda A'dan B'ye: rotayı izle, kestirme yok.":route.Kind=="tur"?"Blokların çevresinde "+(route.Laps>0?route.Laps:1)+" tur.":"Rakip önde kalkar: yakala, geç ve önde bitir.";
+      Geometry=route.Geometry;CenterX=9000;CenterZ=0;
+      Raw=CatalogNode.Obj();Raw.Set("t",CatalogNode.Str(Type));Raw.Set("lv",CatalogNode.Num(Level));Raw.Set("sev",CatalogNode.Num(Difficulty));Raw.Set("n",CatalogNode.Str(Name));Raw.Set("d",CatalogNode.Str(Description));Raw.Set("hw",CatalogNode.Num(Geometry.HalfWidth));
+      Raw.Set("tg",CatalogNode.Num(route.Stars[0]));Raw.Set("ys",CatalogNode.Arr(route.Stars.Skip(1).Select(CatalogNode.Num)));
     }
 
     /// Tanımdan türeyen pist öğeleri (TS bolgeler.ts mkReg ve yarislar.ts EVENTS.g ile aynı).
@@ -69,6 +86,7 @@ namespace LastTurn.Core
     {
       var g = d.Geometry; var raw = d.Raw;
       (StartX, StartZ, StartHeading) = g.Teleport(d.Type == "dg" ? 1 : d.Open ? 4 : g.N, d.Open ? 0 : 6);
+      if(d.IsStreet)return;
       if (d.Type == "gp" || d.Type == "dp") Kerbs = g.Kerbs();
       if (d.Type == "gp") BrakeBoards = g.AutoApex();
       if (d.Type != "rx" && d.Type != "rl") return;

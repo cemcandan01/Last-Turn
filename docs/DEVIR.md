@@ -1,3 +1,12 @@
+# Son devir: P3 Mutant koşu ve ekonomi (2026-11-02) — Claude devraldı, P4 sıradaki
+
+- Dal `codex/unity-p3-mutant`, taban `5f64f5d`; kart `docs/isler/2026-11-01-unity-tam-aktarim.md` → "P3 teslimi". Codex dosyaları yazıp Play üretmeden durdu; Cem devri Claude Code'a verdi. Push/merge/yayın/uzun regresyon yok; `_Recovery` commit dışı.
+- Saf katman: `MutantRun`, `MutantGameSession`, `MutantMenuModel`, `MutantRacePlan`, `MutantRoadMission`, `MutantVehicle`, `MutantRecordStore`, işaret kapısı. 11 TS–C# kontrolü (`--mutant-*`) fark 0 / ≤2,31e−10; P1/P2 koruma sayıları değişmedi.
+- Devirde üç Editor derleme engeli (bozuk .meta GUID dahil) kapandı; Play senaryosundaki yanlış atölye varsayımı düzeltildi (kaynak davranış değişmedi).
+- Gerçek Unity batch (ayrı kopya): P3 core 8/8, **P3 Play 39/39** menüden boss kaybıyla koşu sonuna, rekor ayrı dosyada, oyuncu dosyaları korundu; P2 Play 59/59 yenilendi. P1 kariyer Play etkileşimli Editor gerektirdiğinden yenilenmedi.
+- Açık: Mutant IMGUI ekranının insan kullanımı, bölge 2–3/boss galibiyeti/süre dolması Play'de yok (oracle'da var). Skill/enerji 121 P4 çağrı sınırında bekliyor.
+- **Sonraki tek adım:** P4 (skill, enerji, mekanik olay kuyruğu, kanca/uçuş fiziği) aynı karttan `codex/unity-p3-mutant` üzerinden ya da yeni konu dalında; Cem açık Editor'da P1 kısa Play'i bir kez çalıştırırsa P1 kanıtı da yenilenir.
+
 # Son devir: P2 dünya ve rakip çekirdeği (2026-11-01) — P3 başlamaz
 
 - Dal `codex/unity-p2-dunya-rakip`, P1 tabanı `3ba87ad`, ara commit `607636b`; kapanış SHA'sı aynı kartı (`docs/isler/2026-11-01-unity-tam-aktarim.md`) son değiştiren yerel commit'tir. Push/merge/yayın/uzun regresyon yok. `_Recovery` ve oyuncu kayıtları korundu. TS referansı aynı `df3549e`.

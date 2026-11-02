@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { baseline, createBaselineLoader, root } from "./export-catalog.mjs";
 import { regionTrack } from "./export-tracks.mjs";
+import { buildMutantOpponents } from "./export-mutant-opponents.mjs";
 
 export function buildOpponents() {
   const L = createBaselineLoader({ stubs: true }),
@@ -99,13 +100,16 @@ export function buildOpponents() {
     }
   }
   const sources = Object.fromEntries(Object.entries(L.sources).sort(([a], [b]) => a.localeCompare(b)));
+  // Eski 120 plan ve fixture aynen kalır; şehir kaynakları ayrı manifesttedir.
+  const streets = buildMutantOpponents();
   return {
     catalog: {
       baseline,
       generator: "Unity/Validation/export-opponents.mjs",
       sources,
       personalities: K.KISILIKLER,
-      plans,
+      plans: [...plans, ...streets.plans],
+      streetSources: streets.sources,
     },
     fixture: { baseline, sources, pilots, races },
   };

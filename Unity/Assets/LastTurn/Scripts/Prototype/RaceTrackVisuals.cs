@@ -48,12 +48,12 @@ namespace LastTurn.Prototype
       go.GetComponent<MeshFilter>().sharedMesh = b.Mesh(name); go.GetComponent<MeshRenderer>().sharedMaterial = material; Vertices += b.V.Count;
     }
 
-    public void Build(TrackDefinition track)
+    public void Build(TrackDefinition track,TrackWorld worldOverride=null)
     {
       for (int i = transform.childCount - 1; i >= 0; i--) { var c = transform.GetChild(i).gameObject; if (Application.isPlaying) Destroy(c); else DestroyImmediate(c); }
       Vertices = 0; Built = track.Key;
       // Ayrı dünya: görsel sorgular sürüşteki pist ipucunu değiştirmez.
-      var world = new TrackWorld(track); var g = track.Geometry; var layout = track.Layout; double hw = g.HalfWidth, kw = TrackGeometry.KerbWidth;
+      var world = worldOverride??new TrackWorld(track); var g = track.Geometry; var layout = track.Layout; double hw = g.HalfWidth, kw = TrackGeometry.KerbWidth;
       bool tarmac = track.Type == "gp" || track.Type == "dp";
       // Arazi ızgarası: TS bölge kutusu, en çok ~60 bin köşe.
       var box = world.Region; double w = box.MaxX - box.MinX, d = box.MaxZ - box.MinZ;

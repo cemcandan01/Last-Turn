@@ -1,5 +1,16 @@
 using System.Text.Json;
 using LastTurn.Core;
+if(args.Contains("--mutant-race-plan")){MutantRacePlanValidation.Run();return;}
+if(args.Contains("--mutant-streets")){MutantStreetValidation.Run();return;}
+if(args.Contains("--mutant-opponents")){MutantOpponentValidation.Run();return;}
+if(args.Contains("--mutant-reconfigure")){MutantReconfigureValidation.Run();return;}
+if(args.Contains("--mutant-menu")){MutantMenuValidation.Run();return;}
+if(args.Contains("--mutant-session")){MutantSessionValidation.Run();return;}
+if(args.Contains("--mutant-markers")){MutantMarkerValidation.Run();return;}
+if(args.Contains("--mutant-run")){MutantRunValidation.Run();return;}
+if(args.Contains("--mutant-records")){MutantRecordValidation.Run();return;}
+if(args.Contains("--mutant-vehicle")){MutantVehicleValidation.Run();return;}
+if(args.Contains("--mutant-missions")){MutantRoadMissionValidation.Run();return;}
 if(args.Contains("--opponent-drive")){OpponentDriveValidation.Run();return;}
 if(args.Contains("--world")){WorldValidation.Run();return;}
 if(args.Contains("--opponents")){OpponentValidation.Run();return;}
