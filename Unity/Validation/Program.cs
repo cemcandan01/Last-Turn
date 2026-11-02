@@ -1,5 +1,6 @@
 using System.Text.Json;
 using LastTurn.Core;
+if(args.Contains("--mutant-mechanics")){MutantMechanicsValidation.Run();return;}
 if(args.Contains("--mutant-race-plan")){MutantRacePlanValidation.Run();return;}
 if(args.Contains("--mutant-streets")){MutantStreetValidation.Run();return;}
 if(args.Contains("--mutant-opponents")){MutantOpponentValidation.Run();return;}
