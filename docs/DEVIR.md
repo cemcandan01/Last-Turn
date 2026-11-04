@@ -1,3 +1,9 @@
+# Son devir: Cem kabul turu yapıldı; Windows önce, bulut orijinaldeki gibi (2026-11-05) — Claude
+
+- Dal `codex/unity-p3-mutant`; yerel commit'ler hâlâ push/merge edilmedi (taban `6ae5a27`). `_Recovery` commit dışı.
+- Kararlar kartta (`docs/isler/2026-11-01-unity-tam-aktarim.md` → "Cem kararları (2026-11-05)") ve `docs/GELISTIRICI-AYRINTILARI.md` kararlar listesinde: mobil ertelendi, Windows'ta geliştirme; bulut aynı Firebase projesi/hesapları.
+- **Sonraki tek adım:** Cem'in seçimine göre Windows Firebase REST bağdaştırıcısı ya da görsel/menü fazı; öncesinde P5 commit'lerinin denemeye gönderimi Cem'e soruldu.
+
 # Son devir: P5 uygulandı — A/B/C/D/E/F; aktarım K/Y engelleriyle açık (2026-11-04) — Claude
 
 - Dal `codex/unity-p3-mutant`, gönderilmiş taban `6ae5a27` (= gelistirme, deneme 0.8.19); üstünde yalnız yerel commit'ler (son: bu devir). Push/merge yok. `_Recovery` commit dışı.

@@ -273,3 +273,11 @@ Kontrol listesi (öncelik sırası; durum):
 - IMGUI ekran çizimi batch'te çalışmaz: HUD'un okunurluğu insan denetimi ister.
 
 **Grafik/animasyon/ses/3D varlık fazına geçiş:** kural, fizik, kayıt ve görünüm modelleri saf katmanda ve TS oracle'larıyla kilitli; geçici IMGUI ekranları yalnız görünüm modeli + komut kullanır, yerine gerçek UI/model/efekt konabilir. Önerilen sıra: (1) Cem'in elle kabul turu, (2) cihaz derlemesi + dokunma/eğim kanıtı, (3) Firebase kararı, (4) varlık entegrasyonu (ses adları ve HUD alanları hazır). Bu dört madde bitmeden "aktarım tamam" denmemeli.
+
+## Cem kararları (2026-11-05)
+
+- Elle kabul turu (`Unity/OYUNCU-TEST-REHBERI.md`) yapıldı; Cem'in gözlemi: aktarılmayan yalnız görsel alanlar ve menü ekranları (beklenen: geçici IMGUI).
+- **Platform:** geliştirme şimdilik Windows'ta sürer. Cihaz derlemesi + dokunma/eğim kanıtı ertelendi (mobil uyarlama fazı); bu, "aktarım tamam" için açık kalır ama sıradaki adımı engellemez.
+- **Bulut:** orijinaldeki gibi kalır — aynı Firebase projesi (`last-turn-35ca0`, yapılandırma `src/bulut/ayar.ts`), aynı hesaplar, Firestore `users/{uid}` belgesi ve `CloudContract` birleştirme kuralları. Web yapılandırması herkese açık değerlerdir; Windows'ta Firebase REST (Identity Toolkit + Firestore) ile SDK'sız bağlanılabilir. Önceki "erişim yok" engeli yapılandırma eksikliği değil, sağlayıcı bağdaştırıcısının yazılmamasıdır. Masaüstünde Google girişi tarayıcı yönlendirmesi ister; ayrı alt adım.
+- **Sıra önerisi:** (a) Windows'ta Firebase REST bağdaştırıcısı (misafir giriş, e-posta bağlama, belge oku/yaz, `CloudContract` birleştirmesi), (b) görsel/menü/ses fazı. Mobil sonra.
+
