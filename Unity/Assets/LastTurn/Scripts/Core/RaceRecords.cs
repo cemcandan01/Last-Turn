@@ -15,6 +15,7 @@ namespace LastTurn.Core
     public bool ReadOnly { get; private set; }
     public RaceProfileStore(string directory) { Directory = directory; }
     private string ProfilePath => System.IO.Path.Combine(Directory, "races.json");
+    public string ProfileFile => ProfilePath;
     private string GhostPath(string key) => System.IO.Path.Combine(Directory, "ghost-" + string.Concat(key.Select(c => char.IsLetterOrDigit(c) || c == '_' ? c : '-')) + ".json");
 
     public RaceProfile Load()

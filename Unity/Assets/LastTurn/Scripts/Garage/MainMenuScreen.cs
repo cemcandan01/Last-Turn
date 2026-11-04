@@ -19,6 +19,37 @@ namespace LastTurn.Garage
       if(SceneManager.GetActiveScene().name!="Garage" && Keyboard.current!=null && Keyboard.current.escapeKey.wasPressedThisFrame)GameFlow.Pause(!GameFlow.Paused);
     }
     private bool Button(string label)=>GUILayout.Button(label,button,GUILayout.MinHeight(48));
+    private string email="",password="",password2="",formError="";
+    // TS hesap-ui: hesap satırı + e-postayla hesap oluştur/giriş/şifre sıfırlama (Google girişi masaüstünde henüz yok).
+    private void CloudBlock()
+    {
+      GUILayout.Space(8);GUILayout.Label("BULUT HESABI",new GUIStyle(text){fontStyle=FontStyle.Bold});
+      var acc=CloudRuntime.Account;
+      if(acc==null){GUILayout.Label(CloudRuntime.Unavailable==""?"Bağlanıyor…":CloudRuntime.Unavailable,text);return;}
+      GUILayout.Label(acc.Summary(),text);
+      if(!GarageSession.PlayerProfile){GUILayout.Label("Bu profil (geliştirici/test) buluta eşitlenmez.",text);return;}
+      bool guest=acc.User==null||acc.User.Anonim;
+      GUILayout.Label(guest?"E-postayla bağlan: ilerlemen web oyunu dahil başka cihazlarda da açılır. Var olan hesaba girersen bu cihazdaki ilerleme o hesabınkiyle değişir."
+        :"Başka bir hesaba girersen bu cihazdaki ilerleme o hesabınkiyle değişir; bu hesabın ilerlemesi bulutta kalır.",text);
+      var field=new GUIStyle(GUI.skin.textField){fontSize=20};
+      GUILayout.Label("E-posta",text);email=GUILayout.TextField(email,120,field,GUILayout.Height(44));
+      GUILayout.Label("Şifre",text);password=GUILayout.PasswordField(password,'*',64,field,GUILayout.Height(44));
+      if(guest){GUILayout.Label("Şifre tekrar (yalnız yeni hesap)",text);password2=GUILayout.PasswordField(password2,'*',64,field,GUILayout.Height(44));}
+      bool old=GUI.enabled;GUI.enabled=!acc.Busy;
+      if(guest && Button("Hesap oluştur (ilerlemem bu hesaba geçsin)") && Valid(true))CloudRuntime.CreateEmail(email,password);
+      if(Button("Giriş yap") && Valid(false))CloudRuntime.SignInEmail(email,password);
+      if(Button("Şifremi unuttum")){formError=EmailOk(email)?"":"Önce e-postanı yaz";if(formError=="")CloudRuntime.ResetPassword(email);}
+      GUI.enabled=old;
+      string m=formError!=""?formError:acc.Error??(acc.Busy?"Bağlanıyor…":acc.Info??"");
+      if(m!="")GUILayout.Label(m,text);
+    }
+    private static bool EmailOk(string v)=>System.Text.RegularExpressions.Regex.IsMatch(v.Trim(),@"^\S+@\S+\.\S+$");
+    // TS hesap-ui doğrulaması: aynı metinler.
+    private bool Valid(bool create)
+    {
+      formError=!EmailOk(email)?"Geçerli bir e-posta yaz":password.Length<6?"Şifre en az 6 karakter olmalı":create&&password2!=password?"Şifreler aynı değil":"";
+      return formError=="";
+    }
     private void OnGUI()
     {
       if(MutantRuntime.Active)return;
@@ -54,8 +85,7 @@ namespace LastTurn.Garage
           if(!editing){name=m.Name;editing=true;}
           GUILayout.Label("Sürücü adı (20 karakter)",text);name=GUILayout.TextField(name,20,new GUIStyle(GUI.skin.textField){fontSize=20},GUILayout.Height(44));
           if(Button("Adı kaydet"))GameFlow.SaveName(name);
-          // TS hesap/bulut: Firebase sağlayıcısı Unity'de bağlı değil; sahte giriş gösterilmez (CloudContract sözleşmesi hazır).
-          GUILayout.Label("Bulut hesabı: bu sürümde bağlı değil. İlerleme ve rekorlar yalnız bu cihazda; Google/e-posta girişi için Firebase bağlantısı gerekir.",text);
+          CloudBlock();
           GUILayout.Label("Yarış: "+m.Races+"   •   Hedef geçildi: "+m.Wins,text);
           GUILayout.Label("Toplam yol: "+m.Km.ToString("0.0")+" km",text);GUILayout.Label("En çok kullanılan: "+m.Favorite,text);
           if(Button("Ana menü"))GameFlow.MainMenu();

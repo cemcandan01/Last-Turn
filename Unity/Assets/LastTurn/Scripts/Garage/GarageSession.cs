@@ -19,6 +19,8 @@ namespace LastTurn.Garage
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetSession() { Catalog=null;State=null;Store=null;Message="";DriveActive=false;DriveSetup=null;RaceType="";DeveloperProfile=false; }
     public static string ProfilePath(bool developer) => Path.Combine(Application.persistentDataPath,"LastTurnGarage",developer?"developer-v1.json":"garage-v1.json");
+    /// Gerçek oyuncu profili açık mı (geliştirici/test geçici profili değil): yalnız bu profil buluta eşitlenir.
+    public static bool PlayerProfile => Store!=null && !DeveloperProfile && string.Equals(Path.GetFullPath(Store.FilePath),Path.GetFullPath(ProfilePath(false)),StringComparison.OrdinalIgnoreCase);
     public static void EnsureLoaded() { if (State==null) Open(ProfilePath(false)); }
     public static void Open(string path, bool developer=false)
     {
@@ -36,6 +38,12 @@ namespace LastTurn.Garage
         Store.Save(candidate);State=candidate;Message=success;return true;
       }
       catch(Exception e){Message="Kayıt yazılamadı; mevcut durum korundu. "+e.Message;return false;}
+    }
+    /// Dışarıda kurulmuş aday durumu (bulut birleştirmesi) kaydeder; disk yazılamazsa durum değişmez ve hata atılır.
+    public static void Commit(GarageState next,string success)
+    {
+      EnsureLoaded();if(Store.ReadOnly)throw new IOException(Store.Status);
+      Store.Save(next);State=next;Message=success;
     }
     public static bool Execute(GarageCommand command) => Transact(command.Apply,command.SuccessMessage);
     public static bool Save() => Transact(_=>true,"Garaj kaydedildi.");
