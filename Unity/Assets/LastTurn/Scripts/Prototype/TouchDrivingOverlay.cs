@@ -118,7 +118,7 @@ namespace LastTurn.Prototype
     }
     private void Tap(Kind k)
     {
-      var s = S;
+      var s = S; GameAudio.Click();
       switch (k)
       {
         case Kind.Camera: s.Camera = (s.Camera + 1) % PlayerSettings.CameraNames.Length; PlayerPreferences.Save(); Note(PlayerSettings.CameraNames[s.Camera]); break;

@@ -23,7 +23,7 @@ namespace LastTurn.EditorValidation
     [Serializable]private sealed class Source{public string path,sha256;}
     [Serializable]private sealed class Proof
     {
-      public string result,error,utc,unityVersion,screen;public bool batch;public int frames;
+      public string result,error,utc,unityVersion,screen,missingAudio;public bool batch;public int frames;
       public List<string> checks=new List<string>(),runtimeErrors=new List<string>(),editorDiagnostics=new List<string>();
       public Source[] sources,userFiles;public string[] userRoots;
     }
@@ -129,6 +129,10 @@ namespace LastTurn.EditorValidation
       Add(3,()=>{var back=new PlayerSettingsStore(dir).Load();Check(!SettingsScreen.Open&&back["ses"]==40&&back.HudLayout=="sade"&&back.Camera==PlayerPreferences.Current.Camera,"Ayarlar kapatınca dosyaya yazıldı ve yeniden yüklendi");
         PlayerPreferences.Reload();Check(PlayerPreferences.Current.ToJson()==back.ToJson(),"Tercihler yeniden açılışta aynı");
         Prefs(s=>{s.Set["ss"]=0;s.Set["sm"]=0;});Check(p.Simulation.SpeedSensitivePreference==false&&p.Simulation.SmoothSteeringPreference==false,"Hıza duyarlı direksiyon/yumuşatma tercihi canlı araca uygulandı");});
+      Add(3,()=>{Check(GameAudio.Fired.TryGetValue("nitro",out int n)&&n>=1&&GameAudio.Fired.TryGetValue("tik",out int t)&&t>=1,"Nitro ve dokunmatik tık olayları ses yürütücüsüne ulaştı");
+        Check(GameAudio.LastMix!=null&&Math.Abs(GameAudio.LastMix.Effects-AudioDirector.Level(40))<1e-9,"Oyun sesi tercihi (%40) TS seviye eğrisiyle kazanca uygulandı");
+        Check(GameAudio.MissingAssets.Contains("motor")&&GameAudio.MissingAssets.Contains("nitro"),"Ses varlığı olmayan katman/olaylar eksik varlık olarak raporlandı");
+        proof.missingAudio=string.Join(",",GameAudio.MissingAssets.OrderBy(x=>x));});
     }
     private static void Tick()
     {

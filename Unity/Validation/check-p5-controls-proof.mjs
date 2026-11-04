@@ -42,6 +42,9 @@ const required = [
   "Hıza duyarlı direksiyon/yumuşatma tercihi canlı araca uygulandı",
   "Mevcut kariyer, Mutant ve ayar dosyaları aynı hash'te",
   "Koşudan ana menüye dönüldü",
+  "Nitro ve dokunmatik tık olayları ses yürütücüsüne ulaştı",
+  "Oyun sesi tercihi (%40) TS seviye eğrisiyle kazanca uygulandı",
+  "Ses varlığı olmayan katman/olaylar eksik varlık olarak raporlandı",
 ];
 for (const c of required)
   if (!p.checks.some((x) => x === c || x.startsWith(c + " [") || x.startsWith(c + " (")))
