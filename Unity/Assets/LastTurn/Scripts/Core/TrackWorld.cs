@@ -61,7 +61,8 @@ namespace LastTurn.Core
       (minX,maxX,minZ,maxZ)=Environment.Box;
     }
 
-    public double GripMultiplier => 1;
+    /// TS havaTutusu (yağmur/kar); varsayılan 1 (güneş) — doğrulanmış davranış aynı.
+    public double GripMultiplier { get; set; } = 1;
     public bool HasKerbs => kerbs.Length > 0;
 
     /// TS regAt: kutunun içi (kenarlar hariç).

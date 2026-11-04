@@ -43,6 +43,8 @@ namespace LastTurn.Prototype
       if (m.Drift != "" || m.X6 != "") GUILayout.Label(m.Drift + "   " + m.X6, text);
       GUILayout.Label(prototype.RaceMessage, text);
       GUILayout.Label(prototype.RecordText, text);
+      // TS hud.ts: güneş dışında hava adı gösterilir (zemin daha kaygan).
+      if (prototype.Conditions.Weather != "sun" || prototype.Conditions.Night) GUILayout.Label(prototype.Conditions.Label, text);
       if(prototype.Opponent!=null)GUILayout.Label(prototype.OpponentText(),text);
       GUILayout.EndArea();
       float w = Screen.width, h = Screen.height;

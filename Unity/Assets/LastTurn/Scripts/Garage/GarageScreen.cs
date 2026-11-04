@@ -24,7 +24,9 @@ namespace LastTurn.Garage
     private void Refresh(){if(GarageSession.State==null)return;detail=GarageViewModel.Detail(GarageSession.State,viewCar,previewPart);seenState=GarageSession.State;}
     public void SelectTab(int value){section=Mathf.Clamp(value,0,4);scroll=Vector2.zero;confirmKey="";localMessage="";TestPanelActions.ClearError();}
     public void SelectRaceType(string type){raceType=Array.IndexOf(TestPanelModel.Types,type);if(raceType<0)raceType=0;raceKey=TestPanelModel.Types[raceType]+"_1";}
-    public void SelectTrack(string key){if(TestPanelActions.Events().Any(e=>e.Key==key)){raceKey=key;raceType=Array.IndexOf(TestPanelModel.Types,key.Split('_')[0]);}}
+    public void SelectTrack(string key){if(TestPanelActions.Events().Any(e=>e.Key==key)){raceKey=key;raceType=Array.IndexOf(TestPanelModel.Types,key.Split('_')[0]);DefaultConditions();}}
+    // TS menu.ts: etkinlik seçilince COND = condOf(bölge teması); oyuncu sonra günün saati/hava çipleriyle değiştirir.
+    private void DefaultConditions(){var e=RaceData.Load().Event(raceKey);GameFlow.Conditions=RaceConditions.DefaultFor(RaceConditions.Theme(e.Region));}
     public bool StartSelectedRace()=>WorldData.StartCareer(raceKey);
     private static string Key(GarageCommand c)=>c.Kind+":"+c.Car+":"+c.Id;
     private void Run(GarageCommand command)
@@ -70,6 +72,8 @@ namespace LastTurn.Garage
       if(section==2)
       {
         var row=TestPanelActions.Events().FirstOrDefault(e=>e.Key==raceKey);
+        var c=GameFlow.Conditions;GUILayout.Label("Günün saati",text);GUILayout.BeginHorizontal();foreach(var t in RaceConditions.TimesOfDay)if(Button(t.Name,c.TimeOfDay==t.Key))c.TimeOfDay=t.Key;GUILayout.EndHorizontal();
+        GUILayout.Label("Hava",text);GUILayout.BeginHorizontal();foreach(var w in RaceConditions.Weathers)if(Button(w.Name+(w.Description==""?"":" • "+w.Description),c.Weather==w.Key))c.Weather=w.Key;GUILayout.EndHorizontal();
         if(Button("Yarışı Başlat • "+(row==null?raceKey:row.Name+" / "+raceKey),true,height:58))StartSelectedRace();
       }
       GUILayout.EndArea();

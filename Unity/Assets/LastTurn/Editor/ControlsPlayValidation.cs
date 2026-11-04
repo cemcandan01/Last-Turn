@@ -112,7 +112,13 @@ namespace LastTurn.EditorValidation
       Add(3,()=>{Check(p.Controls.G==0&&p.Controls.L==0,"Odak kaybında ham girişler sıfırlandı (TS girdiSifirla)");focusLost=false;p.SendMessage("OnApplicationFocus",true);Keys();});
       int cam=0;Add(3,()=>{cam=PlayerPreferences.Current.Camera;Touch(9,UnityEngine.InputSystem.TouchPhase.Began,At("Camera"));});
       Add(3,()=>{Touch(9,UnityEngine.InputSystem.TouchPhase.Ended,At("Camera"));});
-      Add(3,()=>{Check(PlayerPreferences.Current.Camera==(cam+1)%4,"KAMERA düğmesi kipi değiştirdi");});
+      Add(3,()=>{Check(PlayerPreferences.Current.Camera==(cam+1)%4,"KAMERA düğmesi kipi değiştirdi");Prefs(s=>{s.Camera=3;s.Set["fov"]=0;});});
+      Add(240,()=>{var f=UnityEngine.Object.FindFirstObjectByType<GtFollowCamera>();var v=f.GetComponent<Camera>();
+        Check(f.Mode==3&&Math.Abs(v.nearClipPlane-.15f)<1e-4&&Math.Abs(f.TargetFov-(Screen.width<Screen.height?64:54)-(MutantRuntime.Abilities.Nitro().Open?9:0))<.01f,"Kokpit kipi: araç içi kırpma 0,15 ve TS kokpit görüş açısı ("+f.TargetFov.ToString("0.0")+")");Prefs(s=>s.Camera=2);});
+      Add(240,()=>{var f=UnityEngine.Object.FindFirstObjectByType<GtFollowCamera>();var v=f.GetComponent<Camera>();
+        Check(Math.Abs(f.TargetFov-(Screen.width<Screen.height?84:68)-(MutantRuntime.Abilities.Nitro().Open?9:0))<.01f&&Math.Abs(v.nearClipPlane-.15f)<1e-4,"Kaput kipi: taban görüş +6 ("+f.TargetFov.ToString("0.0")+")");Prefs(s=>{s.Camera=1;s.Set["fov"]=1;});});
+      Add(240,()=>{var f=UnityEngine.Object.FindFirstObjectByType<GtFollowCamera>();var v=f.GetComponent<Camera>();
+        Check(f.Mode==1&&Math.Abs(v.nearClipPlane-.5f)<1e-4&&Vector3.Distance(v.transform.position,p.transform.position)>0,"Uzak takip kipi: dış kamera kırpma 0,5");Prefs(s=>s.Camera=0);});
       Add(3,()=>{Touch(10,UnityEngine.InputSystem.TouchPhase.Began,At("Respawn"));});
       Add(3,()=>{Touch(10,UnityEngine.InputSystem.TouchPhase.Ended,At("Respawn"));});
       Add(3,()=>{var v=p.Simulation.Body.Velocity;Check(JsMath.Hypot(v.X,v.Z)<.5,"↺ serbest sürüşte aracı durdurup yere koydu");Touch(11,UnityEngine.InputSystem.TouchPhase.Began,At("Pause"));});

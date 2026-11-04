@@ -38,6 +38,8 @@ namespace LastTurn.Prototype
     public DrivingInput CurrentInput { get; private set; }
     /// Ham girişler (TS I); yalnız okuma/doğrulama.
     public DrivingControls Controls => input?.Controls;
+    /// Bu sürüşün günün saati/havası (HUD ve doğrulama).
+    public RaceConditions Conditions { get; private set; } = new RaceConditions();
     public IReadOnlyList<DrivingInput> RecordedInputs => trace;
     public int RestartCount { get; private set; }
     public PowertrainParameters Parameters => parameters;
@@ -68,6 +70,7 @@ namespace LastTurn.Prototype
       if(WorldData.OpenKey!="")
       {
         OpenTerrain=new OpenWorld(WorldData.Catalog,WorldData.OpenKey);world=OpenTerrain;
+        Conditions=GameFlow.Conditions.Clone();OpenTerrain.GripMultiplier=Conditions.GripFor(RaceConditions.ThemeOf(WorldData.OpenKey));
         ConfigureTerrain();EnvironmentVisuals=gameObject.AddComponent<PhysicalWorldVisuals>();EnvironmentVisuals.Build(world,OpenTerrain.Region,true);
         if(!MutantRuntime.Active)gameObject.AddComponent<WorldDrivePanel>();
         else gameObject.AddComponent<MutantWorldMarkers>();
@@ -171,13 +174,13 @@ namespace LastTurn.Prototype
         var spec=plan.Opponent;var opSetup=GarageSession.Catalog.Setup((int)spec["arac"].N(),spec["parca"].Items.Select(x=>x.S()));
         var opMutant=OpponentRacer.CreateMutantSetup(GarageSession.Catalog,opSetup,spec["pasif"].Items.Select(x=>x.S()));
         var opParameters=GarageSession.Catalog.CreatePhysics(opMutant);MutantRuntime.OpponentLink=new MutantOpponentLink(GarageSession.Catalog,opMutant);
-        var spawn=plan.OpponentStart();var mutantWorld=plan.Track.IsStreet?new TrackWorld(plan.Track,WorldData.Catalog):new TrackWorld(plan.Track){Environment=RaceWorld.Environment};
+        var spawn=plan.OpponentStart();var mutantWorld=plan.Track.IsStreet?new TrackWorld(plan.Track,WorldData.Catalog){GripMultiplier=RaceWorld.GripMultiplier}:new TrackWorld(plan.Track){Environment=RaceWorld.Environment,GripMultiplier=RaceWorld.GripMultiplier};
         Opponent=new OpponentRacer(opParameters,mutantWorld,plan.Track,plan.Event,WorldData.Opponents.Plan(plan.Track.Key,spec["kisilik"].S()),(uint)spec["tohum"].N(),spawn.X,spawn.Z,spawn.Heading);
         CreateOpponentVisual();return;
       }
       if(!WorldData.OpponentTest)return;
       var info=Race.Event;var track=RaceWorld.Track;var g=track.Geometry;int i=g.Nearest(info.StartX,info.StartZ,0,true).Index;
-      var opWorld=new TrackWorld(track){Environment=RaceWorld.Environment};
+      var opWorld=new TrackWorld(track){Environment=RaceWorld.Environment,GripMultiplier=RaceWorld.GripMultiplier};
       var opponentParameters=raceDrive.Setup!=null?OpponentRacer.CreateParameters(GarageSession.Catalog,raceDrive.Setup,info.Type):parameters;
       Opponent=new OpponentRacer(opponentParameters,opWorld,track,info,WorldData.Opponents.Plan(track.Key),731,info.StartX+g.Tz[i]*OpponentRacer.GridOffset,info.StartZ-g.Tx[i]*OpponentRacer.GridOffset,info.StartHeading);
       CreateOpponentVisual();
@@ -188,6 +191,19 @@ namespace LastTurn.Prototype
       if(Opponent==null)return "";var rank=Opponent.Rank(Race.Session.Lap,RaceWorld.Hint,Race.Session.Armed!=0);
       if(Race.Session.State==RaceState.Finished)return Opponent.PlayerWon(Race.Session.Time)?"Rakipten önce bitirdin • doğrulama yarışı, kariyer ödülü yok":"Rakip önce bitirdi • doğrulama yarışı, kariyer ödülü yok";
       return "Sıra "+rank.Rank+" / 2 • fark "+(double.IsInfinity(rank.Gap)?"rakip bitti":rank.Gap.ToString("0.0")+" m");
+    }
+    // TS sahneGuncelle kamera girdileri: kip/FOV/sarsıntı tercihi, drift, nitro, skill görüşü (beceriEfektDurumu), çarpma anı.
+    private CameraFrame CameraFrame()
+    {
+      var s=PlayerPreferences.Current;var c=new CameraFrame{Mode=s.Camera,SpeedFov=s.On("fov"),Shake=s.On("shk"),Drifting=Simulation.Assist.On,
+        HitAge=(float)(Simulation.Body.Steps*PowertrainVehicle.FixedDelta-Simulation.Body.LastHitTime),FrontAxle=(float)System.Math.Abs(parameters.Chassis.Wheels[0].Z)};
+      var a=MutantRuntime.Abilities;
+      if(a!=null)
+      {
+        var y=MutantRuntime.Run.State["bec"]["yerel"];bool Open(string id)=>y[id]["kalan"].N()>0;
+        c.Nitro=a.Nitro().Open;c.SkillFov=(Open("grappling-hook")?6:0)+(Open("risk-taker")?5:0)+(Open("slipstream-engine")||Open("volt-kanat")?4:0);
+      }
+      return c;
     }
     private void RenderFrame(float dt)
     {
@@ -207,7 +223,7 @@ namespace LastTurn.Prototype
       }
       RenderGhost();
       Vector3 origin = vehicleRoot.TransformPoint(ModelPoint(0, 0, 0, parameters.Chassis));
-      followCamera.Render(origin, vehicleRoot.forward, (float)b.Velocity.Length, dt);
+      followCamera.Render(origin, vehicleRoot.rotation, (float)b.Velocity.Length, dt, CameraFrame());
       // Sonsuz H=0 zeminin yalnız görsel döşemesi; simülasyona geri besleme yok.
       if(!terrainMode && ground)ground.position = new Vector3(vehicleRoot.position.x, 0, vehicleRoot.position.z);
     }
@@ -253,6 +269,9 @@ namespace LastTurn.Prototype
         if (visualCar == "") { ApplyGarageVisuals(drive.Setup); visualCar = AppliedGarageCarId; }
       }
       RaceWorld = mutant!=null?mutant.World:new TrackWorld(track); world = RaceWorld;
+      // TS COND/havaTutusu: bölge teması + seçili hava; Mutant boss kendi havasını/gecesini dayatır (TS mutantBossKosulu).
+      Conditions = mutant!=null&&mutant.Boss?GameFlow.Conditions.ForBoss(MutantRuntime.Run.State["boss"]):GameFlow.Conditions.Clone();
+      RaceWorld.GripMultiplier = Conditions.GripFor(RaceConditions.Theme(info.Region));
       if(mutant==null)RaceWorld.Environment=WorldData.Catalog.Activate(key);
       if(!EnvironmentVisuals)EnvironmentVisuals=gameObject.AddComponent<PhysicalWorldVisuals>();EnvironmentVisuals.Build(world,RaceWorld.Environment,false);
       Simulation = new PowertrainVehicle(parameters, world: world); runner = new PowertrainFixedStepRunner(Simulation); ApplyPreferences(); ResetInput();
@@ -261,7 +280,8 @@ namespace LastTurn.Prototype
         drive.Setup != null && drive.Parameters != null ? RaceDrift.MaxAngle(drive.Setup) : double.PositiveInfinity);
       // TS startEvent: kullanım sayacı ve rekor hayaleti; endEvent: rekor/profil/hayalet kaydı.
       Race.Finished += run => {ResetInput();if(mutant!=null)MutantRuntime.Finished(run,Opponent);else{FlushProfileDistance();GarageRace.Finished(run, drive);}};
-      if(mutant==null){Race.GhostFactory = () => GarageRace.Ghost(info, track, Race.Session.RecordKey); Race.StartGhost();}
+      // TS set.rh: rekor hayaleti yalnız tercih açıkken; hayalet kaydedildiği havanın tutuşuyla oynar.
+      if(mutant==null&&PlayerPreferences.Current.On("rh")){Race.GhostFactory = () => GarageRace.Ghost(info, track, Race.Session.RecordKey, RaceWorld.GripMultiplier); Race.StartGhost();}
       RecordText = mutant!=null?"Mutant koşusu":RaceRecordText(); if (drive.Parameters != null&&mutant==null) GarageRace.Started(drive.Car); raceDrive = drive;
       // TS mutantYarisAyari → beceriYarisBasi: rakip gövdesi, takip kredisi ve near-miss kayıtları her yarış başında sıfırlanır.
       if(mutant!=null)MutantRuntime.Abilities?.RaceStart();

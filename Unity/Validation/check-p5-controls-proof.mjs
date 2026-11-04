@@ -31,6 +31,9 @@ const required = [
   "Klavye 1 skill yuvası basılı",
   "Odak kaybında ham girişler sıfırlandı (TS girdiSifirla)",
   "KAMERA düğmesi kipi değiştirdi",
+  "Kokpit kipi: araç içi kırpma 0,15 ve TS kokpit görüş açısı",
+  "Kaput kipi: taban görüş +6",
+  "Uzak takip kipi: dış kamera kırpma 0,5",
   "↺ serbest sürüşte aracı durdurup yere koydu",
   "DURAKLAT düğmesi oyunu duraklattı",
   "AYAR düğmesi ayarlar ekranını açtı",
@@ -41,7 +44,7 @@ const required = [
   "Koşudan ana menüye dönüldü",
 ];
 for (const c of required)
-  if (!p.checks.some((x) => x === c || x.startsWith(c + " [")))
+  if (!p.checks.some((x) => x === c || x.startsWith(c + " [") || x.startsWith(c + " (")))
     throw Error("Eksik P5 kontrol davranışı: " + c);
 const hash = (f) => createHash("sha256").update(fs.readFileSync(f)).digest("hex");
 const files = fs
