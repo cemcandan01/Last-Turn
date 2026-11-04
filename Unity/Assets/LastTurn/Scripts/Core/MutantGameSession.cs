@@ -40,6 +40,7 @@ namespace LastTurn.Core
     public MutantGameSession(MutantRun run,VehicleCatalog vehicles,int selectedCar,double rampX,double rampZ)
     {Run=run;this.vehicles=vehicles;SelectedCar=selectedCar;this.rampX=rampX;this.rampZ=rampZ;}
     public void SelectCar(int index){SelectedCar=index;VehicleRefreshes++;}
+    public void ClearPendingBoss(){PendingBoss=false;}
     public CatalogSetup BuildSetup()=>MutantVehicle.Configure(vehicles,vehicles.Setup(SelectedCar,Run.State["parcalar"].Items.Select(p=>p.S())),Run.State);
     public PowertrainParameters BuildPhysics()=>vehicles.CreatePhysics(BuildSetup());
     private string Phase=>Run.State["faz"].S();

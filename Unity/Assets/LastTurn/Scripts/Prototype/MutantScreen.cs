@@ -21,6 +21,22 @@ namespace LastTurn.Prototype
       if(Keyboard.current!=null&&Keyboard.current.escapeKey.wasPressedThisFrame)GameFlow.Pause(!GameFlow.Paused);
     }
     private bool Button(string name)=>GUILayout.Button(name,button,GUILayout.MinHeight(44));
+    private int refusalSeen;private string refusedId="";private float refusedUntil;
+    // Geçici HUD: nitro ve skill yuvaları yalnız MutantAbilityDriver görünüm modelinden okunur.
+    private void DrawAbilities()
+    {
+      var a=MutantRuntime.Abilities;if(a==null)return;
+      if(a.Refusal.Count!=refusalSeen){refusalSeen=a.Refusal.Count;refusedId=a.Refusal.Id;refusedUntil=Time.unscaledTime+.9f;}
+      var n=a.Nitro();var skills=a.Skills();
+      GUILayout.BeginArea(new Rect(12,128,Mathf.Min(Screen.width-24,520),40+skills.Length*30),GUI.skin.box);
+      GUILayout.Label("[N] Nitro  "+n.Energy.ToString("0")+"/"+n.Capacity.ToString("0")+"  •  maliyet "+n.Cost.ToString("0")+"  •  "+(n.Open?"AÇIK "+n.Left.ToString("0.0")+" sn":n.Ready?"HAZIR":"—"),text);
+      for(int i=0;i<skills.Length;i++)
+      {
+        var b=skills[i];bool red=refusedId==b.Id&&Time.unscaledTime<refusedUntil;var slot=MutantSkillSlot.Read(b,red&&a.Refusal.Reason=="basla");
+        GUILayout.Label((b.Kind=="aktif"?"["+(i+1)+"] ":"( "+(i+1)+" ) ")+b.Name+" sv"+b.Level+"  •  "+slot.Text+"  •  %"+(slot.Fill*100).ToString("0")+(red?"  •  REDDEDİLDİ":"")+(slot.State=="hazir"&&b.TargetPoint!=null?"  •  hedef":""),text);
+      }
+      GUILayout.EndArea();
+    }
     private void OnGUI()
     {
       if(!MutantRuntime.Active)return;
@@ -32,8 +48,9 @@ namespace LastTurn.Prototype
       if(Button("Duraklat / Esc"))GameFlow.Pause(!GameFlow.Paused);GUILayout.EndArea();
       if(MutantRuntime.Panel==""&&!GameFlow.Paused)
       {
+        DrawAbilities();
         GUILayout.BeginArea(new Rect(12,Screen.height-112,Mathf.Min(Screen.width-24,800),100),GUI.skin.box);
-        GUILayout.Label("WASD / oklar: sürüş   •   Boşluk: el freni   •   İşaretin içinde durarak etkileş.",text);
+        GUILayout.Label("WASD / oklar: sürüş   •   Boşluk: el freni   •   N: nitro   •   1/2/3: skill   •   Havada sol fare sürükle: burun",text);
         var p=FindFirstObjectByType<GtPrototype>();if(p&&p.Opponent!=null)GUILayout.Label(p.OpponentText(),text);
         if(MutantRuntime.Message!="")GUILayout.Label(MutantRuntime.Message,text);
         GUILayout.EndArea();return;

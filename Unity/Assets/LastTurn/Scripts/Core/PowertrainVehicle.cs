@@ -8,6 +8,7 @@ namespace LastTurn.Core
     public const double FixedDelta = FourWheelVehicle.FixedDelta;
     private PowertrainParameters p;
     public PowertrainParameters Parameters => p;
+    public VehicleSkillInput SkillInput {get;set;}=null!;
     private readonly FourWheelVehicle body;
     public VehicleState Body => body.State;
     public PowertrainState Engine { get; private set; } = null!;
@@ -169,7 +170,7 @@ namespace LastTurn.Core
         Turbo = boost, EngineTorque = torque, DriveTorque = drive, CoupledRpm = coupled, EffectiveGas = throttle,
         EffectiveBrake = brake + holdBrake, SlipLimit = slipLimit, SteeringAngle = delta, LaunchHold = hold };
       // Gövde başarısızsa motorun kısmen ilerlemiş durumu yayımlanmaz.
-      body.Step(new VehicleCommand(delta, drive, brake + holdBrake, input.Handbrake, p.Abs, slipLimit, assist));
+      body.Step(new VehicleCommand(delta, drive, brake + holdBrake, input.Handbrake, p.Abs, slipLimit, assist),SkillInput,st);
       Engine = next;
     }
     public int ShiftsUp { get; private set; }

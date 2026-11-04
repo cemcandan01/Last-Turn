@@ -24,6 +24,7 @@ namespace LastTurn.Core
     public BodyVector Velocity { get; internal set; }
     public BodyVector AngularVelocity { get; internal set; }
     public int Steps { get; internal set; }
+    public bool Airborne {get;internal set;}
     public int CenterSurface { get; internal set; } = 1;
     public double Wet { get; internal set; }
     public double Mud { get; internal set; }
@@ -38,7 +39,7 @@ namespace LastTurn.Core
       Wheels = Array.AsReadOnly(WheelData); Steps = steps;
     }
     internal VehicleState Copy() => new VehicleState(Position, Orientation, Velocity, AngularVelocity, (VehicleWheelState[])WheelData.Clone(), Steps)
-      { CenterSurface=CenterSurface,Wet=Wet,Mud=Mud,LastHitTime=LastHitTime,LastImpactSpeed=LastImpactSpeed,CollisionCount=CollisionCount };
+      { CenterSurface=CenterSurface,Wet=Wet,Mud=Mud,LastHitTime=LastHitTime,LastImpactSpeed=LastImpactSpeed,CollisionCount=CollisionCount,Airborne=Airborne };
     public double FrontLoad => Wheels[0].Load + Wheels[1].Load;
     public double RearLoad => Wheels[2].Load + Wheels[3].Load;
     public double LeftLoad => Wheels[0].Load + Wheels[2].Load;

@@ -72,7 +72,23 @@ namespace LastTurn.Prototype
       }
       if (!vehicleRoot || !followCamera) throw new InvalidOperationException("GTTest sahnesi eksik; Last Turn menüsünden sahneyi oluşturun.");
       if(AppliedGarageCarId!="")ApplyGarageVisuals(MutantRuntime.Active?MutantRuntime.Session.BuildSetup():GarageSession.DriveSetup);
-      input = new GtKeyboardInput(); ResetVehicle();
+      input = new GtKeyboardInput(); BindMutantInput(); ResetVehicle();
+    }
+    // TS mutant-ui.ts klavye: tuşlar yalnız kuyruğa girer, sonraki fizik adımında MutantAbilityDriver tüketir.
+    private void BindMutantInput()
+    {
+      if(!mutantDrive)return;
+      input.NitroPressed+=()=>MutantRuntime.Abilities?.PressNitro();
+      input.SkillPressed+=slot=>MutantRuntime.Abilities?.PressSkill(slot);
+      input.SkillReleased+=slot=>MutantRuntime.Abilities?.ReleaseSkill(slot);
+    }
+    // TS suruklemeKancasi.hava: koşu sürerken araç havadaysa (ya da parmak zaten basılıysa) sürükleme burnu çevirir.
+    private void UpdateAirControl()
+    {
+      var a=MutantRuntime.Abilities;if(!mutantDrive||a==null||Simulation==null)return;
+      string phase=MutantRuntime.Run.State["faz"].S();bool active=((phase=="surus"||phase=="boss")&&Simulation.Body.Airborne)||a.Finger;
+      if(input.AirHeld&&active){var d=input.AirDelta;if(d.X!=0||d.Y!=0)a.AirDrag(d.X,d.Y);}
+      else if(!input.AirHeld&&a.Finger)a.AirRelease();
     }
     private void OnEnable() { input?.Enable(); }
     private void OnDisable() { FlushProfileDistance();input?.Disable(); }
@@ -100,6 +116,7 @@ namespace LastTurn.Prototype
     {
       if (!focused || GameFlow.Paused || MutantRuntime.Blocked) return;
       if(ManualStepping&&Race==null)return;
+      UpdateAirControl();
       if (Race != null) { UpdateRace(); return; }
       if (input.ConsumeRestart()) { ResetVehicle(); return; }
       CurrentInput = input.Read();
@@ -129,7 +146,8 @@ namespace LastTurn.Prototype
       {
         var plan=MutantRuntime.RacePlan;if(plan==null||plan.Opponent==null)return;
         var spec=plan.Opponent;var opSetup=GarageSession.Catalog.Setup((int)spec["arac"].N(),spec["parca"].Items.Select(x=>x.S()));
-        var opParameters=OpponentRacer.CreateMutantParameters(GarageSession.Catalog,opSetup,spec["pasif"].Items.Select(x=>x.S()));
+        var opMutant=OpponentRacer.CreateMutantSetup(GarageSession.Catalog,opSetup,spec["pasif"].Items.Select(x=>x.S()));
+        var opParameters=GarageSession.Catalog.CreatePhysics(opMutant);MutantRuntime.OpponentLink=new MutantOpponentLink(GarageSession.Catalog,opMutant);
         var spawn=plan.OpponentStart();var mutantWorld=plan.Track.IsStreet?new TrackWorld(plan.Track,WorldData.Catalog):new TrackWorld(plan.Track){Environment=RaceWorld.Environment};
         Opponent=new OpponentRacer(opParameters,mutantWorld,plan.Track,plan.Event,WorldData.Opponents.Plan(plan.Track.Key,spec["kisilik"].S()),(uint)spec["tohum"].N(),spawn.X,spawn.Z,spawn.Heading);
         CreateOpponentVisual();return;
@@ -222,6 +240,8 @@ namespace LastTurn.Prototype
       Race.Finished += run => {if(mutant!=null)MutantRuntime.Finished(run,Opponent);else{FlushProfileDistance();GarageRace.Finished(run, drive);}};
       if(mutant==null){Race.GhostFactory = () => GarageRace.Ghost(info, track, Race.Session.RecordKey); Race.StartGhost();}
       RecordText = mutant!=null?"Mutant koşusu":RaceRecordText(); if (drive.Parameters != null&&mutant==null) GarageRace.Started(drive.Car); raceDrive = drive;
+      // TS mutantYarisAyari → beceriYarisBasi: rakip gövdesi, takip kredisi ve near-miss kayıtları her yarış başında sıfırlanır.
+      if(mutant!=null)MutantRuntime.Abilities?.RaceStart();
       CreateOpponent();
       runner.SyncPrevious(); previousSteer = 0; followCamera.ResetFollow(); RenderFrame(0);
     }
@@ -252,7 +272,7 @@ namespace LastTurn.Prototype
     private bool AfterRaceStep()
     {
       bool mutantContinue=true;
-      if(mutantDrive){mutantContinue=MutantRuntime.AfterPhysics(Simulation,world);parameters=Simulation.Parameters;}
+      if(mutantDrive){mutantContinue=MutantRuntime.AfterPhysics(Simulation,world,true,Opponent);parameters=Simulation.Parameters;}
       int teleports = Race.Teleports; Race.AfterPhysicsStep(lastQuantized);
       Opponent?.Step();
       ObserveRaceDistance();if(Simulation.Body.Steps%1200==0)FlushProfileDistance();
@@ -282,7 +302,7 @@ namespace LastTurn.Prototype
       if (Race.Session.State == RaceState.Countdown) { Race.TickCountdown(PowertrainVehicle.FixedDelta, value); Opponent?.Step(false); return; }
       if (Race.Session.State != RaceState.Running) return;
       previousSteer = Simulation.Engine.SteeringAngle;
-      if(mutantDrive){var q=Race.Record(value);Simulation.Step(q);MutantRuntime.AfterPhysics(Simulation,world);parameters=Simulation.Parameters;Race.AfterPhysicsStep(q);}else Race.Step(value);
+      if(mutantDrive){var q=Race.Record(value);Simulation.Step(q);MutantRuntime.AfterPhysics(Simulation,world,true,Opponent);parameters=Simulation.Parameters;Race.AfterPhysicsStep(q);}else Race.Step(value);
       Opponent?.Step();ObserveRaceDistance();if(Simulation.Body.Steps%1200==0)FlushProfileDistance();runner.SyncPrevious();
     }
     public void ConfigureRace(string key, RaceTrackVisuals visuals)

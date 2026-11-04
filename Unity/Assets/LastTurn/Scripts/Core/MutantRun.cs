@@ -139,6 +139,7 @@ namespace LastTurn.Core
     }
     public bool Damage(string type,bool ghost=false,double? powerMultiplier=null)
     {
+      if(State.Has("bec"))ghost=ghost||MutantSkills.Flags(State["bec"],State["beceriler"].Items)["hayalet"].B();
       if(type!="carpma"&&type!="spin")throw new ArgumentException("Kaynak hasar türü gerekir.",nameof(type));
       if(Finished||State["pert"].B())return false;double baseDamage=type=="carpma"?12:8;
       if(ghost){State.Set("bekleyenBeceri",CatalogNode.Arr(State["bekleyenBeceri"].Items.Append(Obj(("tur",CatalogNode.Str("KorumaEngelledi")),("miktar",CatalogNode.Num(Math.Min(N("govde"),baseDamage))),("kaynak",CatalogNode.Str(type))))));return false;}

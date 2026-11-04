@@ -1,3 +1,11 @@
+# Son devir: P4 tamam — nitro, beş skill ve fizik/oyun bağı (2026-11-04) — Claude
+
+- Dal `codex/unity-p3-mutant`; kart `docs/isler/2026-11-01-unity-tam-aktarim.md` → "P4 dilim 2–4". Codex dilim 2–3 dosyalarını commit'siz bırakıp durmuştu; Claude doğrulayıp tamamladı. Push/merge/yayın/uzun regresyon yok; `_Recovery` commit dışı.
+- TS–C#: skill 181.774 (1,78e−14), skill dünyası 17.600, kuvvet/uçuş 4.009 (3,41e−9), mekanik 589.426, **enerji akışı + HUD 971.504 (1,78e−14)**; P1–P3 koruma sayıları değişmedi.
+- Gerçek Unity batch (ayrı kopya): **P4 Play 29/29** nitro + beş skill + iki kombinasyon (Volt Kanat+havada nitro, kanca→Slipstream) gerçek fizik ve gerçek rakiple; P3 Play 39/39, P3 core 8/8, P2 Play 59/59. Denetleyiciler `check-mutant-ability-proof.mjs` vb. güncel kaynakla geçti.
+- Açık: dokunmatik düğmeler/sürükleme, skill efekt/ses, evrimli skill Play'i, şehirde kanca Play'i, insan kabulü; P1 Play etkileşimli Editor bekliyor.
+- **Sonraki tek adım:** P5 oyuncu yüzeyi — kabul ölçütleri karta yazılarak başlanır.
+
 # Son devir: P3 tamam, P4 dilim 1 (mekanik yürütücü) tamam (2026-11-02) — Claude
 
 - Dal `codex/unity-p3-mutant`, taban `5f64f5d`; kart `docs/isler/2026-11-01-unity-tam-aktarim.md` → "P3 teslimi". Codex dosyaları yazıp Play üretmeden durdu; Cem devri Claude Code'a verdi. Push/merge/yayın/uzun regresyon yok; `_Recovery` commit dışı.

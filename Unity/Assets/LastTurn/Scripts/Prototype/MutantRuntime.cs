@@ -15,6 +15,11 @@ namespace LastTurn.Prototype
     public static MutantRun Run {get;private set;}
     public static MutantGameSession Session {get;private set;}
     public static MutantRacePlan RacePlan {get;private set;}
+    /// P4: nitro/skill tuşları, enerji adımı, fizik girdisi ve HUD görünüm modeli (kural durumu Run.State'te).
+    public static MutantAbilityDriver Abilities {get;private set;}
+    /// Yarışta rakibe skill ivmesi ve gövde güç kaybı (GtPrototype rakibi kurunca bağlar).
+    public static MutantOpponentLink OpponentLink {get;set;}
+    private static MutantSkillWorldFactory worlds;
     public static int Car {get;private set;}=-1;
     public static string Panel {get;private set;}="";
     public static string Message {get;private set;}="";
@@ -26,7 +31,7 @@ namespace LastTurn.Prototype
     public static MutantMenuModel Model=>MutantMenuModel.Read(Run,GarageSession.Catalog,Car);
     private static BodyVector? returnPoint;private static double returnHeading;private static int refreshed;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void Reset(){Run=null;Session=null;RacePlan=null;Car=-1;Panel="";Message="";returnPoint=null;refreshed=0;RecordDirectory="";}
+    private static void Reset(){Run=null;Session=null;RacePlan=null;Abilities=null;OpponentLink=null;Car=-1;Panel="";Message="";returnPoint=null;refreshed=0;RecordDirectory="";}
     public static void Start(uint seed)
     {
       GarageSession.EnsureLoaded();var asset=Resources.Load<TextAsset>("mutant-catalog");
@@ -38,6 +43,8 @@ namespace LastTurn.Prototype
       if(!MutantMenuModel.StartingCars((uint)Run.State["tohum"].N(),Run.Catalog).Contains(car))return;
       Car=car;var ramp=WorldData.Catalog.Region("hub").Teleports.First(t=>t.Name=="Zıplama rampası");
       Session=new MutantGameSession(Run,GarageSession.Catalog,car,ramp.X,ramp.Z);Panel="choice";
+      if(worlds==null){var asset=Resources.Load<TextAsset>("mutant-skill-world");if(!asset)throw new InvalidOperationException("Mutant skill dünyası bulunamadı.");worlds=new MutantSkillWorldFactory(asset.text);}
+      Abilities=new MutantAbilityDriver(Run,worlds);Session.EnergyAndSkills=Abilities.Step;
     }
     public static bool Choose(string id,string drop="")
     {if(Session==null||!Run.Choose(id,drop))return false;if(Run.State["faz"].S()=="secim")return true;OpenWorld();return true;}
@@ -56,12 +63,22 @@ namespace LastTurn.Prototype
       if(Session==null||refreshed==Session.VehicleRefreshes)return;
       vehicle.Reconfigure(Session.BuildPhysics());refreshed=Session.VehicleRefreshes;
     }
-    public static bool AfterPhysics(PowertrainVehicle vehicle,IVehicleWorld world,bool raceStarted=true)
+    private static double Heading(VehicleState body){var f=body.Orientation.Rotate(new BodyVector(0,0,1));return Math.Atan2(f.X,f.Z);}
+    public static bool AfterPhysics(PowertrainVehicle vehicle,IVehicleWorld world,bool raceStarted=true,OpponentRacer opponent=null)
     {
       if(!Active||Session==null)return true;
       var p=vehicle.ReferencePoint;var drift=RaceDrift.Detect(vehicle.Body,vehicle.Assist.On);
-      var obstacles=world is IVehicleCollisionWorld collision?collision.Near(p.X,p.Z,vehicle.Body.Position.Y)
-        .Where(o=>o.Type=="solid"||o.Type=="box").Select(o=>new MutantRoadObstacle("e:"+o.X.ToString("F1",CultureInfo.InvariantCulture)+","+o.Z.ToString("F1",CultureInfo.InvariantCulture),o.X,o.Z,o.Type=="box"?JsMath.Hypot(o.HalfX,o.HalfZ):o.Radius)).ToArray():Array.Empty<MutantRoadObstacle>();
+      var near=world is IVehicleCollisionWorld collision?collision.Near(p.X,p.Z,vehicle.Body.Position.Y).ToArray():Array.Empty<WorldObstacle>();
+      var obstacles=near.Where(o=>o.Type=="solid"||o.Type=="box").Select(o=>new MutantRoadObstacle("e:"+o.X.ToString("F1",CultureInfo.InvariantCulture)+","+o.Z.ToString("F1",CultureInfo.InvariantCulture),o.X,o.Z,o.Type=="box"?JsMath.Hypot(o.HalfX,o.HalfZ):o.Radius)).ToArray();
+      var b=vehicle.Body;CatalogNode rival=null;
+      if(opponent!=null)
+      {
+        var o=opponent.Vehicle.ReferencePoint;var ob=opponent.Vehicle.Body;rival=CatalogNode.Obj();rival.Set("id",CatalogNode.Str("rakip"));
+        foreach(var (k,v) in new[]{("x",o.X),("z",o.Z),("h",Heading(ob)),("vx",ob.Velocity.X),("vz",ob.Velocity.Z)})rival.Set(k,CatalogNode.Num(v));
+      }
+      Abilities?.BeginStep(new MutantAbilityContext{X=p.X,Z=p.Z,Heading=Heading(b),Vx=b.Velocity.X,Vz=b.Velocity.Z,Y=b.Position.Y,Vy=b.Velocity.Y,
+        Ground=world.Height(p.X,p.Z),Steering=vehicle.Engine.Steering,Beta=drift.Beta,Airborne=b.Airborne,DriftOn=vehicle.Assist.On,
+        DriftDirection=vehicle.Assist.Dir,DriftCool=vehicle.Assist.Cool,Racing=InRace,RaceRunning=raceStarted,Track=RacePlan?.Track.Geometry,Opponent=rival,Obstacles=near});
       foreach(var e in Session.Step(new MutantSessionInput{X=p.X,Z=p.Z,Speed=drift.Speed,Hit=vehicle.Body.LastHitTime,Beta=drift.Beta,
         Racing=InRace,RaceStarted=raceStarted,HasSimulation=true,Drifting=drift.Active,Airborne=!vehicle.Body.Wheels.Any(w=>w.Contact),Obstacles=obstacles},PowertrainVehicle.FixedDelta))
       {
@@ -69,6 +86,11 @@ namespace LastTurn.Prototype
         else if(e.Kind=="sureDoldu")Panel="boss";
         else if(e.Kind=="hasar"&&e.Wrecked)Panel="summary";
         else if(e.Kind=="gorev")Message=e.Detail=="tamam"?"Yol görevi tamamlandı.":e.Detail=="kacti"?"Yol görevi kaçtı.":MutantRoadMissions.Name(e.Mission.Mission);
+      }
+      if(Abilities!=null)
+      {
+        if(opponent!=null&&OpponentLink!=null&&Abilities.OpponentEffect)OpponentLink.Apply(opponent.Vehicle,Abilities.OpponentAcceleration,Abilities.OpponentBody);
+        vehicle.SkillInput=Abilities.Physics(PowertrainVehicle.FixedDelta);
       }
       Refresh(vehicle);return !Blocked;
     }

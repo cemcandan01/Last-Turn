@@ -1,5 +1,9 @@
 using System.Text.Json;
 using LastTurn.Core;
+if(args.Contains("--mutant-energy")){MutantEnergyValidation.Run();return;}
+if(args.Contains("--mutant-skills")){MutantSkillsValidation.Run();return;}
+if(args.Contains("--mutant-skill-world")){MutantSkillWorldValidation.Run();return;}
+if(args.Contains("--mutant-forces")){MutantForcesValidation.Run();return;}
 if(args.Contains("--mutant-mechanics")){MutantMechanicsValidation.Run();return;}
 if(args.Contains("--mutant-race-plan")){MutantRacePlanValidation.Run();return;}
 if(args.Contains("--mutant-streets")){MutantStreetValidation.Run();return;}

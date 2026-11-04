@@ -33,7 +33,7 @@ namespace LastTurn.Core
   public static class EnvironmentCollision
   {
     // TS model.ts carpismalar, sekiz fizik alt adımından sonra; Unity collider/ikinci fizik yok.
-    public static void Apply(VehicleState s,VehicleParameters p,IVehicleCollisionWorld world,double dt,double startSpeed)
+    public static void Apply(VehicleState s,VehicleParameters p,IVehicleCollisionWorld world,double dt,double startSpeed,bool ghost=false)
     {
       var origin=s.Orientation.Rotate(new BodyVector(0,-p.CgY,-p.CgZ))+s.Position;double ox=origin.X,oz=origin.Z;
       void Impulse(double nx,double nz,double pen,double cx,double cz)
@@ -49,6 +49,7 @@ namespace LastTurn.Core
       }
       foreach(var o in world.Near(ox,oz,s.Position.Y))
       {
+        if(ghost&&o.Type=="solid")continue;
         double dx=ox-o.X,dz=oz-o.Z,dd=JsMath.Hypot(dx,dz);if(dd==0)dd=.01;
         if(o.Type=="box")
         {

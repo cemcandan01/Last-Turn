@@ -60,7 +60,7 @@ namespace LastTurn.Core
       return new[] { new BodyVector(x,y,front), new BodyVector(-x,y,front), new BodyVector(x,y,rear), new BodyVector(-x,y,rear),
         new BodyVector(x*.8,1.15,.3),new BodyVector(-x*.8,1.15,.3),new BodyVector(0,1.2,-.6) };
     }
-    public void Step(VehicleCommand command)
+    public void Step(VehicleCommand command,VehicleSkillInput skill=null!,double steering=0)
     {
       // Önceki durum bir görüntüdür; başarısız adım kısmi durum yayımlamaz.
       var s = State.Copy();
@@ -116,7 +116,9 @@ namespace LastTurn.Core
       }
       double startSpeed = Math.Sqrt(s.Velocity.X * s.Velocity.X + s.Velocity.Z * s.Velocity.Z);
       if (command.Assist != null) { double muAverage = 0; for (int i = 0; i < 4; i++) muAverage += tires[i].MuY / 4; assistAeq = 30 * muAverage * (1 + .5 * command.Assist.AeroFactor * command.Assist.Spn * command.Assist.Spn); }
-      for (int n = 0; n < Substeps; n++) Substep(s, command, steer, drive, brake, points,normals,tires);
+      int totalContacts=0;
+      for (int n = 0; n < Substeps; n++) Substep(s, command, steer, drive, brake, points,normals,tires,skill,steering,ref totalContacts);
+      s.Airborne=totalContacts==0;
       // TS drift desteği hızı korur: driftte kaybedilen hızın çoğu geri verilir, araç drift hızına itilir (yerdeyken).
       var sup = command.Assist;
       if (sup != null && sup.Support > 0 && s.WheelData.Any(w => w.Contact))
@@ -129,7 +131,7 @@ namespace LastTurn.Core
         }
       }
       // TS carpismalar: yalnız su birikintisi dalı (dekor/bariyer/sınır duvarı henüz yok). Su sağlamayan dünyada adım aynı.
-      if(world is IVehicleCollisionWorld collisions && collisions.CollisionEnabled)EnvironmentCollision.Apply(s,p,collisions,FixedDelta,startSpeed);
+      if(world is IVehicleCollisionWorld collisions && collisions.CollisionEnabled)EnvironmentCollision.Apply(s,p,collisions,FixedDelta,startSpeed,skill!=null&&skill.Ghost);
       else if (world is IVehicleWaterWorld water)
       {
         var origin2 = Point(s, 0, 0, 0); int count = water.WaterCount(origin2.X, origin2.Z);
@@ -143,7 +145,7 @@ namespace LastTurn.Core
       State = s;
     }
     private double assistAeq;
-    private void Substep(VehicleState s, VehicleCommand command, double[] steer, double[] drive, double[] brake, List<BodyVector> points,BodyVector[] normals,TireParameters[] tires)
+    private void Substep(VehicleState s, VehicleCommand command, double[] steer, double[] drive, double[] brake, List<BodyVector> points,BodyVector[] normals,TireParameters[] tires,VehicleSkillInput skill,double steering,ref int totalContacts)
     {
       double h = FixedDelta / Substeps;
       var left = s.Orientation.Rotate(new BodyVector(1, 0, 0));
@@ -273,6 +275,13 @@ namespace LastTurn.Core
         }
         if (assist.Dw > 0) ty += iy * 10 * assist.Dw * (assist.Wd - oy);
         torque += new BodyVector(0, ty, 0);
+      }
+      int contacts=s.WheelData.Count(w=>w.Contact);totalContacts+=contacts;
+      if(skill!=null)
+      {
+        force+=new BodyVector(p.Mass*skill.X,0,p.Mass*skill.Z);
+        if(skill.Flight!=null)force+=VehicleFlightControl.Apply(skill.Flight,s,up,forward,left,steering,h,
+          contacts,s.Position.Y-world.Height(s.Position.X,s.Position.Z))*p.Mass;
       }
       // TS aynı sırayı kullanır; jiroskopik omega×Iomega veya ek analitik yük transferi eklenmez.
       s.Velocity += new BodyVector(force.X / p.Mass * h, force.Y / p.Mass * h, force.Z / p.Mass * h);
