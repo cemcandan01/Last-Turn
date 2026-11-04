@@ -11,6 +11,7 @@
 ## Değişmez kurallar
 
 - TypeScript + Vite + Three.js; iPhone 13, yatay ekran. Kullanıcı metni, yorum ve commit Türkçe. Oyun arayüzünde emoji/gerçek marka logosu yok.
+- Unity geçişinde hedef işlevsel aktarımdır: kural/veri/kayıt saf katmanda, görünüm yalnız görünüm modeli + komut kullanır; geçici ekranlar nihai tasarım değildir (`docs/UNITY-GECIS.md` → “Sunum katmanı ayrımı”).
 - Oynanış, tasarım, mimari ve kayıt uyumu kararları korunur. Ayrıntılar `docs/GELISTIRICI-AYRINTILARI.md` → “Genel kurallar ve tuzaklar” ve “Kullanıcının kararları”; yalnız işe değen kısımları oku. Fizik/çekirdek saf, fizik sabit adımlı ve belirlenimci kalır.
 - Cem “mesela/örneğin” diyerek bir sorun gösterdiğinde bunu genel davranışın örneği kabul et; aynı sorunu bütün ilgili araç/ekran/türlerde araştır. Yalnız örneği düzeltip genel isteği tamamlanmış sayma; kapsanan öğeleri görev kartında ve testte belirt.
 - İş kapsamı dışında oynanışı değiştirme. Büyük/öznel tasarımda önce referansı ve beklenen örnek davranışı netleştir; test geçmesi görsel beğeninin kanıtı değildir.
@@ -24,6 +25,7 @@
 ## Gerektiğinde aç
 
 - Ortak çalışma, kabul ölçütü, devir, maliyet ölçümü: `docs/ORTAK-CALISMA.md` (**bu konularda eski sohbet/skill alışkanlıklarından önceliklidir**).
+- Codex ve Claude Code eşit yetkili ajanlardır; görev sahibi ve koordinasyon rolü görev bazında seçilir. Aynı belgedeki “Yerel koordinatör” plan/devir yordamını kullan; resmi kapasite verisi yoksa bilinmiyor yaz, açık onay olmadan API/ek krediye geçme. Unity kuralları: `docs/UNITY-GECIS.md` ve `Unity/AGENTS.md`.
 - Alan kuralları: `docs/ALANLAR.md`; HUD: `docs/HUD.md`; dosya haritası: `docs/HARITA.md`; mimari: `docs/MIMARI.md`.
 - Dallar/yayın: `docs/SUREC.md`; test/yayın yordamları: `.claude/skills/oyun-test/` ve `surum-yayinla/`. Yalnız ilgili yordamı yükle.
 - Claude'a özgü araçlar yalnız o ortamda varsa kullanılır. Diğer ortamda mevcut araçlarla aynı amacı yerine getir; olmayan merkez/bildirim/sohbet silme işlemini yapılmış sayma. Zamanlanmış görev gerçekten kurulmadıkça gece regresyonu otomatik vaat edilmez.

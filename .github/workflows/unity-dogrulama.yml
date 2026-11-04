@@ -1,0 +1,117 @@
+name: Unity doğrulama
+
+on:
+  pull_request:
+    paths:
+      - "Unity/**"
+      - ".github/workflows/unity-dogrulama.yml"
+  push:
+    branches:
+      - "codex/**"
+      - "claude/**"
+    paths:
+      - "Unity/**"
+      - ".github/workflows/unity-dogrulama.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  cekirdek:
+    name: Unity C# çekirdek
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - name: Unity proje düzeni
+        run: node Unity/Validation/validate-project.mjs
+      - name: Sabit TypeScript referansı
+        run: node Unity/Validation/export-reference.mjs --check
+      - name: Dört teker TypeScript referansı
+        run: node Unity/Validation/export-vehicle-reference.mjs --check
+      - name: Motor ve aktarma TypeScript referansı
+        run: node Unity/Validation/export-powertrain-reference.mjs --check
+      - name: Kabul edilmiş GT fizik düzeltmeleri
+        run: node Unity/Validation/export-powertrain-reference.mjs --gt-fixes --check
+      - name: Engebeli zemin TypeScript referansı
+        run: node Unity/Validation/export-terrain-reference.mjs --check
+      - name: MUTANT toprak kurulum referansı
+        run: node Unity/Validation/export-dirt-balance-reference.mjs --check
+      - name: GT üretim ve toprak profil tutarlılığı
+        run: node Unity/Validation/export-gt-prototype.mjs --check
+      - name: Katalog üreticisinin kilitli bağımlılıkları
+        run: npm ci --ignore-scripts
+      - name: TS araç ve modifiye kataloğu
+        run: node Unity/Validation/export-catalog.mjs --check
+      - name: Katalog sınıf ve ekonomi eşdeğerliği
+        run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --catalog
+      - name: Garaj TS işlem ve sürüş referansı
+        run: node Unity/Validation/export-garage.mjs --check
+      - name: Pist TS oracle tekrarı
+        run: node Unity/Validation/export-tracks.mjs --check
+      - name: Yarış kuralı TS oracle tekrarı
+        run: node Unity/Validation/export-race-rules.mjs --check
+      - name: Yarış oturumu TS oracle tekrarı
+        run: node Unity/Validation/export-race-session.mjs --check
+      - name: Yarış türleri TS oracle tekrarı
+        run: node Unity/Validation/export-race-types.mjs --check
+      - name: Sürüş yardımları TS oracle tekrarı
+        run: node Unity/Validation/export-assists.mjs --check
+      - name: Garaj sahiplik ve ekonomi eşdeğerliği
+        run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --garage
+      - name: Garaj yerel kayıt hata ve yeniden açma
+        run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --garage-storage
+      - name: Garaj sürüş adaptörü
+        run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --garage-drive
+      - name: Garaj sunum katmanı
+        run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --garage-ui
+      - name: Test paneli tür ve pist listeleri
+        run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --panel
+      - name: P1 kariyer TS kaynak izi
+        run: node Unity/Validation/export-career-flow.mjs --check
+      - name: P1 kariyer ve profil eşdeğerliği
+        run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --career-flow
+      - name: Pist tanımı, geometri ve sorgular (TS 0.8.18)
+        run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --tracks
+      - name: Dünya, çarpışma ve rakip kaynak verisi
+        run: |
+          node Unity/Validation/export-world.mjs --check
+          node Unity/Validation/export-collisions.mjs --check
+          node Unity/Validation/export-opponents.mjs --check
+      - name: Dünya ve fiziksel rakip eşdeğerliği (P2)
+        run: |
+          dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --world
+          dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --opponents
+          dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --opponent-drive
+      - name: Yarış kuralları (drift, ters, pist dışı, kesme, yıldız)
+        run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --race-rules
+      - name: Yarış oturumu ve pist dünyası (TS evTick/endEvent/yarisBitti)
+        run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --race-session
+      - name: gp_1 gerçek fizikle yarış
+        run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --race-drive
+      - name: Yarış türleri (40 pist zemini, su, drift algısı)
+        run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --race-types
+      - name: Sürüş yardımları (TS tam simülasyon, 3 seviye) ve kalıcılık
+        run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --assists
+      - name: Drag manuel vites ve kalkış (gerçek fizik)
+        run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --drag
+      - name: 40 pist gerçek fizikle
+        run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --race-all
+      - name: Motor bağımsız C# kuralları
+        run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release
+
+  editor-testleri:
+    # UNITY_LICENSE eklendiğinde bu iş GameCI ile Unity EditMode testine dönüştürülecek.
+    # Lisans olmadan yanıltıcı şekilde başarılı bir Unity derlemesi iddia etmeyiz.
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Unity Editor testleri lisans kurulumu bekliyor.'

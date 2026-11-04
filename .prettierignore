@@ -9,3 +9,6 @@ package-lock.json
 index.html
 # regresyon kayıtları regression sohbetinin ürettiği JSON'lar
 docs/regresyon/
+# Unity üretilmiş verisi: oracle/Play kanıtı bayt düzeyinde karşılaştırır
+Unity/Validation/Reference/
+Unity/Assets/LastTurn/Resources/

@@ -25,7 +25,9 @@
     "ses": "node tests/e2e/ses-kaydi.mjs",
     "cihaz": "node tests/cihaz.mjs",
     "menugorsel": "node scripts/menu-gorsel.mjs",
-    "calisma": "node scripts/calisma.mjs"
+    "calisma": "node scripts/calisma.mjs",
+    "koordinator": "node scripts/koordinator.mjs",
+    "test:koordinator": "node --test scripts/tests/koordinator.test.mjs scripts/tests/ajan-yonlendirme.test.mjs scripts/tests/abonelik.test.mjs"
   },
   "engines": {
     "node": ">=22.12"
