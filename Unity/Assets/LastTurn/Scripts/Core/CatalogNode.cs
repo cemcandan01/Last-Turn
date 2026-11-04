@@ -22,6 +22,13 @@ namespace LastTurn.Core
     public string S(string fallback="") => value is string s ? s : fallback;
     public bool B() => value is bool b && b;
     public bool IsNumber => value is double;
+    public static CatalogNode Bool(bool b) => new CatalogNode(b);
+    public static CatalogNode Null() => new CatalogNode(null!);
+    public bool IsBool => value is bool;
+    public bool IsString => value is string;
+    public bool IsNull => value == null;
+    public bool IsObject => value is Dictionary<string,CatalogNode>;
+    public bool IsArray => value is List<CatalogNode>;
     public IEnumerable<CatalogNode> Items => value is List<CatalogNode> a ? a : Enumerable.Empty<CatalogNode>();
     public IEnumerable<KeyValuePair<string,CatalogNode>> Fields => value is Dictionary<string,CatalogNode> d ? d : Enumerable.Empty<KeyValuePair<string,CatalogNode>>();
     public void Set(string key,CatalogNode n) { ((Dictionary<string,CatalogNode>)value)[key]=n; }

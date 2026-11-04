@@ -5,7 +5,12 @@ Otomatik testler kural, fizik ve akışı doğrular; ekrandaki görünümü, dok
 Hazırlık: Unity 6000.3.9f1 → `Last Turn/Ana Menüyü Aç` → Play. Kayıtlar: `%USERPROFILE%/AppData/LocalLow/<şirket>/<ürün>/` altında `LastTurnGarage` (kariyer), `LastTurnMutant` (Mutant rekoru), `LastTurnSettings` (tercihler). Denemeden önce bu klasörlerin yedeğini al.
 
 ## 1. Kariyer (P1)
-1. Ana menü → Profil: adı değiştir, kaydet. **Beklenen:** ad kalıcı; "Bulut hesabı: bu sürümde bağlı değil" yazısı (sahte giriş yok).
+1. Ana menü → Profil: adı değiştir, kaydet. **Beklenen:** ad kalıcı.
+   - **Bulut (internet açık):** "BULUT HESABI" satırı birkaç saniyede "Misafir (yalnız bu cihaz) · Bulutta" olur. Bir yarış bitir veya para harca; ~4 sn sonra yine "Bulutta".
+   - **E-posta bağlama:** e-posta + şifre (+ tekrar) → "Hesap oluştur". **Beklenen:** "Bağlandı: … · Seviye N · İlerlemen bulutta"; web oyununda (deneme adresi → Profil → E-posta ile giriş) aynı hesapla girince aynı seviye/para/yıldız/rekor görünür. Web'de ilerleyip Unity'yi yeniden açınca birleşmiş ilerleme gelir.
+   - **Var olan hesaba giriş:** Unity'deki misafir ilerlemesi o hesabınkiyle değişir (web kuralıyla aynı). Yanlış şifrede "E-posta ya da şifre yanlış … · Hesap değişmedi". "Şifremi unuttum" Türkçe e-posta gönderir.
+   - **İnternet kapalı:** satır "İnternet gelince gönderilecek"; açınca kendiliğinden gönderir. Google girişi bu sürümde yok.
+   - Bulut dosyaları `LastTurnGarage/cloud-v1.json` (sahip/bekleyen) ve `cloud-session-v1.json` (oturum; şifre saklanmaz). Geliştirici profili ve otomatik testler buluta bağlanmaz.
 2. Garaj → araç satın al, bir parça tak/sök. **Beklenen:** para düşer, araç değerleri değişir; yeniden açılışta aynı.
 3. Yarış seç (her türden bir pist: gp, rx, dp, rl, dg). Günün saati/hava çiplerinden **Yağmurlu** seç. **Beklenen:** HUD'da "Yağmurlu"; araç belirgin kayar, fren mesafesi uzar.
 4. Yarışı bitir. **Beklenen:** sonuç ekranı, ödül/XP, rekor; rekor hayaleti (Ayarlar → Mekanikler → Rekor hayaleti açıkken) sonraki denemede görünür, kapalıyken görünmez.

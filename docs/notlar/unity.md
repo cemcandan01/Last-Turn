@@ -8,5 +8,6 @@
 - Bırakılan: drag'de yan şeritten Slipstream takibi geometrik olarak tutmaz (TS'de de); test sürücüsü rakip şeridine geçer.
 - Cem: iş paketleri arasında onay beklenmez; push/merge/yayın yalnız açık istekle.
 - Cem (2026-11-05): geliştirme Windows'ta; mobil (dokunma/eğim/cihaz derlemesi) sonraya. Bulut orijinal Firebase projesiyle (`src/bulut/ayar.ts`), aynı hesaplar/`users/{uid}`; SDK yerine REST.
-- Açık: Firebase REST bağdaştırıcısı, görsel/menü/ses varlık fazı, kokpit/ayna, Mutant bölge 3 Play.
-- Sonraki: Windows Firebase REST bağdaştırıcısı (misafir, e-posta bağlama, belge oku/yaz + CloudContract birleştirme), ardından görsel/menü fazı.
+- P6-A bulut (2026-11-05): Firebase REST (SDK yok), `CloudSync`/`CloudAccount` TS esitleme/hesap kuralıyla; yalnız `GarageSession.PlayerProfile` eşitlenir. Taşıyıcı HttpClient (projede UnityWebRequest modülü kapalı). `--cloud-sync` 92.
+- Açık: canlı bulut kabulü (Cem Play), masaüstü Google girişi, bilinen hesaplar/admin/yeni oyuncu; CI `--race-all` kalıyor (yerelde 40/40, log yetkisi yok); görsel/menü/ses fazı, kokpit/ayna, Mutant bölge 3 Play.
+- Sonraki: Cem bulutu Play'de dener; ardından görsel/menü fazı için referans/beklenti sorulur.
