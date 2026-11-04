@@ -34,7 +34,15 @@ export function buildGarageReference() {
       }
       const setup = parts.parcaliKurulum(selected, m.takiliParcalar(selected), "norm");
       return {
-        snapshot: { version: 1, baseline, catalogGeneration: 1, selectedCar: selected, assistLevel: "norm", progress, equipped },
+        snapshot: {
+          version: 1,
+          baseline,
+          catalogGeneration: 1,
+          selectedCar: selected,
+          assistLevel: "norm",
+          progress,
+          equipped,
+        },
         balance: p.para(),
         level: p.seviye().lv,
         setup: {

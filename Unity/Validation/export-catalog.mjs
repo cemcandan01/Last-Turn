@@ -39,9 +39,27 @@ export function createBaselineLoader({ stubs = false, extraExports = {} } = {}) 
   };
   const globals = stubs
     ? Object.fromEntries(
-        ["document", "window", "navigator", "HTMLCanvasElement", "Image", "requestAnimationFrame", "addEventListener",
-          "matchMedia", "AudioContext", "location", "performance", "setTimeout", "clearTimeout", "devicePixelRatio",
-          "innerWidth", "innerHeight", "screen", "fetch", "OffscreenCanvas"].map((k) => [k, universalStub()]),
+        [
+          "document",
+          "window",
+          "navigator",
+          "HTMLCanvasElement",
+          "Image",
+          "requestAnimationFrame",
+          "addEventListener",
+          "matchMedia",
+          "AudioContext",
+          "location",
+          "performance",
+          "setTimeout",
+          "clearTimeout",
+          "devicePixelRatio",
+          "innerWidth",
+          "innerHeight",
+          "screen",
+          "fetch",
+          "OffscreenCanvas",
+        ].map((k) => [k, universalStub()]),
       )
     : {};
   const context = vm.createContext({
@@ -56,7 +74,8 @@ export function createBaselineLoader({ stubs = false, extraExports = {} } = {}) 
   });
   function load(name) {
     name = path.posix.normalize(name.endsWith(".ts") ? name : name + ".ts");
-    if (!name.startsWith("src/") && !(stubs && name.startsWith("tests/yardimci/"))) throw new Error("Katalog dışı modül: " + name);
+    if (!name.startsWith("src/") && !(stubs && name.startsWith("tests/yardimci/")))
+      throw new Error("Katalog dışı modül: " + name);
     if (modules.has(name)) return modules.get(name).exports;
     const module = { exports: {} };
     modules.set(name, module);
@@ -67,7 +86,10 @@ export function createBaselineLoader({ stubs = false, extraExports = {} } = {}) 
     // Doğrulama için kaynakta iç fonksiyonu dışa aç (gövde değişmez).
     if (extraExports[name]) source += "\nexport { " + extraExports[name].join(", ") + " };";
     // Vite ortamı: taklit modunda üretim dışı sabit değerler (geliştirici/deneme bayrakları kapalı).
-    if (stubs) source = source.replaceAll("import.meta.env", '({ MODE: "test", DEV: false, PROD: true, BASE_URL: "/" })').replaceAll("import.meta.url", '"file:///baseline/"');
+    if (stubs)
+      source = source
+        .replaceAll("import.meta.env", '({ MODE: "test", DEV: false, PROD: true, BASE_URL: "/" })')
+        .replaceAll("import.meta.url", '"file:///baseline/"');
     const code = ts.transpileModule(source, {
       compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
     }).outputText;

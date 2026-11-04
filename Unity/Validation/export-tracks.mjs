@@ -16,7 +16,7 @@ const composition = {
     "kerbs(TR);",
     "def.j!.map(([q, f]) => [q, straightF(TR, f)]),",
     'MUD = def.m!.map((f) => ({ ...onTrack(TR, f), r: def.t == "rl" ? 9 : 15 })),',
-    'WAT = def.w!.map((f, q) => ({',
+    "WAT = def.w!.map((f, q) => ({",
     '...onTrack(TR, f, (q % 2 ? 1 : -1) * (def.t == "rl" ? 1.5 : 3)),',
     'r: def.t == "rl" ? 4 : 6,',
     "const inAs = (i: number) => (def.as || []).some(([a, b]) => TR.S[i] >= a * TR.len && TR.S[i] <= b * TR.len);",
@@ -40,7 +40,8 @@ export function checkComposition(loader) {
   const hashes = {};
   for (const [file, lines] of Object.entries(composition)) {
     const text = loader.read(file);
-    for (const line of lines) if (!text.includes(line)) throw new Error(file + " bileşim satırı değişmiş: " + line);
+    for (const line of lines)
+      if (!text.includes(line)) throw new Error(file + " bileşim satırı değişmiş: " + line);
     hashes[file] = loader.sources[file];
   }
   return hashes;

@@ -9,7 +9,8 @@ export const SCRIPTS = {
   // kalkış, sola viraj, fren
   viraj: (n) => (n < 180 ? [0, 1, 0, 0] : n < 360 ? [0.6, 1, 0, 0] : [0, 0, 1, 0]),
   // hızlan, el freniyle dön, karşı direksiyon + gaz
-  elfreni: (n) => (n < 240 ? [0, 1, 0, 0] : n < 262 ? [1, 1, 0, 1] : n < 460 ? [-0.5, 1, 0, 0] : [0, 0.4, 0, 0]),
+  elfreni: (n) =>
+    n < 240 ? [0, 1, 0, 0] : n < 262 ? [1, 1, 0, 1] : n < 460 ? [-0.5, 1, 0, 0] : [0, 0.4, 0, 0],
   // hızlan, tam direksiyon + gaz (kıç kayması / drift başlatma), sonra karşı direksiyon
   gaz: (n) => (n < 300 ? [0, 1, 0, 0] : n < 420 ? [1, 1, 0, 0] : n < 600 ? [-0.6, 1, 0, 0] : [0, 0.5, 0, 0]),
 };
@@ -39,7 +40,13 @@ export function buildAssists() {
       if (level == "zero") K.as = { grip: 0, str: 0, stm: 0, tcs: 0, abs: 0, dft: 0, ini: 0, acc: 1, bra: 1 };
       for (const [name, script] of Object.entries(SCRIPTS)) {
         const sim = new Sim.Simulasyon(7),
-          cx = { dunya: W, kurulum: K, olay: { spin() {}, puf() {}, caliRengi: () => 0 }, rng: sim.rng, gorselRng: () => 0.5 };
+          cx = {
+            dunya: W,
+            kurulum: K,
+            olay: { spin() {}, puf() {}, caliRengi: () => 0 },
+            rng: sim.rng,
+            gorselRng: () => 0.5,
+          };
         sim.sifirla(0, 0, 0, 0);
         const S = sim.d.S,
           DR = sim.d.DR,
@@ -47,7 +54,8 @@ export function buildAssists() {
         for (let n = 0; n < 700; n++) {
           const [tg, g, b, dbr] = script(n);
           sim.adim({ tg, g, b, analogDireksiyon: false, analogGaz: false, dbr: !!dbr }, cx);
-          if (n % 10 == 9) rows.push([n + 1, S.x, S.z, S.h, S.vx, S.vz, DR.k, DR.on ? 1 : 0, sim.d.D.beta ?? 0]);
+          if (n % 10 == 9)
+            rows.push([n + 1, S.x, S.z, S.h, S.vx, S.vz, DR.k, DR.on ? 1 : 0, sim.d.D.beta ?? 0]);
         }
         cases.push({ car, level, as: K.as, pk: K.pk, tire: K.tire, script: name, rows });
       }
@@ -69,7 +77,10 @@ export function main() {
   } else fs.writeFileSync(target, output);
   console.log(
     `${process.argv.includes("--check") ? "Doğrulandı" : "Yazıldı"}: ${value.cases.length} durum (araç × seviye × betik); seviyeler ${Object.keys(value.levels).join(", ")}; ` +
-      value.cases.filter((c) => c.script == "elfreni").map((c) => `${c.car}/${c.level} DR.k max ${Math.max(...c.rows.map((r) => r[6])).toFixed(2)}`).join(", "),
+      value.cases
+        .filter((c) => c.script == "elfreni")
+        .map((c) => `${c.car}/${c.level} DR.k max ${Math.max(...c.rows.map((r) => r[6])).toFixed(2)}`)
+        .join(", "),
   );
 }
 

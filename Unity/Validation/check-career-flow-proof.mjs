@@ -3,7 +3,8 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 const root = path.resolve(import.meta.dirname, "..");
 const p = JSON.parse(fs.readFileSync(path.join(root, "Logs/p1-play.json"), "utf8"));
-if (p.result !== "p1-play-passed" || p.checks.length < 65) throw new Error("P1 Play başarısız veya eksik: " + p.error);
+if (p.result !== "p1-play-passed" || p.checks.length < 65)
+  throw new Error("P1 Play başarısız veya eksik: " + p.error);
 const files = fs
   .readdirSync(path.join(root, "Assets/LastTurn"), { recursive: true })
   .filter((f) => /\.(cs|meta|json|unity)$/.test(f));

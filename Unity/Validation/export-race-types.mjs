@@ -8,7 +8,10 @@ import { baseline, createBaselineLoader, root } from "./export-catalog.mjs";
 export function buildRaceTypes() {
   const L = createBaselineLoader({
     stubs: true,
-    extraExports: { "src/fizik/yeni/model.ts": ["carpismalar", "noktaDunya"], "src/oyun/surus.ts": ["surusKurulumu"] },
+    extraExports: {
+      "src/fizik/yeni/model.ts": ["carpismalar", "noktaDunya"],
+      "src/oyun/surus.ts": ["surusKurulumu"],
+    },
   });
   const { load } = L;
   const Y = load("src/oyun/yarislar"),
@@ -114,13 +117,28 @@ export function buildRaceTypes() {
     if (!Y.startEvent(dp, car)) throw new Error("drift başlamadı " + car);
     // TS surusAdimi her adımda yerel.cx.kurulum = surusKurulumu() yapar; yarış başındaki gerçek kurulum budur.
     const K = S.surusKurulumu();
-    profiles.push({ car, azami: O.driftYarisProfili(K).azami, tire: K.tire, lock: K.tu.lock, diff: K.tu.diff, dft: K.as.dft });
+    profiles.push({
+      car,
+      azami: O.driftYarisProfili(K).azami,
+      tire: K.tire,
+      lock: K.tu.lock,
+      diff: K.tu.diff,
+      dft: K.as.dft,
+    });
     Y.leaveEvent();
   }
   I.adminKipi(false);
 
   const sources = Object.fromEntries(Object.entries(L.sources).sort(([x], [y]) => x.localeCompare(y)));
-  return { baseline, generator: "Unity/Validation/export-race-types.mjs", sources, world, water, drift, profiles };
+  return {
+    baseline,
+    generator: "Unity/Validation/export-race-types.mjs",
+    sources,
+    world,
+    water,
+    drift,
+    profiles,
+  };
 }
 
 export function main() {
@@ -134,7 +152,8 @@ export function main() {
     }
   } else fs.writeFileSync(target, output);
   const surfaces = {};
-  for (const w of value.world) for (const r of w.rows.slice(1)) for (const s of r[3]) surfaces[s] = (surfaces[s] || 0) + 1;
+  for (const w of value.world)
+    for (const r of w.rows.slice(1)) for (const s of r[3]) surfaces[s] = (surfaces[s] || 0) + 1;
   console.log(
     `${process.argv.includes("--check") ? "Doğrulandı" : "Yazıldı"}: ${value.world.length} pist × 300 dünya adımı (yüzey dağılımı ${JSON.stringify(surfaces)}), ` +
       `su ${value.water.length} durum (${value.water.filter((w) => w.after[2] == 1).length} ıslak), drift ${value.drift.length} (${value.drift.filter((d) => d[4]).length} aktif), ` +

@@ -27,7 +27,10 @@ export function buildRaceSession() {
   B.note = (t) => notes.push(t);
 
   const types = Object.fromEntries(
-    Object.entries(Y.TYP).map(([k, t]) => [k, { k: t.k, pk: t.pk, laps: t.laps ?? 0, v: t.v ?? 0, n: t.n, d: t.d }]),
+    Object.entries(Y.TYP).map(([k, t]) => [
+      k,
+      { k: t.k, pk: t.pk, laps: t.laps ?? 0, v: t.v ?? 0, n: t.n, d: t.d },
+    ]),
   );
   const events = Y.EVENTS.map((e, i) => ({
     i,
@@ -173,18 +176,21 @@ export function buildRaceSession() {
         st = snap(EV),
         sig = [st[1], st[2], st[6], st[8] > 0, st[9] != null, EV.state].join();
       // Ara durum: her 30 adımda, değişimde, olayda ve drift yarışında her adımda (dosya boyutu)
-      const full = key.startsWith("dp") || n % 30 == 0 || sig != ctx.sig || notes.length || moved || EV.state != "run";
+      const full =
+        key.startsWith("dp") || n % 30 == 0 || sig != ctx.sig || notes.length || moved || EV.state != "run";
       ctx.sig = sig;
       const input = key.startsWith("dp")
           ? [x, z, vx, vz, Math.abs(v), c.act ? 1 : 0, c.beta ?? 0, c.grass ?? 0, c.tg ?? 0.5, S.sim.d.zaman]
           : [x, z, vx, vz, Math.abs(v)],
         row = [input, ti, full ? st : null];
-      if (notes.length) row.push(notes), (notes = []);
+      if (notes.length) {
+        row.push(notes);
+        notes = [];
+      }
       if (moved) {
         row.push({ teleport: [S.sim.S.x, S.sim.S.z, S.sim.S.h], hint: P.ipucu.ti });
         // ışınlanma: araç dönüş noktasından devam eder
         ctx.s = P.parcayaIzdusum(TR, S.sim.S.x, S.sim.S.z, P.ipucu.ti)[0];
-        if (!TR.open) ctx.s = ctx.s;
         ctx.lat = 0;
         ctx.teleported = (ctx.teleported || 0) + 1;
       }
@@ -194,7 +200,16 @@ export function buildRaceSession() {
     Object.assign(out, {
       state: EV.state,
       driftLimit: azami,
-      result: { t: EV.t, bestLap: EV.bestLap, lap: EV.lap, score: EV.score, yildiz: EV.yildiz, xp: EV.xp, para: EV.para, trap: EV.trap ?? null },
+      result: {
+        t: EV.t,
+        bestLap: EV.bestLap,
+        lap: EV.lap,
+        score: EV.score,
+        yildiz: EV.yildiz,
+        xp: EV.xp,
+        para: EV.para,
+        trap: EV.trap ?? null,
+      },
       after: { xp: prog.xp, kazanilan: prog.kazanilan, yildiz: prog.yildiz },
       // TS sonucGoster rekoru (sv_<k>, metin) ve profil sayaçları (startEvent use, endEvent races/wins)
       record: L.storage.get("sv_" + EV.k) ?? null,
@@ -219,7 +234,10 @@ export function buildRaceSession() {
       "gp_1 pist dışı ve dönüş",
       "gp_1",
       gp,
-      (n, c) => (!c.teleported && c.s > 300 ? { v: 2, lat: 25 + 12 } : { v: 40, lat: c.s > 280 && !c.teleported ? 6 : 0 }),
+      (n, c) =>
+        !c.teleported && c.s > 300
+          ? { v: 2, lat: 25 + 12 }
+          : { v: 40, lat: c.s > 280 && !c.teleported ? 6 : 0 },
       20000,
     ),
   );
@@ -233,7 +251,15 @@ export function buildRaceSession() {
       D2 = load("src/oyun/piste-donus");
     let dis = 0;
     for (let t = 0; t <= 1; t += 0.01)
-      dis = Math.max(dis, D2.pistKonumu(TR, TR.P[A][0] + (TR.P[Bp][0] - TR.P[A][0]) * t, TR.P[A][1] + (TR.P[Bp][1] - TR.P[A][1]) * t, A).uzaklik);
+      dis = Math.max(
+        dis,
+        D2.pistKonumu(
+          TR,
+          TR.P[A][0] + (TR.P[Bp][0] - TR.P[A][0]) * t,
+          TR.P[A][1] + (TR.P[Bp][1] - TR.P[A][1]) * t,
+          A,
+        ).uzaklik,
+      );
     if (!(dis > D2.pistKenari(TR) + 5)) throw new Error("kestirme pist dışına çıkmıyor: " + dis);
     let chord = null;
     scenarios.push(
@@ -256,7 +282,8 @@ export function buildRaceSession() {
             return { x, z, a, v: 40 };
           }
           const sm = ((c.s % TR.len) + TR.len) % TR.len;
-          if (!chord && sm >= TR.S[A] && sm < TR.S[A] + 40) chord = { t: 0, L: Math.hypot(TR.P[Bp][0] - TR.P[A][0], TR.P[Bp][1] - TR.P[A][1]) };
+          if (!chord && sm >= TR.S[A] && sm < TR.S[A] + 40)
+            chord = { t: 0, L: Math.hypot(TR.P[Bp][0] - TR.P[A][0], TR.P[Bp][1] - TR.P[A][1]) };
           return { v: 40, lat: 0 };
         },
         20000,
@@ -291,7 +318,9 @@ export function buildRaceSession() {
   // 7) ralli A→B açık pist
   scenarios.push(run("rl_1 A→B", "rl_1", rule("rl_1"), () => ({ v: 30, lat: 0 }), 40000));
   // 8) drag: düz çizgi, tuzak hızı
-  scenarios.push(run("dg_1 drag", "dg_1", rule("dg_1"), (n) => ({ v: Math.min(60, 5 + n * 0.25), lat: 0 }), 4000));
+  scenarios.push(
+    run("dg_1 drag", "dg_1", rule("dg_1"), (n) => ({ v: Math.min(60, 5 + n * 0.25), lat: 0 }), 4000),
+  );
   // 8b) drag yavaş: 0 yıldız (önceki 3 yıldızla)
   scenarios.push(run("dg_1 yavaş 0 yıldız", "dg_1", rule("dg_1"), () => ({ v: 8, lat: 0 }), 4000));
   // 9) drift: 2 tur, 1. tur tamamen driftle (x6), arada çim (kombo yanar) ve bank
@@ -300,7 +329,14 @@ export function buildRaceSession() {
       "dp_1 drift x6",
       "dp_1",
       rule("dp_1"),
-      (n) => ({ v: 22, lat: 0, act: n % 600 < 560, beta: 0.45 * (n % 1200 < 600 ? 1 : -1), grass: n % 2000 > 1990 ? 4 : 0, tg: n % 900 < 300 ? 0.02 : 0.6 }),
+      (n) => ({
+        v: 22,
+        lat: 0,
+        act: n % 600 < 560,
+        beta: 0.45 * (n % 1200 < 600 ? 1 : -1),
+        grass: n % 2000 > 1990 ? 4 : 0,
+        tg: n % 900 < 300 ? 0.02 : 0.6,
+      }),
       40000,
     ),
   );
@@ -311,9 +347,20 @@ export function buildRaceSession() {
     const k = GK.kayitBaslat(1, { x: 0, z: 0, h: 0, y: 0 });
     const values = [-1.2, -1, -0.7, -0.5, -1 / 3, -1e-6, 0, 1e-6, 0.25, 0.5, 1.5 / 32767, 0.999999, 1, 1.3];
     values.forEach((v, i) => {
-      const gi = { tg: v, g: Math.abs(values[(i + 3) % values.length]), b: Math.abs(values[(i + 7) % values.length]), analogDireksiyon: i % 2 == 0, analogGaz: i % 3 == 0, dbr: i % 4 == 0 };
+      const gi = {
+        tg: v,
+        g: Math.abs(values[(i + 3) % values.length]),
+        b: Math.abs(values[(i + 7) % values.length]),
+        analogDireksiyon: i % 2 == 0,
+        analogGaz: i % 3 == 0,
+        dbr: i % 4 == 0,
+      };
       const out = GK.girdiyiKaydet(k, gi);
-      quantize.push({ in: [gi.tg, Math.min(1, gi.g), Math.min(1, gi.b), gi.analogDireksiyon, gi.analogGaz, gi.dbr], out: [out.tg, out.g, out.b], raw: Array.from(k.veri.slice(i * 4, i * 4 + 4)) });
+      quantize.push({
+        in: [gi.tg, Math.min(1, gi.g), Math.min(1, gi.b), gi.analogDireksiyon, gi.analogGaz, gi.dbr],
+        out: [out.tg, out.g, out.b],
+        raw: Array.from(k.veri.slice(i * 4, i * 4 + 4)),
+      });
     });
   }
   // --- hayalet kaydetme kuralı (TS hayaletKaydet): sıra bağımlı kabul/ret ---
@@ -321,7 +368,8 @@ export function buildRaceSession() {
   {
     const kayit = (n, kesik = false, tasti = false) => {
       const k = GK.kayitBaslat(1, { x: 0, z: 0, h: 0, y: 0 });
-      for (let i = 0; i < n; i++) GK.girdiyiKaydet(k, { tg: 0, g: 1, b: 0, analogDireksiyon: false, analogGaz: false, dbr: false });
+      for (let i = 0; i < n; i++)
+        GK.girdiyiKaydet(k, { tg: 0, g: 1, b: 0, analogDireksiyon: false, analogGaz: false, dbr: false });
       k.kesik = kesik;
       k.tasti = tasti;
       return k;
@@ -345,7 +393,17 @@ export function buildRaceSession() {
       ["drift", 120, 10, true, false, false, 0],
     ]) {
       const ok = G.hayaletKaydet(key, 0, sure, kayit(n, kesik, tasti), drift, kurulum, bas);
-      ghostRules.push({ key, sure: Number.isNaN(sure) ? "NaN" : sure, n, drift, kesik, tasti, bas, ok, stored: G.hayaletOku(key)?.sure ?? null });
+      ghostRules.push({
+        key,
+        sure: Number.isNaN(sure) ? "NaN" : sure,
+        n,
+        drift,
+        kesik,
+        tasti,
+        bas,
+        ok,
+        stored: G.hayaletOku(key)?.sure ?? null,
+      });
     }
   }
 
@@ -376,7 +434,10 @@ export function main() {
   console.log(
     `${process.argv.includes("--check") ? "Doğrulandı" : "Yazıldı"}: ${resource.events.length} etkinlik; dünya ${fixture.world.map((w) => w.key + " " + (w.rows.length - 1)).join(", ")} adım; ` +
       fixture.scenarios
-        .map((s) => `${s.name}: ${s.steps.length} adım, tur ${s.result.lap}, ${s.result.t.toFixed(2)} sn, ${s.result.yildiz}★, +${s.result.xp} XP +${s.result.para} para, kariyer ${s.career}`)
+        .map(
+          (s) =>
+            `${s.name}: ${s.steps.length} adım, tur ${s.result.lap}, ${s.result.t.toFixed(2)} sn, ${s.result.yildiz}★, +${s.result.xp} XP +${s.result.para} para, kariyer ${s.career}`,
+        )
         .join("; "),
   );
 }

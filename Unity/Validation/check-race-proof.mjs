@@ -17,17 +17,28 @@ if (
 )
   throw new Error("Yarış Play kanıtı eksik/başarısız: " + (proof.error || proof.result + " " + keys));
 const root = path.join(project, "Assets/LastTurn");
-const files = (await fs.readdir(root, { recursive: true })).filter((p) => /\.(cs|unity|mat|meta|json)$/.test(p));
+const files = (await fs.readdir(root, { recursive: true })).filter((p) =>
+  /\.(cs|unity|mat|meta|json)$/.test(p),
+);
 if (files.length !== proof.sources.length) throw new Error("Yarış Play kaynak kapsamı değişmiş");
 for (const p of files) {
   const name = path.relative(project, path.join(root, p)).replaceAll("\\", "/");
-  const hash = createHash("sha256").update(await fs.readFile(path.join(root, p))).digest("hex");
-  if (!proof.sources.some((s) => s.path === name && s.sha256 === hash)) throw new Error("Eski yarış Play kaynağı: " + name);
+  const hash = createHash("sha256")
+    .update(await fs.readFile(path.join(root, p)))
+    .digest("hex");
+  if (!proof.sources.some((s) => s.path === name && s.sha256 === hash))
+    throw new Error("Eski yarış Play kaynağı: " + name);
 }
 console.log(
   `Unity ${proof.unityVersion}: yarış Play ${proof.checks.length} kontrol; ` +
     proof.tracks
-      .map((t) => `${t.key} ${t.finishTime} ${t.stars}★ +${t.money}` + (t.wet ? ` ıslak ${t.wet}` : "") + (t.drift ? ` drift ${t.drift}/${t.score}p` : "") + (t.trap ? ` tuzak ${Math.round(t.trap)}` : ""))
+      .map(
+        (t) =>
+          `${t.key} ${t.finishTime} ${t.stars}★ +${t.money}` +
+          (t.wet ? ` ıslak ${t.wet}` : "") +
+          (t.drift ? ` drift ${t.drift}/${t.score}p` : "") +
+          (t.trap ? ` tuzak ${Math.round(t.trap)}` : ""),
+      )
       .join("; ") +
     `; kayıt bakiyesi ${proof.savedBalance}; piste dönüş ${proof.returnSteps} adım; ${files.length} kaynak hash'i güncel; ${proof.utc}.`,
 );

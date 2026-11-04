@@ -52,7 +52,19 @@ export function buildRaceRules() {
   };
 
   // --- drift: her adım [act, beta, lost, v, ters, dt, tg, zaman, x6] ya da "bank"; sonrasında tam durum ---
-  const driftState = (E) => [E.score, E.combo, E.ct, E.mult, E.gap, E.best, E.bonus, E.uzunT, E.dirT, E.yanT, E.yan];
+  const driftState = (E) => [
+    E.score,
+    E.combo,
+    E.ct,
+    E.mult,
+    E.gap,
+    E.best,
+    E.bonus,
+    E.uzunT,
+    E.dirT,
+    E.yanT,
+    E.yan,
+  ];
   const driftRun = (name, steps) => {
     const E = R.bosDriftSayaci(),
       out = [];
@@ -68,8 +80,14 @@ export function buildRaceRules() {
   const rep = (n, f) => Array.from({ length: n }, (_, k) => f(k));
   const drift = [
     // yildiz.test.ts senaryoları (adım girdileri birebir)
-    driftRun("asgari açı 0,01", rep(30, () => [true, 0.01, false, 20, false, DT])),
-    driftRun("asgari açı 10°", rep(30, () => [true, (10 * Math.PI) / 180, false, 20, false, DT])),
+    driftRun(
+      "asgari açı 0,01",
+      rep(30, () => [true, 0.01, false, 20, false, DT]),
+    ),
+    driftRun(
+      "asgari açı 10°",
+      rep(30, () => [true, (10 * Math.PI) / 180, false, 20, false, DT]),
+    ),
     driftRun("geçiş", [
       ...rep(30, () => [true, 0.4, false, 20, false, DT]),
       ...rep(41, () => [false, 0.2, false, 20, false, DT]),
@@ -93,7 +111,12 @@ export function buildRaceRules() {
       [1.4, 25],
       [1.1, 25],
       [0.6, 25],
-    ].map(([b, v]) => driftRun(`puan hızı ${b}/${v}`, rep(60, () => [true, b, false, v, false, DT]))),
+    ].map(([b, v]) =>
+      driftRun(
+        `puan hızı ${b}/${v}`,
+        rep(60, () => [true, b, false, v, false, DT]),
+      ),
+    ),
     driftRun(
       "bonus 5,5 sn",
       rep(330, (k) => [true, 0.5, false, 25, false, DT, 0.8, k * DT]),
@@ -140,7 +163,17 @@ export function buildRaceRules() {
       t += dt;
       if (r() < 0.004) steps.push("bank");
       else
-        steps.push([act, beta, r() < 0.004, v, ters, dt, r() < 0.3 ? (r() - 0.5) * 0.15 : r() * 2 - 1, t, seed == 66]);
+        steps.push([
+          act,
+          beta,
+          r() < 0.004,
+          v,
+          ters,
+          dt,
+          r() < 0.3 ? (r() - 0.5) * 0.15 : r() * 2 - 1,
+          t,
+          seed == 66,
+        ]);
     }
     drift.push(driftRun("rastgele " + seed, steps));
   }
@@ -155,8 +188,14 @@ export function buildRaceRules() {
       ...rep(150, (k) => [0, -Math.min(20, k * 0.2), 0, 1, DT]),
       ...rep(120, (k) => [0, Math.min(20, k * 0.25), 0, 1, DT]),
     ]),
-    tersRun("yavaş araç durumu korur", [...rep(80, () => [0, -10, 0, 1, DT]), ...rep(80, () => [0, 2.9, 0, 1, DT])]),
-    tersRun("spin", rep(240, (k) => [12 * Math.sin(k * 0.08), 12 * Math.cos(k * 0.08), 0.6, 0.8, DT])),
+    tersRun("yavaş araç durumu korur", [
+      ...rep(80, () => [0, -10, 0, 1, DT]),
+      ...rep(80, () => [0, 2.9, 0, 1, DT]),
+    ]),
+    tersRun(
+      "spin",
+      rep(240, (k) => [12 * Math.sin(k * 0.08), 12 * Math.cos(k * 0.08), 0.6, 0.8, DT]),
+    ),
   ];
   for (const seed of [7, 8, 9]) {
     const r = rng(seed);
@@ -174,7 +213,16 @@ export function buildRaceRules() {
   }
 
   // --- pist konumu / pist dışı / kesme: sentetik pistler (TS birim testlerindeki) + gerçek pistler ---
-  const geom = (TR) => ({ N: TR.N, len: TR.len, hw: TR.hw, open: TR.open, kerbs: !!TR.kb, P: TR.P.flat(), T: TR.T.flat(), S: TR.S });
+  const geom = (TR) => ({
+    N: TR.N,
+    len: TR.len,
+    hw: TR.hw,
+    open: TR.open,
+    kerbs: !!TR.kb,
+    P: TR.P.flat(),
+    T: TR.T.flat(),
+    S: TR.S,
+  });
   const straight = P.mkTrack(
     [
       [0, 0],
@@ -235,7 +283,13 @@ export function buildRaceRules() {
       steps: steps.map(([x, z, hint, dt]) => {
         const p = D.pistKonumu(TR, x, z, hint),
           r = D.pistDisiAdimi(s, TR, x, z, hint, dt);
-        return [[x, z, hint, dt], loc(p), r ? [r.x, r.z, r.h] : null, s.sure, s.ilk ? [s.ilk.x, s.ilk.z, s.ilk.h] : null];
+        return [
+          [x, z, hint, dt],
+          loc(p),
+          r ? [r.x, r.z, r.h] : null,
+          s.sure,
+          s.ilk ? [s.ilk.x, s.ilk.z, s.ilk.h] : null,
+        ];
       }),
     };
   };
@@ -245,7 +299,14 @@ export function buildRaceRules() {
     return {
       name,
       track: trackName,
-      steps: steps.map(([x, z, hint]) => [[x, z, hint], D.kesmeAdimi(k, TR, x, z, hint), k.cikis, k.yol, k.px, k.pz]),
+      steps: steps.map(([x, z, hint]) => [
+        [x, z, hint],
+        D.kesmeAdimi(k, TR, x, z, hint),
+        k.cikis,
+        k.yol,
+        k.px,
+        k.pz,
+      ]),
     };
   };
   // kesme.test.ts / piste-donus.test.ts yolları: (x0,z0)→(x1,z1) 1 m adımlarla
@@ -260,10 +321,7 @@ export function buildRaceRules() {
     return out;
   };
   const off = [
-    offRun("1+5 sn sınırı", "straight", [
-      ...rep(360, (i) => [8, 21 + i / 10, 5, DT]),
-      [20, 90, 20, DT],
-    ]),
+    offRun("1+5 sn sınırı", "straight", [...rep(360, (i) => [8, 21 + i / 10, 5, DT]), [20, 90, 20, DT]]),
     offRun("erken dönüş ve yeni çıkış", "straight", [
       [8, 20, 5, 4.9],
       [5, 40, 10, 0.1],
@@ -282,42 +340,52 @@ export function buildRaceRules() {
     ]),
   ];
   const cut = [
-    cutRun("çaprazdan kısa yol", "square", walk([
-      [0, 30],
-      [0, 50],
-      [50, 100],
-      [70, 100],
-    ])),
-    cutRun("dışarıdan dolaşmak", "square", walk([
-      [0, 80],
-      [-12, 95],
-      [-12, 112],
-      [5, 112],
-      [20, 100],
-    ])),
-    cutRun("paralel gitmek", "square", walk([
-      [0, 30],
-      [7, 40],
-      [7, 60],
-      [0, 70],
-    ])),
-    cutRun("geri dönmek", "square", walk([
-      [0, 60],
-      [-15, 50],
-      [0, 30],
-    ])),
+    cutRun(
+      "çaprazdan kısa yol",
+      "square",
+      walk([
+        [0, 30],
+        [0, 50],
+        [50, 100],
+        [70, 100],
+      ]),
+    ),
+    cutRun(
+      "dışarıdan dolaşmak",
+      "square",
+      walk([
+        [0, 80],
+        [-12, 95],
+        [-12, 112],
+        [5, 112],
+        [20, 100],
+      ]),
+    ),
+    cutRun(
+      "paralel gitmek",
+      "square",
+      walk([
+        [0, 30],
+        [7, 40],
+        [7, 60],
+        [0, 70],
+      ]),
+    ),
+    cutRun(
+      "geri dönmek",
+      "square",
+      walk([
+        [0, 60],
+        [-15, 50],
+        [0, 30],
+      ]),
+    ),
   ];
   // Kesme 15 m alt sınırı: kare pistin (0,100) köşesinde iç sahadan kısa yol; yol ortası köşeye doğru b kadar
   // şişirilir (dış yol uzar, kazanç azalır). TS kararının değiştiği b ikili aramayla bulunur; iki yanı yazılır.
   const cornerPath = (a, b) => {
     const m = [a / 2 - b / Math.SQRT2, 100 - a / 2 + b / Math.SQRT2],
-      yol = [
-        [0, 60],
-        [0, 100 - a],
-        m,
-        [a, 100],
-        [a + 20, 100],
-      ],
+      yol = [[0, 60], [0, 100 - a], m, [a, 100], [a + 20, 100]],
       out = [];
     for (let i = 0; i + 1 < yol.length; i++) {
       const [ax, az] = yol[i],
@@ -336,7 +404,8 @@ export function buildRaceRules() {
   for (const a of [24, 30]) {
     let lo = 0,
       hi = a;
-    if (!(cutOf(cornerPath(a, lo)) > 0 && cutOf(cornerPath(a, hi)) == 0)) throw new Error("kesme sınırı bulunamadı " + a);
+    if (!(cutOf(cornerPath(a, lo)) > 0 && cutOf(cornerPath(a, hi)) == 0))
+      throw new Error("kesme sınırı bulunamadı " + a);
     for (let n = 0; n < 40; n++) {
       const mid = (lo + hi) / 2;
       if (cutOf(cornerPath(a, mid)) > 0) lo = mid;
@@ -374,7 +443,8 @@ export function buildRaceRules() {
       if (cutOf(innerPath(mid)) > 0) lo = mid;
       else hi = mid;
     }
-    for (const b of [lo - 0.05, lo, hi, hi + 0.05]) cut.push(cutRun(`kazanç sınırı b=${b.toFixed(6)}`, "square", innerPath(b)));
+    for (const b of [lo - 0.05, lo, hi, hi + 0.05])
+      cut.push(cutRun(`kazanç sınırı b=${b.toFixed(6)}`, "square", innerPath(b)));
   }
   // kesme.test.ts: gerçek gp pistlerinde iç sahadan kısa yol (aynı arama)
   for (const key of ["gp_1", "gp_3"]) {
@@ -439,21 +509,40 @@ export function buildRaceRules() {
         if (r() < 0.006) {
           const ileri = 60 + r() * 160,
             e = P.trackAt(TR, s + ileri);
-          chord = { ax: x, az: z, bx: e.x, bz: e.z, t: 0, s: s + ileri, L: Math.hypot(e.x - x, e.z - z) || 1 };
+          chord = {
+            ax: x,
+            az: z,
+            bx: e.x,
+            bz: e.z,
+            t: 0,
+            s: s + ileri,
+            L: Math.hypot(e.x - x, e.z - z) || 1,
+          };
         }
       }
       steps.push([x, z, hint, r() < 0.9 ? DT : 1 / 30]);
       hint = P.nearest(TR, x, z, hint)[0];
     }
     off.push(offRun("rastgele " + key, key, steps));
-    cut.push(cutRun("rastgele " + key, key, steps.map(([x, z, h]) => [x, z, h])));
+    cut.push(
+      cutRun(
+        "rastgele " + key,
+        key,
+        steps.map(([x, z, h]) => [x, z, h]),
+      ),
+    );
   }
 
   // --- yıldız: 40 pistin eşikleri ve sınır sayımları ---
   const stars = defs.TDEF.map((d) => {
     const e = Y.yildizEsikleri(d.t, d.lv),
       values = [0, ...e.flatMap((x) => [x - 1e-9, x, x + 1e-9]), e.length ? e[0] * 2 : 1];
-    return { key: d.t + "_" + d.lv, anahtar: Y.yildizAnahtari(d.t, d.lv), esik: e, say: values.map((v) => [v, Y.yildizSay(d.t, v, e)]) };
+    return {
+      key: d.t + "_" + d.lv,
+      anahtar: Y.yildizAnahtari(d.t, d.lv),
+      esik: e,
+      say: values.map((v) => [v, Y.yildizSay(d.t, v, e)]),
+    };
   });
   const starUnit = [
     ["gp", 100, [120, 110, 102]],
