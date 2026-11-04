@@ -1,5 +1,6 @@
 using System.Text.Json;
 using LastTurn.Core;
+if(args.Contains("--cloud")){CloudValidation.Run();return;}
 if(args.Contains("--hud")){HudValidation.Run();return;}
 if(args.Contains("--audio")){AudioValidation.Run();return;}
 if(args.Contains("--conditions")){ConditionsValidation.Run();return;}

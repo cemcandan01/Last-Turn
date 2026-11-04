@@ -54,6 +54,8 @@ namespace LastTurn.Garage
           if(!editing){name=m.Name;editing=true;}
           GUILayout.Label("Sürücü adı (20 karakter)",text);name=GUILayout.TextField(name,20,new GUIStyle(GUI.skin.textField){fontSize=20},GUILayout.Height(44));
           if(Button("Adı kaydet"))GameFlow.SaveName(name);
+          // TS hesap/bulut: Firebase sağlayıcısı Unity'de bağlı değil; sahte giriş gösterilmez (CloudContract sözleşmesi hazır).
+          GUILayout.Label("Bulut hesabı: bu sürümde bağlı değil. İlerleme ve rekorlar yalnız bu cihazda; Google/e-posta girişi için Firebase bağlantısı gerekir.",text);
           GUILayout.Label("Yarış: "+m.Races+"   •   Hedef geçildi: "+m.Wins,text);
           GUILayout.Label("Toplam yol: "+m.Km.ToString("0.0")+" km",text);GUILayout.Label("En çok kullanılan: "+m.Favorite,text);
           if(Button("Ana menü"))GameFlow.MainMenu();
