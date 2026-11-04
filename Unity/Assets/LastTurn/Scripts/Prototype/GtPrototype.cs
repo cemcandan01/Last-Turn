@@ -36,6 +36,8 @@ namespace LastTurn.Prototype
     public Transform[] SpinPivots => spinPivots;
     public GtFollowCamera FollowCamera => followCamera;
     public DrivingInput CurrentInput { get; private set; }
+    /// Ham girişler (TS I); yalnız okuma/doğrulama.
+    public DrivingControls Controls => input?.Controls;
     public IReadOnlyList<DrivingInput> RecordedInputs => trace;
     public int RestartCount { get; private set; }
     public PowertrainParameters Parameters => parameters;
@@ -72,7 +74,28 @@ namespace LastTurn.Prototype
       }
       if (!vehicleRoot || !followCamera) throw new InvalidOperationException("GTTest sahnesi eksik; Last Turn menüsünden sahneyi oluşturun.");
       if(AppliedGarageCarId!="")ApplyGarageVisuals(MutantRuntime.Active?MutantRuntime.Session.BuildSetup():GarageSession.DriveSetup);
-      input = new GtKeyboardInput(); BindMutantInput(); ResetVehicle();
+      input = new GtKeyboardInput(); BindMutantInput(); BindTouch(); ResetVehicle();
+    }
+    private TouchDrivingOverlay touch;
+    // P5: dokunmatik katman ve oyuncu tercihleri (TS kontrolleriKur + lt_ayar). Tercih değişince canlı araca uygulanır.
+    private void BindTouch()
+    {
+      touch = gameObject.AddComponent<TouchDrivingOverlay>(); touch.Bind(this, input);
+      PlayerPreferences.Changed += ApplyPreferences;
+    }
+    private void ApplyPreferences()
+    {
+      if (Simulation == null) return; var s = PlayerPreferences.Current;
+      Simulation.SmoothSteeringPreference = s.On("sm"); Simulation.SpeedSensitivePreference = s.On("ss");
+    }
+    /// TS girdiSifirla: yarış başı/sonu, ayar ve panel değişimi.
+    public void ResetInput() { input?.Controls.Reset(); touch?.Release(); }
+    /// TS ↺ (yenidenDog): yarışta piste dönüş; Unity açık dünya bölgelerinde pist yok → TS pistsiz dalı: araç olduğu yerde durdurulup yere konur.
+    public void RespawnAny()
+    {
+      if (Race != null) { if (Race.Session.State == RaceState.Running) RespawnRace(); return; }
+      if (Simulation == null) return; var p = Simulation.ReferencePoint; var f = Simulation.Body.Orientation.Rotate(new BodyVector(0, 0, 1));
+      Simulation.Place(p.X, p.Z, Math.Atan2(f.X, f.Z)); runner.SyncPrevious(); followCamera.ResetFollow();
     }
     // TS mutant-ui.ts klavye: tuşlar yalnız kuyruğa girer, sonraki fizik adımında MutantAbilityDriver tüketir.
     private void BindMutantInput()
@@ -101,12 +124,12 @@ namespace LastTurn.Prototype
       ObserveRaceDistance();if(pendingProfileKm==0)return true;
       if(!GarageRace.Distance(pendingProfileKm))return false;pendingProfileKm=0;return true;
     }
-    private void OnDestroy() { input?.Dispose(); }
+    private void OnDestroy() { PlayerPreferences.Changed -= ApplyPreferences; input?.Dispose(); }
     private void OnApplicationFocus(bool value) { focused = value; if (value) input?.Enable(); else input?.Disable(); }
     public void ResetVehicle()
     {
       FlushProfileDistance();
-      Simulation = new PowertrainVehicle(parameters,world:world); runner = new PowertrainFixedStepRunner(Simulation);
+      Simulation = new PowertrainVehicle(parameters,world:world); runner = new PowertrainFixedStepRunner(Simulation); ApplyPreferences();
       if(OpenTerrain!=null){var t=OpenTerrain.Region.Teleports[openSpawn];Simulation.Place(t.X,t.Z,t.Heading);runner.SyncPrevious();}
       if(MutantRuntime.Active&&OpenTerrain!=null){MutantRuntime.PlaceWorld(Simulation);runner.SyncPrevious();}
       trace.Clear(); previousSteer = 0; CurrentInput = default; RestartCount++;
@@ -114,7 +137,7 @@ namespace LastTurn.Prototype
     }
     private void Update()
     {
-      if (!focused || GameFlow.Paused || MutantRuntime.Blocked) return;
+      if (!focused || GameFlow.Paused || MutantRuntime.Blocked || SettingsScreen.Open) return;
       if(ManualStepping&&Race==null)return;
       UpdateAirControl();
       if (Race != null) { UpdateRace(); return; }
@@ -209,7 +232,7 @@ namespace LastTurn.Prototype
     private void AwakeRace()
     {
       if (!vehicleRoot || !followCamera || !trackVisuals) throw new InvalidOperationException("RaceTest sahnesi eksik; Last Turn menüsünden sahneyi oluşturun.");
-      input = new GtKeyboardInput();
+      input = new GtKeyboardInput(); BindMutantInput(); BindTouch();
       InitializeRace(string.IsNullOrEmpty(RaceData.Selected) ? raceTrack : RaceData.Selected);
     }
     /// Garaj oturumundan araç/kariyer/ödül bağını kurup yarışı baştan hazırlar (doğrulama ayrı profil açınca da çağırır).
@@ -232,12 +255,12 @@ namespace LastTurn.Prototype
       RaceWorld = mutant!=null?mutant.World:new TrackWorld(track); world = RaceWorld;
       if(mutant==null)RaceWorld.Environment=WorldData.Catalog.Activate(key);
       if(!EnvironmentVisuals)EnvironmentVisuals=gameObject.AddComponent<PhysicalWorldVisuals>();EnvironmentVisuals.Build(world,RaceWorld.Environment,false);
-      Simulation = new PowertrainVehicle(parameters, world: world); runner = new PowertrainFixedStepRunner(Simulation);
+      Simulation = new PowertrainVehicle(parameters, world: world); runner = new PowertrainFixedStepRunner(Simulation); ApplyPreferences(); ResetInput();
       Race = new RaceRun(Simulation, RaceWorld, info, hint => new RaceSession(info, track, drive.Career, hint, drive.Career ? GarageRace.Reward : null,
         mutant!=null?(Action<double>)(metres=>MutantRuntime.Run.CutPenalty(metres)):null,mutant:mutant!=null),
         drive.Setup != null && drive.Parameters != null ? RaceDrift.MaxAngle(drive.Setup) : double.PositiveInfinity);
       // TS startEvent: kullanım sayacı ve rekor hayaleti; endEvent: rekor/profil/hayalet kaydı.
-      Race.Finished += run => {if(mutant!=null)MutantRuntime.Finished(run,Opponent);else{FlushProfileDistance();GarageRace.Finished(run, drive);}};
+      Race.Finished += run => {ResetInput();if(mutant!=null)MutantRuntime.Finished(run,Opponent);else{FlushProfileDistance();GarageRace.Finished(run, drive);}};
       if(mutant==null){Race.GhostFactory = () => GarageRace.Ghost(info, track, Race.Session.RecordKey); Race.StartGhost();}
       RecordText = mutant!=null?"Mutant koşusu":RaceRecordText(); if (drive.Parameters != null&&mutant==null) GarageRace.Started(drive.Car); raceDrive = drive;
       // TS mutantYarisAyari → beceriYarisBasi: rakip gövdesi, takip kredisi ve near-miss kayıtları her yarış başında sıfırlanır.

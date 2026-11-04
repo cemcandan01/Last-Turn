@@ -200,3 +200,25 @@ Cem: “codexin işini devam ettir”. Codex 08:37'de commit'siz durmuştu (kota
 - **Koruma:** P3 Play 39/39 (süreler birebir aynı), P3 core 8/8, P2 Play 59/59, kapsam 122/122; `--mutant-*` 11 kontrol + world/opponents/career-flow/race-session/race-rules/gt-physics/garage/garage-drive/drag/assists/tracks/race-types/opponent-drive aynı sayılarla geçti. P1 kariyer Play etkileşimli Editor gerektirdiğinden yenilenmedi.
 - **Açık:** dokunmatik skill/nitro düğmeleri ve dokunmatik hava sürüklemesi (P5 mobil girdi), skill efekt görselleri/ses (`beceriEfektDurumu`), evrim/eklentili skill'lerin Play'i (yalnız oracle), şehir bölgesinde kanca gök/köşe bağlantısının Play'i, insan oynanış kabulü.
 - **Sonraki adım:** P5 oyuncu yüzeyi (mobil/klavye girdi, ayarlar, kameralar, hava, minimap/HUD, ses, hayalet seçenekleri, profil/bulut sözleşmesi); önce kabul ölçütleri bu karta yazılır.
+
+## P5 uygulaması — oyuncu yüzeyi ve son entegrasyon (Claude, 4 Kasım 2026)
+
+Cem'in P5 talimatı: TS 0.8.18'deki bütün oynanış işlevleri Unity'de çalışır ve doğrulanır; yeni özellik/denge yok, geçici UI yeterli, push/merge/uzun regresyon izinle. Başlangıç `codex/unity-p3-mutant` / `6ae5a27` (yerel = origin = gelistirme), çalışma ağacında yalnız `_Recovery`.
+
+Kontrol listesi (öncelik sırası; durum):
+- **A Kontroller + tercihler** — tamam (aşağıda). Gerçek cihaz dokunma/sensör doğrulaması yok.
+- **C Hava/günün saati fiziksel tutuşu, kamera kipleri (Takip/Uzak/Kaput/Kokpit) ve kanca kamerası** — eksik: kamera tercihi kaydediliyor, `GtFollowCamera` henüz uygulamıyor; `TrackWorld.GripMultiplier => 1`.
+- **D Hayalet seçenekleri (`rh`), profil, kayıt güvenliği, bulut sözleşmesi** — kısmen: kariyer/Mutant/ayar kayıtları ayrı ve korumalı; `rh` henüz yarışa bağlı değil; bulut kimlik sağlayıcı erişimi yok.
+- **E Ses altyapısı** (yürütücü, seviye/sessiz, motor/çarpma/skill/UI olayları) — yok.
+- **B HUD**: hasar/görev/etkinlik/level bildirimleri, miniharita, dar ekranda çakışmasız yerleşim, sonuç/başarısızlık ekranları — kısmen.
+- **F Uçtan uca**: bölge 2–3, boss galibiyeti, süre dolması, evrimli skill, şehirde kanca, beş tür yarış + kayıt yeniden yükleme — Play eksik.
+- Matris: P4 satırları (49–52) P4 teslimiyle K/T olmalı; P5 sonunda güncellenir.
+
+### P5-A kontroller ve tercihler (tamam)
+
+- Saf katman: `DrivingControls` (TS `I`, `fizikGirdisi`, `tiltRoll`/`tiltSteer`, ekran direksiyonu ±2,1 rad, analog pedal ölü bölge 0,08/tam 0,9, otomatik gaz, Ortala), `PlayerSettings`/`PlayerSettingsStore` (TS `lt_ayar`: `set`, `CT`, HUD parçaları/hazır düzenler, kamera; atomik yazma, bozuk dosya varsayılan + silinmez). Bilinçli fark: TS yanlış türlü alanı (`"tlt":"elli"`) kabul eder, Unity varsayılanda tutar. Yardım seviyesi mevcut garaj komutunda kalır.
+- `--controls`: **24.641 koşul**, 4.000 TS fizik girdisi (3 direksiyon × 3 gaz × ters/eğim/ekran yönü) + 20 ayar kaydı (eski hazır düzen adı, kısmi, bozuk, gelecek alanlı, yanlış türlü), fark 8,5e−14.
+- Unity: klavye TS eşlemesi (oklar/WASD, boşluk/C el freni, N, 1/2/3, R, E/Q drag vites), `TouchDrivingOverlay` (çoklu dokunma + pointer capture, SOL/SAĞ, direksiyon, Ortala, GAZ/FREN/pedal, EL FRENİ — HUD `debriyaj` ile gizlenir —, drag VİTES ±, NİTRO + skill yuvaları, KAMERA/↺/DURAKLAT/AYAR, kontrol dışı sürükleme havada burun), yerçekimi sensörü → eğim, `SettingsScreen` (yardım, kamera, direksiyon/gaz kipi, eğim açısı, ses/müzik, HUD, mekanik aç/kapat). `ss`/`sm` tercihi canlı araca (`PowertrainVehicle` tercihleri; boşken parametre — eski davranış birebir). Odak kaybında girişler sıfırlanır. **Düzeltilen P4 hatası:** yarış sahnesinde (`AwakeRace`) N/1/2/3 bağlanmıyordu.
+- ↺: yarışta mevcut piste dönüş; Unity açık dünya bölgelerinde pist geometrisi olmadığından TS'nin pistsiz dalı (yerinde durdurup yere koyma).
+- **Unity P5 kontroller Play 41/41** (`ControlsPlayValidation`, `check-p5-controls-proof.mjs`): Input System sanal klavye/dokunmatik ekran/yerçekimi sensörüyle gerçek kare döngüsü; ayrı ayar dizini, 10 oyuncu dosyası hash'i aynı. Batch Editor'da işletim sistemi odağı yok: test odaklı oyuncuyu bildirir ve Input System'i yalnız test süresince odaktan bağımsız tutar. **Gerçek telefon dokunma, çoklu dokunma ve eğim yönü/işareti cihazda doğrulanmadı.**
+- Dar koruma: gt-physics, garage-drive, mutant-reconfigure, mutant-opponents, drag aynı sayılarla geçti. P1–P4 Play kanıtları kaynak hash'i değiştiği için P5 sonunda tek seferde yenilenecek.

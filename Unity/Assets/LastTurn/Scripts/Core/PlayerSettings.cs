@@ -20,6 +20,21 @@ namespace LastTurn.Core
     public static readonly Dictionary<string,string[]> HudPresets=new Dictionary<string,string[]>(StringComparer.Ordinal){
       ["kose"]=new[]{"kose","panel","panel","kare","acik"},["kadran"]=new[]{"kadran","panel","panel","yuvarlak","acik"},
       ["bant"]=new[]{"bant","panel","panel","kare","acik"},["sade"]=new[]{"sade","yazi","simge","kucuk","acik"}};
+    // TS ayarlar-ekrani.ts / ayarlar.ts görünüm metinleri (TOG, STEER, GASM, CAMO, SESLER, HUD_PARCALARI).
+    public static readonly (string Key,string Name,string Description)[] Toggles={
+      ("inv","Direksiyon yönünü ters çevir","Sağ ve sol tuşlarının yönünü değiştirir"),("ss","Hıza duyarlı direksiyon","Hızlandıkça direksiyon açısı azalır"),
+      ("sm","Direksiyon yumuşatma","Tuşa basınca direksiyon kademeli döner"),("fov","Hıza göre görüş açısı","Hızlandıkça görüş genişler"),
+      ("shd","Gölgeler","Kapatmak eski telefonlarda akıcılığı artırır"),("shk","Hız sarsıntısı","Yüksek hızda kamera hafif titrer"),
+      ("rh","Rekor hayaleti","Pistteki en iyi derecen saydam araç olarak seninle yarışır"),("perf","Performans göstergesi","Ekranın üstünde kare hızı, kare süresi ve çizim sayısı")};
+    public static readonly (string Key,string Name,string Description) DeveloperGhost=("hayalet","Hayalet araç (geliştirici)","Uzak araç denemesi: aracın 2 sn geriden izler");
+    public static readonly (string Key,string Name,string Description)[] SteerNames={("btn","Tuşlar","Sağ ve sol tuşları"),("wheel","Direksiyon","Ekrandaki direksiyonu çevir"),("tilt","Telefonu çevir","Telefonu direksiyon gibi yatır")};
+    public static readonly (string Key,string Name,string Description)[] GasNames={("btn","Gaz tuşu","Basınca tam gaz"),("analog","Analog pedal","Ortası boş: yukarı kaydır gaz, aşağı kaydır fren. Kalkışta tam gaz patinaj yapar"),("auto","Otomatik gaz","Araç kendi hızlanır, sen frenle")};
+    public static readonly (string Key,string Name,string Description)[] Volumes={("ses","Oyun sesleri","Motor, lastik, çarpma, menü tıkları"),("muz","Müzik","Menüde ve garajda çalan müzik")};
+    public static readonly Dictionary<string,(string Name,Dictionary<string,string> Values)> HudNames=new Dictionary<string,(string,Dictionary<string,string>)>{
+      ["hiz"]=("Hız",new Dictionary<string,string>{["kose"]="Panel",["kadran"]="Kadran",["bant"]="Üstte",["sade"]="Yazı"}),["sayac"]=("Sayaç",new Dictionary<string,string>{["panel"]="Panel",["yazi"]="Yazı"}),
+      ["tus"]=("Tuşlar",new Dictionary<string,string>{["panel"]="Panel",["simge"]="Simge"}),["harita"]=("Harita",new Dictionary<string,string>{["kare"]="Kare",["yuvarlak"]="Yuvarlak",["kucuk"]="Küçük",["kapali"]="Kapalı"}),
+      ["debriyaj"]=("El freni",new Dictionary<string,string>{["acik"]="Açık",["kapali"]="Kapalı"})};
+    public static readonly (string Key,string Name,string Description)[] HudPresetNames={("kose","Köşe","Hız sağda, gaz tuşunun üstünde"),("kadran","Kadran","Yuvarlak hız kadranı, yuvarlak harita"),("bant","Bant","Hız üstte ortada, alt taraf boş"),("sade","Sade","Panelsiz, en az gösterge")};
     public readonly Dictionary<string,double> Set=new Dictionary<string,double>(StringComparer.Ordinal);
     public readonly Dictionary<string,string> Hud=new Dictionary<string,string>(StringComparer.Ordinal);
     public string Steer="btn",Gas="btn";
