@@ -177,6 +177,8 @@ namespace LastTurn.Core
     /// Drag manuel: kayıt başındaki motor durumu (geri sayım kalkış hazırlığı) ve şanzıman kipi.
     public bool Manual; public double StartGas, StartRpm = 900, StartHold;
     public InputRecording Inputs = new();
+    /// TS hava {tutus, karli}: kaydın yapıldığı hava; eski kayıtta yok.
+    public GhostWeather? Weather;
 
     /// TS hayaletKaydet koşulları: sonlu, negatif değil, kayıt kesik/taşmış/boş değil; var olanı (sürüm 3) iyileştirir
     /// (driftte büyük, diğerlerinde küçük).
@@ -195,6 +197,7 @@ namespace LastTurn.Core
       n.Set("sure", CatalogNode.Num(Result)); n.Set("tur", CatalogNode.Str(RaceType)); n.Set("yardim", CatalogNode.Str(AssistLevel));
       n.Set("parcalar", CatalogNode.Arr(Parts.Select(CatalogNode.Str)));
       n.Set("manuel", CatalogNode.Num(Manual ? 1 : 0)); n.Set("basGaz", CatalogNode.Num(StartGas)); n.Set("basDevir", CatalogNode.Num(StartRpm)); n.Set("basTutma", CatalogNode.Num(StartHold));
+      if (Weather.HasValue) { var h = CatalogNode.Obj(); h.Set("tutus", CatalogNode.Num(Weather.Value.Grip)); h.Set("karli", CatalogNode.Parse(Weather.Value.Snowy ? "true" : "false")); n.Set("hava", h); }
       n.Set("girdiSurum", CatalogNode.Num(InputRecording.FormatVersion)); n.Set("n", CatalogNode.Num(Inputs.Count)); n.Set("veri", CatalogNode.Str(Inputs.Base64()));
       return n;
     }
@@ -211,6 +214,7 @@ namespace LastTurn.Core
           AssistLevel = n["yardim"].S("norm"), Parts = n["parcalar"].Items.Select(p => p.S()).ToArray(),
           Manual = n["manuel"].N() == 1, StartGas = n["basGaz"].N(), StartRpm = n["basDevir"].N(900), StartHold = n["basTutma"].N(),
         };
+        if (n["hava"]["tutus"].IsNumber && double.IsFinite(n["hava"]["tutus"].N()) && n["hava"]["tutus"].N() > 0) g.Weather = new GhostWeather(n["hava"]["tutus"].N(), n["hava"]["karli"].B());
         g.Inputs = InputRecording.FromBase64(n["veri"].S(), (int)n["n"].N(-1));
         if (g.Car < 0 || !double.IsFinite(g.Result) || g.StartStep < 0 || g.StartStep >= g.Inputs.Count) return null;
         return g;
@@ -230,9 +234,10 @@ namespace LastTurn.Core
     public int Index { get; private set; }
     public bool Done => Index >= Record.Inputs.Count;
 
-    public GhostPlayer(GhostRecord record, PowertrainParameters parameters, TrackDefinition track, RaceEventInfo info)
+    /// currentGrip: kayıtta hava yoksa güncel hava tutuşu (TS veri.hava?.tutus ?? dunyaSorgusu.havaTutusu()).
+    public GhostPlayer(GhostRecord record, PowertrainParameters parameters, TrackDefinition track, RaceEventInfo info, double currentGrip = 1)
     {
-      Record = record; World = new TrackWorld(track); Vehicle = new PowertrainVehicle(parameters, world: World);
+      Record = record; World = new TrackWorld(track) { GripMultiplier = record.Weather?.Grip ?? currentGrip }; Vehicle = new PowertrainVehicle(parameters, world: World);
       Vehicle.Place(info.StartX, info.StartZ, info.StartHeading); World.ResetHint(info.StartX, info.StartZ);
       if (record.Manual) Vehicle.SetStartEngine(record.StartGas, record.StartRpm, record.StartHold);
       for (int n = 0; n < record.StartStep; n++) Vehicle.Step(record.Inputs.At(n));

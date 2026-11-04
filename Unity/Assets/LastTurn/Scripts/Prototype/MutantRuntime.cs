@@ -84,7 +84,7 @@ namespace LastTurn.Prototype
       {
         if(e.Kind=="isaret"){Panel=e.Detail=="etkinlik"?"event":e.Detail=="sandik"?"chest":e.Detail=="atolye"?"shop":"boss";MarkerId=e.Id??0;if(Panel=="chest")Run.ChestOffer(MarkerId);}
         else if(e.Kind=="sureDoldu")Panel="boss";
-        else if(e.Kind=="hasar"&&e.Wrecked)Panel="summary";
+        else if(e.Kind=="hasar"){if(e.Wrecked)Panel="summary";else TouchDrivingOverlay.Note((e.Detail=="carpma"?"Çarpma":"Spin")+" · Gövde "+Math.Round(Run.State["govde"].N()).ToString("0"),1.4f);}
         else if(e.Kind=="gorev")Message=e.Detail=="tamam"?"Yol görevi tamamlandı.":e.Detail=="kacti"?"Yol görevi kaçtı.":MutantRoadMissions.Name(e.Mission.Mission);
       }
       if(Abilities!=null)

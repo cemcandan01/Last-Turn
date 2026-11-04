@@ -9,6 +9,9 @@ namespace LastTurn.Core
     private PowertrainParameters p;
     public PowertrainParameters Parameters => p;
     public VehicleSkillInput SkillInput {get;set;}=null!;
+    /// TS set.sm/set.ss oyuncu tercihi (lt_ayar). null: parametredeki değer (doğrulanmış varsayılan davranış).
+    public bool? SmoothSteeringPreference {get;set;}
+    public bool? SpeedSensitivePreference {get;set;}
     private readonly FourWheelVehicle body;
     public VehicleState Body => body.State;
     public PowertrainState Engine { get; private set; } = null!;
@@ -59,7 +62,7 @@ namespace LastTurn.Core
     {
       var previous = Engine;
       double dt = FixedDelta;
-      double rate = input.AnalogSteering ? 14 * p.SteeringSensitivity : input.Steering == 0 ? 10 : p.SmoothSteering ? 6.5 * p.SteeringSensitivity : 30;
+      double rate = input.AnalogSteering ? 14 * p.SteeringSensitivity : input.Steering == 0 ? 10 : (SmoothSteeringPreference ?? p.SmoothSteering) ? 6.5 * p.SteeringSensitivity : 30;
       double st = previous.Steering + (input.Steering - previous.Steering) * Math.Min(1, rate * dt);
       double gas = previous.Gas + (input.Throttle - previous.Gas) * Math.Min(1, dt * (2 + 18 * p.ThrottleResponse));
       var forward = Body.Orientation.Rotate(new BodyVector(0, 0, 1));
@@ -67,7 +70,7 @@ namespace LastTurn.Core
       double vl = Body.Velocity.X * fx + Body.Velocity.Z * fz, vt = Body.Velocity.X * fz - Body.Velocity.Z * fx;
       double ab = Math.Abs(Math.Atan2(vt, Math.Max(vl, .5))), spn = Math.Min(1, Math.Abs(vl) / 77.2);
       // Drift/viraj/ESC yardımları bu dilimde kapalı; kaynak ss/sm seçenekleri korunur.
-      double delta = st * p.SteeringLock * (p.SpeedSensitiveSteering ? 1 - .5 * Math.Pow(spn, .8) * (1 - Smooth(.1, .3, ab)) : 1);
+      double delta = st * p.SteeringLock * ((SpeedSensitivePreference ?? p.SpeedSensitiveSteering) ? 1 - .5 * Math.Pow(spn, .8) * (1 - Smooth(.1, .3, ab)) : 1);
       // TS yardımları (model.ts): drift penceresi, viraj desteğiyle direksiyon, drift desteğinin karşı direksiyonu.
       AssistCommand assist = null!; var a = p.Assists;
       if (a != null)

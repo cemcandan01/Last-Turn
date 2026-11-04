@@ -28,6 +28,15 @@ namespace LastTurn.EditorValidation
     private static string Project=>System.IO.Path.GetDirectoryName(Application.dataPath);
     private static string Running=>System.IO.Path.Combine(Project,"Logs/p1-running.json");
     static CareerFlowPlayValidation(){EditorApplication.playModeStateChanged+=Changed;}
+    private const string BatchKey="LastTurn.P1.Batch";
+    private static InputSettings.BackgroundBehavior background;private static InputSettings.EditorInputBehaviorInPlayMode editorBehavior;
+    /// Ayrı batch Editor: işletim sistemi odağı yoktur; Input System yalnız test süresince odaktan bağımsız, sahneye her karede odak bildirilir.
+    public static void StartBatch()
+    {
+      if(!Application.isBatchMode)throw new InvalidOperationException("Ayrı batch Editor gerekir.");
+      SessionState.SetBool(BatchKey,true);SessionState.SetInt("LastTurn.P1.Background",(int)InputSystem.settings.backgroundBehavior);SessionState.SetInt("LastTurn.P1.EditorInput",(int)InputSystem.settings.editorInputBehaviorInPlayMode);
+      InputSystem.settings.backgroundBehavior=InputSettings.BackgroundBehavior.IgnoreFocus;InputSystem.settings.editorInputBehaviorInPlayMode=InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;Start();
+    }
     [MenuItem("Last Turn/P1 Kariyer Kısa Play Doğrulaması")]
     public static void Start()
     {
@@ -49,6 +58,7 @@ namespace LastTurn.EditorValidation
     private static void Check(bool ok,string label){if(!ok)throw new InvalidOperationException(label);proof.checks.Add(label);}
     private static void Tick()
     {
+      if(SessionState.GetBool(BatchKey,false)){var focus=UnityEngine.Object.FindFirstObjectByType<GtPrototype>();if(focus)focus.SendMessage("OnApplicationFocus",true);}
       try
       {
         if(EditorApplication.timeSinceStartup-began>120)throw new TimeoutException("P1 kısa Play süre sınırı.");
@@ -147,6 +157,12 @@ namespace LastTurn.EditorValidation
       File.WriteAllText(System.IO.Path.Combine(Project,"Logs/p1-play.json"),JsonUtility.ToJson(proof,true));
       if(error==null)Debug.Log("P1 kariyer Play: "+proof.checks.Count+" kontrol; 5 yarış, ödül, profil ve Play kapat/aç geçti.");else Debug.LogException(error);
       EditorApplication.ExitPlaymode();
+      if(SessionState.GetBool(BatchKey,false))
+      {
+        SessionState.SetBool(BatchKey,false);InputSystem.settings.backgroundBehavior=(InputSettings.BackgroundBehavior)SessionState.GetInt("LastTurn.P1.Background",0);
+        InputSystem.settings.editorInputBehaviorInPlayMode=(InputSettings.EditorInputBehaviorInPlayMode)SessionState.GetInt("LastTurn.P1.EditorInput",0);
+        EditorApplication.delayCall+=()=>EditorApplication.Exit(error==null?0:1);
+      }
     }
     private static string Hash(string file){using(var h=SHA256.Create())return BitConverter.ToString(h.ComputeHash(File.ReadAllBytes(file))).Replace("-","").ToLowerInvariant();}
   }

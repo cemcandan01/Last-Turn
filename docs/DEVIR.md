@@ -1,3 +1,28 @@
+# Son devir: Cem kabul turu yapıldı; Windows önce, bulut orijinaldeki gibi (2026-11-05) — Claude
+
+- Dal `codex/unity-p3-mutant`; yerel commit'ler hâlâ push/merge edilmedi (taban `6ae5a27`). `_Recovery` commit dışı.
+- Kararlar kartta (`docs/isler/2026-11-01-unity-tam-aktarim.md` → "Cem kararları (2026-11-05)") ve `docs/GELISTIRICI-AYRINTILARI.md` kararlar listesinde: mobil ertelendi, Windows'ta geliştirme; bulut aynı Firebase projesi/hesapları.
+- **Sonraki tek adım:** Cem'in seçimine göre Windows Firebase REST bağdaştırıcısı ya da görsel/menü fazı; öncesinde P5 commit'lerinin denemeye gönderimi Cem'e soruldu.
+
+# Son devir: P5 uygulandı — A/B/C/D/E/F; aktarım K/Y engelleriyle açık (2026-11-04) — Claude
+
+- Dal `codex/unity-p3-mutant`, gönderilmiş taban `6ae5a27` (= gelistirme, deneme 0.8.19); üstünde yalnız yerel commit'ler (son: bu devir). Push/merge yok. `_Recovery` commit dışı.
+- Kart: `docs/isler/2026-11-01-unity-tam-aktarim.md` → "P5 uygulaması" … "P5 son durum ve hazır olma değerlendirmesi". Elle test: `Unity/OYUNCU-TEST-REHBERI.md`.
+- P5 bölümleri:
+  - **A** kontroller/tercihler (`--controls` 24.641)
+  - **B** HUD/miniharita (`--hud` 17.501)
+  - **C** hava/kamera (`--conditions` 5.356)
+  - **D** bulut sözleşmesi (`--cloud` 3.039)
+  - **E** ses altyapısı (`--audio` 22)
+  - **F** uçtan uca
+- Düzeltilen gerçek hatalar:
+  - Yarışta Mutant tuşları bağlı değildi.
+  - Mutant yarış HUD'u yoktu.
+  - Geçici HUD çakışmaları vardı.
+- **Play (hepsi 283 güncel kaynak):** P1 65, P2 59, P3 39, P3 core 8, P4 29, P5 51, P5 ilerleme 17 — hepsi geçti. .NET 35 alan geçti. Batch kopyası için `Validation/Reference` eşitlenmeli (Editor duman kontrolü okur).
+- Açık (aktarım tamam değil): gerçek cihaz dokunma/eğim + mobil derleme, Firebase erişimi, ses varlıkları, kokpit iç mekânı/ayna, bölge 3 ve gök sarkacı Play'i, insan kabulü. Matris T24/K14/Y1/D3.
+- **Sonraki tek adım:** Cem'in `Unity/OYUNCU-TEST-REHBERI.md` ile elle kabul turu; ardından cihaz derlemesi ve Firebase kararı.
+
 # Son devir: P4 tamam — nitro, beş skill ve fizik/oyun bağı (2026-11-04) — Claude
 
 - Dal `codex/unity-p3-mutant`; kart `docs/isler/2026-11-01-unity-tam-aktarim.md` → "P4 dilim 2–4". Codex dilim 2–3 dosyalarını commit'siz bırakıp durmuştu; Claude doğrulayıp tamamladı. Push/merge/yayın/uzun regresyon yok; `_Recovery` commit dışı.

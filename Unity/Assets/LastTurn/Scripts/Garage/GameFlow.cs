@@ -27,6 +27,8 @@ namespace LastTurn.Garage
       if(screen)screen.SelectTab(GarageTab);
     }
     public static void Pause(bool value){Paused=value;}
+    /// TS COND: oturumluk günün saati ve hava (kalıcı değil). Etkinlik seçilince bölge temasının varsayılanına döner.
+    public static RaceConditions Conditions {get;set;}=new RaceConditions();
     public static bool SaveName(string name)
     {
       try

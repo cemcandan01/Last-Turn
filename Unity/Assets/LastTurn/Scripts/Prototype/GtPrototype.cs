@@ -36,6 +36,12 @@ namespace LastTurn.Prototype
     public Transform[] SpinPivots => spinPivots;
     public GtFollowCamera FollowCamera => followCamera;
     public DrivingInput CurrentInput { get; private set; }
+    /// Ham girişler (TS I); yalnız okuma/doğrulama.
+    public DrivingControls Controls => input?.Controls;
+    /// Serbest sürüş telemetrisinin alt kenarı (geliştirici dünya paneli altından başlar).
+    public float TelemetryBottom { get; private set; }
+    /// Bu sürüşün günün saati/havası (HUD ve doğrulama).
+    public RaceConditions Conditions { get; private set; } = new RaceConditions();
     public IReadOnlyList<DrivingInput> RecordedInputs => trace;
     public int RestartCount { get; private set; }
     public PowertrainParameters Parameters => parameters;
@@ -66,13 +72,35 @@ namespace LastTurn.Prototype
       if(WorldData.OpenKey!="")
       {
         OpenTerrain=new OpenWorld(WorldData.Catalog,WorldData.OpenKey);world=OpenTerrain;
+        Conditions=GameFlow.Conditions.Clone();OpenTerrain.GripMultiplier=Conditions.GripFor(RaceConditions.ThemeOf(WorldData.OpenKey));
         ConfigureTerrain();EnvironmentVisuals=gameObject.AddComponent<PhysicalWorldVisuals>();EnvironmentVisuals.Build(world,OpenTerrain.Region,true);
         if(!MutantRuntime.Active)gameObject.AddComponent<WorldDrivePanel>();
         else gameObject.AddComponent<MutantWorldMarkers>();
       }
       if (!vehicleRoot || !followCamera) throw new InvalidOperationException("GTTest sahnesi eksik; Last Turn menüsünden sahneyi oluşturun.");
       if(AppliedGarageCarId!="")ApplyGarageVisuals(MutantRuntime.Active?MutantRuntime.Session.BuildSetup():GarageSession.DriveSetup);
-      input = new GtKeyboardInput(); BindMutantInput(); ResetVehicle();
+      input = new GtKeyboardInput(); BindMutantInput(); BindTouch(); ResetVehicle();
+    }
+    private TouchDrivingOverlay touch;
+    // P5: dokunmatik katman ve oyuncu tercihleri (TS kontrolleriKur + lt_ayar). Tercih değişince canlı araca uygulanır.
+    private void BindTouch()
+    {
+      touch = gameObject.AddComponent<TouchDrivingOverlay>(); touch.Bind(this, input);
+      PlayerPreferences.Changed += ApplyPreferences;
+    }
+    private void ApplyPreferences()
+    {
+      if (Simulation == null) return; var s = PlayerPreferences.Current;
+      Simulation.SmoothSteeringPreference = s.On("sm"); Simulation.SpeedSensitivePreference = s.On("ss");
+    }
+    /// TS girdiSifirla: yarış başı/sonu, ayar ve panel değişimi.
+    public void ResetInput() { input?.Controls.Reset(); touch?.Release(); }
+    /// TS ↺ (yenidenDog): yarışta piste dönüş; Unity açık dünya bölgelerinde pist yok → TS pistsiz dalı: araç olduğu yerde durdurulup yere konur.
+    public void RespawnAny()
+    {
+      if (Race != null) { if (Race.Session.State == RaceState.Running) RespawnRace(); return; }
+      if (Simulation == null) return; var p = Simulation.ReferencePoint; var f = Simulation.Body.Orientation.Rotate(new BodyVector(0, 0, 1));
+      Simulation.Place(p.X, p.Z, Math.Atan2(f.X, f.Z)); runner.SyncPrevious(); followCamera.ResetFollow();
     }
     // TS mutant-ui.ts klavye: tuşlar yalnız kuyruğa girer, sonraki fizik adımında MutantAbilityDriver tüketir.
     private void BindMutantInput()
@@ -101,12 +129,12 @@ namespace LastTurn.Prototype
       ObserveRaceDistance();if(pendingProfileKm==0)return true;
       if(!GarageRace.Distance(pendingProfileKm))return false;pendingProfileKm=0;return true;
     }
-    private void OnDestroy() { input?.Dispose(); }
+    private void OnDestroy() { PlayerPreferences.Changed -= ApplyPreferences; input?.Dispose(); }
     private void OnApplicationFocus(bool value) { focused = value; if (value) input?.Enable(); else input?.Disable(); }
     public void ResetVehicle()
     {
       FlushProfileDistance();
-      Simulation = new PowertrainVehicle(parameters,world:world); runner = new PowertrainFixedStepRunner(Simulation);
+      Simulation = new PowertrainVehicle(parameters,world:world); runner = new PowertrainFixedStepRunner(Simulation); ApplyPreferences();
       if(OpenTerrain!=null){var t=OpenTerrain.Region.Teleports[openSpawn];Simulation.Place(t.X,t.Z,t.Heading);runner.SyncPrevious();}
       if(MutantRuntime.Active&&OpenTerrain!=null){MutantRuntime.PlaceWorld(Simulation);runner.SyncPrevious();}
       trace.Clear(); previousSteer = 0; CurrentInput = default; RestartCount++;
@@ -114,7 +142,7 @@ namespace LastTurn.Prototype
     }
     private void Update()
     {
-      if (!focused || GameFlow.Paused || MutantRuntime.Blocked) return;
+      if (!focused || GameFlow.Paused || MutantRuntime.Blocked || SettingsScreen.Open) return;
       if(ManualStepping&&Race==null)return;
       UpdateAirControl();
       if (Race != null) { UpdateRace(); return; }
@@ -148,13 +176,13 @@ namespace LastTurn.Prototype
         var spec=plan.Opponent;var opSetup=GarageSession.Catalog.Setup((int)spec["arac"].N(),spec["parca"].Items.Select(x=>x.S()));
         var opMutant=OpponentRacer.CreateMutantSetup(GarageSession.Catalog,opSetup,spec["pasif"].Items.Select(x=>x.S()));
         var opParameters=GarageSession.Catalog.CreatePhysics(opMutant);MutantRuntime.OpponentLink=new MutantOpponentLink(GarageSession.Catalog,opMutant);
-        var spawn=plan.OpponentStart();var mutantWorld=plan.Track.IsStreet?new TrackWorld(plan.Track,WorldData.Catalog):new TrackWorld(plan.Track){Environment=RaceWorld.Environment};
+        var spawn=plan.OpponentStart();var mutantWorld=plan.Track.IsStreet?new TrackWorld(plan.Track,WorldData.Catalog){GripMultiplier=RaceWorld.GripMultiplier}:new TrackWorld(plan.Track){Environment=RaceWorld.Environment,GripMultiplier=RaceWorld.GripMultiplier};
         Opponent=new OpponentRacer(opParameters,mutantWorld,plan.Track,plan.Event,WorldData.Opponents.Plan(plan.Track.Key,spec["kisilik"].S()),(uint)spec["tohum"].N(),spawn.X,spawn.Z,spawn.Heading);
         CreateOpponentVisual();return;
       }
       if(!WorldData.OpponentTest)return;
       var info=Race.Event;var track=RaceWorld.Track;var g=track.Geometry;int i=g.Nearest(info.StartX,info.StartZ,0,true).Index;
-      var opWorld=new TrackWorld(track){Environment=RaceWorld.Environment};
+      var opWorld=new TrackWorld(track){Environment=RaceWorld.Environment,GripMultiplier=RaceWorld.GripMultiplier};
       var opponentParameters=raceDrive.Setup!=null?OpponentRacer.CreateParameters(GarageSession.Catalog,raceDrive.Setup,info.Type):parameters;
       Opponent=new OpponentRacer(opponentParameters,opWorld,track,info,WorldData.Opponents.Plan(track.Key),731,info.StartX+g.Tz[i]*OpponentRacer.GridOffset,info.StartZ-g.Tx[i]*OpponentRacer.GridOffset,info.StartHeading);
       CreateOpponentVisual();
@@ -165,6 +193,19 @@ namespace LastTurn.Prototype
       if(Opponent==null)return "";var rank=Opponent.Rank(Race.Session.Lap,RaceWorld.Hint,Race.Session.Armed!=0);
       if(Race.Session.State==RaceState.Finished)return Opponent.PlayerWon(Race.Session.Time)?"Rakipten önce bitirdin • doğrulama yarışı, kariyer ödülü yok":"Rakip önce bitirdi • doğrulama yarışı, kariyer ödülü yok";
       return "Sıra "+rank.Rank+" / 2 • fark "+(double.IsInfinity(rank.Gap)?"rakip bitti":rank.Gap.ToString("0.0")+" m");
+    }
+    // TS sahneGuncelle kamera girdileri: kip/FOV/sarsıntı tercihi, drift, nitro, skill görüşü (beceriEfektDurumu), çarpma anı.
+    private CameraFrame CameraFrame()
+    {
+      var s=PlayerPreferences.Current;var c=new CameraFrame{Mode=s.Camera,SpeedFov=s.On("fov"),Shake=s.On("shk"),Drifting=Simulation.Assist.On,
+        HitAge=(float)(Simulation.Body.Steps*PowertrainVehicle.FixedDelta-Simulation.Body.LastHitTime),FrontAxle=(float)System.Math.Abs(parameters.Chassis.Wheels[0].Z)};
+      var a=MutantRuntime.Abilities;
+      if(a!=null)
+      {
+        var y=MutantRuntime.Run.State["bec"]["yerel"];bool Open(string id)=>y[id]["kalan"].N()>0;
+        c.Nitro=a.Nitro().Open;c.SkillFov=(Open("grappling-hook")?6:0)+(Open("risk-taker")?5:0)+(Open("slipstream-engine")||Open("volt-kanat")?4:0);
+      }
+      return c;
     }
     private void RenderFrame(float dt)
     {
@@ -184,7 +225,7 @@ namespace LastTurn.Prototype
       }
       RenderGhost();
       Vector3 origin = vehicleRoot.TransformPoint(ModelPoint(0, 0, 0, parameters.Chassis));
-      followCamera.Render(origin, vehicleRoot.forward, (float)b.Velocity.Length, dt);
+      followCamera.Render(origin, vehicleRoot.rotation, (float)b.Velocity.Length, dt, CameraFrame());
       // Sonsuz H=0 zeminin yalnız görsel döşemesi; simülasyona geri besleme yok.
       if(!terrainMode && ground)ground.position = new Vector3(vehicleRoot.position.x, 0, vehicleRoot.position.z);
     }
@@ -209,7 +250,7 @@ namespace LastTurn.Prototype
     private void AwakeRace()
     {
       if (!vehicleRoot || !followCamera || !trackVisuals) throw new InvalidOperationException("RaceTest sahnesi eksik; Last Turn menüsünden sahneyi oluşturun.");
-      input = new GtKeyboardInput();
+      input = new GtKeyboardInput(); BindMutantInput(); BindTouch();
       InitializeRace(string.IsNullOrEmpty(RaceData.Selected) ? raceTrack : RaceData.Selected);
     }
     /// Garaj oturumundan araç/kariyer/ödül bağını kurup yarışı baştan hazırlar (doğrulama ayrı profil açınca da çağırır).
@@ -230,15 +271,19 @@ namespace LastTurn.Prototype
         if (visualCar == "") { ApplyGarageVisuals(drive.Setup); visualCar = AppliedGarageCarId; }
       }
       RaceWorld = mutant!=null?mutant.World:new TrackWorld(track); world = RaceWorld;
+      // TS COND/havaTutusu: bölge teması + seçili hava; Mutant boss kendi havasını/gecesini dayatır (TS mutantBossKosulu).
+      Conditions = mutant!=null&&mutant.Boss?GameFlow.Conditions.ForBoss(MutantRuntime.Run.State["boss"]):GameFlow.Conditions.Clone();
+      RaceWorld.GripMultiplier = Conditions.GripFor(RaceConditions.Theme(info.Region));
       if(mutant==null)RaceWorld.Environment=WorldData.Catalog.Activate(key);
       if(!EnvironmentVisuals)EnvironmentVisuals=gameObject.AddComponent<PhysicalWorldVisuals>();EnvironmentVisuals.Build(world,RaceWorld.Environment,false);
-      Simulation = new PowertrainVehicle(parameters, world: world); runner = new PowertrainFixedStepRunner(Simulation);
+      Simulation = new PowertrainVehicle(parameters, world: world); runner = new PowertrainFixedStepRunner(Simulation); ApplyPreferences(); ResetInput();
       Race = new RaceRun(Simulation, RaceWorld, info, hint => new RaceSession(info, track, drive.Career, hint, drive.Career ? GarageRace.Reward : null,
         mutant!=null?(Action<double>)(metres=>MutantRuntime.Run.CutPenalty(metres)):null,mutant:mutant!=null),
         drive.Setup != null && drive.Parameters != null ? RaceDrift.MaxAngle(drive.Setup) : double.PositiveInfinity);
       // TS startEvent: kullanım sayacı ve rekor hayaleti; endEvent: rekor/profil/hayalet kaydı.
-      Race.Finished += run => {if(mutant!=null)MutantRuntime.Finished(run,Opponent);else{FlushProfileDistance();GarageRace.Finished(run, drive);}};
-      if(mutant==null){Race.GhostFactory = () => GarageRace.Ghost(info, track, Race.Session.RecordKey); Race.StartGhost();}
+      Race.Finished += run => {ResetInput();if(mutant!=null)MutantRuntime.Finished(run,Opponent);else{FlushProfileDistance();GarageRace.Finished(run, drive);}};
+      // TS set.rh: rekor hayaleti yalnız tercih açıkken; hayalet kaydedildiği havanın tutuşuyla oynar.
+      if(mutant==null&&PlayerPreferences.Current.On("rh")){Race.GhostFactory = () => GarageRace.Ghost(info, track, Race.Session.RecordKey, RaceWorld.GripMultiplier); Race.StartGhost();}
       RecordText = mutant!=null?"Mutant koşusu":RaceRecordText(); if (drive.Parameters != null&&mutant==null) GarageRace.Started(drive.Car); raceDrive = drive;
       // TS mutantYarisAyari → beceriYarisBasi: rakip gövdesi, takip kredisi ve near-miss kayıtları her yarış başında sıfırlanır.
       if(mutant!=null)MutantRuntime.Abilities?.RaceStart();
@@ -402,14 +447,16 @@ namespace LastTurn.Prototype
 
     private void OnGUI()
     {
-      if (Simulation == null || GameFlow.Paused || Race!=null) return;
+      // Mutant açık dünyasında koşu durum çubuğu kullanılır; telemetri yalnız GT/arazi/serbest sürüşte ve ortak Info alanında.
+      if (Simulation == null || GameFlow.Paused || Race!=null || MutantRuntime.Active || SettingsScreen.Open || !Hud.TryGet(this,"Info",out var info)) { TelemetryBottom = 0; return; }
       if (title == null)
       {
         title = new GUIStyle(GUI.skin.label) { fontSize = 13, fontStyle = FontStyle.Bold, normal = { textColor = new Color(.95f,.32f,.2f) } };
         digits = new GUIStyle(GUI.skin.label) { fontSize = 34, fontStyle = FontStyle.Bold, normal = { textColor = Color.white } };
         text = new GUIStyle(GUI.skin.label) { fontSize = 13, normal = { textColor = new Color(.86f,.89f,.92f) } };
       }
-      var old = GUI.matrix; float scale = Mathf.Clamp(Screen.width / 1280f,.8f,1.6f); GUI.matrix = Matrix4x4.Scale(new Vector3(scale,scale,1));
+      bool terrainPanel=terrainMode && OpenTerrain==null; var old = GUI.matrix; float scale = Mathf.Clamp(Mathf.Min(info.width/314f,info.height/(terrainPanel?383f:216f)),.45f,1.6f);
+      GUI.matrix = Matrix4x4.TRS(new Vector3(info.x-14*scale,info.y-14*scale,0),Quaternion.identity,new Vector3(scale,scale,1)); TelemetryBottom = info.y + (terrainPanel?369:202)*scale;
       GUI.Box(new Rect(14,14,300,202), GUIContent.none);
       GUI.Label(new Rect(28,23,270,22),OpenTerrain!=null?"LAST TURN  /  "+OpenTerrain.Region.Name:terrainMode?"LAST TURN  /  ARAZİ TESTİ":"LAST TURN  /  GT TEST",title);
       var s = Simulation.Body; var e = Simulation.Engine;
@@ -431,9 +478,11 @@ namespace LastTurn.Prototype
           GUI.Label(new Rect(28,258+i*23,325,22),$"{corner}: {VehicleGround.Name(wheel.SurfaceIndex)} · {(wheel.Contact?"TEMAS":"HAVA")} · {wheel.Compression*100:0.0} cm",text);
         }
         GUI.Label(new Rect(28,351,325,22),"20–60 tepe · 70–90 tümsek · 105–120 rampa",text);
-        if(Screen.width/scale>820)GUI.Box(new Rect(380,14,420,53),"Sol şerit TOPRAK (x ≥ 4) · Sağ şerit ASFALT\nW ile ilerle · A/D ile yüzey değiştir · R başa döner");
+        GUI.Label(new Rect(28,372,325,22),"Sol şerit TOPRAK (x ≥ 4) · Sağ ASFALT · R başa",text);
       }
-      GUI.Box(new Rect(14,Screen.height/scale-46,560,32),"W / ↑ Gaz    S / ↓ Fren ve geri    A/D / ←/→ Dönüş    Space El freni    R Başlangıç");
+      GUI.matrix = old;
+      if (Hud.TryGet(this,"Hint",out var hint)) GUI.Label(hint,"W/↑ gaz · S/↓ fren ve geri · A/D dönüş · Boşluk/C el freni · R başlangıç",text);
+      GUI.matrix = Matrix4x4.TRS(new Vector3(info.x-14*scale,info.y-14*scale,0),Quaternion.identity,new Vector3(scale,scale,1));
       GUI.matrix = old;
     }
   }

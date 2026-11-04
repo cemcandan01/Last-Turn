@@ -102,7 +102,7 @@ namespace LastTurn.Core
     public OpenWorld(WorldCatalog catalog,string key){Catalog=catalog;Region=catalog.Activate(key);}
     public double Height(double x,double z)=>Catalog.Height(x,z);
     public int Surface(double x,double z)=>Catalog.Surface(x,z);
-    public double GripMultiplier=>1;public bool CollisionEnabled=>true;
+    public double GripMultiplier{get;set;}=1;public bool CollisionEnabled=>true;
     public (double MinX,double MaxX,double MinZ,double MaxZ) CollisionBounds=>Region.Box;
     public IEnumerable<WorldObstacle> Near(double x,double z,double y)=>Region.QueryGrid.Near(x,z).Where(o=>o.Top==0||y-.6<o.Top);
   }

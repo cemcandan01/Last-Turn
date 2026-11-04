@@ -73,7 +73,7 @@ namespace LastTurn.Garage
           var existing = store.LoadGhost(s.RecordKey); var inputs = run.Recording;
           if (GhostRecord.ShouldSave(existing, s.Result, inputs, s.IsDrift))
           {
-            store.SaveGhost(new GhostRecord { Key = s.RecordKey, Car = drive.Car, RaceType = run.Event.Type, AssistLevel = GarageSession.State.AssistLevel, Result = s.Result, Parts = drive.Setup.Parts, Inputs = inputs,
+            store.SaveGhost(new GhostRecord { Key = s.RecordKey, Car = drive.Car, RaceType = run.Event.Type, AssistLevel = GarageSession.State.AssistLevel, Result = s.Result, Parts = drive.Setup.Parts, Inputs = inputs, Weather = new GhostWeather(run.World.GripMultiplier, RaceConditions.Theme(run.Event.Region) == "snow"),
               Manual = run.Manual, StartGas = run.StartGas, StartRpm = run.StartRpm, StartHold = run.StartHold });
             LastGhostSaved = true;
           }
@@ -95,7 +95,7 @@ namespace LastTurn.Garage
     }
 
     /// Kayıtlı hayaleti kendi araç kurulumuyla oyuncudan ayrı fizikte oynat (yoksa null).
-    public static GhostPlayer Ghost(RaceEventInfo info, TrackDefinition track, string recordKey)
+    public static GhostPlayer Ghost(RaceEventInfo info, TrackDefinition track, string recordKey, double currentGrip = 1)
     {
       if(LastTurn.Prototype.WorldData.OpponentTest)return null;
       try
@@ -104,7 +104,7 @@ namespace LastTurn.Garage
         if (g == null || g.Car >= GarageSession.Catalog.Data["cars"].Items.Count()) return null;
         var setup = GarageSession.Catalog.Setup(g.Car, g.Parts, g.AssistLevel);
         var parameters = GarageDriveParameters.Create(GarageSession.Catalog, setup, false, g.RaceType); parameters.ManualGearbox = g.Manual;
-        return new GhostPlayer(g, parameters, track, info);
+        return new GhostPlayer(g, parameters, track, info, currentGrip);
       }
       catch (Exception e) when (e is IOException || e is ArgumentException || e is FormatException) { LastMessage = "Hayalet açılamadı: " + e.Message; return null; }
     }

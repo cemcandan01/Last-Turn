@@ -1,5 +1,10 @@
 using System.Text.Json;
 using LastTurn.Core;
+if(args.Contains("--cloud")){CloudValidation.Run();return;}
+if(args.Contains("--hud")){HudValidation.Run();return;}
+if(args.Contains("--audio")){AudioValidation.Run();return;}
+if(args.Contains("--conditions")){ConditionsValidation.Run();return;}
+if(args.Contains("--controls")){ControlsValidation.Run();return;}
 if(args.Contains("--mutant-energy")){MutantEnergyValidation.Run();return;}
 if(args.Contains("--mutant-skills")){MutantSkillsValidation.Run();return;}
 if(args.Contains("--mutant-skill-world")){MutantSkillWorldValidation.Run();return;}
