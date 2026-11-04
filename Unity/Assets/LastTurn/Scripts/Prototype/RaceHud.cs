@@ -26,8 +26,7 @@ namespace LastTurn.Prototype
 
     private void OnGUI()
     {
-      if(MutantRuntime.Active)return;
-      var race = prototype ? prototype.Race : null; if (race == null || GameFlow.Paused) return;
+      var race = prototype ? prototype.Race : null; if (race == null || GameFlow.Paused || SettingsScreen.Open) return;
       if (big == null)
       {
         big = new GUIStyle(GUI.skin.label) { fontSize = 30, fontStyle = FontStyle.Bold };
@@ -36,9 +35,11 @@ namespace LastTurn.Prototype
         center = new GUIStyle(big) { alignment = TextAnchor.MiddleCenter, fontSize = 54 };
         resultButton=new GUIStyle(GUI.skin.button){fontSize=18,wordWrap=true};
       }
-      var s = race.Session;if(s.State==RaceState.Finished){Result(s);return;}
+      // Mutant sonucu koşu panelinde (MutantRuntime.Finished); kariyer sonucu burada.
+      var s = race.Session;if(s.State==RaceState.Finished){if(!MutantRuntime.Active)Result(s);return;}
+      if(MutantRuntime.Panel!="")return;
       var m = RaceViewModel.Hud(s, race.World.Hint, note);
-      GUILayout.BeginArea(new Rect(12, 12, Mathf.Min(460,Screen.width-24), prototype.Opponent!=null?230:176), GUI.skin.box);
+      Hud.TryGet(prototype, "RacePanel", out var panel); GUILayout.BeginArea(panel, GUI.skin.box);
       GUILayout.Label(m.Title, title); GUILayout.Label(m.Big, big); GUILayout.Label(m.Sub, text);
       if (m.Drift != "" || m.X6 != "") GUILayout.Label(m.Drift + "   " + m.X6, text);
       GUILayout.Label(prototype.RaceMessage, text);
@@ -52,21 +53,20 @@ namespace LastTurn.Prototype
       if (m.Note != "") GUI.Label(new Rect(0, h * .3f + (m.Countdown != "" ? 80 : 0), w, 80), m.Note, center);
       if (m.Return != "") GUI.Label(new Rect(0, h * .5f, w, 60), m.Return, center);
       if (m.WrongWay) GUI.Label(new Rect(0, h * .2f, w, 60), "GERİ DÖN", center);
-      GUI.Label(new Rect(12, h - 34, w - 24, 26), "W/S gaz-fren · A/D direksiyon · Boşluk el freni · R yeniden başlat", text);
-      // TS ↺ yeniden doğ: pist dışı ilk çıkışa ya da en yakın pist noktasına; süre durmaz.
-      if (s.State == RaceState.Running && GUI.Button(new Rect(w - 152, 12, 140, 40), "Piste dön")) prototype.RespawnRace();
+      // TS ↺ yeniden doğ: dokunmatik katmanın ↺ düğmesi (fareyle de tıklanır).
+      if (Hud.TryGet(prototype, "Hint", out var hint)) GUI.Label(hint, "W/S gaz-fren · A/D direksiyon · Boşluk/C el freni · E/Q vites · N nitro · R yeniden başlat", text);
       // Drag manuel: devir göstergesi, vites, kalkış bandı ve uyarı (otomatik vites yok).
       var d = DragViewModel.Hud(race.Vehicle, s);
       if (d.Manual)
       {
-        var bar = new Rect(w / 2f - 220, h - 96, 440, 26); GUI.Box(bar, GUIContent.none);
+        Hud.TryGet(prototype, "DragBar", out var area); var bar = new Rect(area.x, area.y + area.height * .4f, area.width, area.height * .25f); GUI.Box(bar, GUIContent.none);
         float F(double rpm) => bar.x + bar.width * Mathf.Clamp01((float)(rpm / (d.MaxRpm * PowertrainParameters.RevLimit)));
         var old = GUI.color;
         if (s.State == RaceState.Countdown) { GUI.color = new Color(.2f, .8f, .3f, .5f); GUI.DrawTexture(new Rect(F(d.LaunchLow), bar.y, F(d.LaunchHigh) - F(d.LaunchLow), bar.height), Texture2D.whiteTexture); }
         GUI.color = new Color(.95f, .75f, .1f, .5f); GUI.DrawTexture(new Rect(F(d.ShiftRpm), bar.y, F(d.MaxRpm) - F(d.ShiftRpm), bar.height), Texture2D.whiteTexture);
         GUI.color = d.Light == "KESİCİ" ? Color.red : Color.white; GUI.DrawTexture(new Rect(bar.x, bar.y + 8, F(d.Rpm) - bar.x, 10), Texture2D.whiteTexture); GUI.color = old;
-        GUI.Label(new Rect(bar.x, bar.y - 30, 440, 28), "Vites " + d.Gear + " · " + d.Rpm.ToString("F0") + " devir   " + d.Light, big);
-        GUI.Label(new Rect(bar.x, bar.y + 28, 600, 24), d.Help, text);
+        GUI.Label(new Rect(area.x, area.y, area.width, area.height * .4f), "Vites " + d.Gear + " · " + d.Rpm.ToString("F0") + " devir   " + d.Light, title);
+        GUI.Label(new Rect(area.x, bar.yMax, area.width, area.height * .35f), d.Help, text);
       }
     }
 

@@ -1,0 +1,93 @@
+#nullable enable
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace LastTurn.Core
+{
+  public readonly struct HudRect
+  {
+    public readonly double X,Y,W,H;
+    public HudRect(double x,double y,double w,double h){X=x;Y=y;W=w;H=h;}
+    public double Right=>X+W;public double Bottom=>Y+H;
+    public bool Overlaps(HudRect o)=>X<o.Right&&o.X<Right&&Y<o.Bottom&&o.Y<Bottom;
+    public bool Inside(double w,double h)=>X>=0&&Y>=0&&Right<=w+1e-9&&Bottom<=h+1e-9;
+  }
+  /// Yerleşim girdisi: ekran (piksel, sol üst köşe) ve hangi parçaların görünür olduğu.
+  public sealed class HudLayoutInput
+  {
+    public double Width=844,Height=390;
+    public string Steer="btn",Gas="btn",Map="kare";public bool Handbrake=true,Manual,Racing,Mutant,Opponent,DesktopHint,DragBar,Info;
+    public string[] Skills=Array.Empty<string>(); // yuva sırasıyla tür: aktif | tetikli
+  }
+  // Geçici sürüş HUD'unun tek yerleşim kaynağı (TS stil.css --cL/--cR mantığı: göstergeler tuşların üstüne yerleşir).
+  // Dokunmatik tuşlar, üst düğmeler, bilgi panelleri, miniharita, drag çubuğu ve ipucu satırı birbirine binmez.
+  public static class HudLayout
+  {
+    private static readonly HashSet<string> RightGroup=new HashSet<string>{"Gas","Pedal","Brake","Handbrake","ShiftUp","ShiftDown"};
+    public static double Unit(double w,double h)=>Math.Max(54,Math.Min(140,Math.Min(w,h)/6.5));
+    public static Dictionary<string,HudRect> Compute(HudLayoutInput i)
+    {
+      var r=new Dictionary<string,HudRect>(StringComparer.Ordinal);double W=i.Width,H=i.Height,u=Unit(W,H),m=u*.25,bottom=H-m-u;
+      // sol alt: direksiyon grubu
+      if(i.Steer=="btn"){r["Left"]=new HudRect(m,bottom,u,u);r["Right"]=new HudRect(m*2+u,bottom,u,u);}
+      else if(i.Steer=="wheel")r["Wheel"]=new HudRect(m,bottom-u*1.2,u*2.2,u*2.2);
+      else r["Calibrate"]=new HudRect(m,bottom,u*1.6,u);
+      double leftTop=r.Values.Min(v=>v.Y),leftRight=r.Values.Max(v=>v.Right);
+      // sağ alt: pedallar
+      double right=W-m-u;
+      if(i.Gas=="btn")r["Gas"]=new HudRect(right,bottom-u*.6,u,u*1.6);
+      if(i.Gas=="analog")r["Pedal"]=new HudRect(right,bottom-u*1.4,u,u*2.4);
+      double brakeX=i.Gas=="auto"?right:right-m-u;
+      if(i.Gas!="analog")r["Brake"]=new HudRect(brakeX,bottom,u,u);
+      double groupX=i.Gas=="analog"?right:brakeX;
+      if(i.Handbrake)r["Handbrake"]=new HudRect(i.Gas=="analog"?right-m-u:brakeX,bottom-m-u*.7,u,u*.7);
+      if(i.Manual&&i.Racing){double x=r.Where(p=>RightGroup.Contains(p.Key)).Min(p=>p.Value.X)-m-u*.8;r["ShiftUp"]=new HudRect(x,bottom-u*.9,u*.8,u*.8);r["ShiftDown"]=new HudRect(x,bottom,u*.8,u*.8);}
+      double rightLeft=r.Where(p=>RightGroup.Contains(p.Key)).Min(p=>p.Value.X),rightTop=r.Where(p=>RightGroup.Contains(p.Key)).Min(p=>p.Value.Y);
+      // Mutant: NİTRO ve skill yuvaları sol grubun üstünde (TS); tetikli skill gösterge kutusu (dokunulmaz)
+      if(i.Mutant)
+      {
+        // sağ grubun sol kenarına ve üstüne değmeyecek kadar; sığmayan yuva bir üst satıra sarar (dar/dikey ekran)
+        double h=u*.8,y=leftTop-m-h,limit=rightLeft-m;
+        r["Nitro"]=new HudRect(m,y,u*1.4,h);double x=m+u*1.4+m,widest=x-m,n0=i.Skills.Length;
+        double slot=n0==0?u*1.3:Math.Min(u*1.3,(limit-x-m*(n0-1))/n0);if(slot<u*.9)slot=u*1.3;
+        for(int n=0;n<i.Skills.Length;n++)
+        {
+          if(x+slot>limit+1e-6){y-=h+m;x=m;}
+          r[(i.Skills[n]=="aktif"?"Skill":"Passive")+n]=new HudRect(x,y,slot,h);x+=slot+m;widest=Math.Max(widest,x-m);
+        }
+        leftTop=y;leftRight=Math.Max(leftRight,widest);
+      }
+      // alt orta: drag devir çubuğu ve masaüstü ipucu iki tuş grubunun arasında; dar ekranda çubuk grupların üstüne çıkar
+      double gapX=leftRight+m,gapW=rightLeft-m-gapX;
+      if(i.DragBar)
+      {
+        if(gapW>u*4)r["DragBar"]=new HudRect(gapX,H-m-u*1.25,gapW,u*1.25);
+        else if(rightLeft-m*3>u*3){double y=leftTop-m-u*1.25;r["DragBar"]=new HudRect(m,y,rightLeft-m*3,u*1.25);leftTop=y;}
+        else{double y=Math.Min(leftTop,rightTop)-m-u*1.25;r["DragBar"]=new HudRect(m,y,W-m*2,u*1.25);leftTop=y;rightTop=y;}
+      }
+      if(i.DesktopHint&&gapW>u*4)r["Hint"]=new HudRect(gapX,r.TryGetValue("DragBar",out var bar)&&bar.Y>H/2&&bar.X==gapX?bar.Y-m-u*.45:H-m-u*.45,gapW,u*.45);
+      // üst sağ düğmeler
+      double b=u*.62,bw=b*1.6;string[] top={"Settings","Pause","Respawn","Camera"};
+      for(int n=0;n<top.Length;n++)r[top[n]]=new HudRect(W-m-(n+1)*(bw+m*.5),m,bw,b);
+      double buttonsLeft=r["Camera"].X,buttonsBottom=m+b;
+      // miniharita (TS hud harita parçası): üst sağ düğmelerin altında, sağ grubun üstünde
+      double mapSize=i.Map=="kapali"?0:Math.Min((i.Map=="kucuk"?.28:.4)*Math.Min(W,H)*1.6,rightTop-buttonsBottom-m*2);
+      if(r.TryGetValue("DragBar",out var drag)&&drag.Y<H-m-u*1.25-1e-9&&drag.Right>W-m-mapSize)mapSize=Math.Min(mapSize,drag.Y-m-(buttonsBottom+m));
+      if(W-m-mapSize<leftRight+m){double beside=W-m-(leftRight+m),above=leftTop-m-(buttonsBottom+m);mapSize=Math.Max(Math.Min(mapSize,beside),Math.Min(mapSize,above));}
+      if(mapSize>u)r["Map"]=new HudRect(W-m-mapSize,buttonsBottom+m,mapSize,mapSize);
+      double rightColumn=r.TryGetValue("Map",out var map)?Math.Min(map.X,buttonsLeft):buttonsLeft;
+      // sol üst bilgi: Mutant durum + yarış paneli + skill/geliştirici bilgisi; üst düğmelere ve miniharitaya değmez
+      double infoW=Math.Min(460,rightColumn-m*3),y0=m;
+      if(i.Mutant){r["MutantBar"]=new HudRect(m,y0,infoW,u*.9);y0+=u*.9+m*.5;}
+      if(i.Racing){double rh=Math.Min(i.Opponent?u*3.6:u*2.8,leftTop-m-y0);r["RacePanel"]=new HudRect(m,y0,infoW,rh);y0+=rh+m*.5;}
+      if(i.Info){double ih=Math.Max(u,leftTop-m-y0);r["Info"]=new HudRect(m,y0,infoW,ih);y0+=ih;}
+      return r;
+    }
+    /// Çakışan parça çiftleri (doğrulama).
+    public static IEnumerable<(string A,string B)> Overlaps(Dictionary<string,HudRect> r)
+    {
+      var k=r.Keys.ToArray();for(int a=0;a<k.Length;a++)for(int b=a+1;b<k.Length;b++)if(r[k[a]].Overlaps(r[k[b]]))yield return (k[a],k[b]);
+    }
+  }
+}

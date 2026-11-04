@@ -133,6 +133,12 @@ namespace LastTurn.EditorValidation
         Check(GameAudio.LastMix!=null&&Math.Abs(GameAudio.LastMix.Effects-AudioDirector.Level(40))<1e-9,"Oyun sesi tercihi (%40) TS seviye eğrisiyle kazanca uygulandı");
         Check(GameAudio.MissingAssets.Contains("motor")&&GameAudio.MissingAssets.Contains("nitro"),"Ses varlığı olmayan katman/olaylar eksik varlık olarak raporlandı");
         proof.missingAudio=string.Join(",",GameAudio.MissingAssets.OrderBy(x=>x));});
+      Add(30,()=>{var r=Hud.Rects(p);var o=HudLayout.Overlaps(r).ToArray();var v=UnityEngine.Object.FindFirstObjectByType<MiniMapView>();
+        Check(o.Length==0&&r.ContainsKey("MutantBar")&&r.ContainsKey("Map")&&!r.ContainsKey("Info"),"Mutant sürüş HUD'u bu ekranda çakışmasız (durum çubuğu + miniharita, telemetri yok)"+(o.Length>0?" ["+o[0].A+"-"+o[0].B+"]":""));
+        Check(v!=null&&v.Markers>=4&&v.Map.Width>=180,"Miniharita Mutant etkinlik/sandık/atölye/boss işaretlerini çizdi ("+(v==null?0:v.Markers)+")");Prefs(s=>s.Hud["harita"]="kapali");});
+      Add(3,()=>{Check(!Hud.Rects(p).ContainsKey("Map"),"HUD harita parçası kapalıyken miniharita yok");Prefs(s=>s.Hud["harita"]="kare");
+        MutantRuntime.Run.Damage("spin");});
+      Add(3,()=>{Check(MutantRuntime.Run.State["govde"].N()<100||MutantRuntime.Run.State["spin"].N()>=1,"Hasar bildirimi için gerçek gövde hasarı işlendi");});
     }
     private static void Tick()
     {

@@ -12,7 +12,7 @@ namespace LastTurn.Prototype
   // Her parmak başladığı kontrole bağlanır (TS pointer capture); üst düğmeler parmak üstündeyken kalkarsa çalışır (TS dokunma.ts).
   public sealed class TouchDrivingOverlay : MonoBehaviour
   {
-    private enum Kind { None, Left, Right, Gas, Brake, Handbrake, Wheel, Pedal, Calibrate, Camera, Respawn, Pause, Settings, Nitro, Skill, ShiftUp, ShiftDown }
+    private enum Kind { None, Left, Right, Gas, Brake, Handbrake, Wheel, Pedal, Calibrate, Camera, Respawn, Pause, Settings, Nitro, Skill, Passive, ShiftUp, ShiftDown }
     private sealed class Pointer { public Kind Kind; public int Slot; public Vector2 Start, Last; public double Angle; }
     private readonly Dictionary<int, Pointer> pointers = new Dictionary<int, Pointer>();
     private readonly DrivingControls touch = new DrivingControls();
@@ -36,31 +36,20 @@ namespace LastTurn.Prototype
     private PlayerSettings S => PlayerPreferences.Current;
     private bool Visible => driver && driver.Simulation != null && !GameFlow.Paused && !MutantRuntime.Blocked && !SettingsScreen.Open;
     // Yerleşim: ekran pikseli, IMGUI ekseni (sol üst köşe). Dar ekranda kısa kenara göre ölçeklenir.
-    private float U => Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 6.5f, 54, 140);
-    private Rect R(float x, float y, float w, float h) => new Rect(x, y, w, h);
+    private static readonly Dictionary<string, string> Labels = new Dictionary<string, string>
+    { ["Left"] = "SOL", ["Right"] = "SAĞ", ["Wheel"] = "DİREKSİYON", ["Calibrate"] = "Ortala", ["Gas"] = "GAZ", ["Pedal"] = "GAZ\n\nFREN", ["Brake"] = "FREN", ["Handbrake"] = "EL FRENİ",
+      ["ShiftUp"] = "VİTES +", ["ShiftDown"] = "VİTES −", ["Settings"] = "AYAR", ["Pause"] = "DURAKLAT", ["Respawn"] = "↺", ["Camera"] = "KAMERA", ["Nitro"] = "NİTRO" };
+    // Konumlar ortak HudLayout'tan; bilgi parçaları (panel, harita, çubuk) dokunmatik kontrol değildir.
     private IEnumerable<(Kind Kind, int Slot, Rect Rect, string Label)> Layout()
     {
-      float u = U, m = u * .25f, bottom = Screen.height - m - u, W = Screen.width;
-      var s = S;
-      if (s.Steer == "btn") { yield return (Kind.Left, 0, R(m, bottom, u, u), "SOL"); yield return (Kind.Right, 0, R(m * 2 + u, bottom, u, u), "SAĞ"); }
-      else if (s.Steer == "wheel") yield return (Kind.Wheel, 0, R(m, bottom - u, u * 2.2f, u * 2.2f), "DİREKSİYON");
-      else yield return (Kind.Calibrate, 0, R(m, bottom, u * 1.6f, u), "Ortala");
-      float right = W - m - u;
-      if (s.Gas == "btn") yield return (Kind.Gas, 0, R(right, bottom - u * .6f, u, u * 1.6f), "GAZ");
-      if (s.Gas == "analog") yield return (Kind.Pedal, 0, R(right, bottom - u * 1.4f, u, u * 2.4f), "GAZ\n\nFREN");
-      float brakeX = s.Gas == "analog" ? right - m - u : s.Gas == "btn" ? right - m - u : right;
-      if (s.Gas != "analog") yield return (Kind.Brake, 0, R(brakeX, bottom, u, u), "FREN");
-      if (s.Hud["debriyaj"] != "kapali") yield return (Kind.Handbrake, 0, R(brakeX, bottom - m - u * .7f, u, u * .7f), "EL FRENİ");
-      if (driver.Simulation.Parameters.ManualGearbox && driver.Race != null)
-      { yield return (Kind.ShiftUp, 0, R(brakeX - m - u * .8f, bottom - u * .9f, u * .8f, u * .8f), "VİTES +"); yield return (Kind.ShiftDown, 0, R(brakeX - m - u * .8f, bottom, u * .8f, u * .8f), "VİTES −"); }
-      float top = m, b = u * .62f;
-      int i = 0; foreach (var k in new[] { (Kind.Settings, "AYAR"), (Kind.Pause, "DURAKLAT"), (Kind.Respawn, "↺"), (Kind.Camera, "KAMERA") })
-        yield return (k.Item1, 0, R(W - m - (++i) * (b * 1.6f + m * .5f), top, b * 1.6f, b), k.Item2);
-      var a = MutantRuntime.Abilities;
-      if (a != null)
+      var skills = MutantRuntime.Abilities?.Skills();
+      foreach (var p in Hud.Rects(driver))
       {
-        float y = bottom - m - u * .8f; yield return (Kind.Nitro, 0, R(m, y, u * 1.4f, u * .8f), "NİTRO");
-        var skills = a.Skills(); for (int n = 0; n < skills.Length; n++) if (skills[n].Kind == "aktif") yield return (Kind.Skill, n, R(m + (u * 1.4f + m) * (n + 1), y, u * 1.3f, u * .8f), skills[n].Name);
+        string key = p.Key; int slot = 0; Kind kind;
+        if (key.StartsWith("Skill") || key.StartsWith("Passive")) { slot = int.Parse(key.Substring(key.StartsWith("Skill") ? 5 : 7)); kind = key.StartsWith("Skill") ? Kind.Skill : Kind.Passive; }
+        else if (!System.Enum.TryParse(key, out kind)) continue;
+        string label = kind is Kind.Skill or Kind.Passive ? (skills != null && slot < skills.Length ? skills[slot].Name : "") : Labels[key];
+        yield return (kind, slot, Hud.R(p.Value), label);
       }
     }
     private (Kind, int, Rect) Hit(Vector2 gui)
@@ -152,7 +141,7 @@ namespace LastTurn.Prototype
         if (c.Kind == Kind.Wheel) label += "\n" + (touch.WheelAngle * 57.3).ToString("0") + "°";
         if (c.Kind == Kind.Nitro) { var n = MutantRuntime.Abilities.Nitro(); label += "\n" + n.Energy.ToString("0") + "/" + n.Capacity.ToString("0") + (n.Open ? " AÇIK" : n.Ready ? " HAZIR" : ""); }
         if (c.Kind == Kind.Skill) label += "\n" + MutantSkillSlot.Read(MutantRuntime.Abilities.Skills()[c.Slot]).Text;
-        GUI.Box(c.Rect, label, c.Kind is Kind.Nitro or Kind.Skill or Kind.Camera or Kind.Respawn or Kind.Pause or Kind.Settings ? small : style);
+        GUI.Box(c.Rect, label, c.Kind is Kind.Nitro or Kind.Skill or Kind.Passive or Kind.Camera or Kind.Respawn or Kind.Pause or Kind.Settings ? small : style);
       }
       GUI.color = color;
     }

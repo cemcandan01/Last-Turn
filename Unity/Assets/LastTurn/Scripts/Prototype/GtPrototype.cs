@@ -38,6 +38,8 @@ namespace LastTurn.Prototype
     public DrivingInput CurrentInput { get; private set; }
     /// Ham girişler (TS I); yalnız okuma/doğrulama.
     public DrivingControls Controls => input?.Controls;
+    /// Serbest sürüş telemetrisinin alt kenarı (geliştirici dünya paneli altından başlar).
+    public float TelemetryBottom { get; private set; }
     /// Bu sürüşün günün saati/havası (HUD ve doğrulama).
     public RaceConditions Conditions { get; private set; } = new RaceConditions();
     public IReadOnlyList<DrivingInput> RecordedInputs => trace;
@@ -445,14 +447,16 @@ namespace LastTurn.Prototype
 
     private void OnGUI()
     {
-      if (Simulation == null || GameFlow.Paused || Race!=null) return;
+      // Mutant açık dünyasında koşu durum çubuğu kullanılır; telemetri yalnız GT/arazi/serbest sürüşte ve ortak Info alanında.
+      if (Simulation == null || GameFlow.Paused || Race!=null || MutantRuntime.Active || SettingsScreen.Open || !Hud.TryGet(this,"Info",out var info)) { TelemetryBottom = 0; return; }
       if (title == null)
       {
         title = new GUIStyle(GUI.skin.label) { fontSize = 13, fontStyle = FontStyle.Bold, normal = { textColor = new Color(.95f,.32f,.2f) } };
         digits = new GUIStyle(GUI.skin.label) { fontSize = 34, fontStyle = FontStyle.Bold, normal = { textColor = Color.white } };
         text = new GUIStyle(GUI.skin.label) { fontSize = 13, normal = { textColor = new Color(.86f,.89f,.92f) } };
       }
-      var old = GUI.matrix; float scale = Mathf.Clamp(Screen.width / 1280f,.8f,1.6f); GUI.matrix = Matrix4x4.Scale(new Vector3(scale,scale,1));
+      bool terrainPanel=terrainMode && OpenTerrain==null; var old = GUI.matrix; float scale = Mathf.Clamp(Mathf.Min(info.width/314f,info.height/(terrainPanel?383f:216f)),.45f,1.6f);
+      GUI.matrix = Matrix4x4.TRS(new Vector3(info.x-14*scale,info.y-14*scale,0),Quaternion.identity,new Vector3(scale,scale,1)); TelemetryBottom = info.y + (terrainPanel?369:202)*scale;
       GUI.Box(new Rect(14,14,300,202), GUIContent.none);
       GUI.Label(new Rect(28,23,270,22),OpenTerrain!=null?"LAST TURN  /  "+OpenTerrain.Region.Name:terrainMode?"LAST TURN  /  ARAZİ TESTİ":"LAST TURN  /  GT TEST",title);
       var s = Simulation.Body; var e = Simulation.Engine;
@@ -474,9 +478,11 @@ namespace LastTurn.Prototype
           GUI.Label(new Rect(28,258+i*23,325,22),$"{corner}: {VehicleGround.Name(wheel.SurfaceIndex)} · {(wheel.Contact?"TEMAS":"HAVA")} · {wheel.Compression*100:0.0} cm",text);
         }
         GUI.Label(new Rect(28,351,325,22),"20–60 tepe · 70–90 tümsek · 105–120 rampa",text);
-        if(Screen.width/scale>820)GUI.Box(new Rect(380,14,420,53),"Sol şerit TOPRAK (x ≥ 4) · Sağ şerit ASFALT\nW ile ilerle · A/D ile yüzey değiştir · R başa döner");
+        GUI.Label(new Rect(28,372,325,22),"Sol şerit TOPRAK (x ≥ 4) · Sağ ASFALT · R başa",text);
       }
-      GUI.Box(new Rect(14,Screen.height/scale-46,560,32),"W / ↑ Gaz    S / ↓ Fren ve geri    A/D / ←/→ Dönüş    Space El freni    R Başlangıç");
+      GUI.matrix = old;
+      if (Hud.TryGet(this,"Hint",out var hint)) GUI.Label(hint,"W/↑ gaz · S/↓ fren ve geri · A/D dönüş · Boşluk/C el freni · R başlangıç",text);
+      GUI.matrix = Matrix4x4.TRS(new Vector3(info.x-14*scale,info.y-14*scale,0),Quaternion.identity,new Vector3(scale,scale,1));
       GUI.matrix = old;
     }
   }

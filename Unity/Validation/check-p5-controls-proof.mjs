@@ -45,6 +45,9 @@ const required = [
   "Nitro ve dokunmatik tık olayları ses yürütücüsüne ulaştı",
   "Oyun sesi tercihi (%40) TS seviye eğrisiyle kazanca uygulandı",
   "Ses varlığı olmayan katman/olaylar eksik varlık olarak raporlandı",
+  "Mutant sürüş HUD'u bu ekranda çakışmasız (durum çubuğu + miniharita, telemetri yok)",
+  "Miniharita Mutant etkinlik/sandık/atölye/boss işaretlerini çizdi",
+  "HUD harita parçası kapalıyken miniharita yok",
 ];
 for (const c of required)
   if (!p.checks.some((x) => x === c || x.startsWith(c + " [") || x.startsWith(c + " (")))
