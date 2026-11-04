@@ -1,21 +1,21 @@
-# Son devir: P5 sürüyor — A kontroller, C hava/kamera, E ses tamam (2026-11-04) — Claude
+# Son devir: P5 uygulandı — A/B/C/D/E/F; aktarım K/Y engelleriyle açık (2026-11-04) — Claude
 
-- Dal `codex/unity-p3-mutant`, gönderilmiş taban `6ae5a27` (= gelistirme, deneme 0.8.19); üstünde yalnız yerel commit'ler `158223f` `007b868` `f564354` `7db76f8` `a821f88` (+ bu devir). Push/merge yok. `_Recovery` commit dışı.
-- P5 kartı: `docs/isler/2026-11-01-unity-tam-aktarim.md` → "P5 uygulaması" (kontrol listesi + A/C/E kayıtları).
-  - **A** kontroller/tercihler: `--controls` 24.641 koşul (TS oracle).
-  - **C** hava tutuşu/günün saati/boss havası/hayalet havası/`rh`, dört kamera kipi: `--conditions` 5.356 koşul, yeni TS hava fizik oracle'ı.
-  - **E** ses altyapısı: `--audio` 22 koşul; Unity ses modülü eklendi; TS sesleri sentez olduğundan 22 ses varlığı eksik olarak raporlanır.
-  - Unity **P5 Play 47/47** (`ControlsPlayValidation`; Input System sanal cihaz, gerçek telefon değil).
-  - Düzeltilen P4 hatası: yarış sahnesinde Mutant tuşları bağlı değildi.
-- Kalan (öncelik):
-  1. **B** HUD: hasar/görev/etkinlik/level bildirimleri, miniharita, dar ekranda çakışmasız yerleşim, sonuç/başarısızlık.
-  2. **D** bulut/hesap: kimlik sağlayıcı erişimi yok; TS sözleşmesi + engel olarak yazılacak, sahte giriş yapılmayacak.
-  3. **F** uçtan uca Play: yeni profil, satın alma/modifiye, beş tür + fiziksel rakip, hava/tutuşun yarışta uygulanması, Mutant bölge 2–3, boss galibiyeti, süre dolması, evrimli skill, şehirde kanca, kayıt yeniden yükleme, kariyerin bozulmaması.
-  4. P1–P4 Play kanıtlarını tek seferde yenile.
-  5. Matris (P4 satırları 49–52 dahil) ve son rapor.
-- P1–P4 Play denetleyicileri kaynak hash'i değiştiği için şu an "eski kaynak" der. .NET davranış korumaları geçti.
-- `Unity/Packages/packages-lock.json` ses modülünü henüz listelemiyor; Editor açılınca Unity günceller.
-- **Sonraki tek adım:** P5-B HUD.
+- Dal `codex/unity-p3-mutant`, gönderilmiş taban `6ae5a27` (= gelistirme, deneme 0.8.19); üstünde yalnız yerel commit'ler (son: bu devir). Push/merge yok. `_Recovery` commit dışı.
+- Kart: `docs/isler/2026-11-01-unity-tam-aktarim.md` → "P5 uygulaması" … "P5 son durum ve hazır olma değerlendirmesi". Elle test: `Unity/OYUNCU-TEST-REHBERI.md`.
+- P5 bölümleri:
+  - **A** kontroller/tercihler (`--controls` 24.641)
+  - **B** HUD/miniharita (`--hud` 17.501)
+  - **C** hava/kamera (`--conditions` 5.356)
+  - **D** bulut sözleşmesi (`--cloud` 3.039)
+  - **E** ses altyapısı (`--audio` 22)
+  - **F** uçtan uca
+- Düzeltilen gerçek hatalar:
+  - Yarışta Mutant tuşları bağlı değildi.
+  - Mutant yarış HUD'u yoktu.
+  - Geçici HUD çakışmaları vardı.
+- **Play (hepsi 283 güncel kaynak):** P1 65, P2 59, P3 39, P3 core 8, P4 29, P5 51, P5 ilerleme 17 — hepsi geçti. .NET 35 alan geçti. Batch kopyası için `Validation/Reference` eşitlenmeli (Editor duman kontrolü okur).
+- Açık (aktarım tamam değil): gerçek cihaz dokunma/eğim + mobil derleme, Firebase erişimi, ses varlıkları, kokpit iç mekânı/ayna, bölge 3 ve gök sarkacı Play'i, insan kabulü. Matris T24/K14/Y1/D3.
+- **Sonraki tek adım:** Cem'in `Unity/OYUNCU-TEST-REHBERI.md` ile elle kabul turu; ardından cihaz derlemesi ve Firebase kararı.
 
 # Son devir: P4 tamam — nitro, beş skill ve fizik/oyun bağı (2026-11-04) — Claude
 
