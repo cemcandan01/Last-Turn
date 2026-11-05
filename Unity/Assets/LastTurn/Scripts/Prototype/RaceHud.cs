@@ -38,6 +38,13 @@ namespace LastTurn.Prototype
       // Mutant sonucu koşu panelinde (MutantRuntime.Finished); kariyer sonucu burada.
       var s = race.Session;if(s.State==RaceState.Finished){if(!MutantRuntime.Active)Result(s);return;}
       if(MutantRuntime.Panel!="")return;
+      // F arayüzü varsa yarış bilgisi LastTurn.Ui.RaceHudView'da (panelsiz); burada yalnız drag devir çubuğu kalır.
+      if (!LastTurn.Ui.UiRoot.Instance) Legacy(s, race);
+      Drag(s, race);
+    }
+
+    private void Legacy(RaceSession s, LastTurn.Core.RaceRun race)
+    {
       var m = RaceViewModel.Hud(s, race.World.Hint, note);
       Hud.TryGet(prototype, "RacePanel", out var panel); GUILayout.BeginArea(panel, GUI.skin.box);
       GUILayout.Label(m.Title, title); GUILayout.Label(m.Big, big); GUILayout.Label(m.Sub, text);
@@ -55,6 +62,10 @@ namespace LastTurn.Prototype
       if (m.WrongWay) GUI.Label(new Rect(0, h * .2f, w, 60), "GERİ DÖN", center);
       // TS ↺ yeniden doğ: dokunmatik katmanın ↺ düğmesi (fareyle de tıklanır).
       if (Hud.TryGet(prototype, "Hint", out var hint)) GUI.Label(hint, "W/S gaz-fren · A/D direksiyon · Boşluk/C el freni · E/Q vites · N nitro · R yeniden başlat", text);
+    }
+
+    private void Drag(RaceSession s, LastTurn.Core.RaceRun race)
+    {
       // Drag manuel: devir göstergesi, vites, kalkış bandı ve uyarı (otomatik vites yok).
       var d = DragViewModel.Hud(race.Vehicle, s);
       if (d.Manual)

@@ -320,3 +320,23 @@ Kabul ölçütleri:
   - Kabul ölçütleri: (1) MUTANT seçilince ana menü şeridi yerine Mutant'ın kendi menüsü (ayrı başlık/ton, Esc ana menü); (2) KOŞUYA BAŞLA → "Yeni koşu başlasın mı?" onayı (Başla/Vazgeç); (3) onaydan sonra 1. adım araç (rastgele 3 başlangıç aracı + boss kartı), 2. adım başlangıç yeteneği (3 seçenek), sonra sürüş; (4) seçeneklerin içeriği ve koşu kuralları değişmez.
   - Taslak `docs/tasarim/ekranlar-f.html` → 5a–5d (Mutant menüsü, onay, araç, yetenek); aynı yayın adresi güncellendi. "Nasıl oynanır" sayfası öneridir.
   - Sonraki: HUD.md'ye PC bölümü; Unity sunum katmanında ortak bileşenler (üst şerit, eğik tuş, cam panel, kart, tuş ipucu), sonra ana menü + yarış HUD'u, sonra diğer ekranlar.
+
+## P7-1 F arayüzü: ortak bileşenler, ana menü, yarış HUD'u (2026-11-05, Claude)
+
+Cem: "her şey çok güzel, başla". Sahip Claude, dal `codex/unity-p3-mutant`.
+
+Kabul ölçütleri:
+
+1. Dokunmatik ekranı olmayan Windows'ta sürüş tuşları (yön, gaz/fren, el freni, vites) ve sağ üst simge tuşları (kamera, yeniden doğ, duraklat, ayar) çizilmez; işler klavyeyle yapılır (V kamera eklenir, R/Esc mevcut). Dokunmatik ekran varsa eski katman aynen çalışır (Controls Play doğrulaması korunur). Mutant NİTRO/skill yuvaları masaüstünde gösterge olarak kalır.
+2. Ana menü F düzeninde: üstte logo, Q/E ile eğik sekmeler (YARIŞ, MUTANT, GARAJ, MAĞAZA, PROFİL, AYARLAR), seviye/XP/para; YARIŞ sekmesinde tür seçimi ve o türün 6 pist kartı (ad, hedef, en iyi yıldız, kilit/bütçe durumu) ←/→/Enter ve fareyle. Diğer sekmeler ve kart seçimi bugünkü (geçici) ekranlara aynı akışla gider; eski menünün Kaydet, Yeniden yükle, Geliştirici, Çıkış işlemleri ve mesajları kalır.
+3. Yarış HUD'u F'deki gibi panelsiz: sol üst pist adı · tur, üst ortada süre (drift: puan) ve hedef satırı, sağ altta hız + vites, ortada geri sayım/bildirim/GERİ DÖN, sağ üstte miniharita. Eski geçici paneldeki bilgiler (rekor, yarış mesajı, hava, rakip) kaybolmaz.
+4. Görünüm yalnız görünüm modeli + komut kullanır (Core'a kural eklenmez); yerleşim saf `HudLayout` masaüstü kipiyle .NET'te sınanır (`--hud`), Unity derlemesi 0 hata, ayrı batch Play'de menü ve HUD ekran görüntüsü alınıp bakılır, P1 kariyer Play yeniden geçer.
+5. Fontlar Barlow / Barlow Condensed (SIL OFL 1.1, lisans dosyası `Resources/UI/Fonts/OFL.txt`); ücretli varlık yok.
+
+### P7-1 sonuç (2026-11-05, Claude)
+
+- **Uygulandı:** UI Toolkit kökü (`Scripts/Ui/UiRoot`, tek panel, 1920×1080 ölçek), eğik zemin (`Skew`, Painter2D; renkler USS `--fill/--edge`), bileşenler (`Ui`: eğik tuş, sekme, klavye tuşu, bölüm başlığı, ipuçları, karartma), `MainMenuView` (F ana menüsü), `RaceHudView` (panelsiz HUD). `HudLayout` masaüstü kipi. Eski IMGUI ana menü, yarış paneli ve "Duraklat / Esc" düğmesi yalnız F yokken / dokunmatikte çizilir; sonuç ekranı ve drag çubuğu şimdilik IMGUI.
+- **Kayıp işlev kapatıldı:** dokunmatik AYAR ve ↺ tuşlarının masaüstü karşılığı: duraklatma menüsünde (kariyer ve Mutant) "Ayarlar", klavyede T piste dön; V kamera.
+- **Kapsam dışı/sonra:** sekmelerin ekranları (Garaj, Mağaza, Profil, Ayarlar, Mutant menüsü/onay, yarış hazırlığı, duraklatma, sonuç) henüz geçici IMGUI; kart Enter'ı bugünkü kariyer ekranını o pist seçili açar. Garaj sahnesinde 3B vitrin yok (koyu düz zemin). Miniharita ve Mutant yuvaları IMGUI.
+- **Kanıt:** `--hud` 23.955 koşul + 210 masaüstü yerleşimi; varsayılan C# kontrolleri, `--garage-ui` 117, `--controls` 24.641 geçti. Unity 6000.3.9f1 batch derleme 0 hata (ayrı kopya `Logs/P2EditorScratch`). Batch Play: **P7 F arayüzü** (`FUiPlayValidation`, `Logs/p7-ui-play.json`, 18 kontrol: menü görünür, ↓ tür / → pist klavyeyle, yarış açılır, 9 dokunmatik tuş yok, süre ve hız akıyor), **P1 kariyer 65/65**, **P5 kontroller 51** (dokunmatik katman sanal cihazla aynen), **P5 Mutant ilerleme 17**; `check-career-flow-proof`, `check-p5-controls-proof`, `check-p5-progress-proof` 322 güncel kaynakla geçti. Görüntüler `Unity/Logs/p7-menu.png`, `p7-menu-tur.png`, `p7-hud-sayim.png`, `p7-hud.png` (batch'te panel dokuya çizilip kamera görüntüsüyle birleştirildi; IMGUI miniharita bu görüntüde yok). CI'ye `--hud` adımı eklendi.
+- **Açık:** Cem'in Windows'ta Play ile görsel kabulü (rehber §0); sonraki adım sekmelerin F ekranları.

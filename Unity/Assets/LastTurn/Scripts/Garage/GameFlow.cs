@@ -26,6 +26,17 @@ namespace LastTurn.Garage
       var screen=UnityEngine.Object.FindFirstObjectByType<GarageScreen>();
       if(screen)screen.SelectTab(GarageTab);
     }
+    /// F ana menüsü pist kartı: kariyer ekranı o pist seçili açılır (hava/saat ve başlat orada).
+    public static void OpenRace(string key)
+    {
+      LastRaceKey=key;Browse(2);
+      var screen=UnityEngine.Object.FindFirstObjectByType<GarageScreen>();if(screen)screen.SelectTrack(key);
+    }
+    /// F MAĞAZA sekmesi: garaj ekranı satın alınabilir araçlar listesiyle açılır.
+    public static void OpenStore()
+    {
+      Browse(0);var screen=UnityEngine.Object.FindFirstObjectByType<GarageScreen>();if(screen)screen.SelectShop(true);
+    }
     public static void Pause(bool value){Paused=value;}
     /// Kayıt dışarıdan değişti (bulut): menü özeti yeniden okunur.
     public static void Refresh(){cached=null;}

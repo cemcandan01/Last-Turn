@@ -1,3 +1,9 @@
+# Son devir: P7-1 F ana menüsü ve panelsiz yarış HUD'u Unity'de (2026-11-05) — Claude
+
+- Dal `codex/unity-p3-mutant`; kart `docs/isler/2026-11-01-unity-tam-aktarim.md` → "P7-1" (ölçütler + sonuç). `_Recovery` commit dışı.
+- UI Toolkit F arayüzü (`Scripts/Ui`), `HudLayout` masaüstü kipi, V kamera / T piste dön, duraklatmada Ayarlar. `--hud` + P7/P1/P5 kontroller/P5 Mutant ilerleme batch Play geçti; görüntüler `Unity/Logs/p7-*.png`.
+- **Sonraki tek adım:** sekmelerin F ekranları — önce Garaj + Modifiye (ekranlar-f.html §1–2), sonra Mutant menüsü/onay/adımlar (§5a–d).
+
 # Son devir: P7 F ekranları onaylandı; Mutant ayrı menü (2026-11-05) — Claude
 
 - Dal `codex/unity-p3-mutant`; yalnız belge/taslak (oyun sürümü artmaz). Kart → "P7" revizeleri. `_Recovery` commit dışı.

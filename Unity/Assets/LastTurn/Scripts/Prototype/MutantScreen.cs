@@ -44,7 +44,7 @@ namespace LastTurn.Prototype
       var color=GUI.color;GUI.color=new Color(.035f,.045f,.06f);GUI.DrawTexture(area,Texture2D.whiteTexture);GUI.color=color;
       GUILayout.BeginArea(area,GUI.skin.box);scroll=GUILayout.BeginScrollView(scroll);
       if(GameFlow.Paused)
-      {GUILayout.Label("DURAKLATILDI",title);if(Button("Devam et"))GameFlow.Pause(false);if(Button("Koşudan çık"))MutantRuntime.Exit();}
+      {GUILayout.Label("DURAKLATILDI",title);if(Button("Devam et"))GameFlow.Pause(false);if(Button("Ayarlar")){GameFlow.Pause(false);SettingsScreen.Show();}if(Button("Koşudan çık"))MutantRuntime.Exit();}
       else switch(MutantRuntime.Panel)
       {
         case "start":

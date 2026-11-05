@@ -28,7 +28,7 @@ namespace LastTurn.Prototype
     private static string notice = ""; private static float noticeUntil;
     /// TS note(): kısa ekran bildirimi.
     public static void Note(string text, float seconds = 1.6f) { notice = text; noticeUntil = Time.unscaledTime + seconds; }
-    public void Bind(GtPrototype prototype, GtKeyboardInput keyboard) { driver = prototype; input = keyboard; keyboard.Touch = this; }
+    public void Bind(GtPrototype prototype, GtKeyboardInput keyboard) { driver = prototype; input = keyboard; keyboard.Touch = this; keyboard.CameraPressed += () => { if (Visible) Tap(Kind.Camera); }; keyboard.RespawnPressed += () => { if (Visible) Tap(Kind.Respawn); }; }
     /// Doğrulama/erişilebilirlik: kontrolün ekran dikdörtgeni (IMGUI ekseni) ya da null.
     public Rect? ControlRect(string kind, int slot = 0) { foreach (var c in Layout()) if (c.Kind.ToString() == kind && c.Slot == slot) return c.Rect; return null; }
     public int ConsumeShift() { int s = shift; shift = 0; return s; }

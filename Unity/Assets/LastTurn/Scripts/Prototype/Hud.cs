@@ -9,14 +9,17 @@ namespace LastTurn.Prototype
   // Geçici sürüş HUD'unun ortak yerleşimi: her kare bir kez HudLayout'tan (saf, doğrulanmış çakışmasız) hesaplanır.
   public static class Hud
   {
+    /// Doğrulama: batch Editor'da panel bir dokuya çizilirken HUD yerleşimi o boyutla hesaplanır.
+    public static Vector2? SizeOverride;
+    public static float ScreenWidth => SizeOverride?.x ?? Screen.width;
     private static Dictionary<string, HudRect> rects = new Dictionary<string, HudRect>(); private static int frame = -1;
     public static HudLayoutInput Input(GtPrototype p)
     {
       var s = PlayerPreferences.Current; var a = MutantRuntime.Abilities; bool racing = p.Race != null, manual = racing && p.Simulation.Parameters.ManualGearbox;
       return new HudLayoutInput
       {
-        Width = Screen.width, Height = Screen.height, Steer = s.Steer, Gas = s.Gas, Map = s.Hud["harita"], Handbrake = s.Hud["debriyaj"] != "kapali",
-        Manual = manual, DragBar = manual, Racing = racing, Mutant = a != null, Opponent = p.Opponent != null, DesktopHint = Touchscreen.current == null,
+        Width = SizeOverride?.x ?? Screen.width, Height = SizeOverride?.y ?? Screen.height, Steer = s.Steer, Gas = s.Gas, Map = s.Hud["harita"], Handbrake = s.Hud["debriyaj"] != "kapali",
+        Manual = manual, DragBar = manual, Racing = racing, Mutant = a != null, Opponent = p.Opponent != null, DesktopHint = Touchscreen.current == null, Touch = Touchscreen.current != null,
         Info = !racing && !MutantRuntime.Active, Skills = a != null ? a.Skills().Select(k => k.Kind).ToArray() : new string[0]
       };
     }
