@@ -711,3 +711,47 @@
     border-top-width: 5px;
     border-top-color: rgb(255, 122, 60);
 }
+
+/* P7-2 Garaj / Modifiye: ekranlar-f.html §1–2, 1920×1080 başvuru. */
+.g-content { position:absolute; left:0; right:0; top:150px; bottom:78px; }
+.g-panel { background-color:rgba(11,20,24,.88); border-width:1px; border-color:rgba(255,255,255,.13); border-radius:10px; padding:22px; }
+.g-left { position:absolute; left:58px; top:20px; width:380px; }
+.g-right { position:absolute; right:58px; top:20px; width:420px; }
+.g-name { font-size:42px; white-space:normal; margin-bottom:12px; }
+.g-copy { white-space:normal; font-size:18px; margin-top:7px; margin-bottom:7px; color:rgb(195,207,216); }
+.g-numeric { font-size:16px; margin-top:3px; margin-bottom:3px; }
+.g-class { font-size:30px; -unity-font-definition:url("Fonts/BarlowCondensed-Bold.ttf"); margin-top:10px; margin-bottom:12px; }
+.g-money { flex-grow:1; -unity-text-align:middle-right; font-size:23px; }
+.g-preview { position:absolute; left:410px; right:450px; top:10px; bottom:240px; }
+.g-actions { position:absolute; right:58px; bottom:210px; flex-direction:row; }
+.g-actions > .ltb { margin-left:20px; }
+.g-cars { position:absolute; left:58px; right:58px; bottom:24px; height:174px; }
+.g-car { width:260px; margin-right:18px; flex-shrink:0; }
+.g-car .ad { font-size:26px; }
+.g-car .g-copy { font-size:15px; }
+.g-message { position:absolute; left:300px; right:450px; bottom:26px; font-size:18px; white-space:normal; color:rgb(255,210,122); }
+.g-mods { position:absolute; left:58px; right:58px; top:0; bottom:8px; flex-direction:row; }
+.g-categories { width:295px; flex-shrink:0; margin-right:28px; }
+.g-categories .sekme { height:48px; margin-bottom:7px; }
+.g-categories .sekme .yazi { font-size:21px; }
+.g-parts { flex-grow:1; flex-basis:0; margin-right:28px; }
+.g-part { margin-top:14px; margin-bottom:14px; min-height:145px; }
+.g-part .ad { font-size:28px; }
+.g-effect { width:475px; flex-shrink:0; padding:24px; background-color:rgba(11,20,24,.94); border-radius:10px; }
+.g-effect .ltb { margin-top:22px; height:70px; }
+.g-effect .ltb .yazi { font-size:21px; }
+.g-packages { flex-direction:row; flex-wrap:wrap; margin-top:12px; margin-bottom:20px; }
+.g-packages .ltb { height:45px; padding-left:12px; padding-right:12px; margin-right:8px; margin-bottom:8px; }
+.g-packages .ltb .yazi { font-size:17px; }
+.g-price { color:rgb(255,210,122); font-size:20px; }
+.g-bar { height:6px; background-color:rgb(45,56,64); margin-bottom:6px; margin-top:2px; }
+.g-fill { height:6px; background-color:rgb(255,122,60); }
+.g-mark { position:absolute; width:3px; top:-3px; height:12px; background-color:white; }
+.g-stat { font-size:18px; white-space:normal; margin-top:13px; margin-bottom:6px; }
+.g-content .unity-scroll-view__content-container { flex-grow:1; }
+.g-content .unity-scroller { background-color:rgb(17,24,30); }
+.g-content .unity-base-slider__tracker { background-color:rgb(35,45,54); }
+.g-content .unity-base-slider__dragger { background-color:rgb(93,109,122); }
+.g-content .unity-scroller__low-button, .g-content .unity-scroller__high-button { background-color:rgb(35,45,54); }
+.g-right { padding-top:18px; padding-bottom:12px; }
+.g-right .g-stat { margin-top:8px; }

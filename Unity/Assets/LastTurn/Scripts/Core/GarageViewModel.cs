@@ -15,13 +15,13 @@ namespace LastTurn.Core
 
   public sealed class GaragePartRow
   {
-    public string Id = "", Name = "", Description = ""; public bool Owned, Equipped; public double Cost;
+    public string Id = "", Name = "", Description = ""; public bool Owned, Equipped, Enabled; public double Cost;
     public GarageCommand Command = null!;
   }
 
   public sealed class GaragePackageRow
   {
-    public string Id = "", Name = ""; public bool Owned; public double Cost; public GarageCommand Command = null!;
+    public string Id = "", Name = ""; public bool Owned,Enabled; public double Cost; public GarageCommand Command = null!;
   }
 
   public sealed class GarageStatRow { public string Key = "", Label = ""; public double Current, Preview; }
@@ -34,6 +34,12 @@ namespace LastTurn.Core
     public string[] Parts = Array.Empty<string>();
     public GarageStatRow[] Stats = Array.Empty<GarageStatRow>();
     public GarageFeatureRow[] Features = Array.Empty<GarageFeatureRow>();
+    public GarageFeatureRow[] PreviewFeatures = Array.Empty<GarageFeatureRow>();
+    public double PreviewPower, PreviewMass, Width, WheelRadius, WheelX, WheelFront, WheelRear;
+    public string ClassColor="", PreviewClassColor="";
+    public int BodyColor;
+    public double[][] Outline=Array.Empty<double[]>(), Windows=Array.Empty<double[]>();
+    public string[] PartNames=Array.Empty<string>();
   }
 
   public static class GarageViewModel
@@ -91,6 +97,7 @@ namespace LastTurn.Core
         return new GaragePartRow
         {
           Id = id, Name = p["n"].S(), Description = p["d"].S(), Owned = owned, Equipped = on, Cost = state.PartsCost(car, new[] { id }),
+          Enabled=state.OwnsCar(car)&&(owned||state.Balance>=state.PartsCost(car,new[]{id})),
           Command = on ? GarageCommand.UnequipCategory(car, category) : owned ? GarageCommand.EquipPart(car, id) : GarageCommand.BuyAndEquipPart(car, id),
         };
       }).ToArray();
@@ -103,16 +110,18 @@ namespace LastTurn.Core
         return new GaragePackageRow
         {
           Id = id, Name = p["n"].S(), Owned = owned, Cost = state.PartsCost(car, ids),
+          Enabled=state.OwnsCar(car)&&(owned||state.Balance>=state.PartsCost(car,ids)),
           Command = owned ? GarageCommand.EquipPackage(car, id) : GarageCommand.BuyAndEquipPackage(car, id),
         };
       }).ToArray();
 
-    public static GarageCarDetail Detail(GarageState state, int car, string previewPart = "")
+    public static GarageCarDetail Detail(GarageState state, int car, string previewPart = "",bool removePreview=false)
     {
       var catalog = state.Catalog; var setup = state.Setup(car);
       var current = CatalogPerformance.Calculate(catalog, setup);
-      var ids = state.Equipped(car).Concat(string.IsNullOrEmpty(previewPart) ? Array.Empty<string>() : new[] { previewPart });
-      var preview = CatalogPerformance.Calculate(catalog, catalog.Setup(car, ids));
+      string category=catalog.Data["parts"].Items.FirstOrDefault(p=>p["id"].S()==previewPart)?["kat"].S()??"";
+      var ids = removePreview?state.Equipped(car).Where(id=>catalog.Data["parts"].Items.First(p=>p["id"].S()==id)["kat"].S()!=category):state.Equipped(car).Concat(string.IsNullOrEmpty(previewPart) ? Array.Empty<string>() : new[] { previewPart });
+      var previewSetup=catalog.Setup(car,ids);var preview = CatalogPerformance.Calculate(catalog, previewSetup);
       var data = catalog.Data["cars"][car];
       return new GarageCarDetail
       {
@@ -122,6 +131,13 @@ namespace LastTurn.Core
         Power = setup.Car["hp"].N(), Mass = setup.Car["kg"].N(), TireName = catalog.Data["tires"][setup.Tire]["n"].S(),
         Parts = setup.Parts.ToArray(),
         Features = current["ozellikler"].Items.Select(f => new GarageFeatureRow { Name = f["ad"].S(), Score = f["puan"].N() }).ToArray(),
+        PreviewFeatures=preview["ozellikler"].Items.Select(f=>new GarageFeatureRow{Name=f["ad"].S(),Score=f["puan"].N()}).ToArray(),
+        PreviewPower=previewSetup.Car["hp"].N(),PreviewMass=previewSetup.Car["kg"].N(),
+        ClassColor=catalog.Data["classes"].Items.First(c=>c["h"].S()==current["sinif"].S())["renk"].S(),
+        PreviewClassColor=catalog.Data["classes"].Items.First(c=>c["h"].S()==preview["sinif"].S())["renk"].S(),
+        Width=data["w"].N(),BodyColor=(int)data["col"].N(),WheelRadius=data["wh"]["r"].N(),WheelX=data["wh"]["x"].N(),WheelFront=data["wh"]["zf"].N(),WheelRear=data["wh"]["zr"].N(),
+        Outline=data["p"].Items.Select(p=>p.Items.Select(x=>x.N()).ToArray()).ToArray(),Windows=data["gh"].Items.Select(p=>p.Items.Select(x=>x.N()).ToArray()).ToArray(),
+        PartNames=setup.Parts.Select(id=>catalog.Data["parts"].Items.First(p=>p["id"].S()==id)["n"].S()).ToArray(),
       };
     }
   }
