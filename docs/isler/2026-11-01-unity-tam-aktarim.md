@@ -302,3 +302,10 @@ Kabul ölçütleri:
 - CI: `--cloud` ve `--cloud-sync` adımı eklendi. Ayrı açık: CI'da "40 pist gerçek fizikle" (`--race-all`) P5 öncesinden (`067d576`) beri kalıyor, yerel Windows'ta 40/40 geçiyor; GitHub log okuma yetkisi olmadığından neden görülemedi.
 - Kalan (sonraki alt adımlar): masaüstü Google girişi (tarayıcı + yerel geri dönüş), bilinen hesaplar listesi, admin, "yeni oyuncu".
 
+## P7 görsel/ses fazı — Cem kararları (2026-11-05)
+
+- Tarz: yarı gerçekçi (ayrıntılı araç/pist, gerçekçi ışık/yansıma; iPhone 13 hedefi sonra ayrıca ölçülür).
+- İlk iş: menüler ve HUD (ana menü, garaj/mağaza, kariyer, profil, ayarlar, duraklatma, yarış göstergeleri). Akış ve görünüm modelleri değişmez; yalnız sunum katmanı.
+- Varlık: ücretli paket olabilir; her satın alma önerisi (ad, fiyat, lisans, neden) önce Cem onayı.
+- Menü düzeni: Claude 2–3 yeni tasarım yönü taslağı hazırlar, Cem seçer; seçilen yön Unity'de uygulanır.
+
