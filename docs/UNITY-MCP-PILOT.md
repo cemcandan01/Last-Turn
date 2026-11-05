@@ -1,6 +1,49 @@
-﻿# Unity MCP salt okunur pilot değerlendirmesi — 6 Kasım 2026
+# Unity AI destekleri: kurulum ve pilot — 6 Kasım 2026
 
-Öneri: **önce yalnız CoplayDev/unity-mcp, ayrı test kopyasında ve yerel bağlantıyla**. Bu oturumda hiçbir MCP paketi, sunucu veya istemci ayarı kurulmadı/değiştirilmedi; üçüncü taraf kod çalıştırılmadı. Çalışan bağlantı/pilot başarısı iddia edilmez.
+## Güncel kurulum sonucu — Cem'in açık onayı sonrası
+
+Cem “gerekli kurulumları yap” dedi. **Coplay kuruldu; ana projeye geçiş kabulü henüz tamamlanmadı.** Tek ajan Codex; yeni model oturumu, API anahtarı veya ücretli servis açılmadı. Claude Code abonelik kapasitesi bilinmiyor.
+
+| Destek | Durum ve kullanım |
+|---|---|
+| Coplay Unity MCP | Ayrı `Unity/Logs/McpEditorPilot` projesinde kurulu. Gerçek MCP protokolüyle 48 araç listelendi; doğru proje/sürüm, sahne ağacı, Console, Play/Stop ve mevcut Garaj test menüsü çağrıldı. |
+| Context7 | Bağlı araç üzerinden Unity Manual kitaplığı çözümlendi. Belge bulma desteği; yeni kurulum gerekmedi. Claude CLI de mevcut Context7 kaydını listeliyor. |
+| Görsel üretim | Bu Codex ortamında yerleşik araç mevcut. Bu görevde üretim çağrısı yapılmadı; harici servis/anahtar eklenmedi. |
+| 3B / ses / Blender / ML-Agents | Kurulmadı. MCP listesindeki üretim araçları, sağlayıcı erişimi veya çalışan üretim kanıtı değildir. Somut varlık ihtiyacı, lisans ve bütçeyle ayrıca seçilecek. |
+
+**Doğrulanan sınırlar:** `get_visual_tree` mevcut `Arayüz (F)` nesnesini bulamadı. v10.3.0 `GameObjectLookup.GetAllSceneObjects` yalnız aktif sahneyi tarıyor; bizim UI kökü `DontDestroyOnLoad` sahnesinde. Play `render_ui` yakalamayı kuyruğa aldı, sonraki çağrı `capture_in_progress` verdi; batch `WaitForEndOfFrame` yakalaması tamamlanmadı. Başarılı UI ağacı veya MCP ekran görüntüsü iddia edilmez. Oyun sunum mimarisi bu araca uymak için değiştirilmedi. Asıl Unity manifest/lock ve genel istemci ayarları korunuyor.
+
+Kurulum makbuzu:
+
+- Kaynak: `https://github.com/CoplayDev/unity-mcp.git`, **v10.3.0**, checkout **`aa5fc638d623f56178d50329d9ad8c541a57fe66`** (annotated tag nesnesi farklıdır). Konum `tests/cikti/unity-mcp-pilot/source`; kaynak değiştirilmedi. Resmî GitHub public advisory sorgusu boş döndü; bu kapsamlı güvenlik denetimi değildir.
+- Python **3.12.4**, izole **uv 0.13.7**, Windows wheel SHA256 `2835e2ab397d0db86323b9975dce75ecd76aa9cfa0d6a2aea84734aae7f8c9b3`. `pip --isolated --require-hashes --no-deps --target .../bootstrap` kullanıldı; PATH/global Python değişmedi.
+- `uv sync --locked --no-dev` ile kaynak `Server/uv.lock` üzerinden **75 bağımlılık**; ortam `tests/cikti/unity-mcp-pilot/server-venv`. Unity paketi yerel sabit checkout'a `file:` bağımlılığıyla bağlandı ve derlendi. Unity 6000.3.9f1 resolver'ı test-framework'ü **1.6.0** olarak çözdü; ana proje 1.4.5 talebi değişmedi, sürüm düşürülmedi. Newtonsoft **3.2.2** çözüldü.
+- Telemetri için `UNITY_MCP_DISABLE_TELEMETRY=1`, `MCP_DISABLE_TELEMETRY=1`, `DISABLE_TELEMETRY=1`; stdio sunucu + Editor'ın `127.0.0.1:6400` köprüsü. Uzak HTTP/LAN kurulmadı. `McpCiBoot.StartStdioForCi` yalnız oturum transport tercihini sabitler.
+- Pilot company/product adı ayrı; gerçek oyuncu profilleri, Firebase oturumları ve `_Recovery` kopyalanmadı. Venv/Library/loglar gitignored konumda; repoya üçüncü taraf ikilileri eklenmedi.
+- Ham yerel kanıt: `tests/cikti/unity-mcp-pilot/{instances,tool-schemas,pilot-results,ui-name-failure,capture-failure}.json`, `Unity/Logs/unity-mcp-pilot-editor.log`. İlk yardımcı menü import edilmeden çağrıldığında bulunamadı; refresh sonrası çalıştı. Domain reload sırasında geçici bağlantı kaybı da gözlendi; hazır olmadan sorgu gönderilmemeli.
+- MCP `execute_menu_item` üzerinden başlatılan mevcut Garaj kısa Play testi **29/29 geçti**: `Unity/Logs/McpEditorPilot/Logs/p7-garage-play.json`, UTC `2026-11-05T22:12:52Z` (yerel 6 Kasım). Gerçek disk yeniden yükleme ve oyuncu dosyası hash koruması dahil. Bu testin kendi panel render yöntemi çalışır; MCP yakalamasıyla karıştırılmamalı. Test bitince Editor normal olarak çıktı; başlatıcıyla yeniden açıldı.
+
+### Kullanım
+
+Repo kökünden (ExecutionPolicy yalnız bu alt süreç için; sistem politikası değişmez):
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/unity-mcp-pilot.ps1 Start
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/unity-mcp-pilot.ps1 Status
+& tests/cikti/unity-mcp-pilot/server-venv/Scripts/python.exe scripts/unity-mcp-probe.py
+Set-Location Unity/Logs/McpEditorPilot
+claude
+```
+
+Yalnız bu kopyanın `.mcp.json` kaydı oluşturuldu. `claude mcp get UnityMCP` bunu **Project / Pending approval** olarak doğruladı. Claude'un kendi ilk proje güven ekranı tamamlanmadı; Claude içinden bağlı olduğu iddia edilmez. MCP SDK ile gerçek bağlantı ayrıca doğrulandı. Kullanıcı Claude'u bu dizinde açtığında kaydı inceleyip güven ekranını kabul eder. Ana repo kökünden açılan Claude oturumu bu pilot kaydını kullanmaz. `Configure` yalnız pilot kaydını yeniden üretir; başka MCP girdileri varsa durur. Sabit instance kimliği bu konuma aittir; klasör taşınırsa yeniden keşif gerekir.
+
+Geri alma: yalnız pilot Editor'ını kapat; pilot dizininde `claude mcp remove UnityMCP -s project` çalıştır. Kurulum klasörleri ihtiyaç kalmayınca kaldırılabilir; ana oyunda geri alınacak paket değişikliği yok. Yeni kopya/makinede Python ortamı yeniden kurulmalıdır, venv taşınmaz. Sonraki teknik adım: normal grafik Editor oturumunda UI ağacı/ekran kabulünü doğrulamak ve `DontDestroyOnLoad` arama eksiği için upstream düzeltmesini değerlendirmek.
+
+---
+
+## Kurulum öncesi değerlendirme (tarihsel kayıt)
+
+İlk öneri: **önce yalnız CoplayDev/unity-mcp, ayrı test kopyasında ve yerel bağlantıyla**. Aşağıdaki bölüm kurulumdan önceki değerlendirmedir; güncel gerçek durum üsttedir.
 
 | Başlık | CoplayDev/unity-mcp | IvanMurzak/Unity-MCP |
 |---|---|---|

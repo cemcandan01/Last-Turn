@@ -1,3 +1,13 @@
+# Son devir: Unity AI destek kurulumu ve sınırları (2026-11-06) — Codex
+
+- Cem'in “gerekli kurulumları yap” onayı uygulandı. Dal `codex/unity-p7-garaj`, başlangıç `e749c37`; tek Codex, yeni alt ajan/Claude model çağrısı/ücretli API yok. Kota bilinmiyor. `_Recovery` korundu, push/merge/yayın yok.
+- Coplay **v10.3.0 / aa5fc638d623f56178d50329d9ad8c541a57fe66**, izole uv **0.13.7**, kilitli **75** Python bağımlılığı kuruldu. Ayrı `Unity/Logs/McpEditorPilot` kopyası, stdio/loopback; ana Assets/Packages ve genel istemci ayarı değişmedi.
+- Gerçek MCP: **48 araç**, doğru Editor/proje, sahne ağacı, Console, Play/Stop. MCP üzerinden mevcut Garaj Play testi **29/29**, oyuncu kayıt hash'leri aynı. Kanıt `Unity/Logs/McpEditorPilot/Logs/p7-garage-play.json`; yeniden başlatma sonrası `tests/cikti/unity-mcp-pilot/connection-proof.json` da geçti.
+- UI kabulü eksik: aktif sahneyle sınırlı nesne araması `DontDestroyOnLoad` UI kökünü bulmuyor; batch ekran yakalaması kuyrukta kalıyor. Ana projeye taşınmadı; tam UI pilot başarısı iddia edilmez. Ayrıntı/kurulum makbuzu/geri alma: [UNITY-MCP-PILOT.md](UNITY-MCP-PILOT.md).
+- Claude Code proje kaydı yalnız pilot dizininde; CLI **Project / Pending approval** doğruladı. Kullanıcı bu dizinde `claude` açınca ilk proje güven ekranını inceleyip kabul etmeli. Genel config/trust ayarına dokunulmadı. Başlatıcı `scripts/unity-mcp-pilot.ps1`; salt okunur SDK kontrolü `scripts/unity-mcp-probe.py`. Pilot Editor yeniden açıldı.
+- Context7 bağlı ve Unity Manual kitaplığı çözümlendi; görsel üretim yerleşik mevcut. Bunlar yeni kurulum/üretim sonucu değildir. 3B/ses sağlayıcısı, Blender, ML-Agents ve ücretli hizmet kurulmadı; MCP araç listesi bunların erişim kanıtı sayılmaz.
+- Sonraki tek teknik adım: grafik Editor oturumunda UI ağacı/ekran kabulü ve upstream arama düzeltmesini değerlendirmek. P7-2 insan görsel kabulü hâlâ açık; yeni oyun ekranı bu kurulum işine eklenmedi.
+
 # Son devir: P7-2 Garaj/Modifiye F teslimi + MCP salt okunur değerlendirmesi (2026-11-06) — Codex
 
 - Dal `codex/unity-p7-garaj`, taban `4ccd81a`, kod/test commit'i **`7f6797f`**; devir kapanış SHA'sı bu notu son değiştiren yerel commit. Tek Codex, yeni alt ajan/Claude/API/ek kredi yok; kota bilinmiyor. Push/merge/yayın/uzun regresyon yok. `_Recovery` korundu ve commit dışı.
