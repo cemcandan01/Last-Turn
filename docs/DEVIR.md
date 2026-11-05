@@ -1,3 +1,9 @@
+# Son devir: P7 F yönü seçildi; bütün ekran taslakları hazır (2026-11-05) — Claude
+
+- Dal `codex/unity-p3-mutant`; yalnız belge/taslak (oyun sürümü artmaz). Kart → "P7" revizeleri. `_Recovery` commit dışı.
+- Cem F'yi (sekmeli menü, panelsiz HUD) seçti. Dokuz ekranın F uyarlaması `docs/tasarim/ekranlar-f.html`.
+- **Sonraki tek adım:** Cem ekranları onaylar ya da düzeltme ister; sonra HUD.md'ye PC bölümü yazılır ve F Unity sunum katmanında (önce ortak üst şerit/tuş/panel bileşenleri, sonra ana menü + HUD) uygulanır.
+
 # Son devir: P7 PC taslakları (D/E/F) hazır (2026-11-05) — Claude
 
 - Dal `codex/unity-p3-mutant`; yalnız belge/taslak değişikliği (oyun sürümü artmaz). Kart `docs/isler/2026-11-01-unity-tam-aktarim.md` → "P7" revizesi. `_Recovery` commit dışı.
