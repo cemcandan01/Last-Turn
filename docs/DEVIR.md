@@ -3,7 +3,8 @@
 - Dal `codex/unity-p3-mutant`; deneme 0.8.20 yayında (P5). Bu iş aynı dalda; kart `docs/isler/2026-11-01-unity-tam-aktarim.md` → "P6-A". `_Recovery` commit dışı.
 - Web oyunuyla aynı Firebase projesi/hesap/`users/{uid}`: misafir, e-posta oluştur/bağla/giriş, şifre sıfırlama, TS eşitleme kuralları. `--cloud-sync` 92 koşul, `--cloud` 3.039, varsayılan C# kontrolleri, Unity batch derleme 0 hata. Canlı: anahtar masaüstünden kabul ediliyor (veri oluşturmayan yoklama).
 - Açık: Cem'in Play'de canlı bulut denemesi (`Unity/OYUNCU-TEST-REHBERI.md` → Profil), Google masaüstü girişi, CI `--race-all` (P5 öncesinden; yerelde geçiyor).
-- **Sonraki tek adım:** canlı bulut denemesinden sonra görsel/menü/ses fazı — önce Cem'den referans ve beklenti alınır.
+- Deneme 0.8.21 yayında. P7 kararları alındı (yarı gerçekçi, önce menü/HUD, ücretli paket onayla, yeni tasarım). Üç yön taslağı `docs/tasarim/menu-hud-taslaklari.html`.
+- **Sonraki tek adım:** Cem A/B/C (ya da karışım) seçer; seçilen yön Unity sunum katmanında (uGUI/UI Toolkit) uygulanır.
 
 # Son devir: Cem kabul turu yapıldı; Windows önce, bulut orijinaldeki gibi (2026-11-05) — Claude
 

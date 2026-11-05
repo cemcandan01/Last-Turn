@@ -309,3 +309,4 @@ Kabul ölçütleri:
 - Varlık: ücretli paket olabilir; her satın alma önerisi (ad, fiyat, lisans, neden) önce Cem onayı.
 - Menü düzeni: Claude 2–3 yeni tasarım yönü taslağı hazırlar, Cem seçer; seçilen yön Unity'de uygulanır.
 
+- Taslak: `docs/tasarim/menu-hud-taslaklari.html` (A Pist duvarı, B Vitrin, C Telemetri; ana menü + yarış HUD'u, HUD.md bölgeleriyle). Özel sayfa olarak yayınlandı; Cem'in seçimi bekleniyor.
