@@ -1,3 +1,9 @@
+# Son devir: P7 PC taslakları (D/E/F) hazır (2026-11-05) — Claude
+
+- Dal `codex/unity-p3-mutant`; yalnız belge/taslak değişikliği (oyun sürümü artmaz). Kart `docs/isler/2026-11-01-unity-tam-aktarim.md` → "P7" revizesi. `_Recovery` commit dışı.
+- Cem: yalnız Windows, dokunmatik tuşlar yok, eski tasarıma yakın PC düzeni, ünlü yarış oyunları örnek alınsın. Taslak `docs/tasarim/menu-hud-pc.html` (D Köşe, E Yayın şeridi, F Sade); ilk A/B/C taslağı yerinde duruyor.
+- **Sonraki tek adım:** Cem D/E/F (ya da karışım) seçer; HUD.md'ye PC bölümü yazılıp seçilen yön Unity sunum katmanında uygulanır.
+
 # Son devir: P6-A Windows bulut bağdaştırıcısı (Firebase REST) tamam (2026-11-05) — Claude
 
 - Dal `codex/unity-p3-mutant`; deneme 0.8.20 yayında (P5). Bu iş aynı dalda; kart `docs/isler/2026-11-01-unity-tam-aktarim.md` → "P6-A". `_Recovery` commit dışı.
