@@ -566,6 +566,59 @@
         color: #1a0d05;
         text-shadow: none;
       }
+      /* Mutant: ayrı oyun tonu (aynı bileşenler, kırmızıya çalan karanlık sahne) */
+      .mut-ton {
+        background:
+          linear-gradient(180deg, rgba(0, 0, 0, 0.75), transparent 22%),
+          linear-gradient(0deg, rgba(0, 0, 0, 0.85), transparent 45%), rgba(60, 8, 4, 0.5);
+      }
+      .mut-ad {
+        position: relative;
+        isolation: isolate;
+        padding: 0.4cqw 1.4cqw;
+        font: italic 800 1.5cqw var(--dar);
+        letter-spacing: 0.18em;
+        color: #1a0d05;
+        text-shadow: none;
+      }
+      .mut-ad::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        transform: skewX(-14deg);
+        background: repeating-linear-gradient(-45deg, var(--acc) 0 0.8cqw, #e2632a 0.8cqw 1.6cqw);
+        border-radius: 0.3cqw;
+      }
+      .adimlar {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 0.8cqw;
+        font: 700 1cqw var(--dar);
+        letter-spacing: 0.12em;
+        color: var(--soluk);
+      }
+      .adimlar i {
+        width: 3cqw;
+        height: 0.2cqw;
+        background: rgba(255, 255, 255, 0.25);
+      }
+      .adimlar .sec {
+        color: #fff;
+        border-bottom: 0.2cqw solid var(--acc);
+        padding-bottom: 0.2cqw;
+      }
+      .adimlar .tamam {
+        color: var(--acc);
+      }
+      h3.alt-bas {
+        margin: 6px 0 -2px;
+        font: 700 16px var(--dar);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--soluk);
+      }
       .isaret {
         position: absolute;
         font: 600 0.75cqw var(--govde);
@@ -1013,7 +1066,7 @@
               <div class="kart">
                 <small>ARAZİ</small>
                 <div class="silu"></div>
-                <div class="ad">Haki Keçi</div>
+                <div class="ad">Sarı Arı</div>
                 <div class="sat">
                   <span class="rozet D"><i>D</i><span>298</span></span
                   ><b>9.800</b>
@@ -1031,7 +1084,7 @@
               <div class="kart kilit">
                 <small>SEVİYE 15</small>
                 <div class="silu"></div>
-                <div class="ad">Kara Boğa</div>
+                <div class="ad">Gri Atmaca</div>
                 <div class="sat">
                   <span class="rozet S"><i>S</i><span>732</span></span
                   ><svg class="ikon"><use href="#i-kilit" /></svg>
@@ -1158,29 +1211,118 @@
 
       <!-- 5 MUTANT -->
       <section class="ekr">
-        <h2><span class="no">5</span>Mutant: koşu başı</h2>
+        <h2><span class="no">5</span>Mutant: ayrı oyun gibi</h2>
         <p>
-          Bugünkü koşu başının aynısı: boss kartı, koşu aracı ve başlangıç pasifi. Boss kartı solda tehdit
-          gibi büyük, pasifler üç seçenekli kart. En iyi koşu (bölge ve boss) sağ üstte.
+          Ana menüde MUTANT seçilince Mutant'ın kendi menüsü açılır. Üst şeritte sekmeler yerine Mutant
+          başlığı ve "Ana menü" dönüşü var, sahne kırmızıya çalan karanlık bir tonda. Akış: Mutant menüsü →
+          başlama onayı → 1. adım araç → 2. adım başlangıç yeteneği → sürüş. Seçenekler bugünkü koşu başıyla
+          aynı (boss kartı, rastgele 3 başlangıç aracı, 3 yetenek).
         </p>
-        <div class="ekran arka-menu">
-          <div
-            class="karart"
-            style="
-              background: linear-gradient(180deg, rgba(0, 0, 0, 0.72), transparent 20%), rgba(5, 8, 11, 0.55);
-            "
-          ></div>
+        <h3 class="alt-bas">5a · Mutant menüsü</h3>
+        <div class="ekran arka-menu mut">
+          <div class="karart mut-ton"></div>
           <div class="ustbar">
             <div class="logo">LAST <b>TURN</b></div>
-            <div class="sekmeler">
-              <i class="t">Q</i><span class="sekme">YARIŞ</span><span class="sekme sec">MUTANT</span
-              ><span class="sekme">GARAJ</span><span class="sekme">MAĞAZA</span
-              ><span class="sekme">PROFİL</span><span class="sekme">AYARLAR</span><i class="t">E</i>
-            </div>
+            <div class="mut-ad">MUTANT</div>
             <div class="mini">
-              <div class="sv">7</div>
-              <span>310 / 500 XP</span><span class="ayr"></span><span>12.450 para</span>
+              <span class="eg kucuk">ANA MENÜ <i class="t">Esc</i></span>
             </div>
+          </div>
+          <div class="ab" style="left: 3cqw; top: 11cqw; width: 34cqw; display: grid; gap: 1cqw">
+            <div class="bb">KOŞU MODU</div>
+            <div class="baslik" style="font-size: 5.4cqw">MUTANT</div>
+            <div class="alt-yazi" style="font-size: 1.1cqw">
+              Zayıf bir araçla başla. Bölgelerde etkinlik kazan, atölyede parça al, sandık bul. Süre dolmadan
+              boss'u yen.
+            </div>
+            <div style="display: grid; gap: 0.6cqw; margin-top: 1cqw; width: 24cqw">
+              <span class="eg ana" style="justify-content: space-between; height: 3.8cqw; font-size: 1.5cqw"
+                >KOŞUYA BAŞLA <i class="t">Enter</i></span
+              >
+              <span class="eg" style="justify-content: space-between">NASIL OYNANIR <i class="t">H</i></span>
+              <span class="eg" style="justify-content: space-between">ANA MENÜ <i class="t">Esc</i></span>
+            </div>
+          </div>
+          <div
+            class="ab cam"
+            style="right: 3cqw; top: 11cqw; width: 26cqw; padding: 1.2cqw 1.3cqw; display: grid; gap: 0.7cqw"
+          >
+            <div class="bb">EN İYİ KOŞU</div>
+            <div style="display: flex; justify-content: space-between; font: 700 2.2cqw var(--dar)">
+              <span>Bölge 3</span><span>2 boss</span>
+            </div>
+          </div>
+          <div
+            class="ab cam"
+            style="
+              right: 3cqw;
+              top: 19.6cqw;
+              width: 26cqw;
+              padding: 1.2cqw 1.3cqw;
+              display: grid;
+              gap: 0.55cqw;
+              font: 500 0.95cqw var(--govde);
+            "
+          >
+            <div class="bb">KOŞU</div>
+            <div style="display: flex; justify-content: space-between">
+              <span style="color: var(--soluk)">İlk boss'a süre</span><b>15:00</b>
+            </div>
+            <div style="display: flex; justify-content: space-between">
+              <span style="color: var(--soluk)">Başlangıç aracı</span><b>3 seçenek</b>
+            </div>
+            <div style="display: flex; justify-content: space-between">
+              <span style="color: var(--soluk)">Başlangıç yeteneği</span><b>3 seçenek</b>
+            </div>
+            <div style="display: flex; justify-content: space-between">
+              <span style="color: var(--soluk)">Kariyer ilerlemesi</span><b>etkilenmez</b>
+            </div>
+          </div>
+          <span class="isaret" style="left: 28.5cqw; top: 33.8cqw">yeni: kısa kural sayfası (öneri)</span>
+          <div class="ipuclari">
+            <span><i class="t">↑</i><i class="t">↓</i> Seç</span>
+            <span><i class="t">Enter</i> Onayla</span>
+            <span><i class="t">Esc</i> Ana menü</span>
+          </div>
+        </div>
+
+        <h3 class="alt-bas">5b · Başlama onayı</h3>
+        <div class="ekran arka-menu mut">
+          <div class="karart mut-ton"></div>
+          <div class="karart k-bulanik"></div>
+          <div
+            class="ab cam"
+            style="
+              left: 50%;
+              top: 50%;
+              transform: translate(-50%, -50%);
+              width: 40cqw;
+              padding: 2cqw 2.2cqw;
+              display: grid;
+              gap: 1.1cqw;
+              border-top: 0.25cqw solid var(--acc);
+            "
+          >
+            <div class="bb">MUTANT</div>
+            <div class="baslik" style="font-size: 2.8cqw">YENİ KOŞU BAŞLASIN MI?</div>
+            <div class="alt-yazi" style="font-size: 1.05cqw">
+              Önce aracını, sonra başlangıç yeteneğini seçeceksin. Boss'a süre sürüş başlayınca akar. Koşuda
+              aldığın parçalar ve para yalnız bu koşuya aittir.
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2cqw; margin-top: 0.6cqw">
+              <span class="eg">VAZGEÇ <i class="t">Esc</i></span>
+              <span class="eg ana">BAŞLA <i class="t">Enter</i></span>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="alt-bas">5c · 1. adım: başlangıç aracı</h3>
+        <div class="ekran arka-menu mut">
+          <div class="karart mut-ton"></div>
+          <div class="ustbar">
+            <div class="logo">LAST <b>TURN</b></div>
+            <div class="mut-ad">MUTANT</div>
+            <div class="adimlar"><span class="sec">1 ARAÇ</span><i></i><span>2 YETENEK</span></div>
           </div>
           <div
             class="ab cam"
@@ -1194,8 +1336,8 @@
               border-top: 0.25cqw solid var(--acc);
             "
           >
-            <div class="bb">SIRADAKİ BOSS · RALLİ ETABI</div>
-            <div class="baslik" style="font-size: 3.4cqw">TOPRAK KURDU</div>
+            <div class="bb">İLK BOSS · RALLİ ETABI<span>15:00</span></div>
+            <div class="baslik" style="font-size: 3.2cqw">TOPRAK KURDU</div>
             <div class="alt-yazi">Ralli etabı; toprakta çok hızlı</div>
             <div style="display: grid; gap: 0.4cqw; font: 500 0.95cqw var(--govde)">
               <div style="display: flex; gap: 0.6cqw">
@@ -1211,28 +1353,8 @@
               <span class="alt-yazi">Toprak tutuşu, dört çeker, süspansiyon kazandırır</span>
             </div>
           </div>
-          <div
-            class="ab cam"
-            style="right: 3cqw; top: 9cqw; width: 22cqw; padding: 1cqw 1.2cqw; display: grid; gap: 0.5cqw"
-          >
-            <div class="bb">EN İYİ KOŞU</div>
-            <div style="display: flex; justify-content: space-between; font: 700 1.6cqw var(--dar)">
-              <span>Bölge 3</span><span>2 boss</span>
-            </div>
-          </div>
-          <div
-            class="ab cam"
-            style="right: 3cqw; top: 16.5cqw; width: 22cqw; padding: 1cqw 1.2cqw; display: grid; gap: 0.6cqw"
-          >
-            <div class="bb">KOŞU ARACI<span>DEĞİŞTİR · C</span></div>
-            <div style="display: flex; align-items: center; justify-content: space-between">
-              <span style="font: italic 800 1.5cqw var(--dar)">Kor RX</span
-              ><span class="rozet D"><i>D</i><span>342</span></span>
-            </div>
-            <div class="alt-yazi" style="font-size: 0.85cqw">Atölye parçaları koşu bitince silinir.</div>
-          </div>
           <div class="ab" style="left: 3cqw; right: 3cqw; bottom: 4.4cqw; display: grid; gap: 0.8cqw">
-            <div class="bb">BAŞLANGIÇ PASİFİ · BİRİNİ SEÇ</div>
+            <div class="bb">ARACINI SEÇ · HEPSİ ZAYIF, KOŞUDA GÜÇLENECEK</div>
             <div
               style="
                 display: grid;
@@ -1241,33 +1363,100 @@
                 align-items: stretch;
               "
             >
-              <div class="kart" style="height: 8.5cqw">
-                <small>ARAÇ</small>
+              <div class="kart" style="height: 10cqw">
+                <small>ASFALT</small>
+                <div class="silu"></div>
+                <div class="ad">Gümüş Serçe</div>
+                <div class="sat"><span>85 HP · 1150 kg · arkadan itiş</span><i class="t">1</i></div>
+              </div>
+              <div class="kart sec" style="height: 10cqw">
+                <small>RALLİKROS</small>
+                <div class="silu"></div>
+                <div class="ad">Bozkır Tavşanı</div>
+                <div class="sat"><span>95 HP · 1150 kg · arkadan itiş</span><i class="t">2</i></div>
+              </div>
+              <div class="kart" style="height: 10cqw">
+                <small>DRİFT</small>
+                <div class="silu"></div>
+                <div class="ad">Bordo Tilki</div>
+                <div class="sat"><span>120 HP · 1300 kg · arkadan itiş</span><i class="t">3</i></div>
+              </div>
+              <span class="eg ana" style="height: auto; font-size: 1.4cqw">DEVAM <i class="t">Enter</i></span>
+            </div>
+          </div>
+          <span class="isaret" style="right: 3cqw; top: 9cqw">3 araç her koşuda rastgele</span>
+          <div class="ipuclari">
+            <span><i class="t">1</i><i class="t">2</i><i class="t">3</i> Araç</span>
+            <span><i class="t">Enter</i> Devam</span>
+            <span><i class="t">Esc</i> Mutant menüsü</span>
+          </div>
+        </div>
+
+        <h3 class="alt-bas">5d · 2. adım: başlangıç yeteneği</h3>
+        <div class="ekran arka-menu mut">
+          <div class="karart mut-ton"></div>
+          <div class="ustbar">
+            <div class="logo">LAST <b>TURN</b></div>
+            <div class="mut-ad">MUTANT</div>
+            <div class="adimlar">
+              <span class="tamam">1 ARAÇ</span><i></i><span class="sec">2 YETENEK</span>
+            </div>
+          </div>
+          <div
+            class="ab cam"
+            style="left: 3cqw; top: 9cqw; width: 22cqw; padding: 1.1cqw 1.2cqw; display: grid; gap: 0.5cqw"
+          >
+            <div class="bb">ARACIN<span>DEĞİŞTİR · ←</span></div>
+            <div style="font: italic 800 1.7cqw var(--dar)">Bozkır Tavşanı</div>
+            <div class="alt-yazi" style="font-size: 0.9cqw">95 HP · 1150 kg · rallikros</div>
+          </div>
+          <div
+            class="ab cam"
+            style="left: 3cqw; top: 17.8cqw; width: 22cqw; padding: 1.1cqw 1.2cqw; display: grid; gap: 0.5cqw"
+          >
+            <div class="bb">İLK BOSS<span>15:00</span></div>
+            <div style="font: italic 800 1.5cqw var(--dar)">Toprak Kurdu</div>
+            <div class="alt-yazi" style="font-size: 0.9cqw">
+              Zayıf yanı: toprak tutuşu, dört çeker, süspansiyon
+            </div>
+          </div>
+          <div class="ab" style="left: 3cqw; right: 3cqw; bottom: 4.4cqw; display: grid; gap: 0.8cqw">
+            <div class="bb">BAŞLANGIÇ YETENEĞİ SEÇ</div>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(3, 1fr) 17cqw;
+                gap: 1cqw;
+                align-items: stretch;
+              "
+            >
+              <div class="kart" style="height: 9cqw">
+                <small>PASİF</small>
+                <div class="ad">Motor ayarı</div>
+                <div class="sat"><span>Güç +%10</span><i class="t">1</i></div>
+              </div>
+              <div class="kart sec" style="height: 9cqw">
+                <small>PASİF</small>
                 <div class="ad">Toprak tutuşu</div>
-                <div class="sat"><span>Toprakta tutuş artar</span><i class="t">1</i></div>
+                <div class="sat"><span>Toprakta tutuş +%10</span><i class="t">2</i></div>
               </div>
-              <div class="kart sec" style="height: 8.5cqw">
-                <small>DAYANIKLILIK</small>
-                <div class="ad">Zırh</div>
-                <div class="sat"><span>Gövde hasarı azalır</span><i class="t">2</i></div>
+              <div class="kart" style="height: 9cqw">
+                <small>PASİF</small>
+                <div class="ad">Sert fren</div>
+                <div class="sat"><span>Fren gücü +%15</span><i class="t">3</i></div>
               </div>
-              <div class="kart" style="height: 8.5cqw">
-                <small>EKONOMİ</small>
-                <div class="ad">Pazarlıkçı</div>
-                <div class="sat"><span>Atölye ucuzlar</span><i class="t">3</i></div>
-              </div>
-              <span class="eg ana" style="height: auto; font-size: 1.5cqw"
-                >KOŞUYA BAŞLA <i class="t">Enter</i></span
+              <span class="eg ana" style="height: auto; font-size: 1.4cqw"
+                >SÜRÜŞE BAŞLA <i class="t">Enter</i></span
               >
             </div>
           </div>
-          <span class="isaret" style="left: 18cqw; bottom: 14.3cqw"
-            >pasif açıklamaları oyundaki metinden gelir</span
+          <span class="isaret" style="left: 26cqw; bottom: 14.4cqw"
+            >seçenekler ve metinler oyundaki yetenek listesinden</span
           >
           <div class="ipuclari">
-            <span><i class="t">1</i><i class="t">2</i><i class="t">3</i> Pasif</span>
-            <span><i class="t">C</i> Araç</span>
-            <span><i class="t">Enter</i> Başla</span>
+            <span><i class="t">1</i><i class="t">2</i><i class="t">3</i> Yetenek</span>
+            <span><i class="t">←</i> Araca dön</span>
+            <span><i class="t">Enter</i> Sürüşe başla</span>
           </div>
         </div>
       </section>
@@ -1705,6 +1894,11 @@
             orada sahne kararır).
           </li>
           <li>Yarış HUD'u F'deki gibi panelsiz kalır.</li>
+          <li>
+            MUTANT sekmesi seçilince ana menü şeridi kalkar, Mutant'ın kendi menüsü açılır (ayrı başlık,
+            kırmızıya çalan ton, Esc ile ana menü). Koşu yalnız onaydan sonra başlar; önce araç, sonra
+            başlangıç yeteneği seçilir.
+          </li>
         </ul>
       </section>
     </main>

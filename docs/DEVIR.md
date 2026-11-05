@@ -1,3 +1,9 @@
+# Son devir: P7 F ekranları onaylandı; Mutant ayrı menü (2026-11-05) — Claude
+
+- Dal `codex/unity-p3-mutant`; yalnız belge/taslak (oyun sürümü artmaz). Kart → "P7" revizeleri. `_Recovery` commit dışı.
+- Cem dokuz ekranı onayladı; Mutant kendi menüsü + başlama onayı + araç → yetenek adımlarıyla (`docs/tasarim/ekranlar-f.html` 5a–5d). Karar `docs/GELISTIRICI-AYRINTILARI.md`de.
+- **Sonraki tek adım:** HUD.md'ye PC bölümünü yaz; Unity sunum katmanında ortak F bileşenlerini kur, ilk ekran olarak ana menü + yarış HUD'unu uygula.
+
 # Son devir: P7 F yönü seçildi; bütün ekran taslakları hazır (2026-11-05) — Claude
 
 - Dal `codex/unity-p3-mutant`; yalnız belge/taslak (oyun sürümü artmaz). Kart → "P7" revizeleri. `_Recovery` commit dışı.
