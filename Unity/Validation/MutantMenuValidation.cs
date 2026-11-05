@@ -58,6 +58,17 @@ internal static class MutantMenuValidation
       Check(actual.Distinct().Count() == actual.Length && actual.All(i => i >= 0 && i < vehicles.Data["cars"].Items.Count()), "benzersiz/geçerli araç adayları");
     }
     var run = new MutantRun(42, catalog);
+    var control=new MutantRun(42,catalog);string initial=run.State.ToString();
+    for(int i=0;i<5;i++)MutantMenuModel.Read(run,vehicles);
+    Check(run.State.ToString()==initial,"F başlangıç görünümü mutasyonsuz");
+    foreach(var car in MutantMenuModel.Read(run,vehicles).StartingCarsCards)
+    {
+      Check(car.Mass==vehicles.Data["cars"][car.Id]["kg"].N(),"Başlangıç kütlesi kaynak katalogdan");
+      Check(car.Type==vehicles.Data["cars"][car.Id]["ty"].S(),"Başlangıç türü kaynak katalogdan");
+      Check(car.Drive.Length>0,"Başlangıç çekiş metni");
+    }
+    string id=MutantMenuModel.Read(run,vehicles).Choices[0].Id;
+    Check(run.Choose(id)&&control.Choose(id)&&run.State.ToString()==control.State.ToString(),"F görünüm okuması sonraki RNG/başlangıç seçimini değiştirmez");
     foreach (var choice in fixture["choices"].Items)
     {
       run.State.Set("beceriler", choice["skills"].Clone()); string before = run.State.ToString();

@@ -27,17 +27,20 @@ namespace LastTurn.Prototype
     public static bool Active=>Run!=null;
     public static string RecordDirectory {get;set;}="";
     public static bool InRace=>RacePlan!=null;
+    public static bool Starting {get;private set;}
     public static bool Blocked=>Active&&(Panel!=""||GameFlow.Paused||Run.Finished||Run.State["faz"].S()=="secim");
     public static MutantMenuModel Model=>MutantMenuModel.Read(Run,GarageSession.Catalog,Car);
     private static BodyVector? returnPoint;private static double returnHeading;private static int refreshed;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void Reset(){Run=null;Session=null;RacePlan=null;Abilities=null;OpponentLink=null;Car=-1;Panel="";Message="";returnPoint=null;refreshed=0;RecordDirectory="";}
+    private static void Reset(){Run=null;Session=null;RacePlan=null;Abilities=null;OpponentLink=null;Car=-1;Panel="";Message="";returnPoint=null;refreshed=0;RecordDirectory="";Starting=false;}
     public static void Start(uint seed)
     {
       GarageSession.EnsureLoaded();var asset=Resources.Load<TextAsset>("mutant-catalog");
       if(!asset)throw new InvalidOperationException("Mutant verisi bulunamadı.");
-      Run=new MutantRun(seed,CatalogNode.Parse(asset.text));Session=null;RacePlan=null;Car=-1;Panel="start";Message="";returnPoint=null;GameFlow.Pause(false);
+      Run=new MutantRun(seed,CatalogNode.Parse(asset.text));Session=null;RacePlan=null;Car=-1;Panel="start";Message="";returnPoint=null;Starting=true;GameFlow.Pause(false);
     }
+    // Yalnız ilk seçim ekranında gezinme; koşu/RNG/seçenekler yeniden üretilmez.
+    public static void BackToStartingCars(){if(Starting&&Panel=="choice")Panel="start";}
     public static void SelectCar(int car)
     {
       if(!MutantMenuModel.StartingCars((uint)Run.State["tohum"].N(),Run.Catalog).Contains(car))return;
@@ -50,7 +53,7 @@ namespace LastTurn.Prototype
     {if(Session==null||!Run.Choose(id,drop))return false;if(Run.State["faz"].S()=="secim")return true;OpenWorld();return true;}
     public static void OpenWorld()
     {
-      RacePlan=null;Panel="";GameFlow.Pause(false);WorldData.PrepareMutantWorld(Run.Region>=2?"city":"hub");
+      Starting=false;RacePlan=null;Panel="";GameFlow.Pause(false);WorldData.PrepareMutantWorld(Run.Region>=2?"city":"hub");
       SceneManager.LoadScene("GTTest");
     }
     public static void PlaceWorld(PowertrainVehicle vehicle)

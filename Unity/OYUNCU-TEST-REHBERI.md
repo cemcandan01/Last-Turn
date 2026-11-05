@@ -64,3 +64,12 @@ Otomatik Play ayrı kayıtta gerçek UI Toolkit paneli, sentetik klavye ve panel
 3. Kilitli araçta gerekli seviye/kupa bilgisi, eksik para ve kapalı satın alma düğmesi görünmeli. Bakiye yetmezken işlem uygulanmamalı.
 4. Satın alınabilir aracı Enter veya düğmeyle onayla: ilk basış para harcamaz; Esc iptal eder. Üç saniye içinde ikinci onay yalnız tek bedel harcar. GARAJDA GÖR alınan aracı açar; Garaj'da Enter sürüşe seçer. Yeniden yükleme sahipliği, seçimi ve bakiyeyi korur.
 5. PARÇALAR veya Tab, sahip olunan araçla mevcut Modifiye ekranına gider; yeni parça/mağaza ekonomisi yoktur. Tak/sök/geri akışını kontrol et. Üç ekran boyutunda satın alma düğmesi ve alt gezinme görünür kalmalı.
+
+## P7-4 Mutant başlangıcı F §5a–d (6 Kasım 2026)
+
+1. Ana Menü → Mutant: ayrı menü, en iyi koşu ve koşu bilgisi. H / NASIL OYNANIR kısa açıklamayı açar/kapatır. Enter / KOŞUYA BAŞLA önce onay açmalı; Esc koşu oluşturmadan iptal etmeli.
+2. Onayda Enter: üç mevcut başlangıç aracı ve ilk boss bilgisi. 1/2/3, oklar veya fare yalnız odağı değiştirir; DEVAM / Enter gerçek araç seçimini yapar. Garajdaki parça/para bu koşuya taşınmaz.
+3. Başlangıç yeteneğinde 1/2/3, ↑/↓ veya fare kartı seçer; Enter / SÜRÜŞE BAŞLA mevcut yetenek komutunu uygular ve dünyayı açar. Metinler mevcut yetenek kataloğundan gelmeli. Kaynak sistem üçüncü teklifte skill sunabilir; pasif/skill türü kartta doğru yazmalı, filtrelenerek RNG değiştirilmemeli.
+4. Yetenek adımında ← / ARACI DEĞİŞTİR / Esc araç adımına dönmeli. Boss, araç ve yetenek teklifleri yeniden çekilmemeli; süre seçim sırasında akmamalı. Araç adımında Esc Mutant menüsüne çıkar.
+5. Sürüşe başlandığında seçilen araç/pasif uygulanmalı ve boss süresi akmalı. Sürüşte Esc mevcut duraklatmayı açar; Koşudan çık Mutant menüsüne döner. Kariyer ilerlemesi ve önceki Mutant rekoru aynı kalmalı.
+6. 1280×720 ve 1920×1080'de boss metni/kartlar/düğmeler çakışmamalı; uzun boss bilgisi kaydırılabilmeli. Otomatik Game View görselleri `Unity/Logs/p7-mutant-{menu,confirm,car,skill}-{1280,1920}.png`; fiziksel fare ve insan görsel kabulü ayrıca yapılır. Koşunun sonraki seçimleri/atölye/sonuç ekranları bu grubun F aktarımına dahil değildir.

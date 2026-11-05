@@ -780,3 +780,26 @@
 .s-content .unity-base-slider__tracker { background-color:rgb(35,45,54); }
 .s-content .unity-base-slider__dragger { background-color:rgb(93,109,122); }
 .s-content .unity-scroller__low-button, .s-content .unity-scroller__high-button { background-color:rgb(35,45,54); }
+/* P7-4 Mutant başlangıcı F §5c–d; mevcut koyu/turuncu bileşenler. */
+.m-content { position:absolute; left:58px; right:58px; top:150px; bottom:100px; }
+.m-steps { position:absolute; right:0; top:-92px; flex-direction:row; align-items:center; }
+.m-steps Label { font-size:22px; }
+.m-boss { position:absolute; left:0; top:20px; width:580px; height:440px; }
+.m-selected { position:absolute; left:640px; right:0; top:20px; }
+.m-selected .ltb { margin-top:24px; align-self:flex-start; }
+.m-car-title { position:absolute; left:700px; right:0; top:110px; }
+.m-car-title .baslik { font-size:68px; white-space:normal; }
+.m-lower { position:absolute; left:0; right:0; bottom:0; }
+.m-cards { flex-direction:row; margin-top:28px; }
+.m-card { flex-grow:1; flex-basis:0; height:270px; margin-right:22px; }
+.m-card .ad { font-size:34px; white-space:normal; }
+.m-card .g-copy { font-size:20px; }
+.m-card .t { position:absolute; right:14px; bottom:14px; }
+.m-go { width:300px; height:270px; flex-shrink:0; }
+.m-go .yazi { font-size:27px; }
+.m-content .ipuclari { bottom:-70px; right:0; }
+.m-boss .unity-scroll-view__content-container { width:100%; }
+.m-content .unity-scroller { background-color:rgb(17,24,30); }
+.m-content .unity-base-slider__tracker { background-color:rgb(35,45,54); }
+.m-content .unity-base-slider__dragger { background-color:rgb(93,109,122); }
+.m-content .unity-scroller__low-button, .m-content .unity-scroller__high-button { background-color:rgb(35,45,54); }
