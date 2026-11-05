@@ -1,3 +1,24 @@
+# Son devir: P7-3 Mağaza F + Garaj/Modifiye Game View doğrulaması (6 Kasım 2026) — Codex
+
+- Yerel durum devralındı: `codex/unity-p7-garaj`, başlangıç `a24e84b`, son 10 commit/status/fetch kontrol edildi. P7-2 `7f6797f` tesliminin 29 kontrol/131 kaynak kanıtı doğrulandı; Garaj/Modifiye yeniden yazılmadı. Kullanıcının koşullu talimatıyla en yakın bağımlı ekran **Mağaza F §3** tamamlandı. Kod/test commit'i **`db8650c`**; devir kapanışı bu notu son değiştiren yerel commit. Tek Codex; yeni alt ajan/Claude/API/ek kredi yok, Claude kotası bilinmiyor.
+- Tamamlanan F ekranları: önceki ana menü/Yarış/Mutant menüleri ve HUD; Garaj + Modifiye; bu oturumda **Mağaza**. Mağaza mevcut katalog vitrini, tüm 15 araç, tür filtreleri, sahiplik/sınıf/özellik/fiyat/erişim ve eksik para, satın alma onay/iptal, Garaj'da gösterme sunar. Parçalar/Tab mevcut Modifiye'ye gider. Yeni içerik, ekonomi, 3B varlık veya oynanış yok; görünüm tipli `GarageCarRow` ve mevcut `Primary` komutunu kullanır.
+- Akış düzeltildi: açılan ekran aynı E/Q/Esc tuşunu aynı karede yeniden işlemez; Yarış → Garaj, önceki Mağaza durumunu temizler. 2560×1080'de dikey UI ölçeği korunur; özellik/işlem çakışması giderildi. Mağaza vitrini satın alma panelini ekran dışına itmez. Sıfır bakiyeli oyuncunun sahip olduğu araçta eksik para gösterilmez.
+- Gerçek Unity **6000.3.9f1 grafik Editor / Game View: 76/76**. Ana Menü → Yarış → Garaj → araç seçimi → Modifiye → satın al/tak/sök → geri → Yarış → Garaj; ardından Mağaza filtre/onay/iptal/tek bedel/sahiplik/yeniden yükleme/kilit/Parçalar/fare/geri. Sentetik klavye, gerçek panel hit-test ve PointerDown/Up yolu; fiziksel OS fare denemesi/insan kabulü değildir. `Unity/Logs/p7-garage-play.json`, **132 güncel C#/USS hash'i**, `node Unity/Validation/check-garage-f-proof.mjs` geçti.
+- **Dokuz gerçek Game View PNG** (ScreenCapture; batch panel render'ı değil), 1280×720 / 1920×1080 / 2560×1080. Ajan hepsini inceledi; ilk çakışmalar düzeltildi. Aşağıdaki yerel dosyalar gitignored Logs içindedir, başka makineye commit ile taşınmaz.
+
+| Ekran | 1280×720 | 1920×1080 | 2560×1080 |
+|---|---|---|---|
+| Garaj | [PNG](../Unity/Logs/p7-gameview-garage-1280.png) | [PNG](../Unity/Logs/p7-gameview-garage-1920.png) | [PNG](../Unity/Logs/p7-gameview-garage-2560.png) |
+| Modifiye | [PNG](../Unity/Logs/p7-gameview-mods-1280.png) | [PNG](../Unity/Logs/p7-gameview-mods-1920.png) | [PNG](../Unity/Logs/p7-gameview-mods-2560.png) |
+| Mağaza | [PNG](../Unity/Logs/p7-gameview-store-1280.png) | [PNG](../Unity/Logs/p7-gameview-store-1920.png) | [PNG](../Unity/Logs/p7-gameview-store-2560.png) |
+
+- Dar testler: .NET `--garage-f` **342**, `--garage-ui` **117**, proje düzeni kontrolü geçti. Son menü/ölçek değişiklikleriyle F ana menü/HUD batch Play **27/27**; `Unity/Logs/p7-ui-play.json`, `Unity/Logs/p7-store-menu-protection.log`. Sonraki yalnız eksik para görünüm modeli düzeltmesi menü/HUD davranışını değiştirmiyor. Uzun P1–P5 regresyonu yapılmadı; fizik/ekonomi/kayıt/TS 0.8.18 kaynakları değişmedi.
+- İzolasyon: ayrı `Unity/Logs/P7StoreEditor`, ayrı company/product `LastTurnUiValidation`; gerçek oyuncu/Firebase oturumları ve `_Recovery` kopyalanmadı. Test profilleri Logs altında, o ürünün kayıt dosyaları önce/sonra aynı hash'te; gerçek oyuncu dizinine yazılmadı. `-lastTurnUiValidation` yalnız Editor testinde bulut açılışını atlar; normal oyun/build yolu aynı. Test Editor'ı bitince kendiliğinden kapandı, mevcut kullanıcı Editor'larına dokunulmadı.
+- **Console eksikliği:** yeni C# derleme hatası/LastTurn kaynaklı çalışma hatası görülmedi; ancak ayrı Editor açılışında Unity `SearchDatabase.GetDefaultSearchDatabase / SearchInit.IndexationOnStartup` içinde `ArgumentOutOfRangeException` var. Bu yüzden bütünüyle temiz Console iddiası yok. Arama indeksleyicisi bu UI görevinde değiştirilmedi. İlk gezinme/geniş ekran/panel ve test yerleşim hatalarının ham proof'ları `tests/cikti/p7-store-*-failure.json` içinde.
+- MCP ayrı pilotta kurulu; bu UI görevinde kullanılmadı ve yeni bağımlılık kurulmadı. Blender, ML-Agents, GameCI yok. Push/merge/yayın yapılmadı; `_Recovery` commit dışı korundu. İnsan görsel kabul turu: `Unity/OYUNCU-TEST-REHBERI.md` P7-2/P7-3.
+- **Sıradaki tek ekran: F §4 Yarış hazırlığı.** Bu oturumda başlanmadı; Profil/Ayarlar/koşu adımları/pause/sonuç hâlâ sonraki işlerdir.
+
+
 # Son devir: Unity AI destek kurulumu ve sınırları (2026-11-06) — Codex
 
 - Cem'in “gerekli kurulumları yap” onayı uygulandı. Dal `codex/unity-p7-garaj`, başlangıç `e749c37`; tek Codex, yeni alt ajan/Claude model çağrısı/ücretli API yok. Kota bilinmiyor. `_Recovery` korundu, push/merge/yayın yok.
