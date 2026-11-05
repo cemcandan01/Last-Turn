@@ -23,6 +23,7 @@ namespace LastTurn.Garage
     public void ViewCar(int index){viewCar=index;previewPart="";confirmKey="";Refresh();}
     private void Refresh(){if(GarageSession.State==null)return;detail=GarageViewModel.Detail(GarageSession.State,viewCar,previewPart);seenState=GarageSession.State;}
     public void SelectTab(int value){section=Mathf.Clamp(value,0,4);scroll=Vector2.zero;confirmKey="";localMessage="";TestPanelActions.ClearError();}
+    public void SelectShop(bool store){shop=store?1:0;var first=GarageViewModel.Cars(GarageSession.State).FirstOrDefault(c=>c.Owned==!store);if(first!=null)ViewCar(first.Index);}
     public void SelectRaceType(string type){raceType=Array.IndexOf(TestPanelModel.Types,type);if(raceType<0)raceType=0;raceKey=TestPanelModel.Types[raceType]+"_1";}
     public void SelectTrack(string key){if(TestPanelActions.Events().Any(e=>e.Key==key)){raceKey=key;raceType=Array.IndexOf(TestPanelModel.Types,key.Split('_')[0]);DefaultConditions();}}
     // TS menu.ts: etkinlik seçilince COND = condOf(bölge teması); oyuncu sonra günün saati/hava çipleriyle değiştirir.

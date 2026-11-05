@@ -57,8 +57,10 @@ namespace LastTurn.Garage
       {text=new GUIStyle(GUI.skin.label){fontSize=18,wordWrap=true};text.normal.textColor=Color.white;title=new GUIStyle(text){fontSize=26,fontStyle=FontStyle.Bold};button=new GUIStyle(GUI.skin.button){fontSize=18,wordWrap=true,padding=new RectOffset(12,12,10,10)};}
       bool garage=SceneManager.GetActiveScene().name=="Garage";
       if(!garage && !GameFlow.Paused)
-      {if(GUI.Button(new Rect(Screen.width-152,58,140,44),"Duraklat / Esc",button))GameFlow.Pause(true);return;}
+      {if(Touchscreen.current!=null&&GUI.Button(new Rect(Screen.width-152,58,140,44),"Duraklat / Esc",button))GameFlow.Pause(true);return;}
       if(garage && !GameFlow.Home && !GameFlow.Profile){editing=false;return;}
+      // Ana menü F arayüzünde (LastTurn.Ui.MainMenuView); burada yalnız profil ve duraklatma kalır.
+      if(garage && GameFlow.Home && !GameFlow.Profile && LastTurn.Ui.UiRoot.Instance){editing=false;return;}
       float width=Mathf.Min(820,Screen.width-24);
       var area=new Rect((Screen.width-width)/2,12,width,Screen.height-24);
       var oldColor=GUI.color;GUI.color=new Color(.035f,.045f,.06f);GUI.DrawTexture(area,Texture2D.whiteTexture);GUI.color=oldColor;
@@ -69,6 +71,8 @@ namespace LastTurn.Garage
         GUILayout.Label("DURAKLATILDI",title);GUILayout.Label("Yarış süresi ve sürüş durdu.",text);
         if(Button("Devam et"))GameFlow.Pause(false);
         if(Button("Yeniden başlat")){var p=FindFirstObjectByType<GtPrototype>();if(p){if(p.Race!=null)p.RestartRace();else p.ResetVehicle();}GameFlow.Pause(false);}
+        // F masaüstünde sağ üst AYAR tuşu yok: ayarlar duraklatmadan açılır (ayarlar açıkken sürüş zaten durur).
+        if(Button("Ayarlar")){GameFlow.Pause(false);SettingsScreen.Show();}
         if(Button("Kariyere dön"))GameFlow.LeaveDrive();
         if(Button("Garaja dön"))GameFlow.LeaveDrive(0);
         if(Button("Ana menüye dön"))GameFlow.LeaveDrive(0,true);

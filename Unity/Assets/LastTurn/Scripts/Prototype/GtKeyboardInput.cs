@@ -8,11 +8,15 @@ namespace LastTurn.Prototype
   public sealed class GtKeyboardInput : IDisposable
   {
     private readonly InputActionMap map = new InputActionMap("GT Test");
-    private readonly InputAction throttle, brake, left, right, handbrake, restart, shiftUp, shiftDown, nitro, airHold, airDelta;
+    private readonly InputAction throttle, brake, left, right, handbrake, restart, shiftUp, shiftDown, nitro, camera, respawn, airHold, airDelta;
     private readonly InputAction[] skills = new InputAction[3];
     private bool restartPending; private int shiftPending;
     /// TS mutant-ui.ts: N nitro, 1/2/3 yuva sırasıyla skill (basılı tutma Volt Kanat için ayrıca bildirilir).
     public event Action NitroPressed;
+    /// Masaüstü (F): V kamera değiştirir (dokunmatik KAMERA düğmesinin klavye karşılığı).
+    public event Action CameraPressed;
+    /// Masaüstü (F): T piste döner / yeniden doğar (dokunmatik ↺ düğmesinin klavye karşılığı; R yarışı baştan başlatır).
+    public event Action RespawnPressed;
     public event Action<int> SkillPressed, SkillReleased;
     public readonly DrivingControls Controls = new DrivingControls();
     /// Dokunmatik katman (yoksa yalnız klavye).
@@ -36,6 +40,8 @@ namespace LastTurn.Prototype
       shiftUp = map.AddAction("VitesYukari", InputActionType.Button, "<Keyboard>/e"); shiftUp.performed += _ => shiftPending = 1;
       shiftDown = map.AddAction("VitesAsagi", InputActionType.Button, "<Keyboard>/q"); shiftDown.performed += _ => shiftPending = -1;
       nitro = map.AddAction("Nitro", InputActionType.Button, "<Keyboard>/n"); nitro.performed += _ => NitroPressed?.Invoke();
+      camera = map.AddAction("Kamera", InputActionType.Button, "<Keyboard>/v"); camera.performed += _ => CameraPressed?.Invoke();
+      respawn = map.AddAction("PisteDon", InputActionType.Button, "<Keyboard>/t"); respawn.performed += _ => RespawnPressed?.Invoke();
       for (int i = 0; i < skills.Length; i++)
       {
         int slot = i; skills[i] = map.AddAction("Beceri" + (i + 1), InputActionType.Button, "<Keyboard>/" + (i + 1));

@@ -37,6 +37,28 @@ internal static class HudValidation
       if(map!="kapali"&&w>=hh)Check(r.ContainsKey("Map"),l+" miniharita yatayda görünür");
       if(state=="drag")Check(r.ContainsKey("ShiftUp")&&r.ContainsKey("DragBar"),l+" drag vites ve devir çubuğu");
     }
+    // F masaüstü (dokunmatik ekran yok): sürüş/üst simge tuşu yok; harita sağ üst, hız sağ alt, süre üst orta; alt orta araç için boş
+    int desktop=0;var touchKeys=new[]{"Left","Right","Wheel","Calibrate","Gas","Pedal","Brake","Handbrake","ShiftUp","ShiftDown","Settings","Pause","Respawn","Camera"};
+    foreach(var (w,hh) in new[]{(1920.0,1080.0),(1280.0,720.0),(2560.0,1440.0),(1366.0,768.0),(1024.0,768.0),(3440.0,1440.0),(844.0,390.0)})
+    foreach(var map in new[]{"kare","kucuk","kapali"})foreach(var hint in new[]{true,false})
+    foreach(var state in new[]{"serbest","yaris","mutant-yaris","mutant-dunya","drag"})
+    {
+      var i=new HudLayoutInput{Width=w,Height=hh,Map=map,Touch=false,Racing=state!="serbest"&&state!="mutant-dunya",Mutant=state.StartsWith("mutant"),Opponent=state!="serbest",
+        Manual=state=="drag",DragBar=state=="drag",DesktopHint=hint,Info=state=="serbest",Skills=state.StartsWith("mutant")?new[]{"aktif","tetikli","aktif","aktif"}:Array.Empty<string>()};
+      var r=HudLayout.Compute(i);desktop++;string l="masaüstü "+w+"x"+hh+" "+map+"/"+state+(hint?"/ipucu":"");
+      var o=HudLayout.Overlaps(r).FirstOrDefault();Check(o==default,l+" çakışma "+o.A+"-"+o.B);
+      foreach(var p in r)Check(p.Value.Inside(w,hh)&&p.Value.W>0&&p.Value.H>0,l+" ekran dışı "+p.Key);
+      foreach(var k in touchKeys)Check(!r.ContainsKey(k),l+" dokunmatik tuş yok: "+k);
+      // aracın durduğu alt orta (yatay %42–58, alt %35) boş
+      var car=new HudRect(w*.42,hh*.65,w*.16,hh*.35);foreach(var p in r)Check(!p.Value.Overlaps(car),l+" alt orta boş: "+p.Key);
+      Check(r.ContainsKey("Speed")&&r["Speed"].Right>w*.8&&r["Speed"].Bottom>hh*.8,l+" hız sağ altta");
+      if(map!="kapali")Check(r.ContainsKey("Map")&&r["Map"].X>w*.7&&r["Map"].Y<hh*.1,l+" miniharita sağ üstte");else Check(!r.ContainsKey("Map"),l+" harita kapalı");
+      if(i.Racing)Check(r.ContainsKey("Timer")&&Math.Abs(r["Timer"].X+r["Timer"].W/2-w/2)<1e-6&&r.ContainsKey("Title"),l+" süre üst ortada, pist adı sol üstte");
+      if(i.Mutant)Check(r.ContainsKey("Nitro")&&r.ContainsKey("Skill0")&&r.ContainsKey("Passive1")&&r.ContainsKey("Skill3")&&r.ContainsKey("MutantBar")&&(!i.Racing||r["Title"].Y>=r["MutantBar"].Bottom),l+" Mutant yuvaları ve durum çubuğu");
+      if(state=="drag")Check(r.ContainsKey("DragBar"),l+" drag devir çubuğu");
+      if(i.Info)Check(r.ContainsKey("Info")&&r["Info"].H>=HudLayout.Unit(w,hh),l+" serbest sürüş bilgisi");
+    }
+    Console.WriteLine($"HUD masaüstü (F): {desktop} yerleşim (7 ekran × 3 harita × ipucu açık/kapalı × 5 durum) dokunmatik tuşsuz, çakışmasız, alt orta boş.");
     Console.WriteLine($"HUD: {checks} koşul; miniharita {f["cases"].Items.Count()} TS çerçevesi (fark {worst:G3}) + kenar/araç/pist sınırları; {layouts} yerleşim (6 ekran × 3 direksiyon × 3 gaz × 3 harita × 5 durum) çakışmasız ve ekran içinde.");
   }
 }

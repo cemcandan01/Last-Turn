@@ -1,0 +1,1025 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Last Turn menü ve HUD taslakları</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@112,500;125,800&family=Barlow:wght@400;600&family=IBM+Plex+Sans+Condensed:wght@400;600&family=JetBrains+Mono:wght@400;700&family=Saira+Condensed:ital,wght@0,600;1,800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Tek dünyalı koyu sayfa: oyun arayüzü taslakları gece pist ışığında okunur.
+         Düzen: her yön bir şerit; içinde ana menü ve yarış HUD'u iPhone 13 yatay (844×390) oranında. */
+      :root {
+        color-scheme: dark;
+        --zemin: #0c0f12;
+        --yuzey: #151a1f;
+        --cizgi: #2a323a;
+        --yazi: #e9edf0;
+        --soluk: #93a0ab;
+        --vurgu: #ff7a3c;
+        --uyari: #ffd27a;
+        --govde: "Barlow", "Segoe UI", sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--zemin);
+        color: var(--yazi);
+        font-family: var(--govde);
+      }
+      main {
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 28px 20px 60px;
+        display: grid;
+        gap: 44px;
+      }
+      header.sayfa h1 {
+        font-family: "Saira Condensed", sans-serif;
+        font-weight: 800;
+        font-style: italic;
+        font-size: 34px;
+        margin: 0 0 6px;
+        letter-spacing: 0.02em;
+        text-wrap: balance;
+      }
+      header.sayfa p {
+        margin: 0;
+        max-width: 72ch;
+        color: var(--soluk);
+        line-height: 1.5;
+      }
+      .yon {
+        display: grid;
+        gap: 14px;
+      }
+      .yon-bas {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 6px 16px;
+        border-top: 1px solid var(--cizgi);
+        padding-top: 16px;
+      }
+      .yon-bas .harf {
+        font:
+          700 13px "JetBrains Mono",
+          monospace;
+        color: var(--zemin);
+        background: var(--vurgu);
+        padding: 3px 8px;
+        border-radius: 4px;
+      }
+      .yon-bas h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+      }
+      .yon-bas p {
+        margin: 0;
+        flex-basis: 100%;
+        max-width: 80ch;
+        color: var(--soluk);
+        line-height: 1.5;
+      }
+      .ciftler {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 16px;
+      }
+      figure {
+        margin: 0;
+        display: grid;
+        gap: 8px;
+      }
+      figcaption {
+        font-size: 13px;
+        color: var(--soluk);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      @media (max-width: 480px) {
+        .ciftler {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ---------- Ekran çerçevesi: cqw ile 844 px genişliğe göre ölçeklenir (1cqw ≈ 8,44 px) */
+      .ekran {
+        position: relative;
+        aspect-ratio: 844 / 390;
+        container-type: inline-size;
+        overflow: hidden;
+        border-radius: 14px;
+        border: 1px solid var(--cizgi);
+        background: #000;
+      }
+      .ekran > svg.sahne {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .ekran .k {
+        position: absolute;
+      }
+      .sayi {
+        font-variant-numeric: tabular-nums;
+      }
+      .golge {
+        text-shadow: 0 0.15cqw 0.5cqw rgba(0, 0, 0, 0.6);
+      }
+
+      /* ================= A: PİST DUVARI ================= */
+      .a {
+        --a-pan: rgba(14, 16, 19, 0.9);
+        --a-goster: "Saira Condensed", sans-serif;
+      }
+      .a .marka {
+        left: 4.6cqw;
+        top: 5cqw;
+        font: italic 800 6.2cqw/0.9 var(--a-goster);
+        letter-spacing: 0.02em;
+      }
+      .a .marka b {
+        color: var(--vurgu);
+      }
+      .a .liste {
+        left: 4.6cqw;
+        top: 12.6cqw;
+        display: grid;
+        gap: 0.6cqw;
+        width: 31cqw;
+      }
+      .a .liste div {
+        background: var(--a-pan);
+        clip-path: polygon(0 0, 100% 0, 94% 100%, 0 100%);
+        padding: 0.95cqw 2cqw;
+        font: 600 2.2cqw var(--a-goster);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        border-left: 0.45cqw solid transparent;
+      }
+      .a .liste div small {
+        font: 400 1.35cqw var(--govde);
+        color: var(--soluk);
+        text-transform: none;
+        letter-spacing: 0;
+        padding-right: 3cqw;
+      }
+      .a .liste div.secili {
+        border-left-color: var(--vurgu);
+        background: linear-gradient(90deg, rgba(255, 122, 60, 0.28), var(--a-pan) 70%);
+      }
+      .a .profil {
+        right: 4.6cqw;
+        top: 4.6cqw;
+        display: flex;
+        gap: 1.6cqw;
+        align-items: center;
+        background: var(--a-pan);
+        clip-path: polygon(4% 0, 100% 0, 100% 100%, 0 100%);
+        padding: 1cqw 2cqw 1cqw 3cqw;
+      }
+      .a .profil .lv {
+        font: italic 800 3.6cqw/1 var(--a-goster);
+        color: var(--vurgu);
+      }
+      .a .profil .ad {
+        font: 600 1.7cqw/1.2 var(--govde);
+      }
+      .a .profil .ad small {
+        display: block;
+        color: var(--soluk);
+        font-weight: 400;
+        font-size: 1.35cqw;
+      }
+      .a .devam {
+        right: 4.6cqw;
+        bottom: 5cqw;
+        width: 30cqw;
+        background: var(--a-pan);
+        clip-path: polygon(6% 0, 100% 0, 100% 100%, 0 100%);
+        padding: 1.6cqw 2cqw 1.6cqw 4cqw;
+        border-bottom: 0.45cqw solid var(--vurgu);
+      }
+      .a .devam .et {
+        font: 600 1.3cqw var(--govde);
+        color: var(--vurgu);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .a .devam .bas {
+        font: italic 800 3cqw/1.1 var(--a-goster);
+      }
+      .a .devam .alt {
+        font-size: 1.45cqw;
+        color: var(--soluk);
+      }
+      /* A HUD */
+      .a .hp {
+        background: var(--a-pan);
+        clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+        padding: 0.8cqw 3cqw 0.8cqw 1.6cqw;
+      }
+      .a .et {
+        font: 600 1.3cqw var(--govde);
+        color: var(--vurgu);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .a .buyuk {
+        font: italic 800 4.4cqw/1 var(--a-goster);
+      }
+      .a .ikincil {
+        font-size: 1.45cqw;
+        color: var(--soluk);
+      }
+      .a .hiz {
+        right: 3.9cqw;
+        bottom: 18cqw;
+        text-align: right;
+        clip-path: polygon(8% 0, 100% 0, 100% 100%, 0 100%);
+        padding: 0.8cqw 1.6cqw 0.8cqw 3cqw;
+      }
+      .a .hiz .buyuk {
+        font-size: 5.6cqw;
+      }
+
+      /* ================= B: VİTRİN ================= */
+      .b {
+        --b-cam: rgba(22, 26, 31, 0.55);
+        --b-kenar: rgba(255, 255, 255, 0.14);
+        --b-goster: "Archivo", sans-serif;
+      }
+      .b .marka {
+        left: 4.6cqw;
+        top: 4.6cqw;
+        font: 800 2.6cqw/1 var(--b-goster);
+        font-stretch: 125%;
+        letter-spacing: 0.18em;
+      }
+      .b .arac-ad {
+        left: 4.6cqw;
+        top: 9.4cqw;
+      }
+      .b .arac-ad .bas {
+        font: 800 4.6cqw/1 var(--b-goster);
+        font-stretch: 125%;
+        letter-spacing: 0.02em;
+      }
+      .b .arac-ad .alt {
+        font-size: 1.5cqw;
+        color: #c7ced4;
+        margin-top: 0.8cqw;
+        display: flex;
+        gap: 2.4cqw;
+      }
+      .b .arac-ad .alt b {
+        display: block;
+        font: 500 2.2cqw var(--b-goster);
+        font-stretch: 112%;
+        color: #fff;
+      }
+      .b .panel {
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 30cqw;
+        background: var(--b-cam);
+        backdrop-filter: blur(1.4cqw);
+        border-left: 1px solid var(--b-kenar);
+        padding: 4.6cqw 3.6cqw;
+        display: grid;
+        align-content: start;
+        gap: 0.6cqw;
+      }
+      .b .panel .ust {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 1.8cqw;
+        font-size: 1.5cqw;
+        color: #c7ced4;
+      }
+      .b .panel .ust b {
+        font: 500 1.9cqw var(--b-goster);
+        font-stretch: 112%;
+        color: #fff;
+      }
+      .b .panel .s {
+        font: 500 2.2cqw/1 var(--b-goster);
+        font-stretch: 112%;
+        padding: 1.3cqw 1.4cqw;
+        border-radius: 0.9cqw;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #d9dee2;
+      }
+      .b .panel .s small {
+        font: 400 1.3cqw var(--govde);
+        color: var(--soluk);
+      }
+      .b .panel .s.secili {
+        background: rgba(255, 255, 255, 0.92);
+        color: #101418;
+      }
+      .b .panel .s.secili small {
+        color: #4a555e;
+      }
+      .b .panel .s.secili::after {
+        content: "";
+        width: 0.9cqw;
+        height: 0.9cqw;
+        border-radius: 50%;
+        background: var(--vurgu);
+      }
+      /* B HUD */
+      .b .hp {
+        background: rgba(11, 20, 24, 0.5);
+        backdrop-filter: blur(1cqw);
+        border: 1px solid var(--b-kenar);
+        border-radius: 1.6cqw;
+        padding: 0.9cqw 1.8cqw;
+      }
+      .b .et {
+        font: 600 1.3cqw var(--govde);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #c7ced4;
+      }
+      .b .buyuk {
+        font: 800 3.9cqw/1.05 var(--b-goster);
+        font-stretch: 112%;
+      }
+      .b .ikincil {
+        font-size: 1.45cqw;
+        color: #c7ced4;
+      }
+      .b .ikincil b {
+        color: var(--vurgu);
+        font-weight: 600;
+      }
+      .b .hiz {
+        right: 3.9cqw;
+        bottom: 18cqw;
+        width: 13cqw;
+        height: 13cqw;
+        border-radius: 50%;
+        padding: 0;
+        display: grid;
+        place-items: center;
+        text-align: center;
+      }
+      .b .hiz svg {
+        position: absolute;
+        inset: 0.6cqw;
+        width: calc(100% - 1.2cqw);
+        height: calc(100% - 1.2cqw);
+      }
+
+      /* ================= C: TELEMETRİ ================= */
+      .c {
+        --c-pan: rgba(6, 10, 12, 0.78);
+        --c-cizgi: rgba(255, 210, 122, 0.35);
+        --c-mono: "JetBrains Mono", monospace;
+        --c-govde: "IBM Plex Sans Condensed", sans-serif;
+      }
+      .c .izgara {
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 4.74cqw 4.74cqw;
+      }
+      .c .marka {
+        left: 4.6cqw;
+        top: 4.6cqw;
+        font: 700 2.2cqw var(--c-mono);
+        letter-spacing: 0.3em;
+      }
+      .c .marka small {
+        display: block;
+        font: 400 1.25cqw var(--c-mono);
+        color: var(--soluk);
+        letter-spacing: 0.08em;
+        margin-top: 0.6cqw;
+      }
+      .c .liste {
+        left: 4.6cqw;
+        top: 13cqw;
+        width: 28cqw;
+        border-top: 1px solid var(--c-cizgi);
+      }
+      .c .liste div {
+        background: rgba(6, 10, 12, 0.72);
+        display: grid;
+        grid-template-columns: 4.2cqw 1fr auto;
+        align-items: baseline;
+        padding: 1.05cqw 0;
+        border-bottom: 1px solid var(--c-cizgi);
+        font: 600 2.2cqw var(--c-govde);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .c .liste div span {
+        font: 400 1.3cqw var(--c-mono);
+        color: var(--soluk);
+      }
+      .c .liste div small {
+        font: 400 1.3cqw var(--c-mono);
+        color: var(--soluk);
+        text-transform: none;
+      }
+      .c .liste div.secili {
+        color: var(--uyari);
+        background: linear-gradient(90deg, rgba(255, 210, 122, 0.12), transparent);
+      }
+      .c .liste div.secili span {
+        color: var(--uyari);
+      }
+      .c .kart {
+        right: 4.6cqw;
+        top: 4.6cqw;
+        width: 33cqw;
+        background: var(--c-pan);
+        border: 1px solid var(--c-cizgi);
+        padding: 1.6cqw 2cqw;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1.4cqw 1cqw;
+      }
+      .c .kart .et,
+      .c .et {
+        font: 400 1.25cqw var(--c-mono);
+        color: var(--soluk);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .c .kart .d {
+        font: 700 2.6cqw var(--c-mono);
+      }
+      .c .kart .d.v {
+        color: var(--vurgu);
+      }
+      .c .kart .bar {
+        grid-column: 1 / -1;
+        height: 0.6cqw;
+        background: rgba(255, 255, 255, 0.1);
+        position: relative;
+      }
+      .c .kart .bar i {
+        position: absolute;
+        inset: 0 38% 0 0;
+        background: var(--vurgu);
+      }
+      .c .sonraki {
+        right: 4.6cqw;
+        bottom: 5cqw;
+        width: 33cqw;
+        background: var(--c-pan);
+        border: 1px solid var(--c-cizgi);
+        padding: 1.4cqw 2cqw;
+        display: grid;
+        grid-template-columns: 1fr 12cqw;
+        gap: 1.6cqw;
+        align-items: center;
+      }
+      .c .sonraki .bas {
+        font: 600 2.6cqw var(--c-govde);
+        text-transform: uppercase;
+      }
+      .c .sonraki .alt {
+        font: 400 1.3cqw var(--c-mono);
+        color: var(--soluk);
+        margin-top: 0.4cqw;
+      }
+      /* C HUD */
+      .c .hp {
+        background: var(--c-pan);
+        border: 1px solid var(--c-cizgi);
+        padding: 0.8cqw 1.6cqw;
+      }
+      .c .buyuk {
+        font: 700 3.8cqw/1.05 var(--c-mono);
+      }
+      .c .ikincil {
+        font: 400 1.4cqw var(--c-mono);
+        color: var(--soluk);
+      }
+      .c .ikincil b {
+        color: var(--uyari);
+        font-weight: 400;
+      }
+      .c .hiz {
+        right: 3.9cqw;
+        bottom: 18cqw;
+        text-align: right;
+      }
+      .c .hiz .buyuk {
+        font-size: 5cqw;
+      }
+
+      /* ---------- Ortak HUD öğeleri (yer HUD.md bölgelerine göre, biçim yöne göre) */
+      .hud .sol-ust {
+        left: 3.9cqw;
+        top: 3.3cqw;
+      }
+      .hud .drift {
+        left: 50%;
+        top: 3.3cqw;
+        transform: translateX(-50%);
+        text-align: center;
+      }
+      .hud .harita {
+        right: 3.9cqw;
+        top: 3.3cqw;
+        width: 12.3cqw;
+        height: 12.3cqw;
+        padding: 0.6cqw;
+      }
+      .hud .harita svg {
+        width: 100%;
+        height: 100%;
+      }
+      .hud .tus {
+        bottom: 3.6cqw;
+        width: 10cqw;
+        height: 10.7cqw;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(11, 20, 24, 0.55);
+      }
+      .hud .tus svg {
+        width: 3.4cqw;
+        height: 3.4cqw;
+        stroke: #fff;
+        stroke-width: 2.2;
+        fill: none;
+      }
+      .hud .tus.on {
+        background: rgba(255, 122, 60, 0.85);
+        border-color: var(--vurgu);
+      }
+      .a.hud .tus {
+        clip-path: polygon(12% 0, 100% 0, 88% 100%, 0 100%);
+        border: 0;
+      }
+      .b.hud .tus {
+        border-radius: 2cqw;
+        backdrop-filter: blur(1cqw);
+      }
+      .c.hud .tus {
+        border-color: var(--c-cizgi);
+        background: rgba(6, 10, 12, 0.6);
+      }
+      .c.hud .tus.on {
+        background: rgba(255, 122, 60, 0.75);
+      }
+      .hud .t1 {
+        left: 3.9cqw;
+      }
+      .hud .t2 {
+        left: 15.1cqw;
+      }
+      .hud .t3 {
+        right: 15.1cqw;
+        height: 8cqw;
+        width: 12cqw;
+      }
+      .hud .t4 {
+        right: 3.9cqw;
+        height: 13cqw;
+        width: 9.6cqw;
+      }
+
+      .notlar {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--soluk);
+        line-height: 1.55;
+        max-width: 90ch;
+        display: grid;
+        gap: 4px;
+      }
+      .notlar b {
+        color: var(--yazi);
+        font-weight: 600;
+      }
+      .ortak {
+        border: 1px solid var(--cizgi);
+        border-radius: 12px;
+        background: var(--yuzey);
+        padding: 18px 20px;
+      }
+      .ortak h2 {
+        margin: 0 0 8px;
+        font-size: 18px;
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <defs>
+        <linearGradient id="gok" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#20324a" />
+          <stop offset="0.55" stop-color="#d98a5a" />
+          <stop offset="1" stop-color="#f2c18c" />
+        </linearGradient>
+        <linearGradient id="yol" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#4b4e52" />
+          <stop offset="1" stop-color="#26282b" />
+        </linearGradient>
+        <linearGradient id="zemin" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#1b2126" />
+          <stop offset="1" stop-color="#07090b" />
+        </linearGradient>
+        <radialGradient id="spot" cx="0.45" cy="0.62" r="0.5">
+          <stop offset="0" stop-color="#6c7882" stop-opacity="0.55" />
+          <stop offset="1" stop-color="#0b0e11" stop-opacity="0" />
+        </radialGradient>
+        <linearGradient id="kaporta" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ff8a55" />
+          <stop offset="0.45" stop-color="#d4421c" />
+          <stop offset="1" stop-color="#5a1608" />
+        </linearGradient>
+        <linearGradient id="cam" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#9fb4c4" />
+          <stop offset="1" stop-color="#10171d" />
+        </linearGradient>
+        <!-- Garaj sahnesi: araç yandan, spot ışık, yansıyan zemin -->
+        <symbol id="garaj" viewBox="0 0 844 390">
+          <rect width="844" height="390" fill="#0b0e11" />
+          <rect y="250" width="844" height="140" fill="url(#zemin)" />
+          <ellipse cx="380" cy="250" rx="420" ry="190" fill="url(#spot)" />
+          <g stroke="#ffffff" stroke-opacity="0.06">
+            <line x1="0" y1="250" x2="844" y2="250" />
+            <line x1="380" y1="250" x2="-200" y2="390" />
+            <line x1="380" y1="250" x2="960" y2="390" />
+            <line x1="380" y1="250" x2="380" y2="390" />
+          </g>
+          <ellipse cx="380" cy="292" rx="210" ry="14" fill="#000" opacity="0.65" />
+          <g transform="translate(170 168) scale(1.05)">
+            <path
+              d="M20 85 C22 70 40 62 70 60 L120 56 C150 36 190 28 235 30 C270 31 300 44 325 58 L370 64 C385 67 392 76 390 88 L388 100 L20 100 Z"
+              fill="url(#kaporta)"
+            />
+            <path d="M135 56 C160 40 190 35 230 36 C255 37 275 46 292 57 Z" fill="url(#cam)" />
+            <path d="M40 74 L380 78" stroke="#ffd0b8" stroke-opacity="0.5" stroke-width="1.5" />
+            <g fill="#0d0f11">
+              <circle cx="95" cy="100" r="25" />
+              <circle cx="320" cy="100" r="25" />
+            </g>
+            <g fill="none" stroke="#9aa3aa" stroke-width="3">
+              <circle cx="95" cy="100" r="14" />
+              <circle cx="320" cy="100" r="14" />
+            </g>
+            <path d="M372 70 l14 3 v6 l-14 -2 Z" fill="#ffe7c4" />
+          </g>
+          <g transform="translate(170 420) scale(1.05 -0.45)" opacity="0.12">
+            <path
+              d="M20 85 C22 70 40 62 70 60 L120 56 C150 36 190 28 235 30 C270 31 300 44 325 58 L370 64 C385 67 392 76 390 88 L388 100 L20 100 Z"
+              fill="url(#kaporta)"
+            />
+          </g>
+        </symbol>
+        <!-- Yarış sahnesi: arkadan araç, viraja giren yol, gün batımı -->
+        <symbol id="yaris" viewBox="0 0 844 390">
+          <rect width="844" height="200" fill="url(#gok)" />
+          <path d="M0 175 Q120 150 230 168 T470 160 T844 170 V210 H0 Z" fill="#3b3a44" />
+          <rect y="200" width="844" height="190" fill="#2e3a2a" />
+          <path d="M395 200 L452 200 L700 390 L130 390 Z" fill="url(#yol)" />
+          <path d="M420 200 L426 200 L430 390 L414 390 Z" fill="#e8e3d6" opacity="0.5" />
+          <path d="M395 200 L399 200 L150 390 L130 390 Z" fill="#c9433b" opacity="0.8" />
+          <path d="M448 200 L452 200 L700 390 L680 390 Z" fill="#f2f2f2" opacity="0.75" />
+          <g transform="translate(352 262)">
+            <ellipse cx="70" cy="92" rx="88" ry="10" fill="#000" opacity="0.5" />
+            <path d="M8 40 Q14 10 40 6 L100 6 Q126 10 132 40 L136 84 L4 84 Z" fill="url(#kaporta)" />
+            <path d="M28 10 L112 10 L120 34 L20 34 Z" fill="url(#cam)" />
+            <rect x="10" y="48" width="26" height="8" rx="2" fill="#ff3b2f" />
+            <rect x="104" y="48" width="26" height="8" rx="2" fill="#ff3b2f" />
+            <rect x="0" y="74" width="22" height="22" rx="4" fill="#0d0f11" />
+            <rect x="118" y="74" width="22" height="22" rx="4" fill="#0d0f11" />
+          </g>
+        </symbol>
+        <symbol id="harita" viewBox="0 0 100 100">
+          <path
+            d="M20 70 C10 50 18 22 40 18 C58 15 62 34 76 30 C90 26 92 52 80 66 C68 80 34 86 20 70 Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="5"
+            stroke-linejoin="round"
+          />
+          <circle cx="76" cy="30" r="6" fill="#ff7a3c" />
+          <circle cx="40" cy="18" r="4.5" fill="#ffffff" />
+        </symbol>
+        <symbol id="sol" viewBox="0 0 24 24"><path d="M15 5 L8 12 L15 19" /></symbol>
+        <symbol id="sag" viewBox="0 0 24 24"><path d="M9 5 L16 12 L9 19" /></symbol>
+        <symbol id="fren" viewBox="0 0 24 24"><path d="M5 9 H19 M5 13 H19 M5 17 H19" /></symbol>
+        <symbol id="gaz" viewBox="0 0 24 24"><path d="M8 4 H16 M8 9 H16 M8 14 H16 M8 19 H16" /></symbol>
+      </defs>
+    </svg>
+
+    <main>
+      <header class="sayfa">
+        <h1>Last Turn: menü ve HUD için üç yön</h1>
+        <p>
+          Her yön aynı akışı (ana menü, yarış göstergeleri) aynı verilerle gösterir; ekranlar iPhone 13 yatay
+          oranında. HUD yerleşimi üçünde de HUD standardıyla aynı: sol üst yarış bilgisi, üst orta drift, sağ
+          üst harita, sağ altta hız ve başparmak tuşları, aracın önü boş. Değişen biçim, yazı ve malzeme. Arka
+          planlar yer tutucu çizimdir; yarı gerçekçi araç ve pist modelleri sonraki adımda gelir.
+        </p>
+      </header>
+
+      <!-- ===== A ===== -->
+      <section class="yon" id="pist-duvari">
+        <div class="yon-bas">
+          <span class="harf">A</span>
+          <h2>Pist duvarı</h2>
+          <p>
+            Yarış yayını ve pit duvarı dili: eğik kesilmiş koyu paneller, sıkışık italik başlıklar, tek
+            turuncu vurgu. Hız ve hareket hissi en güçlü olan yön; menü sol tarafta dikey liste, sağda
+            kaldığın yarışa dönüş.
+          </p>
+        </div>
+        <div class="ciftler">
+          <figure>
+            <div class="ekran a">
+              <svg class="sahne"><use href="#garaj" /></svg>
+              <div class="k marka golge">LAST <b>TURN</b></div>
+              <div class="k liste">
+                <div class="secili">Kariyer <small>41 / 120 yıldız</small></div>
+                <div>Mutant <small>Rekor 18:42</small></div>
+                <div>Garaj <small>Kızıl Ok</small></div>
+                <div>Profil <small></small></div>
+                <div>Ayarlar <small></small></div>
+              </div>
+              <div class="k profil">
+                <div class="lv sayi">12</div>
+                <div class="ad">Cem<small class="sayi">48.250 para · XP 3.120 / 4.000</small></div>
+              </div>
+              <div class="k devam">
+                <div class="et">Devam et</div>
+                <div class="bas">Kıyı Pisti</div>
+                <div class="alt">Asfalt 2 · 3 tur · hedef 3:39.5</div>
+              </div>
+            </div>
+            <figcaption>Ana menü</figcaption>
+          </figure>
+          <figure>
+            <div class="ekran a hud">
+              <svg class="sahne"><use href="#yaris" /></svg>
+              <div class="k sol-ust hp golge">
+                <div class="et">Tur 2 / 3</div>
+                <div class="buyuk sayi">1:42.37</div>
+                <div class="ikincil sayi">Hedef 3:39.5 · 2. yıldız 3:10.8</div>
+              </div>
+              <div class="k drift golge">
+                <div class="et">Drift ×3</div>
+                <div class="buyuk sayi">+1.840</div>
+              </div>
+              <div class="k harita hp" style="color: #e9edf0">
+                <svg><use href="#harita" /></svg>
+              </div>
+              <div class="k hiz hp golge">
+                <div class="et">Vites 4</div>
+                <div class="buyuk sayi">142</div>
+                <div class="ikincil">km/sa</div>
+              </div>
+              <div class="k tus t1">
+                <svg><use href="#sol" /></svg>
+              </div>
+              <div class="k tus t2">
+                <svg><use href="#sag" /></svg>
+              </div>
+              <div class="k tus t3">
+                <svg><use href="#fren" /></svg>
+              </div>
+              <div class="k tus t4 on">
+                <svg><use href="#gaz" /></svg>
+              </div>
+            </div>
+            <figcaption>Yarış HUD'u (gaz basılı)</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- ===== B ===== -->
+      <section class="yon" id="vitrin">
+        <div class="yon-bas">
+          <span class="harf">B</span>
+          <h2>Vitrin</h2>
+          <p>
+            Araç galerisi dili: aracın kendisi ekranın kahramanı, menü sağda buzlu cam bir sütun, geniş ve
+            sakin yazı. Yarı gerçekçi modeli en iyi gösteren yön; HUD yuvarlak cam paneller ve dairesel hız
+            kadranı.
+          </p>
+        </div>
+        <div class="ciftler">
+          <figure>
+            <div class="ekran b">
+              <svg class="sahne"><use href="#garaj" /></svg>
+              <div class="k marka golge">LAST TURN</div>
+              <div class="k arac-ad golge">
+                <div class="bas">KIZIL OK</div>
+                <div class="alt">
+                  <span>Güç <b class="sayi">310 bg</b></span
+                  ><span>Sınıf <b>B</b></span
+                  ><span>Parça <b class="sayi">4 / 9</b></span>
+                </div>
+              </div>
+              <div class="k panel">
+                <div class="ust">
+                  <span>Cem · Seviye <b class="sayi">12</b></span
+                  ><b class="sayi">48.250</b>
+                </div>
+                <div class="s secili">Kariyer</div>
+                <div class="s">Mutant <small>Rekor 18:42</small></div>
+                <div class="s">Garaj</div>
+                <div class="s">Profil</div>
+                <div class="s">Ayarlar</div>
+              </div>
+            </div>
+            <figcaption>Ana menü</figcaption>
+          </figure>
+          <figure>
+            <div class="ekran b hud">
+              <svg class="sahne"><use href="#yaris" /></svg>
+              <div class="k sol-ust hp golge">
+                <div class="et">Tur 2 / 3</div>
+                <div class="buyuk sayi">1:42.37</div>
+                <div class="ikincil sayi">Hedef <b>3:39.5</b></div>
+              </div>
+              <div class="k drift hp golge">
+                <div class="et">Drift ×3</div>
+                <div class="buyuk sayi">+1.840</div>
+              </div>
+              <div class="k harita hp" style="color: #e9edf0; border-radius: 50%">
+                <svg><use href="#harita" /></svg>
+              </div>
+              <div class="k hiz hp golge">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="44"
+                    fill="none"
+                    stroke="rgba(255,255,255,0.15)"
+                    stroke-width="5"
+                    stroke-dasharray="207 277"
+                    transform="rotate(135 50 50)"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="44"
+                    fill="none"
+                    stroke="#ff7a3c"
+                    stroke-width="5"
+                    stroke-linecap="round"
+                    stroke-dasharray="118 277"
+                    transform="rotate(135 50 50)"
+                  />
+                </svg>
+                <div>
+                  <div class="buyuk sayi">142</div>
+                  <div class="ikincil">km/sa · <b>4</b></div>
+                </div>
+              </div>
+              <div class="k tus t1">
+                <svg><use href="#sol" /></svg>
+              </div>
+              <div class="k tus t2">
+                <svg><use href="#sag" /></svg>
+              </div>
+              <div class="k tus t3">
+                <svg><use href="#fren" /></svg>
+              </div>
+              <div class="k tus t4 on">
+                <svg><use href="#gaz" /></svg>
+              </div>
+            </div>
+            <figcaption>Yarış HUD'u (gaz basılı)</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- ===== C ===== -->
+      <section class="yon" id="telemetri">
+        <div class="yon-bas">
+          <span class="harf">C</span>
+          <h2>Telemetri</h2>
+          <p>
+            Mühendis ekranı dili: ince ızgara, eşit aralıklı rakamlar, numaralı satırlar, veri kartları. En
+            çok bilgiyi düzenli gösteren yön; ilerleme ve sonraki yarış bir bakışta. HUD ince çizgili, köşeli.
+          </p>
+        </div>
+        <div class="ciftler">
+          <figure>
+            <div class="ekran c">
+              <svg class="sahne"><use href="#garaj" /></svg>
+              <div class="k izgara"></div>
+              <div class="k marka golge">LAST TURN<small>sürücü: Cem · araç: Kızıl Ok</small></div>
+              <div class="k liste">
+                <div class="secili"><span>01</span>Kariyer<small>41/120</small></div>
+                <div><span>02</span>Mutant<small>18:42</small></div>
+                <div><span>03</span>Garaj<small>4/9 parça</small></div>
+                <div><span>04</span>Profil<small></small></div>
+                <div><span>05</span>Ayarlar<small></small></div>
+              </div>
+              <div class="k kart">
+                <div>
+                  <div class="et">Seviye</div>
+                  <div class="d v sayi">12</div>
+                </div>
+                <div>
+                  <div class="et">Para</div>
+                  <div class="d sayi">48.250</div>
+                </div>
+                <div>
+                  <div class="et">Yıldız</div>
+                  <div class="d sayi">41</div>
+                </div>
+                <div class="bar"><i></i></div>
+              </div>
+              <div class="k sonraki">
+                <div>
+                  <div class="et">Sıradaki</div>
+                  <div class="bas">Kıyı Pisti</div>
+                  <div class="alt sayi">GP · LV2 · 3 TUR · 3:39.5</div>
+                </div>
+                <svg viewBox="0 0 100 100" style="color: #ffd27a; width: 100%"><use href="#harita" /></svg>
+              </div>
+            </div>
+            <figcaption>Ana menü</figcaption>
+          </figure>
+          <figure>
+            <div class="ekran c hud">
+              <svg class="sahne"><use href="#yaris" /></svg>
+              <div class="k sol-ust hp golge">
+                <div class="et">Tur 2/3 · Δ −0.84</div>
+                <div class="buyuk sayi">1:42.37</div>
+                <div class="ikincil sayi">Hedef <b>3:39.5</b></div>
+              </div>
+              <div class="k drift hp golge">
+                <div class="et">Drift ×3</div>
+                <div class="buyuk sayi">+1840</div>
+              </div>
+              <div class="k harita hp" style="color: #ffd27a">
+                <svg><use href="#harita" /></svg>
+              </div>
+              <div class="k hiz hp golge">
+                <div class="et">G4 · km/sa</div>
+                <div class="buyuk sayi">142</div>
+              </div>
+              <div class="k tus t1">
+                <svg><use href="#sol" /></svg>
+              </div>
+              <div class="k tus t2">
+                <svg><use href="#sag" /></svg>
+              </div>
+              <div class="k tus t3">
+                <svg><use href="#fren" /></svg>
+              </div>
+              <div class="k tus t4 on">
+                <svg><use href="#gaz" /></svg>
+              </div>
+            </div>
+            <figcaption>Yarış HUD'u (gaz basılı)</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="ortak">
+        <h2>Üç yönde de aynı kalanlar</h2>
+        <ul class="notlar">
+          <li>
+            <b>Akış ve veriler:</b> menü maddeleri, yarış bilgileri ve tuşlar bugünkü oyunla aynı; yalnız
+            görünüm değişir.
+          </li>
+          <li>
+            <b>HUD standardı:</b> bölgeler, yazı boyları (ana değer 22–40 px, etiket 11 px), tek turuncu vurgu
+            ve gölgeli yazı korunur. B'deki dairesel hız kadranı standarttaki "kadran yayı" seçeneğidir.
+          </li>
+          <li>
+            <b>Garaj, kariyer, profil, ayarlar ve duraklatma</b> seçilen yönün aynı panel, yazı ve vurgu
+            diliyle çizilir.
+          </li>
+          <li><b>Karıştırmak mümkün:</b> örneğin menüde B'nin araç vitrini, HUD'da A'nın panelleri gibi.</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

@@ -4,6 +4,13 @@ Otomatik testler kural, fizik ve akışı doğrular; ekrandaki görünümü, dok
 
 Hazırlık: Unity 6000.3.9f1 → `Last Turn/Ana Menüyü Aç` → Play. Kayıtlar: `%USERPROFILE%/AppData/LocalLow/<şirket>/<ürün>/` altında `LastTurnGarage` (kariyer), `LastTurnMutant` (Mutant rekoru), `LastTurnSettings` (tercihler). Denemeden önce bu klasörlerin yedeğini al.
 
+## 0. Windows F arayüzü (P7-1)
+1. Play → ana menü. **Beklenen:** üstte LAST TURN logosu, eğik sekmeler (YARIŞ turuncu), sağda seviye/XP/para; altta tür seçimi (Asfalt…Drag) ve o türün pist kartları. Arka plan şimdilik koyu düz (3B vitrin görsel fazında).
+2. Klavye: ↑/↓ tür, ←/→ pist, Enter seçili pist için kariyer ekranını açar; Q/E sekmeler (MUTANT koşuyu açar, GARAJ/MAĞAZA/PROFİL/AYARLAR bugünkü ekranlar). Fareyle üzerine gelinen tuş/kart turuncu kenar alır, tıklama çalışır.
+3. Yarışa gir. **Beklenen:** ekranda hiç dokunmatik tuş yok; sol üst pist adı, üst ortada süre ve "Tur · Hedef", sağ altta büyük hız ve turuncu vites, sağ üstte miniharita; ilk saniyelerde sol altta tuş ipucu. Aracın arkası ve önündeki yol boş.
+4. V kamera değiştirir, T piste döndürür, R yarışı baştan başlatır, Esc duraklatır; duraklatmada "Ayarlar" ayarlar ekranını açar.
+5. Pencereyi farklı boyutlara getir (1280×720, 1920×1080, geniş ekran). **Beklenen:** yazılar ölçeklenir, birbirine binmez.
+
 ## 1. Kariyer (P1)
 1. Ana menü → Profil: adı değiştir, kaydet. **Beklenen:** ad kalıcı.
    - **Bulut (internet açık):** "BULUT HESABI" satırı birkaç saniyede "Misafir (yalnız bu cihaz) · Bulutta" olur. Bir yarış bitir veya para harca; ~4 sn sonra yine "Bulutta".

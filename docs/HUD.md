@@ -122,3 +122,18 @@ uymuyorsa "Özel" görünür.
 - `npm run test:goruntu` → `tests/cikti/hud_*.png`: her hazır düzenin drift yarışındaki görüntüsü ve düzenleyici. HUD değişikliğinden
   sonra bunlara bakılır.
 - Kokpit kamerasında hız paneli gizlenir (kokpitin kendi göstergeleri var).
+
+## 8. Windows / masaüstü (Unity, F yönü — 2026-11-05)
+
+Cem kararı: şimdilik yalnız Windows; dokunmatik ekran yoksa ekranda sürüş tuşu yok. Tasarım:
+`docs/tasarim/menu-hud-pc.html` (F) ve `docs/tasarim/ekranlar-f.html`. Yerleşim `HudLayout` masaüstü kipi
+(`HudLayoutInput.Touch=false`, `Touchscreen.current == null`); denetim `--hud` (210 masaüstü yerleşimi).
+
+- **Panelsiz:** yazılar yalnız gölgeli. Sol üst pist adı ve ikincil satırlar (rekor, yarış mesajı, hava, rakip);
+  üst orta süre (drift: puan) ve "Tur · Hedef" satırı; sağ üst miniharita; sağ alt hız + turuncu vites.
+- **Alt orta (yatay %42–58, alt %35) her zaman boş.** Drag devir çubuğu hızın üstünde, Mutant NİTRO/skill yuvaları
+  sol altta gösterge, tuş ipucu satırı sol altta ve yarışta yalnız ilk saniyelerde.
+- **Tuşlar klavyede:** W/S/A/D (oklar), Boşluk/C el freni, T piste dön, R yeniden başlat, V kamera, Esc duraklat
+  (Ayarlar duraklatmadan), E/Q drag vites, N nitro, 1/2/3 skill. Dokunmatik ekran varsa §1–§5 aynen geçerlidir.
+- Görünüm UI Toolkit (`Scripts/Ui`, `Resources/UI/lt.uss`), 1920×1080 başvuruyla ölçeklenir; fontlar Barlow /
+  Barlow Condensed (SIL OFL). Miniharita ve Mutant yuvaları şimdilik geçici IMGUI çizimidir.

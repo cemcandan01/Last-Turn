@@ -1,0 +1,546 @@
+/* Last Turn F arayüzü (docs/tasarim/ekranlar-f.html). Ölçüler 1920×1080 başvuru çözünürlüğünde piksel.
+   Tek vurgu turuncu #ff7a3c, uyarı sarı #ffd27a; paneller koyu cam; eğik tuşların zemini Skew öğesince çizilir. */
+
+.lt-kok {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    -unity-font-definition: url("Fonts/Barlow-Medium.ttf");
+    color: rgb(238, 242, 244);
+    font-size: 18px;
+}
+
+.katman {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.gizli {
+    display: none;
+}
+
+/* yazı aileleri */
+.dar {
+    -unity-font-definition: url("Fonts/BarlowCondensed-Bold.ttf");
+}
+
+.dar-yari {
+    -unity-font-definition: url("Fonts/BarlowCondensed-SemiBold.ttf");
+}
+
+.dar-italik {
+    -unity-font-definition: url("Fonts/BarlowCondensed-ExtraBoldItalic.ttf");
+}
+
+.dar-italik-ince {
+    -unity-font-definition: url("Fonts/BarlowCondensed-BoldItalic.ttf");
+}
+
+.govde {
+    -unity-font-definition: url("Fonts/Barlow-Regular.ttf");
+}
+
+.govde-orta {
+    -unity-font-definition: url("Fonts/Barlow-Medium.ttf");
+}
+
+.govde-kalin {
+    -unity-font-definition: url("Fonts/Barlow-SemiBold.ttf");
+}
+
+.golge {
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+.golge-guclu {
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+}
+
+.soluk {
+    color: rgb(152, 164, 174);
+}
+
+.vurgu {
+    color: rgb(255, 122, 60);
+}
+
+.uyari {
+    color: rgb(255, 210, 122);
+}
+
+/* klavye tuşu */
+.t {
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    border-width: 1px;
+    border-bottom-width: 3px;
+    border-color: rgba(255, 255, 255, 0.4);
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.07);
+    -unity-font-definition: url("Fonts/Barlow-SemiBold.ttf");
+    font-size: 15px;
+    -unity-text-align: middle-center;
+    color: rgb(255, 255, 255);
+    text-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    margin: 0;
+}
+
+.ipuclari {
+    position: absolute;
+    right: 58px;
+    bottom: 28px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.ipucu {
+    flex-direction: row;
+    align-items: center;
+    margin-left: 28px;
+}
+
+.ipucu > .t {
+    margin-right: 6px;
+}
+
+.ipucu > Label.yazi {
+    -unity-font-definition: url("Fonts/Barlow-Medium.ttf");
+    font-size: 17px;
+    color: rgb(219, 226, 231);
+    margin-left: 2px;
+}
+
+/* eğik tuş (Skew zemini + yazı + isteğe bağlı tuş) */
+.ltb {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 62px;
+    padding: 0 34px;
+    flex-shrink: 0;
+}
+
+.ltb > .skew {
+    --fill: rgba(11, 20, 24, 0.86);
+    --edge: rgba(255, 255, 255, 0.13);
+}
+
+.ltb:hover > .skew {
+    --fill: rgba(30, 38, 44, 0.94);
+    --edge: rgb(255, 122, 60);
+}
+
+.ltb > Label.yazi {
+    -unity-font-definition: url("Fonts/BarlowCondensed-ExtraBoldItalic.ttf");
+    font-size: 24px;
+    letter-spacing: 1px;
+    color: rgb(255, 255, 255);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+    margin: 0 12px 0 0;
+}
+
+.ltb > .t {
+    margin-left: 2px;
+}
+
+.ltb.ana > .skew {
+    --fill: rgb(255, 122, 60);
+    --edge: rgba(255, 176, 112, 0.9);
+}
+
+.ltb.ana:hover > .skew {
+    --fill: rgb(255, 146, 92);
+    --edge: rgb(255, 214, 190);
+}
+
+.ltb.ana > Label.yazi {
+    color: rgb(26, 13, 5);
+    text-shadow: 0 0 0 rgba(0, 0, 0, 0);
+}
+
+.ltb.ana > .t {
+    color: rgb(26, 13, 5);
+    border-color: rgba(26, 13, 5, 0.5);
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.ltb.kucuk {
+    height: 48px;
+    padding: 0 22px;
+}
+
+.ltb.kucuk > Label.yazi {
+    font-size: 19px;
+}
+
+.ltb.kapali {
+    opacity: 0.45;
+}
+
+/* üst şerit */
+.ustbar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 123px;
+    flex-direction: row;
+    align-items: center;
+    padding: 0 58px;
+}
+
+.logo {
+    flex-direction: row;
+    align-items: center;
+    margin-right: 62px;
+}
+
+.logo > Label {
+    -unity-font-definition: url("Fonts/BarlowCondensed-ExtraBoldItalic.ttf");
+    font-size: 40px;
+    letter-spacing: 1px;
+    margin: 0;
+    padding: 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+.logo > Label.turn {
+    color: rgb(255, 122, 60);
+    margin-left: 10px;
+}
+
+.sekmeler {
+    flex-direction: row;
+    align-items: center;
+}
+
+.sekme {
+    height: 46px;
+    padding: 0 25px;
+    margin: 0 6px;
+    justify-content: center;
+}
+
+.sekme > Label.yazi {
+    -unity-font-definition: url("Fonts/BarlowCondensed-ExtraBoldItalic.ttf");
+    font-size: 24px;
+    letter-spacing: 1px;
+    color: rgb(201, 210, 216);
+    margin: 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+.sekme > .skew {
+    --fill: rgba(0, 0, 0, 0);
+    --edge: rgba(0, 0, 0, 0);
+}
+
+.sekme:hover > .skew {
+    --fill: rgba(255, 255, 255, 0.06);
+    --edge: rgba(255, 122, 60, 0.7);
+}
+
+.sekme:hover > Label.yazi {
+    color: rgb(255, 255, 255);
+}
+
+.sekme.sec > .skew {
+    --fill: rgb(255, 122, 60);
+    --edge: rgba(255, 176, 112, 0.9);
+}
+
+.sekme.sec > Label.yazi {
+    color: rgb(26, 13, 5);
+    text-shadow: 0 0 0 rgba(0, 0, 0, 0);
+}
+
+.mini {
+    flex-direction: row;
+    align-items: center;
+    margin-left: auto;
+}
+
+.mini > Label {
+    -unity-font-definition: url("Fonts/Barlow-SemiBold.ttf");
+    font-size: 19px;
+    margin: 0 0 0 14px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+.sv {
+    width: 42px;
+    height: 42px;
+    border-radius: 21px;
+    background-color: rgb(255, 122, 60);
+    align-items: center;
+    justify-content: center;
+}
+
+.sv > Label {
+    -unity-font-definition: url("Fonts/BarlowCondensed-ExtraBoldItalic.ttf");
+    font-size: 22px;
+    color: rgb(26, 13, 5);
+    margin: 0;
+    padding: 0;
+}
+
+.ayrac {
+    width: 1px;
+    height: 30px;
+    background-color: rgba(255, 255, 255, 0.25);
+    margin-left: 14px;
+}
+
+/* bölüm başlığı: turuncu eğik çizgi + harf aralıklı küçük yazı */
+.bb {
+    flex-direction: row;
+    align-items: center;
+}
+
+.bb > .cizgi {
+    width: 17px;
+    height: 5px;
+    background-color: rgb(255, 122, 60);
+    margin-right: 11px;
+    rotate: -20deg;
+}
+
+.bb > Label {
+    -unity-font-definition: url("Fonts/BarlowCondensed-Bold.ttf");
+    font-size: 17px;
+    letter-spacing: 3px;
+    color: rgb(255, 122, 60);
+    margin: 0;
+    padding: 0;
+}
+
+.baslik {
+    -unity-font-definition: url("Fonts/BarlowCondensed-ExtraBoldItalic.ttf");
+    font-size: 58px;
+    margin: 0;
+    padding: 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+/* cam panel */
+.cam {
+    background-color: rgba(11, 20, 24, 0.8);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.13);
+    border-radius: 12px;
+}
+
+/* parçalı seçim (tür) */
+.parcali {
+    flex-direction: row;
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.13);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.parca {
+    padding: 0 26px;
+    height: 44px;
+    justify-content: center;
+    background-color: rgba(11, 20, 24, 0.72);
+    border-color: rgba(255, 255, 255, 0.13);
+}
+
+.parca.ayir {
+    border-left-width: 1px;
+}
+
+.parca > Label {
+    -unity-font-definition: url("Fonts/BarlowCondensed-Bold.ttf");
+    font-size: 19px;
+    letter-spacing: 1px;
+    color: rgb(201, 210, 216);
+    margin: 0;
+}
+
+.parca:hover {
+    background-color: rgba(40, 48, 54, 0.9);
+}
+
+.parca.sec {
+    background-color: rgb(255, 122, 60);
+}
+
+.parca.sec > Label {
+    color: rgb(26, 13, 5);
+}
+
+/* kart */
+.kart {
+    background-color: rgba(11, 20, 24, 0.8);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.13);
+    border-radius: 12px;
+    padding: 17px 20px;
+    justify-content: space-between;
+    transition-property: translate, border-color;
+    transition-duration: 0.12s;
+}
+
+.kart:hover {
+    border-color: rgba(255, 122, 60, 0.6);
+}
+
+.kart.sec {
+    border-width: 3px;
+    border-color: rgb(255, 122, 60);
+    background-color: rgba(30, 22, 16, 0.88);
+    translate: 0 -12px;
+}
+
+.kart.kilit {
+    opacity: 0.5;
+}
+
+.kart > Label.ust {
+    -unity-font-definition: url("Fonts/BarlowCondensed-Bold.ttf");
+    font-size: 15px;
+    letter-spacing: 2px;
+    color: rgb(152, 164, 174);
+    margin: 0;
+}
+
+.kart.sec > Label.ust {
+    color: rgb(255, 122, 60);
+}
+
+.kart > Label.ad {
+    -unity-font-definition: url("Fonts/BarlowCondensed-ExtraBoldItalic.ttf");
+    font-size: 30px;
+    margin: 0;
+    white-space: normal;
+}
+
+.kart > .alt {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.kart > .alt > Label {
+    -unity-font-definition: url("Fonts/Barlow-Medium.ttf");
+    font-size: 16px;
+    color: rgb(201, 210, 216);
+    margin: 0;
+}
+
+.yildizlar {
+    flex-direction: row;
+}
+
+.yildiz {
+    width: 19px;
+    height: 19px;
+    margin-left: 5px;
+}
+
+/* durum satırı */
+.durum {
+    -unity-font-definition: url("Fonts/Barlow-Medium.ttf");
+    font-size: 17px;
+    color: rgb(207, 215, 220);
+    white-space: normal;
+}
+
+/* yarış HUD'u (panelsiz) */
+.hud-baslik {
+    -unity-font-definition: url("Fonts/BarlowCondensed-Bold.ttf");
+    font-size: 19px;
+    letter-spacing: 3px;
+    margin: 0;
+    padding: 0;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+.hud-bilgi {
+    -unity-font-definition: url("Fonts/Barlow-SemiBold.ttf");
+    font-size: 16px;
+    margin: 2px 0 0 0;
+    padding: 0;
+    color: rgb(238, 242, 244);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
+    white-space: normal;
+}
+
+.hud-sure {
+    -unity-font-definition: url("Fonts/BarlowCondensed-Bold.ttf");
+    font-size: 66px;
+    -unity-text-align: upper-center;
+    margin: 0;
+    padding: 0;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.75);
+}
+
+.hud-alt {
+    -unity-font-definition: url("Fonts/Barlow-SemiBold.ttf");
+    font-size: 18px;
+    -unity-text-align: upper-center;
+    margin: 0;
+    padding: 0;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
+}
+
+.hud-hiz {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: flex-end;
+}
+
+.hud-hiz-deger {
+    -unity-font-definition: url("Fonts/BarlowCondensed-Bold.ttf");
+    font-size: 96px;
+    margin: 0;
+    padding: 0;
+    -unity-text-align: lower-right;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.75);
+}
+
+.hud-vites {
+    -unity-font-definition: url("Fonts/BarlowCondensed-Bold.ttf");
+    font-size: 42px;
+    color: rgb(255, 122, 60);
+    margin: 0 0 12px 8px;
+    padding: 0;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.hud-birim {
+    -unity-font-definition: url("Fonts/Barlow-SemiBold.ttf");
+    font-size: 16px;
+    letter-spacing: 2px;
+    -unity-text-align: upper-right;
+    margin: 0;
+    padding: 0;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
+}
+
+.hud-orta {
+    position: absolute;
+    left: 0;
+    right: 0;
+    -unity-text-align: middle-center;
+    -unity-font-definition: url("Fonts/BarlowCondensed-Bold.ttf");
+    margin: 0;
+    padding: 0;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.85);
+}
+
+.hud-ipucu {
+    -unity-font-definition: url("Fonts/Barlow-Medium.ttf");
+    font-size: 16px;
+    color: rgb(219, 226, 231);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
+    margin: 0;
+}

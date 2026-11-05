@@ -1,0 +1,1906 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Last Turn F yönü: bütün ekranlar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,700;1,800&family=Barlow:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* F (Sade) yönünün bütün ekranlara uyarlanması. Kimlik F'den: üstte eğik sekmeler, altta kartlar, tuş
+         ipuçları, tek turuncu vurgu. Ekranlar F'nin ana menüsünden daha dolu: cam paneller, çubuklar, bölüm
+         başlıkları. Arka planlar web sürümünün arayüzsüz sahnesidir (yalnız ölçek). */
+      :root {
+        color-scheme: dark;
+        --zemin: #0b0e11;
+        --yuzey: #141a1f;
+        --cizgi: #29323a;
+        --soluk: #98a4ae;
+        --acc: #ff7a3c;
+        --uyari: #ffd27a;
+        --panK: rgba(255, 255, 255, 0.13);
+        --dar: "Barlow Condensed", "Arial Narrow", sans-serif;
+        --govde: "Barlow", "Segoe UI", sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--zemin);
+        color: #eef2f4;
+        font-family: var(--govde);
+      }
+      main {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 32px 22px 80px;
+        display: grid;
+        gap: 48px;
+      }
+      h1,
+      h2 {
+        font-family: var(--dar);
+        font-style: italic;
+        font-weight: 800;
+        margin: 0;
+        text-wrap: balance;
+      }
+      h1 {
+        font-size: 38px;
+      }
+      h1 b,
+      h2 .no {
+        color: var(--acc);
+      }
+      h2 {
+        font-size: 28px;
+      }
+      h2 .no {
+        margin-right: 10px;
+      }
+      p,
+      li {
+        line-height: 1.55;
+        color: #c9d1d7;
+        max-width: 80ch;
+      }
+      p {
+        margin: 0;
+      }
+      ul {
+        margin: 0;
+        padding-left: 1.2em;
+      }
+      .ust {
+        display: grid;
+        gap: 10px;
+      }
+      section.ekr {
+        display: grid;
+        gap: 12px;
+      }
+      section.ekr > p {
+        font-size: 15px;
+      }
+      .kutu {
+        background: var(--yuzey);
+        border: 1px solid var(--cizgi);
+        border-radius: 14px;
+        padding: 20px 22px;
+        display: grid;
+        gap: 10px;
+      }
+
+      /* ===================== çerçeve ===================== */
+      .ekran {
+        position: relative;
+        aspect-ratio: 16 / 9;
+        container-type: inline-size;
+        overflow: hidden;
+        border-radius: 12px;
+        border: 1px solid var(--cizgi);
+        background: #000 center / cover no-repeat;
+        font-family: var(--dar);
+        color: #fff;
+        text-shadow: 0 0.1cqw 0.4cqw rgba(0, 0, 0, 0.5);
+      }
+      .ekran * {
+        font-variant-numeric: tabular-nums;
+      }
+      .arka-menu {
+        background-image: url("pc/arka-menu.jpg");
+      }
+      .arka-garaj {
+        background-image: url("pc/arka-garaj.jpg");
+      }
+      .arka-yaris {
+        background-image: url("pc/arka-yaris.jpg");
+      }
+      .karart {
+        position: absolute;
+        inset: 0;
+      }
+      .k-ust-alt {
+        background:
+          linear-gradient(180deg, rgba(0, 0, 0, 0.72), transparent 20%),
+          linear-gradient(0deg, rgba(0, 0, 0, 0.8), transparent 42%);
+      }
+      .k-yan {
+        background:
+          linear-gradient(180deg, rgba(0, 0, 0, 0.72), transparent 20%),
+          linear-gradient(90deg, rgba(0, 0, 0, 0.75), transparent 34%),
+          linear-gradient(270deg, rgba(0, 0, 0, 0.75), transparent 34%),
+          linear-gradient(0deg, rgba(0, 0, 0, 0.7), transparent 30%);
+      }
+      .k-koyu {
+        background: rgba(5, 8, 11, 0.78);
+      }
+      .k-bulanik {
+        backdrop-filter: blur(0.6cqw) brightness(0.45);
+      }
+
+      /* ===================== ortak parçalar ===================== */
+      .cam {
+        background: rgba(11, 20, 24, 0.78);
+        border: 1px solid var(--panK);
+        border-radius: 0.6cqw;
+        backdrop-filter: blur(0.5cqw);
+      }
+      .t {
+        display: inline-grid;
+        place-items: center;
+        min-width: 1.45cqw;
+        height: 1.45cqw;
+        padding: 0 0.4cqw;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-bottom-width: 0.18cqw;
+        border-radius: 0.3cqw;
+        background: rgba(255, 255, 255, 0.07);
+        font: 600 0.8cqw/1 var(--govde);
+        color: #fff;
+        text-shadow: none;
+        font-style: normal;
+        letter-spacing: 0;
+        vertical-align: middle;
+      }
+      .ipuclari {
+        position: absolute;
+        right: 3cqw;
+        bottom: 1.5cqw;
+        display: flex;
+        gap: 1.5cqw;
+        font: 500 0.88cqw var(--govde);
+        color: #dbe2e7;
+      }
+      .ipuclari span {
+        display: inline-flex;
+        gap: 0.4cqw;
+        align-items: center;
+      }
+      /* üst şerit: logo + eğik sekmeler + seviye/para */
+      .ustbar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 6.4cqw;
+        display: flex;
+        align-items: center;
+        gap: 2cqw;
+        padding: 0 3cqw;
+      }
+      .logo {
+        font: italic 800 2cqw/1 var(--dar);
+        letter-spacing: 0.02em;
+      }
+      .logo b {
+        color: var(--acc);
+      }
+      .sekmeler {
+        display: flex;
+        align-items: center;
+        gap: 0.7cqw;
+        margin-left: 1.2cqw;
+      }
+      .sekme {
+        position: relative;
+        isolation: isolate;
+        padding: 0.55cqw 1.3cqw;
+        font: italic 800 1.25cqw var(--dar);
+        letter-spacing: 0.06em;
+        color: #c9d2d8;
+      }
+      .sekme.sec {
+        color: #1a0d05;
+        text-shadow: none;
+      }
+      .sekme.sec::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        transform: skewX(-14deg);
+        background: var(--acc);
+        border-radius: 0.35cqw;
+      }
+      .mini {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 0.8cqw;
+        font: 600 1cqw var(--govde);
+      }
+      .mini .sv {
+        width: 2.2cqw;
+        height: 2.2cqw;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, #ffb070, var(--acc));
+        color: #1a0d05;
+        text-shadow: none;
+        font: italic 800 1.1cqw var(--dar);
+      }
+      .mini .ayr {
+        width: 1px;
+        height: 1.6cqw;
+        background: rgba(255, 255, 255, 0.25);
+      }
+      /* iz (alt ekran yolu) */
+      .iz {
+        position: absolute;
+        left: 3cqw;
+        top: 6.6cqw;
+        font: 700 0.85cqw var(--dar);
+        letter-spacing: 0.14em;
+        color: var(--soluk);
+      }
+      .iz b {
+        color: #fff;
+      }
+      /* bölüm başlığı: turuncu eğik çizgi + küçük harf aralıklı */
+      .bb {
+        display: flex;
+        align-items: center;
+        gap: 0.6cqw;
+        font: 700 0.85cqw var(--dar);
+        letter-spacing: 0.14em;
+        color: var(--acc);
+        text-transform: uppercase;
+      }
+      .bb::before {
+        content: "";
+        width: 0.9cqw;
+        height: 0.25cqw;
+        background: var(--acc);
+        transform: skewX(-30deg);
+      }
+      .bb span {
+        margin-left: auto;
+        color: var(--soluk);
+        letter-spacing: 0.06em;
+        font-weight: 600;
+      }
+      .baslik {
+        font: italic 800 3cqw/1 var(--dar);
+      }
+      .alt-yazi {
+        font: 500 1cqw var(--govde);
+        color: #cfd7dc;
+      }
+      /* eğik tuşlar */
+      .eg {
+        position: relative;
+        isolation: isolate;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.7cqw;
+        height: 3.2cqw;
+        padding: 0 1.8cqw;
+        font: italic 800 1.25cqw var(--dar);
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+      }
+      .eg::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        transform: skewX(-14deg);
+        border-radius: 0.4cqw;
+        background: rgba(11, 20, 24, 0.85);
+        border: 1px solid var(--panK);
+      }
+      .eg.ana {
+        color: #1a0d05;
+        text-shadow: none;
+      }
+      .eg.ana::before {
+        background: linear-gradient(135deg, #ff9a5c, var(--acc) 60%, #ec5f22);
+        border: 0;
+        box-shadow: 0 0 1.6cqw rgba(255, 122, 60, 0.3);
+      }
+      .eg.ana .t {
+        color: #1a0d05;
+        border-color: rgba(26, 13, 5, 0.5);
+        background: rgba(255, 255, 255, 0.2);
+      }
+      .eg.kucuk {
+        height: 2.5cqw;
+        padding: 0 1.2cqw;
+        font-size: 1cqw;
+      }
+      /* sınıf rozeti (oyundaki SINIFLAR renkleri) */
+      .rozet {
+        display: inline-flex;
+        align-items: stretch;
+        border-radius: 0.3cqw;
+        overflow: hidden;
+        font: 800 1.15cqw/1 var(--dar);
+        text-shadow: none;
+        vertical-align: middle;
+      }
+      .rozet i {
+        font-style: normal;
+        padding: 0.25cqw 0.5cqw;
+        background: var(--r, #e9c46a);
+        color: #0b1418;
+      }
+      .rozet span {
+        padding: 0.25cqw 0.55cqw;
+        background: rgba(255, 255, 255, 0.92);
+        color: #0b1418;
+      }
+      .rozet.buyuk {
+        font-size: 1.9cqw;
+      }
+      .rozet.buyuk i,
+      .rozet.buyuk span {
+        padding: 0.3cqw 0.7cqw;
+      }
+      .D {
+        --r: #3fa7d6;
+      }
+      .C {
+        --r: #e9c46a;
+      }
+      .B {
+        --r: #f4a261;
+      }
+      .A {
+        --r: #e76f51;
+      }
+      .S {
+        --r: #b5179e;
+      }
+      /* özellik çubukları */
+      .cubuklar {
+        display: grid;
+        gap: 0.55cqw;
+      }
+      .cb {
+        display: grid;
+        grid-template-columns: 5.2cqw 1fr 4.6cqw;
+        align-items: center;
+        gap: 0.8cqw;
+        font: 700 0.95cqw var(--dar);
+        letter-spacing: 0.08em;
+      }
+      .cb .y {
+        height: 0.65cqw;
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 0.2cqw;
+        position: relative;
+        overflow: hidden;
+      }
+      .cb .y::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: var(--d);
+        background: linear-gradient(90deg, #ffb070, var(--acc));
+      }
+      .cb .y::after {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 var(--d);
+        width: var(--a, 0%);
+        background: repeating-linear-gradient(
+          -45deg,
+          rgba(255, 255, 255, 0.9) 0 0.2cqw,
+          rgba(255, 255, 255, 0.45) 0.2cqw 0.4cqw
+        );
+      }
+      .cb b {
+        text-align: right;
+        font: 700 1.05cqw var(--dar);
+        letter-spacing: 0;
+      }
+      .cb b small {
+        font: 500 0.7cqw var(--govde);
+        color: var(--soluk);
+        margin-left: 0.15cqw;
+      }
+      .cb b em {
+        font-style: normal;
+        color: #fff;
+        background: rgba(255, 255, 255, 0.16);
+        border-radius: 0.2cqw;
+        padding: 0 0.25cqw;
+        margin-left: 0.25cqw;
+        font-size: 0.85cqw;
+      }
+      .yildiz {
+        display: inline-flex;
+        gap: 0.25cqw;
+      }
+      .yildiz i {
+        width: var(--b, 1cqw);
+        height: var(--b, 1cqw);
+        background: var(--acc);
+        clip-path: polygon(
+          50% 0,
+          61% 35%,
+          98% 35%,
+          68% 57%,
+          79% 91%,
+          50% 70%,
+          21% 91%,
+          32% 57%,
+          2% 35%,
+          39% 35%
+        );
+      }
+      .yildiz i.bos {
+        background: rgba(255, 255, 255, 0.22);
+      }
+      /* kart */
+      .kart {
+        border-radius: 0.6cqw;
+        background: rgba(11, 20, 24, 0.8);
+        border: 1px solid var(--panK);
+        padding: 0.9cqw 1cqw;
+        display: grid;
+        gap: 0.4cqw;
+        align-content: space-between;
+        position: relative;
+      }
+      .kart.sec {
+        border: 0.15cqw solid var(--acc);
+        background: rgba(30, 22, 16, 0.86);
+        box-shadow: 0 0 1.6cqw rgba(255, 122, 60, 0.22);
+      }
+      .kart.kilit {
+        opacity: 0.5;
+      }
+      .kart small {
+        font: 700 0.72cqw var(--dar);
+        letter-spacing: 0.12em;
+        color: var(--soluk);
+      }
+      .kart.sec small {
+        color: var(--acc);
+      }
+      .kart .ad {
+        font: italic 800 1.35cqw/1.05 var(--dar);
+      }
+      .kart .sat {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font: 500 0.82cqw var(--govde);
+        color: #c9d2d8;
+      }
+      .kart .sat b {
+        color: #fff;
+        font: 700 0.95cqw var(--dar);
+      }
+      .takili {
+        font: 600 0.7cqw var(--govde);
+        color: #1a0d05;
+        background: var(--acc);
+        padding: 0.05cqw 0.4cqw;
+        border-radius: 0.2cqw;
+        text-shadow: none;
+        letter-spacing: 0;
+      }
+      /* araç silüeti (kart görseli yerine) */
+      .silu {
+        height: 3.4cqw;
+        background: center / contain no-repeat
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Cpath d='M6 30 L10 21 Q14 18 26 17 L40 9 Q46 7 60 7 L76 8 Q84 9 92 16 L108 19 Q114 21 114 27 L114 30 Z' fill='rgba(255,255,255,.22)'/%3E%3Ccircle cx='30' cy='31' r='6' fill='rgba(255,255,255,.35)'/%3E%3Ccircle cx='92' cy='31' r='6' fill='rgba(255,255,255,.35)'/%3E%3C/svg%3E");
+      }
+      .kart.sec .silu {
+        filter: drop-shadow(0 0 0.4cqw rgba(255, 122, 60, 0.5));
+      }
+      /* alanlar */
+      .alan {
+        display: grid;
+        gap: 0.3cqw;
+        font: 600 0.8cqw var(--govde);
+        color: var(--soluk);
+      }
+      .alan div {
+        height: 2.5cqw;
+        border-radius: 0.4cqw;
+        border: 1px solid var(--panK);
+        background: rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        padding: 0 0.8cqw;
+        font: 500 0.95cqw var(--govde);
+        color: #fff;
+      }
+      .alan.odak div {
+        border-color: var(--acc);
+        box-shadow: 0 0 0 0.15cqw rgba(255, 122, 60, 0.25);
+      }
+      /* parçalı seçim */
+      .parcali {
+        display: flex;
+        border-radius: 0.4cqw;
+        overflow: hidden;
+        border: 1px solid var(--panK);
+      }
+      .parcali span {
+        flex: 1;
+        text-align: center;
+        padding: 0.5cqw 0;
+        font: 700 0.95cqw var(--dar);
+        letter-spacing: 0.06em;
+        color: #c9d2d8;
+        background: rgba(11, 20, 24, 0.7);
+      }
+      .parcali span + span {
+        border-left: 1px solid var(--panK);
+      }
+      .parcali span.sec {
+        background: var(--acc);
+        color: #1a0d05;
+        text-shadow: none;
+      }
+      /* Mutant: ayrı oyun tonu (aynı bileşenler, kırmızıya çalan karanlık sahne) */
+      .mut-ton {
+        background:
+          linear-gradient(180deg, rgba(0, 0, 0, 0.75), transparent 22%),
+          linear-gradient(0deg, rgba(0, 0, 0, 0.85), transparent 45%), rgba(60, 8, 4, 0.5);
+      }
+      .mut-ad {
+        position: relative;
+        isolation: isolate;
+        padding: 0.4cqw 1.4cqw;
+        font: italic 800 1.5cqw var(--dar);
+        letter-spacing: 0.18em;
+        color: #1a0d05;
+        text-shadow: none;
+      }
+      .mut-ad::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        transform: skewX(-14deg);
+        background: repeating-linear-gradient(-45deg, var(--acc) 0 0.8cqw, #e2632a 0.8cqw 1.6cqw);
+        border-radius: 0.3cqw;
+      }
+      .adimlar {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 0.8cqw;
+        font: 700 1cqw var(--dar);
+        letter-spacing: 0.12em;
+        color: var(--soluk);
+      }
+      .adimlar i {
+        width: 3cqw;
+        height: 0.2cqw;
+        background: rgba(255, 255, 255, 0.25);
+      }
+      .adimlar .sec {
+        color: #fff;
+        border-bottom: 0.2cqw solid var(--acc);
+        padding-bottom: 0.2cqw;
+      }
+      .adimlar .tamam {
+        color: var(--acc);
+      }
+      h3.alt-bas {
+        margin: 6px 0 -2px;
+        font: 700 16px var(--dar);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--soluk);
+      }
+      .isaret {
+        position: absolute;
+        font: 600 0.75cqw var(--govde);
+        color: #0b1418;
+        background: #9fe0ff;
+        padding: 0.12cqw 0.45cqw;
+        border-radius: 0.3cqw;
+        text-shadow: none;
+        font-style: normal;
+        letter-spacing: 0;
+        white-space: nowrap;
+        z-index: 5;
+      }
+      .isaret::before {
+        content: "taslak notu · ";
+        opacity: 0.6;
+      }
+      .ab {
+        position: absolute;
+      }
+      .ikon {
+        width: 1.25cqw;
+        height: 1.25cqw;
+        stroke: currentColor;
+        stroke-width: 2.2;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex: none;
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <defs>
+        <symbol id="pist" viewBox="0 0 100 100">
+          <path
+            d="M22 78 L22 40 Q22 22 40 22 L62 22 Q80 22 80 40 L80 52 Q80 62 70 62 L52 62 Q44 62 44 70 L44 78 Q44 86 36 86 L30 86 Q22 86 22 78Z"
+            fill="none"
+            stroke="rgba(255,255,255,.8)"
+            stroke-width="3"
+          />
+          <path d="M18 60 L26 60" stroke="#ff7a3c" stroke-width="3" />
+        </symbol>
+        <symbol id="i-motor" viewBox="0 0 24 24"><path d="M4 10h3l2-3h6v3h3l2 2v5h-2v2H7l-3-3z" /></symbol>
+        <symbol id="i-kilit" viewBox="0 0 24 24">
+          <rect x="5" y="11" width="14" height="10" rx="2" />
+          <path d="M8 11V8a4 4 0 018 0v3" />
+        </symbol>
+        <symbol id="i-bulut" viewBox="0 0 24 24">
+          <path d="M7 18h10a4 4 0 000-8 6 6 0 00-11.5 1.5A3.3 3.3 0 007 18z" />
+        </symbol>
+      </defs>
+    </svg>
+    <main>
+      <header class="ust">
+        <h1>F yönü · <b>bütün ekranlar</b></h1>
+        <p>
+          Seçtiğin F (Sade) yönü diğer ekranlara taşındı. Üstte eğik sekmeler (Q/E) ve seviye/para, altta tuş
+          ipuçları ve kartlar F'deki gibi. Bu ekranlar F'nin ana menüsünden daha dolu: cam paneller, özellik
+          çubukları, bölüm başlıkları ve önizlemeler var. Yarış HUD'u F'deki gibi panelsiz kalır. Oyun akışı
+          ve ekranlardaki bilgiler bugünkü oyunla aynı; sayılar örnektir.
+        </p>
+      </header>
+
+      <!-- 1 GARAJ -->
+      <section class="ekr">
+        <h2><span class="no">1</span>Garaj</h2>
+        <p>
+          Araç ortada, ışık altında. Solda ad, sınıf ve kısa durum, sağda altı özellik çubuğu. Altta sahip
+          olunan araçlar kart sırası olarak durur. Modifiye ve Sür tuşları kartların üstünde.
+        </p>
+        <div class="ekran arka-garaj">
+          <div class="karart k-yan"></div>
+          <div class="ustbar">
+            <div class="logo">LAST <b>TURN</b></div>
+            <div class="sekmeler">
+              <i class="t">Q</i><span class="sekme">YARIŞ</span><span class="sekme">MUTANT</span
+              ><span class="sekme sec">GARAJ</span><span class="sekme">MAĞAZA</span
+              ><span class="sekme">PROFİL</span><span class="sekme">AYARLAR</span><i class="t">E</i>
+            </div>
+            <div class="mini">
+              <div class="sv">7</div>
+              <span>310 / 500 XP</span><span class="ayr"></span><span>12.450 para</span>
+            </div>
+          </div>
+          <div class="ab" style="left: 3cqw; top: 9.5cqw; display: grid; gap: 0.8cqw; width: 22cqw">
+            <div class="bb">ASFALT · ARKA İTİŞ</div>
+            <div class="baslik">KIZIL OK</div>
+            <div style="display: flex; gap: 1cqw; align-items: center">
+              <span class="rozet buyuk C"><i>C</i><span>468</span></span>
+              <span class="alt-yazi">Kariyer tavanı C500 · uygun</span>
+            </div>
+            <div
+              class="cam"
+              style="padding: 0.9cqw 1cqw; display: grid; gap: 0.45cqw; font: 500 0.9cqw var(--govde)"
+            >
+              <div style="display: flex; justify-content: space-between">
+                <span style="color: var(--soluk)">Lastik</span><b>Spor lastik</b>
+              </div>
+              <div style="display: flex; justify-content: space-between">
+                <span style="color: var(--soluk)">Takılı parça</span><b>4 / 12</b>
+              </div>
+              <div style="display: flex; justify-content: space-between">
+                <span style="color: var(--soluk)">Paket</span><b>Asfalt paketi</b>
+              </div>
+            </div>
+            <span class="eg kucuk" style="justify-self: start">MOTORU DİNLE <i class="t">L</i></span>
+          </div>
+          <div
+            class="ab cam"
+            style="right: 3cqw; top: 9.5cqw; width: 25cqw; padding: 1.2cqw 1.3cqw; display: grid; gap: 0.9cqw"
+          >
+            <div class="bb">ÖZELLİKLER<span>Toplam 468</span></div>
+            <div class="cubuklar">
+              <div class="cb">
+                GÜÇ<span class="y" style="--d: 58%"></span><b>212<small>HP</small></b>
+              </div>
+              <div class="cb">
+                İVME<span class="y" style="--d: 52%"></span><b>6.9<small>sn</small></b>
+              </div>
+              <div class="cb">
+                HIZ<span class="y" style="--d: 66%"></span><b>238<small>km/sa</small></b>
+              </div>
+              <div class="cb">
+                TUTUŞ<span class="y" style="--d: 61%"></span><b>1.21<small>g</small></b>
+              </div>
+              <div class="cb">
+                FREN<span class="y" style="--d: 47%"></span><b>13.2<small>m</small></b>
+              </div>
+              <div class="cb">
+                ARAZİ<span class="y" style="--d: 22%"></span><b>0.31<small>g</small></b>
+              </div>
+            </div>
+            <div class="alt-yazi" style="font-size: 0.85cqw; color: var(--soluk)">
+              212 HP · 1180 KG · 5 ileri
+            </div>
+          </div>
+          <div class="ab" style="right: 3cqw; bottom: 16.2cqw; display: flex; gap: 1.2cqw">
+            <span class="eg">MODİFİYE <i class="t">M</i></span>
+            <span class="eg ana">SERBEST SÜR <i class="t">Enter</i></span>
+          </div>
+          <div
+            class="ab"
+            style="
+              left: 3cqw;
+              right: 3cqw;
+              bottom: 4.4cqw;
+              display: grid;
+              grid-template-columns: repeat(6, 1fr);
+              gap: 0.9cqw;
+            "
+          >
+            <div class="kart sec">
+              <small>ASFALT</small>
+              <div class="silu"></div>
+              <div class="sat">
+                <span class="ad" style="font-size: 1.15cqw">Kızıl Ok</span
+                ><span class="rozet C"><i>C</i><span>468</span></span>
+              </div>
+            </div>
+            <div class="kart">
+              <small>ASFALT</small>
+              <div class="silu"></div>
+              <div class="sat">
+                <span class="ad" style="font-size: 1.15cqw">Gümüş Serçe</span
+                ><span class="rozet D"><i>D</i><span>181</span></span>
+              </div>
+            </div>
+            <div class="kart">
+              <small>RALLİKROS</small>
+              <div class="silu"></div>
+              <div class="sat">
+                <span class="ad" style="font-size: 1.15cqw">Kor RX</span
+                ><span class="rozet D"><i>D</i><span>342</span></span>
+              </div>
+            </div>
+            <div class="kart">
+              <small>DRİFT</small>
+              <div class="silu"></div>
+              <div class="sat">
+                <span class="ad" style="font-size: 1.15cqw">Beyaz Kurt</span
+                ><span class="rozet D"><i>D</i><span>366</span></span>
+              </div>
+            </div>
+            <div class="kart kilit">
+              <small>MAĞAZADA</small>
+              <div class="silu"></div>
+              <div class="sat">
+                <span class="ad" style="font-size: 1.15cqw">Mavi Yıldız</span><span>24.000</span>
+              </div>
+            </div>
+            <div class="kart kilit">
+              <small>SEVİYE 12</small>
+              <div class="silu"></div>
+              <div class="sat">
+                <span class="ad" style="font-size: 1.15cqw">Gece Mavisi</span
+                ><svg class="ikon"><use href="#i-kilit" /></svg>
+              </div>
+            </div>
+          </div>
+          <div class="ipuclari">
+            <span><i class="t">←</i><i class="t">→</i> Araç</span>
+            <span><i class="t">Fare</i> Döndür</span>
+            <span><i class="t">M</i> Modifiye</span>
+            <span><i class="t">Esc</i> Geri</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2 MODİFİYE -->
+      <section class="ekr">
+        <h2><span class="no">2</span>Modifiye</h2>
+        <p>
+          Garajın alt ekranı. Solda 12 kategori, ortada seçili kategorinin parçaları, sağda parçanın etkisi:
+          çubuklarda çizgili bölüm kazanç, sınıf değişimi rozetle. Paketler üstte tek tıkla.
+        </p>
+        <div class="ekran arka-garaj">
+          <div class="karart k-koyu" style="background: rgba(5, 8, 11, 0.62)"></div>
+          <div class="ustbar">
+            <div class="logo">LAST <b>TURN</b></div>
+            <div class="sekmeler">
+              <i class="t">Q</i><span class="sekme">YARIŞ</span><span class="sekme">MUTANT</span
+              ><span class="sekme sec">GARAJ</span><span class="sekme">MAĞAZA</span
+              ><span class="sekme">PROFİL</span><span class="sekme">AYARLAR</span><i class="t">E</i>
+            </div>
+            <div class="mini">
+              <div class="sv">7</div>
+              <span>310 / 500 XP</span><span class="ayr"></span><span>12.450 para</span>
+            </div>
+          </div>
+          <div class="iz">GARAJ / <b>MODİFİYE · KIZIL OK</b></div>
+          <div class="ab" style="left: 3cqw; top: 9cqw; width: 15cqw; display: grid; gap: 0.35cqw">
+            <div class="bb" style="margin-bottom: 0.3cqw">KATEGORİ</div>
+            <div class="eg kucuk ana" style="justify-content: space-between; padding: 0 1.2cqw">
+              MOTOR <span style="font-size: 0.8cqw">Sokak</span>
+            </div>
+            <div class="eg kucuk" style="justify-content: space-between; padding: 0 1.2cqw">
+              TURBO <span style="font-size: 0.8cqw; color: var(--soluk)">yok</span>
+            </div>
+            <div class="eg kucuk" style="justify-content: space-between; padding: 0 1.2cqw">
+              ŞANZIMAN <span style="font-size: 0.8cqw; color: var(--soluk)">Stok</span>
+            </div>
+            <div class="eg kucuk" style="justify-content: space-between; padding: 0 1.2cqw">
+              DİFERANSİYEL <span style="font-size: 0.8cqw; color: var(--soluk)">Stok</span>
+            </div>
+            <div class="eg kucuk" style="justify-content: space-between; padding: 0 1.2cqw">
+              SÜSPANSİYON <span style="font-size: 0.8cqw; color: var(--soluk)">Spor</span>
+            </div>
+            <div class="eg kucuk" style="justify-content: space-between; padding: 0 1.2cqw">
+              FREN <span style="font-size: 0.8cqw; color: var(--soluk)">Stok</span>
+            </div>
+            <div class="eg kucuk" style="justify-content: space-between; padding: 0 1.2cqw">
+              LASTİK <span style="font-size: 0.8cqw; color: var(--soluk)">Spor</span>
+            </div>
+            <div class="eg kucuk" style="justify-content: space-between; padding: 0 1.2cqw">
+              AERO <span style="font-size: 0.8cqw; color: var(--soluk)">yok</span>
+            </div>
+            <div class="eg kucuk" style="justify-content: space-between; padding: 0 1.2cqw">
+              AĞIRLIK <span style="font-size: 0.8cqw; color: var(--soluk)">Stok</span>
+            </div>
+            <div class="eg kucuk" style="justify-content: space-between; padding: 0 1.2cqw; opacity: 0.6">
+              +3 kategori
+            </div>
+          </div>
+          <div class="ab" style="left: 21cqw; top: 9cqw; width: 44cqw; display: grid; gap: 1cqw">
+            <div style="display: flex; gap: 0.8cqw; align-items: center">
+              <div class="bb">PAKETLER</div>
+              <span class="eg kucuk">ASFALT</span><span class="eg kucuk">RALLİKROS</span
+              ><span class="eg kucuk">RALLİ</span><span class="eg kucuk">DRİFT</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.9cqw">
+              <div class="kart" style="height: 9cqw">
+                <small>STOK</small>
+                <div class="ad">Kısıtlayıcı</div>
+                <div class="sat"><span>GÜÇ −8</span><b>Sahipsin</b></div>
+              </div>
+              <div class="kart" style="height: 9cqw">
+                <small>TAKILI</small>
+                <div class="ad">Sokak motoru <span class="takili">TAKILI</span></div>
+                <div class="sat"><span>GÜÇ +4</span><b>Sahipsin</b></div>
+              </div>
+              <div class="kart sec" style="height: 9cqw">
+                <small>ÖNİZLEME</small>
+                <div class="ad">Spor motoru</div>
+                <div class="sat"><span>GÜÇ +10 · İVME +6</span><b>3.400</b></div>
+              </div>
+              <div class="kart kilit" style="height: 9cqw">
+                <small>SEVİYE 12</small>
+                <div class="ad">Yarış motoru</div>
+                <div class="sat">
+                  <span>GÜÇ +18</span><svg class="ikon"><use href="#i-kilit" /></svg>
+                </div>
+              </div>
+            </div>
+            <div class="cam" style="padding: 0.8cqw 1cqw; font: 500 0.88cqw var(--govde); color: #cfd7dc">
+              Sökme para iadesi üretmez; sahiplik ve yatırım kredisi korunur.
+            </div>
+          </div>
+          <div
+            class="ab cam"
+            style="right: 3cqw; top: 9cqw; width: 26cqw; padding: 1.2cqw 1.3cqw; display: grid; gap: 0.9cqw"
+          >
+            <div class="bb">ETKİ<span>Spor motoru</span></div>
+            <div style="display: flex; align-items: center; gap: 0.8cqw; font: 600 1cqw var(--govde)">
+              <span class="rozet buyuk C"><i>C</i><span>468</span></span
+              ><span style="color: var(--soluk)">→</span
+              ><span class="rozet buyuk C"><i>C</i><span>486</span></span>
+            </div>
+            <div class="cubuklar">
+              <div class="cb">
+                GÜÇ<span class="y" style="--d: 58%; --a: 8%"></span><b>238<em>+26</em></b>
+              </div>
+              <div class="cb">
+                İVME<span class="y" style="--d: 52%; --a: 5%"></span><b>6.4<em>−0.5</em></b>
+              </div>
+              <div class="cb">
+                HIZ<span class="y" style="--d: 66%; --a: 3%"></span><b>244<em>+6</em></b>
+              </div>
+              <div class="cb">TUTUŞ<span class="y" style="--d: 61%"></span><b>1.21</b></div>
+              <div class="cb">FREN<span class="y" style="--d: 47%"></span><b>13.2</b></div>
+              <div class="cb">ARAZİ<span class="y" style="--d: 22%"></span><b>0.31</b></div>
+            </div>
+            <div class="alt-yazi" style="font-size: 0.85cqw">Kariyer tavanı C500 içinde kalır.</div>
+            <span class="eg ana" style="justify-self: stretch"
+              >SATIN AL VE TAK · 3.400 <i class="t">Enter</i></span
+            >
+          </div>
+          <span class="isaret" style="right: 3cqw; bottom: 9.5cqw"
+            >tavan aşılırsa rozet sarı kenarlı uyarı</span
+          >
+          <div class="ipuclari">
+            <span><i class="t">↑</i><i class="t">↓</i> Kategori</span>
+            <span><i class="t">←</i><i class="t">→</i> Parça</span>
+            <span><i class="t">Enter</i> Al / Tak</span>
+            <span><i class="t">X</i> Sök</span>
+            <span><i class="t">Esc</i> Garaj</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3 MAĞAZA -->
+      <section class="ekr">
+        <h2><span class="no">3</span>Mağaza</h2>
+        <p>
+          Solda öne çıkan araç büyük kartla, sağda bütün araçlar ızgara halinde. Üstte Araçlar ve Parçalar
+          arasında geçiş, türlere göre süzgeç. Kilitli araç hangi seviyede açılacağını yazar.
+        </p>
+        <div class="ekran arka-garaj">
+          <div
+            class="karart k-koyu"
+            style="background: linear-gradient(90deg, rgba(5, 8, 11, 0.35), rgba(5, 8, 11, 0.85) 48%)"
+          ></div>
+          <div class="ustbar">
+            <div class="logo">LAST <b>TURN</b></div>
+            <div class="sekmeler">
+              <i class="t">Q</i><span class="sekme">YARIŞ</span><span class="sekme">MUTANT</span
+              ><span class="sekme">GARAJ</span><span class="sekme sec">MAĞAZA</span
+              ><span class="sekme">PROFİL</span><span class="sekme">AYARLAR</span><i class="t">E</i>
+            </div>
+            <div class="mini">
+              <div class="sv">7</div>
+              <span>310 / 500 XP</span><span class="ayr"></span><span>12.450 para</span>
+            </div>
+          </div>
+          <div class="ab" style="left: 3cqw; top: 9cqw; width: 36cqw; display: grid; gap: 0.8cqw">
+            <div class="bb">ÖNE ÇIKAN · DRİFT</div>
+            <div class="baslik">TURUNCU EJDER</div>
+            <div style="display: flex; gap: 1cqw; align-items: center">
+              <span class="rozet buyuk B"><i>B</i><span>548</span></span
+              ><span class="alt-yazi">Arka itiş · 310 HP · 1240 KG</span>
+            </div>
+          </div>
+          <div
+            class="ab cam"
+            style="
+              left: 3cqw;
+              bottom: 4.4cqw;
+              width: 36cqw;
+              padding: 1.1cqw 1.2cqw;
+              display: grid;
+              gap: 0.8cqw;
+            "
+          >
+            <div class="cubuklar">
+              <div class="cb">
+                GÜÇ<span class="y" style="--d: 74%"></span><b>310<small>HP</small></b>
+              </div>
+              <div class="cb">
+                TUTUŞ<span class="y" style="--d: 55%"></span><b>1.12<small>g</small></b>
+              </div>
+              <div class="cb">
+                ARAZİ<span class="y" style="--d: 18%"></span><b>0.26<small>g</small></b>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between">
+              <span style="font: 700 2cqw var(--dar)"
+                >38.000
+                <small style="font: 500 0.9cqw var(--govde); color: var(--soluk)"
+                  >para · 25.550 eksik</small
+                ></span
+              >
+              <span class="eg">SATIN AL <i class="t">Enter</i></span>
+            </div>
+          </div>
+          <div class="ab" style="left: 43cqw; right: 3cqw; top: 9cqw; display: grid; gap: 1cqw">
+            <div style="display: flex; gap: 0.8cqw; align-items: center">
+              <div class="parcali" style="width: 14cqw">
+                <span class="sec">ARAÇLAR</span><span>PARÇALAR</span>
+              </div>
+              <span style="flex: 1"></span>
+              <div class="parcali" style="width: 26cqw">
+                <span class="sec">TÜMÜ</span><span>PİST</span><span>RALLİ</span><span>DRİFT</span
+                ><span>DRAG</span>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9cqw">
+              <div class="kart sec">
+                <small>DRİFT</small>
+                <div class="silu"></div>
+                <div class="ad">Turuncu Ejder</div>
+                <div class="sat">
+                  <span class="rozet B"><i>B</i><span>548</span></span
+                  ><b>38.000</b>
+                </div>
+              </div>
+              <div class="kart">
+                <small>ASFALT</small>
+                <div class="silu"></div>
+                <div class="ad">Mavi Yıldız</div>
+                <div class="sat">
+                  <span class="rozet C"><i>C</i><span>452</span></span
+                  ><b>24.000</b>
+                </div>
+              </div>
+              <div class="kart">
+                <small>RALLİ</small>
+                <div class="silu"></div>
+                <div class="ad">Kum Fırtınası</div>
+                <div class="sat">
+                  <span class="rozet C"><i>C</i><span>431</span></span
+                  ><b>21.500</b>
+                </div>
+              </div>
+              <div class="kart">
+                <small>ARAZİ</small>
+                <div class="silu"></div>
+                <div class="ad">Sarı Arı</div>
+                <div class="sat">
+                  <span class="rozet D"><i>D</i><span>298</span></span
+                  ><b>9.800</b>
+                </div>
+              </div>
+              <div class="kart kilit">
+                <small>SEVİYE 12</small>
+                <div class="silu"></div>
+                <div class="ad">Gece Mavisi</div>
+                <div class="sat">
+                  <span class="rozet A"><i>A</i><span>644</span></span
+                  ><svg class="ikon"><use href="#i-kilit" /></svg>
+                </div>
+              </div>
+              <div class="kart kilit">
+                <small>SEVİYE 15</small>
+                <div class="silu"></div>
+                <div class="ad">Gri Atmaca</div>
+                <div class="sat">
+                  <span class="rozet S"><i>S</i><span>732</span></span
+                  ><svg class="ikon"><use href="#i-kilit" /></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ipuclari">
+            <span><i class="t">Tab</i> Araç / Parça</span>
+            <span><i class="t">←</i><i class="t">→</i><i class="t">↑</i><i class="t">↓</i> Seç</span>
+            <span><i class="t">Enter</i> Satın al</span>
+            <span><i class="t">Esc</i> Geri</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4 YARIŞ HAZIRLIK -->
+      <section class="ekr">
+        <h2><span class="no">4</span>Yarış hazırlığı (kariyer pist kartından)</h2>
+        <p>
+          Pist kartında Enter'a basınca açılır. Solda pist haritası, yıldız süreleri ve ödül, sağda araç
+          uygunluğu ile günün saati ve hava seçimi. Pist sahnesi arkada bulanık durur.
+        </p>
+        <div class="ekran arka-yaris">
+          <div class="karart k-bulanik"></div>
+          <div class="ustbar">
+            <div class="logo">LAST <b>TURN</b></div>
+            <div class="sekmeler">
+              <i class="t">Q</i><span class="sekme sec">YARIŞ</span><span class="sekme">MUTANT</span
+              ><span class="sekme">GARAJ</span><span class="sekme">MAĞAZA</span
+              ><span class="sekme">PROFİL</span><span class="sekme">AYARLAR</span><i class="t">E</i>
+            </div>
+            <div class="mini">
+              <div class="sv">7</div>
+              <span>310 / 500 XP</span><span class="ayr"></span><span>12.450 para</span>
+            </div>
+          </div>
+          <div class="iz">KARİYER / <b>KIYI PİSTİ</b></div>
+          <div class="ab" style="left: 3cqw; top: 9.5cqw; display: grid; gap: 0.6cqw">
+            <div class="bb">PİST · 2. AŞAMA · 3 TUR</div>
+            <div class="baslik" style="font-size: 3.6cqw">KIYI PİSTİ</div>
+            <div class="alt-yazi">Sahil boyunca hızlı virajlar, uzun düzlük sonunda sert fren.</div>
+          </div>
+          <div class="ab cam" style="left: 3cqw; top: 19cqw; width: 19cqw; height: 19cqw; padding: 1cqw">
+            <svg viewBox="0 0 100 100" style="width: 100%; height: 100%"><use href="#pist" /></svg>
+          </div>
+          <div
+            class="ab cam"
+            style="
+              left: 23.6cqw;
+              top: 19cqw;
+              width: 20cqw;
+              padding: 1.1cqw 1.2cqw;
+              display: grid;
+              gap: 0.7cqw;
+            "
+          >
+            <div class="bb">YILDIZLAR</div>
+            <div class="cb" style="grid-template-columns: auto 1fr auto">
+              <span class="yildiz"><i></i><i class="bos"></i><i class="bos"></i></span><span></span
+              ><b>4:10.0</b>
+            </div>
+            <div class="cb" style="grid-template-columns: auto 1fr auto">
+              <span class="yildiz"><i></i><i></i><i class="bos"></i></span><span></span><b>3:52.0</b>
+            </div>
+            <div class="cb" style="grid-template-columns: auto 1fr auto; color: var(--acc)">
+              <span class="yildiz"><i></i><i></i><i></i></span><span></span><b>3:39.5</b>
+            </div>
+            <div style="height: 1px; background: var(--panK)"></div>
+            <div class="cb" style="grid-template-columns: 1fr auto">
+              <span style="color: var(--soluk)">REKORUN</span><b>3:44.1</b>
+            </div>
+          </div>
+          <div
+            class="ab cam"
+            style="
+              left: 23.6cqw;
+              top: 33.6cqw;
+              width: 20cqw;
+              padding: 1cqw 1.2cqw;
+              display: grid;
+              gap: 0.5cqw;
+            "
+          >
+            <div class="bb">ÖDÜL · DAKİKA BAŞI</div>
+            <div style="display: flex; justify-content: space-between; font: 700 1.5cqw var(--dar)">
+              <span>+21 XP</span><span>+170 para</span>
+            </div>
+          </div>
+          <div
+            class="ab cam"
+            style="right: 3cqw; top: 9.5cqw; width: 30cqw; padding: 1.3cqw 1.4cqw; display: grid; gap: 1.1cqw"
+          >
+            <div class="bb">ARAÇ<span>Tavan C500</span></div>
+            <div style="display: flex; align-items: center; gap: 1cqw">
+              <div class="silu" style="width: 6cqw; height: 2.6cqw; flex: none"></div>
+              <div style="display: grid; gap: 0.3cqw">
+                <span style="font: italic 800 1.6cqw var(--dar)">Kızıl Ok</span>
+                <span style="display: flex; gap: 0.6cqw; align-items: center"
+                  ><span class="rozet C"><i>C</i><span>468</span></span
+                  ><span class="alt-yazi" style="font-size: 0.85cqw">uygun</span></span
+                >
+              </div>
+              <span class="eg kucuk" style="margin-left: auto">DEĞİŞTİR <i class="t">C</i></span>
+            </div>
+            <div class="bb">GÜNÜN SAATİ</div>
+            <div class="parcali"><span>SABAH</span><span class="sec">ÖĞLEN</span><span>AKŞAM</span></div>
+            <div class="bb">HAVA</div>
+            <div class="parcali"><span class="sec">GÜNEŞLİ</span><span>YAĞMURLU</span><span>KARLI</span></div>
+            <span class="eg ana" style="height: 3.8cqw; font-size: 1.5cqw"
+              >YARIŞA BAŞLA <i class="t">Enter</i></span
+            >
+          </div>
+          <span class="isaret" style="right: 3cqw; top: 46cqw"
+            >hava ve saat seçenekleri oyundakiyle aynı tutulur</span
+          >
+          <div class="ipuclari">
+            <span><i class="t">C</i> Araç</span>
+            <span><i class="t">Enter</i> Başla</span>
+            <span><i class="t">Esc</i> Kariyer</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5 MUTANT -->
+      <section class="ekr">
+        <h2><span class="no">5</span>Mutant: ayrı oyun gibi</h2>
+        <p>
+          Ana menüde MUTANT seçilince Mutant'ın kendi menüsü açılır. Üst şeritte sekmeler yerine Mutant
+          başlığı ve "Ana menü" dönüşü var, sahne kırmızıya çalan karanlık bir tonda. Akış: Mutant menüsü →
+          başlama onayı → 1. adım araç → 2. adım başlangıç yeteneği → sürüş. Seçenekler bugünkü koşu başıyla
+          aynı (boss kartı, rastgele 3 başlangıç aracı, 3 yetenek).
+        </p>
+        <h3 class="alt-bas">5a · Mutant menüsü</h3>
+        <div class="ekran arka-menu mut">
+          <div class="karart mut-ton"></div>
+          <div class="ustbar">
+            <div class="logo">LAST <b>TURN</b></div>
+            <div class="mut-ad">MUTANT</div>
+            <div class="mini">
+              <span class="eg kucuk">ANA MENÜ <i class="t">Esc</i></span>
+            </div>
+          </div>
+          <div class="ab" style="left: 3cqw; top: 11cqw; width: 34cqw; display: grid; gap: 1cqw">
+            <div class="bb">KOŞU MODU</div>
+            <div class="baslik" style="font-size: 5.4cqw">MUTANT</div>
+            <div class="alt-yazi" style="font-size: 1.1cqw">
+              Zayıf bir araçla başla. Bölgelerde etkinlik kazan, atölyede parça al, sandık bul. Süre dolmadan
+              boss'u yen.
+            </div>
+            <div style="display: grid; gap: 0.6cqw; margin-top: 1cqw; width: 24cqw">
+              <span class="eg ana" style="justify-content: space-between; height: 3.8cqw; font-size: 1.5cqw"
+                >KOŞUYA BAŞLA <i class="t">Enter</i></span
+              >
+              <span class="eg" style="justify-content: space-between">NASIL OYNANIR <i class="t">H</i></span>
+              <span class="eg" style="justify-content: space-between">ANA MENÜ <i class="t">Esc</i></span>
+            </div>
+          </div>
+          <div
+            class="ab cam"
+            style="right: 3cqw; top: 11cqw; width: 26cqw; padding: 1.2cqw 1.3cqw; display: grid; gap: 0.7cqw"
+          >
+            <div class="bb">EN İYİ KOŞU</div>
+            <div style="display: flex; justify-content: space-between; font: 700 2.2cqw var(--dar)">
+              <span>Bölge 3</span><span>2 boss</span>
+            </div>
+          </div>
+          <div
+            class="ab cam"
+            style="
+              right: 3cqw;
+              top: 19.6cqw;
+              width: 26cqw;
+              padding: 1.2cqw 1.3cqw;
+              display: grid;
+              gap: 0.55cqw;
+              font: 500 0.95cqw var(--govde);
+            "
+          >
+            <div class="bb">KOŞU</div>
+            <div style="display: flex; justify-content: space-between">
+              <span style="color: var(--soluk)">İlk boss'a süre</span><b>15:00</b>
+            </div>
+            <div style="display: flex; justify-content: space-between">
+              <span style="color: var(--soluk)">Başlangıç aracı</span><b>3 seçenek</b>
+            </div>
+            <div style="display: flex; justify-content: space-between">
+              <span style="color: var(--soluk)">Başlangıç yeteneği</span><b>3 seçenek</b>
+            </div>
+            <div style="display: flex; justify-content: space-between">
+              <span style="color: var(--soluk)">Kariyer ilerlemesi</span><b>etkilenmez</b>
+            </div>
+          </div>
+          <span class="isaret" style="left: 28.5cqw; top: 33.8cqw">yeni: kısa kural sayfası (öneri)</span>
+          <div class="ipuclari">
+            <span><i class="t">↑</i><i class="t">↓</i> Seç</span>
+            <span><i class="t">Enter</i> Onayla</span>
+            <span><i class="t">Esc</i> Ana menü</span>
+          </div>
+        </div>
+
+        <h3 class="alt-bas">5b · Başlama onayı</h3>
+        <div class="ekran arka-menu mut">
+          <div class="karart mut-ton"></div>
+          <div class="karart k-bulanik"></div>
+          <div
+            class="ab cam"
+            style="
+              left: 50%;
+              top: 50%;
+              transform: translate(-50%, -50%);
+              width: 40cqw;
+              padding: 2cqw 2.2cqw;
+              display: grid;
+              gap: 1.1cqw;
+              border-top: 0.25cqw solid var(--acc);
+            "
+          >
+            <div class="bb">MUTANT</div>
+            <div class="baslik" style="font-size: 2.8cqw">YENİ KOŞU BAŞLASIN MI?</div>
+            <div class="alt-yazi" style="font-size: 1.05cqw">
+              Önce aracını, sonra başlangıç yeteneğini seçeceksin. Boss'a süre sürüş başlayınca akar. Koşuda
+              aldığın parçalar ve para yalnız bu koşuya aittir.
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2cqw; margin-top: 0.6cqw">
+              <span class="eg">VAZGEÇ <i class="t">Esc</i></span>
+              <span class="eg ana">BAŞLA <i class="t">Enter</i></span>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="alt-bas">5c · 1. adım: başlangıç aracı</h3>
+        <div class="ekran arka-menu mut">
+          <div class="karart mut-ton"></div>
+          <div class="ustbar">
+            <div class="logo">LAST <b>TURN</b></div>
+            <div class="mut-ad">MUTANT</div>
+            <div class="adimlar"><span class="sec">1 ARAÇ</span><i></i><span>2 YETENEK</span></div>
+          </div>
+          <div
+            class="ab cam"
+            style="
+              left: 3cqw;
+              top: 9cqw;
+              width: 30cqw;
+              padding: 1.4cqw 1.5cqw;
+              display: grid;
+              gap: 0.9cqw;
+              border-top: 0.25cqw solid var(--acc);
+            "
+          >
+            <div class="bb">İLK BOSS · RALLİ ETABI<span>15:00</span></div>
+            <div class="baslik" style="font-size: 3.2cqw">TOPRAK KURDU</div>
+            <div class="alt-yazi">Ralli etabı; toprakta çok hızlı</div>
+            <div style="display: grid; gap: 0.4cqw; font: 500 0.95cqw var(--govde)">
+              <div style="display: flex; gap: 0.6cqw">
+                <span style="color: var(--acc); font-weight: 700">+</span>Toprakta çok hızlı
+              </div>
+              <div style="display: flex; gap: 0.6cqw">
+                <span style="color: var(--acc); font-weight: 700">+</span>Çamurda yavaşlamaz
+              </div>
+            </div>
+            <div style="height: 1px; background: var(--panK)"></div>
+            <div style="display: grid; gap: 0.25cqw">
+              <span class="bb" style="color: var(--uyari)">ZAYIF YANI</span>
+              <span class="alt-yazi">Toprak tutuşu, dört çeker, süspansiyon kazandırır</span>
+            </div>
+          </div>
+          <div class="ab" style="left: 3cqw; right: 3cqw; bottom: 4.4cqw; display: grid; gap: 0.8cqw">
+            <div class="bb">ARACINI SEÇ · HEPSİ ZAYIF, KOŞUDA GÜÇLENECEK</div>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(3, 1fr) 17cqw;
+                gap: 1cqw;
+                align-items: stretch;
+              "
+            >
+              <div class="kart" style="height: 10cqw">
+                <small>ASFALT</small>
+                <div class="silu"></div>
+                <div class="ad">Gümüş Serçe</div>
+                <div class="sat"><span>85 HP · 1150 kg · arkadan itiş</span><i class="t">1</i></div>
+              </div>
+              <div class="kart sec" style="height: 10cqw">
+                <small>RALLİKROS</small>
+                <div class="silu"></div>
+                <div class="ad">Bozkır Tavşanı</div>
+                <div class="sat"><span>95 HP · 1150 kg · arkadan itiş</span><i class="t">2</i></div>
+              </div>
+              <div class="kart" style="height: 10cqw">
+                <small>DRİFT</small>
+                <div class="silu"></div>
+                <div class="ad">Bordo Tilki</div>
+                <div class="sat"><span>120 HP · 1300 kg · arkadan itiş</span><i class="t">3</i></div>
+              </div>
+              <span class="eg ana" style="height: auto; font-size: 1.4cqw">DEVAM <i class="t">Enter</i></span>
+            </div>
+          </div>
+          <span class="isaret" style="right: 3cqw; top: 9cqw">3 araç her koşuda rastgele</span>
+          <div class="ipuclari">
+            <span><i class="t">1</i><i class="t">2</i><i class="t">3</i> Araç</span>
+            <span><i class="t">Enter</i> Devam</span>
+            <span><i class="t">Esc</i> Mutant menüsü</span>
+          </div>
+        </div>
+
+        <h3 class="alt-bas">5d · 2. adım: başlangıç yeteneği</h3>
+        <div class="ekran arka-menu mut">
+          <div class="karart mut-ton"></div>
+          <div class="ustbar">
+            <div class="logo">LAST <b>TURN</b></div>
+            <div class="mut-ad">MUTANT</div>
+            <div class="adimlar">
+              <span class="tamam">1 ARAÇ</span><i></i><span class="sec">2 YETENEK</span>
+            </div>
+          </div>
+          <div
+            class="ab cam"
+            style="left: 3cqw; top: 9cqw; width: 22cqw; padding: 1.1cqw 1.2cqw; display: grid; gap: 0.5cqw"
+          >
+            <div class="bb">ARACIN<span>DEĞİŞTİR · ←</span></div>
+            <div style="font: italic 800 1.7cqw var(--dar)">Bozkır Tavşanı</div>
+            <div class="alt-yazi" style="font-size: 0.9cqw">95 HP · 1150 kg · rallikros</div>
+          </div>
+          <div
+            class="ab cam"
+            style="left: 3cqw; top: 17.8cqw; width: 22cqw; padding: 1.1cqw 1.2cqw; display: grid; gap: 0.5cqw"
+          >
+            <div class="bb">İLK BOSS<span>15:00</span></div>
+            <div style="font: italic 800 1.5cqw var(--dar)">Toprak Kurdu</div>
+            <div class="alt-yazi" style="font-size: 0.9cqw">
+              Zayıf yanı: toprak tutuşu, dört çeker, süspansiyon
+            </div>
+          </div>
+          <div class="ab" style="left: 3cqw; right: 3cqw; bottom: 4.4cqw; display: grid; gap: 0.8cqw">
+            <div class="bb">BAŞLANGIÇ YETENEĞİ SEÇ</div>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(3, 1fr) 17cqw;
+                gap: 1cqw;
+                align-items: stretch;
+              "
+            >
+              <div class="kart" style="height: 9cqw">
+                <small>PASİF</small>
+                <div class="ad">Motor ayarı</div>
+                <div class="sat"><span>Güç +%10</span><i class="t">1</i></div>
+              </div>
+              <div class="kart sec" style="height: 9cqw">
+                <small>PASİF</small>
+                <div class="ad">Toprak tutuşu</div>
+                <div class="sat"><span>Toprakta tutuş +%10</span><i class="t">2</i></div>
+              </div>
+              <div class="kart" style="height: 9cqw">
+                <small>PASİF</small>
+                <div class="ad">Sert fren</div>
+                <div class="sat"><span>Fren gücü +%15</span><i class="t">3</i></div>
+              </div>
+              <span class="eg ana" style="height: auto; font-size: 1.4cqw"
+                >SÜRÜŞE BAŞLA <i class="t">Enter</i></span
+              >
+            </div>
+          </div>
+          <span class="isaret" style="left: 26cqw; bottom: 14.4cqw"
+            >seçenekler ve metinler oyundaki yetenek listesinden</span
+          >
+          <div class="ipuclari">
+            <span><i class="t">1</i><i class="t">2</i><i class="t">3</i> Yetenek</span>
+            <span><i class="t">←</i> Araca dön</span>
+            <span><i class="t">Enter</i> Sürüşe başla</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6 PROFİL -->
+      <section class="ekr">
+        <h2><span class="no">6</span>Profil ve bulut hesabı</h2>
+        <p>
+          Solda sürücü kartı: büyük seviye halkası, XP ve istatistikler. Sağda bulut hesabı: bugünkü durum
+          satırı, e-posta formu ve üç işlem. Metinler Unity'deki bulut hesabıyla aynı.
+        </p>
+        <div class="ekran arka-menu">
+          <div
+            class="karart"
+            style="
+              background: linear-gradient(180deg, rgba(0, 0, 0, 0.72), transparent 20%), rgba(5, 8, 11, 0.6);
+            "
+          ></div>
+          <div class="ustbar">
+            <div class="logo">LAST <b>TURN</b></div>
+            <div class="sekmeler">
+              <i class="t">Q</i><span class="sekme">YARIŞ</span><span class="sekme">MUTANT</span
+              ><span class="sekme">GARAJ</span><span class="sekme">MAĞAZA</span
+              ><span class="sekme sec">PROFİL</span><span class="sekme">AYARLAR</span><i class="t">E</i>
+            </div>
+            <div class="mini">
+              <div class="sv">7</div>
+              <span>310 / 500 XP</span><span class="ayr"></span><span>12.450 para</span>
+            </div>
+          </div>
+          <div class="ab" style="left: 3cqw; top: 9.5cqw; width: 52cqw; display: grid; gap: 1.4cqw">
+            <div style="display: flex; align-items: center; gap: 2cqw">
+              <div
+                style="
+                  width: 10cqw;
+                  height: 10cqw;
+                  border-radius: 50%;
+                  background: conic-gradient(var(--acc) 0 62%, rgba(255, 255, 255, 0.14) 62% 100%);
+                  display: grid;
+                  place-items: center;
+                "
+              >
+                <div
+                  style="
+                    width: 8.4cqw;
+                    height: 8.4cqw;
+                    border-radius: 50%;
+                    background: #0d1519;
+                    display: grid;
+                    place-items: center;
+                    text-align: center;
+                  "
+                >
+                  <div>
+                    <div style="font: 700 0.8cqw var(--dar); letter-spacing: 0.14em; color: var(--soluk)">
+                      SEVİYE
+                    </div>
+                    <div style="font: italic 800 3.6cqw/1 var(--dar)">7</div>
+                  </div>
+                </div>
+              </div>
+              <div style="display: grid; gap: 0.5cqw">
+                <div class="bb">SÜRÜCÜ PROFİLİ</div>
+                <div class="baslik">SÜRÜCÜ</div>
+                <div class="alt-yazi">310 / 500 XP · sonraki seviyeye 190 XP</div>
+                <span class="eg kucuk" style="justify-self: start">ADI DEĞİŞTİR</span>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.9cqw">
+              <div class="kart">
+                <small>YARIŞ</small>
+                <div class="ad" style="font-size: 2cqw">48</div>
+              </div>
+              <div class="kart">
+                <small>TOPLAM YOL</small>
+                <div class="ad" style="font-size: 2cqw">312 km</div>
+              </div>
+              <div class="kart">
+                <small>YILDIZ</small>
+                <div class="ad" style="font-size: 2cqw">34 / 120</div>
+              </div>
+              <div class="kart">
+                <small>PARA</small>
+                <div class="ad" style="font-size: 2cqw">12.450</div>
+              </div>
+            </div>
+            <div class="cam" style="padding: 1cqw 1.2cqw; display: grid; gap: 0.6cqw">
+              <div class="bb">EN ÇOK KULLANILAN</div>
+              <div style="display: flex; align-items: center; gap: 1.2cqw">
+                <div class="silu" style="width: 7cqw; height: 2.6cqw"></div>
+                <span style="font: italic 800 1.5cqw var(--dar)">Kızıl Ok</span>
+                <span class="rozet C"><i>C</i><span>468</span></span>
+                <span class="alt-yazi" style="margin-left: auto">21 yarış</span>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ab cam"
+            style="right: 3cqw; top: 9.5cqw; width: 33cqw; padding: 1.4cqw 1.5cqw; display: grid; gap: 1cqw"
+          >
+            <div class="bb">BULUT HESABI</div>
+            <div style="display: flex; align-items: center; gap: 0.8cqw; font: 600 1.05cqw var(--govde)">
+              <svg class="ikon" style="color: var(--acc)"><use href="#i-bulut" /></svg>Misafir (yalnız bu
+              cihaz) · Bulutta
+            </div>
+            <div class="alt-yazi" style="font-size: 0.88cqw; color: var(--soluk)">
+              E-postayla bağlarsan aynı ilerleme web oyununda ve başka bilgisayarda açılır.
+            </div>
+            <div class="alan odak">
+              E-posta
+              <div>ad@ornek.com</div>
+            </div>
+            <div class="alan">
+              Şifre
+              <div>••••••••</div>
+            </div>
+            <div class="alan">
+              Şifre tekrar (yalnız yeni hesap)
+              <div></div>
+            </div>
+            <span class="eg ana">HESAP OLUŞTUR · İLERLEMEM BU HESABA GEÇSİN</span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1cqw">
+              <span class="eg kucuk">GİRİŞ YAP</span><span class="eg kucuk">ŞİFREMİ UNUTTUM</span>
+            </div>
+          </div>
+          <div class="ipuclari">
+            <span><i class="t">Tab</i> Alan</span>
+            <span><i class="t">Enter</i> Onayla</span>
+            <span><i class="t">Esc</i> Geri</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7 AYARLAR -->
+      <section class="ekr">
+        <h2><span class="no">7</span>Ayarlar</h2>
+        <p>
+          Solda bölümler (Sürüş, Kamera, Göstergeler, Ses, Grafik, Kontroller), ortada seçili bölüm, sağda
+          açıklama. Örnek Kontroller: tuş ataması tablosu; üzerine gelinen satır değiştirilebilir. Göstergeler
+          bölümü bugünkü HUD düzenleyiciyi açar.
+        </p>
+        <div class="ekran arka-menu">
+          <div
+            class="karart"
+            style="
+              background: linear-gradient(180deg, rgba(0, 0, 0, 0.72), transparent 20%), rgba(5, 8, 11, 0.7);
+            "
+          ></div>
+          <div class="ustbar">
+            <div class="logo">LAST <b>TURN</b></div>
+            <div class="sekmeler">
+              <i class="t">Q</i><span class="sekme">YARIŞ</span><span class="sekme">MUTANT</span
+              ><span class="sekme">GARAJ</span><span class="sekme">MAĞAZA</span
+              ><span class="sekme">PROFİL</span><span class="sekme sec">AYARLAR</span><i class="t">E</i>
+            </div>
+            <div class="mini">
+              <div class="sv">7</div>
+              <span>310 / 500 XP</span><span class="ayr"></span><span>12.450 para</span>
+            </div>
+          </div>
+          <div class="ab" style="left: 3cqw; top: 9.5cqw; width: 15cqw; display: grid; gap: 0.45cqw">
+            <span class="eg kucuk" style="justify-content: flex-start">SÜRÜŞ</span>
+            <span class="eg kucuk" style="justify-content: flex-start">KAMERA</span>
+            <span class="eg kucuk" style="justify-content: flex-start">GÖSTERGELER</span>
+            <span class="eg kucuk" style="justify-content: flex-start">SES</span>
+            <span class="eg kucuk" style="justify-content: flex-start">GRAFİK</span>
+            <span class="eg kucuk ana" style="justify-content: flex-start">KONTROLLER</span>
+          </div>
+          <div
+            class="ab cam"
+            style="left: 21cqw; top: 9.5cqw; width: 47cqw; padding: 1.3cqw 1.5cqw; display: grid; gap: 0.2cqw"
+          >
+            <div class="bb" style="margin-bottom: 0.6cqw">KLAVYE<span>BİRİNCİ · İKİNCİ</span></div>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: 1fr 7cqw 7cqw;
+                row-gap: 0.15cqw;
+                font: 500 1cqw var(--govde);
+                align-items: center;
+              "
+            >
+              <span style="padding: 0.45cqw 0">Gaz</span><span><i class="t">W</i></span
+              ><span><i class="t">↑</i></span> <span style="padding: 0.45cqw 0">Fren / geri</span
+              ><span><i class="t">S</i></span
+              ><span><i class="t">↓</i></span> <span style="padding: 0.45cqw 0">Sola</span
+              ><span><i class="t">A</i></span
+              ><span><i class="t">←</i></span> <span style="padding: 0.45cqw 0">Sağa</span
+              ><span><i class="t">D</i></span
+              ><span><i class="t">→</i></span>
+              <span
+                style="
+                  padding: 0.45cqw 0.6cqw;
+                  margin-left: -0.6cqw;
+                  background: rgba(255, 122, 60, 0.16);
+                  border-left: 0.2cqw solid var(--acc);
+                "
+                >El freni</span
+              ><span
+                style="
+                  background: rgba(255, 122, 60, 0.16);
+                  padding: 0.45cqw 0;
+                  color: var(--acc);
+                  font: 600 0.85cqw var(--govde);
+                "
+                >Bir tuşa bas…</span
+              ><span style="background: rgba(255, 122, 60, 0.16); padding: 0.45cqw 0"
+                ><i class="t">C</i></span
+              >
+              <span style="padding: 0.45cqw 0">Yeniden başlat</span><span><i class="t">R</i></span
+              ><span></span> <span style="padding: 0.45cqw 0">Vites yükselt / düşür (Drag)</span
+              ><span><i class="t">E</i></span
+              ><span><i class="t">Q</i></span> <span style="padding: 0.45cqw 0">Nitro (Mutant)</span
+              ><span><i class="t">N</i></span
+              ><span></span> <span style="padding: 0.45cqw 0">Kamera</span><span><i class="t">V</i></span
+              ><span></span> <span style="padding: 0.45cqw 0">Duraklat</span><span><i class="t">Esc</i></span
+              ><span></span>
+            </div>
+          </div>
+          <div
+            class="ab cam"
+            style="right: 3cqw; top: 9.5cqw; width: 23cqw; padding: 1.3cqw 1.4cqw; display: grid; gap: 0.8cqw"
+          >
+            <div class="bb">EL FRENİ</div>
+            <div class="alt-yazi" style="font-size: 0.95cqw">
+              Arka tekerlekleri kilitler; drift başlatmak ve sert dönüş için. Basılı tutulduğu sürece çalışır.
+            </div>
+            <div style="height: 1px; background: var(--panK)"></div>
+            <div class="alt-yazi" style="font-size: 0.88cqw; color: var(--soluk)">
+              Aynı tuş iki işe atanırsa eski atama boşalır ve sarı uyarı çıkar.
+            </div>
+            <span class="eg kucuk" style="justify-self: start">VARSAYILANA DÖN</span>
+          </div>
+          <div class="ipuclari">
+            <span><i class="t">↑</i><i class="t">↓</i> Satır</span>
+            <span><i class="t">Enter</i> Değiştir</span>
+            <span><i class="t">Del</i> Boşalt</span>
+            <span><i class="t">Esc</i> Geri</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8 DURAKLAT -->
+      <section class="ekr">
+        <h2><span class="no">8</span>Duraklatma</h2>
+        <p>
+          Esc ile açılır, sahne arkada kararıp bulanıklaşır. Solda Unity'deki beş işlem, sağda yarışın anlık
+          durumu ve hızlı ayarlar.
+        </p>
+        <div class="ekran arka-yaris">
+          <div class="karart k-bulanik"></div>
+          <div class="ab" style="left: 6cqw; top: 9cqw; display: grid; gap: 0.6cqw; width: 26cqw">
+            <div class="bb">KIYI PİSTİ · TUR 2/3</div>
+            <div class="baslik" style="font-size: 4cqw">DURAKLATILDI</div>
+            <div class="alt-yazi" style="margin-bottom: 1.2cqw">Yarış süresi ve sürüş durdu.</div>
+            <span class="eg ana" style="justify-content: space-between">DEVAM ET <i class="t">Esc</i></span>
+            <span class="eg" style="justify-content: space-between">YENİDEN BAŞLAT <i class="t">R</i></span>
+            <span class="eg" style="justify-content: space-between">AYARLAR</span>
+            <span class="eg" style="justify-content: space-between">KARİYERE DÖN</span>
+            <span class="eg" style="justify-content: space-between">GARAJA DÖN</span>
+            <span class="eg" style="justify-content: space-between">ANA MENÜYE DÖN</span>
+          </div>
+          <div
+            class="ab cam"
+            style="right: 6cqw; top: 9cqw; width: 30cqw; padding: 1.4cqw 1.5cqw; display: grid; gap: 1cqw"
+          >
+            <div class="bb">YARIŞ</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8cqw">
+              <div>
+                <div style="font: 600 0.8cqw var(--govde); color: var(--soluk)">Süre</div>
+                <div style="font: 700 2cqw var(--dar)">1:12.4</div>
+              </div>
+              <div>
+                <div style="font: 600 0.8cqw var(--govde); color: var(--soluk)">En iyi tur</div>
+                <div style="font: 700 2cqw var(--dar)">1:09.8</div>
+              </div>
+              <div>
+                <div style="font: 600 0.8cqw var(--govde); color: var(--soluk)">Hedef</div>
+                <div style="font: 700 2cqw var(--dar)">3:39.5</div>
+              </div>
+            </div>
+            <div style="height: 1px; background: var(--panK)"></div>
+            <div class="bb">HIZLI AYAR</div>
+            <div style="display: grid; gap: 0.5cqw; font: 500 0.95cqw var(--govde)">
+              <span>Sürüş yardımı</span>
+              <div class="parcali">
+                <span>ARCADE</span><span class="sec">DENGELİ</span><span>GERÇEKÇİ</span>
+              </div>
+              <span style="margin-top: 0.4cqw">Kamera</span>
+              <div class="parcali">
+                <span class="sec">TAKİP</span><span>UZAK</span><span>KAPUT</span><span>KOKPİT</span>
+              </div>
+            </div>
+          </div>
+          <div class="ipuclari">
+            <span><i class="t">↑</i><i class="t">↓</i> Seç</span>
+            <span><i class="t">Enter</i> Onayla</span>
+            <span><i class="t">Esc</i> Devam</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9 SONUÇ -->
+      <section class="ekr">
+        <h2><span class="no">9</span>Yarış sonucu</h2>
+        <p>
+          Bitiş süresi büyük, yıldızlar tek tek yanar. Sağda tur süreleri ve kazanç: XP çubuğu dolar, seviye
+          atlanırsa halka parlar. Altta sıradaki yarış ana tuş, tekrar ve garaj ikincil.
+        </p>
+        <div class="ekran arka-yaris">
+          <div
+            class="karart"
+            style="
+              background: linear-gradient(
+                90deg,
+                rgba(5, 8, 11, 0.85),
+                rgba(5, 8, 11, 0.4) 55%,
+                rgba(5, 8, 11, 0.85)
+              );
+            "
+          ></div>
+          <div class="ab" style="left: 5cqw; top: 7cqw; display: grid; gap: 0.7cqw">
+            <div class="bb">KIYI PİSTİ · BİTTİ</div>
+            <div style="font: 700 7cqw/0.9 var(--dar)">3:36.2</div>
+            <div style="display: flex; gap: 1cqw; align-items: center">
+              <span
+                style="
+                  font: 700 1.3cqw var(--govde);
+                  padding: 0.1cqw 0.6cqw;
+                  border-radius: 0.3cqw;
+                  background: rgba(255, 255, 255, 0.92);
+                  color: #0b1418;
+                  text-shadow: none;
+                "
+                >−3.3</span
+              >
+              <span class="alt-yazi">hedefin altında</span>
+              <span class="takili" style="font-size: 0.9cqw; padding: 0.15cqw 0.6cqw">YENİ REKOR</span>
+            </div>
+            <span class="yildiz" style="--b: 3.6cqw; gap: 0.8cqw; margin-top: 1cqw"
+              ><i></i><i></i><i></i
+            ></span>
+          </div>
+          <div
+            class="ab cam"
+            style="right: 5cqw; top: 7cqw; width: 30cqw; padding: 1.4cqw 1.5cqw; display: grid; gap: 1cqw"
+          >
+            <div class="bb">TURLAR</div>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: auto 1fr auto;
+                gap: 0.5cqw 1cqw;
+                font: 500 1cqw var(--govde);
+              "
+            >
+              <span style="color: var(--soluk)">Tur 1</span><span></span
+              ><b style="font: 700 1.2cqw var(--dar)">1:13.9</b> <span style="color: var(--soluk)">Tur 2</span
+              ><span></span><b style="font: 700 1.2cqw var(--dar)">1:11.6</b>
+              <span style="color: var(--acc)">Tur 3 · en iyi</span><span></span
+              ><b style="font: 700 1.2cqw var(--dar); color: var(--acc)">1:10.7</b>
+            </div>
+            <div style="height: 1px; background: var(--panK)"></div>
+            <div class="bb">KAZANÇ</div>
+            <div style="display: flex; justify-content: space-between; font: 700 2cqw var(--dar)">
+              <span>+76 XP</span><span>+612 para</span>
+            </div>
+            <div style="display: grid; gap: 0.35cqw">
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  font: 600 0.85cqw var(--govde);
+                  color: var(--soluk);
+                "
+              >
+                <span>Seviye 7</span><span>386 / 500 XP</span>
+              </div>
+              <div
+                style="
+                  height: 0.6cqw;
+                  border-radius: 0.3cqw;
+                  background: rgba(255, 255, 255, 0.14);
+                  overflow: hidden;
+                  display: flex;
+                "
+              >
+                <span style="width: 62%; background: var(--acc)"></span
+                ><span style="width: 15%; background: #ffd0b5"></span>
+              </div>
+            </div>
+          </div>
+          <span class="isaret" style="right: 5cqw; top: 35cqw">açık turuncu: bu yarıştan gelen XP</span>
+          <div
+            class="ab"
+            style="
+              left: 5cqw;
+              right: 5cqw;
+              bottom: 5cqw;
+              display: flex;
+              gap: 1.2cqw;
+              justify-content: flex-end;
+            "
+          >
+            <span class="eg">GARAJ <i class="t">G</i></span>
+            <span class="eg">TEKRAR <i class="t">R</i></span>
+            <span class="eg ana" style="height: 3.8cqw; font-size: 1.5cqw; padding: 0 2.4cqw"
+              >SIRADAKİ: KIYI DRİFTİ <i class="t">Enter</i></span
+            >
+          </div>
+          <div class="ipuclari" style="bottom: 1.4cqw">
+            <span><i class="t">Esc</i> Kariyer</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="kutu">
+        <h2>Ortak kurallar (seçersen HUD.md ve sunum katmanına yazılır)</h2>
+        <ul>
+          <li>
+            Üst şerit her sekmede aynı: logo, Q/E ile sekmeler, seviye ve para. Alt ekranlarda sekmenin
+            altında yol yazısı (GARAJ / MODİFİYE).
+          </li>
+          <li>
+            Her ekranda sağ altta tuş ipuçları; fare ile de her şey tıklanır, üzerine gelinen öğe turuncu
+            kenar alır.
+          </li>
+          <li>Ana işlem her ekranda tek: turuncu eğik tuş, Enter. Diğerleri koyu cam eğik tuş.</li>
+          <li>
+            Paneller koyu cam, başlıklar turuncu eğik çizgili küçük yazı, büyük adlar italik kalın. Sınıf
+            rozetleri oyundaki sınıf renklerini kullanır; bunun dışında tek vurgu turuncu.
+          </li>
+          <li>
+            Araç ve sahne her ekranda görünür kalır; paneller kenarlarda, orta boş (Modifiye ve Ayarlar hariç,
+            orada sahne kararır).
+          </li>
+          <li>Yarış HUD'u F'deki gibi panelsiz kalır.</li>
+          <li>
+            MUTANT sekmesi seçilince ana menü şeridi kalkar, Mutant'ın kendi menüsü açılır (ayrı başlık,
+            kırmızıya çalan ton, Esc ile ana menü). Koşu yalnız onaydan sonra başlar; önce araç, sonra
+            başlangıç yeteneği seçilir.
+          </li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,9 +1,34 @@
+# Son devir: P7-1 F ana menüsü ve panelsiz yarış HUD'u Unity'de (2026-11-05) — Claude
+
+- Dal `codex/unity-p3-mutant`; kart `docs/isler/2026-11-01-unity-tam-aktarim.md` → "P7-1" (ölçütler + sonuç). `_Recovery` commit dışı.
+- UI Toolkit F arayüzü (`Scripts/Ui`), `HudLayout` masaüstü kipi, V kamera / T piste dön, duraklatmada Ayarlar. `--hud` + P7/P1/P5 kontroller/P5 Mutant ilerleme batch Play geçti; görüntüler `Unity/Logs/p7-*.png`.
+- **Sonraki tek adım:** sekmelerin F ekranları — önce Garaj + Modifiye (ekranlar-f.html §1–2), sonra Mutant menüsü/onay/adımlar (§5a–d).
+
+# Son devir: P7 F ekranları onaylandı; Mutant ayrı menü (2026-11-05) — Claude
+
+- Dal `codex/unity-p3-mutant`; yalnız belge/taslak (oyun sürümü artmaz). Kart → "P7" revizeleri. `_Recovery` commit dışı.
+- Cem dokuz ekranı onayladı; Mutant kendi menüsü + başlama onayı + araç → yetenek adımlarıyla (`docs/tasarim/ekranlar-f.html` 5a–5d). Karar `docs/GELISTIRICI-AYRINTILARI.md`de.
+- **Sonraki tek adım:** HUD.md'ye PC bölümünü yaz; Unity sunum katmanında ortak F bileşenlerini kur, ilk ekran olarak ana menü + yarış HUD'unu uygula.
+
+# Son devir: P7 F yönü seçildi; bütün ekran taslakları hazır (2026-11-05) — Claude
+
+- Dal `codex/unity-p3-mutant`; yalnız belge/taslak (oyun sürümü artmaz). Kart → "P7" revizeleri. `_Recovery` commit dışı.
+- Cem F'yi (sekmeli menü, panelsiz HUD) seçti. Dokuz ekranın F uyarlaması `docs/tasarim/ekranlar-f.html`.
+- **Sonraki tek adım:** Cem ekranları onaylar ya da düzeltme ister; sonra HUD.md'ye PC bölümü yazılır ve F Unity sunum katmanında (önce ortak üst şerit/tuş/panel bileşenleri, sonra ana menü + HUD) uygulanır.
+
+# Son devir: P7 PC taslakları (D/E/F) hazır (2026-11-05) — Claude
+
+- Dal `codex/unity-p3-mutant`; yalnız belge/taslak değişikliği (oyun sürümü artmaz). Kart `docs/isler/2026-11-01-unity-tam-aktarim.md` → "P7" revizesi. `_Recovery` commit dışı.
+- Cem: yalnız Windows, dokunmatik tuşlar yok, eski tasarıma yakın PC düzeni, ünlü yarış oyunları örnek alınsın. Taslak `docs/tasarim/menu-hud-pc.html` (D Köşe, E Yayın şeridi, F Sade); ilk A/B/C taslağı yerinde duruyor.
+- **Sonraki tek adım:** Cem D/E/F (ya da karışım) seçer; HUD.md'ye PC bölümü yazılıp seçilen yön Unity sunum katmanında uygulanır.
+
 # Son devir: P6-A Windows bulut bağdaştırıcısı (Firebase REST) tamam (2026-11-05) — Claude
 
 - Dal `codex/unity-p3-mutant`; deneme 0.8.20 yayında (P5). Bu iş aynı dalda; kart `docs/isler/2026-11-01-unity-tam-aktarim.md` → "P6-A". `_Recovery` commit dışı.
 - Web oyunuyla aynı Firebase projesi/hesap/`users/{uid}`: misafir, e-posta oluştur/bağla/giriş, şifre sıfırlama, TS eşitleme kuralları. `--cloud-sync` 92 koşul, `--cloud` 3.039, varsayılan C# kontrolleri, Unity batch derleme 0 hata. Canlı: anahtar masaüstünden kabul ediliyor (veri oluşturmayan yoklama).
 - Açık: Cem'in Play'de canlı bulut denemesi (`Unity/OYUNCU-TEST-REHBERI.md` → Profil), Google masaüstü girişi, CI `--race-all` (P5 öncesinden; yerelde geçiyor).
-- **Sonraki tek adım:** canlı bulut denemesinden sonra görsel/menü/ses fazı — önce Cem'den referans ve beklenti alınır.
+- Deneme 0.8.21 yayında. P7 kararları alındı (yarı gerçekçi, önce menü/HUD, ücretli paket onayla, yeni tasarım). Üç yön taslağı `docs/tasarim/menu-hud-taslaklari.html`.
+- **Sonraki tek adım:** Cem A/B/C (ya da karışım) seçer; seçilen yön Unity sunum katmanında (uGUI/UI Toolkit) uygulanır.
 
 # Son devir: Cem kabul turu yapıldı; Windows önce, bulut orijinaldeki gibi (2026-11-05) — Claude
 
