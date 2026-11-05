@@ -57,7 +57,7 @@ namespace LastTurn.Garage
       if(GarageSession.State==null || GameFlow.Home || GameFlow.Profile)return;Styles();if(seenState!=GarageSession.State)Refresh();
       float width=Screen.width-24;
       GUILayout.BeginArea(new Rect(12,12,width,Math.Max(120,Screen.height-24)),GUI.skin.box);
-      if(Button("Ana Menü",height:44))GameFlow.MainMenu();
+      if(Button(GameFlow.Hub==GameFlow.MenuHub.Race?"Yarış menüsü":"Ana Menü",height:44))GameFlow.Back();
       GUILayout.Label(section==2?"KARİYER / YARIŞLAR":"LAST TURN / GARAJ",title);
       GUILayout.Label("Sürüş: "+GarageViewModel.Cars(GarageSession.State)[GarageSession.State.SelectedCar].Name+"   |   Bakiye "+GarageSession.State.Balance.ToString("N0")+"   |   Seviye "+GarageSession.State.Level,text);
       var navStyle=width>=760?button:new GUIStyle(button){fontSize=width<480?14:16,padding=new RectOffset(4,4,8,8)};

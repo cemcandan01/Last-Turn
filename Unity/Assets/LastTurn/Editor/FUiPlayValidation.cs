@@ -85,6 +85,63 @@ namespace LastTurn.EditorValidation
     private static bool Wait(double s) => EditorApplication.timeSinceStartup - at > s;
     private static void Next() { phase++; at = EditorApplication.timeSinceStartup; }
 
+    private static readonly List<(double Wait, Func<GtPrototype, bool> Act)> steps = new List<(double, Func<GtPrototype, bool>)>(); private static int step;
+    private static void Add(double wait, Func<GtPrototype, bool> act) => steps.Add((wait, act));
+    private static void Do(double wait, Action<GtPrototype> act) => steps.Add((wait, p => { act(p); return true; }));
+    /// Tuşa bas ve bırak (wasPressedThisFrame için iki ayrı kare).
+    private static void Tap(Key key) { Do(.3, _ => Press(key)); Do(.15, _ => Press()); }
+    private static void Plan(MainMenuView menu, RaceHudView hud)
+    {
+      steps.Clear(); step = 0;
+      Do(1.2, _ =>
+      {
+        Check(Touchscreen.current == null, "Dokunmatik ekran yok (Windows masaüstü)");
+        Check(menu.Visible && menu.Showing == GameFlow.MenuHub.Home && menu.HomeItemCount == 4, "Ana menü: yalnız YARIŞ, MUTANT, PROFİL, AYARLAR");
+        Check(menu.CardCount == 0, "Ana menüde pist kartı yok");
+        Shot("menu");
+      });
+      Tap(Key.Enter);
+      Do(.3, _ =>
+      {
+        Check(menu.Showing == GameFlow.MenuHub.Race && menu.CardCount == Count(menu.SelectedKey) && menu.SelectedKey != "", "Enter → yarış menüsü; kariyer pist kartları (" + menu.SelectedKey + ")");
+        before = menu.SelectedKey; Shot("yaris-menu");
+      });
+      Tap(Key.DownArrow);
+      Do(.3, _ => { Check(menu.SelectedKey.Split((char)95)[0] != before.Split((char)95)[0] && menu.CardCount == Count(menu.SelectedKey), "↓ ile tür değişti (" + before + " → " + menu.SelectedKey + ")"); before = menu.SelectedKey; });
+      Tap(Key.RightArrow);
+      Do(.3, _ => { proof.menuKey = menu.SelectedKey; Check(menu.SelectedKey != before, "→ ile sonraki pist kartı (" + before + " → " + menu.SelectedKey + ")"); });
+      Tap(Key.E);
+      Do(.4, _ => { Check(!GameFlow.Home && GameFlow.Hub == GameFlow.MenuHub.Race && UnityEngine.Object.FindFirstObjectByType<GarageScreen>().SelectedTab == 0, "E → yarış menüsünden Garaj (geçici ekran)"); GameFlow.Back(); });
+      Do(.3, _ => Check(menu.Showing == GameFlow.MenuHub.Race && menu.Visible, "Garaj geri düğmesi yarış menüsüne döner"));
+      Tap(Key.Escape);
+      Do(.3, _ => Check(menu.Showing == GameFlow.MenuHub.Home && menu.Visible, "Esc → ana menü"));
+      Tap(Key.RightArrow);
+      Tap(Key.Enter);
+      Do(.3, _ => { Check(menu.Showing == GameFlow.MenuHub.Mutant && !MutantRuntime.Active && !menu.ConfirmOpen, "→ + Enter → Mutant menüsü (koşu başlamadı)"); Shot("mutant-menu"); });
+      Tap(Key.Enter);
+      Do(.3, _ => { Check(menu.ConfirmOpen && !MutantRuntime.Active, "Enter → \"Yeni koşu başlasın mı?\" onayı"); Shot("mutant-onay"); });
+      Tap(Key.Escape);
+      Do(.3, _ => Check(!menu.ConfirmOpen && !MutantRuntime.Active && menu.Showing == GameFlow.MenuHub.Mutant, "Esc → onay kapandı, koşu başlamadı"));
+      Tap(Key.Enter); Tap(Key.Enter);
+      Add(.3, _ => MutantRuntime.Active);
+      Do(.5, _ => { Check(MutantRuntime.Active && MutantRuntime.Panel == "start", "Onay → koşu başı (araç seçimi)"); MutantRuntime.Exit(); });
+      Add(.5, _ => UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Garage" && menu.Visible);
+      Do(.2, _ => { Check(menu.Showing == GameFlow.MenuHub.Mutant, "Koşudan çıkınca Mutant menüsü"); Check(TestPanelActions.StartRace("gp_1"), "Kariyer yarışı açıldı (gp_1)"); });
+      Add(.2, p => p && p.Race != null && p.Simulation != null);
+      Do(1.0, _ => { Check(hud.Visible, "Panelsiz yarış HUD'u geri sayımda görünür"); Shot("hud-sayim"); Press(Key.W); });
+      Do(6.5, p =>
+      {
+        var r = Hud.Rects(p);
+        foreach (var key in new[] { "Gas", "Brake", "Left", "Right", "Handbrake", "Pause", "Camera", "Respawn", "Settings" })
+          Check(!r.ContainsKey(key) && p.GetComponent<TouchDrivingOverlay>().ControlRect(key) == null, "Dokunmatik tuş yok: " + key);
+        Check(r.ContainsKey("Timer") && r.ContainsKey("Speed") && r.ContainsKey("Title") && r.ContainsKey("Map"), "F yerleşimi: süre, hız, pist adı, miniharita");
+        proof.hudTimer = hud.TimerText; proof.hudSpeed = hud.SpeedText;
+        Check(hud.Visible && hud.TimerText.Contains(":") && int.Parse(hud.SpeedText) > 20, "Sürüşte süre ve hız akıyor (" + hud.TimerText + ", " + hud.SpeedText + " km/sa)");
+        Shot("hud"); Press();
+      });
+      Do(.5, _ => { });
+    }
+
     private static void Tick()
     {
       try
@@ -93,53 +150,16 @@ namespace LastTurn.EditorValidation
         var p = UnityEngine.Object.FindFirstObjectByType<GtPrototype>(); if (p) p.SendMessage("OnApplicationFocus", true);
         if (ShotPending()) { at = EditorApplication.timeSinceStartup; return; }
         var ui = UiRoot.Instance; var menu = ui ? ui.GetComponent<MainMenuView>() : null; var hud = ui ? ui.GetComponent<RaceHudView>() : null;
-        switch (phase)
+        if (phase == 0)
         {
-          case 0:
-            if (!UnityEngine.Object.FindFirstObjectByType<GarageScreen>() || !ui) return;
-            GarageSession.Open(SessionState.GetString(PathKey, ""), true); GameFlow.MainMenu();
-            keyboard = InputSystem.AddDevice<Keyboard>("P7Test"); Next(); return;
-          case 1:
-            if (!Wait(1.2)) return;
-            Check(Touchscreen.current == null, "Dokunmatik ekran yok (Windows masaüstü)");
-            Check(menu.Visible && menu.CardCount == Count(menu.SelectedKey), "F ana menüsü görünür; seçili türün bütün pist kartları [görünür=" + menu.Visible + " kart=" + menu.CardCount + " ev=" + GameFlow.Home + " sahne=" + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + " durum=" + (GarageSession.State != null) + " mutant=" + MutantRuntime.Active + " mesaj=" + GameFlow.Message + "]");
-            before = menu.SelectedKey; Check(before != "", "Bir pist kartı seçili: " + before);
-            Shot("menu"); Next(); return;
-          case 2:
-            if (!Wait(.4)) return; Press(Key.DownArrow); Next(); return;
-          case 3:
-            if (!Wait(.15)) return; Press(); Next(); return;
-          case 4:
-            if (!Wait(.3)) return;
-            Check(menu.SelectedKey.Split((char)95)[0] != before.Split((char)95)[0] && menu.CardCount == Count(menu.SelectedKey), "↓ ile tür değişti (" + before + " → " + menu.SelectedKey + ")");
-            string k0 = menu.SelectedKey; Press(Key.RightArrow); at = EditorApplication.timeSinceStartup; before = k0; phase = 5; return;
-          case 5:
-            if (!Wait(.15)) return; Press(); Next(); return;
-          case 6:
-            if (!Wait(.3)) return;
-            proof.menuKey = menu.SelectedKey;
-            Check(menu.SelectedKey != before || before.EndsWith("_6"), "→ ile sonraki pist kartı (" + before + " → " + menu.SelectedKey + ")");
-            Shot("menu-tur"); Next(); return;
-          case 7:
-            if (!Wait(.4)) return;
-            Check(TestPanelActions.StartRace("gp_1"), "Kariyer yarışı açıldı (gp_1)"); Next(); return;
-          case 8:
-            if (!p || p.Race == null || p.Simulation == null) return;
-            if (!Wait(1.0)) return;
-            Check(hud.Visible, "Panelsiz yarış HUD'u geri sayımda görünür");
-            Shot("hud-sayim"); Press(Key.W); Next(); return;
-          case 9:
-            if (!Wait(6.5)) return;
-            var r = Hud.Rects(p);
-            foreach (var key in new[] { "Gas", "Brake", "Left", "Right", "Handbrake", "Pause", "Camera", "Respawn", "Settings" })
-              Check(!r.ContainsKey(key) && p.GetComponent<TouchDrivingOverlay>().ControlRect(key) == null, "Dokunmatik tuş yok: " + key);
-            Check(r.ContainsKey("Timer") && r.ContainsKey("Speed") && r.ContainsKey("Title") && r.ContainsKey("Map"), "F yerleşimi: süre, hız, pist adı, miniharita");
-            proof.hudTimer = hud.TimerText; proof.hudSpeed = hud.SpeedText;
-            Check(hud.Visible && hud.TimerText.Contains(":") && int.Parse(hud.SpeedText) > 20, "Sürüşte süre ve hız akıyor (" + hud.TimerText + ", " + hud.SpeedText + " km/sa)");
-            Shot("hud"); Press(); Next(); return;
-          case 10:
-            if (!Wait(.5)) return; Finish(null); return;
+          if (!UnityEngine.Object.FindFirstObjectByType<GarageScreen>() || !ui) return;
+          GarageSession.Open(SessionState.GetString(PathKey, ""), true); GameFlow.MainMenu();
+          keyboard = InputSystem.AddDevice<Keyboard>("P7Test"); Plan(menu, hud); Next(); return;
         }
+        // adım listesi: (bekleme sn, iş); iş false dönerse koşul sağlanana kadar beklenir
+        if (step >= steps.Count) { Finish(null); return; }
+        if (!Wait(steps[step].Wait)) return;
+        if (steps[step].Act(p)) { step++; at = EditorApplication.timeSinceStartup; }
       }
       catch (Exception e) { Finish(e); }
     }

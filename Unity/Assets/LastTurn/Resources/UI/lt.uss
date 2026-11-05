@@ -544,3 +544,170 @@
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
     margin: 0;
 }
+
+/* ana menü: dört büyük eğik seçenek */
+.logo-buyuk > Label {
+    font-size: 96px;
+}
+
+.anasecim {
+    height: 150px;
+    flex-grow: 1;
+    flex-basis: 0;
+    margin: 0 16px;
+    padding: 0 44px;
+    justify-content: center;
+}
+
+.anasecim > .skew {
+    --fill: rgba(11, 20, 24, 0.86);
+    --edge: rgba(255, 255, 255, 0.13);
+}
+
+.anasecim:hover > .skew {
+    --fill: rgba(30, 38, 44, 0.94);
+    --edge: rgb(255, 122, 60);
+}
+
+.anasecim.sec > .skew {
+    --fill: rgb(255, 122, 60);
+    --edge: rgba(255, 176, 112, 0.9);
+}
+
+.anasecim > Label.ad {
+    -unity-font-definition: url("Fonts/BarlowCondensed-ExtraBoldItalic.ttf");
+    font-size: 50px;
+    letter-spacing: 2px;
+    margin: 0;
+    padding: 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+.anasecim > Label.alt {
+    -unity-font-definition: url("Fonts/Barlow-Medium.ttf");
+    font-size: 18px;
+    color: rgb(201, 210, 216);
+    margin: 4px 0 0 0;
+    padding: 0;
+}
+
+.anasecim > Label.no {
+    position: absolute;
+    top: 16px;
+    right: 40px;
+}
+
+.anasecim.sec > Label.ad,
+.anasecim.sec > Label.alt {
+    color: rgb(26, 13, 5);
+    text-shadow: 0 0 0 rgba(0, 0, 0, 0);
+}
+
+.anasecim.sec > Label.no {
+    color: rgb(26, 13, 5);
+    border-color: rgba(26, 13, 5, 0.5);
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* profil hapı */
+.profil {
+    flex-direction: row;
+    align-items: center;
+    padding: 12px 24px 12px 12px;
+    border-radius: 60px;
+}
+
+.profil > .sv {
+    width: 56px;
+    height: 56px;
+    border-radius: 28px;
+    margin-right: 16px;
+}
+
+.profil > .sv > Label {
+    font-size: 28px;
+}
+
+.profil Label.ad {
+    -unity-font-definition: url("Fonts/BarlowCondensed-Bold.ttf");
+    font-size: 22px;
+    margin: 0;
+}
+
+.xpcubuk {
+    width: 190px;
+    height: 7px;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.18);
+    margin: 6px 0;
+    overflow: hidden;
+}
+
+.xpcubuk > VisualElement {
+    height: 100%;
+    background-color: rgb(255, 122, 60);
+}
+
+.profil Label.alt {
+    -unity-font-definition: url("Fonts/Barlow-Medium.ttf");
+    font-size: 16px;
+    color: rgb(201, 210, 216);
+    margin: 0;
+}
+
+/* Mutant: ayrı oyun tonu */
+.mut-ton {
+    background-color: rgba(70, 10, 4, 0.45);
+}
+
+.mut-ad {
+    height: 44px;
+    padding: 0 26px;
+    justify-content: center;
+    margin-right: 24px;
+}
+
+.mut-ad > .skew {
+    --fill: rgb(255, 122, 60);
+    --edge: rgba(255, 176, 112, 0.9);
+}
+
+.mut-ad > Label {
+    -unity-font-definition: url("Fonts/BarlowCondensed-ExtraBoldItalic.ttf");
+    font-size: 28px;
+    letter-spacing: 5px;
+    color: rgb(26, 13, 5);
+    margin: 0;
+}
+
+.kv {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 8px;
+}
+
+.kv > Label {
+    -unity-font-definition: url("Fonts/Barlow-Medium.ttf");
+    font-size: 18px;
+    color: rgb(152, 164, 174);
+    margin: 0;
+}
+
+.kv > Label.deger {
+    -unity-font-definition: url("Fonts/Barlow-SemiBold.ttf");
+    color: rgb(255, 255, 255);
+}
+
+/* onay penceresi */
+.perde {
+    background-color: rgba(4, 6, 8, 0.72);
+    align-items: center;
+    justify-content: center;
+}
+
+.onay {
+    width: 780px;
+    padding: 38px 42px;
+    border-top-width: 5px;
+    border-top-color: rgb(255, 122, 60);
+}

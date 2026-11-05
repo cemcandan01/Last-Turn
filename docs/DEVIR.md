@@ -1,3 +1,9 @@
+# Son devir: P7-1 revize — ana menü 4 seçenek, ayrı Yarış ve Mutant menüleri (2026-11-05) — Claude
+
+- Dal `codex/unity-p3-mutant`; kart → "P7-1 revize: menü yapısı". Cem kararı `docs/GELISTIRICI-AYRINTILARI.md`de. `_Recovery` commit dışı.
+- Ana menü: Yarış, Mutant, Profil, Ayarlar. Yarış menüsü: Kariyer/Garaj/Mağaza. Mutant menüsü + başlama onayı. P7/P1/P5/P3 batch Play geçti.
+- **Sonraki tek adım:** Garaj + Modifiye F ekranı (yarış menüsünün GARAJ sekmesi, ekranlar-f.html §1–2).
+
 # Son devir: P7-1 F ana menüsü ve panelsiz yarış HUD'u Unity'de (2026-11-05) — Claude
 
 - Dal `codex/unity-p3-mutant`; kart `docs/isler/2026-11-01-unity-tam-aktarim.md` → "P7-1" (ölçütler + sonuç). `_Recovery` commit dışı.

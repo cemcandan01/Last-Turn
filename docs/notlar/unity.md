@@ -12,4 +12,5 @@
 - Açık: canlı bulut kabulü (Cem Play), masaüstü Google girişi, bilinen hesaplar/admin/yeni oyuncu; CI `--race-all` kalıyor (yerelde 40/40, log yetkisi yok); görsel/menü/ses fazı, kokpit/ayna, Mutant bölge 3 Play.
 - P7 görsel faz (2026-11-05): Cem F (Sade) yönünü ve 9 ekran taslağını onayladı (`docs/tasarim/ekranlar-f.html`); Mutant kendi menüsü + başlama onayı + araç → yetenek. Arayüz UI Toolkit (`Scripts/Ui`, `Resources/UI/lt.uss`, Barlow OFL); dokunmatik ekran yoksa sürüş tuşu yok (`HudLayout` masaüstü kipi), V kamera, T piste dön.
 - P7-1 tamam: F ana menüsü + panelsiz yarış HUD'u; batch Play ekran görüntüsü panel dokuya çizilip kamerayla birleştirilerek (`FUiPlayValidation`).
+- Cem (2026-11-05): ana menüde yalnız Yarış/Mutant/Profil/Ayarlar; Yarış menüsü Kariyer+Garaj+Mağaza; Mutant menüsü ayrı (`GameFlow.MenuHub`).
 - Sonraki: sekmelerin F ekranları (Garaj/Modifiye, Mağaza, yarış hazırlığı, Mutant menüsü/onay/adımlar, Profil, Ayarlar, duraklatma, sonuç); Cem bulutu ve F'yi Play'de dener.

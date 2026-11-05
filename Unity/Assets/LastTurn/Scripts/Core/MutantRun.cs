@@ -32,12 +32,14 @@ namespace LastTurn.Core
     private static T Take<T>(List<T> list,int i){var v=list[i];list.RemoveAt(i);return v;}
     private double Derived(uint salt,int n){uint seed;unchecked{seed=((uint)N("tohum")^salt)*31u+(uint)(n*7919);}return new SeededRandom(seed==0?1:seed).Next();}
     private CatalogNode[] PassiveDefinitions => Catalog["passives"].Items.Concat(Catalog["addons"].Items).ToArray();
+    /// TS BOSS_SURESI(1): ilk boss'a kalan süre (sn); Mutant menüsü de bunu gösterir.
+    public const double FirstBossSeconds=900;
     public MutantRun(uint seed,CatalogNode catalog,bool test=false)
     {
       Catalog=catalog;random=new SeededRandom(seed);State=CatalogNode.Obj();
       State.Set("tohum",CatalogNode.Num(seed));State.Set("test",Bool(test));Phase="basla";Set("bolge",1);
       State.Set("boss",Pick(Catalog["bosses"].Items.ToArray()).Clone());
-      Set("kalan",test?90:900);Set("xp",0);Set("seviye",0);Set("bekleyenSecim",0);Set("para",150);
+      Set("kalan",test?90:FirstBossSeconds);Set("xp",0);Set("seviye",0);Set("bekleyenSecim",0);Set("para",150);
       foreach(string key in new[]{"pasifler","parcalar","stok","secenekler","etkinlikler","sandiklar","beceriler","bekleyenBeceri"})State.Set(key,CatalogNode.Arr(System.Array.Empty<CatalogNode>()));
       foreach(string key in new[]{"tamamlanan","yenilenBoss","zaman","carpma","spin","secimNo"})Set(key,0);
       Set("govde",100);State.Set("pert",Bool(false));State.Set("sonNefes",Bool(false));

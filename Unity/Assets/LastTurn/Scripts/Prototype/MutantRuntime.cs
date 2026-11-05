@@ -125,6 +125,8 @@ namespace LastTurn.Prototype
       if(Session.PendingBoss){Panel="boss";return;}
       OpenWorld();
     }
-    public static void Exit(){Reset();WorldData.Clear();GameFlow.MainMenu();SceneManager.LoadScene("Garage");}
+    public static void Exit(){Reset();WorldData.Clear();GameFlow.MutantMenu();SceneManager.LoadScene("Garage");}
+    /// Mutant menüsü: en iyi koşu (bölge, yenilen boss).
+    public static MutantRecord Record(){try{return new MutantRecordStore(RecordDirectory!=""?RecordDirectory:Path.Combine(Application.persistentDataPath,"LastTurnMutant")).Load();}catch(Exception){return new MutantRecord();}}
   }
 }

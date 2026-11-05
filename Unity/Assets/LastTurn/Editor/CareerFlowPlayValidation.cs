@@ -135,7 +135,7 @@ namespace LastTurn.EditorValidation
         }
         if(phase==4 && screen)
         {
-          Check(screen.SelectedTab==2 && !GameFlow.Home,"Sonuçtan kariyere dönüş");
+          Check(screen.SelectedTab==2 && GameFlow.Home && GameFlow.Hub==GameFlow.MenuHub.Race,"Sonuçtan kariyere dönüş: yarış menüsü (pist kartları)");
           GarageSession.Reload();var m=GameFlow.Menu();Check(m.Races==index && m.Km>0,"Yeniden yüklenen profil sayaçları "+index);
           if(index==1)Check(GarageSession.State.TrackOpen("gp",2),"İlk yarıştan sonraki kariyer kapısı açık");
           if(index<keys.Length){phase=1;return;}

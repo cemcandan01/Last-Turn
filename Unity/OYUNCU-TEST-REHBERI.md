@@ -5,11 +5,12 @@ Otomatik testler kural, fizik ve akışı doğrular; ekrandaki görünümü, dok
 Hazırlık: Unity 6000.3.9f1 → `Last Turn/Ana Menüyü Aç` → Play. Kayıtlar: `%USERPROFILE%/AppData/LocalLow/<şirket>/<ürün>/` altında `LastTurnGarage` (kariyer), `LastTurnMutant` (Mutant rekoru), `LastTurnSettings` (tercihler). Denemeden önce bu klasörlerin yedeğini al.
 
 ## 0. Windows F arayüzü (P7-1)
-1. Play → ana menü. **Beklenen:** üstte LAST TURN logosu, eğik sekmeler (YARIŞ turuncu), sağda seviye/XP/para; altta tür seçimi (Asfalt…Drag) ve o türün pist kartları. Arka plan şimdilik koyu düz (3B vitrin görsel fazında).
-2. Klavye: ↑/↓ tür, ←/→ pist, Enter seçili pist için kariyer ekranını açar; Q/E sekmeler (MUTANT koşuyu açar, GARAJ/MAĞAZA/PROFİL/AYARLAR bugünkü ekranlar). Fareyle üzerine gelinen tuş/kart turuncu kenar alır, tıklama çalışır.
-3. Yarışa gir. **Beklenen:** ekranda hiç dokunmatik tuş yok; sol üst pist adı, üst ortada süre ve "Tur · Hedef", sağ altta büyük hız ve turuncu vites, sağ üstte miniharita; ilk saniyelerde sol altta tuş ipucu. Aracın arkası ve önündeki yol boş.
-4. V kamera değiştirir, T piste döndürür, R yarışı baştan başlatır, Esc duraklatır; duraklatmada "Ayarlar" ayarlar ekranını açar.
-5. Pencereyi farklı boyutlara getir (1280×720, 1920×1080, geniş ekran). **Beklenen:** yazılar ölçeklenir, birbirine binmez.
+1. Play → ana menü. **Beklenen:** büyük LAST TURN logosu, sağ üstte profil (seviye, XP, para), altta yalnız dört eğik seçenek: YARIŞ, MUTANT, PROFİL, AYARLAR; pist kartı yok. ←/→ ya da 1–4 seçer, Enter açar, fareyle üzerine gelmek de seçer. Arka plan şimdilik koyu düz (3B vitrin görsel fazında).
+2. YARIŞ → yarış menüsü: KARİYER, GARAJ, MAĞAZA sekmeleri (Q/E). Kariyerde ↑/↓ tür, ←/→ pist, Enter seçili pist için kariyer ekranını açar. Garaj/Mağaza bugünkü ekranlar; "Yarış menüsü" düğmesi geri getirir. Esc ana menüye döner.
+3. MUTANT → kırmızı tonlu Mutant menüsü (en iyi koşu, ilk boss'a 15:00). KOŞUYA BAŞLA (Enter) → "Yeni koşu başlasın mı?"; Vazgeç (Esc) kapatır, Başla koşu başına (araç, sonra yetenek) gider. Koşudan çıkınca Mutant menüsüne dönülür.
+4. Yarışa gir. **Beklenen:** ekranda hiç dokunmatik tuş yok; sol üst pist adı, üst ortada süre ve "Tur · Hedef", sağ altta büyük hız ve turuncu vites, sağ üstte miniharita; ilk saniyelerde sol altta tuş ipucu. Aracın arkası ve önündeki yol boş.
+5. V kamera değiştirir, T piste döndürür, R yarışı baştan başlatır, Esc duraklatır; duraklatmada "Ayarlar" ayarlar ekranını açar.
+6. Pencereyi farklı boyutlara getir (1280×720, 1920×1080, geniş ekran). **Beklenen:** yazılar ölçeklenir, birbirine binmez.
 
 ## 1. Kariyer (P1)
 1. Ana menü → Profil: adı değiştir, kaydet. **Beklenen:** ad kalıcı.
@@ -35,7 +36,7 @@ Hazırlık: Unity 6000.3.9f1 → `Last Turn/Ana Menüyü Aç` → Play. Kayıtla
 3. Miniharita: yarışta pist çizgisi ve rakip noktası; Mutant'ta işaretler, uzak işaret kenarda yön gösterir. Ayarlar → HUD → Harita: Kapalı. **Beklenen:** harita kaybolur.
 
 ## 4. Mutant (P3–P5)
-1. Ana menü → Mutant → araç + pasif seç (Son Nefes önerilir).
+1. Ana menü → Mutant → Koşuya başla → Başla → araç + pasif seç (Son Nefes önerilir).
 2. Atölye, sandık, etkinlik işaretinin içinde dur. **Beklenen:** ilgili panel; sandık bir kez açılır.
 3. N nitro, 1/2/3 skill. Volt Kanat basılı tut → uç, havada fareyle sürükle → burun döner; bırak → süzül. Flying Dutchman → ağacın içinden geç. Kanca → rakibe/şehirde köşeye. **Beklenen:** reddedilen skill yuvası kısa süre "REDDEDİLDİ"/"HEDEF YOK".
 4. Süre dolunca: Son Nefes bir kez +90 sn, sonra boss. Boss'u kazan → bölge 2 Kule Şehri; kaybet → koşu özeti, rekor.

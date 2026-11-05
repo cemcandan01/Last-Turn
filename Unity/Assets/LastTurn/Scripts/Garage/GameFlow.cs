@@ -9,6 +9,9 @@ namespace LastTurn.Garage
   // Menü/sahne yaşam döngüsü; fiyat, yıldız, ödül veya fizik kuralı içermez.
   public static class GameFlow
   {
+    /// Menü merkezi (Cem, 2026-11-05): ana menü yalnız Yarış/Mutant/Profil/Ayarlar; Yarış ve Mutant'ın kendi menüsü var.
+    public enum MenuHub{Home,Race,Mutant}
+    public static MenuHub Hub {get;private set;}=MenuHub.Home;
     public static bool Home {get;private set;}=true;
     public static bool Profile {get;private set;}
     public static bool Paused {get;private set;}
@@ -17,8 +20,14 @@ namespace LastTurn.Garage
     public static string Message {get;private set;}="";
     private static CareerMenuModel cached;private static GarageState seen;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void Reset(){Home=true;Profile=false;Paused=false;GarageTab=0;LastRaceKey="gp_1";Message="";cached=null;seen=null;}
-    public static void MainMenu(){Home=true;Profile=false;Paused=false;cached=null;}
+    private static void Reset(){Hub=MenuHub.Home;Home=true;Profile=false;Paused=false;GarageTab=0;LastRaceKey="gp_1";Message="";cached=null;seen=null;}
+    public static void MainMenu(){Hub=MenuHub.Home;Home=true;Profile=false;Paused=false;cached=null;}
+    /// Yarış menüsü: kariyer pist kartları; Garaj ve Mağaza yalnız buradan açılır.
+    public static void RaceMenu(){Hub=MenuHub.Race;Home=true;Profile=false;Paused=false;cached=null;}
+    /// Mutant menüsü: koşu onayla başlar; koşudan çıkınca buraya dönülür.
+    public static void MutantMenu(){Hub=MenuHub.Mutant;Home=true;Profile=false;Paused=false;cached=null;}
+    /// Geçici ekranların geri düğmesi: açıldığı menüye döner.
+    public static void Back(){if(Hub==MenuHub.Race)RaceMenu();else MainMenu();}
     public static void OpenProfile(){Home=false;Profile=true;cached=null;}
     public static void Browse(int tab)
     {
@@ -29,13 +38,13 @@ namespace LastTurn.Garage
     /// F ana menüsü pist kartı: kariyer ekranı o pist seçili açılır (hava/saat ve başlat orada).
     public static void OpenRace(string key)
     {
-      LastRaceKey=key;Browse(2);
+      Hub=MenuHub.Race;LastRaceKey=key;Browse(2);
       var screen=UnityEngine.Object.FindFirstObjectByType<GarageScreen>();if(screen)screen.SelectTrack(key);
     }
     /// F MAĞAZA sekmesi: garaj ekranı satın alınabilir araçlar listesiyle açılır.
     public static void OpenStore()
     {
-      Browse(0);var screen=UnityEngine.Object.FindFirstObjectByType<GarageScreen>();if(screen)screen.SelectShop(true);
+      Hub=MenuHub.Race;Browse(0);var screen=UnityEngine.Object.FindFirstObjectByType<GarageScreen>();if(screen)screen.SelectShop(true);
     }
     public static void Pause(bool value){Paused=value;}
     /// Kayıt dışarıdan değişti (bulut): menü özeti yeniden okunur.
@@ -64,7 +73,8 @@ namespace LastTurn.Garage
       if(p && !p.FlushProfileDistance()){Message=GarageRace.LastMessage;return;}
       // İşlem başına disk yazılır; burada son bir güvenli yazım, başarısızsa açık hata.
       if(!GarageSession.Save()){Message=GarageSession.Message;return;}
-      Home=home;Profile=false;GarageTab=tab;Paused=false;Message="";
+      // "Kariyere dön" (tab 2): yarış menüsünün pist kartları; garaj/geliştirici bölümleri geçici ekranda.
+      Hub=home||tab==3?MenuHub.Home:MenuHub.Race;Home=home||tab==2;Profile=false;GarageTab=tab;Paused=false;Message="";
       GarageSession.ReturnToGarage();
     }
   }
