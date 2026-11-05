@@ -1,3 +1,12 @@
+# Son devir: P7-4 Mutant başlangıcı F §5a–d (6 Kasım 2026) — Codex
+
+- **Tamamlanan grup B:** Mutant menüsü/onay + başlangıç aracı/yeteneği + araca geri dön/sürüşe başla/menüye dönüş. A'nın 76 kontrollük önceki kanıtı başta doğrulandı; A tekrar yapılmadı. Kod/test commit'i **`f3a049f`**, dal `codex/unity-p7-garaj`; kapanış SHA bu notun son yerel commit'i.
+- **Testler:** gerçek grafik Unity Play **56/56**, 134 kaynak hash'i; etkilenen P5 Mutant ilerleme **17/17**, 334 kaynak hash'i; dar .NET menü/RNG **4.281**, oturum **5.302**; proje düzeni geçti. Kanıtlar `Unity/Logs/p7-mutant-f-play.json`, `p5-progress.json`; checker'lar `check-mutant-f-proof.mjs`, `check-p5-progress-proof.mjs`.
+- **Görseller:** iki çözünürlükte sekiz gerçek Game View PNG: `Unity/Logs/p7-mutant-{menu,confirm,car,skill}-{1280,1920}.png`. [Araç 1280](../Unity/Logs/p7-mutant-car-1280.png), [Yetenek 1920](../Unity/Logs/p7-mutant-skill-1920.png); tüm bağlantılar [görev kartı P7-4](isler/2026-11-01-unity-tam-aktarim.md). Ajan inceledi; insan görsel/fiziksel fare kabulü ayrıca açık.
+- **Korunanlar:** mevcut `MutantRun/RNG/SelectCar/Choose` kuralları, kariyer/rekor, fizik/ekonomi/kayıt/TS ve `_Recovery`. Üçüncü teklif kaynakta skill olabilir; gerçek tür gösterildi, yeni skill eklenmedi. Koşu içi sonraki seçim/atölye/sonuç ekranları mevcut sunumda kaldı. Gerçek oyuncu dosyalarına yazılmadı; test ayrı ürün/profilde ve bulut kapalı çalıştı.
+- **Eksikler:** 0 LastTurn çalışma hatası; ayrı Editor başlangıcında önceki Unity Search indeksleyici hatası (1 tanı) sürüyor. Temiz Console iddiası yok. Yeni MCP/paket/3B/servis/alt ajan veya uzun regresyon yok; Claude'a ek oturum açmak gerekmedi. Push/merge/yayın yok.
+- **Sonraki tek görev: F §4 Yarış hazırlığı.** Bu oturumda başlanmadı; bir ekran grubunda duruldu.
+
 # Son devir: P7-3 Mağaza F + Garaj/Modifiye Game View doğrulaması (6 Kasım 2026) — Codex
 
 - Yerel durum devralındı: `codex/unity-p7-garaj`, başlangıç `a24e84b`, son 10 commit/status/fetch kontrol edildi. P7-2 `7f6797f` tesliminin 29 kontrol/131 kaynak kanıtı doğrulandı; Garaj/Modifiye yeniden yazılmadı. Kullanıcının koşullu talimatıyla en yakın bağımlı ekran **Mağaza F §3** tamamlandı. Kod/test commit'i **`db8650c`**; devir kapanışı bu notu son değiştiren yerel commit. Tek Codex; yeni alt ajan/Claude/API/ek kredi yok, Claude kotası bilinmiyor.
