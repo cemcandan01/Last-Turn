@@ -24,6 +24,11 @@ namespace LastTurn.Garage
     {
       if (instance) return;
       if (Application.isBatchMode) { Unavailable = "Otomatik test: bulut kapalı."; return; }
+#if UNITY_EDITOR
+      // Ayrı grafik Editor doğrulaması gerçek Game View kullanır; oyuncu hesabına bağlanmaz.
+      if (Array.IndexOf(Environment.GetCommandLineArgs(), "-lastTurnUiValidation") >= 0)
+      { Unavailable = "Arayüz doğrulaması: bulut kapalı."; return; }
+#endif
       var go = new GameObject("Bulut");
       DontDestroyOnLoad(go);
       instance = go.AddComponent<CloudRuntime>();

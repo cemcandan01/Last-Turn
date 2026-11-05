@@ -19,6 +19,19 @@ internal static class GarageFValidation
       Check(candidate.Balance==money&&candidate.OwnsPart(car,part.Id),"Sökme bakiye ve sahipliği korur");
       Check(actual.Features.Length==6&&actual.PreviewFeatures.Length==6&&actual.Outline.Length>2,"Altı özellik ve kaynak araç geometrisi");
     }
-    Console.WriteLine($"F garaj: {checks} koşul; bütün 12 kategori/42 parça al-tak-sök önizlemesi, salt okuma ve sahiplik.");
+    string snapshot=state.Snapshot().ToString();
+    foreach(var row in GarageViewModel.Cars(state))
+    {
+      Check(row.Type==catalog.Data["cars"][row.Index]["ty"].S(),"Mağaza tür filtresi kaynakla aynı");
+      Check(row.MissingMoney==(row.Owned?0:Math.Max(0,row.Price-state.Balance)),"Mağaza eksik para hesabı");
+      Check(row.Availability.Length>0&&row.Block==state.CarPurchaseBlock(row.Index),"Mağaza erişimi mevcut kuraldan");
+    }
+    Check(snapshot==state.Snapshot().ToString(),"Mağaza okuması mutasyonsuz");
+    var exact=new GarageState(catalog);exact.AddXp(100000);
+    var purchase=GarageViewModel.Cars(exact).First(r=>!r.Owned&&r.Price>0);exact.AddMoney(purchase.Price);
+    Check(GarageViewModel.Cars(exact)[purchase.Index].Primary.Apply(exact),"Tam bedelle satın alma");
+    var ownedRow=GarageViewModel.Cars(exact)[purchase.Index];
+    Check(exact.Balance==0&&ownedRow.Owned&&ownedRow.MissingMoney==0,"Sahip olunan araç sıfır bakiyede eksik para göstermez");
+    Console.WriteLine($"F garaj/mağaza: {checks} koşul; 12 kategori/42 parça, katalog filtre/erişim ve salt okuma.");
   }
 }

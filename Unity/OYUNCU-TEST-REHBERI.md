@@ -49,10 +49,18 @@ Hazırlık: Unity 6000.3.9f1 → `Last Turn/Ana Menüyü Aç` → Play. Kayıtla
 
 1. Ana menü → Yarış → Garaj. Beklenen: F sekmeleri (Kariyer/Garaj/Mağaza), solda araç/kurulum, ortada katalog siluetinden 3B vitrin, sağda altı özellik ve fizik değerleri, altta sahip olunan araç kartları. Vitrin geçici katalog geometrisidir; nihai araç grafiği değildir.
 2. ←/→ veya fare kartı değiştirir. Enter ile aracı seç; seçili araçta Enter Yarış seçimine gider. Seçimden sonra oyunu yeniden aç: aynı araç seçili kalmalı. Fareyi araç üstünde basılı sürükle: vitrin döner.
-3. Mağaza sekmesi veya alttaki Mağazaya git kartı mevcut çalışan mağazayı açar. Araç alımı eski üç saniyelik ikinci onay akışındadır. Garaj'a geri gelince yeni araç görünmeli.
+3. Mağaza sekmesi veya alttaki Mağazaya git kartı F Mağaza'yı açar. Araç alımı mevcut üç saniyelik ikinci onay akışındadır. Garaj'a geri gelince yeni araç görünmeli.
 4. M veya Modifiye: soldaki 12 kategori (↑/↓), ortadaki parçalar (←/→ veya fare), sağda gerçek takma/sökme önizlemesi. Çubuk beyaz işareti önizleme puanıdır; sayılar kaynak performans değerleridir. Enter ilk kez satın alma onayı, üç saniye içinde ikinci Enter alır/takar. Sahip olunan parçayı takmak tekrar para harcamaz.
 5. X veya Kategoriyi sök: kurulum değişir, parça sahipliği ve para korunur. Takılı parça seçiliyken sağ taraf sökme sonucunu gösterir. Stoka dön tüm takılı parçaları çıkarır; iade yoktur. Paket düğmeleri mevcut paket al/tak komutunu kullanır.
 6. Esc: Modifiye → Garaj → Yarış menüsü. Q Kariyer, E Mağaza. Onay beklerken Esc önce onayı kapatır. Bakiye ve seçili parçalar yeniden açılışta aynı olmalı.
-7. 1280×720 ve 1920×1080'de panel/işlem çakışması olmamalı; parça listesi kaydırılabilmeli ve satın alma düğmesi görünür kalmalı. Güncel otomatik görseller `Unity/Logs/p7-{garage,mods}-{1280,1920}.png`.
+7. 1280×720, 1920×1080 ve 2560×1080'de panel/işlem çakışması olmamalı; parça listesi kaydırılabilmeli ve satın alma düğmesi görünür kalmalı. Güncel görseller `Unity/Logs/p7-gameview-{garage,mods,store}-{1280,1920,2560}.png`.
 
-Otomatik Play ayrı kayıtta gerçek UI Toolkit paneli, sentetik klavye ve panel hit-test'inden geçen PointerDown/Up ile yürütülür. Batch ortamında Game View penceresi yerine gerçek UI paneli render texture'a çizilir (3B araç Image dokusu dahil); bu eşdeğer görsel kanıttır. İnsan fare/klavye kullanımı ve görsel beğeni ayrıca kabul edilmelidir.
+Otomatik Play ayrı kayıtta gerçek UI Toolkit paneli, sentetik klavye ve panel hit-test'inden geçen PointerDown/Up ile yürütülür. Güncel `p7-gameview-*` görselleri ayrı grafik Editor'da Game View'den ScreenCapture ile alınır; eski `p7-garage-*` / `p7-mods-*` görselleri batch panel render'larıdır. İnsan fare/klavye kullanımı ve görsel beğeni ayrıca kabul edilmelidir.
+
+## P7-3 Mağaza F kabul turu (6 Kasım 2026)
+
+1. Ana Menü → Yarış → Garaj → E. Mağaza F açılmalı; Q Garaj'a, E Kariyer'e, Esc Yarış menüsüne döner. Yeni açılan ekran açılış tuşunu tekrar işlememeli.
+2. Tür filtrelerine fareyle bas; yalnız o tür görünmeli. Oklar veya fare kartı seçsin, sol vitrin/özellik/fiyat güncellensin. Katalogda sahip olunan araçlar da görünür; üzerlerinde SAHİPSİN yazar.
+3. Kilitli araçta gerekli seviye/kupa bilgisi, eksik para ve kapalı satın alma düğmesi görünmeli. Bakiye yetmezken işlem uygulanmamalı.
+4. Satın alınabilir aracı Enter veya düğmeyle onayla: ilk basış para harcamaz; Esc iptal eder. Üç saniye içinde ikinci onay yalnız tek bedel harcar. GARAJDA GÖR alınan aracı açar; Garaj'da Enter sürüşe seçer. Yeniden yükleme sahipliği, seçimi ve bakiyeyi korur.
+5. PARÇALAR veya Tab, sahip olunan araçla mevcut Modifiye ekranına gider; yeni parça/mağaza ekonomisi yoktur. Tak/sök/geri akışını kontrol et. Üç ekran boyutunda satın alma düğmesi ve alt gezinme görünür kalmalı.

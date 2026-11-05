@@ -755,3 +755,28 @@
 .g-content .unity-scroller__low-button, .g-content .unity-scroller__high-button { background-color:rgb(35,45,54); }
 .g-right { padding-top:18px; padding-bottom:12px; }
 .g-right .g-stat { margin-top:8px; }
+/* P7-3 Mağaza F §3: aynı sekmeler, katalog vitrini ve satın alma paneli. */
+.s-content { position:absolute; left:58px; right:58px; top:170px; bottom:96px; flex-direction:row; }
+.s-featured { width:650px; margin-right:55px; flex-shrink:0; }
+.s-featured .g-name { font-size:42px; margin-bottom:0; }
+.s-featured .g-class { font-size:25px; margin-top:6px; margin-bottom:4px; }
+.s-preview { flex-grow:1; flex-basis:0; flex-shrink:1; min-height:100px; }
+.s-featured .g-panel { padding:18px; }
+.s-stat { font-size:18px; margin-bottom:4px; }
+.s-featured .ltb { margin-top:12px; height:60px; }
+.s-featured .ltb .yazi { font-size:23px; }
+.s-catalog { flex-grow:1; flex-basis:0; }
+.s-tabs { flex-direction:row; margin-bottom:16px; }
+.s-tabs .sekme { width:190px; margin-right:16px; }
+.s-filters { flex-direction:row; flex-wrap:wrap; margin-bottom:12px; }
+.s-filters .sekme { height:42px; padding-left:12px; padding-right:12px; margin-right:8px; margin-bottom:8px; }
+.s-filters .yazi { font-size:18px; }
+.s-scroll { flex-grow:1; flex-basis:0; }
+.s-grid { flex-direction:row; flex-wrap:wrap; }
+.s-car { width:30%; min-height:166px; margin-right:3%; margin-bottom:20px; padding:17px; }
+.s-car .ad { font-size:26px; white-space:normal; }
+.s-car .g-price { font-size:19px; }
+.s-content .unity-scroller { background-color:rgb(17,24,30); }
+.s-content .unity-base-slider__tracker { background-color:rgb(35,45,54); }
+.s-content .unity-base-slider__dragger { background-color:rgb(93,109,122); }
+.s-content .unity-scroller__low-button, .s-content .unity-scroller__high-button { background-color:rgb(35,45,54); }

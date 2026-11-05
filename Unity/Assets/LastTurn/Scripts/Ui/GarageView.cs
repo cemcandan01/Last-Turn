@@ -51,6 +51,8 @@ namespace LastTurn.Ui
       if(confirm!=""&&Time.unscaledTimeAsDouble>confirmUntil){confirm="";Rebuild();}
       money.text="SEVİYE "+seen.Level+"   •   "+seen.Balance.ToString("N0")+" para";
       message.text=confirm!=""?"Satın almak için aynı işlemi tekrar onayla. Esc: vazgeç.":GarageSession.Message;
+      // Açan tuşu aynı karede ikinci kez işleme (Yarış E → Garaj E → Mağaza).
+      if(changed)return;
       var k=Keyboard.current;if(k==null)return;
       if(k.escapeKey.wasPressedThisFrame){if(confirm!=""){confirm="";Rebuild();}else Back();return;}
       if(k.qKey.wasPressedThisFrame){GameFlow.RaceMenu();return;}if(k.eKey.wasPressedThisFrame){GameFlow.OpenStore();return;}

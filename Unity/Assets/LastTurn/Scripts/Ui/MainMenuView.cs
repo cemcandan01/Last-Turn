@@ -11,8 +11,8 @@ namespace LastTurn.Ui
 {
   // F menüleri (Cem, 2026-11-05): ana menüde yalnız YARIŞ, MUTANT, PROFİL, AYARLAR. Yarış menüsü: Kariyer (pist kartları),
   // Garaj, Mağaza sekmeleri. Mutant menüsü: ayrı ton, "Yeni koşu başlasın mı?" onayından sonra koşu başı (araç → yetenek).
-  // Veri GameFlow.Menu() (CareerMenuModel) ve Mutant rekoru; işlemler GameFlow/oturum komutları. Garaj, Mağaza, Profil ve
-  // Ayarlar şimdilik bugünkü geçici ekranlardır (akış aynı).
+  // Veri GameFlow.Menu() (CareerMenuModel) ve Mutant rekoru; işlemler GameFlow/oturum komutları.
+  // Garaj/Modifiye/Mağaza F; Profil ve Ayarlar mevcut geçici ekranları kullanır.
   public sealed class MainMenuView : MonoBehaviour
   {
     private static readonly (string Name, string Sub)[] HomeItems =
@@ -146,7 +146,7 @@ namespace LastTurn.Ui
     private void OpenRaceTab(int n)
     {
       GameAudio.Click();
-      if (n == 1) { GameFlow.RaceMenu(); GameFlow.Browse(0); }
+      if (n == 1) { GameFlow.RaceMenu(); GameFlow.Browse(0); var garage=FindFirstObjectByType<GarageScreen>();if(garage)garage.SelectShop(false); }
       else if (n == 2) GameFlow.OpenStore();
     }
 
@@ -203,7 +203,7 @@ namespace LastTurn.Ui
     private void Update()
     {
       if (home == null) return;
-      Visible = Wanted(); Showing = GameFlow.Hub;
+      bool wasVisible=Visible;Visible = Wanted(); Showing = GameFlow.Hub;
       Ui.Show(home, Visible && Showing == GameFlow.MenuHub.Home); Ui.Show(race, Visible && Showing == GameFlow.MenuHub.Race); Ui.Show(mutant, Visible && Showing == GameFlow.MenuHub.Mutant);
       if (!Visible || Showing != GameFlow.MenuHub.Mutant) Ui.Show(confirm, false);
       if (!Visible) return;
@@ -214,7 +214,7 @@ namespace LastTurn.Ui
       if (Showing == GameFlow.MenuHub.Race && (m != shown || type != shownType)) Rebuild(m);
       if (Showing == GameFlow.MenuHub.Mutant) { var r = MutantRuntime.Record(); mutantBest.text = r.Region > 0 ? "Bölge " + r.Region + " · " + r.Bosses + " boss" : "Henüz koşu yok"; }
       if (Showing == GameFlow.MenuHub.Home && !homeTiles[homeFocus].ClassListContains("sec")) FocusHome(homeFocus);
-      Keys(Keyboard.current);
+      if(wasVisible)Keys(Keyboard.current);
     }
 
     private void Keys(Keyboard k)
