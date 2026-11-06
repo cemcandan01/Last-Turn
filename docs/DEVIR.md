@@ -1,3 +1,12 @@
+# Son devir: P7-5 F §4 Yarış hazırlığı (6 Kasım 2026) — Codex
+
+- **Tamamlanan tek ekran:** Yarış hazırlığı. Pist/harita/yıldız hedefleri/gerçek rekor/ödül öngörüsü, araç uygunluğu, saat/hava, C ile araç değiştirip aynı koşullara dönüş, mevcut kariyer/deneme başlatma ve geri akışı. Kod/test commit'i **`907cb1a`**, dal `codex/unity-p7-garaj`; devir kapanış SHA bu notun son yerel commit'i. A/B yeniden yapılmadı.
+- **Testler:** gerçek grafik Unity Play **46/46**, 137 güncel kaynak hash'i; etkilenen P1 kariyer Play **65/65**, 340 kaynak; dar .NET hazırlık **1.124**, koşullar **5.356**, kariyer **3.597**. Kanıt `Unity/Logs/p7-preparation-f-play.json`, `p1-play.json`; checker'lar `check-preparation-f-proof.mjs`, `check-career-flow-proof.mjs` geçti.
+- **Game View:** [Kariyer 1280](../Unity/Logs/p7-preparation-ready-1280.png), [Kariyer 1920](../Unity/Logs/p7-preparation-ready-1920.png), [Deneme](../Unity/Logs/p7-preparation-practice-1920.png), [Kilit](../Unity/Logs/p7-preparation-locked-1280.png). Ajan dört görüntüyü inceledi; insan görsel/fiziksel fare kabulü açık. Manuel tur `Unity/OYUNCU-TEST-REHBERI.md` P7-5.
+- **Korunanlar:** fizik/ekonomi/ödül/kayıt kuralları, TS 0.8.18, Firebase/oyuncu dosyaları ve `_Recovery`. Örnek dakika ödülü yerine mevcut servisin üç yıldız öngörüsü gösterilir; yeni kural yok. Saat/hava mevcut oturumluk seçimlerdir. Test ayrı ürün/profilde, bulut kapalı; gerçek oyuncu dizinine yazılmadı. Yeni MCP/paket/3B/servis/alt ajan, uzun regresyon, push/merge/yayın yok.
+- **Eksikler:** 0 LastTurn çalışma hatası; önceki Unity Search indeksleyici hatası 1 Editor tanısı olarak sürüyor. Arka plan geçici koyu zemin; yeni 3B sahne üretilmedi. Ayrıntı ve kabul kanıtı [aynı kart P7-5](isler/2026-11-01-unity-tam-aktarim.md).
+- **Sonraki tek görev: F §6 Profil ve bulut hesabı.** Bu oturumda başlanmadı; yalnız hazırlık ekranında duruldu.
+
 # Son devir: P7-4 Mutant başlangıcı F §5a–d (6 Kasım 2026) — Codex
 
 - **Tamamlanan grup B:** Mutant menüsü/onay + başlangıç aracı/yeteneği + araca geri dön/sürüşe başla/menüye dönüş. A'nın 76 kontrollük önceki kanıtı başta doğrulandı; A tekrar yapılmadı. Kod/test commit'i **`f3a049f`**, dal `codex/unity-p7-garaj`; kapanış SHA bu notun son yerel commit'i.

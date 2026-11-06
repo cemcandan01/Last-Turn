@@ -413,3 +413,25 @@ P7-3 kapanış: kod/test commit'i **`db8650c`**. Son kaynakla grafik Unity Game 
 | §5d Başlangıç yeteneği | [PNG](../../Unity/Logs/p7-mutant-skill-1280.png) | [PNG](../../Unity/Logs/p7-mutant-skill-1920.png) |
 
 Kapanış: **yalnız B tamamlandı**; A'nın mevcut kanıtı başta yeniden çalıştırılmadan doğrulandı. İnsan görsel kabulü açık, sonraki tek görev **F §4 Yarış hazırlığı**. Yeni MCP/paket/3B/oynanış/ücretli servis/alt ajan yok; Claude'a ek oturum açmak gerekmedi, kota kapasitesi resmî veri olmadan bilinmiyor. Yerel commit var; push/merge/yayın yok. Devir kapanış SHA'sı bu kartı son değiştiren yerel commit.
+
+### P7-5: F §4 Yarış hazırlığı — 6 Kasım 2026
+
+- Başlangıç `codex/unity-p7-garaj` / `ad1dd9d`. Status yalnız korunan `_Recovery`; son 10 commit/devir/F §4/Windows kararları okundu, fetch yapıldı. A ve B tamamlanmış; B'nin 56 Play/134 kaynak kanıtı başta doğrulandı. Tek Codex, ek ajan/model/API yok, Claude kota kapasitesi bilinmiyor.
+- Yalnız bu ekran: pist/harita/yıldız/rekor/gerçek ödül öngörüsü; mevcut bütçe/kilit ve seçili araç; saat/hava; araç değiştirip aynı pist/koşullara dönme; mevcut yarış başlatma/geri akışı. Kabul: dar Core testi, 1280×720 + 1920×1080 gerçek Game View/Play, fare/klavye, kayıt/rekor/Console koruması, yerel commit ve dur. Yeni mekanik/3B/paket/yayın yok.
+- **Tamamlandı; kod/test commit'i `907cb1a`.** `RacePreparationView` ve saf `RacePreparationModel`; pist/açıklama/aşama/tur, mevcut geometriden harita, üç yıldız hedefi, gerçek kariyer/deneme rekoru, seçili araç sınıf/puan/bütçe, kilit/uygunluk, saat/hava ve mevcut başlatma komutu. F ortak eğik sekmeler/tuşlar korunur. Yeni arka plan grafiği yerine koyu geçici zemin kullanılır.
+- `GameFlow` yalnız araç seçiminden hazırlığa dönüş rotası tutar. C → Garaj → seçili Enter veya Esc aynı pist/saat/havaya döner; normal Garaj akışı aynı kalır. Modifiye'ye mevcut Garaj yoluyla erişilir. Hazırlık Esc kariyer kartlarına döner. Zaman/hava mevcut oturumluk `RaceConditions` alanlarıdır; yeni kalıcı kayıt/oynanış kuralı yok.
+- Taslaktaki dakika başı örnek ödül yerine mevcut `VehicleCatalog.Reward(...,3,öncekiYıldız)` öngörüsü gösterildi; kilit/denemede 0. Kesin ödül mevcut yarış bitişindedir. Menü anahtarı `gp_1` ile gerçek rekor anahtarı `kariyer1_asphalt_1` ayrımı testte yakalanıp düzeltildi; deneme rekoru mevcut `deneme_` önekiyle okunur. Yeni ödül/rekor biçimi oluşturulmadı.
+- **Dar .NET:** `--race-preparation` **1.124** (40 etkinlik, uygun/bütçe dışı/kilit, gerçek bitiş ödülü, kayıt anahtarı, fizik geometrisini değiştirmeyen harita, mutasyonsuz okuma); mevcut `--conditions` **5.356**; etkilenen `--career-flow` **3.597**, TS ödül/kayıt geçişlerinde en büyük fark 0. `validate-project` ve `git diff --check` geçti.
+- **Gerçek grafik Unity 6000.3.9f1 Play 46/46**, UTC `2026-11-06T09:58:31.7348628Z`; `Unity/Logs/p7-preparation-f-play.json`. Açan Enter'ın ikinci kez işlenmemesi, fare saat/hava, klavyeyle araç değiştirip dönme/iptal, gerçek diskten seçili araç, bütçe dışı gerçek deneme yarışı, .84 yağmur tutuşu, kilitli pistin düğme ve servis düzeyinde reddi, fare Başla ile gerçek kariyer yarışı ve .74 kar tutuşu, kariyer menüsüne dönüş, para/XP/sahiplik ve önceki rekor koruması. Fiziksel OS fare yerine gerçek panel hit-test/PointerDown/Up ve sentetik klavye; insan kabulü değildir.
+- `check-preparation-f-proof.mjs` **137 güncel C#/USS hash'i**, dört Game View PNG boyutu ve temel akışları doğruladı. **0 LastTurn çalışma hatası**, **1 önceki Unity Editor Search indeksleyici tanısı**; tamamen temiz Console iddiası yok. Yeni derleme hatası yok. Kanıt gerçekten ScreenCapture Game View'dir; batch panel render'ı değildir. Dört görüntü ajan tarafından incelendi.
+- **P1 koruma Play 65/65** (beş yarış/ödül/profil/Play kapat-aç); `Unity/Logs/p1-play.json`, `Unity/Logs/p7-preparation-p1-editor.log`. `check-career-flow-proof` **340 güncel kaynak** doğruladı. Geniş P1–P5 regresyonu, A/B tekrar uygulaması veya yeni ekran grubu yapılmadı.
+- İzolasyon: mevcut ayrı `Unity/Logs/P7StoreEditor`, company/product `LastTurnUiValidation`, `-lastTurnUiValidation` ile grafik testte bulut kapalı, Logs altında yeni test profilleri. Gerçek Firebase/oyuncu oturumları kopyalanmadı/yazılmadı; ürün oyuncu dizinleri önce/sonra aynı hash'te. Açık kullanıcı Editor'larına dokunulmadı; test Editor'ları kapanarak ardışık çalıştı. `_Recovery` aynı ve commit dışı. Yeni paket/MCP/servis/3B/alt ajan yok, push/merge/yayın yok.
+
+| Hazırlık durumu | Gerçek Game View |
+|---|---|
+| Kariyer 1280×720 | [PNG](../../Unity/Logs/p7-preparation-ready-1280.png) |
+| Kariyer 1920×1080 | [PNG](../../Unity/Logs/p7-preparation-ready-1920.png) |
+| Bütçe dışı deneme 1920×1080 | [PNG](../../Unity/Logs/p7-preparation-practice-1920.png) |
+| Kilitli pist 1280×720 | [PNG](../../Unity/Logs/p7-preparation-locked-1280.png) |
+
+Yerel PNG/proof/log dosyaları gitignored Logs içindedir; başka makineye commit ile taşınmaz. Manuel kabul `Unity/OYUNCU-TEST-REHBERI.md` P7-5; insan görsel/fiziksel klavye/fare kabulü açık. **Sonraki tek görev F §6 Profil ve bulut hesabı**; bu oturumda başlanmadı. Devir kapanış SHA'sı bu kartı son değiştiren yerel commit.
