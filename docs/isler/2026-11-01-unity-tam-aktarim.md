@@ -435,3 +435,27 @@ Kapanış: **yalnız B tamamlandı**; A'nın mevcut kanıtı başta yeniden çal
 | Kilitli pist 1280×720 | [PNG](../../Unity/Logs/p7-preparation-locked-1280.png) |
 
 Yerel PNG/proof/log dosyaları gitignored Logs içindedir; başka makineye commit ile taşınmaz. Manuel kabul `Unity/OYUNCU-TEST-REHBERI.md` P7-5; insan görsel/fiziksel klavye/fare kabulü açık. **Sonraki tek görev F §6 Profil ve bulut hesabı**; bu oturumda başlanmadı. Devir kapanış SHA'sı bu kartı son değiştiren yerel commit.
+
+### P7-6: F §6 Profil ve bulut hesabı — 6 Kasım 2026
+
+- Başlangıç `codex/unity-p7-garaj` / `81768e0`; status yalnız korunan `_Recovery`, son 10 commit/devir/F §6/Windows kararları okundu, fetch yapıldı. A/B ve hazırlık tamamlanmış; önceki 46 Play/137 kaynak kanıtı başta doğrulandı. Tek Codex, ek ajan/model/API yok, Claude kotası bilinmiyor.
+- Yalnız profil ekranı: sürücü adı/istatistik/favori/XP, mevcut bulut durumları, hesap oluştur/giriş/şifre sıfırlama formu, Tab/Enter/Esc ve fare. Kabul: dar Core/bulut kontrolleri, ayrı üründe gerçek grafik Play/1280×720 + 1920×1080 Game View, gerçek servis + yerel sahte sağlayıcıyla hesap eylemleri ve bekleme/hata/bağlı durum, diskten ad yeniden yükleme ve ilerleme/Mutant/oyuncu dosyası koruması; commit/devir ve dur. Canlı Firebase hesabı/anahtar/oturum dosyaları kullanılmaz; yeni sağlayıcı/mekanik/3B/paket yok.
+- **Tamamlandı; kod/test commit'i `0ea39d9`.** `ProfileView` ve saf `ProfileViewModel`: seviye/XP halkası, ad düzenle/kaydet/iptal, yarış/galibiyet/yol/yıldız/para, favori araç/kullanım, mevcut hesap özeti ve üç e-posta işlemi. Eski IMGUI yalnız F profil açıkken gizlenir. Önceki form doğrulaması aynı metinlerle Core yardımcıya taşındı; fallback IMGUI de aynı yardımcıyı kullanır. CloudAccount/CloudSync/FirebaseRestProvider hesap ve eşitleme kuralları değiştirilmedi.
+- UI alanları/işlemleri Tab odağı alır; Enter odaktaki ad/hesap işlemini yürütür, Esc önce ad düzenlemesini iptal eder, sonra menüye döner. Şifre/tekrar maskelidir; gönderimde, kullanıcı değişiminde ve ekrandan çıkışta temizlenir. Misafir/bağlı hesap, servis yok, bekleme ve hata durumları mevcut Account metinlerinden gelir. Beklemede ikinci çağrı engellenir; bağlı hesapta gizli oluştur eylemi çağrılamaz. Geliştirici/test profili buluta işlem göndermez.
+- **Dar .NET:** `--profile-f` **31** (profil/sayaç/favori/XP/form/salt okuma), mevcut `--cloud-sync` **92** (sahte Firebase HTTP/kimlik/Firestore ile misafir/e-posta/iki cihaz/çevrimdışı/kural reddi). İlgisiz P1–P5 veya A/B regresyonu tekrarlanmadı. `validate-project` ve `git diff --check` geçti.
+- **Gerçek grafik Unity 6000.3.9f1 Play 59/59**, UTC `2026-11-06T12:33:58.7580457Z`; `Unity/Logs/p7-profile-f-play.json`. Gerçek UI Toolkit formu, sentetik klavye/Tab olayı, panel hit-test/PointerDown/Up; adın normalize edilerek diske yazılması, iptal ve yeniden yükleme; mevcut gerçek CloudAccount + yerel sahte ICloudProvider ile oluştur/giriş/sıfırlama/bekleme/hata/aynı hesabı koruma; password temizliği; ad dışı sayaç/rekor, kariyer/para ve kalıcı JSON koruması. Fiziksel OS fare/insan kabulü değildir.
+- `check-profile-f-proof.mjs` **140 güncel C#/USS hash'i**, yedi yeni Game View boyutu ve gerekli akışları doğruladı. Son Play kaydı **0 çalışma hatası / 0 Editor tanısı**; önceki Search indeksleyici tanısı bu koşuda çıkmadı. Yedi ScreenCapture görüntüsü ajan tarafından incelendi; yeni 3B varlık yok.
+- **İzolasyon ve sınır:** mevcut ayrı `Unity/Logs/P7StoreEditor`, yalnız test kopyasının company adı `LastTurnProfileUiValidation`, product `LastTurnUiValidation`. `-lastTurnUiValidation` gerçek bulut açılışını atlar. Editor-only `SetUiValidationAccount` yalnız bu company/product/bayrakta yerel hesap bağlayabilir; oyuncu build'inde yoktur. Yerel test sağlayıcısı/owner/eşitleme belgesi bellektedir; gerçek Firebase, hesap/e-posta gönderimi ve mevcut oturum/anahtar dosyaları kullanılmadı. Canlı hesap uçtan uca kabulü ayrıca açık.
+- İlk son-dosya kontrolü, normal `.lock` lease yenilenmesini ve profil yolunun ayraç farkını değişiklik saydı. Koruma kalıcı JSON'ları normalleştirilmiş yollarla karşılaştıracak, ad dışındaki tüm profil snapshot'ını da doğrulayacak şekilde düzeltildi; oyun kayıt/lease kodu değiştirilmedi. Ham ilk failure `tests/cikti/p7-profile-first-lock-check-failure.json`. Test hesabının seviye callback'i normal Runtime ile eşlendi; bağlı hesap bildirimi ve dolu XP halkası aynı gerçek seviye üzerinden doğrulandı.
+
+| Profil durumu | Game View |
+|---|---|
+| Servis yok 1280×720 | [PNG](../../Unity/Logs/p7-profile-unavailable-1280.png) |
+| Misafir 1280×720 | [PNG](../../Unity/Logs/p7-profile-guest-1280.png) |
+| Misafir 1920×1080 | [PNG](../../Unity/Logs/p7-profile-guest-1920.png) |
+| Bağlı 1280×720 | [PNG](../../Unity/Logs/p7-profile-linked-1280.png) |
+| Bağlı 1920×1080 | [PNG](../../Unity/Logs/p7-profile-linked-1920.png) |
+| Bekleme 1920×1080 | [PNG](../../Unity/Logs/p7-profile-busy-1920.png) |
+| Hata 1280×720 | [PNG](../../Unity/Logs/p7-profile-error-1280.png) |
+
+Yerel PNG/proof/loglar gitignored Logs içindedir; commit ile taşınmaz. Gerçek oyuncu/Firebase kayıtlarına ve `_Recovery`ye dokunulmadı. UI testine ait ayrı ürünün normal profil verisi dışında dosya yazılmadı. Yeni MCP/paket/servis/3B/alt ajan yok; push/merge/yayın yok. **Sonraki tek görev F §7 Ayarlar**; başlanmadı. İnsan görsel ve canlı hesap kabulü açık; manuel tur `Unity/OYUNCU-TEST-REHBERI.md` P7-6. Devir kapanış SHA'sı bu kartı son değiştiren yerel commit.

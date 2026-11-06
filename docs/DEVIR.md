@@ -1,3 +1,12 @@
+# Son devir: P7-6 F §6 Profil ve bulut hesabı (6 Kasım 2026) — Codex
+
+- **Tamamlanan tek ekran:** Profil ve bulut hesabı F. Ad düzenle/kaydet/iptal, seviye/XP halkası, sayaçlar/favori araç, mevcut hesap özeti, oluştur/giriş/sıfırlama ve bekleme/hata akışı. Kod/test commit'i **`0ea39d9`**, dal `codex/unity-p7-garaj`; kapanış SHA bu notun son yerel commit'i. Önceki ekranlar yeniden yapılmadı.
+- **Testler:** grafik Unity Play **59/59**, **140** güncel kaynak hash'i; dar .NET profil/form **31**, mevcut bulut eşitleme **92**. `check-profile-f-proof`, proje düzeni ve diff kontrolü geçti. Son Play kaydı **0 çalışma hatası / 0 Editor tanısı**. Kanıt `Unity/Logs/p7-profile-f-play.json`.
+- **Yedi gerçek Game View:** `Unity/Logs/p7-profile-{guest,linked}-{1280,1920}.png` ve unavailable/busy/error örnekleri. [Misafir 1280](../Unity/Logs/p7-profile-guest-1280.png), [Bağlı 1920](../Unity/Logs/p7-profile-linked-1920.png), [Hata](../Unity/Logs/p7-profile-error-1280.png); tüm bağlantılar [aynı kart P7-6](isler/2026-11-01-unity-tam-aktarim.md). Ajan görüntüleri inceledi; insan görsel/fiziksel klavye/fare kabulü açık.
+- **Bulut test sınırı:** gerçek CloudAccount + yerel sahte sağlayıcı; canlı Firebase'e giriş/hesap oluşturma/e-posta gönderimi yapılmadı. Ayrı test company/product ve kapalı gerçek bulut kullanıldı. Editor-only test bağlama normal oyuncu build'inde yok. Canlı hesap kabulü kullanıcı turunda açık; test sonucu canlı Firebase başarısı değildir.
+- **Korunanlar:** ad dışındaki profil sayaç/rekorları ve kalıcı JSON'lar, kariyer/para/Mutant durumu, mevcut hesap/eşitleme kuralları, TS, `_Recovery` ve gerçek oyuncu/Firebase dosyaları. Şifre alanları maskeli ve gönderim/çıkışta temizlenir. Yeni MCP/paket/3B/servis/alt ajan, uzun regresyon, push/merge/yayın yok.
+- **Sonraki tek görev: F §7 Ayarlar.** Bu oturumda başlanmadı; yalnız profil ekranında duruldu. Manuel tur: `Unity/OYUNCU-TEST-REHBERI.md` P7-6.
+
 # Son devir: P7-5 F §4 Yarış hazırlığı (6 Kasım 2026) — Codex
 
 - **Tamamlanan tek ekran:** Yarış hazırlığı. Pist/harita/yıldız hedefleri/gerçek rekor/ödül öngörüsü, araç uygunluğu, saat/hava, C ile araç değiştirip aynı koşullara dönüş, mevcut kariyer/deneme başlatma ve geri akışı. Kod/test commit'i **`907cb1a`**, dal `codex/unity-p7-garaj`; devir kapanış SHA bu notun son yerel commit'i. A/B yeniden yapılmadı.
