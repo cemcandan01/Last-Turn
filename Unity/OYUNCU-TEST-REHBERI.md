@@ -73,3 +73,12 @@ Otomatik Play ayrı kayıtta gerçek UI Toolkit paneli, sentetik klavye ve panel
 4. Yetenek adımında ← / ARACI DEĞİŞTİR / Esc araç adımına dönmeli. Boss, araç ve yetenek teklifleri yeniden çekilmemeli; süre seçim sırasında akmamalı. Araç adımında Esc Mutant menüsüne çıkar.
 5. Sürüşe başlandığında seçilen araç/pasif uygulanmalı ve boss süresi akmalı. Sürüşte Esc mevcut duraklatmayı açar; Koşudan çık Mutant menüsüne döner. Kariyer ilerlemesi ve önceki Mutant rekoru aynı kalmalı.
 6. 1280×720 ve 1920×1080'de boss metni/kartlar/düğmeler çakışmamalı; uzun boss bilgisi kaydırılabilmeli. Otomatik Game View görselleri `Unity/Logs/p7-mutant-{menu,confirm,car,skill}-{1280,1920}.png`; fiziksel fare ve insan görsel kabulü ayrıca yapılır. Koşunun sonraki seçimleri/atölye/sonuç ekranları bu grubun F aktarımına dahil değildir.
+
+## P7-5 Yarış hazırlığı F §4 (6 Kasım 2026)
+
+1. Ana Menü → Yarış → pist kartında Enter. Hazırlık açılmalı; açan Enter yarışı aynı anda başlatmamalı. Pist adı/açıklaması, gerçek harita, üç yıldız hedefi, kariyer veya deneme rekoru ve ödül öngörüsü görünmeli.
+2. 1/2/3 veya fare: Sabah/Öğlen/Akşam. 4/5/6 veya fare: Güneşli/Yağmurlu/Karlı. Koşullar mevcut oturumluk seçimlerdir; yeni kalıcı ayar/kayıt biçimi eklenmedi.
+3. C veya ARACI DEĞİŞTİR → Garaj. Aracı seç, seçili araçta tekrar Enter veya Esc ile aynı hazırlığa dön. Pist, saat ve hava korunmalı; seçilen araç diskten yeniden yüklenince aynı kalmalı. Modifiye'ye de mevcut Garaj yoluyla girilebilir.
+4. Bütçeyi aşan araçta ödülsüz deneme yazmalı, ödül 0 olmalı; deneme başlatılabilmeli. Kilitli pistte gerekçe görünmeli, düğme kapalı olmalı; doğrudan başlatma komutu da reddetmeli.
+5. Enter veya fare Başla gerçek yarışı açmalı; seçilen hava mevcut fizik tutuşuna aktarılmalı. Hazırlık Esc kariyer kartlarına dönmeli. Yarıştan mevcut dönüş yolunu kullanınca para/ilerleme yalnız mevcut yarış bitiş kurallarına göre değişmeli.
+6. Taslaktaki dakika başı örnek sayı yerine mevcut ödül servisinin önceki yıldızlara göre üç yıldız öngörüsü gösterilir; kesin ödül bitişte hesaplanır. 1280×720 ve 1920×1080 görselleri `Unity/Logs/p7-preparation-ready-{1280,1920}.png`; deneme/kilit örnekleri aynı klasörde `p7-preparation-{practice-1920,locked-1280}.png`. Arka plan geçici koyu zemindir; yeni 3B grafik yoktur.

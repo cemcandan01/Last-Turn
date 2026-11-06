@@ -803,3 +803,19 @@
 .m-content .unity-base-slider__tracker { background-color:rgb(35,45,54); }
 .m-content .unity-base-slider__dragger { background-color:rgb(93,109,122); }
 .m-content .unity-scroller__low-button, .m-content .unity-scroller__high-button { background-color:rgb(35,45,54); }
+/* F §4 Yarış hazırlığı. */
+.r-content { position:absolute; left:58px; right:58px; top:170px; bottom:100px; flex-direction:row; }
+.r-left { flex-grow:1; flex-basis:0; margin-right:70px; }
+.r-title { font-size:65px; white-space:normal; }
+.r-track-row { flex-direction:row; margin-top:32px; height:370px; }
+.r-map { flex-grow:1; flex-basis:0; background-color:rgb(12,21,26); border-radius:10px; margin-right:25px; }
+.r-targets { width:400px; }
+.r-stat { font-size:26px; margin-top:16px; margin-bottom:18px; }
+.r-reward { margin-top:25px; }
+.r-options { width:610px; flex-shrink:0; align-self:flex-start; padding:30px; }
+.r-options .bb { margin-top:22px; }
+.r-options .ltb { margin-top:20px; }
+.r-options .g-copy { min-height:48px; }
+.r-chips { flex-direction:row; margin-top:16px; margin-bottom:18px; }
+.r-chips .sekme { flex-grow:1; flex-basis:0; padding-left:12px; padding-right:12px; }
+.r-chips .yazi { font-size:23px; }

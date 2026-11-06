@@ -87,7 +87,7 @@ namespace LastTurn.Ui
       if(command.SpendsMoney&&(confirm!=key||Time.unscaledTimeAsDouble>confirmUntil)){confirm=key;confirmUntil=Time.unscaledTimeAsDouble+3;Rebuild();return;}
       confirm="";GarageSession.Execute(command);GameAudio.Click();seen=GarageSession.State;Rebuild();
     }
-    private void SelectOrRace(){var c=cars.First(x=>x.Index==ViewedCar);if(!c.Selected)Execute(c.Primary);else GameFlow.RaceMenu();}
+    private void SelectOrRace(){var c=cars.First(x=>x.Index==ViewedCar);if(!c.Selected)Execute(c.Primary);else GameFlow.FinishGarageSelection();}
     private void Back(){confirm="";if(Modifying){legacy.SelectTab(0);part="";}else GameFlow.Back();}
     private static VisualElement Box(string cls="g-panel"){var e=new VisualElement();e.AddToClassList(cls);return e;}
     private static void AddButton(VisualElement parent,string label,string key,Action action,bool enabled=true,bool primary=false)
