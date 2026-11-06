@@ -90,3 +90,11 @@ Otomatik Play ayrı kayıtta gerçek UI Toolkit paneli, sentetik klavye ve panel
 3. Geçersiz e-posta, kısa şifre ve farklı tekrar mevcut Türkçe hata metinlerini göstermeli. İşlem sürerken bulut işlemleri kapanmalı; hata sonrasında durum/hesap korunmalı ve metin görünmeli. Servis yoksa veya geliştirici/test profili ise bulut işlemleri kapalıdır.
 4. Var olan hesaba girişte yerel ilerlemenin o hesabınkiyle değişmesi mevcut kaynak davranışıdır; ekrandaki açıklamayı koru. Yeni sağlayıcı, hesap türü veya eşitleme kuralı eklenmedi.
 5. 1280×720 ve 1920×1080 görselleri `Unity/Logs/p7-profile-{guest,linked}-{1280,1920}.png`; unavailable/busy/error örnekleri aynı klasörde. Grafik otomasyon gerçek CloudAccount + yerel sahte sağlayıcı kullanır; gerçek Firebase'e giriş/hesap oluşturma/e-posta gönderme yapmaz. Canlı hesap ve insan görsel kabulü ayrı kullanıcı turudur.
+
+## P7-7 Ayarlar F §7 (6 Kasım 2026)
+
+1. Ana Menü → Ayarlar (ya da 4): solda altı bölüm (Sürüş, Kamera, Göstergeler, Ses, Grafik, Kontroller), ortada satırlar, sağda odaktaki satırın açıklaması; sahne arkada kararır. Q/E bölüm, ↑/↓ satır, ←/→ değiştirir, Enter sıradaki seçeneğe geçer; fareyle sekme, seçenek ve ses −/+ ya da çubuk tıklanır.
+2. Sürüş yardımını değiştir; Garaj/kariyerde aynı seviye kalmalı. Direksiyon ters, kamera, harita biçimi ve sesleri değiştir; Esc (Kaydet ve dön) ana menüye döner. Oyunu kapatıp aç: değerler korunmalı.
+3. Göstergeler Windows'ta yalnız Harita biçimini gösterir (hız/süre/pist adı F yerleşiminde sabit). Kontroller'de tuş tablosu sürüşte kullanılan eşlemeden okunur; tuş değiştirme yoktur (mevcut oyunda böyle bir özellik yok).
+4. Yarışta Esc → Duraklatma → Ayarlar: aynı F ekranı açılır, HUD gizlenir. Esc ayarları kaydedip duraklatma menüsüne döner; bir Esc daha yarışa devam ettirir.
+5. Görseller `Unity/Logs/p7-settings-{drive,sound,controls,race}-1920.png`, `p7-settings-{camera,controls}-1280.png`, `p7-settings-controls-2560.png`. Otomasyon sentetik klavye ve panel hit-test kullanır; insan görsel/fiziksel fare kabulü açık.

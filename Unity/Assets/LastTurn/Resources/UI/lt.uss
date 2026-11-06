@@ -844,3 +844,33 @@
 .p-content .unity-base-slider__tracker { background-color:rgb(35,45,54); }
 .p-content .unity-base-slider__dragger { background-color:rgb(93,109,122); }
 .p-content .unity-scroller__low-button, .p-content .unity-scroller__high-button { background-color:rgb(35,45,54); }
+/* F §7 Ayarlar: bölüm listesi, satırlar, açıklama paneli; sahne kararır. */
+.st-page { background-color:rgba(5,8,11,.86); }
+.st-sections { position:absolute; left:58px; top:170px; width:290px; }
+.st-sections .sekme { height:54px; margin:0 0 9px 0; justify-content:center; align-items:flex-start; padding-left:26px; }
+.st-sections .sekme > .skew { --fill:rgba(11,20,24,.85); --edge:rgba(255,255,255,.13); }
+.st-sections .sekme:hover > .skew { --fill:rgba(30,38,44,.94); --edge:rgb(255,122,60); }
+.st-sections .sekme.sec > .skew { --fill:rgb(255,122,60); --edge:rgba(255,176,112,.9); }
+.st-sections .sekme .yazi { font-size:23px; }
+.st-main { position:absolute; left:390px; right:600px; top:170px; bottom:110px; }
+.st-title { -unity-font-definition:url("Fonts/BarlowCondensed-ExtraBoldItalic.ttf"); font-size:36px; color:rgb(255,255,255); margin-bottom:12px; }
+.st-scroll { flex-grow:1; }
+.st-row { flex-direction:row; align-items:center; min-height:64px; padding:8px 14px; margin-bottom:4px; border-left-width:3px; border-color:rgba(0,0,0,0); border-radius:4px; }
+.st-row.sec { background-color:rgba(255,122,60,.16); border-left-color:rgb(255,122,60); }
+.st-name { flex-grow:1; flex-shrink:1; -unity-font-definition:url("Fonts/Barlow-Medium.ttf"); font-size:21px; color:rgb(255,255,255); white-space:normal; margin-right:16px; }
+.st-row .parca { padding:0 16px; height:42px; }
+.st-row .parca > Label { font-size:18px; }
+.st-slider { flex-direction:row; align-items:center; }
+.st-slider .parca { width:44px; padding:0; align-items:center; border-width:1px; border-radius:6px; }
+.st-track { width:300px; height:12px; margin:0 14px; border-radius:6px; }
+.st-value { width:72px; -unity-text-align:middle-right; -unity-font-definition:url("Fonts/BarlowCondensed-Bold.ttf"); font-size:26px; color:rgb(255,255,255); }
+.st-keys { margin-top:22px; }
+.st-key { flex-direction:row; align-items:center; height:44px; padding:0 14px; border-bottom-width:1px; border-color:rgba(255,255,255,.07); }
+.st-keycaps { flex-direction:row; }
+.st-keycaps .t { margin-left:8px; }
+.st-info { position:absolute; right:58px; top:170px; width:500px; }
+.st-info .g-copy { font-size:20px; }
+.st-main .unity-scroller { background-color:rgb(17,24,30); }
+.st-main .unity-base-slider__tracker { background-color:rgb(35,45,54); }
+.st-main .unity-base-slider__dragger { background-color:rgb(93,109,122); }
+.st-main .unity-scroller__low-button, .st-main .unity-scroller__high-button { background-color:rgb(35,45,54); }

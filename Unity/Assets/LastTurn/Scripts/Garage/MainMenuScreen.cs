@@ -16,7 +16,7 @@ namespace LastTurn.Garage
     private void Update()
     {
       if(MutantRuntime.Active)return;
-      if(SceneManager.GetActiveScene().name!="Garage" && Keyboard.current!=null && Keyboard.current.escapeKey.wasPressedThisFrame)GameFlow.Pause(!GameFlow.Paused);
+      if(SceneManager.GetActiveScene().name!="Garage" && !SettingsScreen.Open && Time.frameCount!=SettingsScreen.ClosedFrame && Keyboard.current!=null && Keyboard.current.escapeKey.wasPressedThisFrame)GameFlow.Pause(!GameFlow.Paused);
     }
     private bool Button(string label)=>GUILayout.Button(label,button,GUILayout.MinHeight(48));
     private string email="",password="",password2="",formError="";

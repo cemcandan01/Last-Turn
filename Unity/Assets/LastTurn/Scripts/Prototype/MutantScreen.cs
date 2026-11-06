@@ -19,13 +19,13 @@ namespace LastTurn.Prototype
     {
       if(!MutantRuntime.Active)return;
       if(LastTurn.Ui.MutantStartView.CoversCurrentScreen)return;
-      if(Keyboard.current!=null&&Keyboard.current.escapeKey.wasPressedThisFrame)GameFlow.Pause(!GameFlow.Paused);
+      if(!SettingsScreen.Open&&Time.frameCount!=SettingsScreen.ClosedFrame&&Keyboard.current!=null&&Keyboard.current.escapeKey.wasPressedThisFrame)GameFlow.Pause(!GameFlow.Paused);
     }
     private bool Button(string name)=>GUILayout.Button(name,button,GUILayout.MinHeight(44));
     private void OnGUI()
     {
       if(!MutantRuntime.Active)return;
-      if(LastTurn.Ui.MutantStartView.CoversCurrentScreen)return;
+      if(LastTurn.Ui.MutantStartView.CoversCurrentScreen||LastTurn.Ui.SettingsView.CoversCurrentScreen)return;
       if(text==null){text=new GUIStyle(GUI.skin.label){fontSize=17,wordWrap=true};text.normal.textColor=Color.white;title=new GUIStyle(text){fontSize=25,fontStyle=FontStyle.Bold};small=new GUIStyle(text){fontSize=14};button=new GUIStyle(GUI.skin.button){fontSize=17,wordWrap=true};}
       var m=MutantRuntime.Model;
       var p=FindFirstObjectByType<GtPrototype>();bool drive=p&&p.Simulation!=null&&MutantRuntime.Panel==""&&!GameFlow.Paused;

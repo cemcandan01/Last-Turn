@@ -11,10 +11,12 @@ namespace LastTurn.Prototype
   public sealed class SettingsScreen : MonoBehaviour
   {
     public static bool Open { get; private set; }
+    /// Kapandığı kare: aynı Esc duraklatmayı ikinci kez çevirmesin.
+    public static int ClosedFrame { get; private set; } = -1;
     public static void Show() { Open = true; }
     public static void Close()
     {
-      Open = false; PlayerPreferences.Save();
+      Open = false; ClosedFrame = Time.frameCount; PlayerPreferences.Save();
       // TS: ayar değişince girdi sıfırlanır (kontrol kipi değişmiş olabilir).
       var p = FindFirstObjectByType<GtPrototype>(); if (p) p.ResetInput();
     }
@@ -26,7 +28,8 @@ namespace LastTurn.Prototype
     private bool Chip(string label, bool selected) => GUILayout.Button(label, selected ? on : chip, GUILayout.MinHeight(40));
     private void OnGUI()
     {
-      if (!Open) return;
+      // F arayüzü (SettingsView) varsa bu IMGUI ekranı yalnız güvenli geri dönüştür.
+      if (!Open || LastTurn.Ui.SettingsView.CoversCurrentScreen) return;
       if (text == null)
       {
         text = new GUIStyle(GUI.skin.label) { fontSize = 16, wordWrap = true }; text.normal.textColor = Color.white; title = new GUIStyle(text) { fontSize = 22, fontStyle = FontStyle.Bold };

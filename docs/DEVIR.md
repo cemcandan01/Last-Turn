@@ -1,3 +1,10 @@
+# Son devir: P7-7 F §7 Ayarlar (6 Kasım 2026) — Claude
+
+- **Tamamlanan grup:** Ayarlar F (6 bölüm, klavye/fare, kayıt, yarış duraklatmasından açılış/dönüş). Dal `codex/unity-p7-garaj`; kod/test commit'i bu notla aynı yerel commit. Önceki ekranlar yeniden yapılmadı. Ayrıntı [kart P7-7](isler/2026-11-01-unity-tam-aktarim.md).
+- **Testler:** .NET `--settings-f` 104; grafik Game View Play 61/61, 7 PNG `Unity/Logs/p7-settings-*.png`, `check-settings-f-proof.mjs` geçti. Tuş atama/varsayılana dön mevcut değil, eklenmedi.
+- **Kalan P7:** §8 Duraklatma, §9 Yarış sonucu, Mutant koşu içi (atölye/sandık/ödül/boss/özet) ekranları hâlâ IMGUI; ardından ortak navigasyon kontrolü ve rehber toparlama.
+- **Sonraki tek görev: F §8 Duraklatma + §9 Sonuç.**
+
 # Son devir: P7-6 F §6 Profil ve bulut hesabı (6 Kasım 2026) — Codex
 
 - **Tamamlanan tek ekran:** Profil ve bulut hesabı F. Ad düzenle/kaydet/iptal, seviye/XP halkası, sayaçlar/favori araç, mevcut hesap özeti, oluştur/giriş/sıfırlama ve bekleme/hata akışı. Kod/test commit'i **`0ea39d9`**, dal `codex/unity-p7-garaj`; kapanış SHA bu notun son yerel commit'i. Önceki ekranlar yeniden yapılmadı.
