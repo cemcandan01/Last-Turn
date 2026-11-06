@@ -1,0 +1,1449 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Last Turn · Mutant F ekran taslakları</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,700;1,800&family=Barlow:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --acc: #ff7a3c;
+        --red: #ff5b4d;
+        --dim: #aab4bc;
+        --dar: "Barlow Condensed", "Arial Narrow", sans-serif;
+        --body: "Barlow", "Segoe UI", sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: #0b0e11;
+        color: #eef2f4;
+        font: 16px var(--body);
+      }
+      main {
+        max-width: 1240px;
+        margin: auto;
+        padding: 40px 22px 80px;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: var(--dar);
+        margin: 0;
+      }
+      h1 {
+        font-size: 46px;
+        font-style: italic;
+      }
+      h2 {
+        font-size: 32px;
+        font-style: italic;
+      }
+      h3 {
+        font-size: 23px;
+      }
+      p {
+        line-height: 1.6;
+        color: #c9d1d7;
+      }
+      a {
+        color: #ff9b6d;
+      }
+      header {
+        border-top: 3px solid var(--acc);
+        padding-top: 20px;
+      }
+      header small,
+      .eyebrow {
+        letter-spacing: 0.16em;
+        color: var(--acc);
+      }
+      nav {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 24px 0;
+      }
+      nav a {
+        padding: 8px 12px;
+        background: #171e24;
+        text-decoration: none;
+      }
+      .note {
+        padding: 16px 20px;
+        background: #141a1f;
+        border-left: 3px solid var(--acc);
+        line-height: 1.6;
+        color: #c9d1d7;
+      }
+      section {
+        margin-top: 48px;
+        scroll-margin-top: 20px;
+      }
+      .variant {
+        margin-top: 22px;
+      }
+      .caption {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        margin: 10px 0;
+      }
+      .caption b {
+        font: italic 800 26px var(--dar);
+        color: var(--acc);
+      }
+      .caption span {
+        color: var(--dim);
+      }
+      .screen {
+        position: relative;
+        aspect-ratio: 16/9;
+        container-type: inline-size;
+        overflow: hidden;
+        background: #161b21 url("pc/arka-menu.jpg") center/cover;
+        border: 1px solid #333a42;
+        border-radius: 12px;
+        font-family: var(--dar);
+        text-shadow: 0 0.1cqw 0.4cqw #000;
+      }
+      .screen.garage {
+        background-image: url("pc/arka-garaj.jpg");
+      }
+      .screen.road {
+        background-image: url("pc/arka-yaris.jpg");
+      }
+      .shade {
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(180deg, #070b10e8, transparent 27%),
+          linear-gradient(0deg, #080b10f5, transparent 65%), #3c08045c;
+      }
+      .screen:not(.hud) .shade {
+        background: linear-gradient(90deg, #090c12e8, #200c0dbd), #3c08045c;
+        backdrop-filter: blur(2px);
+      }
+      .top {
+        position: absolute;
+        left: 3cqw;
+        right: 3cqw;
+        top: 2.5cqw;
+        display: flex;
+        align-items: center;
+        gap: 2cqw;
+        font-size: 1.4cqw;
+      }
+      .brand {
+        background: var(--acc);
+        color: #210e08;
+        transform: skewX(-14deg);
+        padding: 0.5cqw 1.3cqw;
+        font-weight: 800;
+        letter-spacing: 0.15em;
+        text-shadow: none;
+      }
+      .top .status {
+        margin-left: auto;
+        color: #d9dce0;
+        font-size: 1.25cqw;
+      }
+      .content {
+        font-size: 1.3cqw;
+        position: absolute;
+        left: 5cqw;
+        right: 5cqw;
+        top: 12cqw;
+        bottom: 8cqw;
+      }
+      .content h3 {
+        font: italic 800 4cqw/1 var(--dar);
+        margin: 0.5cqw 0 1.1cqw;
+      }
+      .content p {
+        font: 400 1.35cqw/1.5 var(--body);
+        margin: 0.6cqw 0 1.3cqw;
+        color: #c6cdd2;
+      }
+      .kicker {
+        font-size: 1.15cqw;
+        letter-spacing: 0.16em;
+        color: var(--red);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.3cqw;
+        margin-top: 2cqw;
+      }
+      .card,
+      .glass {
+        background: #0b1418c7;
+        border: 1px solid #ffffff28;
+        backdrop-filter: blur(5px);
+        border-radius: 0.6cqw;
+        padding: 1.5cqw;
+      }
+      .card {
+        min-height: 12cqw;
+      }
+      .card strong {
+        display: block;
+        font-size: 2.2cqw;
+        line-height: 1.1;
+        margin: 0.8cqw 0;
+      }
+      .card p {
+        font-size: 1.18cqw;
+      }
+      .card small,
+      .muted {
+        color: var(--dim);
+        font-size: 1.1cqw;
+      }
+      .card em {
+        font-style: normal;
+        color: var(--acc);
+        font-size: 1.8cqw;
+      }
+      .selected {
+        border-color: var(--acc);
+        box-shadow: inset 0 0.25cqw var(--acc);
+      }
+      .layout-b .content {
+        display: grid;
+        grid-template-columns: 1fr 1.15fr;
+        gap: 5cqw;
+      }
+      .layout-b .grid {
+        grid-template-columns: 1fr;
+        margin: 0;
+        gap: 0.7cqw;
+      }
+      .layout-b .card {
+        min-height: 0;
+        padding: 1.15cqw 1.5cqw;
+      }
+      .screen.garage.layout-b .card {
+        padding: 0.75cqw 1.5cqw;
+      }
+      .layout-b .card strong {
+        font-size: 1.9cqw;
+        margin: 0.2cqw 0;
+      }
+      .layout-b .card p {
+        margin: 0.4cqw 0;
+      }
+      .layout-b .grid .card:nth-child(n + 4) {
+        display: none;
+      }
+      .actions {
+        display: flex;
+        gap: 1cqw;
+        align-items: center;
+        margin-top: 1.8cqw;
+      }
+      .btn {
+        display: inline-block;
+        background: #ffffff12;
+        border: 1px solid #ffffff40;
+        color: white;
+        padding: 0.8cqw 1.6cqw;
+        transform: skewX(-12deg);
+        font: 700 1.4cqw var(--dar);
+      }
+      .btn.primary {
+        background: var(--acc);
+        border-color: var(--acc);
+        color: #211008;
+        text-shadow: none;
+      }
+      .btn.disabled {
+        opacity: 0.4;
+      }
+      .hints {
+        position: absolute;
+        right: 3cqw;
+        bottom: 1.6cqw;
+        display: flex;
+        gap: 1.5cqw;
+        font: 500 1cqw var(--body);
+        color: #dbe2e7;
+      }
+      kbd {
+        display: inline-grid;
+        place-items: center;
+        border: 1px solid #ffffff66;
+        border-bottom-width: 2px;
+        padding: 0.15em 0.4em;
+        border-radius: 3px;
+        font: 600 0.9em var(--body);
+        color: white;
+      }
+      .hero-number {
+        font: italic 800 6cqw/1 var(--dar);
+        color: var(--acc);
+        margin: 1.5cqw 0;
+      }
+      .line {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid #ffffff25;
+        padding: 0.8cqw 0;
+        font-size: 1.45cqw;
+      }
+      .bar {
+        height: 0.4cqw;
+        background: #ffffff25;
+        margin-top: 0.8cqw;
+      }
+      .bar i {
+        display: block;
+        height: 100%;
+        background: var(--acc);
+      }
+      .state-controls {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 12px 0;
+      }
+      button {
+        font: 600 14px var(--body);
+        cursor: pointer;
+        padding: 9px 14px;
+        color: #e9edf1;
+        background: #1a232b;
+        border: 1px solid #45515d;
+        border-radius: 4px;
+      }
+      button[aria-pressed="true"] {
+        border-color: var(--acc);
+        color: var(--acc);
+      }
+      button:focus-visible,
+      a:focus-visible {
+        outline: 3px solid #ffd27a;
+        outline-offset: 3px;
+      }
+      .flow {
+        font-size: 14px;
+        background: #11171c;
+        padding: 14px 18px;
+        border-bottom: 1px solid #29323a;
+      }
+      .flow p {
+        margin: 4px 0;
+      }
+      .hud .top {
+        right: 28cqw;
+      }
+      .hud .top .status {
+        font-size: 1.2cqw;
+      }
+      .hud .run-info {
+        position: absolute;
+        left: 3cqw;
+        top: 9cqw;
+        font-size: 1.5cqw;
+        line-height: 1.6;
+      }
+      .hud .boss-clock {
+        color: #ff8b72;
+        font: 700 2.6cqw var(--dar);
+      }
+      .hud .mission {
+        position: absolute;
+        left: 3cqw;
+        top: 25cqw;
+        font-size: 1.5cqw;
+        color: #ffd27a;
+      }
+      .hud .map {
+        position: absolute;
+        right: 3cqw;
+        top: 3cqw;
+        width: 16cqw;
+        height: 12cqw;
+        border: 1px solid #ffffff66;
+        border-radius: 0.5cqw;
+        background: #0b1217a0;
+      }
+      .map svg {
+        width: 100%;
+        height: 100%;
+      }
+      .hud .slots {
+        position: absolute;
+        left: 3cqw;
+        bottom: 7cqw;
+        width: 34cqw;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.6cqw;
+      }
+      .slot {
+        border-bottom: 0.3cqw solid #ff7a3c;
+        padding: 0.7cqw 0.4cqw;
+        font-size: 1.1cqw;
+        background: #080c1166;
+      }
+      .slot b {
+        display: block;
+        font-size: 1.25cqw;
+        margin: 0.4cqw 0;
+      }
+      .slot small {
+        font-size: 0.9cqw;
+        color: #bac4cd;
+      }
+      .hud .speed {
+        position: absolute;
+        right: 4cqw;
+        bottom: 6cqw;
+        text-align: right;
+        font-size: 1.1cqw;
+      }
+      .speed b {
+        font: italic 800 6cqw var(--dar);
+      }
+      .speed em {
+        font-size: 3cqw;
+        color: var(--acc);
+        font-style: normal;
+      }
+      .hud .hints {
+        left: 3cqw;
+        right: auto;
+        font-size: 0.9cqw;
+      }
+      .hud.layout-b .run-info {
+        top: 8cqw;
+        display: flex;
+        gap: 2cqw;
+        font-size: 1.25cqw;
+      }
+      .hud.layout-b .boss-clock {
+        font-size: 2cqw;
+      }
+      .hud.layout-b .mission {
+        top: 15cqw;
+      }
+      .hud.layout-b .slots {
+        width: 35cqw;
+        bottom: 8cqw;
+      }
+      .hud.layout-b .slot {
+        background: transparent;
+        border: 0;
+        border-left: 0.2cqw solid var(--acc);
+        padding-left: 0.6cqw;
+      }
+      .substate {
+        border-top: 1px solid #29323a;
+        padding-top: 14px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      td,
+      th {
+        text-align: left;
+        vertical-align: top;
+        border-bottom: 1px solid #333c45;
+        padding: 12px;
+      }
+      th {
+        color: var(--acc);
+      }
+      code {
+        font-size: 12px;
+        overflow-wrap: anywhere;
+      }
+      .table-wrap {
+        overflow-x: auto;
+      }
+      footer {
+        color: var(--dim);
+        margin-top: 40px;
+        font-size: 13px;
+      }
+      @media (max-width: 700px) {
+        main {
+          padding: 24px 12px;
+        }
+        .caption {
+          display: block;
+        }
+        h1 {
+          font-size: 34px;
+        }
+        .screen {
+          border-radius: 5px;
+        }
+        .flow {
+          font-size: 13px;
+        }
+        .note {
+          padding: 12px;
+        }
+        table {
+          min-width: 700px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <small>LAST TURN / F YÖNÜ / 06 KASIM 2026</small>
+        <h1>MUTANT <span style="color: var(--acc)">koşu içi</span></h1>
+        <p>
+          Sekiz ekran, iki yerleşim. A: yatay kartlar ve geniş sahne. B: solda bağlam, sağda karar. Her çift
+          aynı bilgiyi ve aynı oyun işlemlerini taşır.
+        </p>
+        <div class="note">
+          Tasarım incelemesi · Sayılar temsili koşu anlarıdır; katalog metinleri gerçektir. Bu sayfa oyun
+          çalıştırmaz. Durum düğmeleri yalnız taslak örneğini değiştirir.
+          <a href="ekranlar-f.html">F referansı</a> · Barlow / Barlow Condensed; ağ yoksa yerel yazı tipi
+          yedekleri kullanılır.
+        </div>
+      </header>
+      <nav aria-label="Ekranlara git"></nav>
+      <div class="note">
+        <b>Öneri — klavye odağı:</b> Koşu içi geçici IMGUI yalnız fare düğmelerini ve Esc duraklatmayı işler.
+        Aşağıda yazan oklarla odak + Enter onayı, aynı mevcut komutlar için önerilen Windows sunum
+        eşlemesidir; uygulanmış özellik değildir. N ve 1/2/3 yalnız sürüşte çalışır. Esc paneli kapatmaz,
+        duraklatmayı açar; dönüşte aynı panel korunur.
+      </div>
+      <div id="screens"></div>
+      <section id="sources">
+        <h2>Veri ve işlem kaynakları</h2>
+        <p>
+          Yollar <code>Unity/Assets/LastTurn/</code> köküne göredir. Statik örneklerde kural hesabı yapılmaz;
+          Unity uygulaması saf görünüm modeli ve komutları kullanır.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Görünür bilgi</th>
+                <th>Dosya / alan</th>
+                <th>İşlem ve sınır</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Bölge, boss süresi, gövde, para, seviye, XP</td>
+                <td>
+                  <code
+                    >Scripts/Core/MutantMenuModel.cs → Region, Timer, Body, Money, Level, Xp, NextLevelXp,
+                    PowerLossPercent</code
+                  >
+                </td>
+                <td>Örnek: 1 / 08:42 / 76 / 260 / 3 / 500–680 XP; güç kaybı %7.</td>
+              </tr>
+              <tr>
+                <td>Nitro enerjisi, kapasite, hazır durumu; üç skill adı / durum</td>
+                <td>
+                  <code
+                    >Scripts/Core/MutantAbilityDriver.cs → Nitro(): MutantNitroHud.Energy, Capacity, Cost,
+                    Ready; Skills(): MutantSkillHud.Name, Level, Kind, Wait, Charges, MaxCharges, Blocker;
+                    MutantSkillSlot.Read</code
+                  >
+                </td>
+                <td>Örnek 64/100, maliyet 40; aktif skill tuşu / tetiklenen skill ayrımı.</td>
+              </tr>
+              <tr>
+                <td>İşaret, yol görevi, sürüş tuşları</td>
+                <td>
+                  <code
+                    >Scripts/Prototype/MutantRuntime.cs → Message, MarkerId, AfterPhysics (isaret/gorev);
+                    Scripts/Prototype/MutantScreen.cs → drive/Hint</code
+                  >
+                </td>
+                <td>
+                  İşarette durunca panel açılır; sandık konumu haritada gösterilmez. Harita/hız yerleri
+                  <code>docs/HUD.md §8</code>; çizim temsili, yeni rota veya navigasyon komutu yok.
+                </td>
+              </tr>
+              <tr>
+                <td>Etkinlik adı/türü, seviye, risk ve Ödül</td>
+                <td>
+                  <code
+                    >Scripts/Core/MutantMenuModel.cs → Events[].Name, Title, LevelName, Duel, Risks[].Name,
+                    Target, Xp, Money, Penalty, Consolation</code
+                  ><br /><code
+                    >Resources/mutant-catalog.json → trackNames, levelNames, risks, eventRewards</code
+                  >
+                </td>
+                <td>
+                  <code>MutantRuntime.StartRace(e.Id,r.Risk)</code>. Yeşil Vadi düellosunda iki risk; sayısal
+                  hedef yerine rakipten önce bitir. Diğer yarışlar üç risk sunabilir.
+                </td>
+              </tr>
+              <tr>
+                <td>Stok adı, açıklama, kategori, fiyat; tamir/yenileme</td>
+                <td>
+                  <code
+                    >MutantMenuModel → Stock[].Name, Description, Category, Price, CanBuy; RepairCost,
+                    CanRepair, RefreshCost, CanRefresh</code
+                  ><br /><code>Resources/mutant-catalog.json → parts[].n/d/kat/sv, stockRefresh, body</code>
+                </td>
+                <td>
+                  <code>MutantRuntime.Buy(id), Repair(), RefreshStock(), ClosePanel()</code>. 76 gövde için 72
+                  para; yenileme 40. CanBuy=false soluk düğme.
+                </td>
+              </tr>
+              <tr>
+                <td>Sandık teklifi ve lanet</td>
+                <td>
+                  <code
+                    >MutantMenuModel → Chests[].Title, Name, Description, Cursed, CurseName,
+                    CurseDescription</code
+                  ><br /><code>Resources/mutant-catalog.json → addons, curses, chestResources</code>
+                </td>
+                <td>
+                  <code>MutantRuntime.Chest(true/false)</code>. Tek teklif; al/reddet. Yeniden çekme yok.
+                </td>
+              </tr>
+              <tr>
+                <td>İki üçlü teklif, yerine bırakılacak skill</td>
+                <td>
+                  <code>MutantMenuModel → Choices[].Id/Type/Name/Description, OwnedSkills[].Id/Name</code
+                  ><br /><code>Resources/mutant-catalog.json → passives, skills, skillAddons</code>
+                </td>
+                <td>
+                  <code>MutantRuntime.Choose(id,drop)</code>; <code>MutantScreen.replacing</code>. Drop yalnız
+                  dördüncü skill gerektiğinde; Geri aynı teklife döner.
+                </td>
+              </tr>
+              <tr>
+                <td>Boss adı, açıklaması, zayıflığı, tür ve yetenekler</td>
+                <td>
+                  <code
+                    >MutantMenuModel → BossName, BossDescription, BossWeakness, BossType, BossAbilities,
+                    Remaining</code
+                  ><br /><code>Resources/mutant-catalog.json → bosses[].ad/d/zayif/ty/yetenekler</code>
+                </td>
+                <td>
+                  <code>MutantRuntime.StartRace(-1,0,true)</code>. Geri yalnız Remaining&gt;0; süre dolduğunda
+                  zorunlu.
+                </td>
+              </tr>
+              <tr>
+                <td>Sonuç mesajı, kazanım ve devam</td>
+                <td>
+                  <code
+                    >Scripts/Prototype/MutantRuntime.cs → Finished(), Message, Continue(); MutantMenuModel →
+                    Money, Xp, Level, Choices</code
+                  >
+                </td>
+                <td>
+                  Mesaj: “Hedef geçildi.” / “Hedef kaçırıldı.” Mevcut model ayrı kazanç farkı sunmaz; sonuçta
+                  güncel para/XP toplamı gösterilir. Devam: seçim → bekleyen boss → dünya sırası.
+                </td>
+              </tr>
+              <tr>
+                <td>Özet, boss sayısı ve rekor</td>
+                <td>
+                  <code
+                    >MutantMenuModel → Region, DefeatedBosses, Wrecked; MutantRuntime.Message, Record(),
+                    Exit()</code
+                  ><br /><code>Scripts/Core/MutantRecordStore.cs → MutantRecord.Region, Bosses</code>
+                </td>
+                <td>
+                  Özet: bölge 2 / 1 boss; rekor: bölge 3 / 2 boss. “Ana menü” mevcut Exit komutuyla Mutant
+                  menüsüne döner. Pertte yeni rekor yazıldığı varsayılmaz.
+                </td>
+              </tr>
+              <tr>
+                <td>Tüm panel düğmeleri / Esc</td>
+                <td>
+                  <code
+                    >Scripts/Prototype/MutantScreen.cs → OnGUI switch(Panel), Update();
+                    MutantRuntime.Panel</code
+                  >
+                </td>
+                <td>
+                  Fare mevcut düğmeye tıklar. Ok/Enter eşlemesi yalnız yukarıdaki öneridir. Unity kodu
+                  değiştirilmedi.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <footer>
+        Onay bekleyen HTML taslakları · Oyun kuralları ve denge değişmez · A/B tercihleri ekran bazında
+        birleştirilebilir.
+      </footer>
+    </main>
+    <script>
+      const catalog = {
+        risks: [
+          { ad: "Güvenli", odul: 1, kacirma: 0.3, ceza: 0 },
+          { ad: "Riskli", odul: 2, kacirma: 0, ceza: 45 },
+          { ad: "Ölümcül", odul: 3.5, kacirma: 0, ceza: 90 },
+        ],
+        eventRewards: [
+          { xp: 60, para: 90 },
+          { xp: 80, para: 120 },
+          { xp: 100, para: 150 },
+          { xp: 120, para: 180 },
+          { xp: 140, para: 210 },
+          { xp: 160, para: 240 },
+        ],
+        bosses: [
+          {
+            id: "toprak-kurdu",
+            ad: "Toprak Kurdu",
+            ty: "rl",
+            d: "Ralli etabı; toprakta çok hızlı",
+            yetenekler: ["Toprakta çok hızlı", "Çamurda yavaşlamaz"],
+            zayif: "Toprak tutuşu, dört çeker, süspansiyon kazandırır",
+            hedef: 1,
+          },
+          {
+            id: "drift-kralicesi",
+            ad: "Drift Kraliçesi",
+            ty: "dp",
+            d: "Drift düellosu; uzun kombolar ister",
+            yetenekler: ["Uzun kombolar", "Çarpanı hiç düşmez"],
+            zayif: "Açı kiti, güç, kombo pasifleri kazandırır",
+            hedef: 1,
+          },
+          {
+            id: "drag-canavari",
+            ad: "Drag Canavarı",
+            ty: "dg",
+            d: "Drag; kalkış ve son hız ister",
+            yetenekler: ["Kalkışta patinaj yapmaz", "Son metrede nitro"],
+            zayif: "Motor, turbo, hafiflik kazandırır",
+            hedef: 1,
+          },
+          {
+            id: "gece-sahini",
+            ad: "Gece Şahini",
+            ty: "gp",
+            d: "Gece asfalt yarışı; fren ve viraj ister",
+            yetenekler: ["Karanlıkta virajı ezbere bilir", "Frene geç basar"],
+            zayif: "Fren, asfalt tutuşu kazandırır",
+            hedef: 1,
+            gece: true,
+          },
+          {
+            id: "camur-baronu",
+            ad: "Çamur Baronu",
+            ty: "rx",
+            d: "Yağmurda rallikros; ıslak toprak ister",
+            yetenekler: ["Islakta tutunur", "Su birikintisinde yavaşlamaz"],
+            zayif: "Toprak tutuşu, fren, dört çeker kazandırır",
+            hedef: 1,
+            hava: "rain",
+          },
+        ],
+        passives: [
+          { id: "guc", ad: "Motor ayarı", d: "Güç +%10", en: 3 },
+          { id: "hafif", ad: "Hafifletme", d: "Ağırlık −%6", en: 3 },
+          { id: "asfalt", ad: "Asfalt tutuşu", d: "Asfaltta tutuş +%7", en: 3 },
+          { id: "toprak", ad: "Toprak tutuşu", d: "Toprakta tutuş +%10", en: 3 },
+          { id: "fren", ad: "Sert fren", d: "Fren gücü +%15", en: 2 },
+          { id: "aci", ad: "Açı kiti", d: "Direksiyon açısı +0,08 rad (drift)", en: 2 },
+          { id: "ogrenci", ad: "Hızlı öğrenen", d: "XP +%25", en: 2 },
+          { id: "tuccar", ad: "Pazarlıkçı", d: "Para +%25, atölye %10 ucuz", en: 2 },
+          { id: "zaman", ad: "Zaman bükücü", d: "Hedefi geçtiğin her etkinlik boss'a +20 sn", en: 2 },
+          { id: "zirh", ad: "Zırh", d: "Çarpma ve spin hasarı −%35", en: 2 },
+          { id: "tamirci", ad: "Seyyar tamirci", d: "Her etkinlik sonunda gövde +12", en: 2 },
+          { id: "adrenalin", ad: "Adrenalin", d: "Gövde %50'nin altındayken güç +%15", en: 2 },
+          { id: "camtop", ad: "Cam top", d: "Güç +%25, ama her hasar iki kat", en: 1 },
+          { id: "hurdaci", ad: "Hurdacı", d: "Her hasarda para; tamirinden fazlası değil", en: 1 },
+          { id: "kumarbaz", ad: "Kumarbaz", d: "Ölümcül ödül ×5, ama kaçırınca süre cezası iki kat", en: 1 },
+          {
+            id: "sonnefes",
+            ad: "Son nefes",
+            d: "Her bölgede süre bitince bir kez +90 sn; boss hedefi %3 sıkılaşır",
+            en: 1,
+          },
+          { id: "nitro-kalkani", ad: "Nitro kalkanı", d: "Nitro açıkken hasar yarıya iner", en: 1 },
+          {
+            id: "drift-harvester",
+            ad: "Drift Hasadı",
+            d: "Bilinçli driftte saniyede 6 enerji",
+            en: 1,
+            m: {
+              id: "drift-harvester",
+              versiyon: 1,
+              kategori: "passive",
+              tetik: "DriftTickQualified",
+              kosul: { enAzHiz: 11, enAzAci: 0.2 },
+              maliyet: 0,
+              beklemeAdimi: 0,
+              kazanc: 6,
+              kazancBirimi: "saniye",
+            },
+          },
+          {
+            id: "temiz-cikis",
+            ad: "Temiz Çıkış",
+            d: "En az 1,5 sn süren drifti spinsiz bitirince +10 enerji",
+            en: 1,
+            m: {
+              id: "temiz-cikis",
+              versiyon: 1,
+              kategori: "passive",
+              maliyet: 0,
+              beklemeAdimi: 0,
+              kazanc: 10,
+              kazancBirimi: "olay",
+              tetik: "DriftEnded",
+              kosul: { spinsiz: true, enAzSure: 1.5 },
+            },
+          },
+          {
+            id: "kayma-hafizasi",
+            ad: "Kayma Hafızası",
+            d: "Temiz bir driftten sonra 3 sn içinde yeni drifte girince +8 enerji",
+            en: 1,
+            m: {
+              id: "kayma-hafizasi",
+              versiyon: 1,
+              kategori: "passive",
+              maliyet: 0,
+              beklemeAdimi: 0,
+              kazanc: 8,
+              kazancBirimi: "olay",
+              tetik: "DriftStarted",
+              kosul: { zincirAdim: 180 },
+            },
+          },
+          {
+            id: "hiz-dinamosu",
+            ad: "Hız Dinamosu",
+            d: "Yerde 100 km/sa üstünde saniyede 3 enerji",
+            en: 1,
+            m: {
+              id: "hiz-dinamosu",
+              versiyon: 1,
+              kategori: "passive",
+              maliyet: 0,
+              beklemeAdimi: 0,
+              kazanc: 3,
+              kazancBirimi: "saniye",
+              tetik: "SurusTick",
+              kosul: { yerde: true, enAzHiz: 28 },
+            },
+          },
+          {
+            id: "carpisma-pili",
+            ad: "Çarpışma Pili",
+            d: "Her hasarda +12 enerji: çarpmak nitro doldurur",
+            en: 1,
+            m: {
+              id: "carpisma-pili",
+              versiyon: 1,
+              kategori: "passive",
+              maliyet: 0,
+              beklemeAdimi: 0,
+              kazanc: 12,
+              kazancBirimi: "olay",
+              tetik: "HasarAlindi",
+            },
+          },
+          {
+            id: "risk-kondansatoru",
+            ad: "Risk Kondansatörü",
+            d: "Riskli ya da ölümcül etkinlik başlarken +40 enerji",
+            en: 1,
+            m: {
+              id: "risk-kondansatoru",
+              versiyon: 1,
+              kategori: "passive",
+              maliyet: 0,
+              beklemeAdimi: 0,
+              kazanc: 40,
+              kazancBirimi: "olay",
+              tetik: "RiskBasladi",
+              kosul: { enAzRisk: 1 },
+            },
+          },
+          {
+            id: "hasar-bataryasi",
+            ad: "Hasar Bataryası",
+            d: "Rakibe verdiğin her hasarın yarısı kadar enerji (0,25 sn'de bir)",
+            en: 1,
+            m: {
+              id: "hasar-bataryasi",
+              versiyon: 1,
+              kategori: "passive",
+              maliyet: 0,
+              beklemeAdimi: 15,
+              kazanc: 0.5,
+              kazancBirimi: "miktar",
+              tetik: "HasarVerildi",
+            },
+          },
+          {
+            id: "kalkan-bataryasi",
+            ad: "Kalkan Bataryası",
+            d: "Korumanın engellediği her hasar kadar enerji",
+            en: 1,
+            m: {
+              id: "kalkan-bataryasi",
+              versiyon: 1,
+              kategori: "passive",
+              maliyet: 0,
+              beklemeAdimi: 0,
+              kazanc: 1,
+              kazancBirimi: "miktar",
+              tetik: "KorumaEngelledi",
+            },
+          },
+          {
+            id: "takip-dinamosu",
+            ad: "Takip Dinamosu",
+            d: "Yarışta rakibi yakından takip ederken saniyede 5 enerji",
+            en: 1,
+            m: {
+              id: "takip-dinamosu",
+              versiyon: 1,
+              kategori: "passive",
+              maliyet: 0,
+              beklemeAdimi: 0,
+              kazanc: 5,
+              kazancBirimi: "saniye",
+              tetik: "YakinTakip",
+            },
+          },
+          {
+            id: "genis-tup",
+            ad: "Geniş Tüp",
+            d: "Enerji kapasitesi +50",
+            en: 1,
+            m: {
+              id: "genis-tup",
+              versiyon: 1,
+              kategori: "passive",
+              maliyet: 0,
+              beklemeAdimi: 0,
+              kazanc: 0,
+              kazancBirimi: "olay",
+              degistir: { kapasite: 50 },
+            },
+          },
+          {
+            id: "verimli-nitro",
+            ad: "Verimli Nitro",
+            d: "Nitro %30 daha az enerji harcar",
+            en: 1,
+            m: {
+              id: "verimli-nitro",
+              versiyon: 1,
+              kategori: "passive",
+              maliyet: 0,
+              beklemeAdimi: 0,
+              kazanc: 0,
+              kazancBirimi: "olay",
+              degistir: { maliyet: 0.7 },
+            },
+          },
+          {
+            id: "uzun-nitro",
+            ad: "Uzun Nitro",
+            d: "Nitro %40 daha uzun sürer",
+            en: 1,
+            m: {
+              id: "uzun-nitro",
+              versiyon: 1,
+              kategori: "passive",
+              maliyet: 0,
+              beklemeAdimi: 0,
+              kazanc: 0,
+              kazancBirimi: "olay",
+              degistir: { sure: 1.4 },
+            },
+          },
+          {
+            id: "sert-nitro",
+            ad: "Sert Nitro",
+            d: "Nitro gücü +%15, ama maliyet %30 fazla",
+            en: 1,
+            m: {
+              id: "sert-nitro",
+              versiyon: 1,
+              kategori: "passive",
+              maliyet: 0,
+              beklemeAdimi: 0,
+              kazanc: 0,
+              kazancBirimi: "olay",
+              degistir: { guc: 0.15, maliyet: 1.3 },
+            },
+          },
+          {
+            id: "sigorta",
+            ad: "Sigorta",
+            d: "Spin atınca driftte kazanılan enerjinin yalnız %40'ı yanar",
+            en: 1,
+            m: {
+              id: "sigorta",
+              versiyon: 1,
+              kategori: "passive",
+              maliyet: 0,
+              beklemeAdimi: 0,
+              kazanc: 0,
+              kazancBirimi: "olay",
+              degistir: { yakma: 0.4 },
+            },
+          },
+        ],
+        skills: [
+          {
+            id: "grappling-hook",
+            ad: "Grappling Hook",
+            d: "Dokun: kanca atılır ve çeker, yeniden dokun: bırakır. Öndeki rakibe atılırsa ona çekilirsin, o yavaşlar. Yerde köşeye atılır: köşenin çevresinde hızla ve tutuşla dönersin. Havada sokağın üstüne asılıp savrulursun; burnunu yan sokağa çevirip köşe dönebilirsin. Köşe ya da rakip yoksa atılamaz. Her seviye bir hak daha verir.",
+            tur: "aktif",
+            etiketler: ["hareket", "kontrol", "konum"],
+            seviyeler: [
+              { menzil: 35, cekis: 7, fren: 3, sarj: 1, bekleme: 6 },
+              { menzil: 45, cekis: 8.5, fren: 3.5, sarj: 2, bekleme: 5.5 },
+              { menzil: 55, cekis: 10, fren: 4, sarj: 3, bekleme: 5 },
+            ],
+            evrimler: [
+              {
+                id: "ters-kanca",
+                ad: "Ters Kanca",
+                d: "Kanca arkadaki rakibe atılır ve onu iki kat sert frenler; sen çekilmezsin. Köşeye ve binaya tutunmaz.",
+              },
+            ],
+          },
+          {
+            id: "flying-dutchman",
+            ad: "Flying Dutchman",
+            d: "Kısa hayalet fazı: tam dokunulmazsın, hiç hasar almaz, ağaç ve kaya gibi engellerin içinden geçersin; tutuş artar. Duvarlar ve pist kesme cezası geçerli. Faz boyunca hasar veremez, saldırı ve kanca kullanamazsın.",
+            tur: "aktif",
+            etiketler: ["savunma", "hareket"],
+            seviyeler: [
+              { sure: 2.5, tutus: 1.12, bekleme: 10 },
+              { sure: 3, tutus: 1.15, bekleme: 9 },
+              { sure: 3.5, tutus: 1.18, bekleme: 8 },
+            ],
+            evrimler: [
+              {
+                id: "lanetli-gecis",
+                ad: "Lanetli Geçiş",
+                d: "Faz boyunca 4 m içinden geçtiğin her rakibe bir kez 1,5 sn elektrik bırakırsın.",
+              },
+            ],
+          },
+          {
+            id: "risk-taker",
+            ad: "Risk Taker",
+            d: "20° üstü kontrollü drift (açık dünyada da), yarışta yakın takip ve kıl payı geçiş risk barını doldurur. Bar dolunca dönüşürsün: güç ve tutuş artar, arkanda yakan alev izi kalır; rakibe hasar vermek dönüşümü biraz uzatır.",
+            tur: "tetikli",
+            etiketler: ["risk", "hasar", "hareket"],
+            seviyeler: [
+              { kazanc: 1, sure: 5, guc: 1.25, tutus: 1.1, alev: 4, uzatmaUst: 2, bekleme: 4 },
+              { kazanc: 1.2, sure: 6, guc: 1.3, tutus: 1.12, alev: 5, uzatmaUst: 2.5, bekleme: 4 },
+              { kazanc: 1.4, sure: 7, guc: 1.35, tutus: 1.15, alev: 6, uzatmaUst: 3, bekleme: 4 },
+            ],
+            evrimler: [
+              {
+                id: "kivilcim-izi",
+                ad: "Kıvılcım İzi",
+                d: "İz yakmak yerine elektrik bırakır: hasar vermez, değen rakibi 1 sn frenler.",
+              },
+            ],
+          },
+          {
+            id: "slipstream-engine",
+            ad: "Slipstream Engine",
+            d: "Rakibin arkasında yakın takipte kaldıkça hız depolar; takipten çıkınca depoladığın süre kadar güç artışı alırsın.",
+            tur: "tetikli",
+            etiketler: ["hareket"],
+            seviyeler: [
+              { enCok: 2, guc: 1.2, bekleme: 3 },
+              { enCok: 2.5, guc: 1.25, bekleme: 3 },
+              { enCok: 3, guc: 1.3, bekleme: 2.5 },
+            ],
+            evrimler: [
+              {
+                id: "ruzgar-kirici",
+                ad: "Rüzgâr Kırıcı",
+                d: "Kıl payı geçişler de depoya 0,5 sn ekler; boşalırken tutuş da artar.",
+              },
+            ],
+          },
+          {
+            id: "volt-kanat",
+            ad: "Volt Kanat",
+            d: "Basılı tuttukça araç yükselir ve ileri atılır (en çok 3 sn); bırakınca süzülerek iner. Havada ekranı kaydırarak burnu çevirirsin. Çatılara inebilirsin.",
+            tur: "aktif",
+            etiketler: ["hareket"],
+            seviyeler: [
+              { sure: 3, kalkis: 12, tirmanis: 13, itki: 9, bekleme: 9 },
+              { sure: 3, kalkis: 14, tirmanis: 15, itki: 10.5, bekleme: 8 },
+              { sure: 3, kalkis: 16, tirmanis: 17, itki: 12, bekleme: 7 },
+            ],
+            evrimler: [
+              {
+                id: "firtina-kanadi",
+                ad: "Fırtına Kanadı",
+                d: "Uçarken 8 m içinden geçtiğin her rakibe bir kez 1,5 sn elektrik bırakırsın.",
+              },
+            ],
+          },
+        ],
+        addons: [
+          {
+            id: "ek-yedek-tup",
+            ad: "Yedek tüp",
+            d: "Enerji kapasitesi +30; alınca depo 30 dolar",
+            en: 1,
+            m: {
+              id: "ek-yedek-tup",
+              versiyon: 1,
+              kategori: "passive",
+              maliyet: 0,
+              beklemeAdimi: 0,
+              kazanc: 0,
+              kazancBirimi: "olay",
+              degistir: { kapasite: 30 },
+            },
+            nadir: false,
+          },
+          {
+            id: "ek-kizgin-egzoz",
+            ad: "Kızgın egzoz",
+            d: "Her drift başında +4 enerji (1,5 sn'de bir)",
+            en: 1,
+            m: {
+              id: "ek-kizgin-egzoz",
+              versiyon: 1,
+              kategori: "passive",
+              maliyet: 0,
+              beklemeAdimi: 90,
+              kazanc: 4,
+              kazancBirimi: "olay",
+              tetik: "DriftStarted",
+            },
+            nadir: false,
+          },
+          {
+            id: "ek-turbo-kartusu",
+            ad: "Turbo kartuşu",
+            d: "Nitro gücü +%20",
+            en: 1,
+            m: {
+              id: "ek-turbo-kartusu",
+              versiyon: 1,
+              kategori: "passive",
+              maliyet: 0,
+              beklemeAdimi: 0,
+              kazanc: 0,
+              kazancBirimi: "olay",
+              degistir: { guc: 0.2 },
+            },
+            nadir: true,
+          },
+          {
+            id: "ek-cift-atesleme",
+            ad: "Çift ateşleme",
+            d: "Nitro %40 daha az enerji harcar",
+            en: 1,
+            m: {
+              id: "ek-cift-atesleme",
+              versiyon: 1,
+              kategori: "passive",
+              maliyet: 0,
+              beklemeAdimi: 0,
+              kazanc: 0,
+              kazancBirimi: "olay",
+              degistir: { maliyet: 0.6 },
+            },
+            nadir: true,
+          },
+          {
+            id: "ek-hasar-donusturucu",
+            ad: "Hasar dönüştürücü",
+            d: "Her hasarda +15 enerji",
+            en: 1,
+            m: {
+              id: "ek-hasar-donusturucu",
+              versiyon: 1,
+              kategori: "passive",
+              maliyet: 0,
+              beklemeAdimi: 0,
+              kazanc: 15,
+              kazancBirimi: "olay",
+              tetik: "HasarAlindi",
+            },
+            nadir: true,
+          },
+          {
+            id: "ek-takviye-tampon",
+            ad: "Takviye tampon",
+            d: "Çarpma hasarı −%40 (spin değil)",
+            en: 1,
+            nadir: false,
+          },
+        ],
+        curses: {
+          sure: { ad: "Zaman laneti", d: "Boss'a −45 sn" },
+          govde: { ad: "Pas laneti", d: "Gövde −25 (pert etmez)" },
+          para: { ad: "Açgözlülük laneti", d: "Paranın yarısı gider" },
+        },
+      };
+      const specs = [
+        [
+          "hud",
+          "Sürüş HUD’u",
+          "Açık sahne · düşey durum",
+          "Yatay durum · ince yuvalar",
+          "Oklar/WASD sürüş; N nitro; 1/2/3 aktif skill (tetiklenen kendiliğinden); Esc duraklatma.",
+          "Fare: havadayken sol tuşla sürükle, burun yönünü değiştir. İşaretin içinde durunca panel açılır.",
+        ],
+        [
+          "event",
+          "Etkinlik seçimi",
+          "Risk kartları",
+          "Risk listesi",
+          "←/→ (A), ↑/↓ (B) risk odağı; Enter seçilen riski başlatır. Esc duraklatma.",
+          "Risk kartına tıkla ve yarışı başlat; Geri sürüşe döner. N ve 1/2/3 panelde kullanılmaz.",
+        ],
+        [
+          "shop",
+          "Atölye",
+          "Stok vitrini",
+          "Servis ve stok listesi",
+          "Oklar parça/servis odağı; Enter satın alır, tamir eder veya stoğu yeniler. Esc duraklatma.",
+          "Parçanın Satın al alanına, Tamir veya Stoğu yenile’ye tıkla. Geri sürüşe döner. N ve 1/2/3 panelde kullanılmaz. Stok kesiti gösterilir; diğer satırlara kaydırarak ulaşılır.",
+        ],
+        [
+          "chest",
+          "Sandık",
+          "Ortada tek teklif",
+          "Teklif ve bedel yan yana",
+          "←/→ Al/Reddet odağı; Enter onay. Esc duraklatma.",
+          "Al veya Reddet’e tıkla; ikisi de sandığı kapatıp sürüşe döner. N ve 1/2/3 panelde kullanılmaz.",
+        ],
+        [
+          "choice",
+          "Ödül / seviye seçimi",
+          "Üç eşdeğer kart",
+          "Bağlam ve teklif listesi",
+          "←/→ (A), ↑/↓ (B) teklif odağı; Enter seçer. Dolu yuvada oklar bırakılacak skill’i seçer; Enter değiştirir. Esc duraklatma.",
+          "Teklife tıkla. Dördüncü skill’de bırakılacak skill’e tıkla; Geri aynı üçlü teklife döner. 1/2/3 seçim kısayolu değildir; N panelde kullanılmaz.",
+        ],
+        [
+          "boss",
+          "Boss karşılaşması",
+          "Karşılaşma afişi",
+          "Tehdit ve hazırlık özeti",
+          "Oklar mevcut düğmeler arasında; Enter meydan okur. Esc duraklatma.",
+          "Boss’a meydan oku’ya tıkla. Süre varken Geri sürüşe döner; süre 0 ise Geri yok. N ve 1/2/3 panelde kullanılmaz.",
+        ],
+        [
+          "result",
+          "Etkinlik sonucu",
+          "Mesaj ve kaynaklar",
+          "Sonuç ve devam kartı",
+          "Enter Devam; oklar tek düğmede kalır. Esc duraklatma.",
+          "Devam’a tıkla: bekleyen seviye seçimi, sonra bekleyen boss, aksi halde sürüş. N ve 1/2/3 panelde kullanılmaz.",
+        ],
+        [
+          "summary",
+          "Koşu özeti",
+          "Büyük koşu sayıları",
+          "Koşu ve rekor karşılaştırması",
+          "Enter Ana menü; oklar tek düğmede kalır. Esc duraklatma.",
+          "Ana menü’ye tıkla → Mutant menüsü. N ve 1/2/3 panelde kullanılmaz.",
+        ],
+      ];
+      const card = (title, desc, meta = "", selected = false) =>
+        `<div class="card ${selected ? "selected" : ""}"><small>${meta}</small><strong>${title}</strong><p>${desc}</p></div>`;
+      const action = (text, primary = false, disabled = false) =>
+        `<span class="btn ${primary ? "primary" : ""} ${disabled ? "disabled" : ""}">${text}</span>`;
+      const esc = "<span><kbd>Esc</kbd> Duraklatma</span>";
+      function body(id, v, state = 0) {
+        if (id === "hud")
+          return `<div class="run-info"><div>BÖLGE 1<br><span class="boss-clock">BOSS 08:42</span></div><div>Gövde 76 / 100<br>260 para · Seviye 3<br>500 / 680 XP</div></div><div class="mission">${v === "A" ? "Yol görevi tamamlandı." : "ATÖLYE · işaretin içinde dur"}</div><div class="map"><svg viewBox="0 0 160 120" aria-label="Temsili miniharita"><path d="M8 90L55 95L87 57L145 28M30 0L55 95L95 115" fill="none" stroke="#b3bdc6" stroke-width="3"/><path d="M60 76l5 10H55z" fill="#fff"/><rect x="112" y="36" width="8" height="8" fill="#ff5b4d"/><rect x="45" y="91" width="7" height="7" fill="#65b8e7"/></svg></div><div class="slots"><div class="slot"><kbd>N</kbd><b>NİTRO</b><small>64 / 100 · HAZIR</small><div class="bar"><i style="width:64%"></i></div></div><div class="slot"><kbd>1</kbd><b>Grappling Hook</b><small>Sv2 · ×2 HAZIR</small></div><div class="slot"><kbd>2</kbd><b>Flying Dutchman</b><small>Sv1 · 3,2 sn</small></div><div class="slot"><kbd>3</kbd><b>Risk Taker</b><small>Sv1 · %62 · kendiliğinden</small></div></div><div class="speed"><b>84</b> km/sa<br><em>3</em> VİTES</div>`;
+        let head = "",
+          detail = "";
+        if (id === "event") {
+          head =
+            '<div class="kicker">DÜELLO / ÇAYLAK</div><h3>Yeşil Vadi</h3><p>Asfalt yarışı · Rakipten önce bitir.</p><p class="muted">Düello iki risk sunar. Diğer etkinliklerde Ölümcül üçüncü seçenek olabilir.</p>';
+          detail =
+            '<div class="grid">' +
+            catalog.risks
+              .slice(0, 2)
+              .map((r, i) =>
+                card(
+                  r.ad,
+                  `${90 * r.odul} para · ${60 * r.odul} XP<br>Kaçırınca: ${r.ceza} sn ceza · ${Math.round(90 * r.kacirma)} para teselli`,
+                  i ? "Deneyimli rakip" : "Çaylak rakip",
+                  i === 0,
+                ),
+              )
+              .join("") +
+            '</div><div class="actions">' +
+            action("Geri") +
+            "</div>";
+        }
+        if (id === "shop") {
+          head =
+            '<div class="kicker">KOŞU PARASI / 260</div><h3>ATÖLYE</h3><p>Gövde 76 / 100 · Güç kaybı %7</p><div class="actions">' +
+            action("Tamir · 72 para", true) +
+            action("Stoğu yenile · 40 para") +
+            "</div>";
+          detail =
+            '<div class="grid">' +
+            card(
+              "Sokak motoru",
+              "Hava filtresi ve egzoz: güç %8 fazla<br><em>80 para · Satın al</em>",
+              "Motor",
+              true,
+            ) +
+            card("Spor fren", "Fren gücü %12 fazla<br><em>170 para · Satın al</em>", "Fren") +
+            card(
+              "Karbon gövde",
+              '%15 hafif, ağırlık merkezi alçak<br><span class="btn disabled">380 para · Para yetersiz</span>',
+              "Ağırlık",
+            ) +
+            '</div><div class="actions">' +
+            action("Geri") +
+            "</div>";
+        }
+        if (id === "chest") {
+          let cursed = state === 1,
+            offer = catalog.addons[cursed ? 2 : 0];
+          head = `<div class="kicker">${cursed ? "LANETLİ" : "GİZLİ"} SANDIK</div><h3>${offer.ad}</h3><p>${offer.d}</p><p>Tek teklif · Kabul etmek sana bağlı.</p>`;
+          detail =
+            '<div class="glass"><div class="kicker">' +
+            (cursed ? "BEDEL" : "TEKLİF") +
+            '</div><h3 style="font-size:2.6cqw">' +
+            (cursed ? catalog.curses.sure.ad : "Yedek tüp") +
+            "</h3><p>" +
+            (cursed ? catalog.curses.sure.d : offer.d) +
+            '</p><div class="actions">' +
+            action("Al", true) +
+            action("Reddet") +
+            "</div></div>";
+        }
+        if (id === "choice") {
+          head =
+            '<div class="kicker">SEVİYE 3 / YETENEK SEÇ</div><h3>' +
+            (state === 2 ? "Yerine bırakılacak<br>skill’i seç." : "Birini seç.") +
+            "</h3><p>" +
+            (state === 2
+              ? "Gelen: Volt Kanat · Üç skill yuvanın tümü dolu. Bırakılan skill, seviyesi ve eklentileriyle gider."
+              : "Pasifler yuva tüketmez. Skill, seviye, eklenti ve evrim teklifleri gerçek türüyle gösterilir.") +
+            "</p>";
+          let rows =
+            state === 0
+              ? catalog.passives.slice(0, 3)
+              : state === 1
+                ? [catalog.skills[4], catalog.skills[1], catalog.passives[6]]
+                : [catalog.skills[0], catalog.skills[1], catalog.skills[2]];
+          detail =
+            '<div class="grid">' +
+            rows
+              .map((r, i) =>
+                card(
+                  r.ad,
+                  state === 2 ? "Sv1 · Yerine bırak" : r.d,
+                  state === 2
+                    ? "Mevcut skill"
+                    : r.tur
+                      ? "Skill · " + (r.tur === "aktif" ? "tuşla" : "kendiliğinden")
+                      : "Pasif",
+                  i === 0,
+                ),
+              )
+              .join("") +
+            "</div>" +
+            (state === 2 ? '<div class="actions">' + action("Geri") + "</div>" : "");
+        }
+        if (id === "boss") {
+          const b = catalog.bosses[0];
+          head = `<div class="kicker">BÖLGE 1 / ${state ? "SÜRE DOLDU" : "BOSS 08:42"}</div><h3>${b.ad}</h3><p>${b.d}</p><p>Tür: Toprak / ralli</p>`;
+          detail =
+            '<div class="glass"><div class="kicker">ZAYIFLIK</div><p>' +
+            b.zayif +
+            '</p><div class="line">' +
+            b.yetenekler[0] +
+            '</div><div class="line">' +
+            b.yetenekler[1] +
+            '</div><div class="actions">' +
+            action("Boss’a meydan oku", true) +
+            (state ? "" : action("Geri")) +
+            "</div></div>";
+        }
+        if (id === "result") {
+          head =
+            '<div class="kicker">YARIŞ SONUCU</div><h3>' +
+            (state ? "Hedef kaçırıldı." : "Hedef geçildi.") +
+            "</h3><p>Koşu kaynaklarının güncel durumu</p><p>Etkinlik tamamlandı. Koşuna devam et.</p>";
+          detail =
+            '<div class="glass"><div class="line"><span>Koşu parası</span><b>' +
+            (state ? "260" : "350") +
+            '</b></div><div class="line"><span>XP</span><b>' +
+            (state ? "500" : "560") +
+            ' / 680</b></div><div class="line"><span>Seviye</span><b>3</b></div><div class="actions">' +
+            action("Devam", true) +
+            "</div></div>";
+        }
+        if (id === "summary") {
+          head =
+            '<div class="kicker">KOŞU BİTTİ</div><h3>Hedef kaçırıldı.</h3><div class="hero-number">BÖLGE 2</div><p>1 boss yenildi.</p>';
+          detail =
+            '<div class="glass"><div class="kicker">EN İYİ KOŞU</div><h3 style="font-size:3cqw">Bölge 3 · 2 boss</h3><p>Rekor: önceki en iyi koşu</p><div class="actions">' +
+            action("Ana menü", true) +
+            '</div><p class="muted">Mutant menüsüne dönüş</p></div>';
+        }
+        return `<div class="content"><div>${head}</div><div>${detail}</div></div>`;
+      }
+      function frame(id, v, state = 0) {
+        let hud = id === "hud";
+        return `<div class="screen ${hud ? "hud road" : id === "shop" ? "garage" : ""} ${v === "B" ? "layout-b" : ""}" role="img" aria-label="${specs.find((s) => s[0] === id)[1]} seçenek ${v}"><div class="shade"></div><div class="top"><span class="brand">MUTANT</span><span>${hud ? "SÜRÜŞ" : id === "summary" ? "KOŞU ÖZETİ" : "BÖLGE 1"}</span>${hud ? "" : `<span class="status">${id === "summary" ? "Bölge 2 · 1 boss" : "Boss " + (id === "boss" && state ? "00:00" : "08:42") + " · Gövde 76 · " + (id === "result" && !state ? "350" : "260") + " para"}</span>`}</div>${body(id, v, state)}<div class="hints">${hud ? "<span><kbd>N</kbd> Nitro</span><span><kbd>1/2/3</kbd> Skill</span>" : "<span><kbd>Oklar</kbd> Odak</span><span><kbd>Enter</kbd> Onay</span>"}${esc}</div></div>`;
+      }
+      const stateLabels = {
+        chest: ["Gizli sandık", "Lanetli sandık"],
+        choice: ["Üçlü teklif 1 · pasif", "Üçlü teklif 2 · karma", "Dolu yuva · değiştir"],
+        boss: ["Süre var", "Süre doldu"],
+        result: ["Hedef geçildi", "Hedef kaçırıldı"],
+      };
+      document.querySelector("nav").innerHTML = specs
+        .map((s, i) => `<a href="#${s[0]}">${i + 1} · ${s[1]}</a>`)
+        .join("");
+      document.querySelector("#screens").innerHTML = specs
+        .map(
+          (s, i) =>
+            `<section id="${s[0]}"><h2><span style="color:var(--acc)">${String(i + 1).padStart(2, "0")}</span> · ${s[1]}</h2>${s[0] === "hud" ? "<p>Panelsiz F HUD: üst orta yarış sayacı için, sağ üst miniharita için ayrılmıştır. Alt orta (%42–58, alt %35) boş kalır. Tuş ipuçları sürüşün ilk saniyelerinde görünür.</p>" : ""}${stateLabels[s[0]] ? `<div class="state-controls" aria-label="${s[1]} Örnek durumu">${stateLabels[s[0]].map((l, n) => `<button data-screen="${s[0]}" data-state="${n}" aria-pressed="${n === 0}">${l}</button>`).join("")}</div>` : ""}${["A", "B"].map((v, n) => `<div class="variant"><div class="caption"><b>${v}</b><span>${s[2 + n]}</span></div><div class="preview" data-id="${s[0]}" data-variant="${v}">${frame(s[0], v)}</div></div>`).join("")}<div class="flow"><p><b>Klavye akışı (sunum önerisi):</b> ${s[4]}</p><p><b>Fare akışı (mevcut komutlar):</b> ${s[5]}</p></div></section>`,
+        )
+        .join("");
+      document.querySelectorAll("[data-state]").forEach((button) =>
+        button.addEventListener("click", () => {
+          const id = button.dataset.screen;
+          document
+            .querySelectorAll(`[data-screen="${id}"]`)
+            .forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+          document
+            .querySelectorAll(`.preview[data-id="${id}"]`)
+            .forEach((p) => (p.innerHTML = frame(id, p.dataset.variant, Number(button.dataset.state))));
+        }),
+      );
+    </script>
+  </body>
+</html>
