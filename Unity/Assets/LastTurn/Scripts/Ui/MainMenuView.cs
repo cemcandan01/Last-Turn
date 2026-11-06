@@ -214,6 +214,8 @@ namespace LastTurn.Ui
       Ui.Show(home, Visible && Showing == GameFlow.MenuHub.Home); Ui.Show(race, Visible && Showing == GameFlow.MenuHub.Race); Ui.Show(mutant, Visible && Showing == GameFlow.MenuHub.Mutant);
       if (!Visible || Showing != GameFlow.MenuHub.Mutant) Ui.Show(confirm, false);
       if (!Visible) return;
+      // Sonuç ekranında "Sıradaki": yarış menüsünden o pistin hazırlığına geçilir.
+      if (GameFlow.NextRace != "") { var next = GameFlow.NextRace; GameFlow.NextRace = ""; GameFlow.OpenRace(next); return; }
       CareerMenuModel m; try { m = GameFlow.Menu(); } catch (Exception e) { status.text = "Menü okunamadı: " + e.Message; return; }
       foreach (var b in badges) b.Set(m);
       moneyLabel.text = m.Money.ToString("N0") + " para";

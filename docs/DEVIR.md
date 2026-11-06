@@ -1,3 +1,10 @@
+# Son devir: P7-8 F §8 Duraklatma + §9 Yarış sonucu (6 Kasım 2026) — Claude
+
+- **Tamamlanan grup:** yarış/Mutant duraklatması ve kariyer sonucu F ekranları; dal `codex/unity-p7-garaj`, kod/test commit'i bu notla aynı yerel commit. Ayrıntı [kart P7-8](isler/2026-11-01-unity-tam-aktarim.md).
+- **Testler:** .NET `--drive-menu-f` 84; grafik Game View Play 56/56, 6 PNG `Unity/Logs/p7-pause-*.png`, `check-pause-result-f-proof.mjs` geçti.
+- **Kalan P7:** Mutant koşu içi ekranları (atölye, sandık, ödül/seçim, boss sonucu, koşu özeti) IMGUI; onaylı tasarımı yok → önce örnek taslaklar. Sonra bütünleşme ve rehber toparlama.
+- **Sonraki tek görev:** Mutant koşu içi ekran taslakları (Codex'e verilen görev kartı `docs/isler/2026-11-06-mutant-ekran-taslaklari.md`).
+
 # Son devir: P7-7 F §7 Ayarlar (6 Kasım 2026) — Claude
 
 - **Tamamlanan grup:** Ayarlar F (6 bölüm, klavye/fare, kayıt, yarış duraklatmasından açılış/dönüş). Dal `codex/unity-p7-garaj`; kod/test commit'i bu notla aynı yerel commit. Önceki ekranlar yeniden yapılmadı. Ayrıntı [kart P7-7](isler/2026-11-01-unity-tam-aktarim.md).

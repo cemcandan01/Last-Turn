@@ -98,3 +98,12 @@ Otomatik Play ayrı kayıtta gerçek UI Toolkit paneli, sentetik klavye ve panel
 3. Göstergeler Windows'ta yalnız Harita biçimini gösterir (hız/süre/pist adı F yerleşiminde sabit). Kontroller'de tuş tablosu sürüşte kullanılan eşlemeden okunur; tuş değiştirme yoktur (mevcut oyunda böyle bir özellik yok).
 4. Yarışta Esc → Duraklatma → Ayarlar: aynı F ekranı açılır, HUD gizlenir. Esc ayarları kaydedip duraklatma menüsüne döner; bir Esc daha yarışa devam ettirir.
 5. Görseller `Unity/Logs/p7-settings-{drive,sound,controls,race}-1920.png`, `p7-settings-{camera,controls}-1280.png`, `p7-settings-controls-2560.png`. Otomasyon sentetik klavye ve panel hit-test kullanır; insan görsel/fiziksel fare kabulü açık.
+
+## P7-8 Duraklatma F §8 ve Yarış sonucu F §9 (6 Kasım 2026)
+
+1. Kariyer yarışında Esc: solda DURAKLATILDI ve altı işlem (Devam et, Yeniden başlat, Ayarlar, Kariyere dön, Garaja dön, Ana menüye dön), sağda süre / en iyi tur / hedef ve hızlı ayar (sürüş yardımı, kamera). ↑/↓ seçer, Enter yürütür, R yeniden başlatır, Esc devam ettirir; fare de çalışır. Hızlı ayardaki kamera hemen değişir ve kaydedilir.
+2. Duraklatma → Ayarlar → Esc: duraklatmaya geri dönülür.
+3. Yarışı bitir: solda büyük süre/puan, hedefe fark (beyaz: hedefin altında, sarı: üstünde), yeni rekor rozeti, üç yıldız ve eşikleri; sağda sonuç satırları, kazanılan XP/para ve seviye çubuğu (açık turuncu: bu yarıştan gelen XP). Mini harita gizlenir.
+4. Sonuçta Enter "Sıradaki: <pist>" o pistin hazırlık ekranını açar (aynı türde sonraki açık kariyer pisti; mevcut kilit kuralına göre örn. Drag 1'den sonra seviye 2'de açılan Drag 7 olabilir). Sıradaki yoksa tuş "Yarış menüsü" olur. R / TEKRAR yeniden başlatır, G garaja, Esc yarış menüsüne döner.
+5. Mutant koşusunda Esc: kırmızı tonlu aynı duraklatma; Devam, Ayarlar, Koşudan çık ve koşu durumu (boss süresi, gövde, para). Koşudan çık Mutant menüsüne döner.
+6. Görseller `Unity/Logs/p7-pause-{pause,result}-{1280,1920}.png`, `p7-pause-result-2560.png`, `p7-pause-mutant-1920.png`. Otomasyon sentetik klavye/panel hit-test ve gerçek fizikle Drag yarışı kullanır; insan kabulü açık.

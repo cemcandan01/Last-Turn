@@ -874,3 +874,41 @@
 .st-main .unity-base-slider__tracker { background-color:rgb(35,45,54); }
 .st-main .unity-base-slider__dragger { background-color:rgb(93,109,122); }
 .st-main .unity-scroller__low-button, .st-main .unity-scroller__high-button { background-color:rgb(35,45,54); }
+/* F §8 Duraklatma: solda işlemler, sağda durum ve hızlı ayar; sahne kararır. */
+.pz-page { background-color:rgba(5,8,11,.72); }
+.pz-page.mut-ton { background-color:rgba(40,8,4,.78); }
+.pz-left { position:absolute; left:115px; top:150px; width:500px; }
+.pz-where { white-space:normal; }
+.pz-title { font-size:80px; margin-top:6px; }
+.pz-actions { margin-top:26px; }
+.pz-action { justify-content:space-between; margin-bottom:12px; }
+.pz-action.sec > .skew { --fill:rgba(30,38,44,.94); --edge:rgb(255,122,60); }
+.pz-action.ana.sec > .skew { --fill:rgb(255,122,60); --edge:rgb(255,214,180); }
+.pz-right { position:absolute; right:115px; top:150px; width:580px; }
+.pz-stats { flex-direction:row; margin-top:14px; margin-bottom:22px; }
+.pz-stat { flex-grow:1; flex-basis:0; }
+.pz-value { font-size:40px; color:rgb(255,255,255); }
+.pz-quick .parcali { margin-bottom:14px; align-self:flex-start; }
+.pz-quick .parca { padding:0 18px; }
+/* F §9 Yarış sonucu: solda büyük süre ve yıldızlar, sağda sonuç ve kazanç, altta işlemler. */
+.rs-page { background-color:rgba(5,8,11,.62); }
+.rs-left { position:absolute; left:96px; top:134px; width:760px; }
+.rs-value { -unity-font-definition:url("Fonts/BarlowCondensed-Bold.ttf"); font-size:134px; color:rgb(255,255,255); margin-top:4px; }
+.rs-line { flex-direction:row; align-items:center; }
+.rs-delta { -unity-font-definition:url("Fonts/Barlow-SemiBold.ttf"); font-size:25px; padding:2px 12px; border-radius:6px; background-color:rgba(255,255,255,.92); color:rgb(11,20,24); margin-right:16px; }
+.rs-delta.kotu { background-color:rgb(255,210,122); }
+.rs-record { -unity-font-definition:url("Fonts/BarlowCondensed-Bold.ttf"); font-size:19px; letter-spacing:2px; color:rgb(26,13,5); background-color:rgb(255,122,60); padding:3px 12px; border-radius:4px; margin-left:16px; }
+.rs-header { font-size:22px; margin-top:16px; }
+.rs-stars { flex-direction:row; margin-top:24px; }
+.rs-star { align-items:center; margin-right:30px; }
+.rs-star-icon { width:70px; height:70px; margin:0; }
+.rs-right { position:absolute; right:96px; top:134px; width:580px; }
+.rs-row { flex-direction:row; justify-content:space-between; align-items:center; height:42px; }
+.rs-row-value { font-size:28px; color:rgb(255,255,255); }
+.rs-sep { height:1px; background-color:rgba(255,255,255,.13); margin:16px 0; }
+.rs-reward { -unity-font-definition:url("Fonts/BarlowCondensed-Bold.ttf"); font-size:40px; color:rgb(255,255,255); margin-top:8px; }
+.rs-bar { flex-direction:row; height:12px; border-radius:6px; background-color:rgba(255,255,255,.14); overflow:hidden; margin-top:4px; }
+.rs-fill { background-color:rgb(255,122,60); }
+.rs-gain { background-color:rgb(255,208,181); }
+.rs-actions { position:absolute; right:96px; bottom:96px; flex-direction:row; }
+.rs-actions > .ltb { margin-left:22px; }

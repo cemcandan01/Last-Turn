@@ -9,6 +9,7 @@ if(args.Contains("--conditions")){ConditionsValidation.Run();return;}
 if(args.Contains("--race-preparation")){RacePreparationValidation.Run();return;}
 if(args.Contains("--profile-f")){ProfileFValidation.Run();return;}
 if(args.Contains("--settings-f")){SettingsFValidation.Run();return;}
+if(args.Contains("--drive-menu-f")){DriveMenuFValidation.Run();return;}
 if(args.Contains("--controls")){ControlsValidation.Run();return;}
 if(args.Contains("--mutant-energy")){MutantEnergyValidation.Run();return;}
 if(args.Contains("--mutant-skills")){MutantSkillsValidation.Run();return;}

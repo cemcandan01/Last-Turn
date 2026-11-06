@@ -51,6 +51,8 @@ namespace LastTurn.Ui
       gameObject.AddComponent<RacePreparationView>();
       gameObject.AddComponent<ProfileView>();
       gameObject.AddComponent<SettingsView>();
+      gameObject.AddComponent<PauseView>();
+      gameObject.AddComponent<ResultView>();
       gameObject.AddComponent<RaceHudView>();
     }
 

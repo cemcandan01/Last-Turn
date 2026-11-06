@@ -16,7 +16,7 @@ namespace LastTurn.Garage
     private void Update()
     {
       if(MutantRuntime.Active)return;
-      if(SceneManager.GetActiveScene().name!="Garage" && !SettingsScreen.Open && Time.frameCount!=SettingsScreen.ClosedFrame && Keyboard.current!=null && Keyboard.current.escapeKey.wasPressedThisFrame)GameFlow.Pause(!GameFlow.Paused);
+      if(SceneManager.GetActiveScene().name!="Garage" && !SettingsScreen.Open && Time.frameCount!=SettingsScreen.ClosedFrame && !LastTurn.Ui.ResultView.CoversCurrentScreen && Keyboard.current!=null && Keyboard.current.escapeKey.wasPressedThisFrame)GameFlow.Pause(!GameFlow.Paused);
     }
     private bool Button(string label)=>GUILayout.Button(label,button,GUILayout.MinHeight(48));
     private string email="",password="",password2="",formError="";
@@ -52,7 +52,7 @@ namespace LastTurn.Garage
     }
     private void OnGUI()
     {
-      if(LastTurn.Ui.ProfileView.CoversCurrentScreen)return;
+      if(LastTurn.Ui.ProfileView.CoversCurrentScreen||LastTurn.Ui.PauseView.CoversCurrentScreen)return;
       if(MutantRuntime.Active)return;
       if(text==null)
       {text=new GUIStyle(GUI.skin.label){fontSize=18,wordWrap=true};text.normal.textColor=Color.white;title=new GUIStyle(text){fontSize=26,fontStyle=FontStyle.Bold};button=new GUIStyle(GUI.skin.button){fontSize=18,wordWrap=true,padding=new RectOffset(12,12,10,10)};}
