@@ -82,3 +82,11 @@ Otomatik Play ayrı kayıtta gerçek UI Toolkit paneli, sentetik klavye ve panel
 4. Bütçeyi aşan araçta ödülsüz deneme yazmalı, ödül 0 olmalı; deneme başlatılabilmeli. Kilitli pistte gerekçe görünmeli, düğme kapalı olmalı; doğrudan başlatma komutu da reddetmeli.
 5. Enter veya fare Başla gerçek yarışı açmalı; seçilen hava mevcut fizik tutuşuna aktarılmalı. Hazırlık Esc kariyer kartlarına dönmeli. Yarıştan mevcut dönüş yolunu kullanınca para/ilerleme yalnız mevcut yarış bitiş kurallarına göre değişmeli.
 6. Taslaktaki dakika başı örnek sayı yerine mevcut ödül servisinin önceki yıldızlara göre üç yıldız öngörüsü gösterilir; kesin ödül bitişte hesaplanır. 1280×720 ve 1920×1080 görselleri `Unity/Logs/p7-preparation-ready-{1280,1920}.png`; deneme/kilit örnekleri aynı klasörde `p7-preparation-{practice-1920,locked-1280}.png`. Arka plan geçici koyu zemindir; yeni 3B grafik yoktur.
+
+## P7-6 Profil ve bulut hesabı F §6 (6 Kasım 2026)
+
+1. Ana Menü → Profil: seviye/XP halkası, ad, yarış/galibiyet/yol/yıldız/para ve en çok kullanılan araç mevcut kayıtla aynı olmalı. Adı değiştir, Enter veya Kaydet; Esc düzenlemeyi iptal etmeli. Yeniden açılışta kayıtlı ad kalmalı, diğer sayaçlar değişmemeli.
+2. Misafir hesabında e-posta/şifre/şifre tekrar ve Hesap oluştur; bağlı hesapta Giriş yap/Şifremi unuttum görünür. Tab alan/işlemler arasında ilerler, odaktaki işlem Enter ile yürür, Esc geri döner. Şifre alanları maskeli; gönderim ve ekrandan çıkışta temizlenir.
+3. Geçersiz e-posta, kısa şifre ve farklı tekrar mevcut Türkçe hata metinlerini göstermeli. İşlem sürerken bulut işlemleri kapanmalı; hata sonrasında durum/hesap korunmalı ve metin görünmeli. Servis yoksa veya geliştirici/test profili ise bulut işlemleri kapalıdır.
+4. Var olan hesaba girişte yerel ilerlemenin o hesabınkiyle değişmesi mevcut kaynak davranışıdır; ekrandaki açıklamayı koru. Yeni sağlayıcı, hesap türü veya eşitleme kuralı eklenmedi.
+5. 1280×720 ve 1920×1080 görselleri `Unity/Logs/p7-profile-{guest,linked}-{1280,1920}.png`; unavailable/busy/error örnekleri aynı klasörde. Grafik otomasyon gerçek CloudAccount + yerel sahte sağlayıcı kullanır; gerçek Firebase'e giriş/hesap oluşturma/e-posta gönderme yapmaz. Canlı hesap ve insan görsel kabulü ayrı kullanıcı turudur.

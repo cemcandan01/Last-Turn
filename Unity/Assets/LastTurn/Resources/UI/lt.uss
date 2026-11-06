@@ -819,3 +819,28 @@
 .r-chips { flex-direction:row; margin-top:16px; margin-bottom:18px; }
 .r-chips .sekme { flex-grow:1; flex-basis:0; padding-left:12px; padding-right:12px; }
 .r-chips .yazi { font-size:23px; }
+/* F §6 Profil ve bulut hesabı. */
+.p-content { position:absolute; left:58px; right:58px; top:170px; bottom:105px; flex-direction:row; }
+.p-left { flex-grow:1; flex-basis:0; margin-right:60px; }
+.p-identity { flex-direction:row; margin-bottom:40px; }
+.p-ring { width:220px; height:220px; flex-shrink:0; align-items:center; justify-content:center; margin-right:32px; }
+.p-ring .baslik { font-size:76px; }
+.p-name { flex-grow:1; flex-basis:0; }
+.p-name .ltb { align-self:flex-start; margin-top:18px; }
+.p-cards { flex-direction:row; margin-bottom:35px; }
+.p-cards .kart { flex-grow:1; flex-basis:0; margin-right:15px; height:165px; padding:17px; }
+.p-cards .ad { font-size:27px; white-space:normal; }
+.p-cloud { width:650px; flex-shrink:0; padding:28px; }
+.p-cloud .unity-scroll-view__content-container { width:100%; }
+.p-status { font-size:23px; white-space:normal; margin-top:16px; margin-bottom:12px; }
+.p-field { flex-direction:column; margin-top:13px; margin-bottom:12px; font-size:22px; }
+.p-field > .unity-text-field__label { min-width:0; margin-bottom:8px; font-size:18px; color:rgb(191,203,214); }
+.p-field .unity-text-field__input { background-color:rgb(21,31,39); color:white; border-width:1px; border-color:rgb(75,88,98); padding:10px; min-height:46px; }
+.p-field .unity-text-field__input:focus { border-color:rgb(255,122,60); }
+.p-form .ltb { height:58px; margin-top:12px; }
+.p-form .ltb .yazi { font-size:23px; }
+.p-content .ltb:focus { border-color:rgb(255,122,60); border-width:2px; }
+.p-content .unity-scroller { background-color:rgb(17,24,30); }
+.p-content .unity-base-slider__tracker { background-color:rgb(35,45,54); }
+.p-content .unity-base-slider__dragger { background-color:rgb(93,109,122); }
+.p-content .unity-scroller__low-button, .p-content .unity-scroller__high-button { background-color:rgb(35,45,54); }

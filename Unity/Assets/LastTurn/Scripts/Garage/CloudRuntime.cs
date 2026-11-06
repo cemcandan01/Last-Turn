@@ -59,6 +59,15 @@ namespace LastTurn.Garage
     public static void CreateEmail(string email, string password) { if (Account != null) _ = Account.CreateEmail(email, password); }
     public static void SignInEmail(string email, string password) { if (Account != null) _ = Account.SignInEmail(email, password); }
     public static void ResetPassword(string email) { if (Account != null) _ = Account.ResetPassword(email); }
+#if UNITY_EDITOR
+    // Grafik test gerçek Firebase/oturum dosyası kullanmadan aynı hesap servisini bağlayabilir.
+    public static void SetUiValidationAccount(CloudAccount account)
+    {
+      if(Application.productName!="LastTurnUiValidation"||Application.companyName!="LastTurnProfileUiValidation"||Array.IndexOf(Environment.GetCommandLineArgs(),"-lastTurnUiValidation")<0)
+        throw new InvalidOperationException("Yalnız ayrı profil arayüzü testinde kullanılabilir.");
+      Account=account;
+    }
+#endif
 
     /// Yerel kayıt: garaj (ilerleme, parçalar) + yarış profili (rekorlar). Geliştirici profili eşitlenmez.
     private sealed class LocalSave : ICloudLocal
