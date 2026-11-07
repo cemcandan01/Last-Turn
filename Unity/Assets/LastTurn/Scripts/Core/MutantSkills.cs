@@ -95,12 +95,12 @@ namespace LastTurn.Core
     private sealed class Context
     {
       public readonly CatalogNode State,Instance,Local,Parameters,Flags,Output;public readonly MutantSkillWorld World;public readonly double Dt;public readonly CatalogNode[] Events;public readonly string Id;
-      private readonly List<(CatalogNode Event,int Depth)> queue;private readonly Dictionary<string,double> damage;
-      public Context(CatalogNode state,CatalogNode instance,MutantSkillWorld world,double dt,CatalogNode[] events,CatalogNode flags,CatalogNode output,List<(CatalogNode,int)> queue,Dictionary<string,double> damage)
-      {State=state;Instance=instance;Id=instance["id"].S();Local=MutantSkills.Local(state,Id);Parameters=MutantSkills.Parameters(Id,instance);World=world;Dt=dt;Events=events;Flags=flags;Output=output;this.queue=queue;this.damage=damage;}
+      private readonly List<(CatalogNode Event,int Depth)> queue;private readonly Dictionary<string,double> damage;private readonly MutantDamageEvents? damageEvents;
+      public Context(CatalogNode state,CatalogNode instance,MutantSkillWorld world,double dt,CatalogNode[] events,CatalogNode flags,CatalogNode output,List<(CatalogNode,int)> queue,Dictionary<string,double> damage,MutantDamageEvents? damageEvents)
+      {State=state;Instance=instance;Id=instance["id"].S();Local=MutantSkills.Local(state,Id);Parameters=MutantSkills.Parameters(Id,instance);World=world;Dt=dt;Events=events;Flags=flags;Output=output;this.queue=queue;this.damage=damage;this.damageEvents=damageEvents;}
       public double P(string k)=>Parameters[k].N();public double Y(string k)=>Local[k].N();public void Y(string k,double value)=>Set(Local,k,value);
       public void Emit(CatalogNode e)=>queue.Add((e,0));
-      public double Damage(string id,double amount,string type,double interval)=>WriteDamage(State,World,Flags,damage,id,amount,type,Id,interval,e=>queue.Add((e,0)));
+      public double Damage(string id,double amount,string type,double interval)=>WriteDamage(State,World,Flags,damage,id,amount,type,Id,interval,e=>{damageEvents?.IdentityForGiven(e);queue.Add((e,0));});
       public void Status(string id,string type,double duration)=>WriteStatus(State,World,id,type,duration,Id,e=>queue.Add((e,0)));
       public void Acceleration(string target,double x,double z)
       {
@@ -214,12 +214,12 @@ namespace LastTurn.Core
     }
     private static void LimitAcceleration(CatalogNode acceleration)
     {double m=H(acceleration["x"].N(),acceleration["z"].N());if(m>12){Set(acceleration,"x",acceleration["x"].N()*12/m);Set(acceleration,"z",acceleration["z"].N()*12/m);}}
-    public static (CatalogNode State,CatalogNode Output) Step(CatalogNode state,IEnumerable<CatalogNode> equipped,MutantSkillWorld world,double dt,IEnumerable<CatalogNode>? events=null,IEnumerable<string>? requests=null)
+    public static (CatalogNode State,CatalogNode Output) Step(CatalogNode state,IEnumerable<CatalogNode> equipped,MutantSkillWorld world,double dt,IEnumerable<CatalogNode>? events=null,IEnumerable<string>? requests=null,MutantDamageEvents? damageEvents=null)
     {
       var d=state.Clone();Add(d,"adim",1);var list=Normalize(equipped);var output=EmptyOutput();var queue=new List<(CatalogNode Event,int Depth)>();var stepDamage=new Dictionary<string,double>();
       double validDt=dt>0&&dt<=1d/30&&Finite(dt)?dt:0;var inputEvents=events?.ToArray()??Array.Empty<CatalogNode>();var pressed=new HashSet<string>(requests??Array.Empty<string>());
       foreach(var key in d["yerel"].Fields.Select(p=>p.Key).ToArray())if(!list.Any(o=>o["id"].S()==key))d["yerel"].Remove(key);
-      Context ContextFor(CatalogNode instance,CatalogNode flags)=>new Context(d,instance,world,validDt,inputEvents,flags,output,queue,stepDamage);
+      Context ContextFor(CatalogNode instance,CatalogNode flags)=>new Context(d,instance,world,validDt,inputEvents,flags,output,queue,stepDamage,damageEvents);
       var beforeFlags=Flags(d,list);
       foreach(var o in list)if(pressed.Contains(o["id"].S())){
         var c=ContextFor(o,beforeFlags);var t=Find(c.Id)!;
@@ -240,7 +240,7 @@ namespace LastTurn.Core
       // Durumlar tüm skill adımlarından sonra işler; ateşin ürettiği olayın nedensel derinliği birdir.
       foreach(var pair in d["hedefler"].Fields){string id=pair.Key;var target=pair.Value;var body=world.Targets.Items.FirstOrDefault(h=>h["id"].S()==id);
         foreach(var status in target["durumlar"].Items){
-          if(body!=null&&status["tur"].S()=="ates")WriteDamage(d,world,flags,stepDamage,id,2,"ates","ates",30,e=>queue.Add((e,1)));
+          if(body!=null&&status["tur"].S()=="ates")WriteDamage(d,world,flags,stepDamage,id,2,"ates","ates",30,e=>{damageEvents?.IdentityForGiven(e);queue.Add((e,1));});
           if(body!=null&&status["tur"].S()=="elektrik"){double v=Speed(body);if(v>2){if(!output["hedefIvme"].Has(id))output["hedefIvme"].Set(id,Obj(("x",Num(0)),("z",Num(0))));var a=output["hedefIvme"][id];Add(a,"x",-body["vx"].N()/v*3.5);Add(a,"z",-body["vz"].N()/v*3.5);}}
           Add(status,"kalan",-validDt);
         }target.Set("durumlar",Arr(target["durumlar"].Items.Where(q=>q["kalan"].N()>0)));

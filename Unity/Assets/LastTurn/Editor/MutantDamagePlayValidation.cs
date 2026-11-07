@@ -78,7 +78,7 @@ namespace LastTurn.EditorValidation
           p.StepWorld(brake);
           Check(s["carpma"].N()==2&&Math.Abs(s["mek"]["enerji"].N()-54)<1e-9,"Session çarpışma sinyali farklı gerçek hasar köküyle bağımsız enerji üretir");
           Check(observed.Where(e=>e.Kind=="HasarAlindi").Select(e=>e.Identity.Root).Distinct().Count()==2,"Normal adaptörde iki ayrı hasar kökü");
-          proof.checks.AddRange(MutantDamageScenarios.Verify(run.Catalog));Preserved();MutantRuntime.Exit();phase=2;return;
+          proof.checks.AddRange(MutantDamageScenarios.Verify(run.Catalog));proof.checks.AddRange(MutantDamageScenarios.VerifyGiven(run.Catalog));Preserved();MutantRuntime.Exit();phase=2;return;
         }
         if(phase==2&&UnityEngine.Object.FindFirstObjectByType<GarageScreen>()){
           Check(!MutantRuntime.Active,"Koşudan menüye dönüş");Preserved();Finish(null);

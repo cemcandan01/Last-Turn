@@ -1,3 +1,10 @@
+# Teslim A: HasarVerildi kimlik güvenliği tamamlandı (7 Kasım 2026) — Codex
+
+- `b465ec8` tabanı; `MutantSkills` gerçek hasarı yazarken kimlik üretir. `MutantEnergyController` sonraki fizik adımına taşıdığı derin kopyalarda bu zarfı korur. Hasar Bataryası aynı bildirimi yeni Seq ile tekrar ödüllendirmez; aynı miktarlı ayrı gerçek vuruş bağımsızdır. Enerji çocuklarının kök/ebeveyni korunur. HasarAlindi kanalı/pilot/JSON şeması aynı.
+- Önce eski60 geçerli durum yeniden kaydedilip kaynak/durum hash'leri `Reference/mutant-given-before.json` içinde sabitlendi; eski tam fixture korunur. Yeni .NET **31** kontrol,30/60/120 FPS geçerli/replay izleri; eski enerji **971.504** ve skill **181.774** koşul geçti (en büyük fark1,78e-14).
+- Gerçek izole Unity6000.3.9f1 batch Play **41/41**,0 çalışma hatası/0 Editor tanısı;158 kaynak hash'i eşleşti. Normal Runtime hasar yolu ve gerçek skill/Controller senaryoları, sonraki adım,61 replay, iki gerçek vuruş, profil/kariyer/JSON koruması. Kanıt `Unity/Logs/mutant-given-play.json`, `mutant-given-editor.log`, `tests/cikti/mutant-damage-proof.json` (yerel/ignore). Görsel değişiklik yok; Game View kabulü sayılmaz.
+- Kod/test ve bu not aynı yerel Teslim A commit'indedir. [Güncel görev kartı](isler/2026-11-07-mutant-m1-kapanis-m2.md). A kanıtı geçmeden M2 kodu yazılmadı; sıradaki yetkili tek teslim M2 ilk ortak model/metadata/kart dilimidir. Üretim ağırlığı/ekonomi, F2/B/C seçimi ve8 ekran aktarımı yok. Push/merge/yayın/uzun regresyon yapılmadı; yalnız `_Recovery` başlangıçta vardı ve korundu.
+
 # Deneme 0.8.25 gönderim paketi (7 Kasım 2026) — Codex
 
 - Kullanıcının “317 değişiklik var, gerekiyorsa gönder” isteği incelendi: **312 dosya tamamlanmış taslak teslimi**,5 dosya `_Recovery` idi. F2 ve B/C taslakları `755e51c` ile kaydedildi; kurtarma dosyaları takip/gönderim dışında korundu. A/B/C görsel seçimi ve Unity aktarımı yapılmadı.

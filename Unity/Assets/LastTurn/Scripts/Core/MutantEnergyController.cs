@@ -38,7 +38,9 @@ namespace LastTurn.Core
     {
       var s=Run.State;var old=MechanicState.FromNode(s["mek"]);double before=MutantMechanics.PowerMultiplier(old),power=s["becCikti"]["guc"].N(1),grip=s["becCikti"]["tutus"].N(1);
       var observed=MutantMechanics.ObserveDrift(observation,input,dt,true);observation=observed.G;var events=observed.Events.Select(DriftEvent).ToList();
-      void Add(CatalogNode e){var n=e.Clone();n.Set("sira",Number(observation.Seq++));events.Add(n);}
+      var identities=new Dictionary<double,MechanicEventIdentity>();
+      void Add(CatalogNode e){var n=e.Clone();double seq=observation.Seq++;n.Set("sira",Number(seq));
+        if(e["tur"].S()=="HasarVerildi")identities[seq]=Run.DamageEvents.IdentityForGiven(e);events.Add(n);}
       if(s["bekleyenRisk"].IsNumber)Add(Event("RiskBasladi",("risk",s["bekleyenRisk"])));
       double damageSeq=-1;MechanicEventIdentity? damageIdentity=null;
       if(s["bekleyenHasar"].Has("tur")){
@@ -53,9 +55,9 @@ namespace LastTurn.Core
       var definitions=Run.Catalog["passives"].Items.Concat(Run.Catalog["addons"].Items).ToArray();
       var installed=MutantMechanics.Installed(s["pasifler"].Items.Select(p=>p.S()),id=>definitions.FirstOrDefault(p=>p["id"].S()==id));
       var mechanicEvents=events.Select(Mechanic).ToArray();
-      foreach(var e in mechanicEvents)if(e.Kind=="HasarAlindi"&&e.Seq==damageSeq)e.Identity=damageIdentity;
+      foreach(var e in mechanicEvents){if(identities.TryGetValue(e.Seq,out var id))e.Identity=id;if(e.Kind=="HasarAlindi"&&e.Seq==damageSeq)e.Identity=damageIdentity;}
       var mechanic=MutantMechanics.Step(old,mechanicEvents,installed,true,dt,Run.DamageEvents);s.Set("mek",mechanic.ToNode());
-      var skills=MutantSkills.Step(s["bec"],equipped,world,dt,events,requests);s.Set("bec",skills.State);s.Set("becCikti",skills.Output);s.Set("bekleyenBeceri",skills.Output["olaylar"].Clone());
+      var skills=MutantSkills.Step(s["bec"],equipped,world,dt,events,requests,Run.DamageEvents);s.Set("bec",skills.State);s.Set("becCikti",skills.Output);s.Set("bekleyenBeceri",Run.DamageEvents.CloneEvents(skills.Output["olaylar"]));
       var blockers=CatalogNode.Obj();var targets=CatalogNode.Obj();foreach(var e in equipped){string id=e["id"].S();string? block=MutantSkills.Blocker(skills.State,equipped,world,id);blockers.Set(id,block==null?CatalogNode.Parse("null"):CatalogNode.Str(block));var target=MutantSkills.TargetPoint(skills.State,equipped,world,id);targets.Set(id,target==null?CatalogNode.Parse("null"):CatalogNode.Arr(target.Select(Number)));}
       s.Set("becEngel",blockers);s.Set("becHedef",targets);s.Set("gozlem",Event("",("acik",Bool(observation.Open)),("sure",Number(observation.Duration)),("sira",Number(observation.Seq))));s["gozlem"].Remove("tur");
       return MutantMechanics.PowerMultiplier(mechanic)!=before||skills.Output["guc"].N()!=power||skills.Output["tutus"].N()!=grip;

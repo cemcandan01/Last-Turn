@@ -8,6 +8,34 @@ namespace LastTurn.EditorValidation
   // Aynı dar senaryolar .NET ve gerçek Unity Play içinde çalışır; Unity API kullanmaz.
   public static class MutantDamageScenarios
   {
+    public static List<string> VerifyGiven(CatalogNode catalog)
+    {
+      var checks=new List<string>();void Check(bool ok,string label){if(!ok)throw new InvalidOperationException(label);checks.Add(label);}
+      var r=new MutantRun(53,catalog);r.State.Set("faz",CatalogNode.Str("surus"));r.State.Set("pasifler",CatalogNode.Parse("[\"hasar-bataryasi\"]"));
+      var w=new MutantSkillWorld{Racing=true,Player=CatalogNode.Parse("{\"x\":0,\"z\":0,\"vx\":0,\"vz\":0}"),Targets=CatalogNode.Parse("[{\"id\":\"r\",\"x\":0,\"z\":0,\"vx\":0,\"vz\":0}]")};
+      var c=new MutantEnergyController(r);var seen=new List<MechanicEvent>();r.DamageEvents.Observe=e=>seen.Add(e);
+      void Equip(){r.State.Set("beceriler",CatalogNode.Parse("[{\"id\":\"risk-taker\",\"seviye\":1,\"eklentiler\":[],\"evrim\":null}]"));r.State["bec"]["yerel"].Set("risk-taker",CatalogNode.Parse("{\"kalan\":1,\"iz\":[[0,0,1.5]]}"));}
+      void Step()=>c.Step(new DriftObserverInput(),w,Array.Empty<CatalogNode>(),1d/60,false,Array.Empty<string>());
+      double Energy()=>r.State["mek"]["enerji"].N();
+      Equip();Step();var pending=r.State["bekleyenBeceri"];var original=pending.Items.Single(e=>e["tur"].S()=="HasarVerildi");
+      var originalId=r.DamageEvents.IdentityForGiven(original);
+      Check(original["miktar"].N()==4&&Energy()==40,"Gerçek skill hasarı ilk adımda üretilir, enerji sonraki adıma bekler");
+      r.State.Set("beceriler",CatalogNode.Arr(Array.Empty<CatalogNode>()));Step();
+      Check(Energy()==42,"Hasar Bataryası sonraki adımda gerçek4 hasardan2 enerji üretir");
+      var accepted=seen.Single(e=>e.Kind=="HasarVerildi");
+      Check(accepted.Identity==originalId,"Üretici ve controller deep clone aynı zarfı taşır");
+      var child=seen.Single(e=>e.Kind=="EnergyGained"&&e.Source=="hasar-bataryasi");
+      Check(child.Identity!=null&&child.Identity.Root==originalId.Root&&child.Identity.Parent==originalId.Id,"HasarVerildi enerji türevi kök/ebeveyn kimliğini korur");
+      for(int i=0;i<20;i++)Step();double last=r.State["mek"]["sonSira"].N();
+      r.State.Set("bekleyenBeceri",r.DamageEvents.CloneEvents(pending));Step();
+      Check(r.State["mek"]["sonSira"].N()>last&&Energy()==42&&r.DamageEvents.Replays==1,"Bekleme dolduktan sonra yeni Seq ile replay enerji vermez");
+      for(int i=0;i<20;i++)Step();Equip();Step();var fresh=r.State["bekleyenBeceri"].Items.Single(e=>e["tur"].S()=="HasarVerildi");
+      Check(fresh["miktar"].N()==original["miktar"].N()&&r.DamageEvents.IdentityForGiven(fresh).Id!=originalId.Id,"Aynı miktarlı farklı gerçek vuruşun ayrı kimliği var");
+      r.State.Set("beceriler",CatalogNode.Arr(Array.Empty<CatalogNode>()));Step();Check(Energy()==44,"Farklı gerçek vuruş bağımsız2 enerji üretir");
+      for(int i=0;i<60;i++){r.State.Set("bekleyenBeceri",r.DamageEvents.CloneEvents(pending));Step();}
+      Check(Energy()==44&&r.DamageEvents.Replays==61,"Altmış adımlık yinelenen hasar sonsuz enerji üretmez");
+      return checks;
+    }
     public static List<string> Verify(CatalogNode catalog)
     {
       var checks=new List<string>();
