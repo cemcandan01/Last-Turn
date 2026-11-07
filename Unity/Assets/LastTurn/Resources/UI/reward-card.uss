@@ -1,0 +1,29 @@
+.reward-card {
+  background-color: rgb(17, 20, 27);
+  border-width: 2px;
+  border-radius: 2px;
+  padding: 12px 24px;
+  color: rgb(229, 232, 238);
+  overflow: hidden;
+  flex-direction: column;
+}
+.reward-card:focus { background-color: rgb(27, 31, 40); }
+.rc-top { flex-direction: row; justify-content: space-between; margin-bottom: 4px; }
+.rc-rarity { font-size: 21px; -unity-font-style: bold; }
+.rc-source { font-size: 19px; color: rgb(166, 175, 190); }
+.rc-title { font-size: 28px; -unity-font-style: bold; white-space: normal; }
+.rc-level { font-size: 18px; color: rgb(255, 122, 60); margin-top: 2px; margin-bottom: 4px; }
+.rc-description { font-size: 20px; white-space: normal; margin-bottom: 4px; }
+.rc-caption { font-size: 14px; color: rgb(146, 157, 175); margin-top: 3px; margin-bottom: 2px; }
+.rc-effect { font-size: 20px; white-space: normal; flex-shrink: 0; }
+.rc-vehicle { font-size: 20px; white-space: normal; }
+.rc-details { flex-grow: 1; flex-shrink: 1; min-height: 64px; }
+.rc-details .unity-scroll-view__content-container { flex-shrink: 0; }
+.rc-details .unity-scroller--vertical { width: 12px; background-color: rgb(22, 27, 35); }
+.rc-details .unity-scroller__low-button, .rc-details .unity-scroller__high-button { display: none; }
+.rc-details .unity-base-slider__tracker { background-color: rgb(35, 42, 53); border-width: 0; }
+.rc-details .unity-base-slider__dragger { background-color: rgb(91, 104, 122); border-width: 0; min-height: 28px; }
+.rc-vehicle { flex-shrink: 0; }
+.rc-foot { flex-shrink: 0; padding-top: 6px; }
+.rc-compatibility { font-size: 18px; white-space: normal; }
+.rc-curse { font-size: 18px; white-space: normal; color: rgb(247, 98, 98); margin-top: 5px; }

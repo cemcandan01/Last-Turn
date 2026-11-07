@@ -20,6 +20,13 @@ namespace LastTurn.Prototype
     /// Yarışta rakibe skill ivmesi ve gövde güç kaybı (GtPrototype rakibi kurunca bağlar).
     public static MutantOpponentLink OpponentLink {get;set;}
     private static MutantSkillWorldFactory worlds;
+    private static MutantRewards rewards;
+    public static MutantRewardCard Reward(string offer,RewardSource source,bool cursed=false,string curse="")
+    {
+      if(!Active)throw new InvalidOperationException("Ödül görünümü için koşu gerekir.");
+      if(rewards==null){var meta=Resources.Load<TextAsset>("mutant-reward-metadata");rewards=new MutantRewards(Run.Catalog,meta?meta.text:null);}
+      return rewards.Read(Run,offer,source,GarageSession.Catalog,Car,cursed,curse);
+    }
     public static int Car {get;private set;}=-1;
     public static string Panel {get;private set;}="";
     public static string Message {get;private set;}="";
@@ -32,12 +39,12 @@ namespace LastTurn.Prototype
     public static MutantMenuModel Model=>MutantMenuModel.Read(Run,GarageSession.Catalog,Car);
     private static BodyVector? returnPoint;private static double returnHeading;private static int refreshed;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void Reset(){Run=null;Session=null;RacePlan=null;Abilities=null;OpponentLink=null;Car=-1;Panel="";Message="";returnPoint=null;refreshed=0;RecordDirectory="";Starting=false;}
+    private static void Reset(){Run=null;Session=null;RacePlan=null;Abilities=null;OpponentLink=null;Car=-1;Panel="";Message="";returnPoint=null;refreshed=0;RecordDirectory="";Starting=false;rewards=null;}
     public static void Start(uint seed)
     {
       GarageSession.EnsureLoaded();var asset=Resources.Load<TextAsset>("mutant-catalog");
       if(!asset)throw new InvalidOperationException("Mutant verisi bulunamadı.");
-      Run=new MutantRun(seed,CatalogNode.Parse(asset.text));Session=null;RacePlan=null;Car=-1;Panel="start";Message="";returnPoint=null;Starting=true;GameFlow.Pause(false);
+      Run=new MutantRun(seed,CatalogNode.Parse(asset.text));rewards=null;Session=null;RacePlan=null;Car=-1;Panel="start";Message="";returnPoint=null;Starting=true;GameFlow.Pause(false);
     }
     // Yalnız ilk seçim ekranında gezinme; koşu/RNG/seçenekler yeniden üretilmez.
     public static void BackToStartingCars(){if(Starting&&Panel=="choice")Panel="start";}

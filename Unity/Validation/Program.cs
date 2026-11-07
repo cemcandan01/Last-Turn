@@ -1,5 +1,6 @@
 using System.Text.Json;
 using LastTurn.Core;
+if(args.Contains("--mutant-rewards")){MutantRewardValidation.Run();return;}
 if(args.Contains("--mutant-damage")){MutantDamageValidation.Run();return;}
 if(args.Contains("--mutant-pilot")){MutantPilotValidation.Run();return;}
 if(args.Contains("--garage-f")){GarageFValidation.Run();return;}
