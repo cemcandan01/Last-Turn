@@ -1,0 +1,12 @@
+{
+  "ad": "Biyomekanik mutasyon",
+  "ana": ["#b7ff32", "#ef3f9f", "#0b1718", "#ecf6e7"],
+  "nadirlikOnerisi": {
+    "Yaygın": "#b6c6b3",
+    "Sıra dışı": "#b7ff32",
+    "Nadir": "#5fd3e6",
+    "Epik": "#ef3f9f",
+    "Efsanevi": "#ffd17c"
+  },
+  "not": "Yalnız görsel öneridir; oyun nadirlik sistemi eklenmez."
+}

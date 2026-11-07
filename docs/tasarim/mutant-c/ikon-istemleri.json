@@ -1,0 +1,174 @@
+{
+  "arac": "Yerleşik image_gen",
+  "transparent_background": true,
+  "ikonlar": [
+    {
+      "dir": "c",
+      "id": "toprak-kurdu",
+      "group": "boss",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI boss icon, square 1024x1024. Subject: segmented earth worm burrowing through soil with tread-like armor. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "drift-kralicesi",
+      "group": "boss",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI boss icon, square 1024x1024. Subject: stylized queen crown over curved drifting tire tracks. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "drag-canavari",
+      "group": "boss",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI boss icon, square 1024x1024. Subject: fanged engine beast with twin exhaust flames. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "gece-sahini",
+      "group": "boss",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI boss icon, square 1024x1024. Subject: sharp falcon head with a crescent and racetrack curve. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "camur-baronu",
+      "group": "boss",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI boss icon, square 1024x1024. Subject: crowned mud boar with splash tusks. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "grappling-hook",
+      "group": "skill",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI skill icon, square 1024x1024. Subject: grappling hook and taut cable. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "flying-dutchman",
+      "group": "skill",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI skill icon, square 1024x1024. Subject: ghostly phased sports car silhouette. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "slipstream-engine",
+      "group": "skill",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI skill icon, square 1024x1024. Subject: two streamlined cars with trailing air wake. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "risk-taker",
+      "group": "skill",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI skill icon, square 1024x1024. Subject: flaming tire drifting. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "turbo",
+      "group": "parca",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI parca icon, square 1024x1024. Subject: turbocharger spiral. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "volt-kanat",
+      "group": "skill",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI skill icon, square 1024x1024. Subject: swept wings around a lightning bolt. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "sanziman",
+      "group": "parca",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI parca icon, square 1024x1024. Subject: gearbox and shift gear. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "lastik",
+      "group": "parca",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI parca icon, square 1024x1024. Subject: racing tire. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "suspansiyon",
+      "group": "parca",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI parca icon, square 1024x1024. Subject: coil suspension shock absorber. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "motor",
+      "group": "parca",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI parca icon, square 1024x1024. Subject: engine block. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "fren",
+      "group": "parca",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI parca icon, square 1024x1024. Subject: brake disc and caliper. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "aero",
+      "group": "parca",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI parca icon, square 1024x1024. Subject: rear aero wing. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "agirlik",
+      "group": "parca",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI parca icon, square 1024x1024. Subject: perforated lightweight chassis plate. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "diferansiyel",
+      "group": "parca",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI parca icon, square 1024x1024. Subject: differential gear and axle. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "direksiyon",
+      "group": "parca",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI parca icon, square 1024x1024. Subject: steering rack and wheel. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "cekis",
+      "group": "parca",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI parca icon, square 1024x1024. Subject: four wheel drivetrain. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "guc",
+      "group": "pasif",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI pasif icon, square 1024x1024. Subject: piston with rising power arrow. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "koruma",
+      "group": "parca",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI parca icon, square 1024x1024. Subject: roll cage. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "hafif",
+      "group": "pasif",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI pasif icon, square 1024x1024. Subject: feather. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "zirh",
+      "group": "pasif",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI pasif icon, square 1024x1024. Subject: layered shield. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "sert-nitro",
+      "group": "pasif",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI pasif icon, square 1024x1024. Subject: nitrous bottle with forceful flame. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "tamirci",
+      "group": "pasif",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI pasif icon, square 1024x1024. Subject: crossed repair wrench and small body panel. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    },
+    {
+      "dir": "c",
+      "id": "adrenalin",
+      "group": "pasif",
+      "prompt": "Use case: stylized-concept. Asset type: standalone game UI pasif icon, square 1024x1024. Subject: racing heartbeat pulse. Style bible: NEON HOLOGRAM. Cyan #4cefff and pink violet #ed69ff. Flat clean thin luminous geometric line art, transparent interior, sparse scanline interruptions and small glitch accents, perfectly legible outline and consistent line thickness. Restrained baked-in luminous edge. No sculpted materials, no organic veins, no gems, no medieval crest. One centered symbol, fills 75% canvas, no enclosing tile or backplate. Truly transparent alpha background, generous transparent margin, no text, letters, numbers, logo or watermark. Single consistent art style for entire Last Turn Direction C set."
+    }
+  ]
+}

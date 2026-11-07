@@ -1,0 +1,452 @@
+[
+  {
+    "dir": "boss",
+    "id": "toprak-kurdu",
+    "ad": "Toprak Kurdu",
+    "path": "boss/toprak-kurdu.png"
+  },
+  {
+    "dir": "boss",
+    "id": "drift-kralicesi",
+    "ad": "Drift Kraliçesi",
+    "path": "boss/drift-kralicesi.png"
+  },
+  {
+    "dir": "boss",
+    "id": "drag-canavari",
+    "ad": "Drag Canavarı",
+    "path": "boss/drag-canavari.png"
+  },
+  {
+    "dir": "boss",
+    "id": "gece-sahini",
+    "ad": "Gece Şahini",
+    "path": "boss/gece-sahini.png"
+  },
+  {
+    "dir": "boss",
+    "id": "camur-baronu",
+    "ad": "Çamur Baronu",
+    "path": "boss/camur-baronu.png"
+  },
+  {
+    "dir": "skill",
+    "id": "grappling-hook",
+    "ad": "Grappling Hook",
+    "path": "ikon/skill/grappling-hook.png"
+  },
+  {
+    "dir": "skill",
+    "id": "flying-dutchman",
+    "ad": "Flying Dutchman",
+    "path": "ikon/skill/flying-dutchman.png"
+  },
+  {
+    "dir": "skill",
+    "id": "risk-taker",
+    "ad": "Risk Taker",
+    "path": "ikon/skill/risk-taker.png"
+  },
+  {
+    "dir": "skill",
+    "id": "slipstream-engine",
+    "ad": "Slipstream Engine",
+    "path": "ikon/skill/slipstream-engine.png"
+  },
+  {
+    "dir": "skill",
+    "id": "volt-kanat",
+    "ad": "Volt Kanat",
+    "path": "ikon/skill/volt-kanat.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "guc",
+    "ad": "Motor ayarı",
+    "path": "ikon/pasif/guc.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "hafif",
+    "ad": "Hafifletme",
+    "path": "ikon/pasif/hafif.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "asfalt",
+    "ad": "Asfalt tutuşu",
+    "path": "ikon/pasif/asfalt.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "toprak",
+    "ad": "Toprak tutuşu",
+    "path": "ikon/pasif/toprak.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "fren",
+    "ad": "Sert fren",
+    "path": "ikon/pasif/fren.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "aci",
+    "ad": "Açı kiti",
+    "path": "ikon/pasif/aci.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "ogrenci",
+    "ad": "Hızlı öğrenen",
+    "path": "ikon/pasif/ogrenci.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "tuccar",
+    "ad": "Pazarlıkçı",
+    "path": "ikon/pasif/tuccar.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "zaman",
+    "ad": "Zaman bükücü",
+    "path": "ikon/pasif/zaman.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "zirh",
+    "ad": "Zırh",
+    "path": "ikon/pasif/zirh.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "tamirci",
+    "ad": "Seyyar tamirci",
+    "path": "ikon/pasif/tamirci.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "adrenalin",
+    "ad": "Adrenalin",
+    "path": "ikon/pasif/adrenalin.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "camtop",
+    "ad": "Cam top",
+    "path": "ikon/pasif/camtop.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "hurdaci",
+    "ad": "Hurdacı",
+    "path": "ikon/pasif/hurdaci.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "kumarbaz",
+    "ad": "Kumarbaz",
+    "path": "ikon/pasif/kumarbaz.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "sonnefes",
+    "ad": "Son nefes",
+    "path": "ikon/pasif/sonnefes.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "nitro-kalkani",
+    "ad": "Nitro kalkanı",
+    "path": "ikon/pasif/nitro-kalkani.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "drift-harvester",
+    "ad": "Drift Hasadı",
+    "path": "ikon/pasif/drift-harvester.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "temiz-cikis",
+    "ad": "Temiz Çıkış",
+    "path": "ikon/pasif/temiz-cikis.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "kayma-hafizasi",
+    "ad": "Kayma Hafızası",
+    "path": "ikon/pasif/kayma-hafizasi.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "hiz-dinamosu",
+    "ad": "Hız Dinamosu",
+    "path": "ikon/pasif/hiz-dinamosu.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "carpisma-pili",
+    "ad": "Çarpışma Pili",
+    "path": "ikon/pasif/carpisma-pili.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "risk-kondansatoru",
+    "ad": "Risk Kondansatörü",
+    "path": "ikon/pasif/risk-kondansatoru.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "hasar-bataryasi",
+    "ad": "Hasar Bataryası",
+    "path": "ikon/pasif/hasar-bataryasi.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "kalkan-bataryasi",
+    "ad": "Kalkan Bataryası",
+    "path": "ikon/pasif/kalkan-bataryasi.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "takip-dinamosu",
+    "ad": "Takip Dinamosu",
+    "path": "ikon/pasif/takip-dinamosu.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "genis-tup",
+    "ad": "Geniş Tüp",
+    "path": "ikon/pasif/genis-tup.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "verimli-nitro",
+    "ad": "Verimli Nitro",
+    "path": "ikon/pasif/verimli-nitro.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "uzun-nitro",
+    "ad": "Uzun Nitro",
+    "path": "ikon/pasif/uzun-nitro.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "sert-nitro",
+    "ad": "Sert Nitro",
+    "path": "ikon/pasif/sert-nitro.png"
+  },
+  {
+    "dir": "pasif",
+    "id": "sigorta",
+    "ad": "Sigorta",
+    "path": "ikon/pasif/sigorta.png"
+  },
+  {
+    "dir": "ek",
+    "id": "ek-yedek-tup",
+    "ad": "Yedek tüp",
+    "path": "ikon/ek/ek-yedek-tup.png"
+  },
+  {
+    "dir": "ek",
+    "id": "ek-kizgin-egzoz",
+    "ad": "Kızgın egzoz",
+    "path": "ikon/ek/ek-kizgin-egzoz.png"
+  },
+  {
+    "dir": "ek",
+    "id": "ek-turbo-kartusu",
+    "ad": "Turbo kartuşu",
+    "path": "ikon/ek/ek-turbo-kartusu.png"
+  },
+  {
+    "dir": "ek",
+    "id": "ek-cift-atesleme",
+    "ad": "Çift ateşleme",
+    "path": "ikon/ek/ek-cift-atesleme.png"
+  },
+  {
+    "dir": "ek",
+    "id": "ek-hasar-donusturucu",
+    "ad": "Hasar dönüştürücü",
+    "path": "ikon/ek/ek-hasar-donusturucu.png"
+  },
+  {
+    "dir": "ek",
+    "id": "ek-takviye-tampon",
+    "ad": "Takviye tampon",
+    "path": "ikon/ek/ek-takviye-tampon.png"
+  },
+  {
+    "dir": "skill-eki",
+    "id": "sok-bobini",
+    "ad": "Şok bobini",
+    "path": "ikon/skill-eki/sok-bobini.png"
+  },
+  {
+    "dir": "skill-eki",
+    "id": "kor-cekirdegi",
+    "ad": "Kor çekirdeği",
+    "path": "ikon/skill-eki/kor-cekirdegi.png"
+  },
+  {
+    "dir": "sandik",
+    "id": "sandik-para",
+    "ad": "Kayıp kasa",
+    "path": "ikon/sandik/sandik-para.png"
+  },
+  {
+    "dir": "sandik",
+    "id": "sandik-tamir",
+    "ad": "Onarım seti",
+    "path": "ikon/sandik/sandik-tamir.png"
+  },
+  {
+    "dir": "sandik",
+    "id": "sandik-enerji",
+    "ad": "Enerji hücresi",
+    "path": "ikon/sandik/sandik-enerji.png"
+  },
+  {
+    "dir": "parca",
+    "id": "motor",
+    "ad": "Motor",
+    "path": "ikon/parca/motor.png"
+  },
+  {
+    "dir": "parca",
+    "id": "turbo",
+    "ad": "Turbo",
+    "path": "ikon/parca/turbo.png"
+  },
+  {
+    "dir": "parca",
+    "id": "sanziman",
+    "ad": "Şanzıman",
+    "path": "ikon/parca/sanziman.png"
+  },
+  {
+    "dir": "parca",
+    "id": "lastik",
+    "ad": "Lastik",
+    "path": "ikon/parca/lastik.png"
+  },
+  {
+    "dir": "parca",
+    "id": "suspansiyon",
+    "ad": "Süspansiyon",
+    "path": "ikon/parca/suspansiyon.png"
+  },
+  {
+    "dir": "parca",
+    "id": "diferansiyel",
+    "ad": "Diferansiyel",
+    "path": "ikon/parca/diferansiyel.png"
+  },
+  {
+    "dir": "parca",
+    "id": "fren",
+    "ad": "Fren",
+    "path": "ikon/parca/fren.png"
+  },
+  {
+    "dir": "parca",
+    "id": "agirlik",
+    "ad": "Ağırlık",
+    "path": "ikon/parca/agirlik.png"
+  },
+  {
+    "dir": "parca",
+    "id": "aero",
+    "ad": "Aerodinamik",
+    "path": "ikon/parca/aero.png"
+  },
+  {
+    "dir": "parca",
+    "id": "cekis",
+    "ad": "Çekiş",
+    "path": "ikon/parca/cekis.png"
+  },
+  {
+    "dir": "parca",
+    "id": "direksiyon",
+    "ad": "Direksiyon",
+    "path": "ikon/parca/direksiyon.png"
+  },
+  {
+    "dir": "parca",
+    "id": "koruma",
+    "ad": "Koruma",
+    "path": "ikon/parca/koruma.png"
+  },
+  {
+    "dir": "lanet",
+    "id": "sure",
+    "ad": "Zaman laneti",
+    "path": "ikon/lanet/sure.png"
+  },
+  {
+    "dir": "lanet",
+    "id": "govde",
+    "ad": "Pas laneti",
+    "path": "ikon/lanet/govde.png"
+  },
+  {
+    "dir": "lanet",
+    "id": "para",
+    "ad": "Açgözlülük laneti",
+    "path": "ikon/lanet/para.png"
+  },
+  {
+    "dir": "risk",
+    "id": "guvenli",
+    "ad": "Güvenli",
+    "path": "ikon/risk/guvenli.png"
+  },
+  {
+    "dir": "risk",
+    "id": "riskli",
+    "ad": "Riskli",
+    "path": "ikon/risk/riskli.png"
+  },
+  {
+    "dir": "risk",
+    "id": "olumcul",
+    "ad": "Ölümcül",
+    "path": "ikon/risk/olumcul.png"
+  },
+  {
+    "dir": "hud",
+    "id": "para",
+    "ad": "Para",
+    "path": "ikon/hud/para.png"
+  },
+  {
+    "dir": "hud",
+    "id": "xp",
+    "ad": "Deneyim",
+    "path": "ikon/hud/xp.png"
+  },
+  {
+    "dir": "hud",
+    "id": "govde",
+    "ad": "Gövde",
+    "path": "ikon/hud/govde.png"
+  },
+  {
+    "dir": "hud",
+    "id": "enerji",
+    "ad": "Enerji",
+    "path": "ikon/hud/enerji.png"
+  },
+  {
+    "dir": "hud",
+    "id": "nitro",
+    "ad": "Nitro",
+    "path": "ikon/hud/nitro.png"
+  }
+]

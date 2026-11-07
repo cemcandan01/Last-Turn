@@ -61,6 +61,7 @@ namespace LastTurn.Core
   public sealed class MechanicEvent
   {
     public string Kind = "";
+    public MechanicEventIdentity? Identity;
     public double Seq, Dt, Speed, Angle, Duration, Amount, Risk, Distance, Direction, Severity;
     public bool Spin, Airborne;
     public string Ability = "", Damage = "", Target = "", DamageType = "", Effect = "", Status = "", Source = "";
@@ -263,7 +264,7 @@ namespace LastTurn.Core
     }
 
     /// mekanikAdimi: etkin değilse aynı nesne döner. Türev olaylar aynı adımda derinlik/işlem sınırı içinde işlenir.
-    public static MechanicState Step(MechanicState state, IReadOnlyList<MechanicEvent> events, IEnumerable<MechanicDefinition> installed, bool active = false, double dt = 1.0 / 60)
+    public static MechanicState Step(MechanicState state, IReadOnlyList<MechanicEvent> events, IEnumerable<MechanicDefinition> installed, bool active = false, double dt = 1.0 / 60, MutantDamageEvents? damageEvents = null)
     {
       if (!active) return state;
       var y = state.Clone(); y.Step = state.Step + 1;
@@ -287,6 +288,8 @@ namespace LastTurn.Core
         if (processed >= StepLimit) { y.Cut += queue.Count - i; break; }
         processed++;
         var (o, depth) = queue[i];
+        if(damageEvents!=null&&!damageEvents.Accept(o))continue;
+        damageEvents?.Observed(o);
         if (o.Kind == "DriftStarted") { y.DriftOpen = true; y.DriftGain = 0; }
         foreach (var m in list)
         {
@@ -311,7 +314,7 @@ namespace LastTurn.Core
           double diff = y.Energy - before;
           if (diff > 0)
           {
-            if (depth + 1 <= CausalDepth) queue.Add((new MechanicEvent { Kind = "EnergyGained", Amount = diff, Source = m.Id }, depth + 1));
+            if (depth + 1 <= CausalDepth) queue.Add((new MechanicEvent { Kind = "EnergyGained", Amount = diff, Source = m.Id, Identity = o.Identity?.Energy(m.Id) }, depth + 1));
             else y.Cut++;
           }
         }

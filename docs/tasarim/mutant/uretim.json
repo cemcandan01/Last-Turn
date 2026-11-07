@@ -1,0 +1,50 @@
+{
+  "arac": "Yerleşik image_gen.imagegen; CLI/API/ek kredi kullanılmadı.",
+  "ikonlar": "70 özgün SVG: viewBox 0 0 100 100; 4 birim açık gümüş çizgi, 9 birim koyu alt çizgi, ametist/kızıl köşe. Edge Canvas ile 256×256 alfalı PNG.",
+  "paketleme": "Üretim görselleri projeye kopyalandı. Çerçeveler 1024×1024; atmosfer 1600×900 PNG olarak boyutlandırıldı; renk değişiklikleri image_gen düzenlemeleridir.",
+  "prompts": [
+    {
+      "anahtar": "bg",
+      "prompt": "Use case: stylized-concept. Asset type: 16:9 game menu atmosphere, landscape 1536x864. Primary request: dark supernatural motorsport world, empty fractured basalt highway winding into a vast angular amethyst crystal rift, crimson energy fissures in black rock, tiny sparks, distant industrial silhouettes, low violet storm clouds. Sophisticated cinematic game art, rich detail at edges, central area quiet very dark for UI text. Color palette near black #100c1b, violet #ae72ff, crimson #ff395e. No cars, people, lettering, numbers, logos, brands, UI, watermark. Wide panoramic composition."
+    },
+    {
+      "anahtar": "boss",
+      "prompt": "Use case: logo-brand. Asset type: transparent game boss heraldic portrait emblem, square. Toprak Kurdu (Earth Wolf), snarling wolf head forged of jagged dark gunmetal and fractured amethyst with crimson eyes, layered angular shield silhouette, earth rock shards at neck, rich engraved bevels and violet crimson emissive cracks. Centered isolated single insignia, all outer space actually transparent, generous 12 percent padding. Premium supernatural motorsport boss art. Cohesive palette black steel, pale silver highlights, violet and crimson. Symmetrical frontal head, readable silhouette at small sizes. No text, no letters, no brand, no watermark."
+    },
+    {
+      "anahtar": "queen",
+      "prompt": "Use case: logo-brand. Asset type: transparent game boss heraldic portrait emblem, square. Drift Kraliçesi (Drift Queen), fierce masked queen portrait with a tall angular crown and curling twin smoke ribbons forged of jagged dark gunmetal and fractured amethyst with crimson eyes, layered angular shield silhouette, sweeping drift smoke metallic filigree at neck, rich engraved bevels and violet crimson emissive cracks. Centered isolated single insignia, all outer space actually transparent, generous 12 percent padding. Premium supernatural motorsport boss art. Cohesive palette black steel, pale silver highlights, violet and crimson. Symmetrical frontal crowned female mask, readable silhouette at small sizes. No text, no letters, no brand, no watermark."
+    },
+    {
+      "anahtar": "beast",
+      "prompt": "Use case: logo-brand. Asset type: transparent game boss heraldic portrait emblem, square. Drag Canavarı (Drag Beast), roaring horned mechanical reptile head with twin turbine jaws forged of jagged dark gunmetal and fractured amethyst with crimson eyes, layered angular shield silhouette, twin exhaust flames and piston details at neck, rich engraved bevels and violet crimson emissive cracks. Centered isolated single insignia, all outer space actually transparent, generous 12 percent padding. Premium supernatural motorsport boss art. Cohesive palette black steel, pale silver highlights, violet and crimson. Symmetrical frontal head, readable silhouette at small sizes. No text, no letters, no brand, no watermark."
+    },
+    {
+      "anahtar": "hawk",
+      "prompt": "Use case: logo-brand. Asset type: transparent game boss heraldic portrait emblem, square. Gece Şahini (Night Hawk), fierce hawk head with swept metallic feather wings forged of jagged dark gunmetal and fractured amethyst with crimson eyes, layered angular shield silhouette, layered steel feathers at neck, rich engraved bevels and violet crimson emissive cracks. Centered isolated single insignia, all outer space actually transparent, generous 12 percent padding. Premium supernatural motorsport boss art. Cohesive palette black steel, pale silver highlights, violet and crimson. Symmetrical frontal head, readable silhouette at small sizes. No text, no letters, no brand, no watermark."
+    },
+    {
+      "anahtar": "baron",
+      "prompt": "Use case: logo-brand. Asset type: transparent game boss heraldic portrait emblem, square. Çamur Baronu (Mud Baron), menacing crowned armored boar head with heavy tusks forged of jagged dark gunmetal and fractured amethyst with crimson eyes, layered angular shield silhouette, mud-crusted rock shards and heavy chain at neck, rich engraved bevels and violet crimson emissive cracks. Centered isolated single insignia, all outer space actually transparent, generous 12 percent padding. Premium supernatural motorsport boss art. Cohesive palette black steel, pale silver highlights, violet and crimson. Symmetrical frontal head, readable silhouette at small sizes. No text, no letters, no brand, no watermark."
+    },
+    {
+      "anahtar": "frame",
+      "prompt": "Use case: ui-mockup. Asset type: single game UI nine-slice frame PNG on transparent background. Square 1024. One thin empty rectangular frame, straight horizontal and vertical middle edges, chamfered clipped corners with jagged amethyst crystal fragments ONLY inside the four corner areas (outer 18 percent). Gunmetal rim with violet and crimson luminous cracks and baked soft glow. Center 70 percent entirely transparent empty hole. No background, no text, no lettering, no UI contents. Frame fully inside canvas with generous transparent outer padding. Front view orthographic, no perspective. Border center segments simple uniform thin line to stretch in nine-slice. Premium supernatural racing game."
+    },
+    {
+      "anahtar": "glow",
+      "prompt": "Use case: stylized-concept. Asset type: transparent game VFX sprite. A single elongated horizontal crimson and amethyst energy fissure, thin bright jagged central electric line with diffuse violet halo, a few small crystal sparks near both ends. Centered, wide 3:1 composition within canvas, generous transparent padding, all glow fades smoothly to actual alpha zero at outer edges. No black rectangle, no text, no objects, no watermark. Baked emissive lighting in the PNG itself."
+    },
+    {
+      "anahtar": "rare",
+      "prompt": "Change ONLY violet/purple crystals and rim energy to crimson red on this transparent UI frame. Keep the exact square shape, thin straight metal edges, corner position, transparent empty center and transparent outside. No fog, no haze, no background. Single nine-slice sprite, preserve alpha."
+    },
+    {
+      "anahtar": "legend",
+      "prompt": "Change ONLY violet/purple crystals and rim energy to warm golden amber on this transparent UI frame. Keep the exact square shape, thin straight metal edges, corner position, transparent empty center and transparent outside. No fog, no haze, no background. Single nine-slice sprite, preserve alpha."
+    }
+  ],
+  "duzeltme": "İlk çerçevenin pusu kaldırıldı: Keep four violet crystal corner ornaments and dark metal rim. Remove ALL smoke fog haze inside and outside. Center completely transparent empty rectangular hole; outside transparent. Narrow glow only near rim. Square 1024x1024. Straight middle edges, no perspective, no words.",
+  "atilan": "Puslu ilk çerçeve teslim edilmedi.",
+  "sinir": "Kullanım/kota telemetrisi bilinmiyor. İnsan görsel tercihi ve Unity aktarımı bu tasarım kontrolünden ayrıdır."
+}

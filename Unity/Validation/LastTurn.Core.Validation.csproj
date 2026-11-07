@@ -10,6 +10,7 @@
     <Compile Include="../Assets/LastTurn/Scripts/Core/**/*.cs" LinkBase="Core" />
     <Compile Include="../Assets/LastTurn/Editor/TrackReferenceComparison.cs" Link="Editor/TrackReferenceComparison.cs" />
     <Compile Include="../Assets/LastTurn/Editor/RaceTestDriver.cs" Link="Editor/RaceTestDriver.cs" />
+    <Compile Include="../Assets/LastTurn/Editor/MutantDamageScenarios.cs" Link="Editor/MutantDamageScenarios.cs" />
     <None Update="Reference/**/*.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

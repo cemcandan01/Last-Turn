@@ -1,0 +1,347 @@
+{
+  "yon": "C",
+  "gruplar": {
+    "boss": [
+      {
+        "id": "toprak-kurdu",
+        "ad": "Toprak Kurdu",
+        "ty": "rl",
+        "d": "Ralli etabı; toprakta çok hızlı",
+        "yetenekler": ["Toprakta çok hızlı", "Çamurda yavaşlamaz"],
+        "zayif": "Toprak tutuşu, dört çeker, süspansiyon kazandırır",
+        "hedef": 1
+      },
+      {
+        "id": "drift-kralicesi",
+        "ad": "Drift Kraliçesi",
+        "ty": "dp",
+        "d": "Drift düellosu; uzun kombolar ister",
+        "yetenekler": ["Uzun kombolar", "Çarpanı hiç düşmez"],
+        "zayif": "Açı kiti, güç, kombo pasifleri kazandırır",
+        "hedef": 1
+      },
+      {
+        "id": "drag-canavari",
+        "ad": "Drag Canavarı",
+        "ty": "dg",
+        "d": "Drag; kalkış ve son hız ister",
+        "yetenekler": ["Kalkışta patinaj yapmaz", "Son metrede nitro"],
+        "zayif": "Motor, turbo, hafiflik kazandırır",
+        "hedef": 1
+      },
+      {
+        "id": "gece-sahini",
+        "ad": "Gece Şahini",
+        "ty": "gp",
+        "d": "Gece asfalt yarışı; fren ve viraj ister",
+        "yetenekler": ["Karanlıkta virajı ezbere bilir", "Frene geç basar"],
+        "zayif": "Fren, asfalt tutuşu kazandırır",
+        "hedef": 1,
+        "gece": true
+      },
+      {
+        "id": "camur-baronu",
+        "ad": "Çamur Baronu",
+        "ty": "rx",
+        "d": "Yağmurda rallikros; ıslak toprak ister",
+        "yetenekler": ["Islakta tutunur", "Su birikintisinde yavaşlamaz"],
+        "zayif": "Toprak tutuşu, fren, dört çeker kazandırır",
+        "hedef": 1,
+        "hava": "rain"
+      }
+    ],
+    "skill": [
+      {
+        "id": "grappling-hook",
+        "ad": "Grappling Hook",
+        "d": "Dokun: kanca atılır ve çeker, yeniden dokun: bırakır. Öndeki rakibe atılırsa ona çekilirsin, o yavaşlar. Yerde köşeye atılır: köşenin çevresinde hızla ve tutuşla dönersin. Havada sokağın üstüne asılıp savrulursun; burnunu yan sokağa çevirip köşe dönebilirsin. Köşe ya da rakip yoksa atılamaz. Her seviye bir hak daha verir.",
+        "tur": "aktif",
+        "etiketler": ["hareket", "kontrol", "konum"],
+        "seviyeler": [
+          {
+            "menzil": 35,
+            "cekis": 7,
+            "fren": 3,
+            "sarj": 1,
+            "bekleme": 6
+          },
+          {
+            "menzil": 45,
+            "cekis": 8.5,
+            "fren": 3.5,
+            "sarj": 2,
+            "bekleme": 5.5
+          },
+          {
+            "menzil": 55,
+            "cekis": 10,
+            "fren": 4,
+            "sarj": 3,
+            "bekleme": 5
+          }
+        ],
+        "evrimler": [
+          {
+            "id": "ters-kanca",
+            "ad": "Ters Kanca",
+            "d": "Kanca arkadaki rakibe atılır ve onu iki kat sert frenler; sen çekilmezsin. Köşeye ve binaya tutunmaz."
+          }
+        ]
+      },
+      {
+        "id": "flying-dutchman",
+        "ad": "Flying Dutchman",
+        "d": "Kısa hayalet fazı: tam dokunulmazsın, hiç hasar almaz, ağaç ve kaya gibi engellerin içinden geçersin; tutuş artar. Duvarlar ve pist kesme cezası geçerli. Faz boyunca hasar veremez, saldırı ve kanca kullanamazsın.",
+        "tur": "aktif",
+        "etiketler": ["savunma", "hareket"],
+        "seviyeler": [
+          {
+            "sure": 2.5,
+            "tutus": 1.12,
+            "bekleme": 10
+          },
+          {
+            "sure": 3,
+            "tutus": 1.15,
+            "bekleme": 9
+          },
+          {
+            "sure": 3.5,
+            "tutus": 1.18,
+            "bekleme": 8
+          }
+        ],
+        "evrimler": [
+          {
+            "id": "lanetli-gecis",
+            "ad": "Lanetli Geçiş",
+            "d": "Faz boyunca 4 m içinden geçtiğin her rakibe bir kez 1,5 sn elektrik bırakırsın."
+          }
+        ]
+      },
+      {
+        "id": "risk-taker",
+        "ad": "Risk Taker",
+        "d": "20° üstü kontrollü drift (açık dünyada da), yarışta yakın takip ve kıl payı geçiş risk barını doldurur. Bar dolunca dönüşürsün: güç ve tutuş artar, arkanda yakan alev izi kalır; rakibe hasar vermek dönüşümü biraz uzatır.",
+        "tur": "tetikli",
+        "etiketler": ["risk", "hasar", "hareket"],
+        "seviyeler": [
+          {
+            "kazanc": 1,
+            "sure": 5,
+            "guc": 1.25,
+            "tutus": 1.1,
+            "alev": 4,
+            "uzatmaUst": 2,
+            "bekleme": 4
+          },
+          {
+            "kazanc": 1.2,
+            "sure": 6,
+            "guc": 1.3,
+            "tutus": 1.12,
+            "alev": 5,
+            "uzatmaUst": 2.5,
+            "bekleme": 4
+          },
+          {
+            "kazanc": 1.4,
+            "sure": 7,
+            "guc": 1.35,
+            "tutus": 1.15,
+            "alev": 6,
+            "uzatmaUst": 3,
+            "bekleme": 4
+          }
+        ],
+        "evrimler": [
+          {
+            "id": "kivilcim-izi",
+            "ad": "Kıvılcım İzi",
+            "d": "İz yakmak yerine elektrik bırakır: hasar vermez, değen rakibi 1 sn frenler."
+          }
+        ]
+      },
+      {
+        "id": "slipstream-engine",
+        "ad": "Slipstream Engine",
+        "d": "Rakibin arkasında yakın takipte kaldıkça hız depolar; takipten çıkınca depoladığın süre kadar güç artışı alırsın.",
+        "tur": "tetikli",
+        "etiketler": ["hareket"],
+        "seviyeler": [
+          {
+            "enCok": 2,
+            "guc": 1.2,
+            "bekleme": 3
+          },
+          {
+            "enCok": 2.5,
+            "guc": 1.25,
+            "bekleme": 3
+          },
+          {
+            "enCok": 3,
+            "guc": 1.3,
+            "bekleme": 2.5
+          }
+        ],
+        "evrimler": [
+          {
+            "id": "ruzgar-kirici",
+            "ad": "Rüzgâr Kırıcı",
+            "d": "Kıl payı geçişler de depoya 0,5 sn ekler; boşalırken tutuş da artar."
+          }
+        ]
+      },
+      {
+        "id": "volt-kanat",
+        "ad": "Volt Kanat",
+        "d": "Basılı tuttukça araç yükselir ve ileri atılır (en çok 3 sn); bırakınca süzülerek iner. Havada ekranı kaydırarak burnu çevirirsin. Çatılara inebilirsin.",
+        "tur": "aktif",
+        "etiketler": ["hareket"],
+        "seviyeler": [
+          {
+            "sure": 3,
+            "kalkis": 12,
+            "tirmanis": 13,
+            "itki": 9,
+            "bekleme": 9
+          },
+          {
+            "sure": 3,
+            "kalkis": 14,
+            "tirmanis": 15,
+            "itki": 10.5,
+            "bekleme": 8
+          },
+          {
+            "sure": 3,
+            "kalkis": 16,
+            "tirmanis": 17,
+            "itki": 12,
+            "bekleme": 7
+          }
+        ],
+        "evrimler": [
+          {
+            "id": "firtina-kanadi",
+            "ad": "Fırtına Kanadı",
+            "d": "Uçarken 8 m içinden geçtiğin her rakibe bir kez 1,5 sn elektrik bırakırsın."
+          }
+        ]
+      }
+    ],
+    "parca": [
+      {
+        "id": "motor",
+        "ad": "Motor"
+      },
+      {
+        "id": "turbo",
+        "ad": "Turbo"
+      },
+      {
+        "id": "sanziman",
+        "ad": "Şanzıman"
+      },
+      {
+        "id": "lastik",
+        "ad": "Lastik"
+      },
+      {
+        "id": "suspansiyon",
+        "ad": "Süspansiyon"
+      },
+      {
+        "id": "diferansiyel",
+        "ad": "Diferansiyel"
+      },
+      {
+        "id": "fren",
+        "ad": "Fren"
+      },
+      {
+        "id": "agirlik",
+        "ad": "Ağırlık"
+      },
+      {
+        "id": "aero",
+        "ad": "Aerodinamik"
+      },
+      {
+        "id": "cekis",
+        "ad": "Çekiş"
+      },
+      {
+        "id": "direksiyon",
+        "ad": "Direksiyon"
+      },
+      {
+        "id": "koruma",
+        "ad": "Koruma"
+      }
+    ],
+    "pasif": [
+      {
+        "id": "guc",
+        "ad": "Motor ayarı",
+        "d": "Güç +%10",
+        "en": 3
+      },
+      {
+        "id": "hafif",
+        "ad": "Hafifletme",
+        "d": "Ağırlık −%6",
+        "en": 3
+      },
+      {
+        "id": "zirh",
+        "ad": "Zırh",
+        "d": "Çarpma ve spin hasarı −%35",
+        "en": 2
+      },
+      {
+        "id": "tamirci",
+        "ad": "Seyyar tamirci",
+        "d": "Her etkinlik sonunda gövde +12",
+        "en": 2
+      },
+      {
+        "id": "adrenalin",
+        "ad": "Adrenalin",
+        "d": "Gövde %50'nin altındayken güç +%15",
+        "en": 2
+      },
+      {
+        "id": "sert-nitro",
+        "ad": "Sert Nitro",
+        "d": "Nitro gücü +%15, ama maliyet %30 fazla",
+        "en": 1,
+        "m": {
+          "id": "sert-nitro",
+          "versiyon": 1,
+          "kategori": "passive",
+          "maliyet": 0,
+          "beklemeAdimi": 0,
+          "kazanc": 0,
+          "kazancBirimi": "olay",
+          "degistir": {
+            "guc": 0.15,
+            "maliyet": 1.3
+          }
+        }
+      }
+    ]
+  },
+  "dokular": {
+    "cerceve": {
+      "dosya": "dokular/cerceve.png",
+      "dilimOrani": 0.25
+    },
+    "parlama": {
+      "dosya": "dokular/parlama.png",
+      "dilimOrani": 0.25
+    }
+  },
+  "not": "Dilimler kaynak boyutunun dörtte biridir; gerçek RGBA boyutları dogrulama.json içinde."
+}

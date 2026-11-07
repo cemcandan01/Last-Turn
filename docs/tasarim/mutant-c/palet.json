@@ -1,0 +1,12 @@
+{
+  "ad": "Neon hologram",
+  "ana": ["#4cefff", "#ed69ff", "#080f24", "#ecfaff"],
+  "nadirlikOnerisi": {
+    "Yaygın": "#b7ccdc",
+    "Sıra dışı": "#80f3bc",
+    "Nadir": "#4cefff",
+    "Epik": "#ed69ff",
+    "Efsanevi": "#ffce85"
+  },
+  "not": "Yalnız görsel öneridir; oyun nadirlik sistemi eklenmez."
+}
