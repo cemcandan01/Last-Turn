@@ -797,6 +797,9 @@
 .m-card .t { position:absolute; right:14px; bottom:14px; }
 .m-go { width:300px; height:270px; flex-shrink:0; }
 .m-go .yazi { font-size:27px; }
+.m-start-reward.sec { background-color:rgb(38,29,25); }
+.m-start-key { position:absolute; right:12px; bottom:10px; color:rgb(255,122,60); font-size:17px; }
+.m-reward-go { margin-left:20px; }
 .m-content .ipuclari { bottom:-70px; right:0; }
 .m-boss .unity-scroll-view__content-container { width:100%; }
 .m-content .unity-scroller { background-color:rgb(17,24,30); }

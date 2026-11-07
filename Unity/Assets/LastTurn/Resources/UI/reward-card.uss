@@ -27,3 +27,12 @@
 .rc-foot { flex-shrink: 0; padding-top: 6px; }
 .rc-compatibility { font-size: 18px; white-space: normal; }
 .rc-curse { font-size: 18px; white-space: normal; color: rgb(247, 98, 98); margin-top: 5px; }
+.reward-card--compact { padding: 10px 14px; }
+.reward-card--compact .rc-rarity { font-size: 17px; }
+.reward-card--compact .rc-source { font-size: 16px; }
+.reward-card--compact .rc-title { font-size: 26px; }
+.reward-card--compact .rc-level { font-size: 17px; }
+.reward-card--compact .rc-details { min-height: 54px; }
+.reward-card--compact .rc-effect, .reward-card--compact .rc-vehicle, .reward-card--compact .rc-description { font-size: 19px; margin-bottom: 5px; }
+.reward-card--compact .rc-compatibility { font-size: 16px; }
+.reward-card--compact .rc-foot { padding-right: 105px; }

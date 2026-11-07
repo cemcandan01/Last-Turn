@@ -17,11 +17,17 @@ for (const check of [
   "Araç adımından Esc Mutant menüsüne çıkar",
   "Kariyer sahiplik/para/profil değişmedi",
   "İzole ürün oyuncu kayıtları aynı hash'te",
+  "Ödül kartı okuması koşu/RNG'yi değiştirmez",
+  "Native klavye odağı seçimle eşleşir; koşu başlamaz",
+  "Aşağı ok tek kart ilerler",
+  "Tab odağı ve seçili ödül aynı",
+  "PgDn kompakt kart ayrıntısını kaydırır",
+  "Fare ödül kartını seçer; tek başına ödül almaz",
 ])
   if (!proof.checks.includes(check)) throw Error("Eksik davranış: " + check);
 const files = fs
   .readdirSync(path.join(root, "Assets/LastTurn"), { recursive: true })
-  .filter((f) => /\.(cs|uss)$/.test(f));
+  .filter((f) => /\.(cs|uss|json)$/.test(f));
 if (proof.sources?.length !== files.length) throw Error("Mutant F kaynak kapsamı eski");
 for (const file of files) {
   const name = "Assets/LastTurn/" + file.replaceAll("\\", "/");

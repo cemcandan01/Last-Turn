@@ -77,6 +77,26 @@ namespace LastTurn.EditorValidation
       steps.Add(()=>Shot("car",1920,1080));steps.Add(()=>Shot("car",1280,720));Tap(Key.Enter);
       steps.Add(()=>{Check(MutantStartView.Instance.ChoosingSkill&&MutantRuntime.Car==car,"Enter mevcut servisle aracı seçer ve yeteneğe geçer");var before=CatalogNode.Parse(initial);Check(new[]{"tohum","boss","kalan","secenekler","stok","etkinlikler","sandiklar"}.All(k=>MutantRuntime.Run.State[k].ToString()==before[k].ToString()),"Araç seçimi RNG/koşu tekliflerini değiştirmez");initial=MutantRuntime.Run.State.ToString();});
       Tap(Key.Digit3);steps.Add(()=>Check(MutantStartView.Instance.Focused==2,"3 pasif yetenek odağını değiştirir"));
+      steps.Add(()=>{
+        var page=UiRoot.Instance.Screen.Q("f-mutant-start");var choices=MutantRuntime.Model.Choices;
+        for(int i=0;i<choices.Length;i++){
+          var card=page.Q<RewardCard>("mutant-option-"+i);var expected=MutantRuntime.Reward(choices[i].Id,RewardSource.Start);
+          Check(card!=null&&card.ClassListContains("reward-card--compact")&&card.Model.Offer==choices[i].Id,"Gerçek başlangıç teklifi M2 kartına bağlı "+i);
+          Check(card.Model.Rarity==expected.Rarity&&card.Model.Level==expected.Level&&card.Q<Label>(className:"rc-effect").text==expected.EffectText,"Rarity/seviye/sayısal etki gerçek modelden "+i);
+        }
+        Check(MutantRuntime.Run.State.ToString()==initial,"Ödül kartı okuması koşu/RNG'yi değiştirmez");
+        page.Q<RewardCard>("mutant-option-1").Focus();
+      });
+      steps.Add(()=>Check(MutantStartView.Instance.Focused==1&&MutantRuntime.Run.State.ToString()==initial,"Native klavye odağı seçimle eşleşir; koşu başlamaz"));
+      steps.Add(()=>{var page=UiRoot.Instance.Screen.Q("f-mutant-start");var focus=(VisualElement)page.focusController.focusedElement;using(var e=KeyDownEvent.GetPooled(new Event{type=EventType.KeyDown,keyCode=KeyCode.Tab,character='\t'}))focus.SendEvent(e);});steps.Add(()=>{
+        var page=UiRoot.Instance.Screen.Q("f-mutant-start");var focus=page.focusController.focusedElement as VisualElement;int owner=-1;
+        for(int i=0;i<3;i++){var card=page.Q<RewardCard>("mutant-option-"+i);if(focus==card||card.Contains(focus))owner=i;}
+        Check(owner>=0&&owner==MutantStartView.Instance.Focused,"Tab odağı ve seçili ödül aynı");
+      });
+      steps.Add(()=>{var page=UiRoot.Instance.Screen.Q("f-mutant-start");var focus=(VisualElement)page.focusController.focusedElement;using(var e=KeyDownEvent.GetPooled(new Event{type=EventType.KeyDown,keyCode=KeyCode.PageDown}))focus.SendEvent(e);});steps.Add(()=>{var card=UiRoot.Instance.Screen.Q("f-mutant-start").Q<RewardCard>("mutant-option-"+MutantStartView.Instance.Focused);Check(card.Details.verticalScroller.highValue<=1||card.Details.scrollOffset.y>0,"PgDn kompakt kart ayrıntısını kaydırır");});
+      steps.Add(()=>MutantStartView.Instance.Focus(1));Tap(Key.DownArrow);steps.Add(()=>Check(MutantStartView.Instance.Focused==2,"Aşağı ok tek kart ilerler"));
+      Click("mutant-option-0");steps.Add(()=>Check(MutantStartView.Instance.Focused==0&&MutantRuntime.Run.State.ToString()==initial,"Fare ödül kartını seçer; tek başına ödül almaz"));
+      Tap(Key.Digit3);
       steps.Add(()=>Shot("skill",1920,1080));steps.Add(()=>Shot("skill",1280,720));Tap(Key.LeftArrow);
       steps.Add(()=>Check(!MutantStartView.Instance.ChoosingSkill&&MutantRuntime.Run.State.ToString()==initial,"Sola dön araç adımı; süre/RNG/teklif korunur"));
       Click("mutant-option-0");steps.Add(()=>Check(MutantStartView.Instance.Focused==0&&MutantRuntime.Car==car,"Fare kartı odağı değiştirir; hemen başlamaz"));Click("mutant-continue");
@@ -104,6 +124,16 @@ namespace LastTurn.EditorValidation
       if(!File.Exists(path)||File.GetLastWriteTimeUtc(path)<captureAfter)return;
       var png=new Texture2D(2,2);try{png.LoadImage(File.ReadAllBytes(path));Check(png.width==shotW&&png.height==shotH,"PNG boyutu "+shot+shotW);}finally{UnityEngine.Object.DestroyImmediate(png);}
       if(shot=="car"||shot=="skill"){var page=UiRoot.Instance.Screen.Q("f-mutant-start");var button=page.Q("mutant-continue");Check(button.worldBound.xMax<=UiRoot.Instance.Root.layout.width&&button.worldBound.yMax<UiRoot.Instance.Root.layout.height-60,"Adım düğmesi görünür "+shot+shotW);var boss=page.Q(className:"m-boss");var lower=page.Q(className:"m-lower");Check(boss.worldBound.yMax<lower.worldBound.yMin,"Boss ve kartlar çakışmaz "+shot+shotW);}
+      if(shot=="skill"){
+        var page=UiRoot.Instance.Screen.Q("f-mutant-start");var rewards=page.Query<RewardCard>().ToList();Check(rewards.Count==3,"Üç kompakt ödül kartı "+shotW);
+        for(int i=0;i<rewards.Count;i++){
+          var card=rewards[i];var b=card.worldBound;
+          Check(card.Q(className:"rc-foot").worldBound.yMax<=b.yMax-4&&card.Details.contentViewport.worldBound.height>35,"Kart altlığı ve ayrıntı alanı sığar "+i+" / "+shotW);
+          Check(b.xMin>=0&&b.yMax<UiRoot.Instance.Root.layout.height-60,"Ödül kartı ekran içinde "+i+" / "+shotW);
+          if(i>0)Check(!b.Overlaps(rewards[i-1].worldBound),"Ödül kartları çakışmaz "+i+" / "+shotW);
+        }
+        Check(rewards[MutantStartView.Instance.Focused].ClassListContains("sec"),"Seçili kart işaretli "+shotW);
+      }
       proof.images.Add(Path.GetFileName(path));shot=null;
     }
     private static void Tick()
@@ -115,7 +145,7 @@ namespace LastTurn.EditorValidation
     {
       SessionState.SetBool(Active,false);Application.logMessageReceived-=Logged;EditorApplication.update-=Tick;if(keyboard!=null&&keyboard.added)InputSystem.RemoveDevice(keyboard);
       if(game&&group!=null){game.GetType().GetProperty("selectedSizeIndex",BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Instance).SetValue(game,originalSize);foreach(int n in sizes.AsEnumerable().Reverse())group.GetType().GetMethod("RemoveCustomSize").Invoke(group,new object[]{n});}
-      proof.result=e==null?"p7-mutant-f-passed":"failed";proof.error=e?.ToString()??"";proof.utc=DateTime.UtcNow.ToString("O");proof.sources=Directory.GetFiles(Path.Combine(Application.dataPath,"LastTurn"),"*",SearchOption.AllDirectories).Where(f=>Path.GetExtension(f)==".cs"||Path.GetExtension(f)==".uss").OrderBy(f=>f,StringComparer.Ordinal).Select(f=>new Source{path=f.Substring(Project.Length+1).Replace('\\','/'),hash=Hash(f)}).ToArray();File.WriteAllText(Path.Combine(Project,"Logs/p7-mutant-f-play.json"),JsonUtility.ToJson(proof,true));if(e!=null)Debug.LogException(e);else Debug.Log("P7 Mutant F Play geçti: "+proof.checks.Count);EditorApplication.Exit(e==null?0:1);
+      proof.result=e==null?"p7-mutant-f-passed":"failed";proof.error=e?.ToString()??"";proof.utc=DateTime.UtcNow.ToString("O");proof.sources=Directory.GetFiles(Path.Combine(Application.dataPath,"LastTurn"),"*",SearchOption.AllDirectories).Where(f=>new[]{".cs",".uss",".json"}.Contains(Path.GetExtension(f))).OrderBy(f=>f,StringComparer.Ordinal).Select(f=>new Source{path=f.Substring(Project.Length+1).Replace('\\','/'),hash=Hash(f)}).ToArray();File.WriteAllText(Path.Combine(Project,"Logs/p7-mutant-f-play.json"),JsonUtility.ToJson(proof,true));if(e!=null)Debug.LogException(e);else Debug.Log("P7 Mutant F Play geçti: "+proof.checks.Count);EditorApplication.Exit(e==null?0:1);
     }
   }
 }

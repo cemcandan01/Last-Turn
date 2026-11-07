@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using LastTurn.Core;
 using LastTurn.Prototype;
 using UnityEngine;
@@ -16,6 +17,7 @@ namespace LastTurn.Ui
     public int Focused=>choice?skillFocus:carFocus;
     public bool ChoosingSkill=>choice;
     private VisualElement page,content;private bool choice;private int carFocus,skillFocus;private string shown="";private MutantRun run;
+    private readonly List<RewardCard> rewardCards=new List<RewardCard>();
     private void Start()
     {
       Instance=this;page=new VisualElement{name="f-mutant-start"};page.AddToClassList("katman");page.AddToClassList("mut-ton");page.Add(Ui.Shade());
@@ -32,6 +34,7 @@ namespace LastTurn.Ui
       if(k.escapeKey.wasPressedThisFrame){Back();return;}
       if(choice&&k.leftArrowKey.wasPressedThisFrame){ChangeCar();return;}
       int count=choice?MutantRuntime.Model.Choices.Length:MutantRuntime.Model.StartingCarsCards.Length;
+      if(count==0)return;
       for(int i=0;i<Math.Min(3,count);i++)if(k[Key.Digit1+i].wasPressedThisFrame){Focus(i);return;}
       if(k.rightArrowKey.wasPressedThisFrame||k.downArrowKey.wasPressedThisFrame)Focus((Focused+1)%count);
       else if(k.upArrowKey.wasPressedThisFrame||(!choice&&k.leftArrowKey.wasPressedThisFrame))Focus((Focused+count-1)%count);
@@ -40,7 +43,12 @@ namespace LastTurn.Ui
     public void Focus(int index)
     {
       int count=choice?MutantRuntime.Model.Choices.Length:MutantRuntime.Model.StartingCarsCards.Length;if(index<0||index>=count)return;
-      if(choice)skillFocus=index;else carFocus=index;GameAudio.Click();Rebuild();
+      if(choice){skillFocus=index;GameAudio.Click();SyncChoiceFocus(true);}else{carFocus=index;GameAudio.Click();Rebuild();}
+    }
+    private void SyncChoiceFocus(bool focus)
+    {
+      for(int i=0;i<rewardCards.Count;i++){rewardCards[i].EnableInClassList("sec",i==skillFocus);rewardCards[i].Q<Label>(className:"m-start-key").text=(i+1)+(i==skillFocus?" · SEÇİLİ":"");}
+      if(focus&&skillFocus<rewardCards.Count)rewardCards[skillFocus].Focus();
     }
     public void Continue()
     {
@@ -53,7 +61,7 @@ namespace LastTurn.Ui
     private static VisualElement Box(string cls){var e=new VisualElement();e.AddToClassList(cls);return e;}
     private void Rebuild()
     {
-      content.Clear();var m=MutantRuntime.Model;
+      content.Clear();rewardCards.Clear();var m=MutantRuntime.Model;
       var steps=Box("m-steps");steps.Add(Ui.Text("1 ARAÇ",!choice?"g-price":"g-copy"));steps.Add(Ui.Text("  /  "));steps.Add(Ui.Text("2 YETENEK",choice?"g-price":"g-copy"));content.Add(steps);
       var boss=new ScrollView(ScrollViewMode.Vertical){horizontalScrollerVisibility=ScrollerVisibility.Hidden,verticalScrollerVisibility=ScrollerVisibility.Auto};boss.AddToClassList("g-panel");boss.AddToClassList("m-boss");boss.Add(Ui.Section("İLK BOSS  •  "+m.Timer));boss.Add(Ui.Text(Ui.Upper(m.BossName),"baslik","g-name"));boss.Add(Ui.Text(m.BossDescription,"g-copy"));
       foreach(var ability in m.BossAbilities)boss.Add(Ui.Text("+ "+ability,"g-copy"));boss.Add(Ui.Section("ZAYIF YANI"));boss.Add(Ui.Text(m.BossWeakness,"g-copy"));content.Add(boss);
@@ -70,11 +78,14 @@ namespace LastTurn.Ui
       int count=choice?m.Choices.Length:m.StartingCarsCards.Length;
       for(int i=0;i<count;i++)
       {
+        if(choice){int index=i;var reward=new RewardCard(MutantRuntime.Reward(m.Choices[i].Id,RewardSource.Start),true);reward.name="mutant-option-"+i;reward.AddToClassList("m-card");reward.AddToClassList("m-start-reward");
+          reward.Add(Ui.Text("","m-start-key"));reward.AddManipulator(new Clickable(()=>Focus(index)));reward.RegisterCallback<FocusInEvent>(e=>{if(skillFocus!=index)Focus(index);});rewardCards.Add(reward);cards.Add(reward);continue;}
         int n=i;var card=Box("kart");card.name="mutant-option-"+i;card.AddToClassList("m-card");card.EnableInClassList("sec",Focused==i);
         card.Add(Ui.Text(choice?Ui.Upper(m.Choices[i].Type):TypeName(m.StartingCarsCards[i].Type),"ust"));card.Add(Ui.Text(choice?m.Choices[i].Name:m.StartingCarsCards[i].Name,"ad"));
         card.Add(Ui.Text(choice?m.Choices[i].Description:m.StartingCarsCards[i].Hp.ToString("0")+" HP  •  "+m.StartingCarsCards[i].Mass.ToString("0")+" KG  •  "+m.StartingCarsCards[i].Drive,"g-copy"));card.Add(Ui.Key((i+1).ToString()));card.AddManipulator(new Clickable(()=>Focus(n)));cards.Add(card);
       }
-      var go=Ui.Button(choice?"SÜRÜŞE BAŞLA":"DEVAM","Enter",Continue,true);go.name="mutant-continue";go.AddToClassList("m-go");cards.Add(go);content.Add(lower);
+      if(choice&&count==0)cards.Add(Ui.Text("Uygun başlangıç ödülü kalmadı. Araca dön.","g-copy"));
+      var go=Ui.Button(choice?"SÜRÜŞE BAŞLA":"DEVAM","Enter",Continue,true);go.name="mutant-continue";go.AddToClassList("m-go");if(choice)go.AddToClassList("m-reward-go");go.SetEnabled(count>0);cards.Add(go);content.Add(lower);if(choice)SyncChoiceFocus(false);
       var back=Ui.Button(choice?"ARACA DÖN":"MUTANT MENÜSÜ","Esc",Back,small:true);Ui.Absolute(back,left:0,bottom:-70);content.Add(back);
       content.Add(Ui.Hints(("1|2|3","Seç"),("↑|↓","Seç"),("Enter",choice?"Sürüşe başla":"Devam"),("Esc",choice?"Araca dön":"Mutant menüsü")));
     }
