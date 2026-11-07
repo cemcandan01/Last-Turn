@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: f0f5c82f6a81426ba15463eafe4f69af
+TextureImporter:
+  serializedVersion: 13
+  mipmaps:
+    enableMipMap: 0
+  textureSettings:
+    filterMode: 1
+    wrapU: 1
+    wrapV: 1
+  maxTextureSize: 2048
+  alphaIsTransparency: 1
+  textureType: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

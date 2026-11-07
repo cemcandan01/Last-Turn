@@ -1,0 +1,36 @@
+.mc-page { background-color: #061013; color: #ecf6e7; -unity-background-scale-mode: scale-and-crop; }
+.mc-bar { position: absolute; top: 36px; left: 58px; right: 58px; flex-direction: row; align-items: center; }
+.mc-badge { color: #b7ff32; font-size: 28px; margin-left: 35px; -unity-font-style: bold; }
+.mc-status { flex-grow: 1; -unity-text-align: middle-right; font-size: 22px; }
+.mc-body { position: absolute; left: 96px; right: 96px; top: 188px; bottom: 130px; }
+.mc-heading { font-size: 62px; margin-bottom: 10px; }
+.mc-copy { font-size: 22px; white-space: normal; color: #c4d4cc; }
+.mc-notice { color: #ef73ba; font-size: 20px; white-space: normal; min-height: 25px; }
+.mc-grid { flex-direction: row; flex-grow: 1; min-height: 0; margin-top: 22px; }
+.mc-card { flex-grow: 1; flex-basis: 0; margin-right: 26px; padding: 24px 28px 40px 28px; background-color: rgba(5,17,21,.97); border-width: 2px; border-radius: 18px; }
+.mc-card.mc-last { margin-right: 0; }
+.mc-page .mc-card.mc-selected { background-color: #122b28; }
+.mc-page .mc-card:focus { background-color: #122b28; }
+.mc-icon { width: 80px; height: 80px; flex-shrink: 0; margin-bottom: 8px; -unity-background-scale-mode: scale-to-fit; }
+.mc-icon-fallback { border-width: 1px; border-color: #b7ff32; border-radius: 16px; align-items: center; justify-content: center; color: #b7ff32; }
+.mc-icon-fallback .baslik { font-size: 46px; }
+.mc-frame { position: absolute; left: -6px; right: -6px; top: -6px; bottom: -6px; background-image: resource("UI/MutantB/frame"); -unity-slice-left: 320; -unity-slice-right: 320; -unity-slice-top: 320; -unity-slice-bottom: 320; -unity-slice-scale: .1; }
+.mc-selected .mc-frame { opacity: 1; }
+.mc-card .mc-frame { opacity: .55; }
+.mc-card.mc-selected .mc-frame { opacity: 1; }
+.mc-key { position: absolute; right: 26px; bottom: 16px; color: #b7ff32; font-size: 20px; }
+.mc-card .rc-title { font-size: 32px; }
+.mc-card .rc-level { color: #b7ff32; }
+.mc-card .rc-source { font-size: 17px; }
+.mc-card .rc-rarity { font-size: 20px; }
+.mc-card .rc-effect, .mc-card .rc-vehicle, .mc-card .rc-description { font-size: 20px; }
+.mc-card .rc-compatibility { font-size: 18px; }
+.mc-card .rc-details { min-height: 52px; }
+.mc-card .rc-caption { color: #ef73ba; }
+.mc-replacement { border-color: #ef3f9f; }
+.mc-skill-name { font-size: 34px; white-space: normal; margin-top: 26px; margin-bottom: 30px; }
+.mc-actions { flex-direction: row; justify-content: flex-end; margin-top: 28px; flex-shrink: 0; }
+.mc-actions .ltb { margin-left: 30px; }
+.mc-actions .ltb > .skew { --fill: #09201d; --edge: #b7ff32; }
+.mc-actions .ltb.ana > .skew { --fill: #b7ff32; --edge: #ecf6e7; }
+.mc-actions .ltb.ana:hover > .skew { --fill: #ceff78; }
