@@ -10,6 +10,8 @@ namespace LastTurn.Core
   {
     public CatalogNode State { get; }
     public CatalogNode Catalog { get; }
+    // Kalıcı kayıt dışında, aynı Run/controller yeniden bağlansa da korunan hasar kimliği.
+    public MutantDamageEvents DamageEvents { get; } = new MutantDamageEvents();
     private readonly SeededRandom random;
     private CatalogNode[] Tracks => Catalog["tracks"].Items.ToArray();
     private double N(string key)=>State[key].N();
@@ -148,7 +150,7 @@ namespace LastTurn.Core
       double power=powerMultiplier??(State["mek"]["etkiKalan"].N()>0?State["mek"]["etkiGuc"].N(1):1);
       double shield=power>1?1-.5*Count("nitro-kalkani"):1,bumper=type=="carpma"?1-.4*Count("ek-takviye-tampon"):1;
       double damage=baseDamage*(1-.35*Count("zirh"))*(1+Count("camtop"))*shield*bumper,received=Math.Min(N("govde"),damage);
-      if(received>0)State.Set("bekleyenHasar",Obj(("tur",CatalogNode.Str(type)),("miktar",CatalogNode.Num(received))));
+      if(received>0){var notice=Obj(("tur",CatalogNode.Str(type)),("miktar",CatalogNode.Num(received)));DamageEvents.IdentityFor(notice);State.Set("bekleyenHasar",notice);}
       Set(type,N(type)+1);Set("govde",Math.Max(0,N("govde")-damage));if(Count("hurdaci")>0)Set("para",N("para")+Math.Floor(received*3*.8));
       if(N("govde")<=0){if(Test){Set("govde",100);return false;}State.Set("pert",Bool(true));Phase="bitti";return true;}return false;
     }
