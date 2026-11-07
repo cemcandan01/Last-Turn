@@ -1,3 +1,13 @@
+# Son devir: Mutant 2.0 M0 + ayrı M1 pilotu (7 Kasım 2026) — Codex
+
+- **Tamamlandı:** [M0 sözleşmesi](tasarim/mutant-2-m0.md), [tam mekanik/etkileşim/boss matrisi](tasarim/mutant-2-matris.md), 128 tohum dağılım ölçümü ve mevcut mekanik motorunu kullanan sınırlı `MutantMechanicPilot`. **Pilot normal koşuya bağlı değil.** Yeni skill/nadirlik ağırlığı/tempo/boss/F tasarım değişikliği yok; M2–M4 başlamadı.
+- **Yerel commit'ler:** M0 **`64d7b02`**, M1 kod/test **`5fa4190`**, dal `codex/unity-p7-garaj`. Kapanış belgesi bu notun son yerel commit'idir. [Aynı görev/kabul/sonuç kartı](isler/2026-11-07-mutant-2-m0-m1.md).
+- **Testler:** `--mutant-pilot` **15.811** kontrol; üç enerji→nitro yolu, geçersiz/tekrar/türev girdi ve kapasite/bekleme sınırları,30/60/120 çizim gruplaması. Eski dar mekanik oracle **589.426**, enerji oracle **971.504** koşul geçti; proje düzeni ve diff kontrolü geçti. Tam regresyon veya Unity Play/görsel kabul yapılmadı; normal ekran/Runtime/fizik yolu değişmedi.
+- **Kanıt/ölçüm sınırı:** `tests/cikti/mutant-m0-m1-proof.json`,6 kaynak hash'i ve tohum frekansları (yerel/ignore; commit ile taşınmaz). Ödül rota ölçümleri başarılı etkinlik varsayımıdır; sürüş/boss başarı oranı veya ilk kombinasyonun edinme süresi ölçülmedi. İlk restore kişisel NuGet.Config erişiminde durdu; mevcut restore çıktısıyla `--no-restore` başarılı, yeni bağımlılık indirilmedi.
+- **Gerçek açıklar:** enerji ve skill yürütücüleri kısmen ayrı; dört nadirlik/ortak ödül DTO'su, cross-step nedensellik zarfı, sürdürülebilir koşu disk kaydı ve sürüşe dayalı denge laboratuvarı yok. Boss katalog metni özel AI kanıtı değildir. Mevcut900/780 sn korunur.
+- **Sahiplik/koruma:** ana entegrasyon/devir için kullanıcı Claude'u istedi; Codex bu bağımsız denetim/pilotu tamamladı, Claude oturumu başlatmadı. Kapasite bilinmiyor; ücretli servis/API/yeni paket/alt ajan yok. Mevcut görsel kimlik/alternatif çalışma dosyaları ve `_Recovery` teslim dışı korundu; kariyer, TS, oyuncu/Firebase kayıtlarına dokunulmadı. Push/merge/yayın yok.
+- **Sonraki tek iş:** Claude devralarak tek hasar→enerji yolunda kök/ebeveyn/türev olay kimliği ve cross-step replay güvenliğini, eski geçerli girdi izlerini koruyarak entegre etsin. Sonra ayrı M2 kararı. Bu oturum M0 + ayrı M1 pilotunda durdu.
+
 # Son devir: P7-8 F §8 Duraklatma + §9 Yarış sonucu (6 Kasım 2026) — Claude
 
 - **Tamamlanan grup:** yarış/Mutant duraklatması ve kariyer sonucu F ekranları; dal `codex/unity-p7-garaj`, kod/test commit'i bu notla aynı yerel commit. Ayrıntı [kart P7-8](isler/2026-11-01-unity-tam-aktarim.md).
