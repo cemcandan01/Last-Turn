@@ -1,3 +1,12 @@
+# Deneme g?nderimi haz?rl???: P7 + Mutant M0/M1 (7 Kas?m 2026)
+
+- Kullan?c? `test ortam?na yap?lmas? gereken pushlar? yap` diyerek g?nderimi onaylad?. Kaynak dal `codex/unity-p7-garaj`, teslim taban? `496b586`, yaln?z bi?im/dal notu d?zeltmesi `f049dd9`; geli?tirmeyle birle?tirme `6a05221`, deneme s?r?m? **0.8.24**. Bu kay?t g?nderim ?ncesidir; uzak SHA ve Actions/yay?n sonucu ayr?ca do?rulanmal?d?r.
+- G?nderilen kapsam: commit edilmi? P7 F ekranlar?, Mutant HTML taslaklar?, M0 analizi ve ayr? M1 pilotu. Commit edilmemi? g?rsel alternatifler ve `_Recovery` al?nmad?. Ayr? `tests/cikti/p7-deneme-20261107` worktree'si kullan?ld?; ana ?al??ma alan?n?n tasar?m de?i?iklikleri korunur.
+- `npm run kontrol` ge?ti: tip kontrol?, ESLint (0 hata/9 mevcut uyar?), Prettier. ?lk turda 6 P7 proof beti?inin bi?imi d?zeltildi. ?nceki dar Unity/.NET kan?tlar? yeniden kullan?ld?; yeni uzun yerel regresyon ba?lat?lmad?.
+- Yerel web build'i Node20.16/eksik Rolldown native binding nedeniyle ba?lamad?; yeni ba??ml?l?k kurulmad?. GitHub'?n Node22/npm ci yay?n i?i sonucu belirleyici. ?nceki Unity CI'nin `40 pist ger?ek fizikle` hatas? da mevcut (`42044433216`); yeni ko?u sonucu ayr?ca izlenecek. Ba?ar? pe?inen iddia edilmez.
+- Regresyon dal? var fakat `asama=tamamlandi`, kullan?c? karar?yla durdurulmu?; dondurma yok. `master` dal?na commit/push yok. Unity Windows aray?z? web `/dev/` i?inde ?al??maz; bu g?nderim kaynak entegrasyonu ve web deneme s?r?m? kayd?d?r, Windows oyuncu build'i de?ildir.
+- Claude durumu: devir kart? haz?r; Codex Claude oturumu ba?latmad?, ?al??ma g?revi bir ?al??an ajana g?nderilmedi. Ba?ka uygulamadaki oturumlar?n durumu bilinmiyor. Sonraki i? ayn?: hasar?enerji k?k/ebeveyn/t?rev kimli?i ve cross-step replay g?venli?i; M2?M4 ba?lamad?.
+
 # Son devir: Mutant 2.0 M0 + ayrı M1 pilotu (7 Kasım 2026) — Codex
 
 - **Tamamlandı:** [M0 sözleşmesi](tasarim/mutant-2-m0.md), [tam mekanik/etkileşim/boss matrisi](tasarim/mutant-2-matris.md), 128 tohum dağılım ölçümü ve mevcut mekanik motorunu kullanan sınırlı `MutantMechanicPilot`. **Pilot normal koşuya bağlı değil.** Yeni skill/nadirlik ağırlığı/tempo/boss/F tasarım değişikliği yok; M2–M4 başlamadı.
