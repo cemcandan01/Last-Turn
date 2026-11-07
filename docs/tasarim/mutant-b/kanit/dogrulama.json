@@ -1,0 +1,868 @@
+{
+  "zaman": "2026-11-07T19:34:03.484Z",
+  "browser": "157.0.4341.42",
+  "channel": "msedge",
+  "url": "file:// yerel karşılaştırma",
+  "sizes": [
+    {
+      "width": 1440,
+      "overflow": false,
+      "broken": [],
+      "screens": [
+        {
+          "direction": "b",
+          "kind": "hud",
+          "rect": {
+            "x": 28,
+            "y": 707.96875,
+            "w": 680,
+            "h": 382.5
+          },
+          "ratio": 1.7777777777777777,
+          "escaped": []
+        },
+        {
+          "direction": "b",
+          "kind": "choice",
+          "rect": {
+            "x": 28,
+            "y": 1148.46875,
+            "w": 680,
+            "h": 382.5
+          },
+          "ratio": 1.7777777777777777,
+          "escaped": []
+        },
+        {
+          "direction": "b",
+          "kind": "boss",
+          "rect": {
+            "x": 28,
+            "y": 1588.96875,
+            "w": 680,
+            "h": 382.5
+          },
+          "ratio": 1.7777777777777777,
+          "escaped": []
+        },
+        {
+          "direction": "c",
+          "kind": "hud",
+          "rect": {
+            "x": 732,
+            "y": 707.96875,
+            "w": 680,
+            "h": 382.5
+          },
+          "ratio": 1.7777777777777777,
+          "escaped": []
+        },
+        {
+          "direction": "c",
+          "kind": "choice",
+          "rect": {
+            "x": 732,
+            "y": 1148.46875,
+            "w": 680,
+            "h": 382.5
+          },
+          "ratio": 1.7777777777777777,
+          "escaped": []
+        },
+        {
+          "direction": "c",
+          "kind": "boss",
+          "rect": {
+            "x": 732,
+            "y": 1588.96875,
+            "w": 680,
+            "h": 382.5
+          },
+          "ratio": 1.7777777777777777,
+          "escaped": []
+        }
+      ],
+      "fonts": true
+    },
+    {
+      "width": 800,
+      "overflow": false,
+      "broken": [],
+      "screens": [
+        {
+          "direction": "b",
+          "kind": "hud",
+          "rect": {
+            "x": 16,
+            "y": 744.5625,
+            "w": 377,
+            "h": 212.0625
+          },
+          "ratio": 1.7777777777777777,
+          "escaped": []
+        },
+        {
+          "direction": "b",
+          "kind": "choice",
+          "rect": {
+            "x": 16,
+            "y": 1014.625,
+            "w": 377,
+            "h": 212.0625
+          },
+          "ratio": 1.7777777777777777,
+          "escaped": []
+        },
+        {
+          "direction": "b",
+          "kind": "boss",
+          "rect": {
+            "x": 16,
+            "y": 1284.6875,
+            "w": 377,
+            "h": 212.0625
+          },
+          "ratio": 1.7777777777777777,
+          "escaped": []
+        },
+        {
+          "direction": "c",
+          "kind": "hud",
+          "rect": {
+            "x": 407,
+            "y": 744.5625,
+            "w": 377,
+            "h": 212.0625
+          },
+          "ratio": 1.7777777777777777,
+          "escaped": []
+        },
+        {
+          "direction": "c",
+          "kind": "choice",
+          "rect": {
+            "x": 407,
+            "y": 1014.625,
+            "w": 377,
+            "h": 212.0625
+          },
+          "ratio": 1.7777777777777777,
+          "escaped": []
+        },
+        {
+          "direction": "c",
+          "kind": "boss",
+          "rect": {
+            "x": 407,
+            "y": 1284.6875,
+            "w": 377,
+            "h": 212.0625
+          },
+          "ratio": 1.7777777777777777,
+          "escaped": []
+        }
+      ],
+      "fonts": true
+    }
+  ],
+  "zoom": [
+    {
+      "dir": "b",
+      "overflow": false,
+      "visible": 1
+    },
+    {
+      "dir": "c",
+      "overflow": false,
+      "visible": 1
+    }
+  ],
+  "assets": [
+    {
+      "dir": "b",
+      "file": "arka-plan.png",
+      "width": 1672,
+      "height": 941,
+      "clear": 762557,
+      "partial": 810773,
+      "visible": 22,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "dokular/cerceve.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1318243,
+      "partial": 253013,
+      "visible": 1260,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "dokular/parlama.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1110771,
+      "partial": 460503,
+      "visible": 1242,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/boss/toprak-kurdu.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 727461,
+      "partial": 844728,
+      "visible": 327,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/boss/drift-kralicesi.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 854358,
+      "partial": 717788,
+      "visible": 370,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/boss/drag-canavari.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 843959,
+      "partial": 727699,
+      "visible": 858,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/boss/gece-sahini.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 737941,
+      "partial": 833844,
+      "visible": 731,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/boss/camur-baronu.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 777680,
+      "partial": 794499,
+      "visible": 337,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/skill/grappling-hook.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1188079,
+      "partial": 383852,
+      "visible": 585,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/skill/flying-dutchman.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 998906,
+      "partial": 573402,
+      "visible": 208,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/skill/risk-taker.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 840026,
+      "partial": 732167,
+      "visible": 323,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/skill/slipstream-engine.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 857832,
+      "partial": 714283,
+      "visible": 401,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/skill/volt-kanat.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 962638,
+      "partial": 609142,
+      "visible": 736,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/parca/motor.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 712713,
+      "partial": 859292,
+      "visible": 511,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/parca/turbo.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 716654,
+      "partial": 855320,
+      "visible": 542,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/parca/sanziman.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 868295,
+      "partial": 703964,
+      "visible": 257,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/parca/lastik.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 716238,
+      "partial": 855956,
+      "visible": 322,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/parca/suspansiyon.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1114350,
+      "partial": 457840,
+      "visible": 326,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/parca/diferansiyel.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 876688,
+      "partial": 695528,
+      "visible": 300,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/parca/fren.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 638106,
+      "partial": 933936,
+      "visible": 474,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/parca/agirlik.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1014652,
+      "partial": 556735,
+      "visible": 1129,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/parca/aero.png",
+      "width": 1536,
+      "height": 1024,
+      "clear": 1075191,
+      "partial": 497673,
+      "visible": 0,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/parca/cekis.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 786206,
+      "partial": 785816,
+      "visible": 494,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/parca/direksiyon.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1129253,
+      "partial": 442713,
+      "visible": 550,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/parca/koruma.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 993315,
+      "partial": 578019,
+      "visible": 1182,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/pasif/guc.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 875669,
+      "partial": 696301,
+      "visible": 546,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/pasif/hafif.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1109609,
+      "partial": 462276,
+      "visible": 631,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/pasif/zirh.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 849466,
+      "partial": 722749,
+      "visible": 301,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/pasif/tamirci.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 933638,
+      "partial": 638475,
+      "visible": 403,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/pasif/adrenalin.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 918469,
+      "partial": 653572,
+      "visible": 475,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "b",
+      "file": "ikonlar/pasif/sert-nitro.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1058940,
+      "partial": 513083,
+      "visible": 493,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "arka-plan.png",
+      "width": 1672,
+      "height": 941,
+      "clear": 512125,
+      "partial": 1061227,
+      "visible": 0,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "dokular/cerceve.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1410352,
+      "partial": 158030,
+      "visible": 4134,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "dokular/parlama.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 792701,
+      "partial": 779810,
+      "visible": 5,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/boss/toprak-kurdu.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 922372,
+      "partial": 650142,
+      "visible": 2,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/boss/drift-kralicesi.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1110043,
+      "partial": 462074,
+      "visible": 399,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/boss/drag-canavari.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 983128,
+      "partial": 587056,
+      "visible": 2332,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/boss/gece-sahini.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 742330,
+      "partial": 830183,
+      "visible": 3,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/boss/camur-baronu.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 837373,
+      "partial": 735139,
+      "visible": 4,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/skill/grappling-hook.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1317907,
+      "partial": 254529,
+      "visible": 80,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/skill/flying-dutchman.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1161289,
+      "partial": 411225,
+      "visible": 2,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/skill/risk-taker.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 960030,
+      "partial": 612486,
+      "visible": 0,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/skill/slipstream-engine.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1090141,
+      "partial": 481954,
+      "visible": 421,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/skill/volt-kanat.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1120445,
+      "partial": 452070,
+      "visible": 1,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/parca/motor.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 810970,
+      "partial": 761534,
+      "visible": 12,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/parca/turbo.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1015354,
+      "partial": 557059,
+      "visible": 103,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/parca/sanziman.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1068182,
+      "partial": 503048,
+      "visible": 1286,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/parca/lastik.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 965760,
+      "partial": 606652,
+      "visible": 104,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/parca/suspansiyon.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1277518,
+      "partial": 294990,
+      "visible": 8,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/parca/diferansiyel.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1099664,
+      "partial": 472819,
+      "visible": 33,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/parca/fren.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1086284,
+      "partial": 485745,
+      "visible": 487,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/parca/agirlik.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 928414,
+      "partial": 643696,
+      "visible": 406,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/parca/aero.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1288532,
+      "partial": 283096,
+      "visible": 888,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/parca/cekis.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1133438,
+      "partial": 438322,
+      "visible": 756,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/parca/direksiyon.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1208091,
+      "partial": 363805,
+      "visible": 620,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/parca/koruma.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 830569,
+      "partial": 741946,
+      "visible": 1,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/pasif/guc.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1122868,
+      "partial": 449148,
+      "visible": 500,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/pasif/hafif.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1177482,
+      "partial": 395034,
+      "visible": 0,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/pasif/zirh.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 869872,
+      "partial": 702638,
+      "visible": 6,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/pasif/tamirci.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1211319,
+      "partial": 361145,
+      "visible": 52,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/pasif/adrenalin.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 917825,
+      "partial": 654691,
+      "visible": 0,
+      "transparent": true,
+      "nonempty": true
+    },
+    {
+      "dir": "c",
+      "file": "ikonlar/pasif/sert-nitro.png",
+      "width": 1254,
+      "height": 1254,
+      "clear": 1298766,
+      "partial": 273720,
+      "visible": 30,
+      "transparent": true,
+      "nonempty": true
+    }
+  ],
+  "errors": [],
+  "externalRequests": [],
+  "uyumsuzCss": [],
+  "passed": true
+}

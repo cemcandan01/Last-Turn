@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="tr">
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><title>
+    Last Turn · Mutant B / C yönleri</title
+  ><style>
+    @font-face {
+      font-family: Barlow;
+      src: url("mutant-b/yazi/Barlow-Regular.ttf");
+    }
+    @font-face {
+      font-family: Condensed;
+      src: url("mutant-b/yazi/BarlowCondensed-SemiBold.ttf");
+    }
+    @font-face {
+      font-family: Condensed;
+      src: url("mutant-b/yazi/BarlowCondensed-ExtraBoldItalic.ttf");
+      font-weight: 800;
+      font-style: italic;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #080d13;
+      color: #eef6f8;
+      font:
+        16px Barlow,
+        sans-serif;
+    }
+    main {
+      max-width: 1700px;
+      margin: auto;
+      padding: 40px 28px 80px;
+    }
+    h1,
+    h2,
+    h3,
+    strong {
+      font-family: Condensed, sans-serif;
+    }
+    h1 {
+      font-size: 52px;
+      font-style: italic;
+      margin: 8px 0;
+    }
+    h2 {
+      font-size: 32px;
+      margin: 8px 0;
+    }
+    p {
+      color: #b6c3cf;
+      line-height: 1.6;
+    }
+    a {
+      color: #bce9f6;
+    }
+    header {
+      max-width: 950px;
+      margin-bottom: 38px;
+    }
+    .eyebrow {
+      letter-spacing: 0.2em;
+      color: #9cb6c9;
+      font-size: 12px;
+    }
+    .intro {
+      border-left: 2px solid #456075;
+      padding-left: 18px;
+    }
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .direction {
+      min-width: 0;
+      --accent: #b7ff32;
+      --second: #ef3f9f;
+      --dark: #0b1718;
+    }
+    .direction.c {
+      --accent: #4cefff;
+      --second: #ed69ff;
+      --dark: #080f24;
+    }
+    .direction h2 {
+      color: var(--accent);
+    }
+    .description {
+      min-height: 76px;
+    }
+    .palettes {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      margin: 15px 0;
+    }
+    .swatch {
+      border-top: 15px solid var(--color);
+      padding: 5px 6px;
+      background: #141d28;
+      font-size: 11px;
+    }
+    .label {
+      font: 600 18px Condensed;
+      margin: 26px 0 10px;
+    }
+    .screen {
+      position: relative;
+      aspect-ratio: 16/9;
+      container-type: inline-size;
+      overflow: hidden;
+      background: var(--dark) url("mutant-b/arka-plan.png") center/100% 100%;
+      font-family: Condensed;
+      font-size: 1.35cqw;
+      border: 1px solid #32404a;
+    }
+    .c .screen {
+      background-image: url("mutant-c/arka-plan.png");
+    }
+    .screen:before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: #050b10a6;
+      pointer-events: none;
+    }
+    .top {
+      position: absolute;
+      top: 2.5cqw;
+      left: 3cqw;
+      right: 3cqw;
+      display: flex;
+      align-items: center;
+      gap: 2cqw;
+      font-size: 1.4cqw;
+    }
+    .brand {
+      background: var(--accent);
+      color: var(--dark);
+      transform: skewX(-14deg);
+      padding: 0.5cqw 1.3cqw;
+      letter-spacing: 0.15em;
+      font-weight: 800;
+    }
+    .status {
+      margin-left: auto;
+      font-size: 1.25cqw;
+    }
+    .content {
+      position: absolute;
+      left: 5cqw;
+      right: 5cqw;
+      top: 12cqw;
+      bottom: 7cqw;
+    }
+    .kicker {
+      color: var(--second);
+      letter-spacing: 0.16em;
+      font-size: 1.15cqw;
+    }
+    .content h3 {
+      font: italic 800 4cqw/1 Condensed;
+      margin: 0.5cqw 0 1.1cqw;
+    }
+    .content p {
+      font: 1.35cqw/1.5 Barlow;
+      margin: 0.6cqw 0 1.3cqw;
+      color: #dde6ea;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.3cqw;
+      margin-top: 2cqw;
+    }
+    .card {
+      position: relative;
+      background: #081219ef;
+      padding: 1.8cqw;
+      border: 1cqw solid transparent;
+      border-image: url("mutant-b/dokular/cerceve.png") 25% stretch;
+      min-height: 20cqw;
+    }
+    .c .card {
+      border-image-source: url("mutant-c/dokular/cerceve.png");
+    }
+    .card.selected {
+      border-image-source: url("mutant-b/dokular/parlama.png");
+    }
+    .c .card.selected {
+      border-image-source: url("mutant-c/dokular/parlama.png");
+    }
+    .card img {
+      display: block;
+      width: 7cqw;
+      height: 7cqw;
+      object-fit: contain;
+      margin: 0.5cqw 0;
+    }
+    .card strong {
+      display: block;
+      font-size: 2.2cqw;
+    }
+    .card small {
+      font-size: 1.1cqw;
+      color: var(--accent);
+    }
+    .card p {
+      font-size: 1.18cqw;
+    }
+    .btn {
+      display: inline-block;
+      background: #13222b;
+      border: 1px solid var(--accent);
+      padding: 0.8cqw 1.6cqw;
+      transform: skewX(-12deg);
+      font: 600 1.4cqw Condensed;
+      color: #eff9ff;
+    }
+    .btn.primary {
+      background: var(--accent);
+      color: var(--dark);
+    }
+    .actions {
+      display: flex;
+      gap: 1cqw;
+      margin-top: 1.8cqw;
+    }
+    .boss-panel {
+      display: grid;
+      grid-template-columns: 16cqw 1fr;
+      gap: 2cqw;
+      background: #061017ee;
+      padding: 1.5cqw;
+      border: 1cqw solid transparent;
+      border-image: url("mutant-b/dokular/cerceve.png") 25% stretch;
+    }
+    .c .boss-panel {
+      border-image-source: url("mutant-c/dokular/cerceve.png");
+    }
+    .emblem {
+      width: 16cqw;
+      height: 16cqw;
+      object-fit: contain;
+    }
+    .line {
+      border-bottom: 1px solid #ffffff25;
+      padding: 0.8cqw 0;
+      font-size: 1.45cqw;
+    }
+    .hints {
+      position: absolute;
+      right: 3cqw;
+      bottom: 1.6cqw;
+      display: flex;
+      gap: 1.5cqw;
+      font: 1cqw Barlow;
+      color: #dbe5ea;
+    }
+    kbd {
+      display: inline-block;
+      border: 1px solid #82959f;
+      padding: 0.15em 0.4em;
+      border-bottom-width: 2px;
+      font: inherit;
+      color: white;
+    }
+    .run {
+      position: absolute;
+      left: 3cqw;
+      top: 8cqw;
+      display: flex;
+      gap: 2cqw;
+      font-size: 1.25cqw;
+      line-height: 1.6;
+    }
+    .run b {
+      color: var(--second);
+      font-size: 2cqw;
+    }
+    .mission {
+      position: absolute;
+      left: 3cqw;
+      top: 19cqw;
+      color: var(--accent);
+      font-size: 1.5cqw;
+    }
+    .map {
+      position: absolute;
+      right: 3cqw;
+      top: 3cqw;
+      width: 16cqw;
+      height: 12cqw;
+      background: #061119d9;
+      color: #b4ced8;
+      border: 1px solid #6c7c85;
+    }
+    .map svg {
+      width: 100%;
+      height: 100%;
+    }
+    .slots {
+      position: absolute;
+      left: 3cqw;
+      bottom: 8cqw;
+      width: 35cqw;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.6cqw;
+    }
+    .slots > div {
+      border-left: 0.2cqw solid var(--accent);
+      padding-left: 0.6cqw;
+      font-size: 1.1cqw;
+    }
+    .slots img {
+      width: 3.5cqw;
+      height: 3.5cqw;
+      object-fit: contain;
+      display: block;
+    }
+    .slots b {
+      display: block;
+      font-size: 1.25cqw;
+      margin: 0.4cqw 0;
+    }
+    .slots small {
+      font-size: 0.9cqw;
+      color: #c3d4d9;
+    }
+    .bar {
+      height: 0.4cqw;
+      background: #53626b;
+      margin-top: 0.8cqw;
+    }
+    .bar i {
+      display: block;
+      height: 100%;
+      width: 64%;
+      background: var(--accent);
+    }
+    .speed {
+      position: absolute;
+      right: 4cqw;
+      bottom: 6cqw;
+      text-align: right;
+      font-size: 1.1cqw;
+    }
+    .speed b {
+      font: italic 800 6cqw Condensed;
+    }
+    .speed em {
+      font-style: normal;
+      color: var(--accent);
+      font-size: 3cqw;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .tile {
+      margin: 0;
+      padding: 10px;
+      background: repeating-conic-gradient(#172430 0 25%, #10202a 0 50%) 0/20px 20px;
+      border: 1px solid #2d3f4d;
+      min-width: 0;
+    }
+    .tile img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: contain;
+    }
+    .tile figcaption {
+      font: 14px Condensed;
+      margin-top: 8px;
+      overflow-wrap: anywhere;
+    }
+    .tile code {
+      display: block;
+      font: 10px Barlow;
+      color: #a8c3cc;
+    }
+    .textures {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .textures img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: contain;
+      background: #09131b;
+    }
+    footer {
+      margin-top: 40px;
+      color: #91a7b7;
+      font-size: 13px;
+    }
+    @media (max-width: 900px) {
+      main {
+        padding: 24px 16px 50px;
+      }
+      .compare {
+        gap: 14px;
+      }
+      .gallery {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      h1 {
+        font-size: 40px;
+      }
+      h2 {
+        font-size: 25px;
+      }
+      .description {
+        min-height: 128px;
+      }
+      .swatch {
+        font-size: 10px;
+        padding: 4px;
+      }
+    }
+    @media (max-width: 600px) {
+      .compare {
+        grid-template-columns: 1fr;
+      }
+      .description {
+        min-height: 0;
+      }
+    }
+    .direction {
+      --frame: url("mutant-b/dokular/cerceve.png");
+      --glow: url("mutant-b/dokular/parlama.png");
+    }
+    .direction.c {
+      --frame: url("mutant-c/dokular/cerceve.png");
+      --glow: url("mutant-c/dokular/parlama.png");
+    }
+    .direction .card,
+    .direction .card.selected,
+    .direction .boss-panel {
+      border-image: none;
+    }
+    .boss-panel {
+      position: relative;
+    }
+    .card:before,
+    .boss-panel:before {
+      content: "";
+      position: absolute;
+      inset: -1cqw;
+      border: 3.4cqw solid transparent;
+      border-image: var(--frame) 25% stretch;
+      pointer-events: none;
+    }
+    .card.selected:before {
+      border-image-source: var(--glow);
+    }
+    .zoom-tools {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 20px 0 30px;
+    }
+    .zoom-tools button {
+      font: 16px Barlow;
+      padding: 10px 16px;
+      color: #d9e9f0;
+      background: #14222d;
+      border: 1px solid #476070;
+      cursor: pointer;
+    }
+    .zoom-tools button[aria-pressed="true"] {
+      color: #071118;
+      background: #c1e9f4;
+    }
+    .zoom-tools button:focus-visible {
+      outline: 3px solid #ffd17c;
+      outline-offset: 3px;
+    }
+    .compare[data-view="b"],
+    .compare[data-view="c"] {
+      grid-template-columns: 1fr;
+    }
+    .compare[data-view="b"] .direction.c,
+    .compare[data-view="c"] .direction.b {
+      display: none;
+    }
+  </style>
+  <main>
+    <header>
+      <div class="eyebrow">LAST TURN / MUTANT / GÖRSEL YÖN SEÇİMİ</div>
+      <h1>Yaşayan makine veya ışık izi.</h1>
+      <p>İki ayrı kimlik, aynı ekran düzeni: 1B HUD · 5A ödül seçimi · 6A boss.</p>
+      <div class="intro">
+        <p>
+          Statik tasarım incelemesi. Değerler örnek koşu anlarıdır; isim ve açıklamalar mevcut katalogdan
+          gelir. Oklar ve Enter, F taslağındaki sunum önerisidir. Görsel tercih henüz onaylanmadı.
+        </p>
+        <a href="mutant-f.html">F yerleşim referansı</a> · <a href="mutant-f2.html">Yön A çalışması</a>
+      </div>
+    </header>
+    <div class="zoom-tools" aria-label="Önizleme boyutu">
+      <button data-view="both" aria-pressed="true">Yan yana</button
+      ><button data-view="b" aria-pressed="false">Yön B’yi büyüt</button
+      ><button data-view="c" aria-pressed="false">Yön C’yi büyüt</button>
+    </div>
+    <div class="compare">
+      <article class="direction b">
+        <div class="eyebrow">YÖN B</div>
+        <h2>Biyomekanik mutasyon</h2>
+        <p class="description">
+          Makineyi saran canlı kabuk. Asit yeşili damarlar, magenta sıvı kanalları ve koyu petrol yüzeyler.
+        </p>
+        <div class="palettes">
+          <span class="swatch" style="--color: #b7ff32">#b7ff32</span
+          ><span class="swatch" style="--color: #ef3f9f">#ef3f9f</span
+          ><span class="swatch" style="--color: #0b1718">#0b1718</span
+          ><span class="swatch" style="--color: #ecf6e7">#ecf6e7</span>
+        </div>
+        <p>
+          Nadirlik önerisi · <span style="color: #b6c6b3">Yaygın</span> /
+          <span style="color: #b7ff32">Sıra dışı</span> / <span style="color: #5fd3e6">Nadir</span> /
+          <span style="color: #ef3f9f">Epik</span> / <span style="color: #ffd17c">Efsanevi</span><br /><small
+            >Görsel palet önerisidir; yeni oyun sınıfı veya kuralı tanımlamaz.</small
+          >
+        </p>
+        <h3 class="label">1B · Sürüş HUD</h3>
+        <div class="screen hud" data-direction="b" data-kind="hud" role="img" aria-label="Yön B 1B HUD">
+          <div class="top"><b class="brand">MUTANT</b><span>SÜRÜŞ</span></div>
+          <div class="run">
+            <div>BÖLGE 1<br /><b>BOSS 08:42</b></div>
+            <div>Gövde 76 / 100<br />260 para · Seviye 3<br />500 / 680 XP</div>
+          </div>
+          <div class="mission">ATÖLYE · işaretin içinde dur</div>
+          <div class="map" aria-label="Temsili miniharita">
+            <svg viewBox="0 0 160 120">
+              <path
+                d="M8 90L55 95L87 57L145 28M30 0L55 95L95 115"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              />
+              <path d="M60 76l5 10H55z" fill="white" />
+              <rect x="112" y="36" width="8" height="8" fill="var(--second)" />
+              <rect x="45" y="91" width="7" height="7" fill="var(--accent)" />
+            </svg>
+          </div>
+          <div class="slots">
+            <div>
+              <kbd>N</kbd><b>NİTRO</b><small>64 / 100 · HAZIR</small>
+              <div class="bar"><i></i></div>
+            </div>
+            <div>
+              <img
+                class=""
+                src="mutant-b/ikonlar/skill/grappling-hook.png"
+                alt="Grappling Hook"
+                loading="eager"
+              /><kbd>1</kbd><b>Grappling Hook</b><small>Sv2 · ×2 HAZIR</small>
+            </div>
+            <div>
+              <img
+                class=""
+                src="mutant-b/ikonlar/skill/flying-dutchman.png"
+                alt="Flying Dutchman"
+                loading="eager"
+              /><kbd>2</kbd><b>Flying Dutchman</b><small>Sv1 · 3,2 sn</small>
+            </div>
+            <div>
+              <img
+                class=""
+                src="mutant-b/ikonlar/skill/risk-taker.png"
+                alt="Risk Taker"
+                loading="eager"
+              /><kbd>3</kbd><b>Risk Taker</b><small>Sv1 · %62 · kendiliğinden</small>
+            </div>
+          </div>
+          <div class="speed"><b>84</b> km/sa<br /><em>3</em> VİTES</div>
+          <div class="hints">
+            <span><kbd>N</kbd> Nitro</span><span><kbd>1/2/3</kbd> Skill</span
+            ><span><kbd>Esc</kbd> Duraklat</span>
+          </div>
+        </div>
+        <h3 class="label">5A · Ödül seçimi</h3>
+        <div
+          class="screen choice"
+          data-direction="b"
+          data-kind="choice"
+          role="img"
+          aria-label="Yön B 5A ödül seçimi"
+        >
+          <div class="top">
+            <b class="brand">MUTANT</b><span>BÖLGE 1</span
+            ><span class="status">Boss 08:42 · Gövde 76 · 260 para</span>
+          </div>
+          <div class="content">
+            <div class="kicker">SEVİYE 3 / YETENEK SEÇ</div>
+            <h3>Birini seç.</h3>
+            <p>
+              Pasifler yuva tüketmez. Skill, seviye, eklenti ve evrim teklifleri gerçek türüyle gösterilir.
+            </p>
+            <div class="cards">
+              <div class="card selected">
+                <small>PASİF</small
+                ><img
+                  class=""
+                  src="mutant-b/ikonlar/pasif/guc.png"
+                  alt="Motor ayarı"
+                  loading="eager"
+                /><strong>Motor ayarı</strong>
+                <p>Güç +%10</p>
+                <span class="btn">Seç</span>
+              </div>
+              <div class="card">
+                <small>PASİF</small
+                ><img
+                  class=""
+                  src="mutant-b/ikonlar/pasif/hafif.png"
+                  alt="Hafifletme"
+                  loading="eager"
+                /><strong>Hafifletme</strong>
+                <p>Ağırlık −%6</p>
+              </div>
+              <div class="card">
+                <small>PASİF</small
+                ><img class="" src="mutant-b/ikonlar/pasif/zirh.png" alt="Zırh" loading="eager" /><strong
+                  >Zırh</strong
+                >
+                <p>Çarpma ve spin hasarı −%35</p>
+              </div>
+            </div>
+          </div>
+          <div class="hints">
+            <span><kbd>Oklar</kbd> Odak</span><span><kbd>Enter</kbd> Onay</span
+            ><span><kbd>Esc</kbd> Duraklat</span>
+          </div>
+        </div>
+        <h3 class="label">6A · Boss</h3>
+        <div class="screen boss" data-direction="b" data-kind="boss" role="img" aria-label="Yön B 6A boss">
+          <div class="top">
+            <b class="brand">MUTANT</b><span>BÖLGE 1</span
+            ><span class="status">Boss 08:42 · Gövde 76 · 260 para</span>
+          </div>
+          <div class="content">
+            <div class="kicker">BÖLGE 1 / BOSS 08:42</div>
+            <h3>Toprak Kurdu</h3>
+            <p>Ralli etabı; toprakta çok hızlı</p>
+            <p>Tür: Toprak / ralli</p>
+            <div class="boss-panel">
+              <img
+                class="emblem"
+                src="mutant-b/ikonlar/boss/toprak-kurdu.png"
+                alt="Toprak Kurdu"
+                loading="eager"
+              />
+              <div>
+                <div class="kicker">ZAYIFLIK</div>
+                <p>Toprak tutuşu, dört çeker, süspansiyon kazandırır</p>
+                <div class="line">Toprakta çok hızlı</div>
+                <div class="line">Çamurda yavaşlamaz</div>
+                <div class="actions">
+                  <span class="btn primary">Boss’a meydan oku</span><span class="btn">Geri</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="hints">
+            <span><kbd>Oklar</kbd> Odak</span><span><kbd>Enter</kbd> Onay</span
+            ><span><kbd>Esc</kbd> Duraklat</span>
+          </div>
+        </div>
+        <h3 class="label">Örnek ikon ailesi · 28 simge</h3>
+        <p>Şeffaflık kontrolü için kareli zemin. Tam katalog, yön seçiminden sonra tamamlanacak.</p>
+        <h3 class="label">Boss amblemleri</h3>
+        <div class="gallery">
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/boss/toprak-kurdu.png" alt="Toprak Kurdu" loading="eager" />
+            <figcaption>Toprak Kurdu<code>toprak-kurdu</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img
+              class=""
+              src="mutant-b/ikonlar/boss/drift-kralicesi.png"
+              alt="Drift Kraliçesi"
+              loading="eager"
+            />
+            <figcaption>Drift Kraliçesi<code>drift-kralicesi</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/boss/drag-canavari.png" alt="Drag Canavarı" loading="eager" />
+            <figcaption>Drag Canavarı<code>drag-canavari</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/boss/gece-sahini.png" alt="Gece Şahini" loading="eager" />
+            <figcaption>Gece Şahini<code>gece-sahini</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/boss/camur-baronu.png" alt="Çamur Baronu" loading="eager" />
+            <figcaption>Çamur Baronu<code>camur-baronu</code></figcaption>
+          </figure>
+        </div>
+        <h3 class="label">Skill</h3>
+        <div class="gallery">
+          <figure class="tile">
+            <img
+              class=""
+              src="mutant-b/ikonlar/skill/grappling-hook.png"
+              alt="Grappling Hook"
+              loading="eager"
+            />
+            <figcaption>Grappling Hook<code>grappling-hook</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img
+              class=""
+              src="mutant-b/ikonlar/skill/flying-dutchman.png"
+              alt="Flying Dutchman"
+              loading="eager"
+            />
+            <figcaption>Flying Dutchman<code>flying-dutchman</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/skill/risk-taker.png" alt="Risk Taker" loading="eager" />
+            <figcaption>Risk Taker<code>risk-taker</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img
+              class=""
+              src="mutant-b/ikonlar/skill/slipstream-engine.png"
+              alt="Slipstream Engine"
+              loading="eager"
+            />
+            <figcaption>Slipstream Engine<code>slipstream-engine</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/skill/volt-kanat.png" alt="Volt Kanat" loading="eager" />
+            <figcaption>Volt Kanat<code>volt-kanat</code></figcaption>
+          </figure>
+        </div>
+        <h3 class="label">Parça kategorileri</h3>
+        <div class="gallery">
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/parca/motor.png" alt="Motor" loading="eager" />
+            <figcaption>Motor<code>motor</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/parca/turbo.png" alt="Turbo" loading="eager" />
+            <figcaption>Turbo<code>turbo</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/parca/sanziman.png" alt="Şanzıman" loading="eager" />
+            <figcaption>Şanzıman<code>sanziman</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/parca/lastik.png" alt="Lastik" loading="eager" />
+            <figcaption>Lastik<code>lastik</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/parca/suspansiyon.png" alt="Süspansiyon" loading="eager" />
+            <figcaption>Süspansiyon<code>suspansiyon</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/parca/diferansiyel.png" alt="Diferansiyel" loading="eager" />
+            <figcaption>Diferansiyel<code>diferansiyel</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/parca/fren.png" alt="Fren" loading="eager" />
+            <figcaption>Fren<code>fren</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/parca/agirlik.png" alt="Ağırlık" loading="eager" />
+            <figcaption>Ağırlık<code>agirlik</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/parca/aero.png" alt="Aerodinamik" loading="eager" />
+            <figcaption>Aerodinamik<code>aero</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/parca/cekis.png" alt="Çekiş" loading="eager" />
+            <figcaption>Çekiş<code>cekis</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/parca/direksiyon.png" alt="Direksiyon" loading="eager" />
+            <figcaption>Direksiyon<code>direksiyon</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/parca/koruma.png" alt="Koruma" loading="eager" />
+            <figcaption>Koruma<code>koruma</code></figcaption>
+          </figure>
+        </div>
+        <h3 class="label">Pasif örnekleri</h3>
+        <div class="gallery">
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/pasif/guc.png" alt="Motor ayarı" loading="eager" />
+            <figcaption>Motor ayarı<code>guc</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/pasif/hafif.png" alt="Hafifletme" loading="eager" />
+            <figcaption>Hafifletme<code>hafif</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/pasif/zirh.png" alt="Zırh" loading="eager" />
+            <figcaption>Zırh<code>zirh</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/pasif/tamirci.png" alt="Seyyar tamirci" loading="eager" />
+            <figcaption>Seyyar tamirci<code>tamirci</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/pasif/adrenalin.png" alt="Adrenalin" loading="eager" />
+            <figcaption>Adrenalin<code>adrenalin</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-b/ikonlar/pasif/sert-nitro.png" alt="Sert Nitro" loading="eager" />
+            <figcaption>Sert Nitro<code>sert-nitro</code></figcaption>
+          </figure>
+        </div>
+        <h3 class="label">Çerçeve / seçim parlaması</h3>
+        <div class="textures">
+          <img src="mutant-b/dokular/cerceve.png" alt="Nötr 9 dilim çerçeve" /><img
+            src="mutant-b/dokular/parlama.png"
+            alt="Seçili 9 dilim parlama"
+          />
+        </div>
+        <p>Dokuların köşeleri korunur, kenarları uzatılır. Parlama PNG içinde hazırdır.</p>
+      </article>
+      <article class="direction c">
+        <div class="eyebrow">YÖN C</div>
+        <h2>Neon hologram</h2>
+        <p class="description">
+          Camgöbeği veri çizgileri, pembe ışık kırılmaları. Hafif hologramlar ve kesintili tarama izleri.
+        </p>
+        <div class="palettes">
+          <span class="swatch" style="--color: #4cefff">#4cefff</span
+          ><span class="swatch" style="--color: #ed69ff">#ed69ff</span
+          ><span class="swatch" style="--color: #080f24">#080f24</span
+          ><span class="swatch" style="--color: #ecfaff">#ecfaff</span>
+        </div>
+        <p>
+          Nadirlik önerisi · <span style="color: #b7ccdc">Yaygın</span> /
+          <span style="color: #80f3bc">Sıra dışı</span> / <span style="color: #4cefff">Nadir</span> /
+          <span style="color: #ed69ff">Epik</span> / <span style="color: #ffce85">Efsanevi</span><br /><small
+            >Görsel palet önerisidir; yeni oyun sınıfı veya kuralı tanımlamaz.</small
+          >
+        </p>
+        <h3 class="label">1B · Sürüş HUD</h3>
+        <div class="screen hud" data-direction="c" data-kind="hud" role="img" aria-label="Yön C 1B HUD">
+          <div class="top"><b class="brand">MUTANT</b><span>SÜRÜŞ</span></div>
+          <div class="run">
+            <div>BÖLGE 1<br /><b>BOSS 08:42</b></div>
+            <div>Gövde 76 / 100<br />260 para · Seviye 3<br />500 / 680 XP</div>
+          </div>
+          <div class="mission">ATÖLYE · işaretin içinde dur</div>
+          <div class="map" aria-label="Temsili miniharita">
+            <svg viewBox="0 0 160 120">
+              <path
+                d="M8 90L55 95L87 57L145 28M30 0L55 95L95 115"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              />
+              <path d="M60 76l5 10H55z" fill="white" />
+              <rect x="112" y="36" width="8" height="8" fill="var(--second)" />
+              <rect x="45" y="91" width="7" height="7" fill="var(--accent)" />
+            </svg>
+          </div>
+          <div class="slots">
+            <div>
+              <kbd>N</kbd><b>NİTRO</b><small>64 / 100 · HAZIR</small>
+              <div class="bar"><i></i></div>
+            </div>
+            <div>
+              <img
+                class=""
+                src="mutant-c/ikonlar/skill/grappling-hook.png"
+                alt="Grappling Hook"
+                loading="eager"
+              /><kbd>1</kbd><b>Grappling Hook</b><small>Sv2 · ×2 HAZIR</small>
+            </div>
+            <div>
+              <img
+                class=""
+                src="mutant-c/ikonlar/skill/flying-dutchman.png"
+                alt="Flying Dutchman"
+                loading="eager"
+              /><kbd>2</kbd><b>Flying Dutchman</b><small>Sv1 · 3,2 sn</small>
+            </div>
+            <div>
+              <img
+                class=""
+                src="mutant-c/ikonlar/skill/risk-taker.png"
+                alt="Risk Taker"
+                loading="eager"
+              /><kbd>3</kbd><b>Risk Taker</b><small>Sv1 · %62 · kendiliğinden</small>
+            </div>
+          </div>
+          <div class="speed"><b>84</b> km/sa<br /><em>3</em> VİTES</div>
+          <div class="hints">
+            <span><kbd>N</kbd> Nitro</span><span><kbd>1/2/3</kbd> Skill</span
+            ><span><kbd>Esc</kbd> Duraklat</span>
+          </div>
+        </div>
+        <h3 class="label">5A · Ödül seçimi</h3>
+        <div
+          class="screen choice"
+          data-direction="c"
+          data-kind="choice"
+          role="img"
+          aria-label="Yön C 5A ödül seçimi"
+        >
+          <div class="top">
+            <b class="brand">MUTANT</b><span>BÖLGE 1</span
+            ><span class="status">Boss 08:42 · Gövde 76 · 260 para</span>
+          </div>
+          <div class="content">
+            <div class="kicker">SEVİYE 3 / YETENEK SEÇ</div>
+            <h3>Birini seç.</h3>
+            <p>
+              Pasifler yuva tüketmez. Skill, seviye, eklenti ve evrim teklifleri gerçek türüyle gösterilir.
+            </p>
+            <div class="cards">
+              <div class="card selected">
+                <small>PASİF</small
+                ><img
+                  class=""
+                  src="mutant-c/ikonlar/pasif/guc.png"
+                  alt="Motor ayarı"
+                  loading="eager"
+                /><strong>Motor ayarı</strong>
+                <p>Güç +%10</p>
+                <span class="btn">Seç</span>
+              </div>
+              <div class="card">
+                <small>PASİF</small
+                ><img
+                  class=""
+                  src="mutant-c/ikonlar/pasif/hafif.png"
+                  alt="Hafifletme"
+                  loading="eager"
+                /><strong>Hafifletme</strong>
+                <p>Ağırlık −%6</p>
+              </div>
+              <div class="card">
+                <small>PASİF</small
+                ><img class="" src="mutant-c/ikonlar/pasif/zirh.png" alt="Zırh" loading="eager" /><strong
+                  >Zırh</strong
+                >
+                <p>Çarpma ve spin hasarı −%35</p>
+              </div>
+            </div>
+          </div>
+          <div class="hints">
+            <span><kbd>Oklar</kbd> Odak</span><span><kbd>Enter</kbd> Onay</span
+            ><span><kbd>Esc</kbd> Duraklat</span>
+          </div>
+        </div>
+        <h3 class="label">6A · Boss</h3>
+        <div class="screen boss" data-direction="c" data-kind="boss" role="img" aria-label="Yön C 6A boss">
+          <div class="top">
+            <b class="brand">MUTANT</b><span>BÖLGE 1</span
+            ><span class="status">Boss 08:42 · Gövde 76 · 260 para</span>
+          </div>
+          <div class="content">
+            <div class="kicker">BÖLGE 1 / BOSS 08:42</div>
+            <h3>Toprak Kurdu</h3>
+            <p>Ralli etabı; toprakta çok hızlı</p>
+            <p>Tür: Toprak / ralli</p>
+            <div class="boss-panel">
+              <img
+                class="emblem"
+                src="mutant-c/ikonlar/boss/toprak-kurdu.png"
+                alt="Toprak Kurdu"
+                loading="eager"
+              />
+              <div>
+                <div class="kicker">ZAYIFLIK</div>
+                <p>Toprak tutuşu, dört çeker, süspansiyon kazandırır</p>
+                <div class="line">Toprakta çok hızlı</div>
+                <div class="line">Çamurda yavaşlamaz</div>
+                <div class="actions">
+                  <span class="btn primary">Boss’a meydan oku</span><span class="btn">Geri</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="hints">
+            <span><kbd>Oklar</kbd> Odak</span><span><kbd>Enter</kbd> Onay</span
+            ><span><kbd>Esc</kbd> Duraklat</span>
+          </div>
+        </div>
+        <h3 class="label">Örnek ikon ailesi · 28 simge</h3>
+        <p>Şeffaflık kontrolü için kareli zemin. Tam katalog, yön seçiminden sonra tamamlanacak.</p>
+        <h3 class="label">Boss amblemleri</h3>
+        <div class="gallery">
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/boss/toprak-kurdu.png" alt="Toprak Kurdu" loading="eager" />
+            <figcaption>Toprak Kurdu<code>toprak-kurdu</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img
+              class=""
+              src="mutant-c/ikonlar/boss/drift-kralicesi.png"
+              alt="Drift Kraliçesi"
+              loading="eager"
+            />
+            <figcaption>Drift Kraliçesi<code>drift-kralicesi</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/boss/drag-canavari.png" alt="Drag Canavarı" loading="eager" />
+            <figcaption>Drag Canavarı<code>drag-canavari</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/boss/gece-sahini.png" alt="Gece Şahini" loading="eager" />
+            <figcaption>Gece Şahini<code>gece-sahini</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/boss/camur-baronu.png" alt="Çamur Baronu" loading="eager" />
+            <figcaption>Çamur Baronu<code>camur-baronu</code></figcaption>
+          </figure>
+        </div>
+        <h3 class="label">Skill</h3>
+        <div class="gallery">
+          <figure class="tile">
+            <img
+              class=""
+              src="mutant-c/ikonlar/skill/grappling-hook.png"
+              alt="Grappling Hook"
+              loading="eager"
+            />
+            <figcaption>Grappling Hook<code>grappling-hook</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img
+              class=""
+              src="mutant-c/ikonlar/skill/flying-dutchman.png"
+              alt="Flying Dutchman"
+              loading="eager"
+            />
+            <figcaption>Flying Dutchman<code>flying-dutchman</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/skill/risk-taker.png" alt="Risk Taker" loading="eager" />
+            <figcaption>Risk Taker<code>risk-taker</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img
+              class=""
+              src="mutant-c/ikonlar/skill/slipstream-engine.png"
+              alt="Slipstream Engine"
+              loading="eager"
+            />
+            <figcaption>Slipstream Engine<code>slipstream-engine</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/skill/volt-kanat.png" alt="Volt Kanat" loading="eager" />
+            <figcaption>Volt Kanat<code>volt-kanat</code></figcaption>
+          </figure>
+        </div>
+        <h3 class="label">Parça kategorileri</h3>
+        <div class="gallery">
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/parca/motor.png" alt="Motor" loading="eager" />
+            <figcaption>Motor<code>motor</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/parca/turbo.png" alt="Turbo" loading="eager" />
+            <figcaption>Turbo<code>turbo</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/parca/sanziman.png" alt="Şanzıman" loading="eager" />
+            <figcaption>Şanzıman<code>sanziman</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/parca/lastik.png" alt="Lastik" loading="eager" />
+            <figcaption>Lastik<code>lastik</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/parca/suspansiyon.png" alt="Süspansiyon" loading="eager" />
+            <figcaption>Süspansiyon<code>suspansiyon</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/parca/diferansiyel.png" alt="Diferansiyel" loading="eager" />
+            <figcaption>Diferansiyel<code>diferansiyel</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/parca/fren.png" alt="Fren" loading="eager" />
+            <figcaption>Fren<code>fren</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/parca/agirlik.png" alt="Ağırlık" loading="eager" />
+            <figcaption>Ağırlık<code>agirlik</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/parca/aero.png" alt="Aerodinamik" loading="eager" />
+            <figcaption>Aerodinamik<code>aero</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/parca/cekis.png" alt="Çekiş" loading="eager" />
+            <figcaption>Çekiş<code>cekis</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/parca/direksiyon.png" alt="Direksiyon" loading="eager" />
+            <figcaption>Direksiyon<code>direksiyon</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/parca/koruma.png" alt="Koruma" loading="eager" />
+            <figcaption>Koruma<code>koruma</code></figcaption>
+          </figure>
+        </div>
+        <h3 class="label">Pasif örnekleri</h3>
+        <div class="gallery">
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/pasif/guc.png" alt="Motor ayarı" loading="eager" />
+            <figcaption>Motor ayarı<code>guc</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/pasif/hafif.png" alt="Hafifletme" loading="eager" />
+            <figcaption>Hafifletme<code>hafif</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/pasif/zirh.png" alt="Zırh" loading="eager" />
+            <figcaption>Zırh<code>zirh</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/pasif/tamirci.png" alt="Seyyar tamirci" loading="eager" />
+            <figcaption>Seyyar tamirci<code>tamirci</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/pasif/adrenalin.png" alt="Adrenalin" loading="eager" />
+            <figcaption>Adrenalin<code>adrenalin</code></figcaption>
+          </figure>
+          <figure class="tile">
+            <img class="" src="mutant-c/ikonlar/pasif/sert-nitro.png" alt="Sert Nitro" loading="eager" />
+            <figcaption>Sert Nitro<code>sert-nitro</code></figcaption>
+          </figure>
+        </div>
+        <h3 class="label">Çerçeve / seçim parlaması</h3>
+        <div class="textures">
+          <img src="mutant-c/dokular/cerceve.png" alt="Nötr 9 dilim çerçeve" /><img
+            src="mutant-c/dokular/parlama.png"
+            alt="Seçili 9 dilim parlama"
+          />
+        </div>
+        <p>Dokuların köşeleri korunur, kenarları uzatılır. Parlama PNG içinde hazırdır.</p>
+      </article>
+    </div>
+    <footer>
+      Barlow / Barlow Condensed yerel dosyalardan yüklenir. Bu sayfa çevrimdışı file:// ile açılabilir.
+      Yerleşik görsel üretimi; oyun verisi ve Unity uygulaması değiştirilmedi.
+    </footer>
+  </main>
+  <script>
+    document.querySelectorAll(".zoom-tools button").forEach((button) =>
+      button.addEventListener("click", () => {
+        document.querySelector(".compare").dataset.view = button.dataset.view;
+        document
+          .querySelectorAll(".zoom-tools button")
+          .forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+      }),
+    );
+  </script>
+</html>
