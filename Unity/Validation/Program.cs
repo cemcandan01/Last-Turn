@@ -1,5 +1,6 @@
 using System.Text.Json;
 using LastTurn.Core;
+if(args.Contains("--mutant-pilot")){MutantPilotValidation.Run();return;}
 if(args.Contains("--garage-f")){GarageFValidation.Run();return;}
 if(args.Contains("--cloud")){CloudValidation.Run();return;}
 if(args.Contains("--cloud-sync")){CloudSyncValidation.Run();return;}
