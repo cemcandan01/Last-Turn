@@ -51,6 +51,16 @@ namespace LastTurn.Prototype
       airHold = map.AddAction("HavaSurukle", InputActionType.Button, "<Mouse>/leftButton");
       airDelta = map.AddAction("HavaDelta", InputActionType.Value, "<Mouse>/delta"); airDelta.expectedControlType = "Vector2";
     }
+    /// Ayarlar → Kontroller tablosu: eylem adı ve bağlı tuş yolları, sürüşte kullanılan eşlemenin kendisinden okunur.
+    public static (string Action, string[] Paths)[] Bindings()
+    {
+      using (var input = new GtKeyboardInput())
+      {
+        var rows = new System.Collections.Generic.List<(string, string[])>();
+        foreach (var a in input.map.actions) if (a.name != "HavaDelta") rows.Add((a.name, System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(a.bindings, b => b.path))));
+        return rows.ToArray();
+      }
+    }
     /// Dokunmatik nitro/skill düğmeleri klavye olaylarıyla aynı kuyruğa girer.
     public void TouchNitro() => NitroPressed?.Invoke();
     public void TouchSkill(int slot, bool down) { if (down) SkillPressed?.Invoke(slot); else SkillReleased?.Invoke(slot); }

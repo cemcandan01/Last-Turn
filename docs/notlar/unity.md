@@ -1,16 +1,13 @@
-# Unity geçişi — dal notu
+# Unity ge?i?i ? dal notu
 
-- Dal `codex/unity-p3-mutant`; Claude ve Codex dönüşümlü. Ayrıntı ve kanıt: `docs/isler/2026-11-01-unity-tam-aktarim.md`, devir `docs/DEVIR.md`.
-- Tamam: P1 kariyer, P2 dünya/rakip, P3 Mutant, P4 nitro/skill/enerji, P5 kontroller/HUD/hava/kamera/bulut sözleşmesi/ses altyapısı; Cem elle kabul turu yaptı (2026-11-05).
-- Karar: kural/veri saf C# katmanında (`Scripts/Core`), her TS işlevi gerçek TS kaynağından üretilen oracle ile (`Unity/Validation/export-*.mjs --check`, `dotnet run -- --<alan>`) sınanır. Kaynak TS 0.8.18 (`df3549e`); denge değişmez.
-- Karar: Unity testleri açık Editor'a dokunmadan proje kopyasında batch koşar; Play kanıtı `Unity/Logs/*.json` + `check-*-proof.mjs` (kaynak hash'ine bağlı).
-- Karar: `Unity/Validation/Reference/` ve `Unity/Assets/LastTurn/Resources/` üretilmiş veri; Prettier dışı (bayt karşılaştırması).
-- Bırakılan: drag'de yan şeritten Slipstream takibi geometrik olarak tutmaz (TS'de de); test sürücüsü rakip şeridine geçer.
-- Cem: iş paketleri arasında onay beklenmez; push/merge/yayın yalnız açık istekle.
-- Cem (2026-11-05): geliştirme Windows'ta; mobil (dokunma/eğim/cihaz derlemesi) sonraya. Bulut orijinal Firebase projesiyle (`src/bulut/ayar.ts`), aynı hesaplar/`users/{uid}`; SDK yerine REST.
-- P6-A bulut (2026-11-05): Firebase REST (SDK yok), `CloudSync`/`CloudAccount` TS esitleme/hesap kuralıyla; yalnız `GarageSession.PlayerProfile` eşitlenir. Taşıyıcı HttpClient (projede UnityWebRequest modülü kapalı). `--cloud-sync` 92.
-- Açık: canlı bulut kabulü (Cem Play), masaüstü Google girişi, bilinen hesaplar/admin/yeni oyuncu; CI `--race-all` kalıyor (yerelde 40/40, log yetkisi yok); görsel/menü/ses fazı, kokpit/ayna, Mutant bölge 3 Play.
-- P7 görsel faz (2026-11-05): Cem F (Sade) yönünü ve 9 ekran taslağını onayladı (`docs/tasarim/ekranlar-f.html`); Mutant kendi menüsü + başlama onayı + araç → yetenek. Arayüz UI Toolkit (`Scripts/Ui`, `Resources/UI/lt.uss`, Barlow OFL); dokunmatik ekran yoksa sürüş tuşu yok (`HudLayout` masaüstü kipi), V kamera, T piste dön.
-- P7-1 tamam: F ana menüsü + panelsiz yarış HUD'u; batch Play ekran görüntüsü panel dokuya çizilip kamerayla birleştirilerek (`FUiPlayValidation`).
-- Cem (2026-11-05): ana menüde yalnız Yarış/Mutant/Profil/Ayarlar; Yarış menüsü Kariyer+Garaj+Mağaza; Mutant menüsü ayrı (`GameFlow.MenuHub`).
-- Sonraki: sekmelerin F ekranları (Garaj/Modifiye, Mağaza, yarış hazırlığı, Mutant menüsü/onay/adımlar, Profil, Ayarlar, duraklatma, sonuç); Cem bulutu ve F'yi Play'de dener.
+- Dal `codex/unity-p7-garaj`; son geli?tirme `496b586`; g?nderim talebi 7 Kas?m 2026.
+- P1?P5 ve P7 F men?/HUD, Garaj/Modifiye, Ma?aza, Mutant ba?lang?c?, haz?rl?k, Profil, Ayarlar, duraklatma/sonu? tamam.
+- Ger?ek Game View kabul kan?tlar? ve dar testler `docs/DEVIR.md` ve ayn? P7 kart?nda; Logs ??kt?lar? yerel/ignore.
+- Mutant 2.0 M0 s?zle?mesi/matris `64d7b02`; ayr? M1 pilotu `5fa4190`; normal Runtime'a ba?l? de?il.
+- M1 15.811 kontrol, eski mekanik 589.426 ve enerji 971.504 ko?ul ge?ti; M2?M4 ba?lamad?.
+- Claude i?in devir kart? var; Codex ?al??an Claude oturumu ba?latmad?. Kota/ba?ka uygulamadaki etkinlik bilinmiyor.
+- Sonraki tek geli?tirme: hasar?enerji yolunda k?k/ebeveyn/t?rev kimli?i ve cross-step replay g?venli?i.
+- G?nderim denetiminde 6 P7 proof beti?inde yaln?z Prettier bi?imi d?zeltildi; kural/oyun kayd? de?i?medi.
+- Commit edilmemi? g?rsel alternatifler ve `_Recovery` g?nderime al?nmaz; ayr? worktree denemeyi haz?rlar.
+- Unity Windows s?r?m? web `/dev/` ile ?al??maz; geli?tirme dal? kaynak teslimi ile web yay?n?n? ayr? raporla.
+- Canl? Firebase/Google giri? kabul? ve Mutant ko?u i?i F UI a??k; 3B/MCP geni?letmesi bu i?te yok.

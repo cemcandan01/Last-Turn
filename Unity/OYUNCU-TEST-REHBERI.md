@@ -44,3 +44,66 @@ Hazırlık: Unity 6000.3.9f1 → `Last Turn/Ana Menüyü Aç` → Play. Kayıtla
 
 ## 5. Ses (P5-E)
 - Ayarlar → Ses kaydırıcıları. **Beklenen:** şu an **ses duyulmaz** (TS sesleri sentezdi; Unity'de ses dosyası yok). Ses dosyaları `Assets/LastTurn/Resources/Audio/<ad>` olarak eklenince çalar: `motor, lastik-asfalt, lastik-gevsek, muzik, carpma, inis, sayim, basla, kombo, kasa, yandi, nitro, nitroBitti, kanca, hayaletAc, hayaletKapa, donusumAc, donusumKapa, ruzgar, red, bitis, tik`.
+
+## P7-2 Garaj / Modifiye F kabul turu (6 Kasım 2026)
+
+1. Ana menü → Yarış → Garaj. Beklenen: F sekmeleri (Kariyer/Garaj/Mağaza), solda araç/kurulum, ortada katalog siluetinden 3B vitrin, sağda altı özellik ve fizik değerleri, altta sahip olunan araç kartları. Vitrin geçici katalog geometrisidir; nihai araç grafiği değildir.
+2. ←/→ veya fare kartı değiştirir. Enter ile aracı seç; seçili araçta Enter Yarış seçimine gider. Seçimden sonra oyunu yeniden aç: aynı araç seçili kalmalı. Fareyi araç üstünde basılı sürükle: vitrin döner.
+3. Mağaza sekmesi veya alttaki Mağazaya git kartı F Mağaza'yı açar. Araç alımı mevcut üç saniyelik ikinci onay akışındadır. Garaj'a geri gelince yeni araç görünmeli.
+4. M veya Modifiye: soldaki 12 kategori (↑/↓), ortadaki parçalar (←/→ veya fare), sağda gerçek takma/sökme önizlemesi. Çubuk beyaz işareti önizleme puanıdır; sayılar kaynak performans değerleridir. Enter ilk kez satın alma onayı, üç saniye içinde ikinci Enter alır/takar. Sahip olunan parçayı takmak tekrar para harcamaz.
+5. X veya Kategoriyi sök: kurulum değişir, parça sahipliği ve para korunur. Takılı parça seçiliyken sağ taraf sökme sonucunu gösterir. Stoka dön tüm takılı parçaları çıkarır; iade yoktur. Paket düğmeleri mevcut paket al/tak komutunu kullanır.
+6. Esc: Modifiye → Garaj → Yarış menüsü. Q Kariyer, E Mağaza. Onay beklerken Esc önce onayı kapatır. Bakiye ve seçili parçalar yeniden açılışta aynı olmalı.
+7. 1280×720, 1920×1080 ve 2560×1080'de panel/işlem çakışması olmamalı; parça listesi kaydırılabilmeli ve satın alma düğmesi görünür kalmalı. Güncel görseller `Unity/Logs/p7-gameview-{garage,mods,store}-{1280,1920,2560}.png`.
+
+Otomatik Play ayrı kayıtta gerçek UI Toolkit paneli, sentetik klavye ve panel hit-test'inden geçen PointerDown/Up ile yürütülür. Güncel `p7-gameview-*` görselleri ayrı grafik Editor'da Game View'den ScreenCapture ile alınır; eski `p7-garage-*` / `p7-mods-*` görselleri batch panel render'larıdır. İnsan fare/klavye kullanımı ve görsel beğeni ayrıca kabul edilmelidir.
+
+## P7-3 Mağaza F kabul turu (6 Kasım 2026)
+
+1. Ana Menü → Yarış → Garaj → E. Mağaza F açılmalı; Q Garaj'a, E Kariyer'e, Esc Yarış menüsüne döner. Yeni açılan ekran açılış tuşunu tekrar işlememeli.
+2. Tür filtrelerine fareyle bas; yalnız o tür görünmeli. Oklar veya fare kartı seçsin, sol vitrin/özellik/fiyat güncellensin. Katalogda sahip olunan araçlar da görünür; üzerlerinde SAHİPSİN yazar.
+3. Kilitli araçta gerekli seviye/kupa bilgisi, eksik para ve kapalı satın alma düğmesi görünmeli. Bakiye yetmezken işlem uygulanmamalı.
+4. Satın alınabilir aracı Enter veya düğmeyle onayla: ilk basış para harcamaz; Esc iptal eder. Üç saniye içinde ikinci onay yalnız tek bedel harcar. GARAJDA GÖR alınan aracı açar; Garaj'da Enter sürüşe seçer. Yeniden yükleme sahipliği, seçimi ve bakiyeyi korur.
+5. PARÇALAR veya Tab, sahip olunan araçla mevcut Modifiye ekranına gider; yeni parça/mağaza ekonomisi yoktur. Tak/sök/geri akışını kontrol et. Üç ekran boyutunda satın alma düğmesi ve alt gezinme görünür kalmalı.
+
+## P7-4 Mutant başlangıcı F §5a–d (6 Kasım 2026)
+
+1. Ana Menü → Mutant: ayrı menü, en iyi koşu ve koşu bilgisi. H / NASIL OYNANIR kısa açıklamayı açar/kapatır. Enter / KOŞUYA BAŞLA önce onay açmalı; Esc koşu oluşturmadan iptal etmeli.
+2. Onayda Enter: üç mevcut başlangıç aracı ve ilk boss bilgisi. 1/2/3, oklar veya fare yalnız odağı değiştirir; DEVAM / Enter gerçek araç seçimini yapar. Garajdaki parça/para bu koşuya taşınmaz.
+3. Başlangıç yeteneğinde 1/2/3, ↑/↓ veya fare kartı seçer; Enter / SÜRÜŞE BAŞLA mevcut yetenek komutunu uygular ve dünyayı açar. Metinler mevcut yetenek kataloğundan gelmeli. Kaynak sistem üçüncü teklifte skill sunabilir; pasif/skill türü kartta doğru yazmalı, filtrelenerek RNG değiştirilmemeli.
+4. Yetenek adımında ← / ARACI DEĞİŞTİR / Esc araç adımına dönmeli. Boss, araç ve yetenek teklifleri yeniden çekilmemeli; süre seçim sırasında akmamalı. Araç adımında Esc Mutant menüsüne çıkar.
+5. Sürüşe başlandığında seçilen araç/pasif uygulanmalı ve boss süresi akmalı. Sürüşte Esc mevcut duraklatmayı açar; Koşudan çık Mutant menüsüne döner. Kariyer ilerlemesi ve önceki Mutant rekoru aynı kalmalı.
+6. 1280×720 ve 1920×1080'de boss metni/kartlar/düğmeler çakışmamalı; uzun boss bilgisi kaydırılabilmeli. Otomatik Game View görselleri `Unity/Logs/p7-mutant-{menu,confirm,car,skill}-{1280,1920}.png`; fiziksel fare ve insan görsel kabulü ayrıca yapılır. Koşunun sonraki seçimleri/atölye/sonuç ekranları bu grubun F aktarımına dahil değildir.
+
+## P7-5 Yarış hazırlığı F §4 (6 Kasım 2026)
+
+1. Ana Menü → Yarış → pist kartında Enter. Hazırlık açılmalı; açan Enter yarışı aynı anda başlatmamalı. Pist adı/açıklaması, gerçek harita, üç yıldız hedefi, kariyer veya deneme rekoru ve ödül öngörüsü görünmeli.
+2. 1/2/3 veya fare: Sabah/Öğlen/Akşam. 4/5/6 veya fare: Güneşli/Yağmurlu/Karlı. Koşullar mevcut oturumluk seçimlerdir; yeni kalıcı ayar/kayıt biçimi eklenmedi.
+3. C veya ARACI DEĞİŞTİR → Garaj. Aracı seç, seçili araçta tekrar Enter veya Esc ile aynı hazırlığa dön. Pist, saat ve hava korunmalı; seçilen araç diskten yeniden yüklenince aynı kalmalı. Modifiye'ye de mevcut Garaj yoluyla girilebilir.
+4. Bütçeyi aşan araçta ödülsüz deneme yazmalı, ödül 0 olmalı; deneme başlatılabilmeli. Kilitli pistte gerekçe görünmeli, düğme kapalı olmalı; doğrudan başlatma komutu da reddetmeli.
+5. Enter veya fare Başla gerçek yarışı açmalı; seçilen hava mevcut fizik tutuşuna aktarılmalı. Hazırlık Esc kariyer kartlarına dönmeli. Yarıştan mevcut dönüş yolunu kullanınca para/ilerleme yalnız mevcut yarış bitiş kurallarına göre değişmeli.
+6. Taslaktaki dakika başı örnek sayı yerine mevcut ödül servisinin önceki yıldızlara göre üç yıldız öngörüsü gösterilir; kesin ödül bitişte hesaplanır. 1280×720 ve 1920×1080 görselleri `Unity/Logs/p7-preparation-ready-{1280,1920}.png`; deneme/kilit örnekleri aynı klasörde `p7-preparation-{practice-1920,locked-1280}.png`. Arka plan geçici koyu zemindir; yeni 3B grafik yoktur.
+
+## P7-6 Profil ve bulut hesabı F §6 (6 Kasım 2026)
+
+1. Ana Menü → Profil: seviye/XP halkası, ad, yarış/galibiyet/yol/yıldız/para ve en çok kullanılan araç mevcut kayıtla aynı olmalı. Adı değiştir, Enter veya Kaydet; Esc düzenlemeyi iptal etmeli. Yeniden açılışta kayıtlı ad kalmalı, diğer sayaçlar değişmemeli.
+2. Misafir hesabında e-posta/şifre/şifre tekrar ve Hesap oluştur; bağlı hesapta Giriş yap/Şifremi unuttum görünür. Tab alan/işlemler arasında ilerler, odaktaki işlem Enter ile yürür, Esc geri döner. Şifre alanları maskeli; gönderim ve ekrandan çıkışta temizlenir.
+3. Geçersiz e-posta, kısa şifre ve farklı tekrar mevcut Türkçe hata metinlerini göstermeli. İşlem sürerken bulut işlemleri kapanmalı; hata sonrasında durum/hesap korunmalı ve metin görünmeli. Servis yoksa veya geliştirici/test profili ise bulut işlemleri kapalıdır.
+4. Var olan hesaba girişte yerel ilerlemenin o hesabınkiyle değişmesi mevcut kaynak davranışıdır; ekrandaki açıklamayı koru. Yeni sağlayıcı, hesap türü veya eşitleme kuralı eklenmedi.
+5. 1280×720 ve 1920×1080 görselleri `Unity/Logs/p7-profile-{guest,linked}-{1280,1920}.png`; unavailable/busy/error örnekleri aynı klasörde. Grafik otomasyon gerçek CloudAccount + yerel sahte sağlayıcı kullanır; gerçek Firebase'e giriş/hesap oluşturma/e-posta gönderme yapmaz. Canlı hesap ve insan görsel kabulü ayrı kullanıcı turudur.
+
+## P7-7 Ayarlar F §7 (6 Kasım 2026)
+
+1. Ana Menü → Ayarlar (ya da 4): solda altı bölüm (Sürüş, Kamera, Göstergeler, Ses, Grafik, Kontroller), ortada satırlar, sağda odaktaki satırın açıklaması; sahne arkada kararır. Q/E bölüm, ↑/↓ satır, ←/→ değiştirir, Enter sıradaki seçeneğe geçer; fareyle sekme, seçenek ve ses −/+ ya da çubuk tıklanır.
+2. Sürüş yardımını değiştir; Garaj/kariyerde aynı seviye kalmalı. Direksiyon ters, kamera, harita biçimi ve sesleri değiştir; Esc (Kaydet ve dön) ana menüye döner. Oyunu kapatıp aç: değerler korunmalı.
+3. Göstergeler Windows'ta yalnız Harita biçimini gösterir (hız/süre/pist adı F yerleşiminde sabit). Kontroller'de tuş tablosu sürüşte kullanılan eşlemeden okunur; tuş değiştirme yoktur (mevcut oyunda böyle bir özellik yok).
+4. Yarışta Esc → Duraklatma → Ayarlar: aynı F ekranı açılır, HUD gizlenir. Esc ayarları kaydedip duraklatma menüsüne döner; bir Esc daha yarışa devam ettirir.
+5. Görseller `Unity/Logs/p7-settings-{drive,sound,controls,race}-1920.png`, `p7-settings-{camera,controls}-1280.png`, `p7-settings-controls-2560.png`. Otomasyon sentetik klavye ve panel hit-test kullanır; insan görsel/fiziksel fare kabulü açık.
+
+## P7-8 Duraklatma F §8 ve Yarış sonucu F §9 (6 Kasım 2026)
+
+1. Kariyer yarışında Esc: solda DURAKLATILDI ve altı işlem (Devam et, Yeniden başlat, Ayarlar, Kariyere dön, Garaja dön, Ana menüye dön), sağda süre / en iyi tur / hedef ve hızlı ayar (sürüş yardımı, kamera). ↑/↓ seçer, Enter yürütür, R yeniden başlatır, Esc devam ettirir; fare de çalışır. Hızlı ayardaki kamera hemen değişir ve kaydedilir.
+2. Duraklatma → Ayarlar → Esc: duraklatmaya geri dönülür.
+3. Yarışı bitir: solda büyük süre/puan, hedefe fark (beyaz: hedefin altında, sarı: üstünde), yeni rekor rozeti, üç yıldız ve eşikleri; sağda sonuç satırları, kazanılan XP/para ve seviye çubuğu (açık turuncu: bu yarıştan gelen XP). Mini harita gizlenir.
+4. Sonuçta Enter "Sıradaki: <pist>" o pistin hazırlık ekranını açar (aynı türde sonraki açık kariyer pisti; mevcut kilit kuralına göre örn. Drag 1'den sonra seviye 2'de açılan Drag 7 olabilir). Sıradaki yoksa tuş "Yarış menüsü" olur. R / TEKRAR yeniden başlatır, G garaja, Esc yarış menüsüne döner.
+5. Mutant koşusunda Esc: kırmızı tonlu aynı duraklatma; Devam, Ayarlar, Koşudan çık ve koşu durumu (boss süresi, gövde, para). Koşudan çık Mutant menüsüne döner.
+6. Görseller `Unity/Logs/p7-pause-{pause,result}-{1280,1920}.png`, `p7-pause-result-2560.png`, `p7-pause-mutant-1920.png`. Otomasyon sentetik klavye/panel hit-test ve gerçek fizikle Drag yarışı kullanır; insan kabulü açık.

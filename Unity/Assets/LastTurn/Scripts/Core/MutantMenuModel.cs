@@ -9,7 +9,8 @@ namespace LastTurn.Core
   {
     public int Id;
     public string Name = "";
-    public double Hp;
+    public double Hp, Mass;
+    public string Type = "", Drive = "";
   }
   public sealed class MutantOwnedSkillCard
   {
@@ -154,7 +155,7 @@ namespace LastTurn.Core
         PassiveNames = state["pasifler"].Items.Select(x => Passive(catalog, x.S())["ad"].S()).ToArray(),
         InstalledPartNames = state["parcalar"].Items.Select(x => Find(catalog["parts"], x.S())["n"].S()).ToArray(),
         SkillNames = state["beceriler"].Items.Select(x => SkillName(catalog, x) + (x["eklentiler"].Items.Any() ? " (" + string.Join(", ", x["eklentiler"].Items.Select(a => Find(catalog["skillAddons"], a.S())["ad"].S())) + ")" : "")).ToArray(),
-        StartingCarsCards = StartingCars((uint)state["tohum"].N(), catalog, state["test"].B()).Select(i => new MutantStartCarCard { Id = i, Name = vehicles.Data["cars"][i]["n"].S(), Hp = vehicles.Data["cars"][i]["hp"].N() }).ToArray(),
+        StartingCarsCards = StartingCars((uint)state["tohum"].N(), catalog, state["test"].B()).Select(i => new MutantStartCarCard { Id = i, Name = vehicles.Data["cars"][i]["n"].S(), Hp = vehicles.Data["cars"][i]["hp"].N(), Mass=vehicles.Data["cars"][i]["kg"].N(), Type=vehicles.Data["cars"][i]["ty"].S(), Drive=vehicles.Data["cars"][i]["awd"].N()>0?"Dört çeker":"Arka itiş" }).ToArray(),
         OwnedSkills = state["beceriler"].Items.Select(x => new MutantOwnedSkillCard { Id = x["id"].S(), Name = SkillName(catalog, x) }).ToArray()
       };
       model.Stock = state["stok"].Items.Select(x =>

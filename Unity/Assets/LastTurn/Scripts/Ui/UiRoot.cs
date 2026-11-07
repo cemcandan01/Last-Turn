@@ -30,7 +30,8 @@ namespace LastTurn.Ui
       settings.scaleMode = PanelScaleMode.ScaleWithScreenSize;
       settings.referenceResolution = new Vector2Int(1920, 1080);
       settings.screenMatchMode = PanelScreenMatchMode.MatchWidthOrHeight;
-      settings.match = .5f;
+      // Geniş ekranda ek yatay alan kazan; 1080 birimlik dikey yerleşimi daraltma.
+      settings.match = 1f;
       settings.sortingOrder = 10;
       settings.themeStyleSheet = Resources.Load<ThemeStyleSheet>("UI/LastTurnTheme");
       Settings = settings;
@@ -44,6 +45,14 @@ namespace LastTurn.Ui
       Screen = Layer("katman"); Hud = Layer("katman"); Top = Layer("katman");
       kok.Add(Hud); kok.Add(Screen); kok.Add(Top);
       gameObject.AddComponent<MainMenuView>();
+      gameObject.AddComponent<GarageView>();
+      gameObject.AddComponent<StoreView>();
+      gameObject.AddComponent<MutantStartView>();
+      gameObject.AddComponent<RacePreparationView>();
+      gameObject.AddComponent<ProfileView>();
+      gameObject.AddComponent<SettingsView>();
+      gameObject.AddComponent<PauseView>();
+      gameObject.AddComponent<ResultView>();
       gameObject.AddComponent<RaceHudView>();
     }
 

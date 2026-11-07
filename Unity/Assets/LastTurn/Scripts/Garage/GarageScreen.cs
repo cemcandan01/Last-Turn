@@ -18,6 +18,7 @@ namespace LastTurn.Garage
     private GUIStyle heading,text,title,button,selected,status;
     public int ViewedCar=>viewCar;
     public int SelectedTab=>section;
+    public bool StoreOpen=>shop==1;
     public string SelectedRaceKey=>raceKey;
     private void Awake(){GarageSession.EnsureLoaded();viewCar=GarageSession.State.SelectedCar;section=GameFlow.GarageTab;Refresh();SelectTrack(GameFlow.LastRaceKey);}
     public void ViewCar(int index){viewCar=index;previewPart="";confirmKey="";Refresh();}
@@ -53,6 +54,7 @@ namespace LastTurn.Garage
     }
     private void OnGUI()
     {
+      if(LastTurn.Ui.GarageView.CoversCurrentScreen||LastTurn.Ui.StoreView.CoversCurrentScreen||LastTurn.Ui.RacePreparationView.CoversCurrentScreen)return;
       if(LastTurn.Prototype.MutantRuntime.Active)return;
       if(GarageSession.State==null || GameFlow.Home || GameFlow.Profile)return;Styles();if(seenState!=GarageSession.State)Refresh();
       float width=Screen.width-24;

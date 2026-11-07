@@ -1,4 +1,96 @@
-# Son devir: P7-1 revize — ana menü 4 seçenek, ayrı Yarış ve Mutant menüleri (2026-11-05) — Claude
+# Son devir: Mutant 2.0 M0 + ayrı M1 pilotu (7 Kasım 2026) — Codex
+
+- **Tamamlandı:** [M0 sözleşmesi](tasarim/mutant-2-m0.md), [tam mekanik/etkileşim/boss matrisi](tasarim/mutant-2-matris.md), 128 tohum dağılım ölçümü ve mevcut mekanik motorunu kullanan sınırlı `MutantMechanicPilot`. **Pilot normal koşuya bağlı değil.** Yeni skill/nadirlik ağırlığı/tempo/boss/F tasarım değişikliği yok; M2–M4 başlamadı.
+- **Yerel commit'ler:** M0 **`64d7b02`**, M1 kod/test **`5fa4190`**, dal `codex/unity-p7-garaj`. Kapanış belgesi bu notun son yerel commit'idir. [Aynı görev/kabul/sonuç kartı](isler/2026-11-07-mutant-2-m0-m1.md).
+- **Testler:** `--mutant-pilot` **15.811** kontrol; üç enerji→nitro yolu, geçersiz/tekrar/türev girdi ve kapasite/bekleme sınırları,30/60/120 çizim gruplaması. Eski dar mekanik oracle **589.426**, enerji oracle **971.504** koşul geçti; proje düzeni ve diff kontrolü geçti. Tam regresyon veya Unity Play/görsel kabul yapılmadı; normal ekran/Runtime/fizik yolu değişmedi.
+- **Kanıt/ölçüm sınırı:** `tests/cikti/mutant-m0-m1-proof.json`,6 kaynak hash'i ve tohum frekansları (yerel/ignore; commit ile taşınmaz). Ödül rota ölçümleri başarılı etkinlik varsayımıdır; sürüş/boss başarı oranı veya ilk kombinasyonun edinme süresi ölçülmedi. İlk restore kişisel NuGet.Config erişiminde durdu; mevcut restore çıktısıyla `--no-restore` başarılı, yeni bağımlılık indirilmedi.
+- **Gerçek açıklar:** enerji ve skill yürütücüleri kısmen ayrı; dört nadirlik/ortak ödül DTO'su, cross-step nedensellik zarfı, sürdürülebilir koşu disk kaydı ve sürüşe dayalı denge laboratuvarı yok. Boss katalog metni özel AI kanıtı değildir. Mevcut900/780 sn korunur.
+- **Sahiplik/koruma:** ana entegrasyon/devir için kullanıcı Claude'u istedi; Codex bu bağımsız denetim/pilotu tamamladı, Claude oturumu başlatmadı. Kapasite bilinmiyor; ücretli servis/API/yeni paket/alt ajan yok. Mevcut görsel kimlik/alternatif çalışma dosyaları ve `_Recovery` teslim dışı korundu; kariyer, TS, oyuncu/Firebase kayıtlarına dokunulmadı. Push/merge/yayın yok.
+- **Sonraki tek iş:** Claude devralarak tek hasar→enerji yolunda kök/ebeveyn/türev olay kimliği ve cross-step replay güvenliğini, eski geçerli girdi izlerini koruyarak entegre etsin. Sonra ayrı M2 kararı. Bu oturum M0 + ayrı M1 pilotunda durdu.
+
+# Son devir: P7-8 F §8 Duraklatma + §9 Yarış sonucu (6 Kasım 2026) — Claude
+
+- **Tamamlanan grup:** yarış/Mutant duraklatması ve kariyer sonucu F ekranları; dal `codex/unity-p7-garaj`, kod/test commit'i bu notla aynı yerel commit. Ayrıntı [kart P7-8](isler/2026-11-01-unity-tam-aktarim.md).
+- **Testler:** .NET `--drive-menu-f` 84; grafik Game View Play 56/56, 6 PNG `Unity/Logs/p7-pause-*.png`, `check-pause-result-f-proof.mjs` geçti.
+- **Kalan P7:** Mutant koşu içi ekranları (atölye, sandık, ödül/seçim, boss sonucu, koşu özeti) IMGUI; onaylı tasarımı yok → önce örnek taslaklar. Sonra bütünleşme ve rehber toparlama.
+- **Sonraki tek görev:** Mutant koşu içi ekran taslakları (Codex'e verilen görev kartı `docs/isler/2026-11-06-mutant-ekran-taslaklari.md`).
+
+# Son devir: P7-7 F §7 Ayarlar (6 Kasım 2026) — Claude
+
+- **Tamamlanan grup:** Ayarlar F (6 bölüm, klavye/fare, kayıt, yarış duraklatmasından açılış/dönüş). Dal `codex/unity-p7-garaj`; kod/test commit'i bu notla aynı yerel commit. Önceki ekranlar yeniden yapılmadı. Ayrıntı [kart P7-7](isler/2026-11-01-unity-tam-aktarim.md).
+- **Testler:** .NET `--settings-f` 104; grafik Game View Play 61/61, 7 PNG `Unity/Logs/p7-settings-*.png`, `check-settings-f-proof.mjs` geçti. Tuş atama/varsayılana dön mevcut değil, eklenmedi.
+- **Kalan P7:** §8 Duraklatma, §9 Yarış sonucu, Mutant koşu içi (atölye/sandık/ödül/boss/özet) ekranları hâlâ IMGUI; ardından ortak navigasyon kontrolü ve rehber toparlama.
+- **Sonraki tek görev: F §8 Duraklatma + §9 Sonuç.**
+
+# Son devir: P7-6 F §6 Profil ve bulut hesabı (6 Kasım 2026) — Codex
+
+- **Tamamlanan tek ekran:** Profil ve bulut hesabı F. Ad düzenle/kaydet/iptal, seviye/XP halkası, sayaçlar/favori araç, mevcut hesap özeti, oluştur/giriş/sıfırlama ve bekleme/hata akışı. Kod/test commit'i **`0ea39d9`**, dal `codex/unity-p7-garaj`; kapanış SHA bu notun son yerel commit'i. Önceki ekranlar yeniden yapılmadı.
+- **Testler:** grafik Unity Play **59/59**, **140** güncel kaynak hash'i; dar .NET profil/form **31**, mevcut bulut eşitleme **92**. `check-profile-f-proof`, proje düzeni ve diff kontrolü geçti. Son Play kaydı **0 çalışma hatası / 0 Editor tanısı**. Kanıt `Unity/Logs/p7-profile-f-play.json`.
+- **Yedi gerçek Game View:** `Unity/Logs/p7-profile-{guest,linked}-{1280,1920}.png` ve unavailable/busy/error örnekleri. [Misafir 1280](../Unity/Logs/p7-profile-guest-1280.png), [Bağlı 1920](../Unity/Logs/p7-profile-linked-1920.png), [Hata](../Unity/Logs/p7-profile-error-1280.png); tüm bağlantılar [aynı kart P7-6](isler/2026-11-01-unity-tam-aktarim.md). Ajan görüntüleri inceledi; insan görsel/fiziksel klavye/fare kabulü açık.
+- **Bulut test sınırı:** gerçek CloudAccount + yerel sahte sağlayıcı; canlı Firebase'e giriş/hesap oluşturma/e-posta gönderimi yapılmadı. Ayrı test company/product ve kapalı gerçek bulut kullanıldı. Editor-only test bağlama normal oyuncu build'inde yok. Canlı hesap kabulü kullanıcı turunda açık; test sonucu canlı Firebase başarısı değildir.
+- **Korunanlar:** ad dışındaki profil sayaç/rekorları ve kalıcı JSON'lar, kariyer/para/Mutant durumu, mevcut hesap/eşitleme kuralları, TS, `_Recovery` ve gerçek oyuncu/Firebase dosyaları. Şifre alanları maskeli ve gönderim/çıkışta temizlenir. Yeni MCP/paket/3B/servis/alt ajan, uzun regresyon, push/merge/yayın yok.
+- **Sonraki tek görev: F §7 Ayarlar.** Bu oturumda başlanmadı; yalnız profil ekranında duruldu. Manuel tur: `Unity/OYUNCU-TEST-REHBERI.md` P7-6.
+
+# Son devir: P7-5 F §4 Yarış hazırlığı (6 Kasım 2026) — Codex
+
+- **Tamamlanan tek ekran:** Yarış hazırlığı. Pist/harita/yıldız hedefleri/gerçek rekor/ödül öngörüsü, araç uygunluğu, saat/hava, C ile araç değiştirip aynı koşullara dönüş, mevcut kariyer/deneme başlatma ve geri akışı. Kod/test commit'i **`907cb1a`**, dal `codex/unity-p7-garaj`; devir kapanış SHA bu notun son yerel commit'i. A/B yeniden yapılmadı.
+- **Testler:** gerçek grafik Unity Play **46/46**, 137 güncel kaynak hash'i; etkilenen P1 kariyer Play **65/65**, 340 kaynak; dar .NET hazırlık **1.124**, koşullar **5.356**, kariyer **3.597**. Kanıt `Unity/Logs/p7-preparation-f-play.json`, `p1-play.json`; checker'lar `check-preparation-f-proof.mjs`, `check-career-flow-proof.mjs` geçti.
+- **Game View:** [Kariyer 1280](../Unity/Logs/p7-preparation-ready-1280.png), [Kariyer 1920](../Unity/Logs/p7-preparation-ready-1920.png), [Deneme](../Unity/Logs/p7-preparation-practice-1920.png), [Kilit](../Unity/Logs/p7-preparation-locked-1280.png). Ajan dört görüntüyü inceledi; insan görsel/fiziksel fare kabulü açık. Manuel tur `Unity/OYUNCU-TEST-REHBERI.md` P7-5.
+- **Korunanlar:** fizik/ekonomi/ödül/kayıt kuralları, TS 0.8.18, Firebase/oyuncu dosyaları ve `_Recovery`. Örnek dakika ödülü yerine mevcut servisin üç yıldız öngörüsü gösterilir; yeni kural yok. Saat/hava mevcut oturumluk seçimlerdir. Test ayrı ürün/profilde, bulut kapalı; gerçek oyuncu dizinine yazılmadı. Yeni MCP/paket/3B/servis/alt ajan, uzun regresyon, push/merge/yayın yok.
+- **Eksikler:** 0 LastTurn çalışma hatası; önceki Unity Search indeksleyici hatası 1 Editor tanısı olarak sürüyor. Arka plan geçici koyu zemin; yeni 3B sahne üretilmedi. Ayrıntı ve kabul kanıtı [aynı kart P7-5](isler/2026-11-01-unity-tam-aktarim.md).
+- **Sonraki tek görev: F §6 Profil ve bulut hesabı.** Bu oturumda başlanmadı; yalnız hazırlık ekranında duruldu.
+
+# Son devir: P7-4 Mutant başlangıcı F §5a–d (6 Kasım 2026) — Codex
+
+- **Tamamlanan grup B:** Mutant menüsü/onay + başlangıç aracı/yeteneği + araca geri dön/sürüşe başla/menüye dönüş. A'nın 76 kontrollük önceki kanıtı başta doğrulandı; A tekrar yapılmadı. Kod/test commit'i **`f3a049f`**, dal `codex/unity-p7-garaj`; kapanış SHA bu notun son yerel commit'i.
+- **Testler:** gerçek grafik Unity Play **56/56**, 134 kaynak hash'i; etkilenen P5 Mutant ilerleme **17/17**, 334 kaynak hash'i; dar .NET menü/RNG **4.281**, oturum **5.302**; proje düzeni geçti. Kanıtlar `Unity/Logs/p7-mutant-f-play.json`, `p5-progress.json`; checker'lar `check-mutant-f-proof.mjs`, `check-p5-progress-proof.mjs`.
+- **Görseller:** iki çözünürlükte sekiz gerçek Game View PNG: `Unity/Logs/p7-mutant-{menu,confirm,car,skill}-{1280,1920}.png`. [Araç 1280](../Unity/Logs/p7-mutant-car-1280.png), [Yetenek 1920](../Unity/Logs/p7-mutant-skill-1920.png); tüm bağlantılar [görev kartı P7-4](isler/2026-11-01-unity-tam-aktarim.md). Ajan inceledi; insan görsel/fiziksel fare kabulü ayrıca açık.
+- **Korunanlar:** mevcut `MutantRun/RNG/SelectCar/Choose` kuralları, kariyer/rekor, fizik/ekonomi/kayıt/TS ve `_Recovery`. Üçüncü teklif kaynakta skill olabilir; gerçek tür gösterildi, yeni skill eklenmedi. Koşu içi sonraki seçim/atölye/sonuç ekranları mevcut sunumda kaldı. Gerçek oyuncu dosyalarına yazılmadı; test ayrı ürün/profilde ve bulut kapalı çalıştı.
+- **Eksikler:** 0 LastTurn çalışma hatası; ayrı Editor başlangıcında önceki Unity Search indeksleyici hatası (1 tanı) sürüyor. Temiz Console iddiası yok. Yeni MCP/paket/3B/servis/alt ajan veya uzun regresyon yok; Claude'a ek oturum açmak gerekmedi. Push/merge/yayın yok.
+- **Sonraki tek görev: F §4 Yarış hazırlığı.** Bu oturumda başlanmadı; bir ekran grubunda duruldu.
+
+# Son devir: P7-3 Mağaza F + Garaj/Modifiye Game View doğrulaması (6 Kasım 2026) — Codex
+
+- Yerel durum devralındı: `codex/unity-p7-garaj`, başlangıç `a24e84b`, son 10 commit/status/fetch kontrol edildi. P7-2 `7f6797f` tesliminin 29 kontrol/131 kaynak kanıtı doğrulandı; Garaj/Modifiye yeniden yazılmadı. Kullanıcının koşullu talimatıyla en yakın bağımlı ekran **Mağaza F §3** tamamlandı. Kod/test commit'i **`db8650c`**; devir kapanışı bu notu son değiştiren yerel commit. Tek Codex; yeni alt ajan/Claude/API/ek kredi yok, Claude kotası bilinmiyor.
+- Tamamlanan F ekranları: önceki ana menü/Yarış/Mutant menüleri ve HUD; Garaj + Modifiye; bu oturumda **Mağaza**. Mağaza mevcut katalog vitrini, tüm 15 araç, tür filtreleri, sahiplik/sınıf/özellik/fiyat/erişim ve eksik para, satın alma onay/iptal, Garaj'da gösterme sunar. Parçalar/Tab mevcut Modifiye'ye gider. Yeni içerik, ekonomi, 3B varlık veya oynanış yok; görünüm tipli `GarageCarRow` ve mevcut `Primary` komutunu kullanır.
+- Akış düzeltildi: açılan ekran aynı E/Q/Esc tuşunu aynı karede yeniden işlemez; Yarış → Garaj, önceki Mağaza durumunu temizler. 2560×1080'de dikey UI ölçeği korunur; özellik/işlem çakışması giderildi. Mağaza vitrini satın alma panelini ekran dışına itmez. Sıfır bakiyeli oyuncunun sahip olduğu araçta eksik para gösterilmez.
+- Gerçek Unity **6000.3.9f1 grafik Editor / Game View: 76/76**. Ana Menü → Yarış → Garaj → araç seçimi → Modifiye → satın al/tak/sök → geri → Yarış → Garaj; ardından Mağaza filtre/onay/iptal/tek bedel/sahiplik/yeniden yükleme/kilit/Parçalar/fare/geri. Sentetik klavye, gerçek panel hit-test ve PointerDown/Up yolu; fiziksel OS fare denemesi/insan kabulü değildir. `Unity/Logs/p7-garage-play.json`, **132 güncel C#/USS hash'i**, `node Unity/Validation/check-garage-f-proof.mjs` geçti.
+- **Dokuz gerçek Game View PNG** (ScreenCapture; batch panel render'ı değil), 1280×720 / 1920×1080 / 2560×1080. Ajan hepsini inceledi; ilk çakışmalar düzeltildi. Aşağıdaki yerel dosyalar gitignored Logs içindedir, başka makineye commit ile taşınmaz.
+
+| Ekran | 1280×720 | 1920×1080 | 2560×1080 |
+|---|---|---|---|
+| Garaj | [PNG](../Unity/Logs/p7-gameview-garage-1280.png) | [PNG](../Unity/Logs/p7-gameview-garage-1920.png) | [PNG](../Unity/Logs/p7-gameview-garage-2560.png) |
+| Modifiye | [PNG](../Unity/Logs/p7-gameview-mods-1280.png) | [PNG](../Unity/Logs/p7-gameview-mods-1920.png) | [PNG](../Unity/Logs/p7-gameview-mods-2560.png) |
+| Mağaza | [PNG](../Unity/Logs/p7-gameview-store-1280.png) | [PNG](../Unity/Logs/p7-gameview-store-1920.png) | [PNG](../Unity/Logs/p7-gameview-store-2560.png) |
+
+- Dar testler: .NET `--garage-f` **342**, `--garage-ui` **117**, proje düzeni kontrolü geçti. Son menü/ölçek değişiklikleriyle F ana menü/HUD batch Play **27/27**; `Unity/Logs/p7-ui-play.json`, `Unity/Logs/p7-store-menu-protection.log`. Sonraki yalnız eksik para görünüm modeli düzeltmesi menü/HUD davranışını değiştirmiyor. Uzun P1–P5 regresyonu yapılmadı; fizik/ekonomi/kayıt/TS 0.8.18 kaynakları değişmedi.
+- İzolasyon: ayrı `Unity/Logs/P7StoreEditor`, ayrı company/product `LastTurnUiValidation`; gerçek oyuncu/Firebase oturumları ve `_Recovery` kopyalanmadı. Test profilleri Logs altında, o ürünün kayıt dosyaları önce/sonra aynı hash'te; gerçek oyuncu dizinine yazılmadı. `-lastTurnUiValidation` yalnız Editor testinde bulut açılışını atlar; normal oyun/build yolu aynı. Test Editor'ı bitince kendiliğinden kapandı, mevcut kullanıcı Editor'larına dokunulmadı.
+- **Console eksikliği:** yeni C# derleme hatası/LastTurn kaynaklı çalışma hatası görülmedi; ancak ayrı Editor açılışında Unity `SearchDatabase.GetDefaultSearchDatabase / SearchInit.IndexationOnStartup` içinde `ArgumentOutOfRangeException` var. Bu yüzden bütünüyle temiz Console iddiası yok. Arama indeksleyicisi bu UI görevinde değiştirilmedi. İlk gezinme/geniş ekran/panel ve test yerleşim hatalarının ham proof'ları `tests/cikti/p7-store-*-failure.json` içinde.
+- MCP ayrı pilotta kurulu; bu UI görevinde kullanılmadı ve yeni bağımlılık kurulmadı. Blender, ML-Agents, GameCI yok. Push/merge/yayın yapılmadı; `_Recovery` commit dışı korundu. İnsan görsel kabul turu: `Unity/OYUNCU-TEST-REHBERI.md` P7-2/P7-3.
+- **Sıradaki tek ekran: F §4 Yarış hazırlığı.** Bu oturumda başlanmadı; Profil/Ayarlar/koşu adımları/pause/sonuç hâlâ sonraki işlerdir.
+
+
+# Son devir: Unity AI destek kurulumu ve sınırları (2026-11-06) — Codex
+
+- Cem'in “gerekli kurulumları yap” onayı uygulandı. Dal `codex/unity-p7-garaj`, başlangıç `e749c37`; tek Codex, yeni alt ajan/Claude model çağrısı/ücretli API yok. Kota bilinmiyor. `_Recovery` korundu, push/merge/yayın yok.
+- Coplay **v10.3.0 / aa5fc638d623f56178d50329d9ad8c541a57fe66**, izole uv **0.13.7**, kilitli **75** Python bağımlılığı kuruldu. Ayrı `Unity/Logs/McpEditorPilot` kopyası, stdio/loopback; ana Assets/Packages ve genel istemci ayarı değişmedi.
+- Gerçek MCP: **48 araç**, doğru Editor/proje, sahne ağacı, Console, Play/Stop. MCP üzerinden mevcut Garaj Play testi **29/29**, oyuncu kayıt hash'leri aynı. Kanıt `Unity/Logs/McpEditorPilot/Logs/p7-garage-play.json`; yeniden başlatma sonrası `tests/cikti/unity-mcp-pilot/connection-proof.json` da geçti.
+- UI kabulü eksik: aktif sahneyle sınırlı nesne araması `DontDestroyOnLoad` UI kökünü bulmuyor; batch ekran yakalaması kuyrukta kalıyor. Ana projeye taşınmadı; tam UI pilot başarısı iddia edilmez. Ayrıntı/kurulum makbuzu/geri alma: [UNITY-MCP-PILOT.md](UNITY-MCP-PILOT.md).
+- Claude Code proje kaydı yalnız pilot dizininde; CLI **Project / Pending approval** doğruladı. Kullanıcı bu dizinde `claude` açınca ilk proje güven ekranını inceleyip kabul etmeli. Genel config/trust ayarına dokunulmadı. Başlatıcı `scripts/unity-mcp-pilot.ps1`; salt okunur SDK kontrolü `scripts/unity-mcp-probe.py`. Pilot Editor yeniden açıldı.
+- Context7 bağlı ve Unity Manual kitaplığı çözümlendi; görsel üretim yerleşik mevcut. Bunlar yeni kurulum/üretim sonucu değildir. 3B/ses sağlayıcısı, Blender, ML-Agents ve ücretli hizmet kurulmadı; MCP araç listesi bunların erişim kanıtı sayılmaz.
+- Sonraki tek teknik adım: grafik Editor oturumunda UI ağacı/ekran kabulü ve upstream arama düzeltmesini değerlendirmek. P7-2 insan görsel kabulü hâlâ açık; yeni oyun ekranı bu kurulum işine eklenmedi.
+
+# Son devir: P7-2 Garaj/Modifiye F teslimi + MCP salt okunur değerlendirmesi (2026-11-06) — Codex
+
+- Dal `codex/unity-p7-garaj`, taban `4ccd81a`, kod/test commit'i **`7f6797f`**; devir kapanış SHA'sı bu notu son değiştiren yerel commit. Tek Codex, yeni alt ajan/Claude/API/ek kredi yok; kota bilinmiyor. Push/merge/yayın/uzun regresyon yok. `_Recovery` korundu ve commit dışı.
+- Garaj/Modifiye UI Toolkit F §1–2: `Scripts/Ui/GarageView.cs`, `GarageVehiclePreview.cs`, `UiRoot.cs`, `Resources/UI/lt.uss`; eski IMGUI görünürlüğü `Scripts/Garage/GarageScreen.cs`. Araç kartları/seçim, Mağaza bağlantısı, 12 kategori/42 parça, paket al/tak/sök, sınıf/gerçek performans önizlemesi, Q/E/oklar/M/Enter/X/Esc ve fare. Kurallar mevcut GarageCommand/Session/State içinde; `Core/GarageViewModel.cs` yalnız tipli sunum/önizleme genişlemesi. Araç vitrini mevcut katalog geometrisi; nihai grafik varlığı değil.
+- **Gerçek Unity 6000.3.9f1 Play: 29 kontrol**, ayrı `Logs/P2EditorScratch` kopyası, gerçek disk yeniden yükleme, oyuncu dosyaları aynı hash'te. Klavye sentetik aygıttan; fare OS Game View yerine gerçek panel hit-test ve PointerDown/Up yolundan. Dört gerçek UI panel render'ı (3B vitrin dokusu dahil) ajan tarafından incelendi: [Garaj 1920](../Unity/Logs/p7-garage-1920.png), [Garaj 1280](../Unity/Logs/p7-garage-1280.png), [Modifiye 1920](../Unity/Logs/p7-mods-1920.png), [Modifiye 1280](../Unity/Logs/p7-mods-1280.png). İlk çakışmalar düzeltildi; son iki çözünürlükte düğmeler görünür. İnsan oyuncu kabulü değildir.
+- Kanıt kodu `Editor/GarageFPlayValidation.cs`, `Validation/GarageFValidation.cs`, `check-garage-f-proof.mjs`, Program ve CI dar adımı. `check-garage-f-proof` **131 güncel C#/USS** hash'ini doğrular. `--garage-f` **294**, `--garage-ui` **117**, kayıt **66**, garaj ekonomi **18.107**, proje kontrolü geçti; .NET Release 0 hata/uyarı. **Önceki F ana menü/HUD Play 27/27** geçti. Ham kanıt `tests/cikti/p7-garage-*.txt`, `Unity/Logs/p7-garage-play.json`; Unity'de önceki MutantRun nullable uyarıları var, yeni C# derleme hatası yok.
+- Manuel kabul: `Unity/OYUNCU-TEST-REHBERI.md` → “P7-2”. Diğer P7 ekranları (Mağaza F, yarış hazırlığı, Mutant koşu adımları, Profil/bulut, Ayarlar, pause/sonuç) kapsam dışı ve eski çalışan ekranlarda. Bu ekranlara başlanmadı.
+- **MCP:** [karşılaştırma ve somut kurulum kapsamı](UNITY-MCP-PILOT.md). Tek öneri CoplayDev/unity-mcp, incelenmiş v10.3.0 + ayrı kopya + loopback. Unity/Python 3.12.4/Claude Code 2.1.302 yerel sürümleri doğrulandı; uv bulunmadı. IvanMurzak'ın güncel README'si boşluklu proje yolunu dışlıyor. İki adayda bu projeye gerçek bağlantı denenmedi. Paket/sunucu/istemci config'i kurulmadı; izinler, Python bağımlılıkları, Editor kod/yazma riski, abonelik kotası ve geri alma raporda. **Açık kullanıcı onayı olmadan kurulum yok** (kullanıcının bu görevdeki şartı).
+- **Sonraki küçük adım:** Cem'in bu iki ekranı manuel kabulü; MCP pilotu için açık kurulum kararı. Sonraki geliştirme önerisi yalnız Mağaza F sunumu; bu görev tamamlandığında duruldu.
+
+# Önceki devir: P7-1 revize — ana menü 4 seçenek, ayrı Yarış ve Mutant menüleri (2026-11-05) — Claude
 
 - Dal `codex/unity-p3-mutant`; kart → "P7-1 revize: menü yapısı". Cem kararı `docs/GELISTIRICI-AYRINTILARI.md`de. `_Recovery` commit dışı.
 - Ana menü: Yarış, Mutant, Profil, Ayarlar. Yarış menüsü: Kariyer/Garaj/Mağaza. Mutant menüsü + başlama onayı. P7/P1/P5/P3 batch Play geçti.

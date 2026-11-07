@@ -36,7 +36,7 @@ namespace LastTurn.Prototype
         resultButton=new GUIStyle(GUI.skin.button){fontSize=18,wordWrap=true};
       }
       // Mutant sonucu koşu panelinde (MutantRuntime.Finished); kariyer sonucu burada.
-      var s = race.Session;if(s.State==RaceState.Finished){if(!MutantRuntime.Active)Result(s);return;}
+      var s = race.Session;if(s.State==RaceState.Finished){if(!MutantRuntime.Active&&!LastTurn.Ui.ResultView.CoversCurrentScreen)Result(s);return;}
       if(MutantRuntime.Panel!="")return;
       // F arayüzü varsa yarış bilgisi LastTurn.Ui.RaceHudView'da (panelsiz); burada yalnız drag devir çubuğu kalır.
       if (!LastTurn.Ui.UiRoot.Instance) Legacy(s, race);

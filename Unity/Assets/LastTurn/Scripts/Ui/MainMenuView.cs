@@ -11,8 +11,8 @@ namespace LastTurn.Ui
 {
   // F menüleri (Cem, 2026-11-05): ana menüde yalnız YARIŞ, MUTANT, PROFİL, AYARLAR. Yarış menüsü: Kariyer (pist kartları),
   // Garaj, Mağaza sekmeleri. Mutant menüsü: ayrı ton, "Yeni koşu başlasın mı?" onayından sonra koşu başı (araç → yetenek).
-  // Veri GameFlow.Menu() (CareerMenuModel) ve Mutant rekoru; işlemler GameFlow/oturum komutları. Garaj, Mağaza, Profil ve
-  // Ayarlar şimdilik bugünkü geçici ekranlardır (akış aynı).
+  // Veri GameFlow.Menu() (CareerMenuModel) ve Mutant rekoru; işlemler GameFlow/oturum komutları.
+  // Garaj/Modifiye/Mağaza F; Profil ve Ayarlar mevcut geçici ekranları kullanır.
   public sealed class MainMenuView : MonoBehaviour
   {
     private static readonly (string Name, string Sub)[] HomeItems =
@@ -34,6 +34,8 @@ namespace LastTurn.Ui
     public int HomeFocus => homeFocus;
     public int HomeItemCount => HomeItems.Length;
     public bool ConfirmOpen => confirm != null && !confirm.ClassListContains("gizli");
+    public bool MutantHelpOpen=>mutantHelp!=null&&!mutantHelp.ClassListContains("gizli");
+    private Label mutantHelp;
 
     private sealed class ProfileBadge
     {
@@ -146,13 +148,14 @@ namespace LastTurn.Ui
     private void OpenRaceTab(int n)
     {
       GameAudio.Click();
-      if (n == 1) { GameFlow.RaceMenu(); GameFlow.Browse(0); }
+      if (n == 1) { GameFlow.RaceMenu(); GameFlow.Browse(0); var garage=FindFirstObjectByType<GarageScreen>();if(garage)garage.SelectShop(false); }
       else if (n == 2) GameFlow.OpenStore();
     }
 
     // ---------- Mutant menüsü ----------
     private void BuildMutant()
     {
+      mutant.name="f-mutant-menu";
       var tone = Panel(); tone.AddToClassList("mut-ton"); mutant.Add(tone);
       mutant.Add(Ui.Shade(.75f, .85f));
       var bar = new VisualElement(); bar.AddToClassList("ustbar"); bar.pickingMode = PickingMode.Ignore; bar.Add(Ui.Logo());
@@ -166,8 +169,10 @@ namespace LastTurn.Ui
       about.style.fontSize = 22; about.style.marginTop = 10; left.Add(about);
       var buttons = new VisualElement { pickingMode = PickingMode.Ignore }; buttons.style.width = 470; buttons.style.marginTop = 40;
       var start = Ui.Button("KOŞUYA BAŞLA", "Enter", AskStart, primary: true); start.style.height = 74; start.style.justifyContent = Justify.SpaceBetween; buttons.Add(start);
+      var help=Ui.Button("NASIL OYNANIR","H",ToggleMutantHelp);help.style.marginTop=14;buttons.Add(help);
       var back = Ui.Button("ANA MENÜ", "Esc", GameFlow.MainMenu); back.style.justifyContent = Justify.SpaceBetween; back.style.marginTop = 14; buttons.Add(back);
       left.Add(buttons); mutant.Add(left);
+      mutantHelp=Ui.Text("1. Üç araçtan birini, sonra bir pasif yeteneği seç.\n2. Sürüşte etkinlik, atölye ve sandık işaretlerini kullan.\n3. Süre dolmadan boss'a meydan oku. Koşu para/parçaları kariyerden ayrıdır.","g-copy");mutantHelp.style.marginTop=18;left.Add(mutantHelp);Ui.Show(mutantHelp,false);
       var best = Card(58, 210, 500); best.Add(Ui.Section("EN İYİ KOŞU"));
       mutantBest = Ui.Text("", "baslik"); mutantBest.style.fontSize = 42; mutantBest.style.marginTop = 8; best.Add(mutantBest); mutant.Add(best);
       var run = Card(58, 380, 500); run.Add(Ui.Section("KOŞU"));
@@ -181,11 +186,12 @@ namespace LastTurn.Ui
 
     private void BuildConfirm()
     {
+      confirm.name="f-mutant-confirm";
       confirm.AddToClassList("perde"); confirm.pickingMode = PickingMode.Position;
       var box = new VisualElement(); box.AddToClassList("cam"); box.AddToClassList("onay");
       box.Add(Ui.Section("MUTANT"));
       var t = Ui.Text("YENİ KOŞU BAŞLASIN MI?", "baslik"); t.style.fontSize = 54; t.style.marginTop = 10; box.Add(t);
-      var d = Ui.Text("Önce aracını, sonra başlangıç yeteneğini seçeceksin. Koşuda aldığın parçalar ve para yalnız bu koşuya aittir; kariyer ilerlemen etkilenmez.", "durum");
+      var d = Ui.Text("Önce aracını, sonra başlangıç yeteneğini seçeceksin. Boss süresi sürüş başlayınca akar. Koşuda aldığın parçalar ve para yalnız bu koşuya aittir; kariyer ilerlemen etkilenmez.", "durum");
       d.style.fontSize = 20; d.style.marginTop = 12; box.Add(d);
       var row = Row(); row.style.marginTop = 30; row.style.justifyContent = Justify.FlexEnd;
       row.Add(Ui.Button("VAZGEÇ", "Esc", CloseConfirm)); var go = Ui.Button("BAŞLA", "Enter", StartRun, primary: true); go.style.marginLeft = 22; row.Add(go);
@@ -194,6 +200,7 @@ namespace LastTurn.Ui
 
     private void AskStart() { GameAudio.Click(); Ui.Show(confirm, true); }
     private void CloseConfirm() { GameAudio.Click(); Ui.Show(confirm, false); }
+    private void ToggleMutantHelp(){Ui.Show(mutantHelp,!MutantHelpOpen);}
     private void StartRun() { Ui.Show(confirm, false); GameAudio.Click(); MutantRuntime.Start(unchecked((uint)Environment.TickCount)); }
 
     // ---------- güncelleme ----------
@@ -203,10 +210,12 @@ namespace LastTurn.Ui
     private void Update()
     {
       if (home == null) return;
-      Visible = Wanted(); Showing = GameFlow.Hub;
+      bool wasVisible=Visible;Visible = Wanted(); Showing = GameFlow.Hub;
       Ui.Show(home, Visible && Showing == GameFlow.MenuHub.Home); Ui.Show(race, Visible && Showing == GameFlow.MenuHub.Race); Ui.Show(mutant, Visible && Showing == GameFlow.MenuHub.Mutant);
       if (!Visible || Showing != GameFlow.MenuHub.Mutant) Ui.Show(confirm, false);
       if (!Visible) return;
+      // Sonuç ekranında "Sıradaki": yarış menüsünden o pistin hazırlığına geçilir.
+      if (GameFlow.NextRace != "") { var next = GameFlow.NextRace; GameFlow.NextRace = ""; GameFlow.OpenRace(next); return; }
       CareerMenuModel m; try { m = GameFlow.Menu(); } catch (Exception e) { status.text = "Menü okunamadı: " + e.Message; return; }
       foreach (var b in badges) b.Set(m);
       moneyLabel.text = m.Money.ToString("N0") + " para";
@@ -214,7 +223,7 @@ namespace LastTurn.Ui
       if (Showing == GameFlow.MenuHub.Race && (m != shown || type != shownType)) Rebuild(m);
       if (Showing == GameFlow.MenuHub.Mutant) { var r = MutantRuntime.Record(); mutantBest.text = r.Region > 0 ? "Bölge " + r.Region + " · " + r.Bosses + " boss" : "Henüz koşu yok"; }
       if (Showing == GameFlow.MenuHub.Home && !homeTiles[homeFocus].ClassListContains("sec")) FocusHome(homeFocus);
-      Keys(Keyboard.current);
+      if(wasVisible)Keys(Keyboard.current);
     }
 
     private void Keys(Keyboard k)
@@ -240,7 +249,7 @@ namespace LastTurn.Ui
           break;
         case GameFlow.MenuHub.Mutant:
           if (ConfirmOpen) { if (enter) StartRun(); else if (esc) CloseConfirm(); }
-          else if (enter) AskStart(); else if (esc) { GameAudio.Click(); GameFlow.MainMenu(); }
+          else if(k.hKey.wasPressedThisFrame)ToggleMutantHelp();else if (enter) AskStart(); else if (esc) { GameAudio.Click(); GameFlow.MainMenu(); }
           break;
       }
     }

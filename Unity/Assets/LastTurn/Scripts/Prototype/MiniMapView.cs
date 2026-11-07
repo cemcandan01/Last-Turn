@@ -27,7 +27,7 @@ namespace LastTurn.Prototype
     private void Update()
     {
       var p = FindFirstObjectByType<GtPrototype>(); track.Clear(); marks.Clear(); cars.Clear();
-      visible = p && p.Simulation != null && !GameFlow.Paused && !SettingsScreen.Open && !MutantRuntime.Blocked && Hud.TryGet(p, "Map", out _);
+      visible = p && p.Simulation != null && !GameFlow.Paused && !SettingsScreen.Open && !MutantRuntime.Blocked && !LastTurn.Ui.ResultView.CoversCurrentScreen && Hud.TryGet(p, "Map", out _);
       if (!visible) { Markers = Segments = Cars = 0; return; }
       var b = p.Simulation.Body; var pt = p.Simulation.ReferencePoint; var f = b.Orientation.Rotate(new BodyVector(0, 0, 1)); double h = System.Math.Atan2(f.X, f.Z);
       Map.Frame(pt.X, pt.Z, System.Math.Sin(h), System.Math.Cos(h), JsMath.Hypot(b.Velocity.X, b.Velocity.Z), Time.deltaTime);

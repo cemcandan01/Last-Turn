@@ -1,10 +1,16 @@
 using System.Text.Json;
 using LastTurn.Core;
+if(args.Contains("--mutant-pilot")){MutantPilotValidation.Run();return;}
+if(args.Contains("--garage-f")){GarageFValidation.Run();return;}
 if(args.Contains("--cloud")){CloudValidation.Run();return;}
 if(args.Contains("--cloud-sync")){CloudSyncValidation.Run();return;}
 if(args.Contains("--hud")){HudValidation.Run();return;}
 if(args.Contains("--audio")){AudioValidation.Run();return;}
 if(args.Contains("--conditions")){ConditionsValidation.Run();return;}
+if(args.Contains("--race-preparation")){RacePreparationValidation.Run();return;}
+if(args.Contains("--profile-f")){ProfileFValidation.Run();return;}
+if(args.Contains("--settings-f")){SettingsFValidation.Run();return;}
+if(args.Contains("--drive-menu-f")){DriveMenuFValidation.Run();return;}
 if(args.Contains("--controls")){ControlsValidation.Run();return;}
 if(args.Contains("--mutant-energy")){MutantEnergyValidation.Run();return;}
 if(args.Contains("--mutant-skills")){MutantSkillsValidation.Run();return;}

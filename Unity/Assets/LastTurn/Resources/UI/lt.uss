@@ -711,3 +711,204 @@
     border-top-width: 5px;
     border-top-color: rgb(255, 122, 60);
 }
+
+/* P7-2 Garaj / Modifiye: ekranlar-f.html §1–2, 1920×1080 başvuru. */
+.g-content { position:absolute; left:0; right:0; top:150px; bottom:78px; }
+.g-panel { background-color:rgba(11,20,24,.88); border-width:1px; border-color:rgba(255,255,255,.13); border-radius:10px; padding:22px; }
+.g-left { position:absolute; left:58px; top:20px; width:380px; }
+.g-right { position:absolute; right:58px; top:20px; width:420px; }
+.g-name { font-size:42px; white-space:normal; margin-bottom:12px; }
+.g-copy { white-space:normal; font-size:18px; margin-top:7px; margin-bottom:7px; color:rgb(195,207,216); }
+.g-numeric { font-size:16px; margin-top:3px; margin-bottom:3px; }
+.g-class { font-size:30px; -unity-font-definition:url("Fonts/BarlowCondensed-Bold.ttf"); margin-top:10px; margin-bottom:12px; }
+.g-money { flex-grow:1; -unity-text-align:middle-right; font-size:23px; }
+.g-preview { position:absolute; left:410px; right:450px; top:10px; bottom:240px; }
+.g-actions { position:absolute; right:58px; bottom:210px; flex-direction:row; }
+.g-actions > .ltb { margin-left:20px; }
+.g-cars { position:absolute; left:58px; right:58px; bottom:24px; height:174px; }
+.g-car { width:260px; margin-right:18px; flex-shrink:0; }
+.g-car .ad { font-size:26px; }
+.g-car .g-copy { font-size:15px; }
+.g-message { position:absolute; left:300px; right:450px; bottom:26px; font-size:18px; white-space:normal; color:rgb(255,210,122); }
+.g-mods { position:absolute; left:58px; right:58px; top:0; bottom:8px; flex-direction:row; }
+.g-categories { width:295px; flex-shrink:0; margin-right:28px; }
+.g-categories .sekme { height:48px; margin-bottom:7px; }
+.g-categories .sekme .yazi { font-size:21px; }
+.g-parts { flex-grow:1; flex-basis:0; margin-right:28px; }
+.g-part { margin-top:14px; margin-bottom:14px; min-height:145px; }
+.g-part .ad { font-size:28px; }
+.g-effect { width:475px; flex-shrink:0; padding:24px; background-color:rgba(11,20,24,.94); border-radius:10px; }
+.g-effect .ltb { margin-top:22px; height:70px; }
+.g-effect .ltb .yazi { font-size:21px; }
+.g-packages { flex-direction:row; flex-wrap:wrap; margin-top:12px; margin-bottom:20px; }
+.g-packages .ltb { height:45px; padding-left:12px; padding-right:12px; margin-right:8px; margin-bottom:8px; }
+.g-packages .ltb .yazi { font-size:17px; }
+.g-price { color:rgb(255,210,122); font-size:20px; }
+.g-bar { height:6px; background-color:rgb(45,56,64); margin-bottom:6px; margin-top:2px; }
+.g-fill { height:6px; background-color:rgb(255,122,60); }
+.g-mark { position:absolute; width:3px; top:-3px; height:12px; background-color:white; }
+.g-stat { font-size:18px; white-space:normal; margin-top:13px; margin-bottom:6px; }
+.g-content .unity-scroll-view__content-container { flex-grow:1; }
+.g-content .unity-scroller { background-color:rgb(17,24,30); }
+.g-content .unity-base-slider__tracker { background-color:rgb(35,45,54); }
+.g-content .unity-base-slider__dragger { background-color:rgb(93,109,122); }
+.g-content .unity-scroller__low-button, .g-content .unity-scroller__high-button { background-color:rgb(35,45,54); }
+.g-right { padding-top:18px; padding-bottom:12px; }
+.g-right .g-stat { margin-top:8px; }
+/* P7-3 Mağaza F §3: aynı sekmeler, katalog vitrini ve satın alma paneli. */
+.s-content { position:absolute; left:58px; right:58px; top:170px; bottom:96px; flex-direction:row; }
+.s-featured { width:650px; margin-right:55px; flex-shrink:0; }
+.s-featured .g-name { font-size:42px; margin-bottom:0; }
+.s-featured .g-class { font-size:25px; margin-top:6px; margin-bottom:4px; }
+.s-preview { flex-grow:1; flex-basis:0; flex-shrink:1; min-height:100px; }
+.s-featured .g-panel { padding:18px; }
+.s-stat { font-size:18px; margin-bottom:4px; }
+.s-featured .ltb { margin-top:12px; height:60px; }
+.s-featured .ltb .yazi { font-size:23px; }
+.s-catalog { flex-grow:1; flex-basis:0; }
+.s-tabs { flex-direction:row; margin-bottom:16px; }
+.s-tabs .sekme { width:190px; margin-right:16px; }
+.s-filters { flex-direction:row; flex-wrap:wrap; margin-bottom:12px; }
+.s-filters .sekme { height:42px; padding-left:12px; padding-right:12px; margin-right:8px; margin-bottom:8px; }
+.s-filters .yazi { font-size:18px; }
+.s-scroll { flex-grow:1; flex-basis:0; }
+.s-grid { flex-direction:row; flex-wrap:wrap; }
+.s-car { width:30%; min-height:166px; margin-right:3%; margin-bottom:20px; padding:17px; }
+.s-car .ad { font-size:26px; white-space:normal; }
+.s-car .g-price { font-size:19px; }
+.s-content .unity-scroller { background-color:rgb(17,24,30); }
+.s-content .unity-base-slider__tracker { background-color:rgb(35,45,54); }
+.s-content .unity-base-slider__dragger { background-color:rgb(93,109,122); }
+.s-content .unity-scroller__low-button, .s-content .unity-scroller__high-button { background-color:rgb(35,45,54); }
+/* P7-4 Mutant başlangıcı F §5c–d; mevcut koyu/turuncu bileşenler. */
+.m-content { position:absolute; left:58px; right:58px; top:150px; bottom:100px; }
+.m-steps { position:absolute; right:0; top:-92px; flex-direction:row; align-items:center; }
+.m-steps Label { font-size:22px; }
+.m-boss { position:absolute; left:0; top:20px; width:580px; height:440px; }
+.m-selected { position:absolute; left:640px; right:0; top:20px; }
+.m-selected .ltb { margin-top:24px; align-self:flex-start; }
+.m-car-title { position:absolute; left:700px; right:0; top:110px; }
+.m-car-title .baslik { font-size:68px; white-space:normal; }
+.m-lower { position:absolute; left:0; right:0; bottom:0; }
+.m-cards { flex-direction:row; margin-top:28px; }
+.m-card { flex-grow:1; flex-basis:0; height:270px; margin-right:22px; }
+.m-card .ad { font-size:34px; white-space:normal; }
+.m-card .g-copy { font-size:20px; }
+.m-card .t { position:absolute; right:14px; bottom:14px; }
+.m-go { width:300px; height:270px; flex-shrink:0; }
+.m-go .yazi { font-size:27px; }
+.m-content .ipuclari { bottom:-70px; right:0; }
+.m-boss .unity-scroll-view__content-container { width:100%; }
+.m-content .unity-scroller { background-color:rgb(17,24,30); }
+.m-content .unity-base-slider__tracker { background-color:rgb(35,45,54); }
+.m-content .unity-base-slider__dragger { background-color:rgb(93,109,122); }
+.m-content .unity-scroller__low-button, .m-content .unity-scroller__high-button { background-color:rgb(35,45,54); }
+/* F §4 Yarış hazırlığı. */
+.r-content { position:absolute; left:58px; right:58px; top:170px; bottom:100px; flex-direction:row; }
+.r-left { flex-grow:1; flex-basis:0; margin-right:70px; }
+.r-title { font-size:65px; white-space:normal; }
+.r-track-row { flex-direction:row; margin-top:32px; height:370px; }
+.r-map { flex-grow:1; flex-basis:0; background-color:rgb(12,21,26); border-radius:10px; margin-right:25px; }
+.r-targets { width:400px; }
+.r-stat { font-size:26px; margin-top:16px; margin-bottom:18px; }
+.r-reward { margin-top:25px; }
+.r-options { width:610px; flex-shrink:0; align-self:flex-start; padding:30px; }
+.r-options .bb { margin-top:22px; }
+.r-options .ltb { margin-top:20px; }
+.r-options .g-copy { min-height:48px; }
+.r-chips { flex-direction:row; margin-top:16px; margin-bottom:18px; }
+.r-chips .sekme { flex-grow:1; flex-basis:0; padding-left:12px; padding-right:12px; }
+.r-chips .yazi { font-size:23px; }
+/* F §6 Profil ve bulut hesabı. */
+.p-content { position:absolute; left:58px; right:58px; top:170px; bottom:105px; flex-direction:row; }
+.p-left { flex-grow:1; flex-basis:0; margin-right:60px; }
+.p-identity { flex-direction:row; margin-bottom:40px; }
+.p-ring { width:220px; height:220px; flex-shrink:0; align-items:center; justify-content:center; margin-right:32px; }
+.p-ring .baslik { font-size:76px; }
+.p-name { flex-grow:1; flex-basis:0; }
+.p-name .ltb { align-self:flex-start; margin-top:18px; }
+.p-cards { flex-direction:row; margin-bottom:35px; }
+.p-cards .kart { flex-grow:1; flex-basis:0; margin-right:15px; height:165px; padding:17px; }
+.p-cards .ad { font-size:27px; white-space:normal; }
+.p-cloud { width:650px; flex-shrink:0; padding:28px; }
+.p-cloud .unity-scroll-view__content-container { width:100%; }
+.p-status { font-size:23px; white-space:normal; margin-top:16px; margin-bottom:12px; }
+.p-field { flex-direction:column; margin-top:13px; margin-bottom:12px; font-size:22px; }
+.p-field > .unity-text-field__label { min-width:0; margin-bottom:8px; font-size:18px; color:rgb(191,203,214); }
+.p-field .unity-text-field__input { background-color:rgb(21,31,39); color:white; border-width:1px; border-color:rgb(75,88,98); padding:10px; min-height:46px; }
+.p-field .unity-text-field__input:focus { border-color:rgb(255,122,60); }
+.p-form .ltb { height:58px; margin-top:12px; }
+.p-form .ltb .yazi { font-size:23px; }
+.p-content .ltb:focus { border-color:rgb(255,122,60); border-width:2px; }
+.p-content .unity-scroller { background-color:rgb(17,24,30); }
+.p-content .unity-base-slider__tracker { background-color:rgb(35,45,54); }
+.p-content .unity-base-slider__dragger { background-color:rgb(93,109,122); }
+.p-content .unity-scroller__low-button, .p-content .unity-scroller__high-button { background-color:rgb(35,45,54); }
+/* F §7 Ayarlar: bölüm listesi, satırlar, açıklama paneli; sahne kararır. */
+.st-page { background-color:rgba(5,8,11,.86); }
+.st-sections { position:absolute; left:58px; top:170px; width:290px; }
+.st-sections .sekme { height:54px; margin:0 0 9px 0; justify-content:center; align-items:flex-start; padding-left:26px; }
+.st-sections .sekme > .skew { --fill:rgba(11,20,24,.85); --edge:rgba(255,255,255,.13); }
+.st-sections .sekme:hover > .skew { --fill:rgba(30,38,44,.94); --edge:rgb(255,122,60); }
+.st-sections .sekme.sec > .skew { --fill:rgb(255,122,60); --edge:rgba(255,176,112,.9); }
+.st-sections .sekme .yazi { font-size:23px; }
+.st-main { position:absolute; left:390px; right:600px; top:170px; bottom:110px; }
+.st-title { -unity-font-definition:url("Fonts/BarlowCondensed-ExtraBoldItalic.ttf"); font-size:36px; color:rgb(255,255,255); margin-bottom:12px; }
+.st-scroll { flex-grow:1; }
+.st-row { flex-direction:row; align-items:center; min-height:64px; padding:8px 14px; margin-bottom:4px; border-left-width:3px; border-color:rgba(0,0,0,0); border-radius:4px; }
+.st-row.sec { background-color:rgba(255,122,60,.16); border-left-color:rgb(255,122,60); }
+.st-name { flex-grow:1; flex-shrink:1; -unity-font-definition:url("Fonts/Barlow-Medium.ttf"); font-size:21px; color:rgb(255,255,255); white-space:normal; margin-right:16px; }
+.st-row .parca { padding:0 16px; height:42px; }
+.st-row .parca > Label { font-size:18px; }
+.st-slider { flex-direction:row; align-items:center; }
+.st-slider .parca { width:44px; padding:0; align-items:center; border-width:1px; border-radius:6px; }
+.st-track { width:300px; height:12px; margin:0 14px; border-radius:6px; }
+.st-value { width:72px; -unity-text-align:middle-right; -unity-font-definition:url("Fonts/BarlowCondensed-Bold.ttf"); font-size:26px; color:rgb(255,255,255); }
+.st-keys { margin-top:22px; }
+.st-key { flex-direction:row; align-items:center; height:44px; padding:0 14px; border-bottom-width:1px; border-color:rgba(255,255,255,.07); }
+.st-keycaps { flex-direction:row; }
+.st-keycaps .t { margin-left:8px; }
+.st-info { position:absolute; right:58px; top:170px; width:500px; }
+.st-info .g-copy { font-size:20px; }
+.st-main .unity-scroller { background-color:rgb(17,24,30); }
+.st-main .unity-base-slider__tracker { background-color:rgb(35,45,54); }
+.st-main .unity-base-slider__dragger { background-color:rgb(93,109,122); }
+.st-main .unity-scroller__low-button, .st-main .unity-scroller__high-button { background-color:rgb(35,45,54); }
+/* F §8 Duraklatma: solda işlemler, sağda durum ve hızlı ayar; sahne kararır. */
+.pz-page { background-color:rgba(5,8,11,.72); }
+.pz-page.mut-ton { background-color:rgba(40,8,4,.78); }
+.pz-left { position:absolute; left:115px; top:150px; width:500px; }
+.pz-where { white-space:normal; }
+.pz-title { font-size:80px; margin-top:6px; }
+.pz-actions { margin-top:26px; }
+.pz-action { justify-content:space-between; margin-bottom:12px; }
+.pz-action.sec > .skew { --fill:rgba(30,38,44,.94); --edge:rgb(255,122,60); }
+.pz-action.ana.sec > .skew { --fill:rgb(255,122,60); --edge:rgb(255,214,180); }
+.pz-right { position:absolute; right:115px; top:150px; width:580px; }
+.pz-stats { flex-direction:row; margin-top:14px; margin-bottom:22px; }
+.pz-stat { flex-grow:1; flex-basis:0; }
+.pz-value { font-size:40px; color:rgb(255,255,255); }
+.pz-quick .parcali { margin-bottom:14px; align-self:flex-start; }
+.pz-quick .parca { padding:0 18px; }
+/* F §9 Yarış sonucu: solda büyük süre ve yıldızlar, sağda sonuç ve kazanç, altta işlemler. */
+.rs-page { background-color:rgba(5,8,11,.62); }
+.rs-left { position:absolute; left:96px; top:134px; width:760px; }
+.rs-value { -unity-font-definition:url("Fonts/BarlowCondensed-Bold.ttf"); font-size:134px; color:rgb(255,255,255); margin-top:4px; }
+.rs-line { flex-direction:row; align-items:center; }
+.rs-delta { -unity-font-definition:url("Fonts/Barlow-SemiBold.ttf"); font-size:25px; padding:2px 12px; border-radius:6px; background-color:rgba(255,255,255,.92); color:rgb(11,20,24); margin-right:16px; }
+.rs-delta.kotu { background-color:rgb(255,210,122); }
+.rs-record { -unity-font-definition:url("Fonts/BarlowCondensed-Bold.ttf"); font-size:19px; letter-spacing:2px; color:rgb(26,13,5); background-color:rgb(255,122,60); padding:3px 12px; border-radius:4px; margin-left:16px; }
+.rs-header { font-size:22px; margin-top:16px; }
+.rs-stars { flex-direction:row; margin-top:24px; }
+.rs-star { align-items:center; margin-right:30px; }
+.rs-star-icon { width:70px; height:70px; margin:0; }
+.rs-right { position:absolute; right:96px; top:134px; width:580px; }
+.rs-row { flex-direction:row; justify-content:space-between; align-items:center; height:42px; }
+.rs-row-value { font-size:28px; color:rgb(255,255,255); }
+.rs-sep { height:1px; background-color:rgba(255,255,255,.13); margin:16px 0; }
+.rs-reward { -unity-font-definition:url("Fonts/BarlowCondensed-Bold.ttf"); font-size:40px; color:rgb(255,255,255); margin-top:8px; }
+.rs-bar { flex-direction:row; height:12px; border-radius:6px; background-color:rgba(255,255,255,.14); overflow:hidden; margin-top:4px; }
+.rs-fill { background-color:rgb(255,122,60); }
+.rs-gain { background-color:rgb(255,208,181); }
+.rs-actions { position:absolute; right:96px; bottom:96px; flex-direction:row; }
+.rs-actions > .ltb { margin-left:22px; }
