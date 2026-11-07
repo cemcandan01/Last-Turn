@@ -1,5 +1,7 @@
 # Mutant 2.0 — M2 ilk ödül dilimi
 
+**8 Kasım ilerlemesi:** başlangıç kart entegrasyonu `39fea95`, koşu içi B / 5A ödül+skill değiştirme `3001f70` ile tamamlandı. Cem B biyomekanik yönünü seçti. Son Unity68/.NET646+4.281 kanıtı ve kalan ikon işi [güncel devirde](../DEVIR.md). Aşağıdaki ilk teslim sınırı ve “sonraki iş” tarihsel kayıttır; yeniden uygulanmaz. Tam B ikon kataloğu ve diğer7 ekran henüz aktarılmadı.
+
 7 Kasım 2026 · [görev kartı](../isler/2026-11-07-mutant-m1-kapanis-m2.md).
 M1 kapanışı `95e66b2` ile tamamlanıp .NET31/Unity41 kanıtı alındıktan sonra başlandı.
 
