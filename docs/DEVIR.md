@@ -1,3 +1,11 @@
+# Deneme 0.8.25 gönderim paketi (7 Kasım 2026) — Codex
+
+- Kullanıcının “317 değişiklik var, gerekiyorsa gönder” isteği incelendi: **312 dosya tamamlanmış taslak teslimi**,5 dosya `_Recovery` idi. F2 ve B/C taslakları `755e51c` ile kaydedildi; kurtarma dosyaları takip/gönderim dışında korundu. A/B/C görsel seçimi ve Unity aktarımı yapılmadı.
+- Paket ayrıca önceki yerel **`e4b125c`** hasar→enerji kimlik korumasını ve **`17aec71`** devir notunu içerir. Bu kodun .NET22 /Unity Play33, eski oracle ve M1 pilot kanıtları aşağıdadır; aynı testler gereksiz tekrar edilmedi.
+- F2:65 başarılı kontrolün güncel HTML/150 üretim/33 görsel kanıt hash'leri doğrulandı. B/C: biçim sonrası Edge/Playwright ile1440/800 px'de6 ekran ve62 varlığın dar doğrulaması yeniden geçti. İki CJS yardımcısı ESLint kuralı kapatılmadan dinamik import kullanır; görsel/oyun kuralları değişmedi. JSON/HTML/CJS biçim düzeltildi.
+- Ayrı mevcut gönderim worktree'sinde geliştirme dalıyla birleştirildi; sürüm0.8.25. `npm run kontrol` ve `git diff --check` gönderim kapısıdır. Hedefler yalnız `gelistirme` ve `codex/unity-p7-garaj`; master'a commit/push yok. Actions/yayın sonucu gönderim sonrası ayrıca kontrol edilir; bu kayıt öncesindeki hazırlığı belgeler.
+- Kalıcı sıradaki geliştirme değişmedi: `HasarVerildi → hasar-bataryasi` kimliğini sonraki fizik adımına taşıma. Görsel tarafta Cem'in A/B/C seçimi beklenir. Claude oturumu/alt ajan/yeni ücretli servis/uzun regresyon başlatılmadı. Unity Windows oyunu web `/dev/` içinde çalışmaz; taslak dosyaları depodadır.
+
 # Son devir: Mutant hasar→enerji kimliği ve tekrar koruması (7 Kasım 2026) — Codex
 
 - **Tamamlanan tek dilim:** `Run.Damage → MutantEnergyController → MutantMechanics` yolunda `HasarAlindi` kökü koşu ömürlü kimlikle tekilleştirilir. `Seq` değişse de aynı kök ikinci kez enerji vermez; farklı gerçek hasarlar bağımsızdır. Enerji türevlerinde kök/ebeveyn/olay kimliği korunur. Kod/test commit'i **`e4b125c`**, dal `codex/unity-p7-garaj`; yalnız yerel, push/merge/yayın yok.
