@@ -1,5 +1,13 @@
 # Unity geçişi — dal notu
 
+## Güncel özet — 8 Kasım 2026
+
+- Tek kaynak [DEVIR başı](../DEVIR.md). `codex/unity-p7-garaj`: M1 hasar kimliği ve M2 ödül modeli/kartları tamam;94 tanım/64 B sembolü (`a6be53c`, devir `12cd26b`). B görsel yönü Cem tarafından onaylandı; yeniden yön seçimi sorma.
+- B /5A ödül ve skill değiştirme (`3001f70`), B /6A boss (`20ec0b2`) tamam. Son boss:132 gerçek grafik Play,4.311 dar menü/12.952 TS plan koşulu;205 kaynak hash'i ve12 Game View. Kanıtlar yerel/ignore; ayrıntı DEVIR'de.
+- Sıradaki tek görev B /7A Mutant yarış sonucu. Diğer6 koşu içi ekran, insan kabulü ve sonraki M2–M4 işleri açık. Bu teslimde push/merge/yayın yok; `_Recovery` ve gerçek kayıtlar korunur.
+
+## 7 Kasım notları — tarihsel kayıt
+
 - Dal `codex/unity-p7-garaj`; 0.8.24 sonrası hasar kimliği ve312 görsel dosyası0.8.25 gönderim paketinde (7 Kasım).
 - P1–P5 ve P7 F menü/HUD, Garaj/Modifiye, Mağaza, Mutant başlangıcı, hazırlık, Profil, Ayarlar, duraklatma/sonuç tamam.
 - Game View kanıtları ve dar testler `docs/DEVIR.md` ve P7 kartında; Logs yerel/ignore.
