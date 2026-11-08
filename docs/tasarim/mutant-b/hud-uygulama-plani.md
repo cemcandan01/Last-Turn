@@ -1,5 +1,7 @@
 # Mutant B koşu içi HUD — teknik uygulama planı
 
+**9 Kasım uygulama kaydı:** bu tarihsel plan `c1fb9ca` ile uygulandı. .NET870/ödül740, gerçek Unity301/301,8 Game View/212 kaynak hash'i. Runtime hata0; yerel UnityEditor.Search indeksleme tanısı1 sürüyor, Console tamamen temiz iddiası yok. [Güncel devir](../../DEVIR.md) uygulama sınırı ve kanıtı taşır. Ortak rect'ler yetti, HudLayout değiştirilmedi; sonraki tek geliştirme B /2A etkinlik/risk ekranıdır. Aşağıdaki “henüz uygulanmadı” ifadeleri planın ilk teslim tarihindeki durumudur.
+
 9 Kasım 2026 · Codex · başlangıç `43cb031`, `codex/unity-p7-garaj`.
 [Aynı görev kartı](../../isler/2026-11-07-mutant-m1-kapanis-m2.md) · [ikon envanteri](odul-ikon-envanteri.md).
 

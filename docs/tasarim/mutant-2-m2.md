@@ -1,5 +1,7 @@
 # Mutant 2.0 — M2 ilk ödül dilimi
 
+**9 Kasım son durum:** `c1fb9ca` ile B koşu içi HUD uygulandı; gerçek koşu/nitro/skill/görev/işaret verisi, fareyi yakalamayan sunum ve ortak yarış HUD'u bağlantısı. .NET870+740, gerçek Unity301/301;0 Runtime hatası,1 yerel UnityEditor.Search tanısı;8 Game View/212 hash. Ayrıntı DEVIR başında. Sonraki tek geliştirme B /2A etkinlik/risk ekranı; aşağıdaki HUD/8A önerileri tarihsel kayıttır. Ödül modeli/olasılık/XP/boss süreleri değişmedi.
+
 **8 Kasım ilerlemesi:** başlangıç kart entegrasyonu `39fea95`, koşu içi B /5A ödül+skill değiştirme `3001f70`, tam ödül ikon eşlemesi `a6be53c`, B /6A boss `20ec0b2`, B /7A yarış sonucu `dd85772` ile tamamlandı. Cem B biyomekanik yönünü seçti. Son sonuç ekranı Unity181/.NET435.641 ve10 Game View; önceki dilimlerin kanıtları [güncel devirde](../DEVIR.md). Aşağıdaki ilk teslim sınırı ve “sonraki iş” tarihsel kayıttır; yeniden uygulanmaz. Diğer5 ekran henüz aktarılmadı; sıradaki tek iş B /8A koşu özetidir.
 
 **Son talimat / ikon yeniden kabulü:** `678f230` ile94 eşleme/64 simge/27 PNG korunarak bozuk görsel veri güvenliği tamamlandı. .NET740 ve grafik Unity459/459,8 Game View; [envanter](mutant-b/odul-ikon-envanteri.md).52 koşu ödülü ayrı simge,42 atölye parçası mevcut12 kategori simgesi; yeni varlık üretilmedi. Önceki8A önerisinin yerine kullanıcının güncel sıradaki tek önerisi **B koşu içi HUD**; bu görevde başlanmadı.
