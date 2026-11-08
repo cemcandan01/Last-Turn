@@ -88,15 +88,6 @@ namespace LastTurn.Ui
       if(Replacing!=""){Replacing="";shown="";Focused=0;}
       else GameFlow.Pause(true);
     }
-    private static VisualElement Icon(string offer)
-    {
-      // Kimlik yalnız görsel dosya eşlemesi içindir; uyumluluk veya oyun kuralı hesaplanmaz.
-      var parts=offer.Split(':');string path=parts.Length>1?"skill/"+parts[1]:"passive/"+offer;
-      var icon=new VisualElement{pickingMode=PickingMode.Ignore};icon.AddToClassList("mc-icon");
-      var texture=Resources.Load<Texture2D>("UI/MutantB/"+path);
-      if(texture)icon.style.backgroundImage=texture;else{icon.AddToClassList("mc-icon-fallback");icon.Add(Ui.Text("M","baslik"));}
-      return icon;
-    }
     private void Rebuild()
     {
       grid.Clear();options.Clear();ids.Clear();var m=MutantRuntime.Model;bool replace=Replacing!="";
@@ -107,8 +98,8 @@ namespace LastTurn.Ui
       for(int i=0;i<count;i++){
         int at=i;string id=replace?m.OwnedSkills[i].Id:m.Choices[i].Id;VisualElement card;
         if(replace){card=new VisualElement();card.AddToClassList("mc-replacement");card.Add(Ui.Text("MEVCUT SKILL","mc-copy"));card.Add(Ui.Text(m.OwnedSkills[i].Name,"mc-skill-name"));card.Add(Ui.Text("Bu skill ve bütün geliştirmeleri bırakılır.","mc-copy"));}
-        else card=new RewardCard(MutantRuntime.Reward(id,RewardSource.Level));
-        card.name="mutant-choice-option-"+i;card.AddToClassList("mc-card");if(i==count-1)card.AddToClassList("mc-last");card.Insert(0,Icon(replace?"b:"+id:id));
+        else card=new RewardCard(MutantRuntime.Reward(id,RewardSource.Level),true);
+        card.name="mutant-choice-option-"+i;card.AddToClassList("mc-card");if(i==count-1)card.AddToClassList("mc-last");card.Insert(0,MutantRewardIcons.Create(replace?"skill/"+id:((RewardCard)card).Model.IconKey));
         var frame=new VisualElement{pickingMode=PickingMode.Ignore};frame.AddToClassList("mc-frame");card.Add(frame);
         card.Add(Ui.Text("","mc-key"));card.focusable=true;card.tabIndex=0;
         card.AddManipulator(new Clickable(()=>Focus(at)));card.RegisterCallback<FocusInEvent>(e=>{if(Focused!=at)Focus(at);});

@@ -1,5 +1,15 @@
 # Yön B — Biyomekanik mutasyon
 
+## Unity ödül ikonları — 8 Kasım 2026
+
+Cem B yönünü seçti. Koşu içi ödül ekranının ikonları `Unity/Assets/LastTurn/Resources/UI/MutantB/` altında tamamlandı:94 ödül tanımı,64 ayrı sembol.42 parça12 kategori ikonunu paylaşır; kalan52 tanımın her birinin ayrı sembolü vardır. Mevcut11 pasif/skill ikonu ve12 kategori görseli korunur;41 yeni sembol4 gerçek alfalı atlas içindedir. PNG kesme/boyama yapılmadı; Unity Sprite rect'leri alfa sınırlarına göre eşlenir.
+
+- [Eşleme ve SHA256 manifestosu](../../../Unity/Assets/LastTurn/Resources/UI/MutantB/reward-icons.json)
+- [Yerleşik image_gen istemleri ve iki boşluk revizyonu](odul-ikon-uretimi.json); API/CLI/ek kredi kullanılmadı.
+- [Yol/pasif atlası](../../../Unity/Assets/LastTurn/Resources/UI/MutantB/atlas/passive-road.png), [enerji pasifleri](../../../Unity/Assets/LastTurn/Resources/UI/MutantB/atlas/passive-energy.png), [ekler/kaynaklar](../../../Unity/Assets/LastTurn/Resources/UI/MutantB/atlas/addons-resources.png), [evrimler](../../../Unity/Assets/LastTurn/Resources/UI/MutantB/atlas/evolution.png).
+
+`node Unity/Validation/check-mutant-icon-assets.mjs`94 kimlik,64 ayrı rect, RGBA/hash, alfa gövdesinin kesilmemesi, atlas hücre sınırları ve parça kategorisini denetler. `MutantChoicePlayValidation.StartGameView` gerçek Unity Sprite yükleme/ikon kimliği ve seçim akışını sınar. Aşağıdaki31 görsellik HTML karşılaştırması önceki tasarım örneğidir; ürün ikon kapsamını temsil etmez. Diğer ekranlar bu ikon teslimiyle aktarılmaz.
+
 İkonların tek tek kullanılan istemleri: [ikon-istemleri.json](ikon-istemleri.json). Sayfadaki büyütme düğmeleri her yönü tam genişlikte incelemeyi sağlar.
 
 Asit yeşili + magenta; petrol renkli kabuk, organik damar ve makine parçaları.

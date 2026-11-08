@@ -9,6 +9,7 @@ if (proof.result !== "m2-choice-passed" || proof.error || proof.runtimeErrors.le
 for (const label of [
   "Koşu içi seçim tek görünümde",
   "B arka plan ve çerçeve yüklü",
+  "94 ödül ikon tanımı",
   "Sayı seçimi koşu ve RNG'yi değiştirmez",
   "Native odak seçili ödülle eşleşir",
   "Sol ok tek kart ilerler",
@@ -32,6 +33,16 @@ for (const label of [
 const files = fs
   .readdirSync(path.join(root, "Assets/LastTurn"), { recursive: true })
   .filter((f) => /\.(cs|uss|json|png)$/.test(f));
+const icons = JSON.parse(
+  fs.readFileSync(path.join(root, "Assets/LastTurn/Resources/UI/MutantB/reward-icons.json"), "utf8"),
+);
+for (const entry of icons.entries)
+  for (const label of [
+    "Gerçek Unity Sprite yüklü ",
+    "94 tanımda fallback yok ",
+    "Import boyutundan bağımsız doğru UV ",
+  ])
+    if (!proof.checks.includes(label + entry.key)) throw Error("Eksik Unity ikon kabulü: " + entry.key);
 if (proof.sources?.length !== files.length) throw Error("Kaynak/görsel kapsamı eski");
 for (const file of files) {
   const name = "Assets/LastTurn/" + file.replaceAll("\\", "/");
@@ -41,7 +52,7 @@ for (const file of files) {
     .toUpperCase();
   if (!proof.sources.some((s) => s.path === name && s.hash === hash)) throw Error("Eski kaynak: " + name);
 }
-for (const screen of ["offer", "replace"])
+for (const screen of ["offer", "icons", "replace"])
   for (const width of [1280, 1920]) {
     const name = `m2-choice-${screen}-${width}.png`;
     if (!proof.images.includes(name)) throw Error("Eksik Game View: " + name);
@@ -50,5 +61,5 @@ for (const screen of ["offer", "replace"])
       throw Error("Yanlış görüntü boyutu: " + name);
   }
 console.log(
-  `Mutant B seçim: ${proof.checks.length} gerçek grafik Play kontrolü, 4 Game View, ${files.length} güncel kod/veri/görsel hash'i; çalışma hatası ${proof.runtimeErrors.length}, Editor tanısı ${proof.editorDiagnostics.length}; ${proof.utc}. Fiziksel girdi/insan kabulü değildir.`,
+  `Mutant B seçim: ${proof.checks.length} gerçek grafik Play kontrolü, 6 Game View, ${files.length} güncel kod/veri/görsel hash'i; çalışma hatası ${proof.runtimeErrors.length}, Editor tanısı ${proof.editorDiagnostics.length}; ${proof.utc}. Fiziksel girdi/insan kabulü değildir.`,
 );

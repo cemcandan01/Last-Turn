@@ -61,13 +61,20 @@ namespace LastTurn.EditorValidation
       Wait(()=>UnityEngine.Object.FindFirstObjectByType<GtPrototype>()?.Simulation!=null);
       steps.Add(()=>{
         Check(!MutantRuntime.Starting,"Gerçek başlangıç ve sürüş mevcut Runtime'dan");
-        var r=MutantRuntime.Run;r.State.Set("faz",CatalogNode.Str("secim"));r.State.Set("seviye",CatalogNode.Num(3));r.State.Set("xp",CatalogNode.Num(MutantRun.LevelXp(3)));r.State.Set("bekleyenSecim",CatalogNode.Num(2));r.State.Set("secenekler",CatalogNode.Parse("[\"guc\",\"hafif\",\"zirh\"]"));
+        var r=MutantRuntime.Run;r.State.Set("faz",CatalogNode.Str("secim"));r.State.Set("seviye",CatalogNode.Num(3));r.State.Set("xp",CatalogNode.Num(MutantRun.LevelXp(3)));r.State.Set("bekleyenSecim",CatalogNode.Num(2));r.State.Set("secenekler",CatalogNode.Parse("[\"guc\",\"carpisma-pili\",\"sonnefes\"]"));
         MutantRuntime.Continue();initial=r.State.ToString();
       });
       Wait(()=>MutantChoiceView.Instance.Visible);
       steps.Add(()=>{
         Check(MutantChoiceView.CoversCurrentScreen&&!MutantStartView.CoversCurrentScreen,"Koşu içi seçim tek görünümde");
         Check(Resources.Load<Texture2D>("UI/MutantB/background")&&Resources.Load<Texture2D>("UI/MutantB/frame"),"B arka plan ve çerçeve yüklü");
+        var rewards=new MutantRewards(MutantRuntime.Run.Catalog);
+        Check(rewards.Definitions.Count==94,"94 ödül ikon tanımı");
+        var iconMap=CatalogNode.Parse(Resources.Load<TextAsset>("UI/MutantB/reward-icons").text);
+        foreach(var d in rewards.Definitions){Check(MutantRewardIcons.TryGet(d.Key,out var sprite)&&sprite&&sprite.name==d.Key,"Gerçek Unity Sprite yüklü "+d.Key);var icon=MutantRewardIcons.Create(d.Key);Check(!icon.ClassListContains("mc-icon-fallback")&&icon.style.backgroundImage.value.sprite==sprite,"94 tanımda fallback yok "+d.Key);
+          var e=iconMap["entries"].Items.First(n=>n["key"].S()==d.Key);var a=iconMap["assets"].Items.First(n=>n["path"].S()==e["path"].S());
+          Check(Math.Abs(sprite.rect.x/sprite.texture.width-e["x"].N()/a["width"].N())<1e-5&&Math.Abs(sprite.rect.width/sprite.texture.width-e["width"].N()/a["width"].N())<1e-5&&Math.Abs(sprite.rect.y/sprite.texture.height-(1-(e["y"].N()+e["height"].N())/a["height"].N()))<1e-5&&Math.Abs(sprite.rect.height/sprite.texture.height-e["height"].N()/a["height"].N())<1e-5,"Import boyutundan bağımsız doğru UV "+d.Key);
+        }
         foreach(var c in UiRoot.Instance.Screen.Query<RewardCard>().ToList().Where(c=>c.ClassListContains("mc-card")))Check(c.Model.Offer==MutantRuntime.Model.Choices[int.Parse(c.name.Substring(c.name.Length-1))].Id,"Kart gerçek teklif kimliğinde");
       });
       Tap(Key.Digit2);steps.Add(()=>Check(MutantChoiceView.Instance.Focused==1&&MutantRuntime.Run.State.ToString()==initial,"Sayı seçimi koşu ve RNG'yi değiştirmez"));
@@ -78,6 +85,9 @@ namespace LastTurn.EditorValidation
       steps.Add(()=>{var page=UiRoot.Instance.Screen.Q("b-mutant-choice");var f=(VisualElement)page.focusController.focusedElement;using(var e=KeyDownEvent.GetPooled(new Event{type=EventType.KeyDown,keyCode=KeyCode.Tab,character='\t'}))f.SendEvent(e);});
       steps.Add(()=>{var page=UiRoot.Instance.Screen.Q("b-mutant-choice");var f=(VisualElement)page.focusController.focusedElement;var c=page.Q("mutant-choice-option-"+MutantChoiceView.Instance.Focused);Check(f==c||c.Contains(f)||f==page.Q("mutant-choice-accept"),"Tab odağı seçim veya onayda");});
       steps.Add(()=>Shot("offer",1920,1080));steps.Add(()=>Shot("offer",1280,720));
+      steps.Add(()=>MutantRuntime.Run.State.Set("secenekler",CatalogNode.Parse("[\"v:grappling-hook:ters-kanca\",\"e:sok-bobini:grappling-hook\",\"ek-yedek-tup\"]")));
+      steps.Add(()=>Shot("icons",1920,1080));steps.Add(()=>Shot("icons",1280,720));
+      steps.Add(()=>MutantRuntime.Run.State.Set("secenekler",CatalogNode.Parse(initial)["secenekler"].Clone()));
       Tap(Key.Escape);steps.Add(()=>Check(GameFlow.Paused&&!MutantChoiceView.Instance.Visible&&MutantRuntime.Run.State.ToString()==initial,"Esc duraklatır; teklif timer RNG aynı"));
       Tap(Key.Escape);Wait(()=>MutantChoiceView.Instance.Visible);steps.Add(()=>Check(!GameFlow.Paused,"Esc seçim ekranına döner; çift işlem yok"));
       Click("mutant-choice-option-0");steps.Add(()=>Check(MutantChoiceView.Instance.Focused==0&&MutantRuntime.Run.State.ToString()==initial,"Fare yalnız seçer; otomatik ödül almaz"));
@@ -115,7 +125,7 @@ namespace LastTurn.EditorValidation
       var png=new Texture2D(2,2);try{png.LoadImage(File.ReadAllBytes(path));Check(png.width==shotW&&png.height==shotH,"PNG boyutu "+shot+shotW);}finally{UnityEngine.Object.DestroyImmediate(png);}
       var page=UiRoot.Instance.Screen.Q("b-mutant-choice");var cards=page.Query(className:"mc-card").ToList();
       Check(cards.Count==3,"Üç kart / "+shot+shotW);
-      foreach(var c in cards){var r=c.worldBound;Check(r.xMin>=0&&r.xMax<=page.worldBound.xMax&&r.yMax<page.worldBound.yMax-100,"Kart ekran sınırında / "+c.name+shotW);if(c is RewardCard reward)Check(reward.Details.contentViewport.worldBound.height>35&&reward.Q(className:"rc-foot").worldBound.yMax<r.yMax-12,"Ayrıntı alanı ve altlık sığar / "+shotW);}
+      foreach(var c in cards){var r=c.worldBound;Check(r.xMin>=0&&r.xMax<=page.worldBound.xMax&&r.yMax<page.worldBound.yMax-100,"Kart ekran sınırında / "+c.name+shotW);if(c is RewardCard reward){Check(reward.Details.contentViewport.worldBound.height>35&&reward.Q(className:"rc-foot").worldBound.yMax<r.yMax-12,"Ayrıntı alanı ve altlık sığar / "+shotW);var icon=c.Q(className:"mc-icon");Check(!icon.ClassListContains("mc-icon-fallback")&&icon.style.backgroundImage.value.sprite.name==reward.Model.IconKey,"Görünen ikon model kimliğinde / "+shot+shotW);}}
       for(int i=1;i<cards.Count;i++)Check(!cards[i].worldBound.Overlaps(cards[i-1].worldBound),"Kartlar çakışmaz / "+i+shotW);
       proof.images.Add(Path.GetFileName(path));shot=null;
     }

@@ -1,0 +1,1580 @@
+{
+  "schema": 1,
+  "origin": "Last Turn B / image_gen",
+  "entries": [
+    {
+      "key": "passive/guc",
+      "name": "Motor ayarı",
+      "path": "UI/MutantB/passive/guc",
+      "x": 207,
+      "y": 42,
+      "width": 919,
+      "height": 1149,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "passive/hafif",
+      "name": "Hafifletme",
+      "path": "UI/MutantB/passive/hafif",
+      "x": 106,
+      "y": 47,
+      "width": 1078,
+      "height": 1170,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "passive/asfalt",
+      "name": "Asfalt tutuşu",
+      "path": "UI/MutantB/atlas/passive-road",
+      "x": 60,
+      "y": 62,
+      "width": 314,
+      "height": 343,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 418,
+        "height": 418
+      }
+    },
+    {
+      "key": "passive/toprak",
+      "name": "Toprak tutuşu",
+      "path": "UI/MutantB/atlas/passive-road",
+      "x": 466,
+      "y": 55,
+      "width": 321,
+      "height": 348,
+      "cell": {
+        "x": 418,
+        "y": 0,
+        "width": 418,
+        "height": 418
+      }
+    },
+    {
+      "key": "passive/fren",
+      "name": "Sert fren",
+      "path": "UI/MutantB/atlas/passive-road",
+      "x": 874,
+      "y": 61,
+      "width": 334,
+      "height": 329,
+      "cell": {
+        "x": 836,
+        "y": 0,
+        "width": 418,
+        "height": 418
+      }
+    },
+    {
+      "key": "passive/aci",
+      "name": "Açı kiti",
+      "path": "UI/MutantB/atlas/passive-road",
+      "x": 33,
+      "y": 494,
+      "width": 377,
+      "height": 341,
+      "cell": {
+        "x": 0,
+        "y": 418,
+        "width": 418,
+        "height": 418
+      }
+    },
+    {
+      "key": "passive/ogrenci",
+      "name": "Hızlı öğrenen",
+      "path": "UI/MutantB/atlas/passive-road",
+      "x": 460,
+      "y": 443,
+      "width": 331,
+      "height": 347,
+      "cell": {
+        "x": 418,
+        "y": 418,
+        "width": 418,
+        "height": 418
+      }
+    },
+    {
+      "key": "passive/tuccar",
+      "name": "Pazarlıkçı",
+      "path": "UI/MutantB/atlas/passive-road",
+      "x": 865,
+      "y": 448,
+      "width": 350,
+      "height": 388,
+      "cell": {
+        "x": 836,
+        "y": 418,
+        "width": 418,
+        "height": 418
+      }
+    },
+    {
+      "key": "passive/zaman",
+      "name": "Zaman bükücü",
+      "path": "UI/MutantB/atlas/passive-road",
+      "x": 89,
+      "y": 838,
+      "width": 261,
+      "height": 367,
+      "cell": {
+        "x": 0,
+        "y": 836,
+        "width": 418,
+        "height": 418
+      }
+    },
+    {
+      "key": "passive/zirh",
+      "name": "Zırh",
+      "path": "UI/MutantB/passive/zirh",
+      "x": 121,
+      "y": 44,
+      "width": 1011,
+      "height": 1177,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "passive/tamirci",
+      "name": "Seyyar tamirci",
+      "path": "UI/MutantB/passive/tamirci",
+      "x": 114,
+      "y": 66,
+      "width": 1025,
+      "height": 1080,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "passive/adrenalin",
+      "name": "Adrenalin",
+      "path": "UI/MutantB/passive/adrenalin",
+      "x": 176,
+      "y": 18,
+      "width": 945,
+      "height": 1191,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "passive/camtop",
+      "name": "Cam top",
+      "path": "UI/MutantB/atlas/passive-road",
+      "x": 445,
+      "y": 859,
+      "width": 362,
+      "height": 328,
+      "cell": {
+        "x": 418,
+        "y": 836,
+        "width": 418,
+        "height": 418
+      }
+    },
+    {
+      "key": "passive/hurdaci",
+      "name": "Hurdacı",
+      "path": "UI/MutantB/atlas/passive-road",
+      "x": 863,
+      "y": 836,
+      "width": 344,
+      "height": 366,
+      "cell": {
+        "x": 836,
+        "y": 836,
+        "width": 418,
+        "height": 418
+      }
+    },
+    {
+      "key": "passive/kumarbaz",
+      "name": "Kumarbaz",
+      "path": "UI/MutantB/atlas/passive-energy",
+      "x": 78,
+      "y": 64,
+      "width": 184,
+      "height": 180,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 314,
+        "height": 314
+      }
+    },
+    {
+      "key": "passive/sonnefes",
+      "name": "Son nefes",
+      "path": "UI/MutantB/atlas/passive-energy",
+      "x": 376,
+      "y": 72,
+      "width": 173,
+      "height": 172,
+      "cell": {
+        "x": 314,
+        "y": 0,
+        "width": 313,
+        "height": 314
+      }
+    },
+    {
+      "key": "passive/nitro-kalkani",
+      "name": "Nitro kalkanı",
+      "path": "UI/MutantB/atlas/passive-energy",
+      "x": 655,
+      "y": 60,
+      "width": 208,
+      "height": 193,
+      "cell": {
+        "x": 627,
+        "y": 0,
+        "width": 314,
+        "height": 314
+      }
+    },
+    {
+      "key": "passive/drift-harvester",
+      "name": "Drift Hasadı",
+      "path": "UI/MutantB/atlas/passive-energy",
+      "x": 1001,
+      "y": 60,
+      "width": 180,
+      "height": 182,
+      "cell": {
+        "x": 941,
+        "y": 0,
+        "width": 313,
+        "height": 314
+      }
+    },
+    {
+      "key": "passive/temiz-cikis",
+      "name": "Temiz Çıkış",
+      "path": "UI/MutantB/atlas/passive-energy",
+      "x": 30,
+      "y": 346,
+      "width": 236,
+      "height": 206,
+      "cell": {
+        "x": 0,
+        "y": 314,
+        "width": 314,
+        "height": 313
+      }
+    },
+    {
+      "key": "passive/kayma-hafizasi",
+      "name": "Kayma Hafızası",
+      "path": "UI/MutantB/atlas/passive-energy",
+      "x": 342,
+      "y": 350,
+      "width": 285,
+      "height": 214,
+      "cell": {
+        "x": 314,
+        "y": 314,
+        "width": 313,
+        "height": 313
+      }
+    },
+    {
+      "key": "passive/hiz-dinamosu",
+      "name": "Hız Dinamosu",
+      "path": "UI/MutantB/atlas/passive-energy",
+      "x": 639,
+      "y": 340,
+      "width": 230,
+      "height": 213,
+      "cell": {
+        "x": 627,
+        "y": 314,
+        "width": 314,
+        "height": 313
+      }
+    },
+    {
+      "key": "passive/carpisma-pili",
+      "name": "Çarpışma Pili",
+      "path": "UI/MutantB/atlas/passive-energy",
+      "x": 1004,
+      "y": 411,
+      "width": 174,
+      "height": 135,
+      "cell": {
+        "x": 941,
+        "y": 314,
+        "width": 313,
+        "height": 313
+      }
+    },
+    {
+      "key": "passive/risk-kondansatoru",
+      "name": "Risk Kondansatörü",
+      "path": "UI/MutantB/atlas/passive-energy",
+      "x": 68,
+      "y": 702,
+      "width": 180,
+      "height": 149,
+      "cell": {
+        "x": 0,
+        "y": 627,
+        "width": 314,
+        "height": 314
+      }
+    },
+    {
+      "key": "passive/hasar-bataryasi",
+      "name": "Hasar Bataryası",
+      "path": "UI/MutantB/atlas/passive-energy",
+      "x": 398,
+      "y": 669,
+      "width": 154,
+      "height": 187,
+      "cell": {
+        "x": 314,
+        "y": 627,
+        "width": 313,
+        "height": 314
+      }
+    },
+    {
+      "key": "passive/kalkan-bataryasi",
+      "name": "Kalkan Bataryası",
+      "path": "UI/MutantB/atlas/passive-energy",
+      "x": 693,
+      "y": 639,
+      "width": 248,
+      "height": 216,
+      "cell": {
+        "x": 627,
+        "y": 627,
+        "width": 314,
+        "height": 314
+      }
+    },
+    {
+      "key": "passive/takip-dinamosu",
+      "name": "Takip Dinamosu",
+      "path": "UI/MutantB/atlas/passive-energy",
+      "x": 944,
+      "y": 661,
+      "width": 251,
+      "height": 280,
+      "cell": {
+        "x": 941,
+        "y": 627,
+        "width": 313,
+        "height": 314
+      }
+    },
+    {
+      "key": "passive/genis-tup",
+      "name": "Geniş Tüp",
+      "path": "UI/MutantB/atlas/passive-energy",
+      "x": 69,
+      "y": 1025,
+      "width": 176,
+      "height": 129,
+      "cell": {
+        "x": 0,
+        "y": 941,
+        "width": 314,
+        "height": 313
+      }
+    },
+    {
+      "key": "passive/verimli-nitro",
+      "name": "Verimli Nitro",
+      "path": "UI/MutantB/atlas/passive-energy",
+      "x": 344,
+      "y": 948,
+      "width": 248,
+      "height": 213,
+      "cell": {
+        "x": 314,
+        "y": 941,
+        "width": 313,
+        "height": 313
+      }
+    },
+    {
+      "key": "passive/uzun-nitro",
+      "name": "Uzun Nitro",
+      "path": "UI/MutantB/atlas/passive-energy",
+      "x": 633,
+      "y": 941,
+      "width": 270,
+      "height": 224,
+      "cell": {
+        "x": 627,
+        "y": 941,
+        "width": 314,
+        "height": 313
+      }
+    },
+    {
+      "key": "passive/sert-nitro",
+      "name": "Sert Nitro",
+      "path": "UI/MutantB/passive/sert-nitro",
+      "x": 57,
+      "y": 65,
+      "width": 1139,
+      "height": 1170,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "passive/sigorta",
+      "name": "Sigorta",
+      "path": "UI/MutantB/atlas/passive-energy",
+      "x": 969,
+      "y": 985,
+      "width": 208,
+      "height": 177,
+      "cell": {
+        "x": 941,
+        "y": 941,
+        "width": 313,
+        "height": 313
+      }
+    },
+    {
+      "key": "addon/ek-yedek-tup",
+      "name": "Yedek tüp",
+      "path": "UI/MutantB/atlas/addons-resources",
+      "x": 26,
+      "y": 28,
+      "width": 277,
+      "height": 264,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 314,
+        "height": 314
+      }
+    },
+    {
+      "key": "addon/ek-kizgin-egzoz",
+      "name": "Kızgın egzoz",
+      "path": "UI/MutantB/atlas/addons-resources",
+      "x": 332,
+      "y": 30,
+      "width": 284,
+      "height": 263,
+      "cell": {
+        "x": 314,
+        "y": 0,
+        "width": 313,
+        "height": 314
+      }
+    },
+    {
+      "key": "addon/ek-turbo-kartusu",
+      "name": "Turbo kartuşu",
+      "path": "UI/MutantB/atlas/addons-resources",
+      "x": 651,
+      "y": 29,
+      "width": 272,
+      "height": 259,
+      "cell": {
+        "x": 627,
+        "y": 0,
+        "width": 314,
+        "height": 314
+      }
+    },
+    {
+      "key": "addon/ek-cift-atesleme",
+      "name": "Çift ateşleme",
+      "path": "UI/MutantB/atlas/addons-resources",
+      "x": 973,
+      "y": 14,
+      "width": 244,
+      "height": 285,
+      "cell": {
+        "x": 941,
+        "y": 0,
+        "width": 313,
+        "height": 314
+      }
+    },
+    {
+      "key": "addon/ek-hasar-donusturucu",
+      "name": "Hasar dönüştürücü",
+      "path": "UI/MutantB/atlas/addons-resources",
+      "x": 13,
+      "y": 328,
+      "width": 292,
+      "height": 270,
+      "cell": {
+        "x": 0,
+        "y": 314,
+        "width": 314,
+        "height": 313
+      }
+    },
+    {
+      "key": "addon/ek-takviye-tampon",
+      "name": "Takviye tampon",
+      "path": "UI/MutantB/atlas/addons-resources",
+      "x": 320,
+      "y": 338,
+      "width": 295,
+      "height": 246,
+      "cell": {
+        "x": 314,
+        "y": 314,
+        "width": 313,
+        "height": 313
+      }
+    },
+    {
+      "key": "skillAddon/sok-bobini",
+      "name": "Şok bobini",
+      "path": "UI/MutantB/atlas/addons-resources",
+      "x": 640,
+      "y": 331,
+      "width": 285,
+      "height": 265,
+      "cell": {
+        "x": 627,
+        "y": 314,
+        "width": 314,
+        "height": 313
+      }
+    },
+    {
+      "key": "skillAddon/kor-cekirdegi",
+      "name": "Kor çekirdeği",
+      "path": "UI/MutantB/atlas/addons-resources",
+      "x": 965,
+      "y": 327,
+      "width": 273,
+      "height": 281,
+      "cell": {
+        "x": 941,
+        "y": 314,
+        "width": 313,
+        "height": 313
+      }
+    },
+    {
+      "key": "resource/sandik-para",
+      "name": "Kayıp kasa",
+      "path": "UI/MutantB/atlas/addons-resources",
+      "x": 18,
+      "y": 640,
+      "width": 276,
+      "height": 282,
+      "cell": {
+        "x": 0,
+        "y": 627,
+        "width": 314,
+        "height": 314
+      }
+    },
+    {
+      "key": "resource/sandik-tamir",
+      "name": "Onarım seti",
+      "path": "UI/MutantB/atlas/addons-resources",
+      "x": 334,
+      "y": 641,
+      "width": 279,
+      "height": 279,
+      "cell": {
+        "x": 314,
+        "y": 627,
+        "width": 313,
+        "height": 314
+      }
+    },
+    {
+      "key": "resource/sandik-enerji",
+      "name": "Enerji hücresi",
+      "path": "UI/MutantB/atlas/addons-resources",
+      "x": 681,
+      "y": 640,
+      "width": 204,
+      "height": 281,
+      "cell": {
+        "x": 627,
+        "y": 627,
+        "width": 314,
+        "height": 314
+      }
+    },
+    {
+      "key": "skill/grappling-hook",
+      "name": "Grappling Hook",
+      "path": "UI/MutantB/skill/grappling-hook",
+      "x": 39,
+      "y": 64,
+      "width": 1184,
+      "height": 1137,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "evolution/ters-kanca",
+      "name": "Ters Kanca",
+      "path": "UI/MutantB/atlas/evolution",
+      "x": 90,
+      "y": 108,
+      "width": 239,
+      "height": 229,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 418,
+        "height": 418
+      }
+    },
+    {
+      "key": "skill/flying-dutchman",
+      "name": "Flying Dutchman",
+      "path": "UI/MutantB/skill/flying-dutchman",
+      "x": 19,
+      "y": 263,
+      "width": 1235,
+      "height": 727,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "evolution/lanetli-gecis",
+      "name": "Lanetli Geçiş",
+      "path": "UI/MutantB/atlas/evolution",
+      "x": 508,
+      "y": 73,
+      "width": 328,
+      "height": 274,
+      "cell": {
+        "x": 418,
+        "y": 0,
+        "width": 418,
+        "height": 418
+      }
+    },
+    {
+      "key": "skill/risk-taker",
+      "name": "Risk Taker",
+      "path": "UI/MutantB/skill/risk-taker",
+      "x": 78,
+      "y": 79,
+      "width": 1080,
+      "height": 1039,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "evolution/kivilcim-izi",
+      "name": "Kıvılcım İzi",
+      "path": "UI/MutantB/atlas/evolution",
+      "x": 888,
+      "y": 76,
+      "width": 287,
+      "height": 277,
+      "cell": {
+        "x": 836,
+        "y": 0,
+        "width": 418,
+        "height": 418
+      }
+    },
+    {
+      "key": "skill/slipstream-engine",
+      "name": "Slipstream Engine",
+      "path": "UI/MutantB/skill/slipstream-engine",
+      "x": 20,
+      "y": 158,
+      "width": 1196,
+      "height": 1096,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "evolution/ruzgar-kirici",
+      "name": "Rüzgâr Kırıcı",
+      "path": "UI/MutantB/atlas/evolution",
+      "x": 102,
+      "y": 482,
+      "width": 257,
+      "height": 281,
+      "cell": {
+        "x": 0,
+        "y": 418,
+        "width": 418,
+        "height": 418
+      }
+    },
+    {
+      "key": "skill/volt-kanat",
+      "name": "Volt Kanat",
+      "path": "UI/MutantB/skill/volt-kanat",
+      "x": 26,
+      "y": 92,
+      "width": 1203,
+      "height": 1094,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "evolution/firtina-kanadi",
+      "name": "Fırtına Kanadı",
+      "path": "UI/MutantB/atlas/evolution",
+      "x": 418,
+      "y": 498,
+      "width": 418,
+      "height": 251,
+      "cell": {
+        "x": 418,
+        "y": 418,
+        "width": 418,
+        "height": 418
+      }
+    },
+    {
+      "key": "part/motor-kisitli",
+      "name": "Kısıtlayıcı",
+      "path": "UI/MutantB/part/motor",
+      "x": 71,
+      "y": 95,
+      "width": 1129,
+      "height": 1100,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/motor-sokak",
+      "name": "Sokak motoru",
+      "path": "UI/MutantB/part/motor",
+      "x": 71,
+      "y": 95,
+      "width": 1129,
+      "height": 1100,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/motor-spor",
+      "name": "Spor motoru",
+      "path": "UI/MutantB/part/motor",
+      "x": 71,
+      "y": 95,
+      "width": 1129,
+      "height": 1100,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/motor-yaris",
+      "name": "Yarış motoru",
+      "path": "UI/MutantB/part/motor",
+      "x": 71,
+      "y": 95,
+      "width": 1129,
+      "height": 1100,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/motor-degisim",
+      "name": "Motor değişimi",
+      "path": "UI/MutantB/part/motor",
+      "x": 71,
+      "y": 95,
+      "width": 1129,
+      "height": 1100,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/turbo-kucuk",
+      "name": "Küçük turbo",
+      "path": "UI/MutantB/part/turbo",
+      "x": 57,
+      "y": 66,
+      "width": 1172,
+      "height": 1141,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/turbo-buyuk",
+      "name": "Büyük turbo",
+      "path": "UI/MutantB/part/turbo",
+      "x": 57,
+      "y": 66,
+      "width": 1172,
+      "height": 1141,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/kompresor",
+      "name": "Kompresör",
+      "path": "UI/MutantB/part/turbo",
+      "x": 57,
+      "y": 66,
+      "width": 1172,
+      "height": 1141,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/sanziman-kisa",
+      "name": "Kısa şanzıman",
+      "path": "UI/MutantB/part/sanziman",
+      "x": 83,
+      "y": 52,
+      "width": 1072,
+      "height": 1164,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/sanziman-uzun",
+      "name": "Uzun şanzıman",
+      "path": "UI/MutantB/part/sanziman",
+      "x": 83,
+      "y": 52,
+      "width": 1072,
+      "height": 1164,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/lastik-sokak",
+      "name": "Sokak lastiği",
+      "path": "UI/MutantB/part/lastik",
+      "x": 0,
+      "y": 101,
+      "width": 1123,
+      "height": 1090,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/lastik-spor",
+      "name": "Spor lastik",
+      "path": "UI/MutantB/part/lastik",
+      "x": 0,
+      "y": 101,
+      "width": 1123,
+      "height": 1090,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/lastik-yaris",
+      "name": "Yarış lastiği",
+      "path": "UI/MutantB/part/lastik",
+      "x": 0,
+      "y": 101,
+      "width": 1123,
+      "height": 1090,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/lastik-toprak",
+      "name": "Toprak lastiği",
+      "path": "UI/MutantB/part/lastik",
+      "x": 0,
+      "y": 101,
+      "width": 1123,
+      "height": 1090,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/lastik-karisik",
+      "name": "Karışık lastik",
+      "path": "UI/MutantB/part/lastik",
+      "x": 0,
+      "y": 101,
+      "width": 1123,
+      "height": 1090,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/lastik-drift",
+      "name": "Drift lastiği",
+      "path": "UI/MutantB/part/lastik",
+      "x": 0,
+      "y": 101,
+      "width": 1123,
+      "height": 1090,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/lastik-drag",
+      "name": "Drag lastiği",
+      "path": "UI/MutantB/part/lastik",
+      "x": 0,
+      "y": 101,
+      "width": 1123,
+      "height": 1090,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/suspansiyon-sokak",
+      "name": "Sokak süspansiyonu",
+      "path": "UI/MutantB/part/suspansiyon",
+      "x": 115,
+      "y": 21,
+      "width": 1019,
+      "height": 1221,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/suspansiyon-spor",
+      "name": "Spor süspansiyon",
+      "path": "UI/MutantB/part/suspansiyon",
+      "x": 115,
+      "y": 21,
+      "width": 1019,
+      "height": 1221,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/suspansiyon-yaris",
+      "name": "Yarış süspansiyonu",
+      "path": "UI/MutantB/part/suspansiyon",
+      "x": 115,
+      "y": 21,
+      "width": 1019,
+      "height": 1221,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/suspansiyon-ralli",
+      "name": "Ralli süspansiyonu",
+      "path": "UI/MutantB/part/suspansiyon",
+      "x": 115,
+      "y": 21,
+      "width": 1019,
+      "height": 1221,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/suspansiyon-rallikros",
+      "name": "Rallikros süspansiyonu",
+      "path": "UI/MutantB/part/suspansiyon",
+      "x": 115,
+      "y": 21,
+      "width": 1019,
+      "height": 1221,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/suspansiyon-drift",
+      "name": "Drift süspansiyonu",
+      "path": "UI/MutantB/part/suspansiyon",
+      "x": 115,
+      "y": 21,
+      "width": 1019,
+      "height": 1221,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/suspansiyon-drag",
+      "name": "Drag süspansiyonu",
+      "path": "UI/MutantB/part/suspansiyon",
+      "x": 115,
+      "y": 21,
+      "width": 1019,
+      "height": 1221,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/diferansiyel-acik",
+      "name": "Açık diferansiyel",
+      "path": "UI/MutantB/part/diferansiyel",
+      "x": 26,
+      "y": 99,
+      "width": 1197,
+      "height": 1012,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/diferansiyel-lsd",
+      "name": "Yol LSD",
+      "path": "UI/MutantB/part/diferansiyel",
+      "x": 26,
+      "y": 99,
+      "width": 1197,
+      "height": 1012,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/diferansiyel-ralli",
+      "name": "Ralli diferansiyeli",
+      "path": "UI/MutantB/part/diferansiyel",
+      "x": 26,
+      "y": 99,
+      "width": 1197,
+      "height": 1012,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/diferansiyel-kilitli",
+      "name": "Kilitli diferansiyel",
+      "path": "UI/MutantB/part/diferansiyel",
+      "x": 26,
+      "y": 99,
+      "width": 1197,
+      "height": 1012,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/fren-sokak",
+      "name": "Sokak freni",
+      "path": "UI/MutantB/part/fren",
+      "x": 69,
+      "y": 56,
+      "width": 1099,
+      "height": 1154,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/fren-spor",
+      "name": "Spor fren",
+      "path": "UI/MutantB/part/fren",
+      "x": 69,
+      "y": 56,
+      "width": 1099,
+      "height": 1154,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/fren-yaris",
+      "name": "Yarış freni",
+      "path": "UI/MutantB/part/fren",
+      "x": 69,
+      "y": 56,
+      "width": 1099,
+      "height": 1154,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/agirlik-balast",
+      "name": "Balast",
+      "path": "UI/MutantB/part/agirlik",
+      "x": 72,
+      "y": 79,
+      "width": 1106,
+      "height": 1088,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/agirlik-1",
+      "name": "Hafifletme 1",
+      "path": "UI/MutantB/part/agirlik",
+      "x": 72,
+      "y": 79,
+      "width": 1106,
+      "height": 1088,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/agirlik-2",
+      "name": "Hafifletme 2",
+      "path": "UI/MutantB/part/agirlik",
+      "x": 72,
+      "y": 79,
+      "width": 1106,
+      "height": 1088,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/agirlik-3",
+      "name": "Karbon gövde",
+      "path": "UI/MutantB/part/agirlik",
+      "x": 72,
+      "y": 79,
+      "width": 1106,
+      "height": 1088,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/aero-dusuk",
+      "name": "Düşük sürükleme",
+      "path": "UI/MutantB/part/aero",
+      "x": 28,
+      "y": 115,
+      "width": 1481,
+      "height": 811,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "key": "part/aero-yaris",
+      "name": "Yarış kanadı",
+      "path": "UI/MutantB/part/aero",
+      "x": 28,
+      "y": 115,
+      "width": 1481,
+      "height": 811,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "key": "part/aero-buyuk",
+      "name": "Büyük kanat",
+      "path": "UI/MutantB/part/aero",
+      "x": 28,
+      "y": 115,
+      "width": 1481,
+      "height": 811,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "key": "part/cekis-arka",
+      "name": "Arkadan itiş",
+      "path": "UI/MutantB/part/cekis",
+      "x": 61,
+      "y": 70,
+      "width": 1133,
+      "height": 1107,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/cekis-dort",
+      "name": "Dört çeker",
+      "path": "UI/MutantB/part/cekis",
+      "x": 61,
+      "y": 70,
+      "width": 1133,
+      "height": 1107,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/aci-kiti",
+      "name": "Açı kiti",
+      "path": "UI/MutantB/part/direksiyon",
+      "x": 19,
+      "y": 64,
+      "width": 1213,
+      "height": 1055,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "part/koruma",
+      "name": "Alt koruma",
+      "path": "UI/MutantB/part/koruma",
+      "x": 33,
+      "y": 133,
+      "width": 1185,
+      "height": 982,
+      "cell": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    }
+  ],
+  "assets": [
+    {
+      "path": "UI/MutantB/passive/guc",
+      "sha256": "fbd23e85329077fee5db8971ae5d46a362dca807abe1e1d3d95cc112963278e1",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/passive/hafif",
+      "sha256": "c5b260405fb4c8630665823221c5e767c32bec1c5b043ed40ba27dee9de67794",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/atlas/passive-road",
+      "sha256": "386168d9a3fdeee9df8852245cda6311d0a2455c5e44157e0ff894ed5f5bac30",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/passive/zirh",
+      "sha256": "f36c25dc18351dc6075973cfbf52130583a16f24cc2e38cd1a1ff29b51f8c3b9",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/passive/tamirci",
+      "sha256": "0c4099cb5e7f41686ef177de128983edb823e1cdbc929c3955ca83a02d73d46d",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/passive/adrenalin",
+      "sha256": "ec83e98ea9f9795fef70281c5245aca83e07aa0a5bb393997c50ed925034edb1",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/atlas/passive-energy",
+      "sha256": "ca02792bf15a41c00ac68dd8c09eb2f8c0d2860d96bb608bea025ad7094dac25",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/passive/sert-nitro",
+      "sha256": "7bd5cc9a00f1a8462259a94e4ff972b6512d9c881ff54bef690b4dbaf677558c",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/atlas/addons-resources",
+      "sha256": "19a2a047c811c8cf53973e8a93c0f913e4b45d2649a3efb93aa24431de517be9",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/skill/grappling-hook",
+      "sha256": "cc0f2abac29890e11f41f8005146611b0080eb5b89a10b6f68b67989f0f4227a",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/atlas/evolution",
+      "sha256": "5667d6ebab5bbe85e768ab2684ad4253841e8c705c8dbb9a1965b036c14e9a3d",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/skill/flying-dutchman",
+      "sha256": "c3b1c4eadb1ad3a657d40a0912a60b962e324f7dfe7b57bdf55c20424631e3c5",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/skill/risk-taker",
+      "sha256": "a52ac9b2c72fe9e5b094f4e1c7c3c4424f23fc93e50d11ace8fac9064ac8bcee",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/skill/slipstream-engine",
+      "sha256": "f5faa41042ea0bd32c2ff5f78f625130745ae137fcb35aa4075fefe7d0d458ec",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/skill/volt-kanat",
+      "sha256": "8d080ade5df6ad36db396a6ecfc398ed42b03e8c2f853cc69f5098ecb4b81856",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/part/motor",
+      "sha256": "5f4e7264d0ebac79c52156146eb64880d3180cf461bce485bae39be4f6ff7d3f",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/part/turbo",
+      "sha256": "320b801b7e6d398b3cbe23e4035e54405d877f99552b22e16be30e5bd081b41c",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/part/sanziman",
+      "sha256": "4bb7e4234b205024145fb2c446288891a6d09e162ab374f26b9de243778046ee",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/part/lastik",
+      "sha256": "88b7ab182d1cde5876a64d3db59773cecfd870a63710a6f8bcf048d8cccd4b25",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/part/suspansiyon",
+      "sha256": "89d3fe5dec3315d5fdb3b9614277a04f592334b903f846776b968bf58e3449f9",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/part/diferansiyel",
+      "sha256": "cfb92129a6570491d3625564bd03e0720a4a2eb0f105b1365cb66ca4f8330946",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/part/fren",
+      "sha256": "62a597662e026323ba489ddf34e179c9becd2b2c977b3f9418f11e943089b73a",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/part/agirlik",
+      "sha256": "bd2d270e5ced4644ac1a264b4fbd0e4970cf79b7506a4c45c094cb0405dc3d53",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/part/aero",
+      "sha256": "e2d72b0c19136d7a3d4895816e74ee4bdfb0965eb1a97e826fb64119bd2b617b",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "path": "UI/MutantB/part/cekis",
+      "sha256": "ca78c98940f32e96177edee58c13f2d0f23caa39a12a8d202dd3b9da525b505c",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/part/direksiyon",
+      "sha256": "98bdc69c93f9c384ee96c001b38aba312600c3b6381f87eb13bf0f5d9d3ccfe9",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "path": "UI/MutantB/part/koruma",
+      "sha256": "354d2c0b72c8e94080441e68efaa62620f9c6fe13e0fabdcdfd40330bcc77a2f",
+      "width": 1254,
+      "height": 1254
+    }
+  ]
+}

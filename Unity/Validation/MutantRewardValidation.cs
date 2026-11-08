@@ -22,6 +22,7 @@ internal static class MutantRewardValidation
       string offer=d.Kind==RewardKind.Skill?"b:"+d.Id:d.Kind==RewardKind.Evolution?"v:"+d.Owner+":"+d.Id:d.Kind==RewardKind.SkillAddon?"e:"+d.Id+":grappling-hook":d.Id;
       var card=rewards.Read(run,offer,RewardSource.Level,cars,0);
       Check(card.Known&&card.Name==d.Name&&card.Description==d.Description&&card.Rarity==d.Rarity,"Gerçek katalog kartı "+d.Key);
+      Check(card.IconKey==d.Key,"Sunum ikon kimliği gerçek katalog türünde "+d.Key);
     }
     Check(run.State.ToString()==state&&cars.Data.ToString()==data&&catalog.ToString()==source,"Model okuması koşu/katalog/kayıt verisini değiştirmez");
     Check(!rewards.Read(run,"x:volt-kanat",RewardSource.Level).Known&&!rewards.Read(run,"y",RewardSource.Level).Known,"Geçersiz teklif güvenli");

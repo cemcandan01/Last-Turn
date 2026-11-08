@@ -18,7 +18,7 @@ namespace LastTurn.Core
   }
   public sealed class MutantRewardCard
   {
-    public string Offer="",Name="",Description="",KindText="",SourceText="",LevelText="",EffectText="",VehicleText="",Compatibility="",CurseText="";
+    public string Offer="",IconKey="",Name="",Description="",KindText="",SourceText="",LevelText="",EffectText="",VehicleText="",Compatibility="",CurseText="";
     public string RarityText="",RarityColor="",RaritySymbol="";
     public RewardRarity Rarity;public int Level;public bool Known,Compatible,NeedsReplacement,Cursed;
     public RewardNumber[] VehicleEffects=Array.Empty<RewardNumber>();
@@ -68,7 +68,7 @@ namespace LastTurn.Core
         if(valid){string group=p[0]=="e"?"skillAddon":p[0]=="v"?"evolution":"skill";d=Find(group+"/"+(p[0]=="v"?p[2]:id));}}
       else foreach(string group in new[]{"passive","addon","part","resource"}){d=Find(group+"/"+id);if(d!=null)break;}
       if(d==null){c.Name="Bilinmeyen ödül";c.Description="Katalogda bulunamadı.";c.Compatibility="Kullanılamıyor";c.RarityText=RarityName(RewardRarity.Common);c.RarityColor=RarityColor(RewardRarity.Common);c.RaritySymbol="[I]";return c;}
-      c.Known=true;c.Name=d.Name;c.Description=d.Description;c.KindText=KindName(d.Kind);c.Rarity=d.Rarity;c.RarityText=RarityName(d.Rarity);c.RarityColor=RarityColor(d.Rarity);c.RaritySymbol=new[]{"[I]","[II]","[III]","[IV]"}[(int)d.Rarity];
+      c.Known=true;c.IconKey=d.Key;c.Name=d.Name;c.Description=d.Description;c.KindText=KindName(d.Kind);c.Rarity=d.Rarity;c.RarityText=RarityName(d.Rarity);c.RarityColor=RarityColor(d.Rarity);c.RaritySymbol=new[]{"[I]","[II]","[III]","[IV]"}[(int)d.Rarity];
       c.Compatible=true;c.VehicleText="Araç seçilince kurulum etkisi gösterilir.";c.EffectText=d.Description;
       string owner=p.Length==3&&p[0]=="e"?p[2]:id;
       var equipped=run.State["beceriler"].Items.FirstOrDefault(s=>s["id"].S()==owner);
