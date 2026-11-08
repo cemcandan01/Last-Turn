@@ -109,6 +109,14 @@
 - `Unity/Logs/b-result-play.json`, `b-result-editor.log`, `b-result-{passed,failed,level,pending,boss}-{1280,1920}.png`;10 son görüntü açılıp incelendi, sütun/alt bant/tuşlar ve model sayıları doğru. Kanıt yerel/ignore; üretici/denetleyici commit'te. Kontrollü XP/etkinlik/süre/puan fixture'ı gerçek Runtime bitiş yoluna verildi; fiziksel yarış/OS girdi/insan beğeni kabulü iddiası yok. Boss kayıt yolu yalnız `Logs/BResult/<guid>`; gerçek kayıt/Firebase, ana Editor, TS0.8.18/P1–P5/`_Recovery` korundu.
 - Tek ajan, kota bilinmiyor; push/merge/yayın/yeni paket/ücretli servis/alt ajan/yeni grafik yok. **Dur:** yalnız7A bitti. Sıradaki tek iş **B /8A koşu özeti**; bu oturumda başlanmadı.
 
+## İkon doğrulama ve yalnız HUD hazırlığı — 9 Kasım 2026
+
+- Sahip Codex; aynı bağlamdaki kanıtlı ikon/UI teslimini devraldı. Başlangıç `43cb031`, aynı dal; tek ajan, iki resmi kapasite penceresi bilinmiyor. Kabul: mevcut ikonların eksiksiz eşlemesi, güncel kaynakla Play kanıtı ve dar ödül kontrolü, iki çözünürlük görüntüsü, yalnız dosya bazlı HUD planı. `_Recovery` dışında başlangıç değişikliği yok; korundu.
+- `8539d7f` [HUD planı](../tasarim/mutant-b/hud-uygulama-plani.md): Runtime/MutantScreen/UI Toolkit/AbilityDriver/Session/yerleşim ve taslak incelendi. Tipli görev/yakın işaret ve salt telemetri geri bildirimi sınırları, legacy çift çizim/girdi sahipliği, dosya listesi ve sonraki dar testler belgelendi. Plan dışındaki hiçbir yeni sınıf henüz yazılmadı.
+- Gerçek49 istenen kategori ödülü+3 kaynak ayrı simge;94 toplam eşleme/64 simge/27 PNG. Eksik0/M0/yeni üretim0;42 atölye tanımı mevcut12 kategori ikonunda. Envanter değişmedi. İkon checker yeniden geçti; .NET740/128 seed yeniden geçti. Choice proof459/459,208 güncel hash,0 çalışma hatası/0 Editor tanısı. Kaynak değişmediğinden8 Kasım UTC `2026-11-08T16:05:32.8996994Z` gerçek Play kanıtı yeniden kullanıldı;9 Kasım yeni Play iddiası yok.
+- Sekiz `Unity/Logs/m2-choice-{offer,icons,curse,replace}-{1280,1920}.png` yeniden incelendi; dört rarity/evrim/eklenti/lanet/üç teklif/değiştirme okunur, çakışma yok. Önceki kanıt normal seçim, mouse/keyboard/onay/iptal/Esc-pause, bozuk veri ve RNG/kayıt korumasını kapsar. Lanet kontrollü Editor kart önizlemesi, girdi sentetik; insan kabulü değil. JSON ve görsel yolları DEVIR başında.
+- Yerel fetch başarılı; push/merge/yayın yok. HUD/ikon/oyun kodu, gerçek kayıt/Firebase/P1–P7/TS0.8.18/`_Recovery` değişmedi; ücretli araç/paket/ajan/uzun regresyon yok. Yalnız plan/kart/devir değişti. **Dur:** sonraki tek iş B koşu içi HUD uygulaması; bu görevde kodlanmadı.
+
 ## Yeniden ikon kabulü — hatalı veri ve görsel kapsam (8 Kasım 2026)
 
 ### Sonuç — `678f230`
