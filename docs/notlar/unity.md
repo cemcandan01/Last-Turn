@@ -4,7 +4,8 @@
 
 - Tek kaynak [DEVIR başı](../DEVIR.md). `codex/unity-p7-garaj`: M1 hasar kimliği ve M2 ödül modeli/kartları tamam;94 tanım/64 B sembolü (`a6be53c`, devir `12cd26b`). B görsel yönü Cem tarafından onaylandı; yeniden yön seçimi sorma.
 - B /5A ödül ve skill değiştirme (`3001f70`), B /6A boss (`20ec0b2`), B /7A sonuç (`dd85772`) tamam. Son sonuç:181 gerçek grafik Play/.NET435.641,208 kaynak hash'i ve10 Game View. Boss çağrısı kabulde tüketilir; sonraki bölgede kalmaz. Kanıtlar yerel/ignore; ayrıntı DEVIR'de.
-- Sıradaki tek görev B /8A koşu özeti. Diğer5 koşu içi ekran, insan kabulü ve sonraki M2–M4 işleri açık. Bu teslimde push/merge/yayın yok; `_Recovery` ve gerçek kayıtlar korunur.
+- Ödül ikonlarının yeniden kabulü `678f230`:94 eşleme/64 simge/27 PNG korunur; bozuk veri güvenliği eklendi. .NET740, gerçek grafik Play459/459,208 kaynak hash'i,8 Game View; ayrıntı DEVIR başında. Yeni görsel üretilmedi.
+- Kullanıcının son ikon görevi uyarınca sıradaki tek öneri **B koşu içi HUD**; başlanmadı. Diğer5 koşu içi ekran, insan kabulü ve sonraki M2–M4 işleri açık. Bu teslimde push/merge/yayın yok; `_Recovery` ve gerçek kayıtlar korunur.
 
 ## 7 Kasım notları — tarihsel kayıt
 
