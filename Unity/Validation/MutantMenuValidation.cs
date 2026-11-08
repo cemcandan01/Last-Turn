@@ -95,6 +95,12 @@ internal static class MutantMenuValidation
     Check(MutantMenuModel.StartingCars(1, small).Length == 2, "üçten az adayda kaynak sınırı");
     small.Set("startingCars", CatalogNode.Arr(Array.Empty<CatalogNode>()));
     Check(MutantMenuModel.StartingCars(1, small).Length == 0, "boş adayda kaynak sınırı");
-    Console.WriteLine($"Mutant menü: {checks} koşul; 14 başlangıç, 59 seçim kartı, 9 görünüm durumu; en büyük fark {maximumError:G3}.");
+    foreach(var boss in catalog["bosses"].Items)foreach(double remaining in new[]{1d,0,-1}){
+      var sample=new MutantRun(53,catalog);sample.State.Set("boss",boss.Clone());sample.State.Set("kalan",CatalogNode.Num(remaining));string before=sample.State.ToString();
+      var model=MutantMenuModel.Read(sample,vehicles,0);
+      Check(model.BossId==boss["id"].S()&&model.CanLeaveBoss==(remaining>0)&&model.BossDuel==(sample.BossOpponent()!=null),"Boss arma kimliği, düello ve geri dönüş sınırı");
+      Check(sample.State.ToString()==before,"Boss sunumu RNG/kayıt durumunu değiştirmez");
+    }
+    Console.WriteLine($"Mutant menü: {checks} koşul; 14 başlangıç, 59 seçim kartı, 9 görünüm durumu +5 boss/3 geri sınırı; en büyük fark {maximumError:G3}.");
   }
 }

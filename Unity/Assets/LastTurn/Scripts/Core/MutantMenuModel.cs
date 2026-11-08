@@ -52,6 +52,8 @@ namespace LastTurn.Core
   public sealed class MutantMenuModel
   {
     public string Phase = "", Timer = "", CarName = "", BossName = "", BossDescription = "", BossWeakness = "", BossType = "";
+    public string BossId = "";
+    public bool CanLeaveBoss, BossDuel;
     public string[] BossAbilities = Array.Empty<string>(), PassiveNames = Array.Empty<string>(), SkillNames = Array.Empty<string>(), InstalledPartNames = Array.Empty<string>();
     public int Region, Level, SelectedCar, BossTrackIndex, DefeatedBosses;
     public bool Test, Finished, Wrecked, CanRepair, ShowRepair, CanRefresh;
@@ -145,6 +147,7 @@ namespace LastTurn.Core
         Wrecked = state["pert"].B(), Remaining = state["kalan"].N(), Timer = Time(state["kalan"].N()), Body = state["govde"].N(),
         Money = state["para"].N(), Xp = state["xp"].N(), NextLevelXp = MutantRun.LevelXp((int)state["seviye"].N() + 1),
         SelectedCar = selectedCar, CarName = selectedCar < 0 ? "" : vehicles.Data["cars"][selectedCar]["n"].S(),
+        BossId = boss["id"].S(), CanLeaveBoss = state["kalan"].N() > 0, BossDuel = run.BossOpponent() != null,
         BossName = boss["ad"].S(), BossDescription = boss["d"].S(), BossWeakness = boss["zayif"].S(), BossType = boss["ty"].S(),
         BossAbilities = boss["yetenekler"].Items.Select(x => x.S()).ToArray(), BossTrackIndex = (int)bossTrack["i"].N(), BossTarget = run.BossTarget(bossTrack),
         RepairCost = run.RepairCost, RefreshCost = catalog["stockRefresh"].N(),

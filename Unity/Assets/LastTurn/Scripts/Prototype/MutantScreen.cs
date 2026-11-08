@@ -18,9 +18,11 @@ namespace LastTurn.Prototype
     private void Update()
     {
       if(!MutantRuntime.Active)return;
+      if(LastTurn.Ui.MutantBossView.HandledFrame==Time.frameCount)return;
       if(LastTurn.Ui.MutantStartView.CoversCurrentScreen)return;
       // Ödül görünümü Esc'i değiştirme iptali/duraklatma olarak kendisi işler.
       if(LastTurn.Ui.MutantChoiceView.OwnsChoice)return;
+      if(LastTurn.Ui.MutantBossView.OwnsBoss)return;
       if(!SettingsScreen.Open&&Time.frameCount!=SettingsScreen.ClosedFrame&&Keyboard.current!=null&&Keyboard.current.escapeKey.wasPressedThisFrame)GameFlow.Pause(!GameFlow.Paused);
     }
     private bool Button(string name)=>GUILayout.Button(name,button,GUILayout.MinHeight(44));
@@ -29,6 +31,7 @@ namespace LastTurn.Prototype
       if(!MutantRuntime.Active)return;
       if(LastTurn.Ui.MutantStartView.CoversCurrentScreen||LastTurn.Ui.SettingsView.CoversCurrentScreen||LastTurn.Ui.PauseView.CoversCurrentScreen)return;
       if(LastTurn.Ui.MutantChoiceView.CoversCurrentScreen)return;
+      if(LastTurn.Ui.MutantBossView.CoversCurrentScreen)return;
       if(text==null){text=new GUIStyle(GUI.skin.label){fontSize=17,wordWrap=true};text.normal.textColor=Color.white;title=new GUIStyle(text){fontSize=25,fontStyle=FontStyle.Bold};small=new GUIStyle(text){fontSize=14};button=new GUIStyle(GUI.skin.button){fontSize=17,wordWrap=true};}
       var m=MutantRuntime.Model;
       var p=FindFirstObjectByType<GtPrototype>();bool drive=p&&p.Simulation!=null&&MutantRuntime.Panel==""&&!GameFlow.Paused;

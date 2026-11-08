@@ -1,0 +1,18 @@
+.mb-body { position: absolute; left: 96px; right: 96px; top: 188px; bottom: 150px; }
+.mb-kicker { font-size: 20px; color: #ef73ba; margin-bottom: 10px; flex-shrink: 0; }
+.mb-title { font-size: 64px; margin-bottom: 14px; flex-shrink: 0; }
+.mb-body > .mc-copy { margin-bottom: 12px; flex-shrink: 0; }
+.mb-panel { flex-direction: row; flex-grow: 1; min-height: 0; margin-top: 20px; padding: 32px; border-width: 1px; border-color: #497354; border-radius: 18px; background-color: rgba(5,17,21,.96); }
+.mb-emblem { width: 340px; height: 340px; align-self: center; flex-shrink: 0; -unity-background-scale-mode: scale-to-fit; margin-right: 44px; }
+.mb-right { flex-grow: 1; flex-basis: 0; min-width: 0; }
+.mb-details { flex-grow: 1; min-height: 110px; }
+.mb-details .unity-scroll-view__content-container { flex-shrink: 0; }
+.mb-copy { font-size: 24px; white-space: normal; margin-bottom: 24px; }
+.mb-target { font-size: 24px; color: #b7ff32; white-space: normal; margin-top: 8px; }
+.mb-right .mc-actions { flex-wrap: wrap; margin-top: 20px; justify-content: flex-start; }
+.mb-right .mc-actions .ltb { margin-left: 14px; margin-right: 30px; }
+.mb-details .unity-scroller--vertical { width: 12px; background-color: #122b28; }
+.mb-details .unity-scroller__low-button, .mb-details .unity-scroller__high-button { display: none; }
+.mb-details .unity-base-slider__tracker { background-color: #152622; border-width: 0; }
+.mb-details .unity-base-slider__dragger { background-color: #52734a; border-width: 0; min-height: 28px; }
+.mb-page .ltb.sec > .skew { --edge: #ecf6e7; }
