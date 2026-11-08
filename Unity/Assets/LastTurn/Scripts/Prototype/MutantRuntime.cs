@@ -30,6 +30,8 @@ namespace LastTurn.Prototype
     public static int Car {get;private set;}=-1;
     public static string Panel {get;private set;}="";
     public static string Message {get;private set;}="";
+    // Sunum için son gerçek bitiş kararı; oyuncu kaydına yazılmaz ve ödül üretmez.
+    public static bool? ResultPassed {get;private set;}
     public static int MarkerId {get;private set;}
     public static bool Active=>Run!=null;
     public static string RecordDirectory {get;set;}="";
@@ -39,12 +41,12 @@ namespace LastTurn.Prototype
     public static MutantMenuModel Model=>MutantMenuModel.Read(Run,GarageSession.Catalog,Car);
     private static BodyVector? returnPoint;private static double returnHeading;private static int refreshed;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void Reset(){Run=null;Session=null;RacePlan=null;Abilities=null;OpponentLink=null;Car=-1;Panel="";Message="";returnPoint=null;refreshed=0;RecordDirectory="";Starting=false;rewards=null;}
+    private static void Reset(){Run=null;Session=null;RacePlan=null;Abilities=null;OpponentLink=null;Car=-1;Panel="";Message="";ResultPassed=null;returnPoint=null;refreshed=0;RecordDirectory="";Starting=false;rewards=null;}
     public static void Start(uint seed)
     {
       GarageSession.EnsureLoaded();var asset=Resources.Load<TextAsset>("mutant-catalog");
       if(!asset)throw new InvalidOperationException("Mutant verisi bulunamadı.");
-      Run=new MutantRun(seed,CatalogNode.Parse(asset.text));rewards=null;Session=null;RacePlan=null;Car=-1;Panel="start";Message="";returnPoint=null;Starting=true;GameFlow.Pause(false);
+      Run=new MutantRun(seed,CatalogNode.Parse(asset.text));rewards=null;Session=null;RacePlan=null;Car=-1;Panel="start";Message="";ResultPassed=null;returnPoint=null;Starting=true;GameFlow.Pause(false);
     }
     // Yalnız ilk seçim ekranında gezinme; koşu/RNG/seçenekler yeniden üretilmez.
     public static void BackToStartingCars(){if(Starting&&Panel=="choice")Panel="start";}
@@ -113,12 +115,13 @@ namespace LastTurn.Prototype
     {
       var p=UnityEngine.Object.FindFirstObjectByType<GtPrototype>();if(p){returnPoint=p.Simulation.ReferencePoint;var f=p.Simulation.Body.Orientation.Rotate(new BodyVector(0,0,1));returnHeading=Math.Atan2(f.X,f.Z);}
       var data=RaceData.Load();RacePlan=MutantRacePlan.Create(Run,Car,eventId,risk,boss,data.Events,data.Tracks,WorldData.Catalog);
-      if(boss)Run.EnterBoss();else Run.LockDeposit(eventId);
-      Panel="";Message="";GameFlow.Pause(false);WorldData.Clear();SceneManager.LoadScene("RaceTest");
+      if(boss){Run.EnterBoss();Session.ClearPendingBoss();}else Run.LockDeposit(eventId);
+      Panel="";Message="";ResultPassed=null;GameFlow.Pause(false);WorldData.Clear();SceneManager.LoadScene("RaceTest");
     }
     public static void Finished(RaceRun race,OpponentRacer opponent)
     {
       bool passed=RacePlan.Passed(race.Session,opponent);
+      ResultPassed=passed;
       if(RacePlan.Boss)
       {
         int region=Run.Region;Run.FinishBoss(passed);if(Run.Region!=region)returnPoint=null;

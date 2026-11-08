@@ -1,0 +1,13 @@
+.mr-body { position: absolute; left: 96px; right: 96px; top: 244px; bottom: 150px; flex-direction: row; align-items: flex-start; }
+.mr-left { width: 42%; padding-top: 28px; padding-right: 64px; }
+.mr-kicker { font-size: 22px; color: #ef73ba; margin-bottom: 24px; }
+.mr-title { font-size: 72px; white-space: normal; margin-bottom: 30px; color: #b7ff32; }
+.mr-title.mr-failed { color: #ef73ba; }
+.mr-copy { font-size: 25px; white-space: normal; margin-bottom: 16px; color: #c4d4cc; }
+.mr-note { font-size: 22px; white-space: normal; color: #c4d4cc; margin-top: 28px; }
+.mr-panel { flex-grow: 1; min-width: 0; padding: 36px 44px; background-color: rgba(5,17,21,.96); border-width: 1px; border-color: #497354; border-radius: 18px; }
+.mr-row { flex-direction: row; justify-content: space-between; padding-top: 16px; padding-bottom: 16px; border-bottom-width: 1px; border-bottom-color: #254332; }
+.mr-label { font-size: 26px; color: #c4d4cc; }
+.mr-value { font-size: 28px; -unity-font-style: bold; color: #ecf6e7; }
+.mr-panel .mr-actions { justify-content: flex-start; margin-top: 34px; }
+.mr-panel .mr-actions .ltb { margin-left: 14px; }
