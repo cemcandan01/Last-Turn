@@ -48,6 +48,7 @@ namespace LastTurn.Prototype
         string key = p.Key; int slot = 0; Kind kind;
         if (key.StartsWith("Skill") || key.StartsWith("Passive")) { slot = int.Parse(key.Substring(key.StartsWith("Skill") ? 5 : 7)); kind = key.StartsWith("Skill") ? Kind.Skill : Kind.Passive; }
         else if (!System.Enum.TryParse(key, out kind)) continue;
+        if(LastTurn.Ui.MutantHudView.OwnsDrive&&(kind==Kind.Nitro||kind==Kind.Skill||kind==Kind.Passive))continue;
         string label = kind is Kind.Skill or Kind.Passive ? (skills != null && slot < skills.Length ? skills[slot].Name : "") : Labels[key];
         yield return (kind, slot, Hud.R(p.Value), label);
       }

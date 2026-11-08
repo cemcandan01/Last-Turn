@@ -52,8 +52,11 @@ namespace LastTurn.Ui
       if (root == null) return;
       if (!p) p = FindFirstObjectByType<GtPrototype>();
       var race = p ? p.Race : null;
+      bool world=MutantRuntime.Active&&!MutantRuntime.Blocked&&race==null&&p&&p.Simulation!=null&&!SettingsScreen.Open;
+      if(world){Ui.Show(root,true);Visible=true;foreach(var e in new VisualElement[]{left,timer,hints,countdown,note,back,wrong})Ui.Show(e,false);Place(speedBox,Hud.Rects(p),"Speed",UiRoot.Instance.PixelToPanel);DrawSpeed();return;}
       Visible = race != null && p.Simulation != null && race.Session.State != RaceState.Finished && !GameFlow.Paused && !SettingsScreen.Open && MutantRuntime.Panel == "";
       Ui.Show(root, Visible); if (!Visible) return;
+      foreach(var e in new VisualElement[]{countdown,note,back})Ui.Show(e,true);
       var s = race.Session;
       if (s != seenSession) { seenSession = s; seenNotes = 0; lastNote = ""; }
       for (; seenNotes < s.Notes.Count; seenNotes++) { lastNote = s.Notes[seenNotes].Text; noteUntil = Time.unscaledTime + 1.6f; }
@@ -74,14 +77,13 @@ namespace LastTurn.Ui
       if (p.Opponent != null) lines.Add(p.OpponentText());
       info.text = string.Join("\n", lines);
       big.text = m.Big; sub.text = m.Sub;
-      var b = p.Simulation.Body; var engine = p.Simulation.Engine;
-      speed.text = (b.Velocity.Length * 3.6).ToString("0", CultureInfo.InvariantCulture);
-      gear.text = engine.Gear < 0 ? "R" : engine.Gear == 0 ? "N" : engine.Gear.ToString(CultureInfo.InvariantCulture);
+      DrawSpeed();
       countdown.text = m.Countdown; note.text = m.Note; back.text = m.Return; Ui.Show(wrong, m.WrongWay);
       // masaüstü ipucu: yalnız ilk saniyelerde
       bool hint = s.State == RaceState.Countdown || s.Time < 6;
       hintText.text = hint ? "W/S gaz–fren · A/D direksiyon · Boşluk el freni · T piste dön · R yeniden başlat · V kamera · Esc duraklat"
         + (p.Simulation.Parameters.ManualGearbox ? " · E/Q vites" : "") + (MutantRuntime.Active ? " · N nitro · 1/2/3 skill" : "") : "";
     }
+    private void DrawSpeed(){var b=p.Simulation.Body;var engine=p.Simulation.Engine;speed.text=(b.Velocity.Length*3.6).ToString("0",CultureInfo.InvariantCulture);gear.text=engine.Gear<0?"R":engine.Gear==0?"N":engine.Gear.ToString(CultureInfo.InvariantCulture);}
   }
 }

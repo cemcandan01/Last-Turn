@@ -1,0 +1,20 @@
+.mh-root { color: rgb(231,242,225); -unity-font-style: normal; text-shadow: 1px 2px 3px rgba(0,0,0,.95); }
+.mh-root Label { margin: 0; padding: 0; flex-shrink: 0; }
+.mh-box { position: absolute; overflow: hidden; }
+.mh-summary { flex-direction: column; }
+.mh-region { height: 28px; font-size: 24px; -unity-font-style: bold; color: rgb(182,255,36); }
+.mh-boss { height: 23px; font-size: 19px; color: rgb(238,124,206); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mh-resources, .mh-progress { height: 22px; font-size: 18px; }
+.mh-mission { height: 22px; font-size: 18px; color: rgb(182,255,36); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mh-nitro-title { font-size: 20px; -unity-font-style: bold; color: rgb(182,255,36); }
+.mh-nitro-text { font-size: 18px; white-space: normal; }
+.mh-name { width: 80%; font-size: 21px; -unity-font-style: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mh-detail { font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mh-state { font-size: 18px; }
+.mh-bar { height: 4px; background-color: rgba(232,242,225,.2); margin-top: 2px; margin-right: 8px; }
+.mh-fill { height: 4px; background-color: rgb(238,124,206); }
+.mh-ready .mh-fill, .mh-on .mh-fill { background-color: rgb(182,255,36); }
+.mh-on { color: rgb(182,255,36); }
+.mh-icon { position: absolute; right: 0; top: 0; width: 34px; height: 34px; margin: 0; -unity-background-scale-mode: scale-to-fit; }
+.mh-notice { position: absolute; left: 24%; top: 25%; width: 52%; font-size: 26px; -unity-text-align: middle-center; color: rgb(182,255,36); }
+.mh-hint-text { font-size: 16px; white-space: nowrap; }

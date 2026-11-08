@@ -57,6 +57,7 @@ namespace LastTurn.Ui
       gameObject.AddComponent<PauseView>();
       gameObject.AddComponent<ResultView>();
       gameObject.AddComponent<RaceHudView>();
+      gameObject.AddComponent<MutantHudView>();
     }
 
     private static VisualElement Layer(string cls)

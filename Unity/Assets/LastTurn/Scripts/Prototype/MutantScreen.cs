@@ -39,6 +39,7 @@ namespace LastTurn.Prototype
       // sürüşte: ortak HUD yerleşimindeki tek satırlık durum çubuğu (dokunmatik düğmelere ve miniharitaya değmez)
       if(drive&&Hud.TryGet(p,"MutantBar",out var bar))
       {
+        if(LastTurn.Ui.MutantHudView.OwnsDrive){lastMessage=MutantRuntime.Message;return;}
         GUILayout.BeginArea(bar,GUI.skin.box);
         GUILayout.Label("Bölge "+m.Region+" • Boss "+m.Timer+" • Gövde "+m.Body.ToString("0")+" • "+m.Money.ToString("0")+" para • Sv "+m.Level,small);GUILayout.EndArea();
         if(MutantRuntime.Message!=""&&MutantRuntime.Message!=lastMessage){TouchDrivingOverlay.Note(MutantRuntime.Message,2.2f);}lastMessage=MutantRuntime.Message;
