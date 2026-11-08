@@ -3,8 +3,8 @@
 ## Güncel özet — 8 Kasım 2026
 
 - Tek kaynak [DEVIR başı](../DEVIR.md). `codex/unity-p7-garaj`: M1 hasar kimliği ve M2 ödül modeli/kartları tamam;94 tanım/64 B sembolü (`a6be53c`, devir `12cd26b`). B görsel yönü Cem tarafından onaylandı; yeniden yön seçimi sorma.
-- B /5A ödül ve skill değiştirme (`3001f70`), B /6A boss (`20ec0b2`) tamam. Son boss:132 gerçek grafik Play,4.311 dar menü/12.952 TS plan koşulu;205 kaynak hash'i ve12 Game View. Kanıtlar yerel/ignore; ayrıntı DEVIR'de.
-- Sıradaki tek görev B /7A Mutant yarış sonucu. Diğer6 koşu içi ekran, insan kabulü ve sonraki M2–M4 işleri açık. Bu teslimde push/merge/yayın yok; `_Recovery` ve gerçek kayıtlar korunur.
+- B /5A ödül ve skill değiştirme (`3001f70`), B /6A boss (`20ec0b2`), B /7A sonuç (`dd85772`) tamam. Son sonuç:181 gerçek grafik Play/.NET435.641,208 kaynak hash'i ve10 Game View. Boss çağrısı kabulde tüketilir; sonraki bölgede kalmaz. Kanıtlar yerel/ignore; ayrıntı DEVIR'de.
+- Sıradaki tek görev B /8A koşu özeti. Diğer5 koşu içi ekran, insan kabulü ve sonraki M2–M4 işleri açık. Bu teslimde push/merge/yayın yok; `_Recovery` ve gerçek kayıtlar korunur.
 
 ## 7 Kasım notları — tarihsel kayıt
 

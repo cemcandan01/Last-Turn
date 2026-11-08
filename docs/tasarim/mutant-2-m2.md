@@ -1,6 +1,6 @@
 # Mutant 2.0 — M2 ilk ödül dilimi
 
-**8 Kasım ilerlemesi:** başlangıç kart entegrasyonu `39fea95`, koşu içi B /5A ödül+skill değiştirme `3001f70`, tam ödül ikon eşlemesi `a6be53c`, B /6A boss ekranı `20ec0b2` ile tamamlandı. Cem B biyomekanik yönünü seçti.94 tanım/64 sembol için Unity385/.NET740; boss için Unity132/.NET4.311+12.952 ve12 Game View kanıtı [güncel devirde](../DEVIR.md). Aşağıdaki ilk teslim sınırı ve “sonraki iş” tarihsel kayıttır; yeniden uygulanmaz. Diğer6 ekran henüz aktarılmadı; sıradaki tek iş B /7A Mutant yarış sonucudur.
+**8 Kasım ilerlemesi:** başlangıç kart entegrasyonu `39fea95`, koşu içi B /5A ödül+skill değiştirme `3001f70`, tam ödül ikon eşlemesi `a6be53c`, B /6A boss `20ec0b2`, B /7A yarış sonucu `dd85772` ile tamamlandı. Cem B biyomekanik yönünü seçti. Son sonuç ekranı Unity181/.NET435.641 ve10 Game View; önceki dilimlerin kanıtları [güncel devirde](../DEVIR.md). Aşağıdaki ilk teslim sınırı ve “sonraki iş” tarihsel kayıttır; yeniden uygulanmaz. Diğer5 ekran henüz aktarılmadı; sıradaki tek iş B /8A koşu özetidir.
 
 7 Kasım 2026 · [görev kartı](../isler/2026-11-07-mutant-m1-kapanis-m2.md).
 M1 kapanışı `95e66b2` ile tamamlanıp .NET31/Unity41 kanıtı alındıktan sonra başlandı.
