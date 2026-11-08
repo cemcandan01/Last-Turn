@@ -10,6 +10,13 @@ for (const label of [
   "Koşu içi seçim tek görünümde",
   "B arka plan ve çerçeve yüklü",
   "94 ödül ikon tanımı",
+  "Null satır yanında geçerli ikon ve önbellek korunur",
+  "Kapatılan ikon kümesi güvenle reddeder",
+  "Kaynak yükleme istisnası oyunu düşürmez",
+  "Eksik yükleyici güvenli yedek",
+  "Bilinmeyen katalog ikon kimliği reddedilir",
+  "Yalnız çözülemeyen kimlikte yedek işaret",
+  "Lanet ayrı kırmızı işarette",
   "Sayı seçimi koşu ve RNG'yi değiştirmez",
   "Native odak seçili ödülle eşleşir",
   "Sol ok tek kart ilerler",
@@ -52,7 +59,13 @@ for (const file of files) {
     .toUpperCase();
   if (!proof.sources.some((s) => s.path === name && s.hash === hash)) throw Error("Eski kaynak: " + name);
 }
-for (const screen of ["offer", "icons", "replace"])
+for (let i = 0; i < 20; i++)
+  if (!proof.checks.includes("Geçersiz ikon verisi güvenli yedek " + i))
+    throw Error("Eksik bozuk veri kabulü: " + i);
+for (const rarity of ["Common", "Uncommon", "Rare", "Legendary"])
+  if (!proof.checks.includes("Nadirlik çerçevesi korunur " + rarity))
+    throw Error("Eksik nadirlik rengi: " + rarity);
+for (const screen of ["offer", "icons", "curse", "replace"])
   for (const width of [1280, 1920]) {
     const name = `m2-choice-${screen}-${width}.png`;
     if (!proof.images.includes(name)) throw Error("Eksik Game View: " + name);
@@ -61,5 +74,5 @@ for (const screen of ["offer", "icons", "replace"])
       throw Error("Yanlış görüntü boyutu: " + name);
   }
 console.log(
-  `Mutant B seçim: ${proof.checks.length} gerçek grafik Play kontrolü, 6 Game View, ${files.length} güncel kod/veri/görsel hash'i; çalışma hatası ${proof.runtimeErrors.length}, Editor tanısı ${proof.editorDiagnostics.length}; ${proof.utc}. Fiziksel girdi/insan kabulü değildir.`,
+  `Mutant B seçim: ${proof.checks.length} gerçek grafik Play kontrolü, 8 Game View, ${files.length} güncel kod/veri/görsel hash'i; çalışma hatası ${proof.runtimeErrors.length}, Editor tanısı ${proof.editorDiagnostics.length}; ${proof.utc}. Fiziksel girdi/insan kabulü değildir.`,
 );

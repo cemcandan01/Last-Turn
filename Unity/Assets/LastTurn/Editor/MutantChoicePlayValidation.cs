@@ -67,6 +67,7 @@ namespace LastTurn.EditorValidation
       Wait(()=>MutantChoiceView.Instance.Visible);
       steps.Add(()=>{
         Check(MutantChoiceView.CoversCurrentScreen&&!MutantStartView.CoversCurrentScreen,"Koşu içi seçim tek görünümde");
+        ValidateIconErrors();
         Check(Resources.Load<Texture2D>("UI/MutantB/background")&&Resources.Load<Texture2D>("UI/MutantB/frame"),"B arka plan ve çerçeve yüklü");
         var rewards=new MutantRewards(MutantRuntime.Run.Catalog);
         Check(rewards.Definitions.Count==94,"94 ödül ikon tanımı");
@@ -87,6 +88,13 @@ namespace LastTurn.EditorValidation
       steps.Add(()=>Shot("offer",1920,1080));steps.Add(()=>Shot("offer",1280,720));
       steps.Add(()=>MutantRuntime.Run.State.Set("secenekler",CatalogNode.Parse("[\"v:grappling-hook:ters-kanca\",\"e:sok-bobini:grappling-hook\",\"ek-yedek-tup\"]")));
       steps.Add(()=>Shot("icons",1920,1080));steps.Add(()=>Shot("icons",1280,720));
+      steps.Add(()=>{
+        savedCard=UiRoot.Instance.Screen.Q<RewardCard>("mutant-choice-option-2");var parent=savedCard.parent;
+        curseCard=new RewardCard(MutantRuntime.Reward("ek-hasar-donusturucu",RewardSource.Chest,true,"govde"),true);curseCard.name=savedCard.name;curseCard.AddToClassList("mc-card");curseCard.AddToClassList("mc-last");curseCard.Insert(0,MutantRewardIcons.Create(curseCard.Model.IconKey));
+        var frame=new VisualElement{pickingMode=PickingMode.Ignore};frame.AddToClassList("mc-frame");curseCard.Add(frame);curseCard.Add(LastTurn.Ui.Ui.Text("ÖNİZLEME","mc-key"));parent.Insert(2,curseCard);savedCard.RemoveFromHierarchy();
+      });
+      steps.Add(()=>Shot("curse",1920,1080));steps.Add(()=>Shot("curse",1280,720));
+      steps.Add(()=>{var parent=curseCard.parent;parent.Insert(2,savedCard);curseCard.RemoveFromHierarchy();});
       steps.Add(()=>MutantRuntime.Run.State.Set("secenekler",CatalogNode.Parse(initial)["secenekler"].Clone()));
       Tap(Key.Escape);steps.Add(()=>Check(GameFlow.Paused&&!MutantChoiceView.Instance.Visible&&MutantRuntime.Run.State.ToString()==initial,"Esc duraklatır; teklif timer RNG aynı"));
       Tap(Key.Escape);Wait(()=>MutantChoiceView.Instance.Visible);steps.Add(()=>Check(!GameFlow.Paused,"Esc seçim ekranına döner; çift işlem yok"));
@@ -110,6 +118,22 @@ namespace LastTurn.EditorValidation
       steps.Add(()=>Finish(null));
     }
     private static void Shot(string name,int w,int h){shot=name;shotW=w;shotH=h;queued=false;Size(w,h);}
+    private static RewardCard savedCard,curseCard;
+    private static void ValidateIconErrors()
+    {
+      const string path="UI/MutantB/passive/guc";var texture=Resources.Load<Texture2D>(path);
+      string entry="{\"key\":\"probe\",\"path\":\""+path+"\",\"x\":0,\"y\":0,\"width\":32,\"height\":32}";
+      string asset="{\"path\":\""+path+"\",\"width\":"+texture.width+",\"height\":"+texture.height+"}";
+      string Wrap(string rows,string sources=null)=>"{\"schema\":1,\"entries\":["+rows+"],\"assets\":["+(sources??asset)+"]}";
+      string valid=Wrap(entry);
+      var cases=new[]{null,"","{","null","[]","{}",valid.Replace("\"schema\":1","\"schema\":2"),Wrap("null"),Wrap(entry,"null"),Wrap(entry.Replace("\"key\":\"probe\"","\"key\":null")),Wrap(entry.Replace("\"key\":\"probe\"","\"key\":\"\"")),Wrap(entry.Replace("\"width\":32","\"width\":0")),Wrap(entry.Replace("\"height\":32","\"height\":-1")),Wrap(entry.Replace("\"x\":0","\"x\":2147483647")),Wrap(entry.Replace("\"width\":32","\"width\":2147483647")),Wrap(entry,asset.Replace("\"width\":"+texture.width,"\"width\":0")),Wrap(entry.Replace(path,"../outside"),asset.Replace(path,"../outside")),Wrap(entry.Replace(path,"UI/MutantB/__missing__"),asset.Replace(path,"UI/MutantB/__missing__")),Wrap(entry+","+entry),Wrap(entry,asset+","+asset)};
+      for(int i=0;i<cases.Length;i++)using(var set=new MutantRewardIcons.IconSet(cases[i],Resources.Load<Texture2D>))Check(!set.TryGet("probe",out var missing),"Geçersiz ikon verisi güvenli yedek "+i);
+      using(var set=new MutantRewardIcons.IconSet(Wrap("null,"+entry),Resources.Load<Texture2D>)){Check(set.TryGet("probe",out var a)&&set.TryGet("probe",out var b)&&a==b,"Null satır yanında geçerli ikon ve önbellek korunur");set.Dispose();Check(!set.TryGet("probe",out var disposed),"Kapatılan ikon kümesi güvenle reddeder");}
+      using(var set=new MutantRewardIcons.IconSet(valid,p=>throw new InvalidOperationException("fixture")))Check(!set.TryGet("probe",out var failed),"Kaynak yükleme istisnası oyunu düşürmez");
+      using(var set=new MutantRewardIcons.IconSet(valid,null))Check(!set.TryGet("probe",out var failed),"Eksik yükleyici güvenli yedek");
+      Check(!MutantRewardIcons.TryGet(null,out var empty)&&!MutantRewardIcons.TryGet("__unknown__",out var unknown),"Bilinmeyen katalog ikon kimliği reddedilir");
+      var fallback=MutantRewardIcons.Create("__unknown__");Check(fallback.ClassListContains("mc-icon-fallback")&&fallback.Q<Label>().text=="?","Yalnız çözülemeyen kimlikte yedek işaret");
+    }
     private static void Size(int w,int h)
     {
       var a=typeof(EditorWindow).Assembly;var t=a.GetType("UnityEditor.GameView");if(!game){game=EditorWindow.GetWindow(t);originalSize=(int)t.GetProperty("selectedSizeIndex",BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Instance).GetValue(game);}
@@ -125,7 +149,7 @@ namespace LastTurn.EditorValidation
       var png=new Texture2D(2,2);try{png.LoadImage(File.ReadAllBytes(path));Check(png.width==shotW&&png.height==shotH,"PNG boyutu "+shot+shotW);}finally{UnityEngine.Object.DestroyImmediate(png);}
       var page=UiRoot.Instance.Screen.Q("b-mutant-choice");var cards=page.Query(className:"mc-card").ToList();
       Check(cards.Count==3,"Üç kart / "+shot+shotW);
-      foreach(var c in cards){var r=c.worldBound;Check(r.xMin>=0&&r.xMax<=page.worldBound.xMax&&r.yMax<page.worldBound.yMax-100,"Kart ekran sınırında / "+c.name+shotW);if(c is RewardCard reward){Check(reward.Details.contentViewport.worldBound.height>35&&reward.Q(className:"rc-foot").worldBound.yMax<r.yMax-12,"Ayrıntı alanı ve altlık sığar / "+shotW);var icon=c.Q(className:"mc-icon");Check(!icon.ClassListContains("mc-icon-fallback")&&icon.style.backgroundImage.value.sprite.name==reward.Model.IconKey,"Görünen ikon model kimliğinde / "+shot+shotW);}}
+      foreach(var c in cards){var r=c.worldBound;Check(r.xMin>=0&&r.xMax<=page.worldBound.xMax&&r.yMax<page.worldBound.yMax-100,"Kart ekran sınırında / "+c.name+shotW);if(c is RewardCard reward){Check(reward.Details.contentViewport.worldBound.height>35&&reward.Q(className:"rc-foot").worldBound.yMax<r.yMax-12,"Ayrıntı alanı ve altlık sığar / "+shotW);var icon=c.Q(className:"mc-icon");Check(!icon.ClassListContains("mc-icon-fallback")&&icon.style.backgroundImage.value.sprite.name==reward.Model.IconKey,"Görünen ikon model kimliğinde / "+shot+shotW);ColorUtility.TryParseHtmlString(reward.Model.RarityColor,out var color);Check(reward.resolvedStyle.borderLeftColor==color&&reward.resolvedStyle.borderRightColor==color,"Nadirlik çerçevesi korunur "+reward.Model.Rarity);if(reward.Model.Cursed){ColorUtility.TryParseHtmlString("#F76262",out var red);var label=reward.Q<Label>(className:"rc-curse");Check(label!=null&&label.text==reward.Model.CurseText&&label.resolvedStyle.color==red,"Lanet ayrı kırmızı işarette");}}}
       for(int i=1;i<cards.Count;i++)Check(!cards[i].worldBound.Overlaps(cards[i-1].worldBound),"Kartlar çakışmaz / "+i+shotW);
       proof.images.Add(Path.GetFileName(path));shot=null;
     }
