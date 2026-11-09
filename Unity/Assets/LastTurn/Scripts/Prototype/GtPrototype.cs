@@ -233,9 +233,11 @@ namespace LastTurn.Prototype
     }
     // Geçici hayalet görseli: kayıtlı sürüşün ayrı fizikteki gövdesi (kutu).
     private Transform ghostView;
+    /// Rekor hayaleti şu an çizilir mi (kayıt var ve "rh" tercihi açık).
+    public bool GhostShown => Race?.Ghost != null && PlayerPreferences.Current.On("rh");
     private void RenderGhost()
     {
-      var ghost = Race?.Ghost;
+      var ghost = GhostShown ? Race.Ghost : null;
       if (ghost == null) { if (ghostView) ghostView.gameObject.SetActive(false); return; }
       if (!ghostView)
       {
@@ -286,8 +288,9 @@ namespace LastTurn.Prototype
         drive.Setup != null && drive.Parameters != null ? RaceDrift.MaxAngle(drive.Setup) : double.PositiveInfinity);
       // TS startEvent: kullanım sayacı ve rekor hayaleti; endEvent: rekor/profil/hayalet kaydı.
       Race.Finished += run => {ResetInput();if(mutant!=null)MutantRuntime.Finished(run,Opponent);else{FlushProfileDistance();GarageRace.Finished(run, drive);}};
-      // TS set.rh: rekor hayaleti yalnız tercih açıkken; hayalet kaydedildiği havanın tutuşuyla oynar.
-      if(mutant==null&&PlayerPreferences.Current.On("rh")){Race.GhostFactory = () => GarageRace.Ghost(info, track, Race.Session.RecordKey, RaceWorld.GripMultiplier); Race.StartGhost();}
+      // TS rekorHayaletiBaslat/uzakAdimi: kayıt varsa hayalet her zaman yarışla eş adımlı oynar (kaydedildiği havanın
+      // tutuşuyla); set.rh yalnız anlık görünürlüğü belirler, yarış ortasında açılıp kapanabilir.
+      if(mutant==null){Race.GhostFactory = () => GarageRace.Ghost(info, track, Race.Session.RecordKey, RaceWorld.GripMultiplier); Race.StartGhost();}
       RecordText = mutant!=null?"Mutant koşusu":RaceRecordText(); if (drive.Parameters != null&&mutant==null) GarageRace.Started(drive.Car); raceDrive = drive;
       // TS mutantYarisAyari → beceriYarisBasi: rakip gövdesi, takip kredisi ve near-miss kayıtları her yarış başında sıfırlanır.
       if(mutant!=null)MutantRuntime.Abilities?.RaceStart();

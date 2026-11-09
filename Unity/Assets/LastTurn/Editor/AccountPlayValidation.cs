@@ -119,7 +119,16 @@ namespace LastTurn.EditorValidation
 
       // E-postayla başka hesaba geç; listede iki hesap, şu anki kapalı.
       SignIn("ui@example.test");
-      Click("profile-switch");
+      // Regresyon: basma ile bırakma arasında hesap bloğunun imzası değişir (şu anki hesabın seviyesi); tıklama kaybolmamalı.
+      VisualElement held = null;
+      steps.Add(() => { held = Q("profile-switch"); point = held.worldBound.center; pointer = held.panel.Pick(point); Check(pointer == held || held.Contains(pointer), "Fare hit-test: profile-switch (basılı)"); });
+      steps.Add(() => { using (var e = PointerDownEvent.GetPooled(new Event { type = EventType.MouseDown, button = 0, mousePosition = point })) pointer.SendEvent(e); });
+      steps.Add(() => { int lv = GarageSession.State.Level; Check(GarageSession.Transact(st => { st.AddXp(VehicleCatalog.LevelBase(lv + 1) - st.Xp); return true; }, "seviye"), "Basılıyken hesap seviyesi değişir"); });
+      steps.Add(() => { }); steps.Add(() => { });
+      steps.Add(() => Check(Q("profile-switch") == held, "Basılı tıklama sürerken hesap bloğu yeniden kurulmaz"));
+      steps.Add(() => { using (var e = PointerUpEvent.GetPooled(new Event { type = EventType.MouseUp, button = 0, mousePosition = point })) pointer.SendEvent(e); });
+      steps.Add(() => Check(ProfileView.Instance.ListOpen, "Yeniden çizim sırasında basılan Hesap değiştir tıklaması kaybolmaz"));
+      steps.Add(() => { }); steps.Add(() => Check(Q("profile-switch") != held && Text("profile-account-0").Contains("Seviye " + GarageSession.State.Level), "Bırakınca blok yeni seviyeyle yeniden kurulur"));
       steps.Add(() => { Check(ProfileView.Instance.ListOpen && Text("profile-account-0").StartsWith("E-posta · ui@example.test · Seviye ") && Text("profile-account-0").Contains("şu an"), "Liste: şu anki e-posta hesabı başta"); Check(!Q("profile-account-0").enabledInHierarchy && Q("profile-remove-0") == null, "Şu anki hesap seçilemez/kaldırılamaz"); Check(Text("profile-account-1").StartsWith("Google · cem@gmail.com · Seviye ") && Q("profile-account-1").enabledInHierarchy, "Liste: önceki Google hesabı"); });
       steps.Add(() => Shot("list", 1920, 1080)); steps.Add(() => Shot("list", 1280, 720));
       Click("profile-account-1"); Wait(() => !account.Busy && account.User.Yol == "google");

@@ -82,7 +82,7 @@ namespace LastTurn.Ui
     {
       var k=account?.User;var known=account?.KnownAccounts();
       string sig=string.Join("|",available,k?.Uid,k?.Anonim,account?.Busy,account?.Admin,GarageState.AdminMode,ListOpen,OtherOpen,AskNew,AskReset,copied,known==null?"":string.Join(",",known.Select(h=>h.Uid+h.Level+h.Admin)));
-      if(sig==accountSig)return;accountSig=sig;accountTop.Clear();accountBox.Clear();levelInput=null;
+      if(sig==accountSig||Held())return;accountSig=sig;accountTop.Clear();accountBox.Clear();levelInput=null;
       if(account==null||!available||k==null)return;bool idle=!account.Busy;
       var row=Box("p-actions");
       if(k.Anonim)row.Add(Small("GOOGLE İLE BAĞLAN",()=>CloudRuntime.LinkGoogle(),"profile-google",16,idle));
@@ -130,6 +130,16 @@ namespace LastTurn.Ui
       if(AskReset){reset.Add(Small("EVET, İLERLEMEYİ SIFIRLA",()=>{AskReset=false;CloudRuntime.AdminReset();},"profile-admin-reset-yes",80,idle));reset.Add(Small("VAZGEÇ",()=>AskReset=false,"profile-admin-reset-no",81));}
       else reset.Add(Small("İLERLEMEYİ SIFIRLA",()=>AskReset=true,"profile-admin-reset",80,idle));
       panel.Add(reset);accountBox.Add(panel);
+    }
+    /// Hesap bloğunda basılı bir tuş var mı (Clickable basılıyken işaretçiyi yakalar). Bu sırada blok yeniden kurulursa
+    /// bırakma yeni öğeye gitmez ve tıklama kaybolur; kurulum bırakmadan sonraki kareye ertelenir.
+    private bool Held()
+    {
+      if(page.panel==null)return false;
+      bool Mine(int id)=>PointerCaptureHelper.GetCapturingElement(page.panel,id) is VisualElement c&&(accountTop.Contains(c)||accountBox.Contains(c));
+      if(Mine(PointerId.mousePointerId))return true;
+      for(int i=0;i<PointerId.touchPointerCount;i++)if(Mine(PointerId.touchPointerIdBase+i))return true;
+      return false;
     }
     public void ToggleList(){ListOpen=!ListOpen;OtherOpen=AskNew=false;}
     private void CloseList(){ListOpen=OtherOpen=AskNew=false;}

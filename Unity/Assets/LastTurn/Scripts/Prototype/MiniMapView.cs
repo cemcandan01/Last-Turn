@@ -46,7 +46,7 @@ namespace LastTurn.Prototype
         foreach (var (x, z, c) in all) { var m = Map.Marker(x, z); marks.Add((m.X, m.Y, c)); }
       }
       if (p.Opponent != null) { var o = p.Opponent.Vehicle.ReferencePoint; var c = Map.Car(o.X, o.Z); if (c != null) cars.Add((c.Value.X, c.Value.Y, c.Value.Radius, new Color(1, .3f, .3f))); }
-      var ghost = p.Race?.Ghost; if (ghost != null) { var o = ghost.Vehicle.ReferencePoint; var c = Map.Car(o.X, o.Z); if (c != null) cars.Add((c.Value.X, c.Value.Y, c.Value.Radius, new Color(1, 1, 1, .7f))); }
+      var ghost = p.GhostShown ? p.Race.Ghost : null; if (ghost != null) { var o = ghost.Vehicle.ReferencePoint; var c = Map.Car(o.X, o.Z); if (c != null) cars.Add((c.Value.X, c.Value.Y, c.Value.Radius, new Color(1, 1, 1, .7f))); }
       Segments = track.Count; Markers = marks.Count; Cars = cars.Count;
     }
     private void OnGUI()
