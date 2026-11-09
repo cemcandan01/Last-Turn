@@ -7,7 +7,8 @@
 - Ödül ikonlarının yeniden kabulü `678f230`:94 eşleme/64 simge/27 PNG korunur; bozuk veri güvenliği eklendi. .NET740, gerçek grafik Play459/459,208 kaynak hash'i,8 Game View; ayrıntı DEVIR başında. Yeni görsel üretilmedi.
 - B sürüş HUD `c1fb9ca`: gerçek koşu/nitro/skill/görev/işaret ve geri bildirim; .NET870+ödül740, Unity301/301,8 Game View/212 hash. Runtime hata0; yerel UnityEditor.Search tanısı1 açık ve gizlenmedi. Kanıt/fixture sınırı DEVIR başında. Önceki10 commit konu dalına push edildi; merge/yayın yok.
 - B /2A etkinlik/risk `59ef048`: gerçek iki/üç risk, hedef birimleri, tek başlatma ve güvenli iptal; .NET818+4311+12952, Unity373/373,12 Game View/215 güncel kaynak. Runtime0/yerel Search tanısı1. Önceki HUD212/ödül208 proof'ları artık kaynak kapsamından reddedilir; değiştirilmedi/güncel sayılmadı. Bu görev yalnız yerel commit; push/merge/PR/yayın yok.
-- Sonraki tek öneri **B /3A atölye ekranı**. Diğer3 koşu içi ekran, insan kabulü ve sonraki M2–M4 işleri açık; başlanmadı. `_Recovery` ve gerçek kayıtlar korunur.
+- B /3A atölye `338b976`: gerçek stok/alım/araç yenileme ve tam/kısmi saf tamir önizlemesi, yenileme/Geri, klavye/fare/odak/stale/tek işlem. Ekonomi aynı; ortak panel girdisinde nitro/skill kuyruğu engellenir. .NET11.282 (57 TS işlem, fark<1e-9)+menü4.311; Unity564/564,12 Game View/218 kaynak, Runtime0/Search1. Önceki2A215 proof eski kapsam diye reddedildi, checker değişmedi; etkilenen2A input/HUD/pause bağı yeni Play'de yenilendi. Kaynaklar ve fixture/insan kabulü sınırı DEVIR'de. Önceki iki commit dahil hiçbir şey push edilmedi.
+- Sonraki tek öneri **B /4A sandık ekranı**. B sandık/8A koşu özeti, insan kabulü ve sonraki M2–M4 işleri açık; başlanmadı. `_Recovery` ve gerçek kayıtlar korunur.
 
 ## 7 Kasım notları — tarihsel kayıt
 

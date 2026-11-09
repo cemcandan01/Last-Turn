@@ -109,7 +109,22 @@
 - `Unity/Logs/b-result-play.json`, `b-result-editor.log`, `b-result-{passed,failed,level,pending,boss}-{1280,1920}.png`;10 son görüntü açılıp incelendi, sütun/alt bant/tuşlar ve model sayıları doğru. Kanıt yerel/ignore; üretici/denetleyici commit'te. Kontrollü XP/etkinlik/süre/puan fixture'ı gerçek Runtime bitiş yoluna verildi; fiziksel yarış/OS girdi/insan beğeni kabulü iddiası yok. Boss kayıt yolu yalnız `Logs/BResult/<guid>`; gerçek kayıt/Firebase, ana Editor, TS0.8.18/P1–P5/`_Recovery` korundu.
 - Tek ajan, kota bilinmiyor; push/merge/yayın/yeni paket/ücretli servis/alt ajan/yeni grafik yok. **Dur:** yalnız7A bitti. Sıradaki tek iş **B /8A koşu özeti**; bu oturumda başlanmadı.
 
-## B /2A etkinlik ve risk ekranı — 9 Kasım 2026
+## B /3A atölye ekranı — 9 Kasım 2026
+
+- Başlangıç `6b51386`, dal `codex/unity-p7-garaj`, fetch2 ileri/0 geri; uzak `3e5dc9a`. Yalnız `_Recovery`/meta untracked ve korunur. Sahip tek Codex; aynı UI/Core bağlamı, resmi kapasite bilinmiyor; yeni ajan/paket/API/görsel yok. **Mevcut iki commit dahil push/merge/PR/yayın/release yok.**
+- Yalnız B stok vitrini: mevcut parçalar/kategori ikonları/fiyat/uygunluk; tam/kısmi gerçek tamir önizlemesi, stok yenileme ve Geri; fare/klavye/odak ve işlem geri bildirimi. Komutlar mevcut Runtime yolları; eski kimlikte dar koruma. UI oyun kuralı hesaplamaz. Tamir hesabı Core'da tek yerden hem önizleme hem komut tarafından kullanılır, eski kural değişmez.
+- Kabul: satın alma/tam fiyat/yetersiz para, araç yenileme; tam/hasarlı/kısmi/tam gövde ve bir puana yetmeyen para; yenileme maliyeti/RNG/stale seçim/tek işlem; boş stok/uzun metin; gerçek işaret, Geri/pause/settings/odak, panelde nitro/skill engeli; salt çizim/RNG/timer/kayıt; dar Core+TS işlem ve izole gerçek Play;1280/1920 son Game View. Eski2A215 kanıtı yeni kapsamda güncel sayılmaz, eşik değiştirilmez. Ana Editor/sahneler ve gerçek kayıtlar korunur; yalnız yerel commit/devir sonrası dur.
+
+### Sonuç — `338b976`
+
+- B3A UI Toolkit stok vitrini tamam: gerçek stok/fiyat/kategori/uygunluk,42 parçanın mevcut12 kategori ikonu; para/gövde/güç kaybı ve sabit işlem alanı. Saf `RepairPreview` eski tamir hesabını paylaşır: tam bedel ile şimdi ödenen kısmi bedel ayrı. Runtime mevcut araç yenilemesini korur; eski/geçersiz alım güvenli. Ekonomi/fiyat/güç/indirim/RNG dağılımı değişmedi.
+- Fare/ok/Tab/Shift+Tab/Enter, geçerli odak ve geri bildirim; PgUp/PgDn stok kaydırma. Stok tokeni/koşu kimliği/güncel veri ve aynı-frame koruması, sonraki açık işlemi engellemez. Esc eski pause yolunda; Settings dönüşü korunur. Ortak input adaptöründe panelde nitro/skill basışı birikmez, release ve sürüş davranışı korunur;2A bağlantısı yeni dar Play'de doğrulandı. HUD/eski IMGUI çift çizilmez.
+- .NET **11.282**:57 TS atölye işlemi/892 bağlam adımı, en büyük fark `8.43769498715119e-15` (<1e-9);42 parça×iki indirim ve tamir/yetersiz para/araç/RNG sınırları. Mevcut menü **4.311**, fark0; ikon94/64/27, proje/proof/Prettier/diff geçti. Tam regresyon yok.
+- **Unity gerçek grafik Play564/564**, UTC `2026-11-09T04:42:55.8019927Z`,218 kaynak hash'i. Gerçek atölye gate, tüm alım/tamir/yenileme/geri işlemleri, tam Core durum ve RNG eşitliği, araç yenileme, stale/tek giriş/sonraki işlem, focus/pause/settings, boş/uzun stok, kariyer/profil/izole kalıcı dosyalar geçti. Runtime0; ayrı bilinen Search tanısı1, Console temiz değildir. Test sürücüsündeki erken kimlik ve JSON alan sırası hataları düzeltildi; değer/dizi kapsamı gevşetilmedi.
+- `Unity/Logs/b-workshop-{stock,repair,partial,poor,empty,long}-{1280,1920}.png`12 son görüntü incelendi; kaynak/eylemler sabit, metin ayrık, uzun stok kaydırılır. Ham `b-workshop-play.json`, `b-workshop-editor.log`, `.NET tests/cikti/mutant-workshop-proof.json`; yerel/ignore. Üretici/checker commit'te. İlk kapı gerçek; sınırlar kontrollü fixture, girdiler sentetik. Fixture ekranları işlem sonrası durumu göstermez ve önceki bildirim kalabilir; insan/OS girdi kabulü değildir.
+- Önceki2A373/215 checker'ı değişmeden yeni218 kaynakta “Kaynak kapsamı eski” exit1; `Unity/Logs/b-workshop-prior-proof-status.txt`. Eski kanıt güncel başarı sayılmadı. Ana Editor/sahneler/gerçek kayıtlar/Firebase/P1–P7/TS0.8.18/`_Recovery` korundu. **Push/merge/PR/yayın/release yok; yalnız yerel commit.** Kalan Search tanısı ve insan kabulü; sonraki tek öneri **B /4A sandık**, başlanmadı. Ayrıntılı dosya/kanıt listesi DEVIR başında.
+
+## B /2A etkinlik ve risk ekranı — 9 Kasım 2026 (tarihsel)
 
 ### Sonuç — `59ef048`
 
