@@ -56,6 +56,7 @@ namespace LastTurn.Prototype
     private Transform opponentVisual;private int openSpawn;
     public string RaceMessage { get; private set; } = "";
     public RaceTrackVisuals TrackVisuals => trackVisuals;
+    public RallyVisualSample VisualSample { get; private set; }
     /// Doğrulama sabit adımları kendisi verir (StepRace); Update fiziği ilerletmez.
     public bool ManualStepping { get; set; }
 
@@ -282,6 +283,9 @@ namespace LastTurn.Prototype
       RaceWorld.GripMultiplier = Conditions.GripFor(RaceConditions.Theme(info.Region));
       if(mutant==null)RaceWorld.Environment=WorldData.Catalog.Activate(key);
       if(!EnvironmentVisuals)EnvironmentVisuals=gameObject.AddComponent<PhysicalWorldVisuals>();EnvironmentVisuals.Build(world,RaceWorld.Environment,false);
+      // İlk görsel örnek yalnız rl_2 öğle/güneşte (Cem değerlendirmesi); başka pistte/koşulda eski görünüm geri gelir.
+      if(VisualSample){VisualSample.Remove();VisualSample=null;}
+      if(RallyVisualSample.AppliesTo(track.Key,Conditions,mutant!=null))VisualSample=RallyVisualSample.Apply(this,trackVisuals,EnvironmentVisuals,RaceWorld,followCamera.GetComponent<Camera>());
       Simulation = new PowertrainVehicle(parameters, world: world); runner = new PowertrainFixedStepRunner(Simulation); ApplyPreferences(); ResetInput();
       Race = new RaceRun(Simulation, RaceWorld, info, hint => new RaceSession(info, track, drive.Career, hint, drive.Career ? GarageRace.Reward : null,
         mutant!=null?(Action<double>)(metres=>MutantRuntime.Run.CutPenalty(metres)):null,mutant:mutant!=null),

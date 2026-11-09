@@ -461,7 +461,10 @@
     letter-spacing: 3px;
     margin: 0;
     padding: 0;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+    /* açık gökyüzü/dekor önünde de okunsun: keskin gölge + ince dış çizgi */
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    -unity-text-outline-width: 0.4px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.6);
 }
 
 .hud-bilgi {
@@ -470,7 +473,9 @@
     margin: 2px 0 0 0;
     padding: 0;
     color: rgb(238, 242, 244);
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    -unity-text-outline-width: 0.4px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.6);
     white-space: normal;
 }
 
@@ -489,7 +494,9 @@
     -unity-text-align: upper-center;
     margin: 0;
     padding: 0;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    -unity-text-outline-width: 0.4px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.6);
 }
 
 .hud-hiz {

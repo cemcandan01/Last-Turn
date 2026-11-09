@@ -1,3 +1,12 @@
+# Ralli kamerası, işlevsel kapanış ve ilk görsel örnek (10 Kasım 2026) — Claude
+
+- **Dal** `codex/unity-p7-garaj`; yerel commitler: `37dc615` ralli kamerası, `08f89db` işlevsel kapanış, görsel örnek commit'i bu notla. Push/merge/PR/yayın yok. Ayrıntı ve kanıtlar [kart](isler/2026-11-01-unity-tam-aktarim.md) → "Ralli kamerası", "İşlevsel kapanış dilimi", "İlk oyun içi görsel örnek".
+- **Kamera:** kök neden mutlak `y ≥ 1` tabanı; ralli zemini −8…−21 m'ye indiğinde kamera aracın 9–21 m üstüne itiliyordu. TS gibi kamera altı zemin + 1 m. .NET `--camera` 48; gerçek sürüş Play 74/74 (rl_2 59→29,5°, rl_5 63,5→20,6°; 16–18 sn dik kalma → 0).
+- **İşlevsel:** profil tıklaması (AccountPlay 92), `rh` yarış ortası (GhostToggle 14), hayalet/profil yeni süreç (`--ghost-process`), bölge 2→3 zinciri (MutantRegion 13). Bölge 3 boss galibiyeti ve yol görevi tamamlanması Unity'de fixture/sürülmedi; TS eşdeğerliği var.
+- **Görsel örnek:** yalnız rl_2 öğle/güneş; TS orman teması + öneri kenar direği/viraj levhası/temas gölgesi; fizik izi bit düzeyinde aynı; kare süresi değişmedi. Cem'in değerlendirmesi bekleniyor; bütün oyuna yayılmadı.
+- **Açık:** gerçek Google için masaüstü OAuth istemcisi (FIREBASE.md §9); insan/iPhone kabulü; Android/iOS/IL2CPP/Mac/imzalama ortam sınırı.
+- **Sonraki tek adım:** Cem'in rl_2 görsel örneği değerlendirmesi (beğenirse aynı dil diğer ralli pistlerine, değilse yön düzeltmesi).
+
 # Hesap yüzeyi tamam; gerçek Google için tek dış ayar bekliyor (9 Kasım 2026) — Claude
 
 - **Durum:** Codex devrindeki sıradaki paket (Google/bilinen hesaplar/admin/yeni oyuncu) Unity'ye aktarıldı; dal `codex/unity-p7-garaj`, ayrıntı ve kabul [kart → Hesap yüzeyi paketi](isler/2026-11-01-unity-tam-aktarim.md). Kapanış matrisi satırı güncellendi.

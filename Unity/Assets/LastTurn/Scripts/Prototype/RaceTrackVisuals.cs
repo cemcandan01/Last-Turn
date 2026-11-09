@@ -25,8 +25,9 @@ namespace LastTurn.Prototype
 
     private sealed class Builder
     {
-      public readonly List<Vector3> V = new List<Vector3>(); public readonly List<int> T = new List<int>();
-      public int Add(double x, double y, double z) { V.Add(GtPresentation.Position(new BodyVector(x, y, z))); return V.Count - 1; }
+      public readonly List<Vector3> V = new List<Vector3>(); public readonly List<int> T = new List<int>(); public readonly List<Vector2> U = new List<Vector2>();
+      /// u, v: doku koordinatı (zeminde 12,5 m'lik TS ctex karosu, yolda enine 0–1 ve 6 parçada bir boyuna döngü).
+      public int Add(double x, double y, double z, double u = 0, double v = 0) { V.Add(GtPresentation.Position(new BodyVector(x, y, z))); U.Add(new Vector2((float)u, (float)v)); return V.Count - 1; }
       // Yüzler yukarı baksın (sunumdaki x aynası TerrainCourseMesh ile aynı).
       public void Tri(int a, int b, int c)
       {
@@ -37,7 +38,7 @@ namespace LastTurn.Prototype
       public Mesh Mesh(string name)
       {
         var m = new Mesh { name = name, indexFormat = V.Count > 65000 ? UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16 };
-        m.SetVertices(V); m.SetTriangles(T, 0); m.RecalculateNormals(); m.RecalculateBounds(); return m;
+        m.SetVertices(V); m.SetUVs(0, U); m.SetTriangles(T, 0); m.RecalculateNormals(); m.RecalculateBounds(); return m;
       }
     }
 
@@ -65,7 +66,7 @@ namespace LastTurn.Prototype
         {
           double x = Math.Min(box.MaxX - 0.01, box.MinX + 0.01 + i * step), z = Math.Min(box.MaxZ - 0.01, box.MinZ + 0.01 + j * step);
           double y = tarmac ? world.BaseHeight(x, z) - 0.3 * (1 - TrackGeometry.Smooth(hw + kw, hw + kw + 4, g.GridNearest(x, z).Distance)) : world.Height(x, z) - 0.15;
-          grid[i, j] = ground.Add(x, y, z);
+          grid[i, j] = ground.Add(x, y, z, x / 12.5, z / 12.5);
         }
       for (int i = 0; i < nx; i++) for (int j = 0; j < nz; j++) { ground.Tri(grid[i, j], grid[i + 1, j], grid[i, j + 1]); ground.Tri(grid[i + 1, j], grid[i + 1, j + 1], grid[i, j + 1]); }
       Part("Arazi · TS H", ground, track.Raw["snow"].N() != 0 ? snow : grass);
@@ -77,7 +78,8 @@ namespace LastTurn.Prototype
       void Strip(Builder b, int i, double o0, double o1, double lift)
       {
         var a0 = At(i, o0); var a1 = At(i, o1); var b0 = At(i + 1, o0); var b1 = At(i + 1, o1);
-        int p = b.Add(a0.X, H(a0.X, a0.Z) + lift, a0.Z), q = b.Add(a1.X, H(a1.X, a1.Z) + lift, a1.Z), r = b.Add(b0.X, H(b0.X, b0.Z) + lift, b0.Z), s = b.Add(b1.X, H(b1.X, b1.Z) + lift, b1.Z);
+        double u0 = (o0 + hw) / (2 * hw), u1 = (o1 + hw) / (2 * hw), v0 = i / 6.0, v1 = (i + 1) / 6.0;
+        int p = b.Add(a0.X, H(a0.X, a0.Z) + lift, a0.Z, u0, v0), q = b.Add(a1.X, H(a1.X, a1.Z) + lift, a1.Z, u1, v0), r = b.Add(b0.X, H(b0.X, b0.Z) + lift, b0.Z, u0, v1), s = b.Add(b1.X, H(b1.X, b1.Z) + lift, b1.Z, u1, v1);
         b.Tri(p, q, r); b.Tri(q, s, r);
       }
       for (int i = 0; i < count; i++)
