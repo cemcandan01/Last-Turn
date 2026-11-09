@@ -19,6 +19,7 @@ namespace LastTurn.Prototype
     {
       if(!MutantRuntime.Active)return;
       if(LastTurn.Ui.MutantBossView.HandledFrame==Time.frameCount)return;
+      if(LastTurn.Ui.MutantEventView.HandledFrame==Time.frameCount)return;
       if(LastTurn.Ui.MutantStartView.CoversCurrentScreen)return;
       // Ödül görünümü Esc'i değiştirme iptali/duraklatma olarak kendisi işler.
       if(LastTurn.Ui.MutantChoiceView.OwnsChoice)return;
@@ -32,6 +33,7 @@ namespace LastTurn.Prototype
       if(LastTurn.Ui.MutantStartView.CoversCurrentScreen||LastTurn.Ui.SettingsView.CoversCurrentScreen||LastTurn.Ui.PauseView.CoversCurrentScreen)return;
       if(LastTurn.Ui.MutantChoiceView.CoversCurrentScreen)return;
       if(LastTurn.Ui.MutantBossView.CoversCurrentScreen)return;
+      if(LastTurn.Ui.MutantEventView.CoversCurrentScreen)return;
       if(LastTurn.Ui.MutantResultView.CoversCurrentScreen)return;
       if(text==null){text=new GUIStyle(GUI.skin.label){fontSize=17,wordWrap=true};text.normal.textColor=Color.white;title=new GUIStyle(text){fontSize=25,fontStyle=FontStyle.Bold};small=new GUIStyle(text){fontSize=14};button=new GUIStyle(GUI.skin.button){fontSize=17,wordWrap=true};}
       var m=MutantRuntime.Model;

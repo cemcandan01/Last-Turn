@@ -50,6 +50,7 @@ namespace LastTurn.Ui
       gameObject.AddComponent<MutantStartView>();
       gameObject.AddComponent<MutantChoiceView>();
       gameObject.AddComponent<MutantBossView>();
+      gameObject.AddComponent<MutantEventView>();
       gameObject.AddComponent<MutantResultView>();
       gameObject.AddComponent<RacePreparationView>();
       gameObject.AddComponent<ProfileView>();

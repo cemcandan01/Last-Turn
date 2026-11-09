@@ -31,11 +31,13 @@ namespace LastTurn.Core
     public int Risk;
     public string Name = "";
     public double Target, Xp, Money, Penalty, Consolation;
+    public string TargetText = "";
   }
   public sealed class MutantEventCard
   {
     public int Id, TrackIndex;
     public string Name = "", Type = "", Title = "", LevelName = "", Street = "";
+    public string TypeName = "";
     public double X, Z;
     public bool Done, Duel;
     public MutantRiskCard[] Risks = Array.Empty<MutantRiskCard>();
@@ -64,6 +66,7 @@ namespace LastTurn.Core
     public MutantChestCard[] Chests = Array.Empty<MutantChestCard>();
     public MutantStartCarCard[] StartingCarsCards = Array.Empty<MutantStartCarCard>();
     public MutantOwnedSkillCard[] OwnedSkills = Array.Empty<MutantOwnedSkillCard>();
+    public MutantEventCard? FindEvent(int id) => Events.FirstOrDefault(e => e.Id == id && !e.Done);
 
     public static int[] StartingCars(uint seed, CatalogNode catalog, bool test = false)
     {
@@ -171,10 +174,12 @@ namespace LastTurn.Core
       {
         int index = (int)e["i"].N(); var track = catalog["tracks"].Items.First(t => t["i"].N() == index);
         var reward = catalog["eventRewards"][(int)e["sev"].N() - 1];
-        return new MutantEventCard { Id = (int)e["id"].N(), TrackIndex = index, Name = catalog["trackNames"][index].S(),
+        bool duel=e["rakip"].B() || e["sokak"].S() == "kovala";
+        return new MutantEventCard { Id = (int)e["id"].N(), TrackIndex = index, Name = catalog["trackNames"][index].S(), TypeName=EventTitle(e["ty"].S(),e["sokak"].S()),
           Type = e["ty"].S(), Street = e["sokak"].S(), Title = e["rakip"].B() ? "Düello" : EventTitle(e["ty"].S(), e["sokak"].S()), LevelName = catalog["levelNames"][(int)e["sev"].N() - 1].S(),
           X = e["x"].N(), Z = e["z"].N(), Done = e["yapildi"].B(), Duel = e["rakip"].B() || e["sokak"].S() == "kovala",
           Risks = catalog["risks"].Items.Take(e["rakip"].B() || e["sokak"].S() == "kovala" ? 2 : 3).Select((risk, i) => new MutantRiskCard { Risk = i, Name = risk["ad"].S(), Target = e["rakip"].B() || e["sokak"].S() == "kovala" ? 0 : MutantRun.EventTarget(track, i)["limit"].N(),
+            TargetText=duel?"Rakipten önce bitir":MutantRun.EventTarget(track,i)["limit"].N().ToString("0.##",CultureInfo.InvariantCulture)+(e["ty"].S()=="dp"?" puan":" sn"),
             Xp = Round(reward["xp"].N() * risk["odul"].N()), Money = Round(reward["para"].N() * risk["odul"].N()),
             Penalty = risk["ceza"].N(), Consolation = Round(reward["para"].N() * risk["kacirma"].N()) }).ToArray() };
       }).ToArray();

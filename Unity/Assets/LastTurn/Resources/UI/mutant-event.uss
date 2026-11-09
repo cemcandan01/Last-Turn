@@ -1,0 +1,29 @@
+.me-body { position: absolute; left: 96px; right: 96px; top: 188px; bottom: 144px; flex-direction: row; }
+.me-info { flex-grow: 1; flex-basis: 0; min-width: 0; margin-right: 80px; }
+.me-info .unity-scroll-view__content-container { flex-shrink: 0; }
+.me-kicker { color: #ef73ba; font-size: 22px; margin-bottom: 18px; white-space: normal; }
+.me-title { font-size: 62px; margin-bottom: 24px; white-space: normal; }
+.me-copy { font-size: 24px; white-space: normal; margin-bottom: 8px; }
+.me-info .me-copy { margin-bottom: 24px; }
+.me-notice { font-size: 21px; color: #c4d4cc; white-space: normal; margin-top: 18px; }
+.me-right { flex-grow: 1.15; flex-basis: 0; min-width: 0; }
+.me-risks { flex-grow: 1; min-height: 0; }
+.me-risks .unity-scroll-view__content-container { padding: 6px; flex-shrink: 0; }
+.me-risk { flex-shrink: 0; position: relative; padding: 18px 24px 14px 24px; margin-bottom: 18px; border-width: 1px; border-color: #497354; border-radius: 16px; background-color: rgba(5,17,21,.97); }
+.me-risk Label { margin: 0; padding: 0; flex-shrink: 0; }
+.me-risk .me-copy { font-size: 22px; }
+.me-risk.mc-selected { background-color: #122b28; border-color: #b7ff32; }
+.me-risk-name { font-size: 30px; -unity-font-style: bold; white-space: normal; margin-bottom: 8px; }
+.me-target { color: #b7ff32; font-size: 24px; margin-bottom: 8px; white-space: normal; }
+.me-small { font-size: 20px; color: #c4d4cc; white-space: normal; }
+.me-selected-label { height: 22px; font-size: 18px; color: #b7ff32; -unity-text-align: middle-right; margin-top: 4px; }
+.me-risk .mc-frame { opacity: .5; }
+.me-risk.mc-selected .mc-frame { opacity: 1; }
+.me-risk.me-focused { border-color: #ecf6e7; }
+.me-page .ltb.me-focused > .skew { --edge: #ecf6e7; }
+.me-right .mc-actions { flex-wrap: wrap; justify-content: flex-end; }
+.me-right .mc-actions .ltb { margin-left: 20px; margin-bottom: 10px; }
+.me-body .unity-scroller--vertical { width: 12px; background-color: #122b28; }
+.me-body .unity-scroller__low-button, .me-body .unity-scroller__high-button { display: none; }
+.me-body .unity-base-slider__tracker { background-color: #152622; border-width: 0; }
+.me-body .unity-base-slider__dragger { background-color: #52734a; border-width: 0; min-height: 28px; }
