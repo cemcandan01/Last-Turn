@@ -23,6 +23,7 @@ namespace LastTurn.Garage
     private static void Install()
     {
       if (instance) return;
+      if (LastTurn.Prototype.OfflineValidationRuntime.Active) { Unavailable="Bağımsız ürün doğrulaması: bulut kapalı."; return; }
       if (Application.isBatchMode) { Unavailable = "Otomatik test: bulut kapalı."; return; }
 #if UNITY_EDITOR
       // Ayrı grafik Editor doğrulaması gerçek Game View kullanır; oyuncu hesabına bağlanmaz.
