@@ -115,6 +115,15 @@ namespace LastTurn.Prototype
     public static bool Repair(){if(!Active||Session==null||!Run.Repair())return false;Session.SelectCar(Car);return true;}
     public static bool RefreshStock()=>Active&&Run.RefreshStock();
     public static void Chest(bool accept){var offer=Run.ChestOffer(MarkerId);if(accept&&offer!=null)Run.AcceptChest(MarkerId,offer);else Run.RejectChest(MarkerId);Session.SelectCar(Car);ClosePanel();}
+    // Yeni görünüm teklif üretmez; gerçek işarette önceden hazırlanmış aynı teklif tüketilir.
+    public static bool ResolveChest(int id,string offer,bool accept)
+    {
+      if(!Active||Session==null||Panel!="chest"||MarkerId!=id)return false;
+      var row=Model.Chests.FirstOrDefault(c=>c.Id==id);
+      if(row==null||row.Opened||!row.Inspected||row.Offer!=offer)return false;
+      bool done=accept?Run.AcceptChest(id,offer):Run.RejectChest(id);
+      if(done){Session.SelectCar(Car);ClosePanel();}return done;
+    }
     public static void StartRace(int eventId,int risk,bool boss=false)
     {
       var p=UnityEngine.Object.FindFirstObjectByType<GtPrototype>();if(p){returnPoint=p.Simulation.ReferencePoint;var f=p.Simulation.Body.Orientation.Rotate(new BodyVector(0,0,1));returnHeading=Math.Atan2(f.X,f.Z);}

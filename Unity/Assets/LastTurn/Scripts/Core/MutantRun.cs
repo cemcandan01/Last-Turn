@@ -228,10 +228,15 @@ namespace LastTurn.Core
       c.Set("secenekler",Array(new[]{offer}));return offer;
     }
     public bool RejectChest(int id){var c=Chest(id);if(c==null||c["acildi"].B()||!c["incelendi"].B()||Phase!="surus")return false;c.Set("acildi",Bool(true));return true;}
-    public bool AcceptChest(int id,string offer)
+    public bool CanAcceptChest(int id,string offer)
     {
       var c=Chest(id);if(c==null||c["acildi"].B()||!c["incelendi"].B()||Phase!="surus"||c["secenekler"][0].S()!=offer||Strings("pasifler").Contains(offer))return false;
-      bool resource=new[]{"sandik-para","sandik-tamir","sandik-enerji"}.Contains(offer);if(!resource&&!Catalog["addons"].Items.Any(x=>x["id"].S()==offer))return false;c.Set("acildi",Bool(true));
+      return new[]{"sandik-para","sandik-tamir","sandik-enerji"}.Contains(offer)||Catalog["addons"].Items.Any(x=>x["id"].S()==offer);
+    }
+    public bool AcceptChest(int id,string offer)
+    {
+      if(!CanAcceptChest(id,offer))return false;var c=Chest(id)!;
+      bool resource=new[]{"sandik-para","sandik-tamir","sandik-enerji"}.Contains(offer);c.Set("acildi",Bool(true));
       if(resource){if(offer=="sandik-para")Set("para",N("para")+180);else if(offer=="sandik-tamir")Set("govde",Math.Min(100,N("govde")+35));else Set(State["mek"],"enerji",Math.Min(State["mek"]["kapasite"].N(),State["mek"]["enerji"].N()+60));}
       else{Strings("pasifler",Strings("pasifler").Append(offer));ApplyCapacity();if(offer=="ek-yedek-tup")Set(State["mek"],"enerji",Math.Min(State["mek"]["kapasite"].N(),State["mek"]["enerji"].N()+30));}
       switch(c["lanet"].S()){case "sure":Set("kalan",Math.Max(1,N("kalan")-45));break;case "govde":Set("govde",Math.Max(1,N("govde")-25));break;case "para":Set("para",Math.Floor(N("para")/2));break;}return true;

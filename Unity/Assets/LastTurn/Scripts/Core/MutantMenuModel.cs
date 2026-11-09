@@ -46,7 +46,8 @@ namespace LastTurn.Core
   {
     public int Id;
     public string Title = "", Offer = "", Name = "", Description = "", CurseName = "", CurseDescription = "";
-    public bool Opened, Inspected, Cursed;
+    public bool Opened, Inspected, Cursed, CanAccept;
+    public string IconKey="";
     public double X, Z;
   }
 
@@ -190,7 +191,7 @@ namespace LastTurn.Core
         var definition = catalog["passives"].Items.Concat(catalog["addons"].Items).Concat(catalog["chestResources"].Items).FirstOrDefault(x => x["id"].S() == offer);
         var curse = catalog["curses"][chest["lanet"].S()];
         return new MutantChestCard { Id = (int)chest["id"].N(), Title = chest["lanetli"].B() ? "Lanetli sandık" : "Gizli sandık", X = chest["x"].N(), Z = chest["z"].N(),
-          Opened = chest["acildi"].B(), Inspected = chest["incelendi"].B(), Cursed = chest["lanetli"].B(), Offer = offer,
+          Opened = chest["acildi"].B(), Inspected = chest["incelendi"].B(), Cursed = chest["lanetli"].B(), Offer = offer, CanAccept=run.CanAcceptChest((int)chest["id"].N(),offer), IconKey=(offer.StartsWith("sandik-",StringComparison.Ordinal)?"resource/":"addon/")+offer,
           Name = definition?["ad"].S() ?? "", Description = definition?["d"].S() ?? "", CurseName = curse["ad"].S(), CurseDescription = curse["d"].S() };
       }).ToArray();
       return model;

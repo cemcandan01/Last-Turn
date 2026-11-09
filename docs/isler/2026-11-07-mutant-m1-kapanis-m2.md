@@ -1,5 +1,13 @@
 # Mutant 2.0 — M1 kapanışı ve M2 ilk dilim
 
+## B /4A +8A ve hedefli oynanış kalite kabulü — 9 Kasım 2026
+
+- **Durum: Çalışıyor.** Başlangıç `b689b6e`, dal `codex/unity-p7-garaj`, uzak4 geride/yerel4 ileride. Yalnız `_Recovery`/meta korunacak. Tek Codex, kapasite bilinmiyor; harici bildirim kanalı yok, kurulmuş sayılmadı. Push/merge/PR/yayın yok.
+- Sıra: gerçek teklif/lanet ve tek tüketim güvenliğiyle4A sandık; ayrı commit; gerçek bitiş nedeni/sayılar ve salt rekorla8A özet; ayrı commit. Sonra izole üründe gerçek sürüş girdileriyle kısa rota/yarış/skill/işlem testi ve kanıtlı kalite raporu. Yeni fizik/denge/ödül/kayıt kuralı yok.
+- Kabul: mevcut komut/RNG/kayıt sözleşmesi; eski/tekrarlı teklif güvenliği; fare/klavye/pause/Settings;1280/1920 gerçek Game View; fizik bitişiyle süreli/rakipli yarış ve gerçek sürüş telemetrisi ayrı, enjekte edilen sınırlar ayrı fixture. Gözlem→etki→kanıt→öneri raporu; yapılamayan kapsam açık, insan/cihaz/ses kabulü uydurulmaz.
+- Aday senaryolar: tohum53/başlangıç listesinin ilk mevcut aracı, mevcut etkinliğin gerçek plan/pisti; stok ile mevcut motor yükseltmeli kurulum; gaz/fren/viraj/el freni/nitro, kanca/uçuş. Rotanın gerçek normal girişle erişilebilirliği ölçülüp sonuçta gerçek araç/pist/id kaydedilecek. En fazla hedefli kabul, tam regresyon yok. Son durumlar burada ve DEVIR'de güncellenecek.
+- **4A kod ve dar kabul tamam:** .NET220+menü4311; Unity89/89,8 Game View/221 kaynak, UTC `2026-11-09T07:38:22.3299037Z`, Runtime0/Editor0. Normal/lanetli kabul/ret, eski/açılmış teklif, salt çizim/girdi/pause/Settings ve kariyer/kalıcı dosyalar. Sekiz görüntü incelendi; `Unity/Logs/b-chest-{normal,cursed,invalid,long}-{1280,1920}.png`, `b-chest-play.json`, `b-chest-editor.log`. İzole kapı konum fixture'ı, ardından kontrollü adım/sentetik girdi; gerçek sürüş kabulü değildir. İlk turda izole kopyanın eksik mevcut smoke referansları tamamlandı; ikinci turda kapanış sonrası sürüş zamanını Core karşılaştırmasından ayırmak için manual step kullanıldı. Eşik gevşetilmedi. Sırada8A, ardından gerçek oynanış.
+
 - Başlangıç: `codex/unity-p7-garaj` / `b465ec8`; mevcut çalışma ağacında yalnız5 `_Recovery` dosyası var. Tek Codex; yeni ajan/Claude/ücretli araç yok. Kota pencereleri bilinmiyor.
 - Kullanıcının ekli “M1 KAPANIŞI VE M2 ÖDÜL SİSTEMİ” talebi. Önceki M0/M1/HasarAlindi/F2/B/C teslimleri yeniden yapılmaz.
 - Kaynak kararları: `docs/tasarim/mutant-2-m0.md`, `mutant-2-matris.md`, önceki M1 kartı, DEVIR ve güncel Core. Sunum kuralları saf Core'da; UI yalnız modeli okur.

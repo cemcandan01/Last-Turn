@@ -1,3 +1,7 @@
+# B /4A +8A ve oynanış kalite incelemesi — çalışıyor (9 Kasım 2026)
+
+Tek Codex, başlangıç `b689b6e`, yerel4 ileri/0 geri. Sandık kodu ve dar .NET220+menü4311 geçti, izole gerçek Play sürüyor. Ardından ayrı commit ile8A ve hedefli gerçek sürüş testi/kalite raporu yapılacak. Bildirim kanalı bulunmuyor; harici bildirim kurulmuş sayılmadı. Push/merge/PR/yayın yok; `_Recovery`/meta korunur. Aynı M2 kartı güncelleniyor.
+
 # B /3A atölye ekranı tamamlandı (9 Kasım 2026) — Codex
 
 - **Kod/test commit'i `338b976`**, başlangıç `6b51386`, dal `codex/unity-p7-garaj`. Fetch sırasında uzak `3e5dc9a`, yerel2 ileri/0 geriydi. Tek Codex, aynı M2 kartı; kapasite bilinmiyor. **Önceki iki commit dahil push/merge/PR/deneme/canlı/release yapılmadı.** Yeni ajan, paket, API veya görsel üretimi yok. `_Recovery`/meta ve gerçek oyuncu kayıtları korundu.

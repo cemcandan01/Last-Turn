@@ -1,0 +1,15 @@
+.mt-body { position: absolute; left: 96px; right: 96px; top: 205px; bottom: 152px; flex-direction: row; }
+.mt-left { width: 48%; margin-right: 64px; }
+.mt-title { font-size: 52px; white-space: normal; color: #b7ff32; margin-bottom: 24px; -unity-font-style: bold; }
+.mt-kicker { font-size: 23px; color: #ef73ba; margin-bottom: 20px; }
+.mt-copy { font-size: 28px; white-space: normal; color: #dce8e0; margin-bottom: 22px; }
+.mt-panel { flex-grow: 1; min-width: 0; padding: 40px; border-width: 1px; border-color: #497354; border-radius: 18px; background-color: rgba(5,17,21,.97); }
+.mt-detail { flex-grow: 1; min-height: 0; }
+.mt-icon { height: 112px; width: 112px; margin-bottom: 26px; }
+.mt-icon > * { width: 100%; height: 100%; }
+.mt-actions { flex-direction: row; flex-wrap: wrap; margin-top: 30px; flex-shrink: 0; }
+.mt-actions .ltb { margin-left: 16px; margin-right: 12px; margin-bottom: 12px; }
+.mt-page .ltb > .skew { --fill: #09201d; --edge: #b7ff32; }
+.mt-page .ltb.ana > .skew { --fill: #b7ff32; --edge: #ecf6e7; }
+.mt-page .ltb.mc-selected > .skew { --edge: #ef73ba; }
+.mt-curse { color: #ff656e; }
