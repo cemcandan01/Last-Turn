@@ -22,9 +22,9 @@ namespace LastTurn.Core
   }
   public sealed class MutantStockCard
   {
-    public string Id = "", Name = "", Description = "", Category = "";
+    public string Id = "", Name = "", Description = "", Category = "", IconKey = "";
     public double Price;
-    public bool CanBuy;
+    public bool CanBuy, InsufficientMoney;
   }
   public sealed class MutantRiskCard
   {
@@ -60,6 +60,7 @@ namespace LastTurn.Core
     public int Region, Level, SelectedCar, BossTrackIndex, DefeatedBosses;
     public bool Test, Finished, Wrecked, CanRepair, ShowRepair, CanRefresh;
     public double Remaining, Body, Money, Xp, NextLevelXp, RepairCost, RefreshCost, PowerLossPercent, BossTarget;
+    public MutantRepairPreview RepairPreview;
     public MutantChoiceCard[] Choices = Array.Empty<MutantChoiceCard>();
     public MutantStockCard[] Stock = Array.Empty<MutantStockCard>();
     public MutantEventCard[] Events = Array.Empty<MutantEventCard>();
@@ -155,7 +156,7 @@ namespace LastTurn.Core
         BossAbilities = boss["yetenekler"].Items.Select(x => x.S()).ToArray(), BossTrackIndex = (int)bossTrack["i"].N(), BossTarget = run.BossTarget(bossTrack),
         RepairCost = run.RepairCost, RefreshCost = catalog["stockRefresh"].N(),
         CanRefresh = state["para"].N() >= catalog["stockRefresh"].N(), ShowRepair = state["govde"].N() < catalog["body"]["tam"].N(),
-        CanRepair = state["govde"].N() < catalog["body"]["tam"].N() && state["para"].N() >= catalog["body"]["tamirFiyati"].N(),
+        CanRepair = run.RepairPreview.CanRepair, RepairPreview=run.RepairPreview,
         PowerLossPercent = Round(catalog["body"]["gucKaybi"].N() * (100 - state["govde"].N())),
         Choices = state["secenekler"].Items.Select(x => Choice(run, x.S())).ToArray(),
         PassiveNames = state["pasifler"].Items.Select(x => Passive(catalog, x.S())["ad"].S()).ToArray(),
@@ -167,7 +168,7 @@ namespace LastTurn.Core
       model.Stock = state["stok"].Items.Select(x =>
       {
         string id = x.S(); var part = Find(catalog["parts"], id); double price = run.PartPrice((int)part["sv"].N(), id);
-        return new MutantStockCard { Id = id, Name = part["n"].S(), Description = part["d"].S(), Price = price, CanBuy = model.Money >= price,
+        return new MutantStockCard { Id = id, Name = part["n"].S(), Description = part["d"].S(), Price = price, CanBuy = run.CanBuyPart(id,(int)part["sv"].N()), InsufficientMoney=model.Money<price, IconKey="part/"+id,
           Category = vehicles.Data["categories"].Items.First(c => c[0].S() == part["kat"].S())[1].S() };
       }).ToArray();
       model.Events = state["etkinlikler"].Items.Select(e =>

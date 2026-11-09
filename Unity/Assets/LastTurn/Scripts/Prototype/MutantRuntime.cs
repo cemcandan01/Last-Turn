@@ -111,9 +111,9 @@ namespace LastTurn.Prototype
       Refresh(vehicle);return !Blocked;
     }
     public static void ClosePanel(){Panel="";Message="";}
-    public static void Buy(string id){var row=Model.Stock.First(s=>s.Id==id);var part=Run.Catalog["parts"].Items.First(p=>p["id"].S()==id);if(Run.BuyPart(id,(int)part["sv"].N()))Session.SelectCar(Car);}
-    public static void Repair(){if(Run.Repair())Session.SelectCar(Car);}
-    public static void RefreshStock(){Run.RefreshStock();}
+    public static bool Buy(string id){if(!Active||Session==null)return false;var part=Run.Catalog["parts"].Items.FirstOrDefault(p=>p["id"].S()==id);if(part==null||!Run.BuyPart(id,(int)part["sv"].N()))return false;Session.SelectCar(Car);return true;}
+    public static bool Repair(){if(!Active||Session==null||!Run.Repair())return false;Session.SelectCar(Car);return true;}
+    public static bool RefreshStock()=>Active&&Run.RefreshStock();
     public static void Chest(bool accept){var offer=Run.ChestOffer(MarkerId);if(accept&&offer!=null)Run.AcceptChest(MarkerId,offer);else Run.RejectChest(MarkerId);Session.SelectCar(Car);ClosePanel();}
     public static void StartRace(int eventId,int risk,bool boss=false)
     {

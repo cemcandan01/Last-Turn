@@ -106,8 +106,8 @@ namespace LastTurn.Prototype
     private void BindMutantInput()
     {
       if(!mutantDrive)return;
-      input.NitroPressed+=()=>MutantRuntime.Abilities?.PressNitro();
-      input.SkillPressed+=slot=>MutantRuntime.Abilities?.PressSkill(slot);
+      input.NitroPressed+=()=>{if(!MutantRuntime.Blocked&&!SettingsScreen.Open)MutantRuntime.Abilities?.PressNitro();};
+      input.SkillPressed+=slot=>{if(!MutantRuntime.Blocked&&!SettingsScreen.Open)MutantRuntime.Abilities?.PressSkill(slot);};
       input.SkillReleased+=slot=>MutantRuntime.Abilities?.ReleaseSkill(slot);
     }
     // TS suruklemeKancasi.hava: koşu sürerken araç havadaysa (ya da parmak zaten basılıysa) sürükleme burnu çevirir.

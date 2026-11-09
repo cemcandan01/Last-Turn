@@ -1,0 +1,29 @@
+.ms-body { position: absolute; left: 96px; right: 96px; top: 188px; bottom: 144px; flex-direction: row; }
+.ms-left { flex-grow: 1; flex-basis: 0; min-width: 0; margin-right: 80px; }
+.ms-title { font-size: 62px; margin-bottom: 18px; }
+.ms-kicker { color: #ef73ba; font-size: 20px; white-space: normal; margin-bottom: 6px; }
+.ms-money { font-size: 38px; color: #b7ff32; margin-bottom: 10px; }
+.ms-copy { font-size: 24px; white-space: normal; margin-bottom: 8px; }
+.ms-small { font-size: 21px; color: #c4d4cc; white-space: normal; margin-top: 16px; margin-bottom: 8px; }
+.ms-notice { font-size: 22px; color: #ef73ba; white-space: normal; margin-top: 20px; }
+.ms-actions { flex-direction: column; align-items: flex-start; margin-top: 20px; }
+.ms-actions .ltb { margin-left: 16px; margin-bottom: 14px; }
+.ms-page .ltb > .skew { --fill: #09201d; --edge: #b7ff32; }
+.ms-page .ltb.ana > .skew { --fill: #b7ff32; --edge: #ecf6e7; }
+.ms-page .ltb.ms-focused > .skew { --edge: #ecf6e7; }
+.ms-stock { flex-grow: 1.15; flex-basis: 0; min-width: 0; }
+.ms-stock .unity-scroll-view__content-container { padding: 6px; flex-shrink: 0; }
+.ms-card { flex-direction: row; flex-shrink: 0; padding: 24px; margin-bottom: 20px; border-width: 1px; border-color: #497354; border-radius: 16px; background-color: rgba(5,17,21,.97); }
+.ms-card.mc-selected { background-color: #122b28; border-color: #ecf6e7; }
+.ms-icon { width: 70px; height: 70px; margin-right: 22px; flex-shrink: 0; }
+.ms-part-content { flex-grow: 1; flex-basis: 0; min-width: 0; }
+.ms-part-content Label { margin: 0; padding: 0; flex-shrink: 0; }
+.ms-part-name { font-size: 30px; -unity-font-style: bold; white-space: normal; }
+.ms-description { font-size: 22px; white-space: normal; margin-top: 10px; }
+.ms-price-row { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; margin-top: 14px; }
+.ms-price { font-size: 26px; color: #b7ff32; }
+.ms-price-row .ltb { margin-left: 16px; margin-bottom: 4px; }
+.ms-stock .unity-scroller--vertical { width: 12px; background-color: #122b28; }
+.ms-stock .unity-scroller__low-button, .ms-stock .unity-scroller__high-button { display: none; }
+.ms-stock .unity-base-slider__tracker { background-color: #152622; border-width: 0; }
+.ms-stock .unity-base-slider__dragger { background-color: #52734a; border-width: 0; min-height: 28px; }

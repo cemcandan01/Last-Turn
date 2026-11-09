@@ -4,6 +4,13 @@ using System.Linq;
 
 namespace LastTurn.Core
 {
+  public readonly struct MutantRepairPreview
+  {
+    public readonly double Points, Cost, BodyAfter;
+    public bool CanRepair=>Points>0;
+    public bool Partial=>CanRepair&&BodyAfter<100;
+    public MutantRepairPreview(double points,double cost,double bodyAfter){Points=points;Cost=cost;BodyAfter=bodyAfter;}
+  }
   // TS 0.8.18 mutant-kosu: koşu ekonomisi ve envanteri. Beceri yürütücüsü ayrı adaptörden bağlanır.
   // Durum anahtarları kaynak TS adlarıdır; Unity/DOM, disk ve gerçek zaman bağımlılığı yoktur.
   public sealed class MutantRun
@@ -130,16 +137,22 @@ namespace LastTurn.Core
     }
     public bool RefreshStock(){if(N("para")<40)return false;Set("para",N("para")-40);ArrangeStock();return true;}
     public double PartPrice(int level,string id="")=>Round(new[]{40d,80,170,380}[level]*(Rare(id)?1.4:1)*(1-.1*Count("tuccar")));
+    public bool CanBuyPart(string id,int level)=>!(N("para")<PartPrice(level,id)||Strings("parcalar").Contains(id)||!Strings("stok").Contains(id));
     public bool BuyPart(string id,int level)
     {
-      double price=PartPrice(level,id);if(N("para")<price||Strings("parcalar").Contains(id)||!Strings("stok").Contains(id))return false;
+      double price=PartPrice(level,id);if(!CanBuyPart(id,level))return false;
       Strings("stok",Strings("stok").Where(x=>x!=id));Set("para",N("para")-price);Strings("parcalar",Strings("parcalar").Append(id));return true;
     }
     public double RepairCost=>Math.Ceiling((100-N("govde"))*3);
+    // Eski Repair hesabı tek yerde; sunum aynı gerçek işlemi önceden okuyabilir.
+    public MutantRepairPreview RepairPreview
+    {
+      get{double body=N("govde");if(body>=100||N("para")<=0)return new MutantRepairPreview(0,0,body);double points=Math.Min(100-body,Math.Floor(N("para")/3));return points<=0?new MutantRepairPreview(0,0,body):new MutantRepairPreview(points,points*3,body+points);}
+    }
     public bool Repair()
     {
-      if(N("govde")>=100||N("para")<=0)return false;double points=Math.Min(100-N("govde"),Math.Floor(N("para")/3));if(points<=0)return false;
-      Set("govde",N("govde")+points);Set("para",N("para")-points*3);return true;
+      var preview=RepairPreview;if(!preview.CanRepair)return false;
+      Set("govde",preview.BodyAfter);Set("para",N("para")-preview.Cost);return true;
     }
     public bool Damage(string type,bool ghost=false,double? powerMultiplier=null)
     {

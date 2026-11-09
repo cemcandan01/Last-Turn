@@ -2,6 +2,7 @@ using System.Text.Json;
 using LastTurn.Core;
 if(args.Contains("--mutant-hud")){MutantHudValidation.Run();return;}
 if(args.Contains("--mutant-event")){MutantEventValidation.Run();return;}
+if(args.Contains("--mutant-workshop")){MutantWorkshopValidation.Run();return;}
 if(args.Contains("--mutant-rewards")){MutantRewardValidation.Run();return;}
 if(args.Contains("--mutant-damage")){MutantDamageValidation.Run();return;}
 if(args.Contains("--mutant-pilot")){MutantPilotValidation.Run();return;}
