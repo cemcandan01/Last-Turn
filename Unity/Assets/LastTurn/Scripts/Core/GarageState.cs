@@ -24,6 +24,9 @@ namespace LastTurn.Core
     private double earned, xp;
 
     public VehicleCatalog Catalog { get; }
+    /// TS ilerleme adminKip: admin oturumunda her araç, parça ve pist açık görünür; kayda yazılmaz. Yalnız CloudAccount
+    /// sunucu admins/{uid} onayından sonra açar, oturum değişince kapatır.
+    public static bool AdminMode { get; set; }
     public int SelectedCar { get; private set; }
     // Yüklenen kaydın nesli; güncelden küçükse kayıt bu oturumda geçirildi ve ilk yazmada güncellenir.
     public int SourceGeneration { get; private set; } = CatalogGeneration;
@@ -74,12 +77,13 @@ namespace LastTurn.Core
     public bool OwnsCar(int car)
     {
       if (!ValidCar(car)) return false;
+      if (AdminMode) return true;
       var price = Catalog.Data["prices"]["cars"][car];
       return (price["para"].N() <= 0 && Level >= price["seviye"].N()) || purchases.ContainsKey(CarKey(car)) || extraOpen.Contains(CarKey(car));
     }
 
     public bool OwnsPart(int car, string id)
-      => ValidCar(car) && id != null && (Catalog.PartPrice(id) <= 0 || purchases.ContainsKey(PartPrefix(car) + id));
+      => ValidCar(car) && id != null && (AdminMode || Catalog.PartPrice(id) <= 0 || purchases.ContainsKey(PartPrefix(car) + id));
 
     public string[] Equipped(int car)
     {
@@ -205,9 +209,10 @@ namespace LastTurn.Core
 
     public int StarsOf(string type, int level) => ReadStars(type, level);
 
-    /// TS ilerleme.pistAcikMi (admin kipi yok): seviye, ek açık liste ya da kariyer yıldız kapısı.
+    /// TS ilerleme.pistAcikMi: admin kipi, seviye, ek açık liste ya da kariyer yıldız kapısı.
     public bool TrackOpen(string type, int level)
     {
+      if (AdminMode) return true;
       var unlock = Catalog.Data["career"]["unlocks"]["pist"][type][level - 1];
       return Level >= (unlock.IsNumber ? unlock.N() : 1) || extraOpen.Contains(RaceStars.Key(type, level))
         || Catalog.StarGate(type, level, ReadStars)["acik"].B();
@@ -223,6 +228,46 @@ namespace LastTurn.Core
       if (earnedStars > previous) stars[RaceStars.Key(type, level)] = earnedStars;
       AddMoney(money); AddXp(gainedXp);
       return (gainedXp, money);
+    }
+
+    /// TS adminSeviyeAyarla: XP seviyenin başına ayarlanır (azaltabilir; buluta yalnız admin yazabilir).
+    public void AdminSetLevel(int level)
+    {
+      double target = VehicleCatalog.LevelBase(Math.Max(1, level));
+      ValidateAmount(target, "Toplam XP");
+      xp = target;
+    }
+
+    /// TS adminKilit: "arac_8" ya da "asphalt_3" kilidini aç/kapa; kapatınca alımı da silinir. Seviyesi gelmiş öğe açık kalır.
+    public bool AdminSetUnlock(string key, bool open)
+    {
+      if (!AdminKeys().Contains(key)) return false;
+      extraOpen.Remove(key);
+      if (open) extraOpen.Add(key); else purchases.Remove(key);
+      return true;
+    }
+
+    /// TS hesap-ui adminHtml öğeleri: bütün araçlar ve kariyer pistleri (yıldız anahtarı).
+    public string[] AdminKeys()
+    {
+      int cars = Catalog.Data["cars"].Items.Count();
+      var keys = Enumerable.Range(0, cars).Select(CarKey).ToList();
+      foreach (var type in new[] { "gp", "rx", "dp", "rl", "dg" })
+      {
+        int n = Catalog.Data["career"]["unlocks"]["pist"][type].Items.Count();
+        for (int lv = 1; lv <= n; lv++) keys.Add(RaceStars.Key(type, lv));
+      }
+      return keys.ToArray();
+    }
+
+    /// TS ilerlemeyiSifirla: XP, yıldız, para, alım ve açık öğeler silinir; ayar (yardım seviyesi) ve takılı liste kalır
+    /// (sahip olunmayan parça zaten düşer). Seçili araç artık sahip değilse başlangıç aracına döner.
+    public GarageState ResetProgress()
+    {
+      var snapshot = Snapshot();
+      snapshot.Set("progress", CatalogNode.Obj());
+      snapshot["progress"].Set("surum", CatalogNode.Num(3));
+      return Restore(Catalog, snapshot);
     }
 
     /// TS kurulum.lk: oyuncunun yardım seviyesi (arc/norm/real); Unity varsayılanı norm (Cem kararı). Kalıcı.

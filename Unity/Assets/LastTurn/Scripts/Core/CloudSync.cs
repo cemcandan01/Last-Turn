@@ -138,6 +138,9 @@ namespace LastTurn.Core
     /// Bekleyen yazmayı hemen gönder.
     public Task SendNow() => Queue();
 
+    /// TS yeniOyuncu lt_bulut = {bekleyen:false}: yerel kayıt artık hiçbir hesaba ait değil (yeni misafir birleştirir).
+    public void ForgetOwner() => owner.Save(new CloudOwnerRecord());
+
     /// Her karede/saniyede: kayıt değişimini, gecikmeli yazmayı ve internetin geri gelişini izler.
     public void Tick(double seconds)
     {

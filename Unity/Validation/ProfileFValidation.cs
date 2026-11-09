@@ -23,6 +23,13 @@ internal static class ProfileFValidation
     Check(ProfileViewModel.Validate(" ui@example.test ","abcdef","",false)=="","Giriş tekrar şifresi istemez");
     Check(ProfileViewModel.Validate("ui@example.test","abcdef","abcdef",true)=="","Geçerli yeni hesap formu");
     Check(ProfileViewModel.ValidateReset("bad")=="Önce e-postanı yaz"&&ProfileViewModel.ValidateReset("ui@example.test")=="","Sıfırlama yalnız e-postayı doğrular");
-    Console.WriteLine($"Profil F: {checks} kontrol; gerçek sayaç/favori/XP, mutasyonsuz sunum ve mevcut hesap form metinleri.");
+    // Hesap yüzeyi: bilinen hesap satırı, admin öğe listesi (bütün araçlar + 40 kariyer pisti, gerçek adlarla) ve seviye girdisi.
+    Check(ProfileViewModel.AccountLine(new KnownAccount{Uid="u1",Yol="google",Label="cem@gmail.com",Level=7,Admin=true},true)=="Google · cem@gmail.com · Seviye 7 · şu an · Admin","Google hesap satırı");
+    Check(ProfileViewModel.AccountLine(new KnownAccount{Uid="u2",Label="a@b.co",Level=1},false)=="E-posta · a@b.co · Seviye 1","E-posta hesap satırı");
+    var items=ProfileViewModel.AdminItems(new GarageState(catalog),events);int cars=catalog.Data["cars"].Items.Count();
+    Check(items.Length==cars+40&&items.Select(i=>i.Key).Distinct().Count()==items.Length,"Admin öğeleri tekrarsız: araçlar + 40 pist");
+    Check(items.Take(cars).All(i=>i.Label.StartsWith("Araç: ")&&i.Label.Length>6)&&items.Skip(cars).All(i=>i.Label.StartsWith("Pist: ")&&!i.Label.Contains("_")),"Admin öğe adları gerçek araç/pist adı");
+    Check(ProfileViewModel.Level(" 12 ",out int lv)&&lv==12&&!ProfileViewModel.Level("0",out _)&&!ProfileViewModel.Level("100",out _)&&!ProfileViewModel.Level("-3",out _)&&!ProfileViewModel.Level("x",out _),"Seviye girdisi 1–99");
+    Console.WriteLine($"Profil F: {checks} kontrol; gerçek sayaç/favori/XP, mutasyonsuz sunum, hesap form metinleri, bilinen hesap satırı ve admin öğeleri.");
   }
 }

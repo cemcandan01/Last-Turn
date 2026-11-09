@@ -1,3 +1,10 @@
+# Hesap yüzeyi tamam; gerçek Google için tek dış ayar bekliyor (9 Kasım 2026) — Claude
+
+- **Durum:** Codex devrindeki sıradaki paket (Google/bilinen hesaplar/admin/yeni oyuncu) Unity'ye aktarıldı; dal `codex/unity-p7-garaj`, ayrıntı ve kabul [kart → Hesap yüzeyi paketi](isler/2026-11-01-unity-tam-aktarim.md). Kapanış matrisi satırı güncellendi.
+- **Testler:** .NET `--cloud-sync` 205, `--profile-f` 36 ve garajla ilgili 7 dar test geçti; gerçek grafik Play AccountPlay 89/89 + ProfileF 59/59, 0 hata. Görüntüler `Unity/Logs/p8-account-*.png`.
+- **Açık:** gerçek Google girişi için Google Cloud "Masaüstü uygulaması" istemcisi (FIREBASE.md §9) — Cem'in tek işlemi; boşken düğme açık uyarı verir. Bir Play koşusunda panel yeniden çizilirken tıklama kayboldu (nadir; kartta). İnsan kabulü yok. Push/merge/yayın yok.
+- **Sonraki tek adım:** istemci kimliği gelirse gerçek hesapla kısa Google denemesi; yoksa matristeki rekor hayaleti `rh` yarış ortası aç/kapa kontrolü.
+
 # İşlevsel aktarım — üç paket tamam, genel kapanış açık / Claude devri (9 Kasım 2026)
 
 - **Durum: Kısmi teslim tamam; genel görev tamamlanmadı.** Başlangıç `556dca7`, aynı `codex/unity-p7-garaj`. Kod commitleri **`29f83f6` ses**, **`94caed4` bina/doğal süre/Windows**, **`c7122e0` geliştirici hayaleti**. [Tek güncel kapanış matrisi ve somut devam](isler/2026-11-01-unity-tam-aktarim.md), [kalite eki](2026-11-09-mutant-b-kalite-raporu.md). Aynı M2 kartı güncellendi. Yeni genel kapsam önceki “bu dilimde dur” sınırını kaldırır; devam aynı görevdir.

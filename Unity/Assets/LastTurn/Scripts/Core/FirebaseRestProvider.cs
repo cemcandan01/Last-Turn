@@ -25,7 +25,7 @@ namespace LastTurn.Core
   }
 
   // TS bulut/firebase.ts karşılığı: Firebase Auth (Identity Toolkit + Secure Token) ve Firestore REST. Web sürümüyle aynı
-  // proje, hesaplar ve users/{uid} belgesi. Masaüstünde Google girişi tarayıcı yönlendirmesi ister; bu adımda yok.
+  // proje, hesaplar ve users/{uid} belgesi. Google: IGoogleSignIn'den gelen kimlik belirteci signInWithIdp ile oturuma çevrilir.
   public sealed class FirebaseRestProvider : ICloudProvider
   {
     private const string Auth = "https://identitytoolkit.googleapis.com/v1/accounts:";
@@ -34,15 +34,16 @@ namespace LastTurn.Core
     private readonly ICloudHttp http;
     private readonly ICloudSessionStore store;
     private readonly Func<double> nowMs;
+    private readonly IGoogleSignIn? google;
     private readonly List<Action<CloudUser?>> listeners = new List<Action<CloudUser?>>();
     private CloudUser? user;
     private string refresh = "", idToken = "";
     private double expiresAt;
     private bool restored;
 
-    public FirebaseRestProvider(string apiKey, string projectId, ICloudHttp http, ICloudSessionStore store, Func<double> nowMs)
+    public FirebaseRestProvider(string apiKey, string projectId, ICloudHttp http, ICloudSessionStore store, Func<double> nowMs, IGoogleSignIn? google = null)
     {
-      this.apiKey = apiKey; this.http = http; this.store = store; this.nowMs = nowMs;
+      this.apiKey = apiKey; this.http = http; this.store = store; this.nowMs = nowMs; this.google = google;
       documents = "https://firestore.googleapis.com/v1/projects/" + projectId + "/databases/(default)/documents/";
     }
 
@@ -56,14 +57,15 @@ namespace LastTurn.Core
       try { s = store.Load(); } catch (Exception e) when (e is FormatException || e is System.IO.IOException) { }
       if (s == null || s["uid"].S() == "" || s["refresh"].S() == "") return;
       refresh = s["refresh"].S();
-      user = new CloudUser { Uid = s["uid"].S(), Anonim = s["anonim"].B(), Yol = s["yol"].S("anonim"), Eposta = s["eposta"].IsString ? s["eposta"].S() : null };
+      user = new CloudUser { Uid = s["uid"].S(), Anonim = s["anonim"].B(), Yol = s["yol"].S("anonim"), Eposta = s["eposta"].IsString ? s["eposta"].S() : null, Ad = s["ad"].IsString ? s["ad"].S() : null };
     }
 
     private void Notify() { foreach (var f in listeners.ToArray()) f(user); }
 
     private void SetSession(CatalogNode r, bool anonymous, string path)
     {
-      user = new CloudUser { Uid = r["localId"].S(), Anonim = anonymous, Yol = path, Eposta = r["email"].IsString && r["email"].S() != "" ? r["email"].S() : null };
+      user = new CloudUser { Uid = r["localId"].S(), Anonim = anonymous, Yol = path, Eposta = r["email"].IsString && r["email"].S() != "" ? r["email"].S() : null,
+        Ad = r["displayName"].IsString && r["displayName"].S() != "" ? r["displayName"].S() : null };
       idToken = r["idToken"].S();
       refresh = r["refreshToken"].S();
       expiresAt = nowMs() + Seconds(r["expiresIn"]) * 1000;
@@ -78,6 +80,7 @@ namespace LastTurn.Core
       s.Set("uid", CatalogNode.Str(user.Uid)); s.Set("refresh", CatalogNode.Str(refresh));
       s.Set("anonim", CatalogNode.Bool(user.Anonim)); s.Set("yol", CatalogNode.Str(user.Yol));
       s.Set("eposta", user.Eposta == null ? CatalogNode.Null() : CatalogNode.Str(user.Eposta));
+      if (user.Ad != null) s.Set("ad", CatalogNode.Str(user.Ad));
       store.Save(s);
     }
 
@@ -90,6 +93,7 @@ namespace LastTurn.Core
       switch (m)
       {
         case "EMAIL_EXISTS": return "email-already-in-use";
+        case "FEDERATED_USER_ID_ALREADY_LINKED": return "credential-already-in-use";
         case "CREDENTIAL_TOO_OLD_LOGIN_AGAIN": return "requires-recent-login";
         case "INVALID_LOGIN_CREDENTIALS": case "INVALID_PASSWORD": return "invalid-credential";
         case "EMAIL_NOT_FOUND": case "USER_NOT_FOUND": return "user-not-found";
@@ -175,7 +179,36 @@ namespace LastTurn.Core
       SetSession(await AuthPost("signUp", b), true, "anonim");
     }
 
-    public Task LinkGoogle(string? hint = null) => throw new CloudError("google-desktop");
+    /// TS googleBagla: misafir aynı uid ile Google'a bağlanır (ilerleme kalır); Google hesabı başka cihazda zaten varsa ona
+    /// geçilir (TS varsaGec); bağlı hesaptan başka Google hesabına geçilir.
+    public async Task LinkGoogle(string? hint = null)
+    {
+      if (google == null) throw new CloudError("google-desktop");
+      string token = await google.IdToken(hint);
+      Restore();
+      CatalogNode Body()
+      {
+        var b = CatalogNode.Obj();
+        b.Set("postBody", CatalogNode.Str("id_token=" + Uri.EscapeDataString(token) + "&providerId=google.com"));
+        b.Set("requestUri", CatalogNode.Str("http://localhost"));
+        b.Set("returnSecureToken", CatalogNode.Bool(true)); b.Set("returnIdpCredential", CatalogNode.Bool(true));
+        return b;
+      }
+      if (user != null && user.Anonim)
+      {
+        var link = Body(); link.Set("idToken", CatalogNode.Str(await IdToken()));
+        try { GoogleSession(await AuthPost("signInWithIdp", link)); return; }
+        catch (CloudError e) when (e.Code == "credential-already-in-use" || e.Code == "email-already-in-use") { }
+      }
+      GoogleSession(await AuthPost("signInWithIdp", Body()));
+    }
+
+    private void GoogleSession(CatalogNode r)
+    {
+      // Aynı e-posta başka yolla (şifre) kayıtlıysa Firebase onay ister; sessizce birleştirilmez.
+      if (r["needConfirmation"].B()) throw new CloudError("account-exists-with-different-credential");
+      SetSession(r, false, "google");
+    }
 
     public async Task CreateEmail(string email, string password)
     {

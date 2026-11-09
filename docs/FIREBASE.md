@@ -115,6 +115,20 @@ kipi açılır, test hesabına geçince kapanır. İnternet yokken ya da giriş 
 yapılmaz; hangi hesapta kalındığı yazar. Listede **✕** hesabı yalnız bu cihazın listesinden kaldırır (hesap ve
 ilerlemesi bulutta kalır). Listede şifre ya da giriş belirteci saklanmaz; yalnız e-posta, tür, seviye ve admin rozeti.
 
+## 9. Windows (Unity) sürümünde Google girişi için (bir kez)
+
+Unity masaüstü sürümü Google girişini varsayılan tarayıcıda açar ve sonucu bilgisayarın içindeki geçici bir adresten
+(`http://127.0.0.1:<port>`) alır. Bunun için Google'a ayrı bir "masaüstü uygulaması" istemcisi tanıtmak gerekir:
+
+1. https://console.cloud.google.com/apis/credentials adresini aç; üstte `last-turn` projesini seç.
+2. **Kimlik bilgisi oluştur** → **OAuth istemci kimliği** → Uygulama türü **Masaüstü uygulaması** → ad: `Last Turn Windows` → **Oluştur**.
+3. Çıkan **İstemci kimliği** ve **İstemci gizli anahtarı** değerlerini geliştiriciye ilet; `Unity/Assets/LastTurn/Scripts/Core/CloudConfig.cs`
+   içindeki `GoogleDesktopClientId` ve `GoogleDesktopClientSecret` alanlarına yazılır. Masaüstü istemcisinin anahtarı Google'a göre
+   gizli sayılmaz (koruma PKCE ile yapılır); yine de herkese açık bir yere ayrıca yapıştırma.
+
+Bu yapılmadan Windows'ta "Google ile bağlan" düğmesi "Bu kurulumda Google girişi ayarlanmadı; e-postayla bağlan" der;
+e-posta girişi, hesap değiştirme, admin ve yeni oyuncu bundan etkilenmez.
+
 ## Oyunda nasıl görünür
 
 - İlk açılışta hesap sessizce açılır (Misafir). İlerleme buluta yazılır.

@@ -843,6 +843,18 @@
 .p-form .ltb { height:58px; margin-top:12px; }
 .p-form .ltb .yazi { font-size:23px; }
 .p-content .ltb:focus { border-color:rgb(255,122,60); border-width:2px; }
+.p-account { margin-top:10px; }
+.p-actions { flex-direction:row; flex-wrap:wrap; align-items:flex-end; }
+.p-actions > .ltb, .p-acc-row > .ltb { margin-right:10px; margin-top:10px; }
+.p-actions > .p-field { min-width:200px; margin-right:12px; margin-bottom:0; }
+.p-list { margin-top:8px; padding-left:12px; border-left-width:2px; border-color:rgb(75,88,98); }
+.p-acc-row { flex-direction:row; flex-wrap:wrap; align-items:center; margin-top:4px; }
+.p-uid { font-size:17px; margin-top:12px; margin-right:12px; }
+.p-warn { white-space:normal; color:rgb(255,196,120); margin-top:10px; }
+.p-admin { margin-top:22px; }
+.p-field .unity-base-popup-field__input { background-color:rgb(21,31,39); color:white; border-width:1px; border-color:rgb(75,88,98); min-height:46px; padding-left:10px; }
+.p-field .unity-base-popup-field__text { color:white; }
+.p-field > .unity-base-field__label { min-width:0; margin-bottom:8px; font-size:18px; color:rgb(191,203,214); }
 .p-content .unity-scroller { background-color:rgb(17,24,30); }
 .p-content .unity-base-slider__tracker { background-color:rgb(35,45,54); }
 .p-content .unity-base-slider__dragger { background-color:rgb(93,109,122); }
