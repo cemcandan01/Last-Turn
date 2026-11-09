@@ -25,7 +25,7 @@ namespace LastTurn.Core
       m.Resources="Gövde "+N(menu.Body)+" / 100 · "+N(menu.Money)+" para · Sv "+menu.Level;
       m.Progress=N(menu.Xp)+" / "+N(menu.NextLevelXp)+" XP";
       var n=abilities.Nitro();m.EnergyFill=n.Capacity>0?Math.Max(0,Math.Min(1,n.Energy/n.Capacity)):0;m.NitroReady=n.Ready;m.NitroOpen=n.Open;
-      m.NitroText=N(n.Energy)+" / "+N(n.Capacity)+" · "+(n.Open?N(n.Left)+" sn":n.Ready?"HAZIR":"DOLUYOR")+" · maliyet "+N(n.Cost);
+      m.NitroText=N(n.Energy)+" / "+N(n.Capacity)+" · "+(n.Open?N(n.Left)+" sn":n.Ready?"HAZIR":"HAZIR DEĞİL")+" · maliyet "+N(n.Cost);
       m.Slots=abilities.Skills().Take(3).Select(s=>{var p=MutantSkillSlot.Read(s);var definition=run.Catalog["skills"].Items.FirstOrDefault(d=>d["id"].S()==s.Id);var evo=definition?["evrimler"].Items.FirstOrDefault(e=>e["id"].S()==s.Evolution);
         return new MutantHudSlot{Id=s.Id,IconKey=s.Evolution!=null?"evolution/"+s.Evolution:"skill/"+s.Id,Name=s.Name,Detail="Sv "+s.Level+(evo!=null?" · "+evo["ad"].S():"")+(s.Kind=="aktif"?"":" · kendiliğinden"),Text=p.Text,State=p.State,Fill=p.Fill};}).ToArray();
       if(!racing){var mission=session?.Missions.Active;if(mission!=null)m.Mission=MutantRoadMissions.Name(mission)+" · "+N(mission.Progress)+" / "+N(mission.Target)+" · "+N(mission.Remaining)+" sn";

@@ -260,6 +260,8 @@ namespace LastTurn.Prototype
       FlushProfileDistance();observedRaceKm=0;
       var data = RaceData.Load();var mutant=MutantRuntime.Active?MutantRuntime.RacePlan:null;
       var info = mutant!=null?mutant.Event:data.Event(key); var track = mutant!=null?mutant.Track:data.Tracks.Tracks[info.Index];
+      // Mutant planı sahnenin varsayılan gp_1 kimliğini de geçersiz kılar; görsel önbellek gerçek pistle eşleşir.
+      if(mutant!=null)key=track.Key;
       if (key != RaceTrack) { trackVisuals.Build(track,mutant?.World); RaceTrack = key; }
       var drive = mutant!=null?new GarageRace.Drive{Parameters=MutantRuntime.Session.BuildPhysics(),Setup=MutantRuntime.Session.BuildSetup(),Car=MutantRuntime.Car,Career=false,Message="Mutant koşusu"}:GarageRace.Prepare(info);
       parameters = drive.Parameters ?? GtPrototypeParameters.Create(); RaceMessage = drive.Message;
