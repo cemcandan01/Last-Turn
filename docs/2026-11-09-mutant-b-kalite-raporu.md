@@ -1,4 +1,58 @@
-# Mutant B — kalan ekranlar ve oynanış kalite raporu
+# Kanca hedefi ve gerçek kullanım — tamamlandı
+
+9 Kasım 2026 · `codex/unity-p7-garaj` · başlangıç `91e3a87` · kod/test `9d9d18a`.
+
+**Durum: Tamamlandı; engel yok.** Tek Codex, aynı M2 kartı. Başlangıçta devralınacak commit edilmemiş kanca işi veya paralel uygulayıcı yoktu. Menzil, çekiş, hak dolumu, fizik, kamera ve ekonomi değiştirilmedi. Push/merge/PR/yayın ve dış bildirim yapılmadı. Marker işine geçilmedi.
+
+## Önceki iki isteğin açıklaması
+
+Eski kanıt yalnız `hedef` reddini içeriyordu. Aynı tohum53/Kara Boğa/mevcut motor, hazırlık girdileri ve simülasyon4/6 sn istekleri üretim seçicisiyle tekrarlandı. Aşağıdaki veriler bu tekrarın gerçek adaylarıdır; eski anın kaydedilmemiş dünyasını birebir geri çıkardığımız iddia edilmez.
+
+| İstek | Yarış zamanı | Rakip mesafesi | Ön eksenden açı | Köşe dönüşü | Sonuç |
+| --- | --- | --- | --- | --- | --- |
+| old-4 | 1,0333 sn | 4,51065 m | 1,84210 rad /105,54° | 0,016878 rad | Hedef yok |
+| old-6 | 3,0333 sn | 2,26436 m | 2,44709 rad /140,21° | 0,016878 rad | Hedef yok |
+
+Normal lv1 rakip seçimi8–35 m ve ön koni0,45 rad ister. İki rakip de hem fazla yakın hem koni dışında; hak1/1 olduğundan ret hak eksikliği değildir. Pistte köşe dönüş eşiği0,45 rad, bu noktalar uygun değil. Araç yerde olduğu için bina dalı çalışmaz; ters evrim yok. Bu nedenle “yakında nesne var” başarılı kanca için yeterli değildir. Hiçbir eşik genişletilmedi; sıradan yol bağlantısı kanca hedefi yapılmadı.
+
+## Gerçek sürüş ve fizik kabulü
+
+Unity6000.3.9f1/WindowsEditor, mevcut izole `P7HudCleanEditor`, `LastTurnUiValidation`. Araç/skill/para başlangıcı ve mevcut `StartRace(rx_1)` girişi kontrollü fixture'dır. Rota Toz Tepeleri'nin üretim rakip ve köşe hedeflerini kullanır. İlk deterministik tekrarın ardından normal zaman/sabit fizik ve InputSystem W/S/A/D/1 girdileriyle sürüldü. Kısa frenle uygun rakip aralığı oluşturuldu; konum, hedef, bağlı durum, fizik kuvveti veya sonuç enjekte edilmedi.
+
+| Hedef türü | Gerçek kullanım | Fizik kanıtı | Kabul sınırı |
+| --- | --- | --- | --- |
+| Rakip | 4,8333 sn bağlanma;5,10 sn tuşla bırakma | Oyuncuya ek ivme(-0,49811;6,98226), büyüklük7; rakibe karşı etki; bırakmada0 | Unity'de geçti |
+| Köşe | Gerçek hak dolumu ardından11,15 sn bağlanma;11,6833 sn tuşla bırakma | Fizik köprüsüne aktarılan uçuş girdisi(0,09823;4,99903), büyüklük5; bırakmada0 | Unity'de geçti; dönüş0,62832 rad, yarıçap69,09 m |
+| Bina | Bu pist pilotunda denenmedi | Eski TS ile salt katman karşılaştırması var | Unity fizik/kullanım kabulü verilmedi |
+
+Bunlar net araç ivmesi değil, mevcut fizik köprüsüne uygulanan ek girdilerdir. Gaz/fren/yol kuvvetleriyle birlikte işler; telemetri gerçek konum/hız/yön değişimini de kaydeder. İlk bağ tükettiği hakla açık kalır,1 tuşu bırakır; yeniden kullanım gerçek dolumdan sonra olur. Ekran yakalamak için yalnız izole fizik geçici durdurulur. Yaklaşık8,65 sn normal zamanlı son sürüş,83 zamanlı örnek ve14 durum karesiyle kayıtlıdır; kesintisiz video veya insan tarafından oynanmış test değildir.
+
+## Önce/sonra kalite karşılaştırması
+
+| Gözlem | Önce | Sonra ve oyuncuya etkisi | Kanıt / açık sınır |
+| --- | --- | --- | --- |
+| Hedef seçimi | Ret yalnız genel `hedef`; neden görünmüyordu | HUD ve gerçek komut aynı salt seçiciyi kullanır; uygun hedef türü/mesafesi görülebilir | Gerçek aday telemetrisi, TS karşılaştırması; yeni nişangâh/halat eklenmedi |
+| Geçerli hedef / hedef yok | Önceki adımda saklanan engel bilgisi sunumu geciktirebiliyordu | Son fizik dünyasından güncel sorgu; yeni yarışta eski dünya bağlamı temizlenir | Tekrarlı sorgu ve yeni yarış testleri; render arası fizik adımından daha yeni dünya iddiası yok |
+| Hak / bekleme / bağlı | Aktif bağ ve dolum bilgisi açık ayırt edilmiyordu | `HEDEF · RAKİP/KÖŞE`, `HEDEF YOK`, `BEKLE`, `HAK YOK · sn`, `BAĞLI · tür`; hak sayısı korunur | Bağlı iki tür, gerçek dolum ve bırakma kareleri; bekleme ile haksızlık aynı dolumda birlikte olabilir |
+| Komut geri bildirimi | Eski `Skill · HEDEF YOK` ifadesi güncel durum gibi algılanabiliyordu | Tarihsel ret açık “isteği reddedildi”; gerçek komut yeni bağlandı/bırakıldı bildirimi üretir | Hedef mevcutken geçmiş ret bildirimi kısa süre kalabilir; slot güncel durumu gösterir |
+| Yerleşim | Kanca nedeni belirsizdi | 1280×720 ve1920×1080'de tür/hak/dolum metni ekrandadır, eylem alanı çakışmaz | Son14 Game View açılıp incelendi; mevcut uzun skill adı kesilmeleri sürer, okunurluk/zevk için insan kabulü yapılmadı |
+
+Bu teslim gözlemlenebilirliği ve komut/sunum tutarlılığını iyileştirir. İnsanların kancayı sezgisel bulduğu veya sürüşün daha eğlenceli olduğu ölçülmedi. Köşe hedef mesafesi rakip menzilinden büyük olabilir; mevcut ayrı köşe geometrisi korunmuştur. Tasarım değişikliği istenirse ayrı değerlendirilmelidir, bu teslimde dengeye dokunulmadı.
+
+## Güncel test ve kanıt
+
+- `.NET --mutant-hook`: **12.078 kontrol**, **1.222 TS adımı/200 karşılaştırma noktası**, en büyük fark **1,78e-14**. Normal/ters/evrim/eklenti, rakip/köşe/bina, kötü dt, hedef/engel/durum/çıktı; salt sorgu ve100 tekrarlı HUD okumasının durum/RNG koruması.
+- `--mutant-skill-world`: **17.600 kontrol/823 dünya**, en büyük fark **1,14e-13**. `--mutant-hud`: **870**,30/60/120 FPS ve240 sabit adım; bildirim ve durum tutarlı. Tam regresyon çalıştırılmadı.
+- Son grafik Play UTC `2026-11-09T17:18:22.4912942Z`: **108 kontrol,6 gerçek istek,83 örnek,14 PNG,227 güncel C#/USS/JSON/PNG hash'i; Runtime0/Editor0**. Kariyer/profil/kalıcı kayıt hashleri korundu. Proje düzeni, Prettier, diff ve yeni proof checker geçti.
+- [Kare ve telemetri inceleyicisi](../tests/cikti/kanca/index.html); ham `Unity/Logs/b-hook-play.json`, `b-hook-editor.log`. Görseller `b-hook-{no-target,target-opponent,bound-first,cooldown,target-corner,bound-reuse,cooldown-reuse}-{1280,1920}.png`; [rakip1280](../Unity/Logs/b-hook-bound-first-1280.png), [köşe1920](../Unity/Logs/b-hook-bound-reuse-1920.png), [bırakma1920](../Unity/Logs/b-hook-cooldown-reuse-1920.png). Ham çıktılar yerel/ignore; üretici ve checker commit'tedir.
+- İlk denemelerde testte Türkçe literal kodlama ve yalnız oyuncu ivmesine bakan dar ölçüm hataları vardı; sırasıyla semantik durum kontrolü ve gerçek uçuş/uygulanan fizik girdisi kaydıyla düzeltildi. Başarısız JSON'lar ayrı saklandı, başarı sayılmadı. Önceki225 kaynaklı genel oynanış proof'u güncel checker'da **“Kaynak kapsamı eski”** verdi (`b-hook-prior-proof-status.txt`); tarihsel sonuçlar bu kaynaklara güncel kabul olarak taşınmadı.
+- `_Recovery`, ana Editor/sahneler, gerçek oyuncu/Firebase kayıtları ve tamamlanan B ekranları korundu. **Gerekli kullanıcı işlemi yok. Sonraki tek öneri: bina hedefinin ayrı gerçek Unity kullanım testi.** Bu görevin dışında; başlanmadı.
+
+---
+
+# Önceki Mutant B ekran/oynanış raporu — tarihsel kayıt
+
+Aşağıdaki kanca “başarı açık” notları bu ekten önceki durumu anlatır. Rakip/köşe için yukarıdaki yeni kabul geçerlidir; bina ve insan kabulü açık kalır.
 
 9 Kasım 2026 · Codex · `codex/unity-p7-garaj` · başlangıç `b689b6e`.
 
