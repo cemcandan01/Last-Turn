@@ -4,6 +4,65 @@ Kaynak: `typescript-baseline-0.8.18` → `df3549e709469f0b519ebfbeaa9f63c1040fee
 
 ## Sahiplik ve kabul
 
+### İşlevsel kapanış — 9 Kasım 2026
+
+**Durum: Kısmi teslim tamam; genel işlevsel kapanış sürüyor, Claude devri hazırlanıyor.** Yeni kullanıcı kapsamı önceki “dilimde dur” sınırlarını kaldırır. Başlangıç `codex/unity-p7-garaj` / `556dca7`, uzak dalın10 commit ilerisindeydi; yalnız `_Recovery`/meta untracked, korunur. Cem açık Claude sürecinin işi olmadığını doğruladı; bu pakette tek uygulayıcı Codex. Son resmî metadata UTC19:19:51: beş saat%88/hafta%94 kullanılmış (ilk ölçüm%49/%88); token/tamamlanma tahmini üretilmedi, API/ek kredi yok. Claude Pro oturumu doğrulandı; kapasitesi ve ek kullanım ayarı bilinmiyor. Aynı kart/manifest/SHA ile devir yetkili; ücretli ek kullanım teyidi beklenirken Claude otomatik başlatılmadı. Bu bir genel tamamlanma bildirimi değildir.
+
+Kabul:122/122 kaynak kapsamı; eksik işlev/bağlantıları kapatma; bina kancası/doğal koşu ve değişen alanların gerçek Unity kabulü; izole Windows build açılış/sürüş/kayıt/yeniden açılış; güncel dar test ve dürüst platform/sağlayıcı sınırları. Tam regresyon/push/merge/PR/release/yayın/büyük kurulum yok. Aynı M2 kartı/DEVIR/kalite raporu güncellenir. Aşağıdaki eski paket ve durum notları tarihsel kayıttır.
+
+### Tek güncel kapanış matrisi
+
+“Tamam ve güncel kanıtlı” yalnız belirtilen kapsam içindir. Eski bütün-kaynak hash'li Play sonuçları güncel sayılmaz; değişmeyen dar hesap kanıtı kaynak/bağımlılık eşleşmesiyle yeniden kullanılabilir. İlk denetim aşağıdadır; her paket kendi yeni sonucu ile güncellenir.
+
+| Kaynak davranış | Unity karşılığı ve gerçek bağlantı | Mevcut kanıt | Eksik / kapanış durumu |
+| --- | --- | --- | --- |
+| Menü/hazırlık/sonuç/geri | GameFlow → Toolkit → GarageRace/RaceSession | Güncel P1 Play65 ve bütün mevcut C# hashleri; Windows iki süreç25+15 | Tamam ve güncel kanıtlı: kritik beş tür/geri/ödül/kayıt akışı; ana projenin sahne/meta bütünlüğü eski genel checker kabulü değildir |
+| Kariyer/kapı/yıldız/para/XP/tek ödül | GarageState/GarageRace.Finished → atomik kayıt | Değişmeyen40 etkinlik TS kapsamı + güncel P1 Play65 | Tamam ve güncel kanıtlı: beş temsilci gerçek yarış/ödül/yeniden giriş; insanın40 kupayı bitirmesi iddiası yok |
+| Garaj/sahiplik/modifiye/fiyat/gerçek kurulum | GarageCommand → GarageSession → DriveParameters | Korunan P7/katalog; Windows stok→al/tak→yükseltme→yeni süreç yüklemesi | Tamam ve güncel kanıtlı: mevcut servisler ve temsilî stok/yükseltilmiş kurulum;15 aracın insan sürüşü değil |
+| Profil/rekor/hayalet kayıt-oynat | RaceProfileStore/GhostPlayer → Prototype | P1/P5 ve hava oracle'ı | Kod var, bağlantı/kabul eksik: yeni süreçte yükleme |
+| Pist/bölge/yüzey/engel/şehir | TrackCatalog/WorldData/OpenWorld → fizik/görünüm | 40 pist;122/122 kaynak | Kod var, bağlantı/kabul eksik: değişen alanın dar kabulü; eski bütün-hash güncel değil |
+| Tür/tur/kontrol noktası/bitirme/rakip | RaceRules/Run/OpponentRacer → gerçek fizik | Beş tür eski Play; B gerçek rx/gp/boss | Kod var, bağlantı/kabul eksik: kaynak bağımlılık eşleşmesini ayır; yeni kariyer rakibi yok |
+| Piste dönüş/hasar/kesme/pert | RaceRun/MutantGameSession → Prototype | Önceki oracle/Play, B hasar | Kod var, bağlantı/kabul eksik: ilgili sınırlar/kayıt zinciri |
+| Mutant başlangıç/ödül/dolu yuva/değiştir | Runtime → Rewards/ChoiceView → Run | M2/B5A/6A/7A | Kod var, bağlantı/kabul eksik: değişmeyen kapsamı ayır |
+| Etkinlik/risk/para/XP | EventView → StartRace/Finish → Run | B2A; B gerçek rx/gp | Kod var, bağlantı/kabul eksik: yeni genel başarı iddiası yok |
+| Atölye/indirim/stok/tamir | WorkshopView → Runtime → Run/Refresh | B3A564; .NET11.282; B sürüş | Kod var, bağlantı/kabul eksik: bağımlılık koruması |
+| Normal/lanetli sandık/tek tüketim | ChestView/ResolveChest → Run | B4A89/.NET220 | Kod var, bağlantı/kabul eksik: bağımlılık koruması |
+| Yol görevi/bölge/erken-doğal boss/özet | Session → AfterPhysics → paneller | Güncel Play84 içinde900 sn gerçek sabit adımla doğal boss paneli; önceki B boss bitişi korunur | Kod var, bağlantı/kabul eksik: doğal süre kabulü kapandı; bölge3/yol görevi tam kritik zincirinin eski kapsamını ayır; yeni boss bitişi enjekte edilmedi |
+| Nitro/pasif/skill/evrim/eklenti/uçuş/iniş | AbilityDriver/EnergyController → SkillInput → fizik | TS P4/M1; kanca12.078 | Kod var, bağlantı/kabul eksik: açık bina/uçuş kapsamı |
+| Kanca rakip/köşe | InspectHook → komut ve HUD | `9d9d18a`;108 Play/227 hash; iki gerçek bağ/bırakma | Kod var, bağlantı/kabul eksik: kabul o commit'te geçerli; yeni salt gözlemci sonrası GT10.033/ikiz iz koruması var, eski bütün-hash checker güncel değil |
+| Bina kancası/sarkaç/bırak/yeniden kullan | SkyLink → Driver → FlightInput | Güncel Play84/233 kaynak; iki gerçek bina bağı, fizik etkisi/bırakma/hak dolumu/iniş | Tamam ve güncel kanıtlı: mevcut şehir binası; bölge2/skill başlangıcı fixture, sonuç/bağ/kuvvet/konum enjekte edilmedi |
+| Hasar kimliği/tekrar/türev taşıma | EnergyController/Mechanics | Güncel dar hasar31:30/60/120×60 eski iz, türev sonraki adıma; M0/M1 15.811/128 tohum | Tamam ve güncel kanıtlı: mevcut tek hasar/enerji yolu; yeni mekanik genişletilmedi |
+| Kontrol/pause/odak/ayar/dokunma | Controls/Preferences → Toolkit/Prototype | P5 sanal cihaz; P7/B paneller | Kod var, bağlantı/kabul eksik: build odak/kalıcılık; telefon ayrı |
+| Ses/efekt tetikleri | AudioDirector → GameAudio/AudioSource | TS sentezinden25 WAV/kaynak hashleri, dar22; Windows klip yükleme/gerçek oynatma/tercih kazancı | Tamam ve güncel kanıtlı: işlevsel olaylar/temel katmanlar; profesyonel tını/araç başına tam motor katman karışımı ve işitme kabulü ayrı |
+| Yerel/eski/bozuk kayıt | Garage/Profile/Settings/Mutant stores | Dar kayıt ve gerçek dosya hashleri | Kod var, bağlantı/kabul eksik: bağımsız build yeniden açılış |
+| Firebase misafir/e-posta/eşitleme | CloudRuntime → REST/CloudSync/Mapper | Güncel sahte Firebase92; değişmeyen sözleşme3039 | Tamam ve güncel kanıtlı: izole sözleşme; gerçek hesaba/Firestore'a yazılmadı, canlı sağlayıcı kabulü yok |
+| Google/bilinen hesap/admin/yeni oyuncu | CloudAccount/ProfileView yalnız e-posta kısmı | Kaynakta var; Unity eksik notu | İşlev eksik: kaynak kapsamını kapat veya dış gereksinimi açıkla |
+| Geliştirici gecikmeli uzak hayalet | RemoteSnapshots/DelayedGhostFeed → salt Stepped → DeveloperGhostView | `c7122e0`;18.846 kontrol/540 TS adımı, fark2,22e-16; GT10.033; Windows ayar aç/kapa/2 sn gecikme | Tamam ve güncel kanıtlı: Development Player; rekor hayaleti öncelikli; yeni ağ/çarpışma/oyuncu mekaniği yok |
+| Windows bağımsız ürün | Dört sahne, Windows x64 Mono Development; izole kayıt/bulut kapalı kabul bayrağı | Build0 hata/311.055.380 bayt,238 ürün dosyası hash'i; WindowsPlayer25+15, iki ayrı süreç | Tamam ve güncel kanıtlı: açılış→stok sürüş→al/tak→yükseltilmiş sürüş→kayıt→yeniden açılış; sentetik giriş/odak callback'i, insan kabulü değil |
+| Android/iOS/IL2CPP/cihaz | Kurulu Windows Mono/WebGL | PlaybackEngines/Variations envanteri | Ortam nedeniyle doğrulanamadı: ilgili Unity modülleri yok; harici SDK/cihaz/imzalama kabulü yapılmadı; iOS için Mac gerekir |
+| Nihai sanat/yeni mekanik | Geçici F/B/primitive korunur | Cem'in kararları | Kaynakta yok veya açıkça ertelenmiş yeni özellik: yeni skill/boss/ödül/manuel vites yok; sanat ayrı |
+
+### Bu paketlerin teslimi ve yeniden çalıştırma
+
+- Yerel kod commitleri: **`29f83f6` ses**, **`94caed4` bina/doğal süre/Windows kabulü**, **`c7122e0` gecikmeli geliştirici hayaleti**. Push/merge/PR/release/yayın yok. Eski tam matrisin K/Y cümleleri bu güncel tabloyu geçersiz kılmaz; yeni matris de açık satırları gizlemez.
+- Son grafik Play UTC `2026-11-09T19:23:18.9504794Z`:84 kontrol/190 telemetri örneği/14 PNG/233 güncel C#/USS/JSON/PNG hash'i, Runtime0/Editor0. Son14 Game View açılıp incelendi;1280×720 ve1920×1080. Kanıt `Unity/Logs/b-closure-play.json`, `b-closure-editor.log`, `b-closure-{natural-boss,target-building,bound-first,cooldown,target-reuse,bound-reuse,cooldown-reuse}-{1280,1920}.png`.
+- Doğal boss900 sn kalan süreyi kısaltmadan54.000 manuel sabit adım + ilk sahne adımlarıyla, koşu zamanı900,0167 sn'de açıldı. Hızlandırılmış simülasyondur;900 sn duvar saati oynanışı değildir. Ardından bölge2/stock araç/lv1 Kanca+Volt fixture'ı, üretim şehir başlangıcı; gerçek2/1 tuşları ve fren/geri hareketi. İki bina bağı2,7167/13,75 sn, bırakma3,1667/14,1833 sn. Sarkaç yatay fizik girdileri24,4433/24,4855; bırakmada yatay kanca girdisi0, Volt düşey etkisi sürebilir. Toplam düşey ivmeyi yalnız kanca diye sunma. İki gerçek iniş sonrası kontrol, hak dolumu ve kayıt hash koruması geçti.
+- Bağımsız ürün `Unity/Builds/FunctionalWindows/LastTurn.exe`; gerçek `WindowsPlayer` ilk süreç UTC19:22:12 **25**, ikinci UTC19:24:22 **15** kontrol. Stok tork133,117→motor-sokak143,766; gerçek para eksildi, parça/ayar/garaj/km ikinci süreçte yüklendi. Başlangıç para/XP izole fixture. Odak testi sentetik `OnApplicationFocus`; gerçek OS alt-tab veya insan hissiyatı kabulü değil. Bulut ilk sahneden önce kapalı; yalnız ürünün `Validation/` dizinine yazıldı, gerçek `DefaultCompany/Unity` dosya hashleri korundu.
+- Güncel kariyer Play UTC `2026-11-09T19:26:00.7838710Z`: **65**, mevcut bütün C# hashleri eşleşti; menü/beş tür/ödül/profil/Play kapat-aç. Eski genel `check-career-flow-proof.mjs` ana sahne/meta kapsamı için hâlâ “P1 kaynak kapsamı değişti” verir; değiştirilmedi. Yeni kontrol C# bağımlılığı + gerçek akışı kabul eder; klon sahneleri ana projenin sahne/meta bütünü diye sunmaz. Ham `Unity/Logs/functional-career-play.json`, `functional-career-editor.log`, `functional-legacy-career-checker.txt`.
+- Dar yeniden kontrol: `node Unity/Validation/check-functional-closure.mjs --career`, `node Unity/Validation/export-audio-clips.mjs --check`, `node Unity/Validation/export-remote-snapshots.mjs`, `dotnet run --no-restore --project Unity/Validation -- --remote-snapshots`. Güncel hasar31/M0-M1 15.811/sahte bulut92 ayrıca geçti. GT fizik10.033,6×1200 adım ve30/60/120/reset/simetri koruması geçti. Tam regresyon çalıştırılmadı.
+- Build yeniden üretimi yalnız mevcut izole `Unity/Logs/P7HudCleanEditor` içinde, `-batchmode -nographics -lastTurnUiValidation -executeMethod LastTurn.EditorValidation.FunctionalWindowsBuild.Build`. Ana sahne/Editor'a dokunulmaz. Grafik kabul giriş noktası aynı kopyada `MutantClosurePlayValidation.StartGameView` (batch değil). Paket/Library taşınmaz. Kaynakları ancak bu kopya kapalıyken eşleştir.
+- Player tekrarında mevcut **yalnız test** `Unity/Builds/FunctionalWindows/Validation` klasörünü aynı build dizininde benzersiz bir arşiv adına taşı; gerçek kayıt yolunu temizleme. Sonra EXE'yi önce `-lastTurnOfflineValidation`, kapanınca `-lastTurnOfflineValidation -lastTurnReload` ile aç. Bu bayrak yalnız Development build'de çalışır, otomatik kabulü yapıp kapanır; normal oyuncu akışını değiştirmez. Her iki sonuçtan sonra `check-functional-closure.mjs --record-build` kaynak kopyası/238 ürün dosyasını doğrulayarak manifest yazar, ardından `--career` ile kontrol edilir. Ham build/proof/loglar ignore; üreticiler, kaynak WAV'lar ve TS fixture'ı commit'tedir.
+
+### Devir: sıradaki somut iş ve açık sınırlar
+
+**Genel aktarım tamamlanmadı.** Sıradaki tek uygulama paketi: **hesap yüzeyinin kaynakta var olan eksik işlemleri** (`CloudAccount`, `FirebaseRestProvider`, `CloudRuntime`, `ProfileView`): Google şu an `google-desktop` hatası atar; bilinen hesaplar/admin/yeni oyuncu yok. Önce ilgili TS hesap/sağlayıcı/hatırlanan hesap kodunu devral; aynı saf sözleşme + görünüm modeli ayrımı ve sahte sağlayıcıyla uygula. Gerçek hesabı sıfırlama/bağlama, proje ayarı veya Firestore verisi değiştirme. Google için gerçekten gereken dış yapılandırma varsa tek kullanıcı işlemiyle açık engel yaz; uygulanmamış adaptörü ortam engeli diye saklama.
+
+Sonra açık kalan matrisi sırayla kapat: rekor hayaletinde yarış ortasında `rh` aç/kapa davranışını kontrol et (`GtPrototype.RenderGhost`, `InitializeRace`, `MiniMapView` dalları inceleme adayı; Play ile henüz hata kabulü verilmedi); bölge3/yol görevi ve değişen M2 bağlantılarının gereken dar kabulünü ayır. Bütün P1–P5'i baştan çalıştırma; önceki B rx/gp/boss fizik bitişlerini tekrarlama. Kaynakta olmayan Drag/skill/boss/ödül tasarımı ekleme. Mobil/IL2CPP/imzalama ve canlı Firebase/human kabul sınırları ayrıdır. Tını/araç başına tam ses katmanları, kokpit/ayna ve sanat görsel/ses fazına kalır.
+
+Başarısızlıklar silinmedi: başlangıç sayacının sahne adımları, Volt'un basılı tutulması, parkta hedef kaybı, iki çözünürlük arasında düşerek hedef penceresinin kaçması, test enum/metot ad çakışması ve build'de olmayan shader. Ölçüm/girdi/varsayılan materyal düzeltmeleriyle son kontroller geçti; eşik/menzil/fizik/ekonomi değiştirilmedi. `Unity/Logs/b-closure-*-failure.json`, `functional-player-shader-failure.json` ve ara kaynak değişimli pass ayrı tutulur, son başarı yerine kullanılmaz.
+
+Bu noktada bu oturumun test/Editor/Player süreçleri bitti; ana Editor ve eski MCP pilotu kapatılmaz. `_Recovery`, gerçek oyuncu/Firebase ve TS referansı korunur. Devir aynı fiziksel `D:/Last Turn/Last-Turn-Unity` alanından yapılır; başka worktree'de commit/ignore kanıtı var sayılmaz. Resmî kota ve ek kullanım kontrolü yukarıda; yeni model/Claude işi doğrulanmadan başladı denmez. Bildirim aracı yok; bildirim gönderilmedi.
+
 **Güncel P1 talimatı:** Cem bu oturumda Codex'i uygulayıcı olarak seçti; Claude süreci açılmayacak. `codex/unity-p1-kariyer`, taban `bbdebfe`. P1 bittiğinde durulacak, P2 için yeni onay beklenecek. Aşağıdaki Claude tercih notu ilk matrisin tarihsel kaydıdır.
 
 Cem uygulamayı Claude'a verdiğini, Codex kotasının dolu olduğunu bildirdi. İstek Codex oturumuna geldi; Codex yalnız kaynak karşılaştırması ve mevcut kanıtların salt okunur doğrulamasını yürütüyor. Uygulayıcı tercihi soruldu; yanıt gelmeden Claude adına geliştirme yapılmış sayılmaz. `--oturum --ajan claude`: claude.ai Pro aboneliği doğrulandı; beş saat/hafta ve ek kullanım durumu bilinmiyor. Yerel ortak yordamın ek kullanım kontrolü sağlanmadığından yeni Claude süreci başlatılmadı; API/ek kredi kullanılmadı. Aynı çalışma alanında paralel kod yazılmadı.
@@ -19,7 +78,7 @@ Kabul: (1) dokuz kategori, gerçek TS dosyaları ve Unity karşılıklarıyla s�
 
 TS bağlantıları aşağıdaki depo dosyalarını gösterir; karşılaştırmada esas içerik sabit etikettir. `src/` ile etiket farkı ayrıca kontrol edilir. Unity bağlantıları bu tabandaki çalışan kodlardır. Kaynak kapsamı [envanterde](../../Unity/Validation/migration-scope.json), tekrar kontrolü `node Unity/Validation/check-migration-scope.mjs` ile tutulur. Dosya kapsanması fonksiyonel eşdeğerlik kanıtı değildir.
 
-## Aktarım matrisi
+## Tarihsel 1 Kasım aktarım matrisi (güncel kapanış tablosu yukarıda)
 
 | Sistem / TS kaynağı | Durum | Unity kodu / gerçek kanıt ve kalan iş | Paket |
 |---|---|---|---|

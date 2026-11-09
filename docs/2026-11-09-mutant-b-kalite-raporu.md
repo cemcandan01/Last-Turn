@@ -1,4 +1,30 @@
-# Kanca hedefi ve gerçek kullanım — tamamlandı
+# Genel işlevsel kapanış eki — bina, doğal süre, ses ve Windows
+
+**Durum: Bu paketler tamam; genel aktarım açık.** Başlangıç `556dca7`; yerel `29f83f6`, `94caed4`, `c7122e0`. Ana durum ve kalanlar [tek kapanış matrisindedir](isler/2026-11-01-unity-tam-aktarim.md). Yeni görsel tasarım/oynanış/denge yok; push/merge/PR/yayın yapılmadı. Aşağıdaki önceki kanca raporunun “bina denenmedi” sınırı bu yeni kabul ile kapanmıştır; eski227 kaynaklı proof güncel233 kaynaklı tam başarı sayılmamıştır.
+
+| Gözlem | Önce | Sonra / oyuncuya etkisi | Kanıt ve sınır |
+| --- | --- | --- | --- |
+| Bina kancası | Yalnız TS/oracle; Unity fizik kabulü yok | Üretim şehir binasında gerçek tuşla iki bağ, sarkaç kuvveti, bırakma, hak dolumu, yeniden bağ ve iniş | Play84/233 kaynak; bölge2/stock/lv1 skill başlangıcı fixture. Bağ/kuvvet/konum/sonuç enjekte edilmedi. Fren girdisi geri hareket de üretir; bunun kamera/sürüş hissi insan tarafından değerlendirilmedi |
+| Doğal boss süresi | P5'te kalan süre1 sn fixture'ı, son B testinde erken giriş | Başlangıç900 sn hiç kısaltılmadan gerçek sabit adımlarla doldu ve boss paneli açıldı |54.000 manuel adım ve ilk sahne adımları, zaman900,0167 sn. Hızlandırılmış simülasyon;900 sn duvar saati sürüşü, bölge2'ye doğal ulaşma veya yeni boss bitişi değil |
+| Ses | Olaylar bağlı, klip olmayınca sessiz | Mevcut TS sentezinden25 klip; temel motor/lastik/rüzgâr/müzik ve yarış/skill/UI olayları; kazan/kaybet sesi ayrılır |25 WAV/kaynak hashleri, dar22; gerçek Windows klip yükleme/AudioSource oynatma/ayar kazancı. İşitme testi, tam araç başına motor katmanları veya profesyonel tını kabulü yok |
+| Geliştirici hayaleti | Ayar var, yürütücü yok | Kaynaktaki32 paketlik ara değer tamponu,2 sn teslim gecikmesi/her4 fizik adımı; Development Player'da ayarla aç/kapa, rekor hayaleti öncelikli |18.846 kontrol/540 TS adımı/fark2,22e-16;30/60/120.360 ikiz fizik gözlemi aynı. Windows sahne objesi/gecikme/aç-kapa doğrulandı; her kamera karesinde ekranda görünme/insan beğenisi kabulü değil. Yeni ağ servisi/çarpışma yok |
+| Bağımsız ürün | Yalnız Editor kanıtı | Windows x64 Mono Development build ve iki ayrı süreçte gerçek sürüş/kayıt/yükleme |0 build hatası,311.055.380 bayt/238 ürün dosyası hash'i. WindowsPlayer25+15; kendi Validation dizini ve bulut kapalı. OS alt-tab yerine sentetik odak callback'i. Android/iOS/IL2CPP kabulü değil |
+
+Son grafik Unity6000.3.9f1/WindowsEditor/GameView UTC `2026-11-09T19:23:18.9504794Z`: **84 kontrol,190 telemetri,14 PNG,233 güncel C#/USS/JSON/PNG hash'i, Runtime0/Editor0**. İki gerçek bina bağı2,7167/13,75 sn, bırakmalar3,1667/14,1833 sn. Yatay sarkaç girdileri24,4433/24,4855 m/s²; bırakmada0. Kanca açıkken düşey toplam79 civarı Volt+kanca birleşimidir; yalnız kanca ivmesi diye sunulmaz. Maksimum yer noktası yüksekliği44,43 m. Birlikte aktif skill'in meşru etkisi kapatılmadı, mekanik güç/bekleme/menzil değiştirilmedi.
+
+Son14 Game View iki çözünürlükte açılıp incelendi: `Unity/Logs/b-closure-{natural-boss,target-building,bound-first,cooldown,target-reuse,bound-reuse,cooldown-reuse}-{1280,1920}.png`. [Doğal boss1280](../Unity/Logs/b-closure-natural-boss-1280.png), [bina bağlı1920](../Unity/Logs/b-closure-bound-first-1920.png), [yeniden bağlı1280](../Unity/Logs/b-closure-bound-reuse-1280.png), [bırakma1920](../Unity/Logs/b-closure-cooldown-reuse-1920.png). Gerekli durum/hak/tür bilgisi sığıyor; mevcut uzun skill adları kesiliyor. Şehir primitive'leri ve sarkaç için halat/nişangâh eksikliği sanat/okunurluk girdisidir, başarıyla bağlanmayı veya gerçek fizik etkisini gizleyecek şekilde kabul uydurulmadı. İnsan sezgiselliği/eğlence veya ses beğenisi ölçülmedi.
+
+Kaynak korunumu: gerçek kariyer/profil/kalıcı dosya hashleri, `_Recovery`, Firebase ve TS0.8.18 korundu. Kariyer Play **65**, UTC19:26:00; bütün mevcut C# hashleri aynı. Hasar31/M0-M1 15.811 ve sahte Firebase92 geçti. GT6×1200/30-60-120/10.033 kontrolü yeni salt gözlemcinin fizik sayısallarını korudu. Tam regresyon yok. Eski P1 sahne/meta checker'ı “P1 kaynak kapsamı değişti” verir; eşik gevşetilmedi. Yeni C# bağımlılık kabulü klon sahnelerin ana projenin tüm sahne/meta kabulü olduğu anlamına gelmez.
+
+Kanıt: `Unity/Logs/b-closure-play.json`, `b-closure-editor.log`, `functional-career-play.json`/log; `Unity/Builds/FunctionalWindows/LastTurn.exe`, `source-proof.json`, `Validation/player-{write,reload}-proof.json`. İlk player UTC19:22:12 **25**, ikinci UTC19:24:22 **15**. Stok→motor-sokak gerçek tork133,117→143,766; para/kurulum ve ikinci süreç kalıcılığı geçti. `node Unity/Validation/check-functional-closure.mjs --career` kaynak/binary/davranış kontrolüdür. Ham çıktılar yerel/ignore; üreticiler commit'te. İlk başarısız sayaç/girdi/rota/yakalama/enum/shader denemeleri ayrı kayıtlı, son kanıt yerine kullanılmadı.
+
+**Kalanlar:** kaynakta bulunan Google/bilinen hesap/admin/yeni oyuncu işlemleri; açık matris satırlarının dar kabulü ve yarış ortasında rekor hayaleti `rh` anahtarı adayının doğrulanması. Gerçek sağlayıcı hesabı test için değiştirilmedi. Unity Android/iOS/IL2CPP modülleri yok; mobil/cihaz/Mac/imza ve insan kabulü ayrı. Kaynağın tını/sentez katmanlarını15 araca tam yayma, nihai 3D/ışık/materyal/kokpit/ayna ve halat/marker görsel kalitesi görsel/ses fazına aittir.
+
+Cem'in kapanış sonunda kısa insan denemeleri: bulut kapalı `LastTurnUiValidation` izole Editor'ında (mevcut `-lastTurnUiValidation` bayrağıyla)1) menü→yarış→garaj/modifiye→geri,2) stok/yükseltilmiş kalkış ve fren,3) uygun kanca hedefi/bağ/bırak,4) skill/nitro ve ses seviyesi/sessiz,5) pause/ayar/odak dönüşü. Bunlar henüz yapılmış kabul değildir. Bağımsız EXE'nin otomatik test bayrağı `-lastTurnOfflineValidation` yalnız izole test kaydı kullanır ve kabul sonunda kapanır; gerçek hesapla manuel deneme ayrı kullanıcı tercihidir.
+
+---
+
+# Önceki kanca hedefi ve gerçek kullanım raporu — kendi commit kapsamı
 
 9 Kasım 2026 · `codex/unity-p7-garaj` · başlangıç `91e3a87` · kod/test `9d9d18a`.
 

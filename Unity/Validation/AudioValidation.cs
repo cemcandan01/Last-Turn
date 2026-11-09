@@ -37,6 +37,6 @@ internal static class AudioValidation
     Check(new[]{"nitro","kanca","hayaletAc","donusumAc","ruzgar","red"}.All(n=>d.Events.Any(e=>e.Name==n)),"Nitro ve skill giriş sesleri, ret");
     d.Step(new AudioFrame{Mode="drive",Refusals=1},s);Check(new[]{"nitroBitti","hayaletKapa","donusumKapa"}.All(n=>d.Events.Any(e=>e.Name==n))&&!d.Events.Any(e=>e.Name=="red"),"Nitro sönüşü, faz/dönüşüm çıkışı");
     d.Step(new AudioFrame{Mode="pause",Nitro=true},s);Check(!d.Events.Any(e=>e.Name=="nitro"),"Duraklatmada olay sesi yok");
-    Console.WriteLine($"Ses: {checks} koşul; TS seviye eğrisi, kip kazançları, lastik/savrulma hedefleri, çarpma/iniş/sayım/kombo/nitro/skill/bitiş olayları. Ses varlıkları yok (TS sentez); yürütücü eksik varlığı raporlar.");
+    Console.WriteLine($"Ses: {checks} koşul; TS seviye eğrisi, kip kazançları, lastik/savrulma hedefleri, çarpma/iniş/sayım/kombo/nitro/skill/bitiş olayları. WAV kaynak/PCM ve gerçek AudioSource kabulü ayrı functional-closure kontrolündedir.");
   }
 }
