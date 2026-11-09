@@ -1,6 +1,6 @@
 # B /4A +8A ve oynanış kalite incelemesi — çalışıyor (9 Kasım 2026)
 
-Tek Codex, başlangıç `b689b6e`, yerel4 ileri/0 geri. Sandık kodu ve dar .NET220+menü4311 geçti, izole gerçek Play sürüyor. Ardından ayrı commit ile8A ve hedefli gerçek sürüş testi/kalite raporu yapılacak. Bildirim kanalı bulunmuyor; harici bildirim kurulmuş sayılmadı. Push/merge/PR/yayın yok; `_Recovery`/meta korunur. Aynı M2 kartı güncelleniyor.
+Tek Codex, başlangıç `b689b6e`, başlangıç yerel4 ileri/0 geri. **4A sandık `4cdb5ae`**: .NET220+menü4311, Unity89/8 görüntü/221 hash. **8A kod tamam, hedefli oynanış testi sürüyor:** .NET7, Unity69/10 görüntü/224 hash, UTC `2026-11-09T07:51:06.3418113Z`, Runtime0/Editor0. İki ekranın son görüntüleri incelendi; kanıt `Unity/Logs/b-{chest,summary}-play.json`, `b-{chest,summary}-*.png`. Panel/bitirme fixture'ları gerçek sürüş bitişi sayılmadı. Ayrıntı aynı M2 kartında. Eski sandık221, atölye218 ve2A215 kanıtları sonraki kaynak eklemeleriyle tarihsel kalır; checker eşikleri değiştirilmez. Bildirim kanalı bulunmuyor; harici bildirim kurulmuş sayılmadı. Push/merge/PR/yayın yok; `_Recovery`/meta korunur. Sonraki adım aynı görevde gerçek sürüş girdili test ve kalite raporu; yeni geliştirme fazı yok.
 
 # B /3A atölye ekranı tamamlandı (9 Kasım 2026) — Codex
 

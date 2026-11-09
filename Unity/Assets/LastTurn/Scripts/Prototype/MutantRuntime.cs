@@ -154,5 +154,10 @@ namespace LastTurn.Prototype
     public static void Exit(){Reset();WorldData.Clear();GameFlow.MutantMenu();SceneManager.LoadScene("Garage");}
     /// Mutant menüsü: en iyi koşu (bölge, yenilen boss).
     public static MutantRecord Record(){try{return new MutantRecordStore(RecordDirectory!=""?RecordDirectory:Path.Combine(Application.persistentDataPath,"LastTurnMutant")).Load();}catch(Exception){return new MutantRecord();}}
+    public static MutantSummaryModel Summary()
+    {
+      try{var store=new MutantRecordStore(RecordDirectory!=""?RecordDirectory:Path.Combine(Application.persistentDataPath,"LastTurnMutant"));var record=store.Load();return MutantSummaryModel.Read(Run,record,Message,!store.ReadOnly);}
+      catch(Exception){return MutantSummaryModel.Read(Run,new MutantRecord(),Message,false);}
+    }
   }
 }

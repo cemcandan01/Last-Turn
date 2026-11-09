@@ -38,6 +38,7 @@ namespace LastTurn.Prototype
       if(LastTurn.Ui.MutantEventView.CoversCurrentScreen)return;
       if(LastTurn.Ui.MutantWorkshopView.CoversCurrentScreen)return;
       if(LastTurn.Ui.MutantChestView.CoversCurrentScreen)return;
+      if(LastTurn.Ui.MutantSummaryView.CoversCurrentScreen)return;
       if(LastTurn.Ui.MutantResultView.CoversCurrentScreen)return;
       if(text==null){text=new GUIStyle(GUI.skin.label){fontSize=17,wordWrap=true};text.normal.textColor=Color.white;title=new GUIStyle(text){fontSize=25,fontStyle=FontStyle.Bold};small=new GUIStyle(text){fontSize=14};button=new GUIStyle(GUI.skin.button){fontSize=17,wordWrap=true};}
       var m=MutantRuntime.Model;
