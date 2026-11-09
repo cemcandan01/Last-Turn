@@ -62,6 +62,8 @@ namespace LastTurn.Prototype
     private void Awake()
     {
       mutantDrive=MutantRuntime.Active;
+      // Kamera yükseklik tabanı etkin fizik dünyasının zemininden (sahnedeki kayıtlı kameraya da bağlanır).
+      if(followCamera)followCamera.Ground=(x,z)=>world!=null?world.Height(-x,z):0;
       if (raceTrack != "") { AwakeRace(); return; }
       if(MutantRuntime.Active&&MutantRuntime.Session!=null)
       {parameters=MutantRuntime.Session.BuildPhysics();AppliedGarageCarId=MutantRuntime.Session.BuildSetup().Car["k"].S();}

@@ -119,6 +119,8 @@ jobs:
           dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --cloud-sync
       - name: HUD yerleşimi (dokunmatik ve F masaüstü, çakışmasız) ve miniharita
         run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --hud
+      - name: Takip kamerası (8 ralli pisti, zemin tabanı, 30/60/120 FPS)
+        run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --camera
       - name: 40 pist gerçek fizikle
         run: dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --race-all
       - name: Motor bağımsız C# kuralları
