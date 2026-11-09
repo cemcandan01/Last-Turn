@@ -1,0 +1,216 @@
+{
+  "baseline": "df3549e709469f0b519ebfbeaa9f63c1040fee05",
+  "sources": {
+    "src/ses/efektler.ts": "b6ea19c7e7d16c6876ba9d350e041bb1a901bc8dba6bed7763fa36e0642f71fc",
+    "src/ses/sentez.ts": "573941beb4e4233e620c6db72f7cb05e02af8ab59a0ac67df153e728fcd4aec1",
+    "src/ses/motor.ts": "52faf74bc73e7f7a10bc97e0480bb6cd6f8b7e5989b72b4f10a45fc2d6f90c23",
+    "src/ses/muzik.ts": "d67c9cb446e6e8204e487bef260797fc2f0deb7a93419ffa62ee5e76b8c72aca",
+    "src/ses/hedefler.ts": "cfbd1077bbbf70b91d86acd5b8996e2d07559a56ff9bf9ddbf7caac977151497",
+    "src/cekirdek/rastgele.ts": "566f429f4c859bc259b1e2a8cf66caca977eae7a8af7dfe2bb629bb9ad6f0413",
+    "src/cekirdek/matematik.ts": "658c7a895e5d3bab8db4d644c2be8eb21335b4ce189f0180f99199b9cd0ea879"
+  },
+  "renderer": "Local Edge OfflineAudioContext; 22050 Hz PCM16",
+  "scope": "TS sentezinden işlevsel sesler; motor tek referans katmanı, profesyonel/araç başına ses tasarımı değil.",
+  "clips": [
+    {
+      "file": "tik.wav",
+      "sha256": "eefa647dbda7d610ceecf0f0323fe00021a6b5d7ab09d65a25fa6de21f5b5311",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.17531681060791016,
+      "rms": 0.004165890494665411
+    },
+    {
+      "file": "sayim.wav",
+      "sha256": "4c6d34b971dd64eb191cbb44c83ef72cec203a4689fb73a9dacef3648e076d89",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.2273443043231964,
+      "rms": 0.015375796068304363
+    },
+    {
+      "file": "basla.wav",
+      "sha256": "94aa2c91d331f3163469c138915ba8a91706192444086aab23f536d2ac79eebc",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.24737095832824707,
+      "rms": 0.026208680100739838
+    },
+    {
+      "file": "kombo.wav",
+      "sha256": "610fa9cd2e177bbd956e84324116d36093479922821b7bf04cf51f7d4eea4998",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.09467732906341553,
+      "rms": 0.00744628121252866
+    },
+    {
+      "file": "kasa.wav",
+      "sha256": "b7c9ccb82e91d81702ca3820fda37b015d814104a884e49fba3879935f4686c4",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.08060894906520844,
+      "rms": 0.0077741812952535965
+    },
+    {
+      "file": "yandi.wav",
+      "sha256": "5172ef4bc5108a4e33fda4e3f8a2ab6e68b054f025365f5359ffd609b3055d15",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.11244341731071472,
+      "rms": 0.0066286186587488525
+    },
+    {
+      "file": "nitro.wav",
+      "sha256": "c9aeccbcc293bbdc49f4d8a896adedd34923d63b4df630ac26462ed015ee3636",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.21951988339424133,
+      "rms": 0.017418161055377277
+    },
+    {
+      "file": "nitroBitti.wav",
+      "sha256": "ee66433010de77777ec47df39831c1adfe7af950932e5b281b69746a99fbe7cc",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.046854183077812195,
+      "rms": 0.002985238896764528
+    },
+    {
+      "file": "kanca.wav",
+      "sha256": "8a2f0b2fcbaf59213e004ca3b19d2053b43d1ffe01fa2a7b5fddd41e7b6b3feb",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.12270437926054001,
+      "rms": 0.006858152109364532
+    },
+    {
+      "file": "hayaletAc.wav",
+      "sha256": "8cae7af9409812f989c29f0d520f17d373ed8418c49c92b2b34d904caa682f2d",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.09427370131015778,
+      "rms": 0.008623647165493438
+    },
+    {
+      "file": "hayaletKapa.wav",
+      "sha256": "b106f8547b2b5ca4a6f0414449973738e0ca33208f6fe8fa3713496054dc683b",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.07779134064912796,
+      "rms": 0.004621657777002623
+    },
+    {
+      "file": "donusumAc.wav",
+      "sha256": "abfb49d65cc3a10d6941e122fd724243ffaba5bf0acafd4923ab30cdba45b97b",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.2854018807411194,
+      "rms": 0.02630501060621958
+    },
+    {
+      "file": "donusumKapa.wav",
+      "sha256": "00c7a2359ed64f8509cde68566c702943b915968fd6d79ddea1714fca5713fca",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.06471623480319977,
+      "rms": 0.004256311525439731
+    },
+    {
+      "file": "ruzgar.wav",
+      "sha256": "1db1243baa79c4a6f79a3261cb67f86fb4afc66e018f30798af043da600769ad",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.09345313161611557,
+      "rms": 0.00439659050575796
+    },
+    {
+      "file": "red.wav",
+      "sha256": "2df7a94b9d18122c65bf9ee21f36233b69c8be98c0554968ddebe99d7dadc338",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.11378788948059082,
+      "rms": 0.007580407343357735
+    },
+    {
+      "file": "bitis-win.wav",
+      "sha256": "69acf43459a1a01c3e842166da5c109e2b12667783e483abec9c131c55acf201",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.1480804830789566,
+      "rms": 0.020465413086493
+    },
+    {
+      "file": "bitis-lose.wav",
+      "sha256": "5f914f9c566dde833d71144fdefc34a9faa4f5e035d5aff290a4385ee895a1c9",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.14631010591983795,
+      "rms": 0.014292156873951602
+    },
+    {
+      "file": "carpma.wav",
+      "sha256": "255b57ab17eb53347bdc8f60779a54a74acecbfc16e96d96a2769884e4d0faff",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.8628808856010437,
+      "rms": 0.14692165567041301
+    },
+    {
+      "file": "inis.wav",
+      "sha256": "cda1924914cc37d2505c7c522a0ff01ea832a864f500bb52c2c203286703718e",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.3882963955402374,
+      "rms": 0.06611474328431319
+    },
+    {
+      "file": "motor.wav",
+      "sha256": "979cf8f6c18390acaa75da900cee1b49c9e70e12c95d1311fdf93b723e1a6367",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.7339051365852356,
+      "rms": 0.21999996033338332
+    },
+    {
+      "file": "lastik-asfalt.wav",
+      "sha256": "f212ee33f46f5c3033006af4e396409df3126a87d8273f6c8dd5ed5b9aef2331",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.9066656827926636,
+      "rms": 0.21174820397377445
+    },
+    {
+      "file": "lastik-gevsek.wav",
+      "sha256": "bf0dd885183097528d2c23d11a61ab1c8e90b7d4d197bb4dcfddab3211852c68",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.9498477578163147,
+      "rms": 0.1976155743365368
+    },
+    {
+      "file": "savrulma.wav",
+      "sha256": "f212ee33f46f5c3033006af4e396409df3126a87d8273f6c8dd5ed5b9aef2331",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.9066656827926636,
+      "rms": 0.21174820397377445
+    },
+    {
+      "file": "ruzgar-hiz.wav",
+      "sha256": "cd6eb29fffa6956c99f07d5c11e98c15bdc8188b73d2fb1a56f2c2cda38753d8",
+      "seconds": 2,
+      "channels": 1,
+      "peak": 0.07999923825263977,
+      "rms": 0.046161172091425104
+    },
+    {
+      "file": "muzik.wav",
+      "sha256": "303dda3c057a8bf950655ca3a8c54ee5f277668204b65bf658084c36f1d9f804",
+      "seconds": 57.6,
+      "channels": 2,
+      "peak": 1,
+      "rms": 0.23445197450176464
+    }
+  ]
+}

@@ -7,13 +7,14 @@ using UnityEngine.SceneManagement;
 
 namespace LastTurn.Prototype
 {
-  // Unity ses yürütücüsü: AudioDirector hedeflerini AudioSource'lara uygular. TS sesleri sentezdir; Unity'de ses varlığı
-  // henüz yoktur: Resources/Audio/<ad> klibi varsa çalınır, yoksa olay/katman eksik varlık olarak sayılır (sessiz).
+  // TS sentezinden çevrimdışı çıkarılan klipler; tını/araç başına katman tasarımı ayrı kalır.
+  // Yürütücü yalnız saf ses hedeflerini uygular, oyun durumu veya RNG değiştirmez.
   public sealed class GameAudio : MonoBehaviour
   {
     private readonly AudioDirector director = new AudioDirector();
     private readonly Dictionary<string, AudioClip> clips = new Dictionary<string, AudioClip>();
-    private AudioSource music, effects, engine, tires, loose;
+    private AudioSource music, effects, engine, tires, loose, spin, wind;
+    private AudioLowPassFilter filter;
     public static readonly Dictionary<string, int> Fired = new Dictionary<string, int>();
     public static readonly HashSet<string> MissingAssets = new HashSet<string>();
     public static AudioMix LastMix { get; private set; }
@@ -30,11 +31,12 @@ namespace LastTurn.Prototype
       if (!c) MissingAssets.Add(name); return c;
     }
     private AudioSource Source(string name, bool loop)
-    { var s = gameObject.AddComponent<AudioSource>(); s.loop = loop; s.playOnAwake = false; s.spatialBlend = 0; var c = loop ? Clip(name) : null; if (c) { s.clip = c; s.Play(); } return s; }
+    { var s = gameObject.AddComponent<AudioSource>(); s.loop = loop; s.playOnAwake = false; s.spatialBlend = 0; s.volume=0; var c = loop ? Clip(name) : null; if (c) { s.clip = c; s.Play(); } return s; }
     private void Awake()
     {
       music = Source("muzik", true); engine = Source("motor", true); tires = Source("lastik-asfalt", true); loose = Source("lastik-gevsek", true); effects = Source("", false);
-      foreach (var n in AudioDirector.EventNames) Clip(n);
+      spin=Source("savrulma",true);wind=Source("ruzgar-hiz",true);filter=gameObject.AddComponent<AudioLowPassFilter>();
+      foreach (var n in AudioDirector.EventNames) if(n!="bitis")Clip(n);Clip("bitis-win");Clip("bitis-lose");
     }
     private AudioFrame Frame()
     {
@@ -65,15 +67,17 @@ namespace LastTurn.Prototype
       music.volume = (float)mix.Music; music.mute = mix.Music <= 0;
       effects.volume = (float)mix.Effects; effects.mute = mix.Effects <= 0;
       engine.volume = (float)(mix.Effects * mix.EngineMix * (mix.ShiftCut ? .4 : 1)); engine.pitch = Mathf.Clamp((float)(mix.Rpm / 3000), .3f, 3);
-      tires.volume = (float)(mix.Effects * Mathf.Clamp01((float)(mix.Slip + mix.Spin))); loose.volume = (float)(mix.Effects * Mathf.Clamp01((float)mix.Loose));
-      foreach (var s in new[] { engine, tires, loose }) s.mute = mix.Effects <= 0;
+      tires.volume = (float)(mix.Effects * Mathf.Clamp01((float)mix.Slip)); loose.volume = (float)(mix.Effects * Mathf.Clamp01((float)mix.Loose));
+      spin.volume=(float)(mix.Effects*Mathf.Clamp01((float)mix.Spin));wind.volume=(float)(mix.Effects*Mathf.Clamp01((float)(mix.Speed/70)));
+      filter.cutoffFrequency=(float)mix.CockpitCutoff;
+      foreach (var s in new[] { engine, tires, loose,spin,wind }) s.mute = mix.Effects <= 0;
       foreach (var e in director.Events) Play(e.Name, (float)e.Strength);
       foreach (var n in pending) Play(n, 1); pending.Clear();
     }
     private void Play(string name, float strength)
     {
       Fired[name] = (Fired.TryGetValue(name, out int n) ? n : 0) + 1;
-      var c = Clip(name); if (c && effects.volume > 0) effects.PlayOneShot(c, Mathf.Max(.2f, strength));
+      var c = Clip(name=="bitis"?(strength>0?"bitis-win":"bitis-lose"):name); if (c && effects.volume > 0) effects.PlayOneShot(c, Mathf.Clamp(strength,.2f,1));
     }
   }
 }
