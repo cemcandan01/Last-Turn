@@ -16,6 +16,7 @@ namespace LastTurn.Core
     public string[]? Held;
     public Func<double, double, double[]?>? Link;
     public Func<double, CatalogNode?>? Corner;
+    public Func<double, MutantCornerQuery>? CornerQuery;
     public Func<CatalogNode?>? Sky;
   }
 
@@ -51,6 +52,7 @@ namespace LastTurn.Core
         Player = player, Targets = targets, Racing = racing, Ground = ground, Held = held, Steering = steering,
         Link = (min, max) => track != null ? TrackLink(track, player, min, max) : openWorld ? RoadLink(city ? cityRoads : roads, player, min, max) : null,
         Corner = direction => track != null ? TrackCorner(track, player, direction) : city ? CityCorner(player, direction) : null,
+        CornerQuery=direction=>track!=null?InspectTrackCorner(track,player,direction):new MutantCornerQuery{Target=city?CityCorner(player,direction):null,Reason=city?"city":"outside-city"},
         Sky = city ? () => SkyLink(player) : (Func<CatalogNode?>?)null
       };
     }
@@ -70,8 +72,11 @@ namespace LastTurn.Core
       return null;
     }
     public static CatalogNode? TrackCorner(TrackGeometry? track, CatalogNode player, double requestedDirection, int hint = 0)
+      =>InspectTrackCorner(track,player,requestedDirection,hint).Target;
+    public static MutantCornerQuery InspectTrackCorner(TrackGeometry? track, CatalogNode player, double requestedDirection, int hint = 0)
     {
-      if (track == null || track.N < 8) return null;
+      var query=new MutantCornerQuery{RequestedSide=requestedDirection};
+      if (track == null || track.N < 8){query.Reason="no-track";return query;}
       int first = track.Nearest(player["x"].N(), player["z"].N(), hint, true).Index;
       int direction = player["vx"].N() * track.Tx[first] + player["vz"].N() * track.Tz[first] >= 0 ? 1 : -1;
       double spacing = track.Length / track.N; int k = Math.Max(1, (int)Math.Floor(20 / spacing + .5)), count = (int)Math.Floor(45 / spacing + .5);
@@ -85,10 +90,11 @@ namespace LastTurn.Core
         double cross = ta.X * tb.Z - ta.Z * tb.X, angle = Math.Acos(Clamp(ta.X * tb.X + ta.Z * tb.Z, -1, 1));
         if (angle > turn) { turn = angle; best = j; side = cross < 0 ? 1 : -1; }
       }
-      if (best < 0 || turn < .45 || (requestedDirection != 0 && requestedDirection != side)) return null;
-      double radius = (2 * k * spacing) / turn; if (radius > 90) return null;
+      query.Index=best;query.Turn=turn;query.Side=side;
+      if (best < 0 || turn < .45 || (requestedDirection != 0 && requestedDirection != side)){query.Reason=best<0||turn<.45?"no-corner":"wrong-side";return query;}
+      double radius = (2 * k * spacing) / turn;query.Radius=radius;if (radius > 90){query.Reason="wide-corner";return query;}
       var t = TrackDirection(track, best, direction); double x = track.X[best], z = track.Z[best];
-      return Result(new[] { x + t.Z * side * radius, z - t.X * side * radius }, new[] { x + t.Z * side * (track.HalfWidth + 1), z - t.X * side * (track.HalfWidth + 1) });
+      query.Target=Result(new[] { x + t.Z * side * radius, z - t.X * side * radius }, new[] { x + t.Z * side * (track.HalfWidth + 1), z - t.X * side * (track.HalfWidth + 1) });query.Reason="target";return query;
     }
     private static (double X, double Z) TrackDirection(TrackGeometry track, int j, int direction)
     {

@@ -22,6 +22,7 @@ namespace LastTurn.Core
     public string Id="",Name="",Kind="";public int Level;public string? Evolution;public string[] Addons=Array.Empty<string>();
     public bool Open,Ready;public double Left,Wait,Charges,MaxCharges,Duration,FullWait;public double? Bar;
     public string? Blocker;public double[]? TargetPoint;public CatalogNode? Target,Point;
+    public MutantHookQuery? Hook;
   }
   public sealed class MutantNitroHud {public double Energy,Capacity,Cost,Left;public bool Open,Ready;}
   // TS mutant-ui.ts mutantTusuGuncelle: yuvanın dolgusu, kısa yazısı ve durumu (on/bekle/engel/hazir).
@@ -32,6 +33,14 @@ namespace LastTurn.Core
     private static double Round(double x)=>Math.Floor(x+.5);
     public static (double Fill,string Text,string State) Read(MutantSkillHud b,bool refusedAtStart=false)
     {
+      if(b.Id=="grappling-hook"&&b.Hook!=null){
+        if(b.Open){string kind=b.Target?.S()=="#kose"?"kose":b.Target?.S()=="#bina"?"gok":"rakip";return (Math.Max(0,Math.Min(1,b.Left/4)),"BAĞLI · "+MutantHookQuery.KindName(kind),"on");}
+        if(b.MaxCharges>0&&b.Charges<=0)return (Math.Max(0,Math.Min(1,1-b.Wait/Math.Max(b.FullWait,.01))),b.Wait>0?"HAK YOK · "+Seconds(b.Wait):"HAK YOK",b.Wait>0?"bekle":"engel");
+        if(refusedAtStart||b.Blocker=="basla")return (1,"BAŞLANGIÇ","engel");
+        if(b.Blocker=="bekleme")return (Math.Max(0,Math.Min(1,1-b.Wait/Math.Max(b.FullWait,.01))),"BEKLE · "+Seconds(b.Wait),"bekle");
+        if(b.Blocker!=null&&b.Blocker!="hedef")return (1,Reason(b.Blocker),"engel");
+        return b.Hook.Available&&b.Blocker==null?(1,"HEDEF · "+MutantHookQuery.KindName(b.Hook.Kind),"hazir"):(1,b.Hook.Reason=="context"?"HEDEF BEKLENİYOR":"HEDEF YOK","engel");
+      }
       string? blocker=refusedAtStart?"basla":b.Blocker;double fill;string text,state;
       if(b.Open){fill=b.Left/Math.Max(Math.Max(b.Duration,b.Left),.01);text=Seconds(b.Left);state="on";}
       else if(blocker=="bekleme"||blocker=="etkin"){fill=1-b.Wait/Math.Max(b.FullWait,.01);text=Seconds(b.Wait);state="bekle";}
@@ -55,6 +64,9 @@ namespace LastTurn.Core
     private string[] stepRequests=Array.Empty<string>();
     private double pitch,yaw;
     private MutantAbilityContext? context;
+    private MutantSkillWorld? observedWorld;
+    public MutantHookAttempt? LastHookAttempt{get;private set;}
+    private long hookAttempts;
     public bool Finger {get;private set;}
     public MutantSkillRefusal Refusal {get;}=new MutantSkillRefusal();
     public bool OpponentEffect {get;private set;}
@@ -73,7 +85,7 @@ namespace LastTurn.Core
     // Aşağı sürükleme burnu kaldırır, sağa sürükleme sağa çevirir (piksel).
     public void AirDrag(double dx,double dy){Finger=true;pitch+=dy*AirDragAngle;yaw-=dx*AirDragAngle;}
     public void AirRelease()=>Finger=false;
-    public void RaceStart()=>Energy.RaceStart();
+    public void RaceStart(){Energy.RaceStart();observedWorld=null;context=null;}
     /// TS mutantAdimi başı: bu adımın tuşları alınır, kuyruk her durumda boşalır.
     public void BeginStep(MutantAbilityContext c)
     {context=c;stepNitro=nitro;stepRequests=requests.ToArray();nitro=false;requests.Clear();OpponentEffect=false;}
@@ -86,6 +98,8 @@ namespace LastTurn.Core
       var opponent=running?c.Opponent:null;
       var targets=CatalogNode.Arr(opponent!=null?new[]{opponent.Clone()}:Array.Empty<CatalogNode>());
       var world=worlds.Build(player,targets,c.Racing?c.Track:null,running,!c.Racing,c.Ground,held.ToArray(),c.Steering);
+      observedWorld=world;
+      if(stepRequests.Contains("grappling-hook")){var hook=Equipped.FirstOrDefault(o=>o["id"].S()=="grappling-hook");if(hook!=null)LastHookAttempt=new MutantHookAttempt{Sequence=++hookAttempts,Step=(long)Run.State["bec"]["adim"].N()+1,X=c.X,Y=c.Y,Z=c.Z,Heading=c.Heading,Steering=c.Steering,Blocker=c.Racing&&!running?"basla":MutantSkills.Blocker(Run.State["bec"],Equipped,world,"grappling-hook"),Query=MutantSkills.InspectHook(hook,MutantSkills.Parameters("grappling-hook",hook),world)};}
       if(stepRequests.Length>0)
       {
         var view=Skills();
@@ -97,6 +111,7 @@ namespace LastTurn.Core
       }
       var drift=new DriftObserverInput{Vx=c.Vx,Vz=c.Vz,Air=c.Airborne,DriftOn=c.DriftOn,Direction=c.DriftDirection,Cool=c.DriftCool,Beta=c.Beta};
       bool changed=Energy.Step(drift,world,MutantSkillWorldFactory.Obstacles(c.Obstacles).Items,dt,stepNitro,c.Racing&&!running?Array.Empty<string>():stepRequests,hit);
+      if(stepRequests.Contains("grappling-hook")&&LastHookAttempt!=null)LastHookAttempt.Linked=Run.State["bec"]["yerel"]["grappling-hook"]["kalan"].N()>0;
       if(c.Opponent!=null)
       {
         OpponentEffect=true;var a=opponent!=null?Run.State["becCikti"]["hedefIvme"]["rakip"]:null;
@@ -135,11 +150,12 @@ namespace LastTurn.Core
         double wait=maxCharges!=0?(charges<maxCharges?Math.Max(0,p["bekleme"].N(double.NaN)-y["dolum"].N(0)):0):y["bekleme"].N(0);
         bool open=y["kalan"].N(0)>0;bool bar=id=="risk-taker"||id=="slipstream-engine";
         var point=s["becHedef"][id];var evolution=o["evrim"];
+        MutantHookQuery? hook=null;if(id=="grappling-hook"){hook=observedWorld==null?new MutantHookQuery{Reason="context"}:MutantSkills.InspectHook(o,p,observedWorld);blocker=observedWorld==null?"hedef":context!=null&&context.Racing&&!context.RaceRunning?"basla":MutantSkills.Blocker(s["bec"],Equipped,observedWorld,id);}
         return new MutantSkillHud{Id=id,Name=t["ad"].S(),Kind=t["tur"].S(),Level=(int)o["seviye"].N(),Evolution=evolution.ToString()=="null"?null:evolution.S(),
           Addons=o["eklentiler"].Items.Select(e=>e.S()).ToArray(),Open=open,Left=y["kalan"].N(0),Wait=wait,Charges=charges,MaxCharges=maxCharges,
           Duration=p["sure"].IsNumber?p["sure"].N():MutantSkills.Releases(id)?4:0,FullWait=p["bekleme"].N(0),
           Bar=bar?Math.Floor(100*Math.Max(0,Math.Min(1,has?MutantSkills.Bar(id,y,p):0))+.5):(double?)null,
-          Blocker=blocker,TargetPoint=point.Items.Any()?point.Items.Select(n=>n.N()).ToArray():null,
+          Blocker=blocker,Hook=hook,TargetPoint=point.Items.Any()?point.Items.Select(n=>n.N()).ToArray():null,
           Target=open&&y.Has("hedef")&&y["hedef"].ToString()!="null"?y["hedef"].Clone():null,
           Point=open&&y.Has("nokta")&&y["nokta"].ToString()!="null"?y["nokta"].Clone():null,
           Ready=t["tur"].S()=="aktif"&&blocker==null};

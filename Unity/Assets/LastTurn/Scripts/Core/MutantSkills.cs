@@ -85,12 +85,15 @@ namespace LastTurn.Core
     public static double Bar(string id,CatalogNode local,CatalogNode parameters)=>id=="risk-taker"?local["deger"].N()/100:id=="slipstream-engine"?local["deger"].N()/parameters["enCok"].N():0;
     private static bool Airborne(MutantSkillWorld world)=>world.Player["y"].N()-world.Ground>2.5;
     private static CatalogNode? HookTarget(CatalogNode instance,CatalogNode parameters,MutantSkillWorld world)
+      =>InspectHook(instance,parameters,world).Target;
+    public static MutantHookQuery InspectHook(CatalogNode instance,CatalogNode parameters,MutantSkillWorld world)
     {
       var p=world.Player;bool reverse=instance["evrim"].S()=="ters-kanca";string? nearest=null;double nearestDistance=double.PositiveInfinity;
-      foreach(var h in world.Targets.Items){double dx=h["x"].N()-p["x"].N(),dz=h["z"].N()-p["z"].N(),d=H(dx,dz);if(d<8||d>parameters["menzil"].N())continue;if(Math.Abs(Delta(Math.Atan2(dx,dz),p["h"].N()+(reverse?Math.PI:0)))>(reverse?.6:.45))continue;if(d<nearestDistance){nearestDistance=d;nearest=h["id"].S();}}
-      if(nearest!=null)return Obj(("tur",Str("rakip")),("id",Str(nearest)));if(reverse)return null;
-      if(Airborne(world)){var g=world.Sky?.Invoke();return g==null?null:Obj(("tur",Str("gok")),("p",g["p"]),("uc",g["uc"]));}
-      var k=world.Corner?.Invoke(Math.Abs(world.Steering)>.15?Math.Sign(world.Steering):0);return k==null?null:Obj(("tur",Str("kose")),("p",k["p"]),("uc",k["uc"]));
+      var q=new MutantHookQuery{Range=parameters["menzil"].N(),Cone=reverse?.6:.45,Reverse=reverse,Airborne=Airborne(world)};
+      foreach(var h in world.Targets.Items){double dx=h["x"].N()-p["x"].N(),dz=h["z"].N()-p["z"].N(),d=H(dx,dz);double angle=Math.Abs(Delta(Math.Atan2(dx,dz),p["h"].N()+(reverse?Math.PI:0)));var c=new MutantHookCandidate{Id=h["id"].S(),Distance=d,Angle=angle,InRange=!(d<8||d>q.Range),InCone=!(angle>q.Cone)};q.Candidates.Add(c);if(!c.InRange||!c.InCone)continue;if(d<nearestDistance){nearestDistance=d;nearest=h["id"].S();}}
+      if(nearest!=null){q.Kind="rakip";q.Id=nearest;q.Distance=nearestDistance;q.Target=Obj(("tur",Str("rakip")),("id",Str(nearest)));q.Reason="target";return q;}if(reverse){q.Reason="no-opponent";return q;}
+      if(q.Airborne){var g=world.Sky?.Invoke();q.Reason=g==null?"no-building":"target";if(g!=null){q.Kind="gok";q.Target=Obj(("tur",Str("gok")),("p",g["p"]),("uc",g["uc"]));q.Distance=H(g["p"][0].N()-p["x"].N(),g["p"][1].N()-p["y"].N(),g["p"][2].N()-p["z"].N());}return q;}
+      double side=Math.Abs(world.Steering)>.15?Math.Sign(world.Steering):0;q.Corner=world.CornerQuery!=null?world.CornerQuery(side):new MutantCornerQuery{Target=world.Corner?.Invoke(side)};var k=q.Corner.Target;q.Reason=k==null?"no-corner":"target";if(k!=null){q.Kind="kose";q.Target=Obj(("tur",Str("kose")),("p",k["p"]),("uc",k["uc"]));q.Distance=H(k["p"][0].N()-p["x"].N(),k["p"][1].N()-p["z"].N());}return q;
     }
     private sealed class Context
     {
