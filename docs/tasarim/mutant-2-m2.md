@@ -1,5 +1,7 @@
 # Mutant 2.0 — M2 ilk ödül dilimi
 
+**9 Kasım /2A teslimi:** `59ef048` ile B etkinlik/risk ekranı uygulandı. Gerçek modelden iki/üç risk, hedef birimi/ödül/ceza; mevcut StartRace/ClosePanel ve pause korunur. .NET818/143 plan +menü4311 +plan12952 (TS fark0); Unity373/373,12 Game View/215 kaynak; Runtime0, bilinen yerel Search tanısı1. Önceki212/208 kaynaklı proof'lar eski kaldı, eşikleri değiştirilmedi. Yalnız yerel commit; push/merge/PR/yayın yok. Güncel devir esas; aşağıdaki2A/HUD önerileri tarihsel. Sonraki tek öneri B /3A atölye; başlanmadı.
+
 **9 Kasım son durum:** `c1fb9ca` ile B koşu içi HUD uygulandı; gerçek koşu/nitro/skill/görev/işaret verisi, fareyi yakalamayan sunum ve ortak yarış HUD'u bağlantısı. .NET870+740, gerçek Unity301/301;0 Runtime hatası,1 yerel UnityEditor.Search tanısı;8 Game View/212 hash. Ayrıntı DEVIR başında. Sonraki tek geliştirme B /2A etkinlik/risk ekranı; aşağıdaki HUD/8A önerileri tarihsel kayıttır. Ödül modeli/olasılık/XP/boss süreleri değişmedi.
 
 **8 Kasım ilerlemesi:** başlangıç kart entegrasyonu `39fea95`, koşu içi B /5A ödül+skill değiştirme `3001f70`, tam ödül ikon eşlemesi `a6be53c`, B /6A boss `20ec0b2`, B /7A yarış sonucu `dd85772` ile tamamlandı. Cem B biyomekanik yönünü seçti. Son sonuç ekranı Unity181/.NET435.641 ve10 Game View; önceki dilimlerin kanıtları [güncel devirde](../DEVIR.md). Aşağıdaki ilk teslim sınırı ve “sonraki iş” tarihsel kayıttır; yeniden uygulanmaz. Diğer5 ekran henüz aktarılmadı; sıradaki tek iş B /8A koşu özetidir.

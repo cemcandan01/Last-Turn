@@ -109,7 +109,23 @@
 - `Unity/Logs/b-result-play.json`, `b-result-editor.log`, `b-result-{passed,failed,level,pending,boss}-{1280,1920}.png`;10 son görüntü açılıp incelendi, sütun/alt bant/tuşlar ve model sayıları doğru. Kanıt yerel/ignore; üretici/denetleyici commit'te. Kontrollü XP/etkinlik/süre/puan fixture'ı gerçek Runtime bitiş yoluna verildi; fiziksel yarış/OS girdi/insan beğeni kabulü iddiası yok. Boss kayıt yolu yalnız `Logs/BResult/<guid>`; gerçek kayıt/Firebase, ana Editor, TS0.8.18/P1–P5/`_Recovery` korundu.
 - Tek ajan, kota bilinmiyor; push/merge/yayın/yeni paket/ücretli servis/alt ajan/yeni grafik yok. **Dur:** yalnız7A bitti. Sıradaki tek iş **B /8A koşu özeti**; bu oturumda başlanmadı.
 
-## B HUD uygulaması — 9 Kasım 2026
+## B /2A etkinlik ve risk ekranı — 9 Kasım 2026
+
+### Sonuç — `59ef048`
+
+- B iki sütun UI Toolkit ekranı; gerçek ad/tür/seviye ve iki/üç risk; hedef/para/XP/ceza/teselli. Core'a yalnız tipli TypeName/TargetText ve salt FindEvent; düello/kovalamaca sayısal0 yerine “Rakipten önce bitir”, Drift puan/süre sn ayrımı. UI kuralları hesaplamaz. Başlat mevcut StartRace, Geri ClosePanel; eski IMGUI örtülür. Fare/ok/Tab/Shift+Tab/Enter, odak/seçim, çift onay ve stale kimlik/etkinlik koruması; Esc mevcut pause yolunda kalır.
+- .NET **818/143 gerçek plan**, mevcut menü **4.311**, plan **12.952** kontrol;324 TS plan/1.944 sentetik sınır, fark0. **Unity gerçek grafik Play373/373**, UTC `2026-11-09T03:43:32.2634876Z`,215 güncel kaynak hash'i,0 Runtime hatası/1 bilinen UnityEditor.Search tanısı. Native tanı gizlenmedi, Console temiz ilan edilmedi. Proje/proof/Prettier/diff geçti; uzun regresyon yok.
+- Gerçek işaret/dwell açılışı; normal/düello/kovalamaca/Drift için dört gerçek yarış planı/oturumu, doğru id/risk/hedef, fare ve klavye, çift onay, Geri/pause/settings, HUD/sürüş, RNG/timer/ödül salt sunumu, kariyer/profil/kalıcı kayıt hash'i geçti. Eski/tamamlanan/bulunamayan etkinlikler başlatılamadı. Uzun Türkçe içerik kaydırılabilir; invalid ekrandaki gereksiz seçim yönergesi görsel incelemede kaldırılıp Play yenilendi.
+- `Unity/Logs/b-event-{time,duel,chase,drift,long,invalid}-{1280,1920}.png`12 son görüntü incelendi; normal kartlar kaydırmadan görünür, uzun içerik kayar, eylemler ayrı. Ham `b-event-play.json`, `b-event-editor.log`; .NET `tests/cikti/mutant-event-proof.json`. Yerel/ignore; kaynak üretici/checker commit'te. İlk panel gerçek gate, sonraki tür/metin/stale vakaları fixture; sentetik girdi, kurulan yarıştan kontrollü dönüş; fiziksel yarış bitişi veya insan kabulü iddiası yok.
+- HUD301/212 ve ödül459/208 proof'ları215 kaynakla beklenen kapsam hatası verdi (`Unity/Logs/b-event-prior-proof-status.txt`); checker eşikleri değişmedi, eski kanıt güncel başarı sayılmadı. Ortak kart/ikon/HUD/5A/6A/7A yeniden yazılmadı. Ana sahneler/Editor/kayıt/Firebase/P1–P7/TS0.8.18/`_Recovery` korundu. Mevcut temiz test kopyası ve paketler; yeni ajan/API/paket/grafik yok.
+- **Yerel teslim; push/merge/PR/yayın/release yapılmadı.** Yalnız2A bitirildi. Kalan Search tanısı/insan kabulü ve üç diğer B ekranı; sonraki tek öneri **B /3A atölye**, başlanmadı. Ayrıntılı değişen dosyalar ve kanıt bağlantıları DEVIR başında.
+
+- Başlangıç `3e5dc9a`, dal `codex/unity-p7-garaj`; fetch sonrası0 ileri/0 geri. Yalnız `_Recovery`/meta untracked; korunur. Sahip tek Codex, aynı UI/model bağlamındaki teslimleri devralır; resmi kapasite pencereleri bilinmiyor. Yeni ajan/API/paket/görsel yok.
+- Kapsam yalnız mevcut event panelini B iki sütun düzeninde UI Toolkit'e bağlamak. Mevcut risk sayısı/hedef/ödül/ceza/teselli korunur; saf modele yalnız tipli hedef metni/tür adı ve geçerli etkinlik sorgusu eklenir. Başlat mevcut StartRace; Geri ClosePanel; Esc mevcut MutantScreen pause akışında kalır.
+- Kabul: iki riskli düello/kovalamaca ve üç riskli normal/Drift; gerçek planla hedef/birim/ödül eşitliği; fare/ok/Tab/Enter ve tek başlatma; geri/pause/settings ve geçersiz-eski etkinlik; salt çizim/RNG/timer/kayıt koruması;1280/1920 gerçek Game View ve uzun Türkçe içerik. Dar menü/plan + bu ekranın izole Play'i. Eski212/208 kaynaklı HUD/ödül proof'ları yeni kaynaklarla güncel kabul sayılmaz, checker eşikleri değiştirilmez.
+- Kullanıcının bu görevdeki açık sınırı: **push/merge/PR/deneme/canlı/release yok**; yalnız ilgili yerel commit/devir ve dur. HUD/ikon/5A/6A/7A, atölye/sandık/8A, P1–P7/TS0.8.18/Firebase/oyuncu kayıtları ve ana Editor/sahneler korunur.
+
+## B HUD uygulaması — 9 Kasım 2026 (tarihsel)
 
 ### Sonuç — `c1fb9ca`
 
