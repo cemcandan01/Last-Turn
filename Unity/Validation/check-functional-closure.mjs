@@ -103,6 +103,22 @@ for (const pass of ["write", "reload"]) {
     throw Error("Bağımsız player kabulü eksik/eski: " + pass);
   console.log(`WindowsPlayer ${pass}: ${proof.checks.length} kontrol / ${proof.utc}.`);
 }
+if (process.argv.includes("--career")) {
+  const career = JSON.parse(fs.readFileSync(path.join(root, "Logs/functional-career-play.json"), "utf8"));
+  if (career.result !== "p1-play-passed" || career.error || career.checks.length < 65)
+    throw Error("Kariyer kabulü başarısız/eksik");
+  const log = fs.readFileSync(path.join(root, "Logs/functional-career-editor.log"), "utf8");
+  if (/(?:^|\n)[^\n]*\b(?:[A-Za-z]+Exception:|error CS\d{4})/.test(log))
+    throw Error("Kariyer Editor logunda hata/istisna");
+  for (const f of assets.filter((f) => f.endsWith(".cs"))) {
+    const rel = path.relative(root, f).replaceAll("\\", "/");
+    if (!career.sources.some((s) => s.path === rel && s.sha256.toUpperCase() === hash(fs.readFileSync(f))))
+      throw Error("Kariyer C# kaynağı eski: " + rel);
+  }
+  console.log(
+    `Kariyer ${career.checks.length} Play kontrolü, bütün mevcut C# hashleri aynı; ${career.utc}. Klon sahne/meta için eski genel checker kabulü değildir.`,
+  );
+}
 console.log(
   `Bina/doğal süre: ${p.checks.length} Play / ${p.images.length} Game View / ${p.sources.length} güncel kaynak; ${p.utc}. İnsan/cihaz kabulü değildir.`,
 );

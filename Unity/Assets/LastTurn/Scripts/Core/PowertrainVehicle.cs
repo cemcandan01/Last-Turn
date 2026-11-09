@@ -58,6 +58,8 @@ namespace LastTurn.Core
     public BodyVector ReferencePoint => Body.Orientation.Rotate(new BodyVector(0, -p.Chassis.CgY, -p.Chassis.CgZ)) + Body.Position;
     private static double Clamp(double x, double a, double b) => Math.Max(a, Math.Min(b, x));
     private static double Smooth(double a, double b, double x) { double t = Clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); }
+    // Salt gösterim gözlemcisi; abone yokken sayısal yol aynıdır.
+    public event Action<PowertrainVehicle>? Stepped;
     public void Step(DrivingInput input)
     {
       var previous = Engine;
@@ -175,6 +177,7 @@ namespace LastTurn.Core
       // Gövde başarısızsa motorun kısmen ilerlemiş durumu yayımlanmaz.
       body.Step(new VehicleCommand(delta, drive, brake + holdBrake, input.Handbrake, p.Abs, slipLimit, assist),SkillInput,st);
       Engine = next;
+      Stepped?.Invoke(this);
     }
     public int ShiftsUp { get; private set; }
     public int ShiftsDown { get; private set; }

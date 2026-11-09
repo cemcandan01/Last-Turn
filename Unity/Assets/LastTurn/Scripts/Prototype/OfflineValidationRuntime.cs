@@ -21,7 +21,7 @@ namespace LastTurn.Prototype
     private readonly List<string> checks=new List<string>(),errors=new List<string>();
     private Dictionary<string,string> before;
     private Keyboard keyboard;private int stage,car;private double at,started,stockTorque;
-    private long beginStep;private Vector2 origin;private bool paused,focused;
+    private long beginStep;private Vector2 origin;private bool ghostToggle;
     [Serializable]private sealed class Proof{public string result,error,utc,unity,platform,pass,saveHash;public List<string> checks,errors;public double distance,stockTorque,upgradedTorque;}
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]private static void Reset(){Active=false;root=pass=null;}
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -65,13 +65,18 @@ namespace LastTurn.Prototype
           }else{
             Check(GarageSession.Transact(s=>{s.AddMoney(60000);s.AddXp(VehicleCatalog.LevelBase(15));return true;},"Ayrı test bütçesi"),"İzole bütçe fixture'ı");
             Check(GarageSession.Execute(GarageCommand.Stock(car)),"Stok kurulum komutu");
-            PlayerPreferences.Current.Set["ses"]=40;PlayerPreferences.Current.Set["muz"]=0;Check(PlayerPreferences.Save(),"Ayar kaydı");
+            PlayerPreferences.Current.Set["ses"]=40;PlayerPreferences.Current.Set["muz"]=0;PlayerPreferences.Current.Set["hayalet"]=1;Check(PlayerPreferences.Save(),"Ayar kaydı");
           }
           GameFlow.RaceMenu();Check(GarageSession.TryLaunch("GTTest"),"Menü oturumundan gerçek sürüş sahnesi");stage=1;return;
         }
         if(stage==1){if(!p||p.Simulation==null)return;Check(p.OpenTerrain==null,"Düz GT stok/yükseltme karşılaştırması");stockTorque=p.Simulation.Parameters.PeakTorque;beginStep=p.Simulation.Body.Steps;origin=new Vector2((float)p.Simulation.Body.Position.X,(float)p.Simulation.Body.Position.Z);stage=2;QueueKeys(Key.W);return;}
         if(stage==2){
           if(p.Simulation.Body.Steps-beginStep<180){QueueKeys(Key.W);return;}
+          if(pass=="write"){
+            var ghost=FindFirstObjectByType<DeveloperGhostView>();
+            if(!ghostToggle){Check(ghost&&ghost.Visible&&ghost.DisplayTime<p.Simulation.Body.Steps/60d-1.9,"Gerçek sürüşten 2 sn gecikmeli geliştirici hayaleti çizildi");PlayerPreferences.Current.Set["hayalet"]=0;Check(PlayerPreferences.Save(),"Geliştirici hayaleti ayarı kapandı");ghostToggle=true;return;}
+            Check(!ghost.Visible,"Ayar kapanınca geliştirici hayaleti gizlendi");
+          }
           QueueKeys();double distance=Vector2.Distance(origin,new Vector2((float)p.Simulation.Body.Position.X,(float)p.Simulation.Body.Position.Z));Check(distance>2,"Normal InputSystem tuşuyla gerçek sürüş");
           Check(p.Simulation.Body.Steps>beginStep,"Gerçek sabit fizik adımları");
           Check(GameAudio.MissingAssets.Count==0,"Ses klipleri eksiksiz yüklendi");
