@@ -1,6 +1,8 @@
 using System.Text.Json;
 using LastTurn.Core;
 if(args.Contains("--source-effects")){SourceEffectsValidation.Run();return;}
+if(args.Contains("--drift-race")){DriftRaceValidation.Run();return;}
+if(args.Contains("--mutant-lab")){MutantLabValidation.Run();return;}
 if(args.Contains("--remote-snapshots")){RemoteSnapshotValidation.Run();return;}
 if(args.Contains("--mutant-hook")){MutantHookValidation.Run();return;}
 if(args.Contains("--mutant-hud")){MutantHudValidation.Run();return;}

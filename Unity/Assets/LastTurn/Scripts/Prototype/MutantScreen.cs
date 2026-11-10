@@ -44,6 +44,8 @@ namespace LastTurn.Prototype
       var m=MutantRuntime.Model;
       var p=FindFirstObjectByType<GtPrototype>();bool drive=p&&p.Simulation!=null&&MutantRuntime.Panel==""&&!GameFlow.Paused;
       // sürüşte: ortak HUD yerleşimindeki tek satırlık durum çubuğu (dokunmatik düğmelere ve miniharitaya değmez)
+      // TS #mutantDevPanel ve #mutantDriftTani: yalnız geliştirme yapısındaki test koşusu.
+      if(drive){MutantDevLab.Button(button);MutantDevLab.DrawDiagnosis(p,text,small);}
       if(drive&&Hud.TryGet(p,"MutantBar",out var bar))
       {
         if(LastTurn.Ui.MutantHudView.OwnsDrive){lastMessage=MutantRuntime.Message;return;}
@@ -98,6 +100,8 @@ namespace LastTurn.Prototype
         case "result":
           GUILayout.Label("YARIŞ SONUCU",title);GUILayout.Label(MutantRuntime.Message,text);
           if(Button("Devam"))MutantRuntime.Continue();break;
+        case "lab":
+          MutantDevLab.Draw(title,text,button);break;
         case "summary":
           GUILayout.Label("KOŞU BİTTİ",title);GUILayout.Label("Bölge "+m.Region+" • "+m.DefeatedBosses+" boss",text);
           GUILayout.Label(MutantRuntime.Message,text);if(Button("Ana menü"))MutantRuntime.Exit();break;

@@ -84,7 +84,7 @@ namespace LastTurn.Prototype
       var p=sim.ReferencePoint;double h=Heading(b),v=JsMath.Hypot(b.Velocity.X,b.Velocity.Z);
       double fx=Math.Sin(h),fz=Math.Cos(h),vl=b.Velocity.X*fx+b.Velocity.Z*fz,vt=b.Velocity.X*fz-b.Velocity.Z*fx;
       double kappa=0,alpha=0;for(int i=2;i<4;i++){kappa=Math.Max(kappa,Math.Abs(b.Wheels[i].Kappa));alpha=Math.Max(alpha,Math.Abs(b.Wheels[i].TanAlpha));}
-      bool driftRace=owner.Race?.Event.Type=="dp";double beta=Math.Atan2(vt,Math.Max(Math.Abs(vl),1));
+      bool driftRace=sim.DriftRace!=null;double beta=Math.Atan2(vt,Math.Max(Math.Abs(vl),1));
       bool drift=!b.Airborne&&v>(driftRace?7:10)&&(driftRace?sim.Assist.On:sim.Assist.On||Math.Abs(beta)>.5);
       int si=b.CenterSurface;bool dust=!b.Airborne&&(si==0||si==3||si>=4)&&v>6,smoke=!b.Airborne&&v>5&&(kappa>.25||alpha>.3||drift);
       var env=owner.SourceEnvironment?owner.SourceEnvironment.Current:null;bool snowy=env!=null&&env.theme=="snow";int bush=env!=null?env.bush:0x3f7d33;

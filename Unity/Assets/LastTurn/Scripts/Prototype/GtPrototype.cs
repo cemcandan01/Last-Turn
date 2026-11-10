@@ -320,6 +320,8 @@ namespace LastTurn.Prototype
         mutant!=null?(Action<double>)(metres=>MutantRuntime.Run.CutPenalty(metres)):null,mutant:mutant!=null),
         drive.Setup != null && drive.Parameters != null ? RaceDrift.MaxAngle(drive.Setup) : double.PositiveInfinity);
       // TS startEvent: kullanım sayacı ve rekor hayaleti; endEvent: rekor/profil/hayalet kaydı.
+      // TS surus.ts driftYarisi: MUTANT dp yarışı çalışırken drift penceresi/skoru yarış dalında (kurulumun profiliyle).
+      if(mutant!=null&&info.Type=="dp"&&drive.Setup!=null)Race.MutantDrift=RaceDrift.Profile(drive.Setup);
       Race.Finished += run => {ResetInput();if(mutant!=null)MutantRuntime.Finished(run,Opponent);else{FlushProfileDistance();GarageRace.Finished(run, drive);}};
       // TS rekorHayaletiBaslat/uzakAdimi: kayıt varsa hayalet her zaman yarışla eş adımlı oynar (kaydedildiği havanın
       // tutuşuyla); set.rh yalnız anlık görünürlüğü belirler, yarış ortasında açılıp kapanabilir.

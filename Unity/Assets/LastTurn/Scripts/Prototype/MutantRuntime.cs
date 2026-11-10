@@ -44,24 +44,54 @@ namespace LastTurn.Prototype
     private static BodyVector? returnPoint;private static double returnHeading;private static int refreshed;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void Reset(){Run=null;Session=null;RacePlan=null;Abilities=null;OpponentLink=null;Car=-1;Panel="";Message="";ResultPassed=null;returnPoint=null;refreshed=0;RecordDirectory="";Starting=false;rewards=null;HudFeedback=new MutantHudFeedback();}
-    public static void Start(uint seed)
+    public static void Start(uint seed,bool test=false)
     {
       GarageSession.EnsureLoaded();var asset=Resources.Load<TextAsset>("mutant-catalog");
       if(!asset)throw new InvalidOperationException("Mutant verisi bulunamadı.");
-      Run=new MutantRun(seed,CatalogNode.Parse(asset.text));rewards=null;Session=null;RacePlan=null;Car=-1;Panel="start";Message="";ResultPassed=null;returnPoint=null;Starting=true;HudFeedback=new MutantHudFeedback();GameFlow.Pause(false);
+      Run=new MutantRun(seed,CatalogNode.Parse(asset.text),test&&DevAvailable);rewards=null;Session=null;RacePlan=null;Car=-1;Panel="start";Message="";ResultPassed=null;returnPoint=null;Starting=true;HudFeedback=new MutantHudFeedback();GameFlow.Pause(false);
     }
     // Yalnız ilk seçim ekranında gezinme; koşu/RNG/seçenekler yeniden üretilmez.
     public static void BackToStartingCars(){if(Starting&&Panel=="choice")Panel="start";}
     public static void SelectCar(int car)
     {
-      if(!MutantMenuModel.StartingCars((uint)Run.State["tohum"].N(),Run.Catalog).Contains(car))return;
+      if(!MutantMenuModel.StartingCars((uint)Run.State["tohum"].N(),Run.Catalog,Run.IsTest).Contains(car))return;
       Car=car;var ramp=WorldData.Catalog.Region("hub").Teleports.First(t=>t.Name=="Zıplama rampası");
       Session=new MutantGameSession(Run,GarageSession.Catalog,car,ramp.X,ramp.Z);Panel="choice";
       if(worlds==null){var asset=Resources.Load<TextAsset>("mutant-skill-world");if(!asset)throw new InvalidOperationException("Mutant skill dünyası bulunamadı.");worlds=new MutantSkillWorldFactory(asset.text);}
       Abilities=new MutantAbilityDriver(Run,worlds);Session.EnergyAndSkills=Abilities.Step;HudFeedback.Observe(Run,Abilities);
     }
     public static bool Choose(string id,string drop="")
-    {if(Session==null||!Run.Choose(id,drop))return false;if(Run.State["faz"].S()=="secim")return true;OpenWorld();return true;}
+    {if(Session==null||!Run.Choose(id,drop))return false;if(Run.State["faz"].S()=="secim")return true;bool first=Starting;OpenWorld();if(first&&TestRun)Panel="lab";return true;}
+
+    // ---- TS mutant-ui.ts DEV test laboratuvarı: yalnız geliştirme yapısında (TS import.meta.env.DEV || /dev/).
+    public static bool DevAvailable=>Debug.isDebugBuild;
+    public static bool TestRun=>Active&&Run.IsTest;
+    /// TS drift ölçümleri (driftDevGoster): test koşusundaki MUTANT drift yarışında tanı satırı.
+    public static bool DriftDiagnostics=true;
+    /// Başlangıç ekranında aynı tohumla test/normal koşuya geçiş (TS mDevSec).
+    public static void ToggleTest(){if(!Active||!Starting||!DevAvailable)return;Start((uint)Run.State["tohum"].N(),!Run.IsTest);}
+    public static void OpenLab(){if(TestRun&&!Starting&&(Panel==""||Panel=="lab"))Panel="lab";}
+    /// TS mutantKurulumUygula: lab değişikliği aracın değerlerine sonraki adımda işlenir.
+    private static void Apply(){Session?.SelectCar(Car);}
+    public static bool LabSetup(string kind,string id){if(!TestRun||!Run.TestSetup(kind,id))return false;Apply();return true;}
+    public static bool LabSkill(string id,int level,string evolution,string[] addons){if(!TestRun||!Run.TestSkill(id,level,evolution,addons))return false;Apply();return true;}
+    public static bool LabReset(){if(!TestRun||!Run.TestReset())return false;Abilities?.Energy.ResetObservation();Apply();return true;}
+    public static bool LabTimer(){if(!TestRun||!Run.TestTimer())return false;Session?.ClearPendingBoss();return true;}
+    /// TS labBolge: sonraki bölge, haritaya dönüş, panel açık kalır.
+    public static bool LabNextRegion(){if(!TestRun||!Run.TestRegion(Math.Min(3,Run.Region+1)))return false;returnPoint=null;Apply();OpenWorld();Panel="lab";return true;}
+    /// TS labSehir: Kule Şehri girişine (bölge 2'ye atlar) ve sürüşe devam.
+    public static bool LabCity(){if(!TestRun||(Run.Region<2&&!Run.TestRegion(2)))return false;returnPoint=null;Apply();OpenWorld();return true;}
+    /// TS labDrift: bölgenin drift etkinliğini yeniden açıp risk 0 ile başlatır.
+    public static bool LabDrift()
+    {
+      if(!TestRun)return false;var e=Run.State["etkinlikler"].Items.FirstOrDefault(x=>x["ty"].S()=="dp");
+      if(e==null){Message="Bu bölgede drift etkinliği yok";return false;}
+      e.Set("yapildi",CatalogNode.Parse("false"));if(e.Has("kapora"))e.Remove("kapora");Run.TestTimer();Session?.ClearPendingBoss();
+      // Yarıştan açıldıysa dönüş noktası açık dünyadaki son konumda kalır (TS haritayaDon → mutant.donus).
+      StartRace((int)e["id"].N(),0,false,InRace);return true;
+    }
+    /// TS labTekrar: test sayacı yenilenir, aynı MUTANT yarışı baştan.
+    public static bool LabRestartRace(){if(!TestRun||!InRace)return false;Run.TestTimer();Session?.ClearPendingBoss();Panel="";var p=UnityEngine.Object.FindFirstObjectByType<GtPrototype>();if(p)p.RestartRace();return true;}
     public static void OpenWorld()
     {
       Starting=false;RacePlan=null;Panel="";GameFlow.Pause(false);WorldData.PrepareMutantWorld(Run.Region>=2?"city":"hub");
@@ -124,9 +154,9 @@ namespace LastTurn.Prototype
       bool done=accept?Run.AcceptChest(id,offer):Run.RejectChest(id);
       if(done){Session.SelectCar(Car);ClosePanel();}return done;
     }
-    public static void StartRace(int eventId,int risk,bool boss=false)
+    public static void StartRace(int eventId,int risk,bool boss=false,bool keepReturn=false)
     {
-      var p=UnityEngine.Object.FindFirstObjectByType<GtPrototype>();if(p){returnPoint=p.Simulation.ReferencePoint;var f=p.Simulation.Body.Orientation.Rotate(new BodyVector(0,0,1));returnHeading=Math.Atan2(f.X,f.Z);}
+      var p=UnityEngine.Object.FindFirstObjectByType<GtPrototype>();if(p&&!keepReturn){returnPoint=p.Simulation.ReferencePoint;var f=p.Simulation.Body.Orientation.Rotate(new BodyVector(0,0,1));returnHeading=Math.Atan2(f.X,f.Z);}
       var data=RaceData.Load();RacePlan=MutantRacePlan.Create(Run,Car,eventId,risk,boss,data.Events,data.Tracks,WorldData.Catalog);
       if(boss){Run.EnterBoss();Session.ClearPendingBoss();}else Run.LockDeposit(eventId);
       Panel="";Message="";ResultPassed=null;GameFlow.Pause(false);WorldData.Clear();SceneManager.LoadScene("RaceTest");

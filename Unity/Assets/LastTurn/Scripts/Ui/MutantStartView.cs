@@ -32,6 +32,7 @@ namespace LastTurn.Ui
       if(changed)return;
       var k=Keyboard.current;if(k==null)return;
       if(k.escapeKey.wasPressedThisFrame){Back();return;}
+      if(!choice&&MutantRuntime.DevAvailable&&k.f2Key.wasPressedThisFrame){ToggleTest();return;}
       if(choice&&k.leftArrowKey.wasPressedThisFrame){ChangeCar();return;}
       int count=choice?MutantRuntime.Model.Choices.Length:MutantRuntime.Model.StartingCarsCards.Length;
       if(count==0)return;
@@ -57,6 +58,7 @@ namespace LastTurn.Ui
       else if(carFocus<m.StartingCarsCards.Length)MutantRuntime.SelectCar(m.StartingCarsCards[carFocus].Id);
     }
     public void ChangeCar(){MutantRuntime.BackToStartingCars();}
+    public void ToggleTest(){GameAudio.Click();MutantRuntime.ToggleTest();}
     public void Back(){if(choice)ChangeCar();else MutantRuntime.Exit();}
     private static VisualElement Box(string cls){var e=new VisualElement();e.AddToClassList(cls);return e;}
     private void Rebuild()
@@ -72,21 +74,30 @@ namespace LastTurn.Ui
       }
       else
       {
-        var car=m.StartingCarsCards[carFocus];var selected=Box("m-car-title");selected.Add(Ui.Text(Ui.Upper(car.Name),"baslik"));selected.Add(Ui.Text(car.Hp.ToString("0")+" HP  •  "+car.Mass.ToString("0")+" KG  •  "+car.Drive,"g-class"));selected.Add(Ui.Text("3 araç her koşuda rastgele; garajdaki parçalar bu koşuya taşınmaz.","g-copy"));content.Add(selected);
+        var car=m.StartingCarsCards[carFocus];var selected=Box("m-car-title");selected.Add(Ui.Text(Ui.Upper(car.Name),"baslik"));selected.Add(Ui.Text(car.Hp.ToString("0")+" HP  •  "+car.Mass.ToString("0")+" KG  •  "+car.Drive,"g-class"));selected.Add(Ui.Text(m.Test?"DEV testi: tüm araçlar açık, skill ve parçalar yarışta değişebilir.":"3 araç her koşuda rastgele; garajdaki parçalar bu koşuya taşınmaz.","g-copy"));content.Add(selected);
       }
-      var lower=Box("m-lower");lower.Add(Ui.Section(choice?"BAŞLANGIÇ YETENEĞİ SEÇ":"ARACINI SEÇ  •  KOŞUDA GÜÇLENECEK"));var cards=Box("m-cards");lower.Add(cards);
+      var lower=Box("m-lower");lower.Add(Ui.Section(choice?"BAŞLANGIÇ YETENEĞİ SEÇ":"ARACINI SEÇ  •  KOŞUDA GÜÇLENECEK"));var cards=Box("m-cards");
+      // DEV testi bütün araçları açar: kartlar sıkışmasın diye yatay kaydırılır (normal koşu 3 kartla aynı kalır).
+      if(!choice&&m.StartingCarsCards.Length>3){var strip=new ScrollView(ScrollViewMode.Horizontal){verticalScrollerVisibility=ScrollerVisibility.Hidden};strip.name="mutant-dev-cars";strip.style.flexGrow=1;strip.contentContainer.style.flexDirection=FlexDirection.Row;strip.Add(cards);lower.Add(strip);}
+      else lower.Add(cards);
       int count=choice?m.Choices.Length:m.StartingCarsCards.Length;
       for(int i=0;i<count;i++)
       {
         if(choice){int index=i;var reward=new RewardCard(MutantRuntime.Reward(m.Choices[i].Id,RewardSource.Start),true);reward.name="mutant-option-"+i;reward.AddToClassList("m-card");reward.AddToClassList("m-start-reward");
           reward.Add(Ui.Text("","m-start-key"));reward.AddManipulator(new Clickable(()=>Focus(index)));reward.RegisterCallback<FocusInEvent>(e=>{if(skillFocus!=index)Focus(index);});rewardCards.Add(reward);cards.Add(reward);continue;}
-        int n=i;var card=Box("kart");card.name="mutant-option-"+i;card.AddToClassList("m-card");card.EnableInClassList("sec",Focused==i);
+        int n=i;var card=Box("kart");card.name="mutant-option-"+i;card.AddToClassList("m-card");card.EnableInClassList("sec",Focused==i);if(count>3){card.style.minWidth=210;card.style.flexShrink=0;}
         card.Add(Ui.Text(choice?Ui.Upper(m.Choices[i].Type):TypeName(m.StartingCarsCards[i].Type),"ust"));card.Add(Ui.Text(choice?m.Choices[i].Name:m.StartingCarsCards[i].Name,"ad"));
         card.Add(Ui.Text(choice?m.Choices[i].Description:m.StartingCarsCards[i].Hp.ToString("0")+" HP  •  "+m.StartingCarsCards[i].Mass.ToString("0")+" KG  •  "+m.StartingCarsCards[i].Drive,"g-copy"));card.Add(Ui.Key((i+1).ToString()));card.AddManipulator(new Clickable(()=>Focus(n)));cards.Add(card);
       }
       if(choice&&count==0)cards.Add(Ui.Text("Uygun başlangıç ödülü kalmadı. Araca dön.","g-copy"));
       var go=Ui.Button(choice?"SÜRÜŞE BAŞLA":"DEVAM","Enter",Continue,true);go.name="mutant-continue";go.AddToClassList("m-go");if(choice)go.AddToClassList("m-reward-go");go.SetEnabled(count>0);cards.Add(go);content.Add(lower);if(choice)SyncChoiceFocus(false);
       var back=Ui.Button(choice?"ARACA DÖN":"MUTANT MENÜSÜ","Esc",Back,small:true);Ui.Absolute(back,left:0,bottom:-70);content.Add(back);
+      // TS mutant-ui mDevSec: yalnız geliştirme yapısında, araç seçiminde; aynı tohumla test koşusu.
+      if(!choice&&MutantRuntime.DevAvailable)
+      {
+        var dev=Ui.Button("GELİŞTİRİCİ MODU: "+(m.Test?"AÇIK · KAPAT":"KAPALI · AÇ"),"F2",ToggleTest,small:true);dev.name="mutant-dev-toggle";Ui.Absolute(dev,right:0,top:40);content.Add(dev);
+        if(m.Test)dev.AddToClassList("mutant-dev-on");
+      }
       content.Add(Ui.Hints(("1|2|3","Seç"),("↑|↓","Seç"),("Enter",choice?"Sürüşe başla":"Devam"),("Esc",choice?"Araca dön":"Mutant menüsü")));
     }
     private static string TypeName(string type)

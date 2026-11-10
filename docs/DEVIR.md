@@ -1,3 +1,10 @@
+# MUTANT drift yarışı dalı + DEV laboratuvarı tamam; tam aktarım sürüyor (10 Kasım 2026) — Claude
+
+- **Kural açığı kapandı:** MUTANT `dp` yarışı TS `driftYarisi` drift penceresi/skor dalını kullanmıyordu; `PowertrainVehicle.DriftRace` + `RaceRun.MutantDrift` ile yalnız MUTANT drift yarışı çalışırken bağlandı. `.NET --drift-race` 36 durum, drift durumu farkı 1,18e−14 (kinematik 2,39e−6 m kaotik spin, kariyer dalında da aynı ölçüldü).
+- **DEV laboratuvarı:** geliştirme yapısında test koşusu, panel (pasif/skill/parça/bölge/şehir/drift/sıfırla/90 sn), drift tanısı; `--mutant-lab` 60 işlem fark0. `SelectCar` test aracı hatası düzeldi. Hayalet görünümleri Play'de doğrulandı.
+- **Kanıt:** gerçek Play UTC 15:46:56 **273 kontrol/450 kaynak/14 Game View, Runtime0**; `node Unity/Validation/check-devlab-proof.mjs`. Ayrıntı [ana kart](isler/2026-11-01-unity-tam-aktarim.md) → “MUTANT drift yarışı dalı + DEV test laboratuvarı”.
+- **Sonraki:** ayrıntılı kaynak öğesi matrisi; son kaynaklarla oynanış kabulü; güncel Windows build/iki süreç.
+
 # Kaynak efekt/işaret/kapı/menü görseli tamam; tam aktarım sürüyor (10 Kasım 2026) — Claude
 
 - **Devir:** Claude, Cem'in yetkisiyle `3a04f1c`'den tek uygulayıcı; dal `codex/unity-p7-garaj`. Push/merge/PR/yayın yok. Ayrıntı [ana kart](isler/2026-11-01-unity-tam-aktarim.md) → “Kaynak efekt/işaret/kapı/menü görseli paketi”.

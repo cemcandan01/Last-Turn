@@ -26,6 +26,10 @@ namespace LastTurn.Core
 
     /// Drift yarışında komboyu yakan açı: TS driftYarisProfili(kurulum).azami + 0,12 (RaceDrift.MaxAngle).
     public readonly double DriftBetaLimit;
+    /// TS surus.ts: driftYarisi = dp ∧ yarış çalışıyor ∧ MUTANT. Profil verilince yarış çalışırken araca bağlanır.
+    public DriftRaceProfile? MutantDrift { get => mutantDrift; set { mutantDrift = value; SyncDrift(); } }
+    private DriftRaceProfile? mutantDrift;
+    private void SyncDrift() => Vehicle.DriftRace = mutantDrift != null && Session.State == RaceState.Running ? mutantDrift : null!;
 
     /// world: aracın sürüldüğü pist dünyası (PowertrainVehicle'a verilen aynı nesne). session: başlangıç ipucuyla oturum.
     public RaceRun(PowertrainVehicle vehicle, TrackWorld world, RaceEventInfo info, Func<int, RaceSession> session, double driftMaxAngle = double.PositiveInfinity)
@@ -42,7 +46,7 @@ namespace LastTurn.Core
     private void Place(double x, double z, double heading) { Vehicle.Place(x, z, heading); World.ResetHint(x, z); }
 
     /// Aynı yarış sıfırdan geri sayımla (TS yarisiYenidenBaslat): kayıt ve hayalet baştan.
-    public void Restart() { Session = create(PlaceAtStart()); Teleports = 0; Recording.Clear(); Km = 0; Ghost = GhostFactory?.Invoke(); }
+    public void Restart() { Session = create(PlaceAtStart()); Teleports = 0; Recording.Clear(); Km = 0; Ghost = GhostFactory?.Invoke(); SyncDrift(); }
 
     /// Hayaleti şimdi kur (ilk yarış; sonraki başlatmalar Restart'ta).
     public void StartGhost() => Ghost = GhostFactory?.Invoke();
@@ -59,13 +63,13 @@ namespace LastTurn.Core
     }
 
     /// Geri sayım (fizik donuk). TS'de kare süresiyle azalır.
-    public void TickCountdown(double dt) => Session.TickCountdown(dt);
+    public void TickCountdown(double dt) { Session.TickCountdown(dt); SyncDrift(); }
 
     /// Drag manuel: geri sayımda motor gazla serbest devirde tutulur (araç durur). Yarış başlarken motor durumu hayalete yazılır.
     public void TickCountdown(double dt, DrivingInput input)
     {
       if (Session.State == RaceState.Countdown) Vehicle.PreRev(input);
-      Session.TickCountdown(dt);
+      Session.TickCountdown(dt); SyncDrift();
       if (Session.State == RaceState.Running) { var e = Vehicle.Engine; StartGas = e.Gas; StartRpm = e.Rpm; StartHold = e.LaunchHold; }
     }
     public double StartGas { get; private set; }
@@ -88,7 +92,7 @@ namespace LastTurn.Core
     /// Dışarıdan ilerletilen fizik adımından sonra çağrılır (Unity sabit adım koşucusu). input: o adımın girdisi.
     public void AfterPhysicsStep(DrivingInput command)
     {
-      var body = Vehicle.Body; var p = Vehicle.ReferencePoint; var v = body.Velocity; var drift = RaceDrift.Detect(body, Vehicle.Assist.On);
+      var body = Vehicle.Body; var p = Vehicle.ReferencePoint; var v = body.Velocity; var drift = RaceDrift.Detect(body, Vehicle.Assist.On, Vehicle.DriftRace != null);
       var input = new RaceStepInput
       {
         X = p.X, Z = p.Z, Vx = v.X, Vz = v.Z, Speed = drift.Speed, Hint = World.Hint,
@@ -101,6 +105,7 @@ namespace LastTurn.Core
       if (back != null) { Place(back.Value.X, back.Value.Z, back.Value.Heading); Teleports++; Recording.Cut = true; }
       // TS uzakAdimi: yarış adımından sonra hayalet bir adım.
       Ghost?.Step();
+      SyncDrift();
       if (running && Session.State == RaceState.Finished) Finished?.Invoke(this);
     }
   }

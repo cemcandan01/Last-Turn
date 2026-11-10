@@ -18,6 +18,8 @@ namespace LastTurn.Core
       if(!s.Has("becEngel"))s.Set("becEngel",CatalogNode.Obj());if(!s.Has("becHedef"))s.Set("becHedef",CatalogNode.Obj());
       if(s.Has("gozlem")){var g=s["gozlem"];observation=new DriftObservation{Open=g["acik"].B(),Duration=g["sure"].N(),Seq=g["sira"].N()};}
     }
+    /// TS testKurulumunuSifirla: k.gozlem = driftGozlemiBaslat().
+    public void ResetObservation(){observation=new DriftObservation();}
     public void RaceStart()
     {var d=Run.State["bec"].Clone();foreach(string k in new[]{"hedefler","sonVurus","takipKredi","yakin","sonNearMiss"})d.Set(k,CatalogNode.Obj());Run.State.Set("bec",d);}
     private static CatalogNode Event(string kind,params (string Key,CatalogNode Value)[] fields)

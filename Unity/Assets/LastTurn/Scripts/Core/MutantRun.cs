@@ -43,6 +43,8 @@ namespace LastTurn.Core
     private CatalogNode[] PassiveDefinitions => Catalog["passives"].Items.Concat(Catalog["addons"].Items).ToArray();
     /// TS BOSS_SURESI(1): ilk boss'a kalan süre (sn); Mutant menüsü de bunu gösterir.
     public const double FirstBossSeconds=900;
+    /// TS mekanikBaslat(100, BASLANGIC_ENERJI = 40).
+    private const string InitialMechanics="{\"adim\":0,\"enerji\":40,\"kapasite\":100,\"sonSira\":-1,\"sonTetik\":{},\"telemetri\":{},\"kesilen\":0,\"driftAcik\":false,\"driftKazanci\":0,\"sonTemizBitis\":-1,\"yanan\":0,\"etkiKalan\":0,\"etkiBekleme\":0,\"etkiTutus\":1,\"etkiGuc\":1,\"etkiAdim\":0}";
     public MutantRun(uint seed,CatalogNode catalog,bool test=false)
     {
       Catalog=catalog;random=new SeededRandom(seed);State=CatalogNode.Obj();
@@ -52,7 +54,7 @@ namespace LastTurn.Core
       foreach(string key in new[]{"pasifler","parcalar","stok","secenekler","etkinlikler","sandiklar","beceriler","bekleyenBeceri"})State.Set(key,CatalogNode.Arr(System.Array.Empty<CatalogNode>()));
       foreach(string key in new[]{"tamamlanan","yenilenBoss","zaman","carpma","spin","secimNo"})Set(key,0);
       Set("govde",100);State.Set("pert",Bool(false));State.Set("sonNefes",Bool(false));
-      State.Set("mek",CatalogNode.Parse("{\"adim\":0,\"enerji\":40,\"kapasite\":100,\"sonSira\":-1,\"sonTetik\":{},\"telemetri\":{},\"kesilen\":0,\"driftAcik\":false,\"driftKazanci\":0,\"sonTemizBitis\":-1,\"yanan\":0,\"etkiKalan\":0,\"etkiBekleme\":0,\"etkiTutus\":1,\"etkiGuc\":1,\"etkiAdim\":0}"));
+      State.Set("mek",CatalogNode.Parse(InitialMechanics));
       State.Set("bekleyenHasar",Null());State.Set("bekleyenRisk",Null());
       DrawChoices();ArrangeEvents();ArrangeChests();ArrangeStock();
     }
@@ -241,6 +243,70 @@ namespace LastTurn.Core
       else{Strings("pasifler",Strings("pasifler").Append(offer));ApplyCapacity();if(offer=="ek-yedek-tup")Set(State["mek"],"enerji",Math.Min(State["mek"]["kapasite"].N(),State["mek"]["enerji"].N()+30));}
       switch(c["lanet"].S()){case "sure":Set("kalan",Math.Max(1,N("kalan")-45));break;case "govde":Set("govde",Math.Max(1,N("govde")-25));break;case "para":Set("para",Math.Floor(N("para")/2));break;}return true;
     }
+    // ---- TS mutant-kosu.ts DEV test laboratuvarı: yalnız test koşusu; normal ekonomi, seviye ve kayıt kuralları etkilenmez.
+    public bool IsTest=>Test;
+    public const int SkillSlots=3,SkillLevelMax=3,SkillAddonMax=2;
+    /// TS testKurulumu: pasif (en çok sayısına kadar), skill teklifi (yuva doluysa ilk skill bırakılır) veya parça (aynı kategori değişir).
+    public bool TestSetup(string kind,string id)
+    {
+      if(!Test||Phase!="surus")return false;
+      if(kind=="pasif"){var p=Catalog["passives"].Items.FirstOrDefault(x=>x["id"].S()==id);if(p==null||Count(id)>=p["en"].N())return false;Strings("pasifler",Strings("pasifler").Append(id));}
+      else if(kind=="beceri")
+      {
+        if(!SkillOffers().Contains(id))return false;string drop=id.StartsWith("b:",StringComparison.Ordinal)&&State["beceriler"].Items.Count()>=SkillSlots?State["beceriler"][0]["id"].S():"";
+        if(!ApplySkillOffer(id,drop))return false;
+      }
+      else
+      {
+        var p=Catalog["parts"].Items.FirstOrDefault(x=>x["id"].S()==id);if(p==null)return false;
+        string previous=Strings("parcalar").FirstOrDefault(q=>Catalog["parts"].Items.FirstOrDefault(m=>m["id"].S()==q)?["kat"].S()==p["kat"].S())??"";
+        Strings("parcalar",Strings("parcalar").Where(q=>q!=previous).Append(id));
+      }
+      ApplyCapacity();return true;
+    }
+    /// TS testBeceriAyarla: skill'in bütün yasal kurulumuna tek işlemde geç; seviye 0 kaldırır. Skill durumu sıfırlanır.
+    public bool TestSkill(string id,int level,string? evolution=null,string[]? addons=null)
+    {
+      if(!Test||Phase!="surus")return false;var t=SkillDefinition(id);addons??=System.Array.Empty<string>();
+      if(t==null||level<0||level>SkillLevelMax)return false;
+      if(level>0)
+      {
+        if(evolution!=null&&(level<SkillLevelMax||!t["evrimler"].Items.Any(v=>v["id"].S()==evolution)))return false;
+        if(addons.Length>SkillAddonMax||addons.Distinct().Count()!=addons.Length)return false;
+        if(addons.Any(e=>{var ek=Catalog["skillAddons"].Items.FirstOrDefault(x=>x["id"].S()==e);return ek==null||!Compatible(t,ek);}))return false;
+      }
+      var list=State["beceriler"].Items.ToList();int current=list.FindIndex(b=>b["id"].S()==id);
+      if(level==0){if(current<0)return false;list.RemoveAt(current);}
+      else
+      {
+        var fresh=Obj(("id",CatalogNode.Str(id)),("seviye",CatalogNode.Num(level)),("evrim",evolution==null?Null():CatalogNode.Str(evolution)),("eklentiler",Array(addons)));
+        if(current>=0)list[current]=fresh;else{if(list.Count>=SkillSlots)list.RemoveAt(0);list.Add(fresh);}
+      }
+      State.Set("beceriler",CatalogNode.Arr(list));ResetSkillState();ApplyCapacity();return true;
+    }
+    // Farklı build'lerin aktif buff ve beklemeleri birbirine taşınmaz.
+    private void ResetSkillState()
+    {
+      State.Set("bec",MutantSkills.Initialize());State.Set("becCikti",Null());State.Set("becEngel",CatalogNode.Obj());State.Set("becHedef",CatalogNode.Obj());
+      State.Set("bekleyenBeceri",CatalogNode.Arr(System.Array.Empty<CatalogNode>()));
+    }
+    /// TS testKurulumunuSifirla: kurulum, enerji (40/100), drift gözlemi, skill durumu, bekleyen hasar/risk, gövde sıfırdan.
+    public bool TestReset()
+    {
+      if(!Test||Phase!="surus")return false;
+      foreach(string key in new[]{"pasifler","parcalar","beceriler"})State.Set(key,CatalogNode.Arr(System.Array.Empty<CatalogNode>()));
+      State.Set("mek",CatalogNode.Parse(InitialMechanics));State.Remove("gozlem");ResetSkillState();
+      State.Set("bekleyenHasar",Null());State.Set("bekleyenRisk",Null());Set("govde",100);State.Set("pert",Bool(false));return true;
+    }
+    /// TS testBolgeyeGec: üretim boss zaferi zinciriyle istenen bölgeye; sayaç test süresine (90 sn) döner.
+    public bool TestRegion(int region)
+    {
+      if(!Test||region<1||region>3||region<Region)return false;
+      while(Region<region){EnterBoss();FinishBoss(true);Phase="surus";Set("bekleyenSecim",0);State.Set("secenekler",CatalogNode.Arr(System.Array.Empty<CatalogNode>()));}
+      Set("kalan",90);return true;
+    }
+    /// TS labSure: test sayacını 90 sn'ye yenile.
+    public bool TestTimer(){if(!Test)return false;Set("kalan",90);return true;}
     public void EnterBoss(){if(!Finished)Phase="boss";}
     public void FinishBoss(bool won)
     {

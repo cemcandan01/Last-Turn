@@ -21,6 +21,8 @@ namespace LastTurn.Core
     private double? previousCourse;
     /// TS olay.spin: drift penceresi aşıldı (yardımlı araçta).
     public int Spins { get; private set; }
+    /// TS cx.driftYarisi: MUTANT drift yarışı çalışırken drift penceresinin yarış dalı (null: kariyer/serbest dal).
+    public DriftRaceProfile DriftRace { get; set; } = null!;
     public PowertrainVehicle(PowertrainParameters parameters, double initialSpeed = 0, int initialGear = 1,IVehicleWorld world = null!)
     {
       p = parameters ?? throw new ArgumentNullException(nameof(parameters));
@@ -208,6 +210,36 @@ namespace LastTurn.Core
       Engine = new PowertrainState { Gas = gas, Rpm = rpm, Gear = 1, LaunchHold = hold, CoupledRpm = hold };
     }
 
+    // TS ortak.ts driftPenceresi driftYarisi dalı: gaz+kayma ya da tam direksiyon+gazla giriş, geçişte yön değişir,
+    // karşı direksiyonla bitirilebilir; azami + 0,12'yi aşan açı spin. Destek hedefi profil.destek.
+    private void RaceWindow(DriftRaceProfile p, double g, double st, double v, double be, double ab, double dt)
+    {
+      var dr = Assist;
+      if (Body.Wheels.Any(w => w.Contact))
+      {
+        if (!dr.On && dr.Cool <= 0)
+        {
+          dr.Nc = ab >= p.Entry && v >= 7 && g > .2 ? dr.Nc + dt : 0;
+          dr.Hold = Math.Abs(st) > .6 && g > .5 && v >= 10 ? dr.Hold + dt : 0;
+          if (dr.Nc >= p.Prepare) { dr.On = true; dr.T = 0; dr.Dir = -Math.Sign(be); dr.Bt = Clamp(ab, p.Entry, p.Max); }
+          else if (dr.Hold >= p.Force) { dr.On = true; dr.T = 0; dr.Dir = Math.Sign(st); dr.Bt = p.Entry; }
+          if (dr.On) dr.Nc = dr.Hold = 0;
+        }
+        else if (dr.On)
+        {
+          dr.T += dt;
+          if (-Math.Sign(be) != dr.Dir && ab >= p.Entry) { dr.Dir = -Math.Sign(be); dr.Bt = Clamp(ab, 0, p.Max); dr.T = 0; }
+          double ic = st * dr.Dir, gas = Clamp(g, 0, 1);
+          dr.Bt += ((ic > .25 ? .4 * ic : ic < -.25 ? 1.0 * ic : 0) + (gas - .55) * .24) * dt;
+          dr.Bt = Clamp(dr.Bt, 0, p.Max);
+          if (ab > p.Max + .12) { dr.On = false; dr.Cool = .9; dr.Nc = 0; Spins++; }
+          else if (v < 5 || dr.Bt < p.Entry * .5 || (ab < p.Entry * .6 && dr.T > .6)) dr.On = false;
+        }
+      }
+      else dr.On = false;
+      dr.K += ((dr.On ? p.Support : 0) - dr.K) * Math.Min(1, dt * (dr.On ? 7 : 3));
+    }
+
     /// TS driftSiniri: hızla daralan drift açısı sınırı.
     public static double DriftLimit(double v) => .9 - .35 * Clamp((v - 10) / 45, 0, 1);
 
@@ -216,6 +248,7 @@ namespace LastTurn.Core
     {
       var dr = Assist; double bmax = DriftLimit(v), g = input.Throttle;
       if (dr.Cool > 0) dr.Cool -= dt;
+      if (DriftRace != null) { RaceWindow(DriftRace, g, st, v, be, ab, dt); return; }
       if (Body.Wheels.Any(w => w.Contact))
       {
         if (!dr.On && dr.Cool <= 0)
