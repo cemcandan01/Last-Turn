@@ -38,6 +38,8 @@ for (const label of [
   "No missing sound assets",
   "Store preview plays displayed car",
   "Store listen does not purchase or select",
+  "Garage listen uses equipped turbo",
+  "Store listen uses equipped turbo",
 ])
   if (!p.checks.includes(label)) throw Error("Eksik kabul: " + label);
 for (let i = 0; i < 15; i++)
