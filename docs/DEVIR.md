@@ -1,3 +1,9 @@
+# Claude devri yetkilendirildi; ek kullanım teyidi alındı (10 Kasım 2026)
+
+Cem bu oturumda “Ek kullanım kapalı; doğruladım” yanıtını verdi. Mevcut yordamla yalnız Claude kapsamına24 saatlik manuel teyit kaydedildi; bu otomatik hesap doğrulaması veya API/ek ücret izni değildir. Resmî CLI kontrolü UTC14:17:05'te `claude.ai`/Pro aboneliğini doğruladı; kapasite bilinmiyor. Eski `last-turn-unity-ad` oturumu boşta; aynı dosyalarda paralel uygulama başlatılmaz.
+
+Codex aşağıdaki `42219c2`/`075606a` noktasından güvenli devri hazırlar; kendi uygulaması durur. Yeni tek uygulayıcı oturumu için ad `last-turn-kaynak-kapanis-20261110`, konuşma kimliği `aafe8687-4866-4b06-b5df-7d41f96933db`. **Bu satır başlatma planıdır; çalıştığının kanıtı** yerel `tests/cikti/koordinator/claude-kapanis-baslatma.json` ve gerçek CLI süreç/oturum durumudur. Komutlarda normal otomatik izin denetimi korunur; API ortam değişkenleri, hook/MCP/eklenti otomatik yüklemesi ve ücretli fallback yok. İlk iş kaynak skill/toz/nitro/kapı sunumunu mevcut karttaki kayıttan devralmaktır; tamamlanan işler tekrarlanmaz. Push/merge/PR/yayın ve uzun regresyon hâlâ yetkisizdir.
+
 # Claude devam etsin — kaynak aktarımı açık, doğrulanmış paketler kaydedildi (10 Kasım 2026) — Codex
 
 - **Genel durum: Tam aktarım tamamlanmadı; güvenli kapasite devri bekliyor.** Tek kayıt [aynı ana kart](isler/2026-11-01-unity-tam-aktarim.md) → “Claude devam etsin”. Dal `codex/unity-p7-garaj`; kod commitleri **`684c11b`** gerçek boss/bölge3/görev, **`5d9d66d`**15 kaynak araç/kokpit/40 pist/3 dünya, **`31526d8` + `075606a`**15 motor profili/150 katman/6 ek klip ve gerçek ses çıkışı/dinleme. Push/merge/PR/yayın yok.

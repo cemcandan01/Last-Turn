@@ -4,6 +4,8 @@ Kaynak: `typescript-baseline-0.8.18` → `df3549e709469f0b519ebfbeaa9f63c1040fee
 
 ## Sahiplik ve kabul
 
+**10 Kasım yeni devir teyidi:** Cem, Claude Pro “Ek kullanım”ın kapalı olduğunu açıkça doğruladı; `kullaniciTeyidiKaydet` ile yalnız Claude için manuel teyit, `koordinator --oturum --ajan claude` ile `claude.ai`/Pro aboneliği doğrulandı. API/ek kredi yok; kapasite bilinmiyor. Codex'in uygulaması duruyor, aynı fiziksel çalışma alanında Claude tek uygulayıcı olarak devralacak. Planlanan konuşma `aafe8687-4866-4b06-b5df-7d41f96933db`, ad `last-turn-kaynak-kapanis-20261110`; gerçek başlangıç kaydı `tests/cikti/koordinator/claude-kapanis-baslatma.json` ve CLI oturum durumudur. Önceki “teyit bekleniyor” satırları tarihsel kalır; başlatılma süreç kanıtı olmadan varsayılmaz.
+
 **Güncel bitiş noktası (10 Kasım): `075606a`; doğrulanmış kısmi paketler yerel commit'lerde, genel aktarım açık. %87 resmî beş saatlik kullanımda güvenli kapasite devri bekleniyor. Somut devam bu bölümün “Claude devam etsin” alt başlığında; önceki “sonraki paket” notları tarihsel sıradadır. Claude başlatılmadı.**
 
 ### Kaynak işlev/içerik/sunum kapanışı — 10 Kasım 2026, güncel talimat
