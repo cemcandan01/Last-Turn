@@ -8,6 +8,7 @@ namespace LastTurn.Prototype
   public struct CameraFrame
   {
     public int Mode; public bool SpeedFov, Shake, Drifting, Nitro; public float SkillFov, HitAge, FrontAxle;
+    public bool HasSourceEye;public Vector3 SourceEye;
   }
   // Geçici çekim: TS kip davranışları (Takip/Uzak takip/Kaput/Kokpit), hıza göre FOV, nitro/skill görüşü, hız sarsıntısı.
   // Kokpit göz noktası TS varsayılanı (araç iç mekân modeli grafik fazında); kokpit/ayna iç mekânı çizilmez.
@@ -44,7 +45,7 @@ namespace LastTurn.Prototype
       {
         var up = body * Vector3.up; var right = body * Vector3.right;
         // TS: kaput (0, teker+0,62, ön aks−0,1) → 16 m ileri; kokpit EYE [0,4; 1,3; −0,2] → 14 m ileri, 0,15 aşağı.
-        var eye = cockpit ? origin - right * .4f + up * 1.3f - forward * .2f : origin + up * .95f + forward * (c.FrontAxle - .1f);
+        var eye = cockpit ? (c.HasSourceEye?origin+body*c.SourceEye:origin-right*.4f+up*1.3f-forward*.2f) : origin + up * .95f + forward * (c.FrontAxle - .1f);
         var look = cockpit ? eye - up * .15f + forward * 14 : eye - up * .27f + forward * 16;
         eye += up * (UnityEngine.Random.value - .5f) * shake * .4f;
         transform.SetPositionAndRotation(eye, Quaternion.LookRotation(look - eye, up));

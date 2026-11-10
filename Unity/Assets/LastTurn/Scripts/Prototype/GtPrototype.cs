@@ -57,6 +57,9 @@ namespace LastTurn.Prototype
     public string RaceMessage { get; private set; } = "";
     public RaceTrackVisuals TrackVisuals => trackVisuals;
     public RallyVisualSample VisualSample { get; private set; }
+    public SourceVehicleView SourceVehicle {get;private set;}
+    public SourceEnvironmentView SourceEnvironment {get;private set;}
+    private string sourceCarKey="";private SourceVehicleView opponentSource;
     /// Doğrulama sabit adımları kendisi verir (StepRace); Update fiziği ilerletmez.
     public bool ManualStepping { get; set; }
 
@@ -161,7 +164,7 @@ namespace LastTurn.Prototype
         if(Simulation.Body.Steps%1200==0)FlushProfileDistance();}return true;});
       frameSeconds = Mathf.Lerp(frameSeconds, Time.unscaledDeltaTime, .05f);
     }
-    private void LateUpdate() { RenderFrame(Mathf.Min(Time.unscaledDeltaTime, .1f));if(opponentVisual && Opponent!=null){opponentVisual.SetPositionAndRotation(GtPresentation.Position(Opponent.Vehicle.Body.Position),GtPresentation.Rotation(Opponent.Vehicle.Body.Orientation));} }
+    private void LateUpdate() { RenderFrame(Mathf.Min(Time.unscaledDeltaTime, .1f));if(opponentVisual && Opponent!=null){if(opponentSource)opponentSource.Pose(GtPresentation.Position(Opponent.Vehicle.ReferencePoint),GtPresentation.Rotation(Opponent.Vehicle.Body.Orientation),Opponent.Vehicle,Opponent.Vehicle.Body,Opponent.Vehicle.Body,1,false);else opponentVisual.SetPositionAndRotation(GtPresentation.Position(Opponent.Vehicle.Body.Position),GtPresentation.Rotation(Opponent.Vehicle.Body.Orientation));} }
     public void TeleportWorld(int index){if(OpenTerrain==null||index<0||index>=OpenTerrain.Region.Teleports.Length)return;openSpawn=index;ResetVehicle();}
     public void StepWorld(DrivingInput value)
     {
@@ -181,16 +184,16 @@ namespace LastTurn.Prototype
         var opParameters=GarageSession.Catalog.CreatePhysics(opMutant);MutantRuntime.OpponentLink=new MutantOpponentLink(GarageSession.Catalog,opMutant);
         var spawn=plan.OpponentStart();var mutantWorld=plan.Track.IsStreet?new TrackWorld(plan.Track,WorldData.Catalog){GripMultiplier=RaceWorld.GripMultiplier}:new TrackWorld(plan.Track){Environment=RaceWorld.Environment,GripMultiplier=RaceWorld.GripMultiplier};
         Opponent=new OpponentRacer(opParameters,mutantWorld,plan.Track,plan.Event,WorldData.Opponents.Plan(plan.Track.Key,spec["kisilik"].S()),(uint)spec["tohum"].N(),spawn.X,spawn.Z,spawn.Heading);
-        CreateOpponentVisual();return;
+        CreateOpponentVisual(opSetup.Car["k"].S());return;
       }
       if(!WorldData.OpponentTest)return;
       var info=Race.Event;var track=RaceWorld.Track;var g=track.Geometry;int i=g.Nearest(info.StartX,info.StartZ,0,true).Index;
       var opWorld=new TrackWorld(track){Environment=RaceWorld.Environment,GripMultiplier=RaceWorld.GripMultiplier};
       var opponentParameters=raceDrive.Setup!=null?OpponentRacer.CreateParameters(GarageSession.Catalog,raceDrive.Setup,info.Type):parameters;
       Opponent=new OpponentRacer(opponentParameters,opWorld,track,info,WorldData.Opponents.Plan(track.Key),731,info.StartX+g.Tz[i]*OpponentRacer.GridOffset,info.StartZ-g.Tx[i]*OpponentRacer.GridOffset,info.StartHeading);
-      CreateOpponentVisual();
+      CreateOpponentVisual(AppliedGarageCarId);
     }
-    private void CreateOpponentVisual(){var o=GameObject.CreatePrimitive(PrimitiveType.Cube);o.name="Fiziksel YZ rakip";o.GetComponent<Collider>().enabled=false;Destroy(o.GetComponent<Collider>());o.transform.localScale=new Vector3((float)parameters.Chassis.Width,.7f,(float)(parameters.Chassis.Wheelbase+1.69));o.GetComponent<Renderer>().material.color=new Color(.1f,.45f,.9f);opponentVisual=o.transform;}
+    private void CreateOpponentVisual(string key){opponentSource=SourceVehicleView.Create(key,transform);if(opponentSource){opponentVisual=opponentSource.transform;return;}var o=GameObject.CreatePrimitive(PrimitiveType.Cube);o.name="Fiziksel YZ rakip";o.GetComponent<Collider>().enabled=false;Destroy(o.GetComponent<Collider>());o.transform.localScale=new Vector3((float)parameters.Chassis.Width,.7f,(float)(parameters.Chassis.Wheelbase+1.69));o.GetComponent<Renderer>().material.color=new Color(.1f,.45f,.9f);opponentVisual=o.transform;}
     public string OpponentText()
     {
       if(Opponent==null)return "";var rank=Opponent.Rank(Race.Session.Lap,RaceWorld.Hint,Race.Session.Armed!=0);
@@ -208,6 +211,7 @@ namespace LastTurn.Prototype
         var y=MutantRuntime.Run.State["bec"]["yerel"];bool Open(string id)=>y[id]["kalan"].N()>0;
         c.Nitro=a.Nitro().Open;c.SkillFov=(Open("grappling-hook")?6:0)+(Open("risk-taker")?5:0)+(Open("slipstream-engine")||Open("volt-kanat")?4:0);
       }
+      if(SourceVehicle){c.HasSourceEye=true;c.SourceEye=SourceVehicle.Eye;}
       return c;
     }
     private void RenderFrame(float dt)
@@ -228,28 +232,46 @@ namespace LastTurn.Prototype
       }
       RenderGhost();
       Vector3 origin = vehicleRoot.TransformPoint(ModelPoint(0, 0, 0, parameters.Chassis));
+      string sourceKey=AppliedGarageCarId!=""?AppliedGarageCarId:terrainMode?"rl":"gt";
+      if(sourceKey!=sourceCarKey&&SourceVehicle){SourceVehicle.gameObject.SetActive(false);Destroy(SourceVehicle.gameObject);SourceVehicle=null;}
+      if(!SourceVehicle){SourceVehicle=SourceVehicleView.Create(sourceKey,transform);sourceCarKey=sourceKey;}
+      if(SourceVehicle)
+      {
+        foreach(var renderer in vehicleRoot.GetComponentsInChildren<Renderer>())renderer.enabled=false;
+        SourceVehicle.Pose(origin,vehicleRoot.rotation,Simulation,a,b,alpha,PlayerPreferences.Current.Camera==3);
+      }
+      string environmentKey=RaceTrack!=""?RaceTrack:OpenTerrain?.Region.Key??"hub";
+      if(!SourceEnvironment){SourceEnvironment=gameObject.AddComponent<SourceEnvironmentView>();SourceEnvironment.Configure(this,environmentKey,Conditions);}
+      else if(SourceEnvironment.Key!=environmentKey||SourceEnvironment.ConditionsKey!=(Conditions.Night?"night":Conditions.TimeOfDay)+"/"+Conditions.Weather)SourceEnvironment.Configure(this,environmentKey,Conditions);
       followCamera.Render(origin, vehicleRoot.rotation, (float)b.Velocity.Length, dt, CameraFrame());
       // Sonsuz H=0 zeminin yalnız görsel döşemesi; simülasyona geri besleme yok.
       if(!terrainMode && ground)ground.position = new Vector3(vehicleRoot.position.x, 0, vehicleRoot.position.z);
     }
     // Geçici hayalet görseli: kayıtlı sürüşün ayrı fizikteki gövdesi (kutu).
-    private Transform ghostView;
+    private Transform ghostView;private SourceVehicleView ghostSource;
     /// Rekor hayaleti şu an çizilir mi (kayıt var ve "rh" tercihi açık).
     public bool GhostShown => Race?.Ghost != null && PlayerPreferences.Current.On("rh");
     private void RenderGhost()
     {
       var ghost = GhostShown ? Race.Ghost : null;
       if (ghost == null) { if (ghostView) ghostView.gameObject.SetActive(false); return; }
+      string ghostKey=GarageSession.Catalog.Data["cars"][ghost.Record.Car]["k"].S();
+      if(ghostSource&&ghostSource.Scene.Data.key!=ghostKey){ghostView.gameObject.SetActive(false);Destroy(ghostView.gameObject);ghostView=null;ghostSource=null;}
       if (!ghostView)
       {
+        ghostSource=SourceVehicleView.Create(ghostKey,transform);
+        if(ghostSource){ghostView=ghostSource.transform;ghostSource.Scene.SetGhost(true);}
+        else{
         var go = GameObject.CreatePrimitive(PrimitiveType.Cube); go.name = "Rekor hayaleti"; var col = go.GetComponent<Collider>(); if (col) Destroy(col);
         go.transform.SetParent(transform, false); go.transform.localScale = new Vector3(1.8f, 1.1f, 4.3f);
         if (trackVisuals && trackVisuals.GhostMaterial) go.GetComponent<Renderer>().sharedMaterial = trackVisuals.GhostMaterial;
         ghostView = go.transform;
+        }
       }
       ghostView.gameObject.SetActive(true);
       var b = ghost.Vehicle.Body;
-      ghostView.SetPositionAndRotation(GtPresentation.Position(b.Position), GtPresentation.Rotation(b.Orientation));
+      if(ghostSource)ghostSource.Pose(GtPresentation.Position(ghost.Vehicle.ReferencePoint),GtPresentation.Rotation(b.Orientation),ghost.Vehicle,b,b,1,false);
+      else ghostView.SetPositionAndRotation(GtPresentation.Position(b.Position), GtPresentation.Rotation(b.Orientation));
     }
     // ---------- Yarış kipi: TS pist dünyası + yarış oturumu (RaceRun); kural ve ödül saf katmanda/garaj oturumunda.
     private void AwakeRace()
@@ -285,7 +307,7 @@ namespace LastTurn.Prototype
       if(!EnvironmentVisuals)EnvironmentVisuals=gameObject.AddComponent<PhysicalWorldVisuals>();EnvironmentVisuals.Build(world,RaceWorld.Environment,false);
       // İlk görsel örnek yalnız rl_2 öğle/güneşte (Cem değerlendirmesi); başka pistte/koşulda eski görünüm geri gelir.
       if(VisualSample){VisualSample.Remove();VisualSample=null;}
-      if(RallyVisualSample.AppliesTo(track.Key,Conditions,mutant!=null))VisualSample=RallyVisualSample.Apply(this,trackVisuals,EnvironmentVisuals,RaceWorld,followCamera.GetComponent<Camera>());
+      if(!Resources.Load<TextAsset>("SourcePresentation/world-"+track.Key)&&RallyVisualSample.AppliesTo(track.Key,Conditions,mutant!=null))VisualSample=RallyVisualSample.Apply(this,trackVisuals,EnvironmentVisuals,RaceWorld,followCamera.GetComponent<Camera>());
       Simulation = new PowertrainVehicle(parameters, world: world); runner = new PowertrainFixedStepRunner(Simulation); ApplyPreferences(); ResetInput();
       Race = new RaceRun(Simulation, RaceWorld, info, hint => new RaceSession(info, track, drive.Career, hint, drive.Career ? GarageRace.Reward : null,
         mutant!=null?(Action<double>)(metres=>MutantRuntime.Run.CutPenalty(metres)):null,mutant:mutant!=null),

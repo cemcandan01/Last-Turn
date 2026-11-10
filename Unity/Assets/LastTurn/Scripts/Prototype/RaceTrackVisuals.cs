@@ -53,6 +53,8 @@ namespace LastTurn.Prototype
     {
       for (int i = transform.childCount - 1; i >= 0; i--) { var c = transform.GetChild(i).gameObject; if (Application.isPlaying) Destroy(c); else DestroyImmediate(c); }
       Vertices = 0; Built = track.Key;
+      var source=SourceScene.Create("world-"+track.Key,transform);
+      if(source){foreach(var geometry in source.Data.geometries)Vertices+=geometry.positions.Length/3;return;}
       // Ayrı dünya: görsel sorgular sürüşteki pist ipucunu değiştirmez.
       var world = worldOverride??new TrackWorld(track); var g = track.Geometry; var layout = track.Layout; double hw = g.HalfWidth, kw = TrackGeometry.KerbWidth;
       bool tarmac = track.Type == "gp" || track.Type == "dp";

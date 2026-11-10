@@ -14,6 +14,8 @@ namespace LastTurn.Prototype
     public void Build(IVehicleWorld world,EnvironmentRegion region,bool terrain)
     {
       if(content){content.gameObject.SetActive(false);Destroy(content.gameObject);}content=new GameObject("TS fiziksel çevre · "+region.Key).transform;content.SetParent(transform,false);ObstacleCount=region.Objects.Length;
+      if(terrain){var source=SourceScene.Create("world-"+region.Key,content);if(source)return;}
+      else if(Resources.Load<TextAsset>("SourcePresentation/world-"+region.Key))return;
       Material Mat(Color c){var m=new Material(Shader.Find("Standard")){color=c};materials.Add(m);return m;}
       Mesh Primitive(PrimitiveType type){var o=GameObject.CreatePrimitive(type);o.GetComponent<Collider>().enabled=false;var mesh=o.GetComponent<MeshFilter>().sharedMesh;o.SetActive(false);Destroy(o);return mesh;}
       var cube=Primitive(PrimitiveType.Cube);var cylinder=Primitive(PrimitiveType.Cylinder);var sphere=Primitive(PrimitiveType.Sphere);

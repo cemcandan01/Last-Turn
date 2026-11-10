@@ -31,6 +31,7 @@ namespace LastTurn.Core
   public sealed class GarageCarDetail
   {
     public string Name = "", Description = "", Class = "", PreviewClass = "", TireName = "";
+    public string ModelKey = "";
     public double Score, PreviewScore, Power, Mass;
     public string[] Parts = Array.Empty<string>();
     public GarageStatRow[] Stats = Array.Empty<GarageStatRow>();
@@ -128,7 +129,7 @@ namespace LastTurn.Core
       var data = catalog.Data["cars"][car];
       return new GarageCarDetail
       {
-        Name = data["n"].S(), Description = data["d"].S(),
+        Name = data["n"].S(), Description = data["d"].S(), ModelKey=data["k"].S(),
         Class = current["sinif"].S(), Score = current["puan"].N(), PreviewClass = preview["sinif"].S(), PreviewScore = preview["puan"].N(),
         Stats = StatLabels.Select(s => new GarageStatRow { Key = s.Key, Label = s.Label, Current = current[s.Key].N(), Preview = preview[s.Key].N() }).ToArray(),
         Power = setup.Car["hp"].N(), Mass = setup.Car["kg"].N(), TireName = catalog.Data["tires"][setup.Tire]["n"].S(),

@@ -26,6 +26,7 @@ namespace LastTurn.Ui
     {
       if(id==shown&&car)return;shown=id;if(car)Destroy(car);foreach(var item in resources)if(item)Destroy(item);resources.Clear();
       car=new GameObject("Katalog aracı");car.transform.SetParent(rig.transform,false);
+      var model=LastTurn.Prototype.SourceVehicleView.Create(d.ModelKey,car.transform,31);if(model){model.SetCockpit(false);return;}
       Color color=new Color(((d.BodyColor>>16)&255)/255f,((d.BodyColor>>8)&255)/255f,(d.BodyColor&255)/255f);
       Extrude(d.Outline,(float)d.Width,color);Extrude(d.Windows,(float)d.Width+.012f,new Color(.08f,.13f,.18f));
       foreach(double x in new[]{-d.WheelX,d.WheelX})foreach(double z in new[]{d.WheelFront,d.WheelRear})
