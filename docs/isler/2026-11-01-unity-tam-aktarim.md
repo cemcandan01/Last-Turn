@@ -4,6 +4,20 @@ Kaynak: `typescript-baseline-0.8.18` → `df3549e709469f0b519ebfbeaa9f63c1040fee
 
 ## Sahiplik ve kabul
 
+### Kaynak işlev/içerik/sunum kapanışı — 10 Kasım 2026, güncel talimat
+
+**Durum: Çalışıyor; tam aktarım kabulü verilmedi.** Başlangıç `codex/unity-p7-garaj` / `a03db69`, uzak dalın18 yerel commit ilerisinde, yalnız korunan `_Recovery`/meta untracked. Claude'un `9e81b73` hesap, `37dc615` kamera, `08f89db` hayalet/profil ve `a03db69` örnek teslimleri devralındı; yeniden yazılmaz. Tek uygulayıcı Codex; eski açık Claude IDE süreci görev aldığı anlamına gelmez. Aynı dosyalarda yeni değişiklik görülürse sahiplik tekrar doğrulanır. Resmî kapasite UTC03:16:42: beş saat%10/hafta%5; token tahmini/API/ek kredi yok. Kullanıcının önceki cevabı Claude ek kullanımının bilinmediğidir, ücretli otomatik devir yapılmaz.
+
+Yeni kapsam, **kaynak görsel/ses/kokpit/ayna/efekt öğelerini de** içerir; eski “görsel faz” notu kaynak eksiklerini kapatmaz. Kabul edilmiş F/B ekranları ve Unity düzeltmeleri korunur. Yeni sanat yönü veya profesyonel yeniden yapım yok; rl_2'deki kaynak dışı direk/levha/temas gölgesi önerisi diğer pistlere yayılmaz. Aynı ana kart tek kayıt, kaynak envanteri otomatik kanıtla bağlanır.
+
+Kabul ölçütleri: (1) sabit etiketin sonraki TS hedefleri/yan dallarıyla karşılaştırılması ve bütün dosya/katalog/sunum öğelerinin sınıflandırılması; (2) gerçek boss galibiyeti→bölge3 ve gerçek yol görevi tamamlama; (3) kaynak araç/çevre/tema/ses/kamera/efekt bağlantılarının örnek alt kümeyle sınırlı kalmaması; (4) risk bazlı dar testler, gerçek Play/görüntü/PCM ve güncel iki süreç Windows kabulü; (5) gerçek Google/cihaz sınırları açık, sonunda en fazla8 yeni fikir yalnız öneri. Tam/uzun regresyon, büyük kurulum, push/merge/PR/release/yayın yok. Gerçek hesap/kayıt/Firebase/TS/_Recovery korunur.
+
+#### Gerçek boss ve bölge 3 yol görevi kabulü
+
+10 Kasım UTC03:30:11; `MutantNaturalClosurePlayValidation` gerçek grafik Play: **29 kontrol/267 kaynak hash'i/6 Game View, Runtime0/Editor0**. `node Unity/Validation/check-natural-closure.mjs` o kaynak kapsamını doğruladı. Tohum103, bölge2/araç14/mevcut parça-pasif-skill kurulumu başlangıç fixture'ıdır. Gerçek drag boss komutla başlatıldı; normal fizik/girdiyle **9,30 sn galibiyet → bölge3 → gerçek XP seçimi → şehir → doğal hız yol görevi145 km/sa hedefinin147 km/sa ile tamamlanması**, +61 para/+20 enerji. Sonuç/tur/konum/görev ilerlemesi/ödül yazılmadı. İlk tohum53 denemesinde boss kazanıldı fakat drift görevindeki sürüş sürücüsü takıldı; başarısız kanıt silinmedi. Üretim kuralı değiştirilmedi; test sürücüsü düşük hız toparlanması ve normal RNG'den uygun tohum seçimi kullanır.
+
+Kanıt: `Unity/Logs/p10-natural-play.json`, `p10-natural-editor.log`, `p10-natural-{real-boss-win,region3-world,region3-mission-complete}-{1280,1920}.png`; altı son görüntü açılıp incelendi. B sonuç panelinde çakışma yok; mevcut HUD skill adları dar yuvalarda kısalır, bu yeni tasarım kabulü değildir. Kariyer/profil/kalıcı dosya hashleri korundu. İnsan hissiyatı ve doğal900 sn duvar saati testi değildir. Kaynak görsel aktarımından sonra bu bütün-kaynak kanıtı tarihsel kalır; son kabulde yenilenir. Tam aktarım sürüyor.
+
 ### İşlevsel kapanış — 9 Kasım 2026
 
 **Durum: Kısmi teslim tamam; genel işlevsel kapanış sürüyor, Claude devri hazırlanıyor.** Yeni kullanıcı kapsamı önceki “dilimde dur” sınırlarını kaldırır. Başlangıç `codex/unity-p7-garaj` / `556dca7`, uzak dalın10 commit ilerisindeydi; yalnız `_Recovery`/meta untracked, korunur. Cem açık Claude sürecinin işi olmadığını doğruladı; bu pakette tek uygulayıcı Codex. Son resmî metadata UTC19:19:51: beş saat%88/hafta%94 kullanılmış (ilk ölçüm%49/%88); token/tamamlanma tahmini üretilmedi, API/ek kredi yok. Claude Pro oturumu doğrulandı; kapasitesi ve ek kullanım ayarı bilinmiyor. Aynı kart/manifest/SHA ile devir yetkili; ücretli ek kullanım teyidi beklenirken Claude otomatik başlatılmadı. Bu bir genel tamamlanma bildirimi değildir.

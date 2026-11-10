@@ -1,3 +1,9 @@
+# Kaynak tam aktarım sürüyor; gerçek boss/bölge3 görevi doğrulandı (10 Kasım 2026) — Codex
+
+- Başlangıç `a03db69`, `codex/unity-p7-garaj`; tek Codex. Son kullanıcı kapsamı kaynak görseller/kokpit/ayna/ses katmanlarını da içerir; aşağıdaki eski “sonraki” önerilerinin önündedir. Ana kayıt aynı [tam aktarım kartı](isler/2026-11-01-unity-tam-aktarim.md). **Genel görev tamamlanmadı.**
+- Gerçek grafik Play UTC03:30:11:29 kontrol/267 kaynak/6 Game View, hata0. Bölge2/kurulum başlangıç fixture; gerçek komut/fizikle9,30 sn boss galibiyeti → bölge3 → şehir → doğal hız yol görevi145 hedefini147 ile tamamla, +61 para/+20 enerji. Sonuç/hedef/ödül enjekte edilmedi. Altı1280×720/1920×1080 görüntü açıldı. Kanıt `Unity/Logs/p10-natural-play.json`, `p10-natural-*.png`; checker `node Unity/Validation/check-natural-closure.mjs`. Kaynak değiştikçe bütün-hash kanıtı yenilenmelidir. Gerçek kayıt hashleri korundu.
+- Devam: kaynak TS çizim kodundan15 araç/kokpit/doku çıkarımı prototipi çalışıyor; henüz Unity bağlantısı/görsel kabulü yok. Sonraki paket kaynak sunum entegrasyonu; rl_2 öneri direk/levhaları diğer pistlere yayılmaz. Push/merge/PR/yayın yok. Claude başlatılmadı; ek ücret durumu bilinmiyor, otomatik ücretli devir yok.
+
 # Ralli kamerası, işlevsel kapanış ve ilk görsel örnek (10 Kasım 2026) — Claude
 
 - **Dal** `codex/unity-p7-garaj`; yerel commitler: `37dc615` ralli kamerası, `08f89db` işlevsel kapanış, görsel örnek commit'i bu notla. Push/merge/PR/yayın yok. Ayrıntı ve kanıtlar [kart](isler/2026-11-01-unity-tam-aktarim.md) → "Ralli kamerası", "İşlevsel kapanış dilimi", "İlk oyun içi görsel örnek".
