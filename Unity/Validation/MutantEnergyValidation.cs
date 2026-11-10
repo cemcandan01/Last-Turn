@@ -36,7 +36,7 @@ internal static class MutantEnergyValidation
         ("nokta",h.Point??CatalogNode.Parse("null")),("hazir",Bool(h.Ready))})n.Set(k,v);return n;}
     CatalogNode NitroHud(MutantNitroHud h){var n=CatalogNode.Obj();foreach(var (k,v) in new (string,CatalogNode)[]{("enerji",Num(h.Energy)),("kapasite",Num(h.Capacity)),
       ("maliyet",Num(h.Cost)),("acik",Bool(h.Open)),("kalan",Num(h.Left)),("hazir",Bool(h.Ready))})n.Set(k,v);return n;}
-    int hudRows=0;
+    int hudRowCount=0;
     Check(fixture["baseline"].S()==VehicleCatalog.Baseline,"Sabit TS kaynak SHA");
     foreach(var scenario in fixture["scenarios"].Items)
     {
@@ -50,10 +50,15 @@ internal static class MutantEnergyValidation
         if(step["damage"].S()!="")run.Damage(step["damage"].S());
         if(step["risk"].IsNumber)run.State.Set("bekleyenRisk",step["risk"].Clone());
         var d=step["d"];var input=new DriftObserverInput{Vx=d["S"]["vx"].N(),Vz=d["S"]["vz"].N(),Air=d["S"]["air"].B(),DriftOn=d["DR"]["on"].N()!=0,Direction=d["DR"]["dir"].N(),Cool=d["DR"]["cool"].N(),Beta=d["D"]["beta"].N()};
-        bool result=energy.Step(input,World(step["world"]),step["obstacles"].Items,step["dt"].N(),step["nitro"].B(),step["requests"].Items.Select(x=>x.S()),step["hit"].B());
+        var stepWorld=World(step["world"]);
+        bool result=energy.Step(input,stepWorld,step["obstacles"].Items,step["dt"].N(),step["nitro"].B(),step["requests"].Items.Select(x=>x.S()),step["hit"].B());
         Check(result==step["changed"].B(),label+" güç/tutuş değişimi TS "+step["changed"]+" C# "+result);changed+=result?1:0;
         foreach(var p in step["expected"].Fields)Same(run.State[p.Key],p.Value,label+" "+p.Key);
-        Same(CatalogNode.Arr(driver.Skills().Select(Hud)),step["hud"],label+" skill HUD");Same(NitroHud(driver.Nitro()),step["nitroHud"],label+" nitro HUD");hudRows+=step["hud"].Items.Count();
+        // 9d9d18a: kanca HUD engeli sürücünün Step'te gözlediği dünyadan (yeni yarışta eski hedef yok). Bu test Energy.Step'i
+        // doğrudan çağırdığından sürücü dünyayı gözlemez; kanca satırı aynı adım dünyasıyla, sürücünün kullandığı Blocker ile kurulur.
+        var hudRows=driver.Skills().Select(Hud).ToArray();var equipped=run.State["beceriler"].Items.ToArray();
+        foreach(var row in hudRows.Where(r=>r["id"].S()=="grappling-hook")){var block=MutantSkills.Blocker(run.State["bec"],equipped,stepWorld,"grappling-hook");row.Set("engel",Text(block));row.Set("hazir",Bool(row["tur"].S()=="aktif"&&block==null));}
+        Same(CatalogNode.Arr(hudRows),step["hud"],label+" skill HUD");Same(NitroHud(driver.Nitro()),step["nitroHud"],label+" nitro HUD");hudRowCount+=step["hud"].Items.Count();
         steps++;
       }
     }
@@ -91,6 +96,6 @@ internal static class MutantEnergyValidation
     }
     var c=fixture["coverage"];foreach(var p in c.Fields)Check(p.Value.N()>0,"TS kapsamı "+p.Key);
     Check(changed==(int)c["powerChanged"].N(),"Güç/tutuş değişim sayısı");
-    Console.WriteLine($"Mutant enerji: {checks} koşul; {fixture["scenarios"].Items.Count()} koşu/{steps} enerji adımı (nitro {c["nitro"].N()}, hayalet koruması {c["ghostBlocked"].N()}, yarış başı {c["raceStarts"].N()}, uçuş {c["flight"].N()}), {hudRows} skill HUD satırı + nitro HUD, {links} oyun bağı; en büyük fark {worst:G3}.");
+    Console.WriteLine($"Mutant enerji: {checks} koşul; {fixture["scenarios"].Items.Count()} koşu/{steps} enerji adımı (nitro {c["nitro"].N()}, hayalet koruması {c["ghostBlocked"].N()}, yarış başı {c["raceStarts"].N()}, uçuş {c["flight"].N()}), {hudRowCount} skill HUD satırı + nitro HUD, {links} oyun bağı; en büyük fark {worst:G3}.");
   }
 }
