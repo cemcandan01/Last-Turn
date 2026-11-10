@@ -21,6 +21,7 @@ namespace LastTurn.Ui
     public bool Confirming=>confirm;
     public GarageCarRow Offer {get;private set;}
     public string ModelKey {get;private set;}="";
+    public GarageCarDetail Detail {get;private set;}
     private static readonly (string Key,string Name)[] Filters={ ("","TÜMÜ"),("gp","PİST"),("rx","RALLİKROS"),("rl","RALLİ"),("dp","DRİFT"),("dg","DRAG") };
     private VisualElement page,content,carTab,partsTab;private Label money,message;
     private GarageScreen legacy;private GarageState seen;private GarageVehiclePreview preview;
@@ -87,7 +88,7 @@ namespace LastTurn.Ui
       var left=Box("s-featured");content.Add(left);
       if(Offer!=null)
       {
-        var d=GarageViewModel.Detail(seen,ViewedCar);ModelKey=d.ModelKey;left.Add(Ui.Section("ÖNE ÇIKAN  /  "+Filters.FirstOrDefault(f=>f.Key==Offer.Type).Name));left.Add(Ui.Text(Ui.Upper(d.Name),"baslik","g-name"));
+        var d=GarageViewModel.Detail(seen,ViewedCar);Detail=d;ModelKey=d.ModelKey;left.Add(Ui.Section("ÖNE ÇIKAN  /  "+Filters.FirstOrDefault(f=>f.Key==Offer.Type).Name));left.Add(Ui.Text(Ui.Upper(d.Name),"baslik","g-name"));
         left.Add(Ui.Text(d.Class+d.Score.ToString("0")+"  •  "+d.Power.ToString("0")+" HP  •  "+d.Mass.ToString("0")+" KG","g-class"));
         var image=Box("s-preview");image.Add(preview.Image);left.Add(image);preview.Build(d,ViewedCar);
         var info=Box("g-panel");foreach(var stat in d.Stats)info.Add(Ui.Text(stat.Label+"   "+stat.Current.ToString("0.00"),"s-stat"));

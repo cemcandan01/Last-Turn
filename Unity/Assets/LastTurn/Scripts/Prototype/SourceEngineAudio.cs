@@ -23,6 +23,7 @@ namespace LastTurn.Prototype
     public string LoadedKey=>profile?.key??"";
     public int LayerSources=>gas.Count(s=>s&&s.clip)+off.Count(s=>s&&s.clip);
     public EngineAudioMixer Mix=>mixer;
+    public double EffectiveTurbo {get;private set;}
     public static void Listen(string key){requested=key;}
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]private static void Reset(){table=null;requested="";ListeningKey="";}
     private AudioClip Clip(string file){var clip=Resources.Load<AudioClip>("Audio/Engines/"+file);if(!clip)GameAudio.MissingAssets.Add("Engines/"+file);return clip;}
@@ -51,7 +52,10 @@ namespace LastTurn.Prototype
       if(!Load(key))return false;
       if(listening!=""){double target=throttle>0?900+.99*(profile.rpm-900):900;listenRpm+=(target-listenRpm)*Math.Min(1,dt*(target>listenRpm?2.6:1.8));rpm=listenRpm;}
       double turbo=profile.turbo,compressor=profile.compressor;
-      if(p&&p.Simulation!=null){var setup=MutantRuntime.Active?MutantRuntime.Session.BuildSetup():GarageSession.DriveSetup;if(setup!=null){turbo=Math.Max(turbo,setup.Parts.Contains("turbo-buyuk")?1:setup.Parts.Contains("turbo-kucuk")?.7:0);compressor=Math.Max(compressor,setup.Parts.Contains("kompresor")?.9:0);}}
+      string[] parts=Array.Empty<string>();
+      if(listening!="")parts=view&&view.Visible?view.Detail.Parts:store.Detail.Parts;
+      else if(p&&p.Simulation!=null){var setup=MutantRuntime.Active?MutantRuntime.Session.BuildSetup():GarageSession.DriveSetup;if(setup!=null)parts=setup.Parts;}
+      turbo=Math.Max(turbo,parts.Contains("turbo-buyuk")?1:parts.Contains("turbo-kucuk")?.7:0);compressor=Math.Max(compressor,parts.Contains("kompresor")?.9:0);EffectiveTurbo=turbo;
       mixer.Step(time,dt,rpm,throttle,mix.ShiftCut,mix.Speed,p&&turbo>profile.turbo?(double?)p.Simulation.Engine.Turbo:null,volume,profile.rpm,rpms,profile.vtec,turbo,compressor,profile.gears);
       for(int i=0;i<5;i++){float smoothing=1-Mathf.Exp(-(float)dt/.02f),pitchSmooth=1-Mathf.Exp(-(float)dt/.012f);gas[i].volume=Mathf.Lerp(gas[i].volume,(float)(mixer.Gain*mixer.Gas[i]),smoothing);off[i].volume=Mathf.Lerp(off[i].volume,(float)(mixer.Gain*mixer.Off[i]),smoothing);gas[i].pitch=Mathf.Lerp(gas[i].pitch,(float)mixer.Pitch[i],pitchSmooth);off[i].pitch=gas[i].pitch;gas[i].GetComponent<SourceEngineFilter>().Configure(mixer.VtecDb,mix.CockpitCutoff);off[i].GetComponent<SourceEngineFilter>().Configure(mixer.VtecDb,mix.CockpitCutoff);}
       oscillator.Target=new SourceEngineOscillator.State{turboHz=mixer.TurboHz,turbo=mixer.TurboGain,noiseHz=mixer.NoiseHz,noise=mixer.NoiseGain,compressorHz=mixer.CompressorHz,compressor=mixer.CompressorGain,gearHz=mixer.GearHz,gear=mixer.GearGain};extra.volume=(float)volume;extra.GetComponent<AudioLowPassFilter>().cutoffFrequency=(float)mix.CockpitCutoff;
