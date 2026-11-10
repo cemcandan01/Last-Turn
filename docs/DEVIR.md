@@ -1,3 +1,7 @@
+# Güvenli piste dönüş ve ters dönme sayacı (11 Kasım 2026) — Claude
+
+- Cem'in Windows denemesindeki ralli takılmaları: dönüş artık rl/rx pistlerinde rampa/çamur/dik yokuş dışındaki ilk güvenli noktaya (yalnız takılmışken); ters kalan araç için HUD 5…1 ve otomatik dönüş. Fizik değişmedi. `.NET --recovery` 705, TS eşdeğerlik testleri değişmedi, Unity Play 11/11. Ayrıntı [kart](isler/2026-11-01-unity-tam-aktarim.md) → "Güvenli piste dönüş".
+- Cem kararı: şimdilik yalnız Windows; mobil iş yok. Sonraki tek adım: Cem'in paylaşacağı genel ekran hataları.
 # Yol kenarı direkleri ve viraj levhaları bütün pistlerde (11 Kasım 2026) — Claude
 
 - Cem Windows sürümünü denedi ("gözüme takılanlar var, sonra bakarız"), görünümün bütün pistlere yayılmasını ve kenar öğelerinin kalmasını seçti. Görünüm zaten `5d9d66d` ile 40 pistte TS dünyası; eklenen yalnız `RoadsideMarkers` (direk + viraj oku, çarpışmasız, duvarlı pistte yok). Eski `RallyVisualSample` kaldırıldı. Play 44/44, fizik bit düzeyinde aynı. Ayrıntı [kart](isler/2026-11-01-unity-tam-aktarim.md) → "Yol kenarı direkleri".

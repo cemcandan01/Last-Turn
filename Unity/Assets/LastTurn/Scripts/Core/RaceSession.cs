@@ -73,6 +73,8 @@ namespace LastTurn.Core
     /// Drift yarışı: drift bayrağı, kayma açısı, çimdeki teker, son çarpmadan beri süre, direksiyon, sim zamanı ve
     /// TS driftYarisProfili(kurulum).azami + 0,12 (bunu aşan açı komboyu yakar).
     public bool DriftActive; public double Beta, Steer, SimTime, SinceHit, BetaLimit; public int GrassWheels;
+    /// Araç devrik (FlipCounter.Flipped; TS'de yok, TS eşdeğerlik verisinde hep false).
+    public bool Flipped;
   }
 
   /// TS Yaris durumu + evTick/endEvent kuralları (DOM, hayalet, rakip, MUTANT, profil sayaçları yok).
@@ -102,6 +104,7 @@ namespace LastTurn.Core
     public readonly DriftCounter Drift = new();
     public readonly OffTrackCounter OffTrack = new();
     public readonly CutCounter Cut = new();
+    public readonly FlipCounter Flip = new();
     public double DriftRatio { get; private set; }
     public double DriftDistance { get; private set; }
     public bool X6 { get; private set; }
@@ -146,6 +149,8 @@ namespace LastTurn.Core
       if (LastCutMeters > 0) {cutPenalty?.Invoke(LastCutMeters);Notes.Add(new RaceNote(RaceNoteKind.Cut));}
       var back = OffTrack.Step(g, edge, s.X, s.Z, ti, dt);
       if (back != null) { ReturnToTrack(back.Value); Notes.Add(new RaceNote(RaceNoteKind.Returned)); return back; }
+      // Ters dönme (Cem kararı; TS'de yok): 0,5 + 5 sn devrik kalınca pist dışı çıkış noktasına ya da en yakın pist noktasına.
+      if (Flip.Step(s.Flipped, dt)) { var p = OffTrack.First ?? TrackRules.Locate(g, s.X, s.Z, ti).Point; ReturnToTrack(p); Notes.Add(new RaceNote(RaceNoteKind.Returned)); return p; }
       if (OffTrack.First != null)
       {
         // Pist dışında ilerleyerek tur/bitiş ya da drift puanı kazanılmaz.
@@ -209,11 +214,19 @@ namespace LastTurn.Core
       return p;
     }
 
+    /// Güvenli dönüş noktası (TrackRecovery) dönüş noktasından farklıysa tur ipucu aracın konduğu yerden. Kapalı pistte
+    /// başlangıç çizgisinin ötesine konulduysa ipucu çizginin hemen önünde kalır: sonraki adım turu normal geçiş gibi sayar.
+    public void Relocated(TrackReturnPoint p)
+    {
+      int i = g.Nearest(p.X, p.Z, 0, true).Index;
+      Previous = !g.Open && Event.Laps > 0 && Previous > g.N * 0.8 && i < g.N * 0.2 ? g.N - 1 : i;
+    }
+
     /// TS yaristaPisteDon: süre/tur/puan korunur; sayaçlar ve kombo sıfırlanır; ipucu dönüş noktasında tam taramayla.
     private void ReturnToTrack(TrackReturnPoint p)
     {
       Previous = g.Nearest(p.X, p.Z, 0, true).Index;
-      OffTrack.Clear(); Cut.Clear(); Wrong.WrongWay = false; Wrong.Timer = 0;
+      OffTrack.Clear(); Cut.Clear(); Flip.Clear(); Wrong.WrongWay = false; Wrong.Timer = 0;
       Drift.Step(false, 0, true, 0, false, 0); DriftMultiplier = 1;
     }
 

@@ -37,8 +37,12 @@ namespace LastTurn.Core
       DriftBetaLimit = driftMaxAngle + 0.12;
       Vehicle = vehicle ?? throw new ArgumentNullException(nameof(vehicle)); World = world ?? throw new ArgumentNullException(nameof(world));
       Event = info ?? throw new ArgumentNullException(nameof(info)); create = session ?? throw new ArgumentNullException(nameof(session));
+      Recovery = new TrackRecovery(world);
       Session = create(PlaceAtStart());
     }
+
+    /// Güvenli dönüş noktaları (rampa/çamur/dik yokuş dışı).
+    public readonly TrackRecovery Recovery;
 
     private int PlaceAtStart() { Place(Event.StartX, Event.StartZ, Event.StartHeading); return World.Hint; }
 
@@ -54,12 +58,25 @@ namespace LastTurn.Core
     /// TS girdiyiKaydet: kaydeder ve fiziğe verilecek nicemlenmiş girdiyi döndürür.
     public DrivingInput Record(DrivingInput input) => Recording.Record(input);
 
-    /// TS ↺ yeniden doğ: yarışta pist dışı ilk çıkış noktasına ya da en yakın pist noktasına (süre durmaz).
+    /// Elle ↺ ileri alma yalnız takılmışken: bundan hızlı, dik ve pistteki araç TS gibi en yakın noktaya döner (yol kısaltılamaz).
+    public const double StuckSpeed = 4;
+
+    /// TS ↺ yeniden doğ: yarışta pist dışı ilk çıkış noktasına ya da en yakın pist noktasına (süre durmaz). Takılmış araç
+    /// (yavaş, devrik ya da pist dışı) o nokta güvensizse ileride ilk güvenli noktaya alınır.
     public bool Respawn()
     {
-      var p = Vehicle.ReferencePoint; var back = Session.ManualReturn(p.X, p.Z, World.Hint);
+      var p = Vehicle.ReferencePoint; bool stuck = Vehicle.Body.Velocity.Length < StuckSpeed || FlipCounter.Flipped(Vehicle.Body.Orientation) || Session.OffTrack.First != null;
+      var back = Session.ManualReturn(p.X, p.Z, World.Hint);
       if (back == null) return false;
-      Place(back.Value.X, back.Value.Z, back.Value.Heading); Teleports++; Recording.Cut = true; return true;
+      Recover(back.Value, stuck); return true;
+    }
+
+    /// Dönüş noktası güvensizse ileride ilk güvenli noktaya konur (oturumun tur ipucu da oradan).
+    private void Recover(TrackReturnPoint back, bool forward = true)
+    {
+      var p = forward ? Recovery.Choose(back) : back;
+      Place(p.X, p.Z, p.Heading); if (p.X != back.X || p.Z != back.Z) Session.Relocated(p);
+      Teleports++; Recording.Cut = true;
     }
 
     /// Geri sayım (fizik donuk). TS'de kare süresiyle azalır.
@@ -97,12 +114,12 @@ namespace LastTurn.Core
       {
         X = p.X, Z = p.Z, Vx = v.X, Vz = v.Z, Speed = drift.Speed, Hint = World.Hint,
         DriftActive = drift.Active, Beta = drift.Beta, GrassWheels = RaceDrift.GrassWheels(body), Steer = command.Steering,
-        SimTime = body.Steps * PowertrainVehicle.FixedDelta, SinceHit = body.Steps*PowertrainVehicle.FixedDelta-body.LastHitTime, BetaLimit = DriftBetaLimit,
+        Flipped = FlipCounter.Flipped(body.Orientation), SimTime = body.Steps * PowertrainVehicle.FixedDelta, SinceHit = body.Steps*PowertrainVehicle.FixedDelta-body.LastHitTime, BetaLimit = DriftBetaLimit,
       };
       Km += JsMath.Hypot(v.X, v.Z) * PowertrainVehicle.FixedDelta / 1000;
       bool running = Session.State == RaceState.Running;
       var back = Session.Step(input, PowertrainVehicle.FixedDelta);
-      if (back != null) { Place(back.Value.X, back.Value.Z, back.Value.Heading); Teleports++; Recording.Cut = true; }
+      if (back != null) Recover(back.Value);
       // TS uzakAdimi: yarış adımından sonra hayalet bir adım.
       Ghost?.Step();
       SyncDrift();

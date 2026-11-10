@@ -73,6 +73,9 @@ namespace LastTurn.Core
       double off = s.State == RaceState.Running ? s.OffTrack.Time : 0;
       int left = off > TrackRules.OffTrackWait ? Math.Max(1, (int)Math.Ceiling(TrackRules.OffTrackWait + TrackRules.OffTrackCountdown - off)) : 0;
       if (left > 0) m.Return = left + " · PİSTE DÖNÜLÜYOR";
+      // ters dönme: 5…1 sonra güvenli noktaya dönüş (pist dışı sayımından önce gelir)
+      int flip = s.State == RaceState.Running ? s.Flip.Left : 0;
+      if (flip > 0) m.Return = flip + " · TERS DÖNDÜN";
       if (e.Type == "dp")
       {
         if (s.Drift.Combo > 0) m.Drift = JsMath.Round(s.Drift.Combo) + " · x" + s.DriftMultiplier.ToString(CultureInfo.InvariantCulture);
