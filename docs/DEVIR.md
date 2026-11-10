@@ -1,3 +1,8 @@
+# Genel kaynak aktarımı kapandı; dış/cihaz/insan kabulü açık (10 Kasım 2026) — Claude
+
+- Devralınan `a18af83`. Güncel kaynakla Windows build (UTC16:37, 0 hata) ve iki ayrı WindowsPlayer süreci (25 + 15) geçerli; `check-functional-closure.mjs --career` 238 ürün dosyası/kaynak hashleri güncel. p10–p16, b-closure, P1 ve matris (122/122; 0 aktarılmadı/kabul eksik) checker'ları bugünkü kaynakla geçer. Kod değişmedi, yeniden build gerekmedi.
+- Açık: gerçek Google masaüstü OAuth istemcisi/canlı Firestore, gerçek telefon dokunma/eğim, mobil/Mac/imza modülleri, insan sürüş/işitme/beğeni kabulü. Ayrıntı ve Cem'in kısa kabul adımları [ana kart](isler/2026-11-01-unity-tam-aktarim.md) → “Genel kaynak aktarım kapanışı”. Push/merge/PR/yayın yok; `_Recovery` korundu.
+
 # Kalan kapanış için devam yetkisi yenilendi (10 Kasım 2026)
 
 Cem kota sıfırlanmasından sonra kalan işlerin sürdürülmesini istedi. Yerel `ea9d0a7` ve yalnız korunan `_Recovery`/meta doğrulandı; yeni uygulama veya aktif Claude işi yoktu. UTC20:49:25 kontrolünde Claude Pro/`claude.ai` aboneliği ve halen geçerli kapalı ek-kullanım kullanıcı teyidi doğrulandı; kalan kota CLI oturum kontrolünden öğrenilemiyor. Aynı `8f357de5-0163-40ab-b604-88a2cf42a8e2` konuşması kayıtlı güvenli seçeneklerle sürdürülecek; bu satır gerçek model başlangıcı kabulü değildir. Canlı durum `claude agents --json` ve yerel `tests/cikti/koordinator/claude-kota-sonrasi-devam.json` ile doğrulanır.
