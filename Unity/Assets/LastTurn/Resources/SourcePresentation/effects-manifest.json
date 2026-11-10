@@ -1,0 +1,56 @@
+{
+  "baseline": "df3549e709469f0b519ebfbeaa9f63c1040fee05",
+  "three": "0.186.1",
+  "sources": {
+    "src/cizim/sahne.ts": "812a28ac30790669746cf78434176e83c4ca4c3ddbc0ebca0825e916824916b4",
+    "src/cekirdek/ekran.ts": "c88aaa354f041513b0511aa208c61d4b19d748fb8d8d6fa960169f1eb5018045",
+    "src/arac/araclar.ts": "f99361dc89fcb471ff8db79554bc6c4d0bb774334d015a671593b5c2e536f94b",
+    "src/arac/gorunumler.ts": "a2eeeb46859901c55dd183c7e2a5d33210a5e074f23b94e4ebb5555c48f65228",
+    "src/cizim/arac-modeli.ts": "1e081deb70f41e5f77f517871ee248d4b8213badfee5c18dfafd1ad583d9ead0",
+    "src/cizim/dokular.ts": "6a6ec922e997d624a8bd618878ebb9a41895bfc450f927adc05de105c5715e81",
+    "src/cizim/malzemeler.ts": "23d5d13224a086a46ec446acb0ab984ce7d3e9493f3df4c9fb77d13752d162c2",
+    "src/cizim/yardimci.ts": "f2630c3ba14fb92a769fc7edbde572042ba34e8527cf1ace2ae61ff50b60c43a",
+    "src/cizim/kokpit.ts": "4987b348ab95ea04213b8198410d5ff06311bf863316340ac0aead67f52f59fc",
+    "src/cizim/ayna.ts": "293fbfa9978044e97b6ee3f8d46d10211937b38fc12fa455980602418bb6a69b",
+    "src/cizim/govde.ts": "5cc397ab0f6dd26e3064d789da5d22358dddf92bc2044321b351920a0a802d2a",
+    "src/cekirdek/matematik.ts": "658c7a895e5d3bab8db4d644c2be8eb21335b4ce189f0180f99199b9cd0ea879",
+    "src/cizim/beceri-efekt.ts": "78cd5e41f004615b603157ca6fe8e614529e44d85f6bdd4c3ef18ed9fadd78cf",
+    "src/cizim/parcaciklar.ts": "b2691c4444883d4f51df7c68ee3c72e6734713d79759c4504e260c0358b09c7f",
+    "src/cizim/sokak-kapilari.ts": "32030c85d8343e049cacf280f62427b2e646b2ef82c218b9c231c1175ea64f45",
+    "src/cizim/isaretler.ts": "2ac76eecd2ebbd9aa2a3c23971328f8895f84215aa428c3b0487dcfaf5df4a60"
+  },
+  "file": "effects-source.bytes",
+  "hash": "e6fb2aa31ea9ede2c0dad0f0f915827aa6a0c19fecc36aaa1f036c54d69ebe17",
+  "nodes": 189,
+  "materials": 96,
+  "textures": [
+    {
+      "file": "tex-5b7eb8ef21b5c0bc6d1f.png",
+      "hash": "5b7eb8ef21b5c0bc6d1f0e410f95cd0f6f63dfad340f104fd7372e9d490bb65e"
+    },
+    {
+      "file": "tex-a596a01394c46cbff680.png",
+      "hash": "a596a01394c46cbff680d26280a03e34cb92f02d6efd832a03dbe2b8937533b6"
+    },
+    {
+      "file": "tex-058d0a4410725f0d3767.png",
+      "hash": "058d0a4410725f0d376798702fee13d0e39bc4b7cccedc8ed972e9f496d97f00"
+    },
+    {
+      "file": "tex-c90c61651f1316d4b6c8.png",
+      "hash": "c90c61651f1316d4b6c87dd32bca48b6581a44457be2c4927020c14e85823e59"
+    },
+    {
+      "file": "tex-f7bb7a1a0e2775a23a18.png",
+      "hash": "f7bb7a1a0e2775a23a188672140dd0b65c2dd2a00231674d8bc95b772ed82f7f"
+    },
+    {
+      "file": "tex-3d85156b5cb8d9ee5ee0.png",
+      "hash": "3d85156b5cb8d9ee5ee074174f320c0ae0e8126a9c6048fd35c5528f2ca03edd"
+    },
+    {
+      "file": "tex-808cdd0fc5b66f773662.png",
+      "hash": "808cdd0fc5b66f7736621f5694a509a00fce2687e595076ee54b6d45704061e3"
+    }
+  ]
+}

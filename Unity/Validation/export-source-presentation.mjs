@@ -17,6 +17,25 @@ const out = path.join(
 );
 const manifestPath = path.join(out, "manifest.json"),
   hash = (b) => createHash("sha256").update(b).digest("hex");
+// Efekt modülleri sahneye kendi nesnelerini ekler; Unity yalnız bu etiketlerle bağlar.
+const effectTags = [
+  "hook-rope",
+  "hook-tip",
+  "pulse-ring",
+  "hook-target-ring",
+  "hook-target-column",
+  "exhaust",
+  "gate-post",
+  "gate-band",
+  "gate-finish",
+  ...["ff5a3c", "d08a48", "4fbf74", "b67cff", "ffd23c", "3cc8ff", "ff2a2a", "ff8fd8"].flatMap((c) => [
+    "marker-column-" + c,
+    "marker-ring-" + c,
+  ]),
+  ...["ASFALT", "RALLİKROS", "RALLİ", "DRİFT", "DRAG", "ATÖLYE", "BOSS"].map((n) => "marker-label-" + n),
+  "chest-fff0a8",
+  "chest-ff3cc8",
+];
 if (process.argv.includes("--check")) {
   const m = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
   if (m.baseline !== baseline || m.cars.length !== 15) throw Error("Kaynak sunum kapsamı eksik");
@@ -67,6 +86,23 @@ if (process.argv.includes("--check")) {
   }
   for (const t of m.textures)
     if (hash(fs.readFileSync(path.join(out, t.file))) !== t.hash) throw Error("Doku farklı: " + t.file);
+  const effectsPath = path.join(out, "effects-manifest.json");
+  if (process.argv.includes("--write") && !fs.existsSync(effectsPath)) throw Error("Efekt kapsamı eksik");
+  if (fs.existsSync(effectsPath)) {
+    const fm = JSON.parse(fs.readFileSync(effectsPath, "utf8"));
+    if (fm.baseline !== baseline) throw Error("Efekt kaynağı farklı");
+    const b = fs.readFileSync(path.join(out, fm.file));
+    if (hash(b) !== fm.hash) throw Error("Efekt paketi farklı");
+    const g = JSON.parse(gunzipSync(b)),
+      tags = g.nodes.map((n) => n.tag);
+    for (const name of effectTags) if (!tags.includes(name)) throw Error("Efekt bağı eksik: " + name);
+    if (tags.filter((t) => t === "puff").length !== 60 || tags.filter((t) => t === "ember").length !== 26)
+      throw Error("Efekt havuzu eksik");
+    for (const t of fm.textures)
+      if (hash(fs.readFileSync(path.join(out, t.file))) !== t.hash)
+        throw Error("Efekt dokusu farklı: " + t.file);
+    for (const [name, sha] of Object.entries(fm.sources)) m.sources[name] ??= sha;
+  }
   if (m.environment) {
     const b = fs.readFileSync(path.join(out, m.environment.file));
     if (hash(b) !== m.environment.hash) throw Error("Ortam verisi farklı");
@@ -88,6 +124,7 @@ if (process.argv.includes("--check")) {
   process.exit(0);
 }
 fs.mkdirSync(out, { recursive: true });
+const effectsOnly = process.argv.includes("--effects");
 const sourceHashes = {},
   cache = new Map();
 const server = http.createServer((req, res) => {
@@ -196,6 +233,12 @@ try {
           }
         }
         const names = globalThis.worldMaterials;
+        const effect = globalThis.effectTags
+          ? {
+              additive: m.blending === s.THREE.AdditiveBlending,
+              overlay: m.depthTest === false,
+            }
+          : {};
         const semantic = names ? Object.entries(names).find(([k, v]) => v === m)?.[0] : undefined;
         materials.push({
           name: semantic || m.name || m.type,
@@ -210,6 +253,7 @@ try {
           repeat: m.map ? [m.map.repeat.x, m.map.repeat.y] : [1, 1],
           offset: m.map ? [m.map.offset.x, m.map.offset.y] : [0, 0],
           repeatWrap: m.map?.wrapS === s.THREE.RepeatWrapping,
+          ...effect,
         });
         return id;
       };
@@ -238,6 +282,7 @@ try {
         if (o.userData.fi !== undefined) tag = "wheel-pivot-" + o.userData.fi;
         const wheel = s.model.model.carM?.ws.find((w) => w.w === o);
         if (wheel) tag = "wheel-spin-" + wheel.pv.userData.fi;
+        if (globalThis.effectTags?.has(o)) tag = globalThis.effectTags.get(o);
         const n = {
           name: o.name || o.type,
           parent,
@@ -260,6 +305,10 @@ try {
               n.instances.push(...matrix.elements);
             }
           }
+        }
+        if (o.isSprite && globalThis.effectTags) {
+          n.sprite = true;
+          n.materials = [material(o.material)];
         }
         const i = nodes.length;
         nodes.push(n);
@@ -298,7 +347,7 @@ try {
     manifest[kind === "car" ? "cars" : "worlds"].push(e);
     console.log(`${kind} ${key}: ${e.nodes} düğüm/${e.vertices} kaynak köşesi`);
   }
-  for (let id = 0; id < 15; id++) {
+  for (let id = 0; id < (effectsOnly ? 0 : 15); id++) {
     const g = await page.evaluate((id) => {
       const s = globalThis.sourceExport,
         c = s.cars[id];
@@ -318,7 +367,110 @@ try {
     }, id);
     await saveGraph(g, "car", id, g.key);
   }
-  if (process.argv.includes("--worlds")) {
+  if (effectsOnly) {
+    const g = await page.evaluate(async () => {
+      const s = await import("/ts/src/cizim/sahne.js"),
+        THREE = globalThis.sourceExport.THREE,
+        before = new Set(s.scene.children);
+      await import("/ts/src/cizim/beceri-efekt.js");
+      const gates = await import("/ts/src/cizim/sokak-kapilari.js"),
+        markers = await import("/ts/src/cizim/isaretler.js");
+      const tags = new Map(),
+        root = new THREE.Group(),
+        hex = (m) => m.color.getHexString(),
+        add = (o, tag) => {
+          tags.set(o, tag);
+          root.add(o);
+        };
+      const fresh = s.scene.children.filter((o) => !before.has(o));
+      for (const o of fresh) {
+        const g = o.geometry,
+          p = g?.parameters;
+        if (g?.type === "SphereGeometry") add(o, "puff");
+        else if (g?.type === "CylinderGeometry")
+          add(o, p.radiusTop < 0.2 ? "hook-rope" : "hook-target-column");
+        else if (g?.type === "TorusGeometry") add(o, p.radius < 1 ? "hook-tip" : "hook-target-ring");
+        else if (g?.type === "RingGeometry") add(o, "pulse-ring");
+        else if (o.isGroup && o.children.length === 2 && o.children.every((c) => c.isGroup))
+          add(o, "exhaust");
+        else if (o.isGroup && o.children.length === 2 && o.children.every((c) => c.isMesh)) add(o, "ember");
+      }
+      // Yalnız iki kapılık örnek rota: direk/bant/bitiş kurucusu aynı; Unity rotanın gerçek noktalarına dizer.
+      gates.sokakKapilariKur({
+        P: [
+          [0, 0],
+          [0, 300],
+        ],
+        T: [
+          [0, 1],
+          [0, 1],
+        ],
+        S: [0, 300],
+        N: 2,
+        hw: 9,
+        open: true,
+      });
+      const gateGroup = s.scene.children.find((o) => o.name === "sokak-kapilari");
+      const [post, , band, , , finish] = [...gateGroup.children];
+      add(post, "gate-post");
+      add(band, "gate-band");
+      add(finish, "gate-finish");
+      const colors = [0xff5a3c, 0xd08a48, 0x4fbf74, 0xb67cff, 0xffd23c, 0x3cc8ff, 0xff2a2a, 0xff8fd8];
+      markers.isaretleriKur(
+        [
+          ...colors.map((renk, i) => ({ x: i * 100, z: 0, renk })),
+          { x: 0, z: 100, renk: 0xfff0a8, sandik: true },
+          { x: 100, z: 100, renk: 0xff3cc8, sandik: true },
+        ],
+        () => 0,
+      );
+      const markerGroup = fresh.find((o) => o.isGroup && o.children.some((c) => c.name === "mutant-sandik"));
+      for (const o of [...markerGroup.children]) {
+        if (o.name === "mutant-sandik") add(o, "chest-" + hex(o.children[2].material));
+        else if (o.isSprite) add(o, "marker-label-" + o.name.slice("mutant-etiket-".length));
+        else if (o.geometry.type === "CylinderGeometry") add(o, "marker-column-" + hex(o.material));
+        else add(o, "marker-ring-" + hex(o.material));
+      }
+      globalThis.effectTags = tags;
+      return globalThis.serializeSource(root, {
+        id: -2,
+        key: "effects",
+        label: "TS efektleri",
+        kind: "effects",
+      });
+    });
+    const textures = [];
+    for (const t of g.textures) {
+      const b = Buffer.from(t.png.split(",")[1], "base64"),
+        sha = hash(b),
+        file = "tex-" + sha.slice(0, 20) + ".png";
+      if (!pngs.has(file)) {
+        pngs.set(file, sha);
+        fs.writeFileSync(path.join(out, file), b);
+        textures.push({ file, hash: sha });
+      }
+      t.file = file;
+      delete t.png;
+    }
+    const file = "effects-source.bytes",
+      b = gzipSync(Buffer.from(JSON.stringify(g)));
+    fs.writeFileSync(path.join(out, file), b);
+    const effects = {
+      baseline,
+      three: manifest.three,
+      sources: sourceHashes,
+      file,
+      hash: hash(b),
+      nodes: g.nodes.length,
+      materials: g.materials.length,
+      textures,
+    };
+    fs.writeFileSync(path.join(out, "effects-manifest.json"), JSON.stringify(effects, null, 2) + "\n");
+    console.log(
+      `Efekt grafiği: ${g.nodes.length} düğüm/${g.materials.length} malzeme/${textures.length} doku`,
+    );
+  }
+  if (process.argv.includes("--worlds") && !effectsOnly) {
     const ids = await page.evaluate(async () => {
       const d = await import("/ts/src/dunya/dunya.js");
       globalThis.sourceWorld = d;
@@ -358,7 +510,7 @@ try {
       await saveGraph(g, "world", meta.id, meta.key);
     }
   }
-  if (process.argv.includes("--worlds")) {
+  if (process.argv.includes("--worlds") && !effectsOnly) {
     const environments = await page.evaluate(async () => {
       const d = globalThis.sourceWorld,
         e = globalThis.sourceEnv,
@@ -412,7 +564,7 @@ try {
     fs.writeFileSync(path.join(out, file), b);
     manifest.environment = { file, hash: hash(b), count: environments.length };
   }
-  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
+  if (!effectsOnly) fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
   if (process.argv.includes("--write"))
     for (const name of fs.readdirSync(out).filter((n) => n.endsWith(".png"))) {
       const meta = path.join(out, name + ".meta");

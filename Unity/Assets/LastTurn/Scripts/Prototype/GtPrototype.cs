@@ -54,6 +54,10 @@ namespace LastTurn.Prototype
     public OpponentRacer Opponent{get;private set;}
     public PhysicalWorldVisuals EnvironmentVisuals{get;private set;}
     private Transform opponentVisual;private int openSpawn;
+    /// Efekt/işaret çizimi için salt okuma: etkin dünya sorgusu, çizilen rakip ve yarışın pist tanımı.
+    public IVehicleWorld World=>world;
+    public Transform OpponentVisual=>opponentVisual;
+    public TrackDefinition RaceDefinition{get;private set;}
     public string RaceMessage { get; private set; } = "";
     public RaceTrackVisuals TrackVisuals => trackVisuals;
     public RallyVisualSample VisualSample { get; private set; }
@@ -68,6 +72,8 @@ namespace LastTurn.Prototype
       mutantDrive=MutantRuntime.Active;
       // Kamera yükseklik tabanı etkin fizik dünyasının zemininden (sahnedeki kayıtlı kameraya da bağlanır).
       if(followCamera)followCamera.Ground=(x,z)=>world!=null?world.Height(-x,z):0;
+      // Kaynak toz/nitro/skill/kapı çizimi: yalnız okur.
+      gameObject.AddComponent<SourceEffectsView>();
       if (raceTrack != "") { AwakeRace(); return; }
       if(MutantRuntime.Active&&MutantRuntime.Session!=null)
       {parameters=MutantRuntime.Session.BuildPhysics();AppliedGarageCarId=MutantRuntime.Session.BuildSetup().Car["k"].S();}
@@ -260,7 +266,7 @@ namespace LastTurn.Prototype
       if (!ghostView)
       {
         ghostSource=SourceVehicleView.Create(ghostKey,transform);
-        if(ghostSource){ghostView=ghostSource.transform;ghostSource.Scene.SetGhost(true);}
+        if(ghostSource){ghostView=ghostSource.transform;ghostSource.Scene.SetTranslucent();}
         else{
         var go = GameObject.CreatePrimitive(PrimitiveType.Cube); go.name = "Rekor hayaleti"; var col = go.GetComponent<Collider>(); if (col) Destroy(col);
         go.transform.SetParent(transform, false); go.transform.localScale = new Vector3(1.8f, 1.1f, 4.3f);
@@ -290,6 +296,7 @@ namespace LastTurn.Prototype
       // Mutant planı sahnenin varsayılan gp_1 kimliğini de geçersiz kılar; görsel önbellek gerçek pistle eşleşir.
       if(mutant!=null)key=track.Key;
       if (key != RaceTrack) { trackVisuals.Build(track,mutant?.World); RaceTrack = key; }
+      RaceDefinition=track;
       var drive = mutant!=null?new GarageRace.Drive{Parameters=MutantRuntime.Session.BuildPhysics(),Setup=MutantRuntime.Session.BuildSetup(),Car=MutantRuntime.Car,Career=false,Message="Mutant koşusu"}:GarageRace.Prepare(info);
       parameters = drive.Parameters ?? GtPrototypeParameters.Create(); RaceMessage = drive.Message;
       AppliedGarageCarId = "";

@@ -33,6 +33,17 @@ namespace LastTurn.Prototype
       }
       if(cockpit&&++frames%2==0)RenderMirror();
     }
+    /// TS uzak-arac-modeli uzakAraclariCiz: anlık görüntüden konum/yönelim, süspansiyon (s0–s3), teker dönüşü ve ön
+    /// tekerde ham direksiyon açısı (delta); iç mekân çizilmez.
+    public void PoseRemote(Vector3 origin,Quaternion rotation,double[] show,double[] wheelAngles,PowertrainParameters parameters)
+    {
+      transform.SetPositionAndRotation(origin,rotation);SetCockpit(false);
+      for(int i=0;i<4;i++)
+      {
+        if(wheels[i]){var p=wheels[i].localPosition;p.y=wheelY[i]+(float)show[21+i];wheels[i].localPosition=p;wheels[i].localRotation=parameters.Chassis.Wheels[i].Front?Quaternion.AngleAxis(-(float)(show[12]*Mathf.Rad2Deg),Vector3.up):Quaternion.identity;}
+        if(spins[i])spins[i].localRotation=Quaternion.AngleAxis(GtPresentation.Degrees(wheelAngles[i]),Vector3.right);
+      }
+    }
     public void SetCockpit(bool cockpit)
     {
       if(interior)interior.gameObject.SetActive(cockpit);foreach(var tag in Scene.Tags)if(tag.Key.StartsWith("panel-"))tag.Value.gameObject.SetActive(!cockpit);

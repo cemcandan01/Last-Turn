@@ -1,0 +1,860 @@
+{
+  "baseline": "df3549e709469f0b519ebfbeaa9f63c1040fee05",
+  "sarkac": "#bina",
+  "cases": [
+    {
+      "name": "koşu yok",
+      "kosu": null,
+      "expected": {
+        "durum": null,
+        "nitro": false
+      }
+    },
+    {
+      "name": "boş",
+      "kosu": {
+        "bec": {
+          "yerel": {}
+        },
+        "becHedef": {},
+        "becCikti": {
+          "hayalet": false
+        },
+        "mek": {
+          "etkiKalan": 0
+        }
+      },
+      "expected": {
+        "durum": {
+          "kanca": null,
+          "kancaHedef": null,
+          "hayalet": false,
+          "donusum": false,
+          "iz": [],
+          "ruzgar": false
+        },
+        "nitro": false
+      }
+    },
+    {
+      "name": "kanca bina ucu",
+      "kosu": {
+        "bec": {
+          "yerel": {
+            "grappling-hook": {
+              "kalan": 2,
+              "hedef": "#bina",
+              "uc": [
+                10,
+                22,
+                30
+              ],
+              "nokta": [
+                10,
+                30
+              ]
+            }
+          }
+        },
+        "becHedef": {},
+        "becCikti": {
+          "hayalet": false
+        },
+        "mek": {
+          "etkiKalan": 0
+        }
+      },
+      "expected": {
+        "durum": {
+          "kanca": [
+            10,
+            30,
+            22
+          ],
+          "kancaHedef": null,
+          "hayalet": false,
+          "donusum": false,
+          "iz": [],
+          "ruzgar": false
+        },
+        "nitro": false
+      }
+    },
+    {
+      "name": "kanca köşe ucu",
+      "kosu": {
+        "bec": {
+          "yerel": {
+            "grappling-hook": {
+              "kalan": 1,
+              "hedef": "#kose",
+              "uc": [
+                5,
+                1.5,
+                -7
+              ],
+              "nokta": [
+                4,
+                -6
+              ]
+            }
+          }
+        },
+        "becHedef": {},
+        "becCikti": {
+          "hayalet": false
+        },
+        "mek": {
+          "etkiKalan": 0
+        }
+      },
+      "expected": {
+        "durum": {
+          "kanca": [
+            5,
+            -7,
+            1.5
+          ],
+          "kancaHedef": null,
+          "hayalet": false,
+          "donusum": false,
+          "iz": [],
+          "ruzgar": false
+        },
+        "nitro": false
+      }
+    },
+    {
+      "name": "kanca rakip",
+      "kosu": {
+        "bec": {
+          "yerel": {
+            "grappling-hook": {
+              "kalan": 1,
+              "hedef": "rakip",
+              "nokta": [
+                1,
+                2
+              ]
+            }
+          }
+        },
+        "becHedef": {},
+        "becCikti": {
+          "hayalet": false
+        },
+        "mek": {
+          "etkiKalan": 0
+        }
+      },
+      "expected": {
+        "durum": {
+          "kanca": "rakip",
+          "kancaHedef": null,
+          "hayalet": false,
+          "donusum": false,
+          "iz": [],
+          "ruzgar": false
+        },
+        "nitro": false
+      }
+    },
+    {
+      "name": "kanca yol noktası",
+      "kosu": {
+        "bec": {
+          "yerel": {
+            "grappling-hook": {
+              "kalan": 1,
+              "hedef": null,
+              "nokta": [
+                3,
+                4
+              ]
+            }
+          }
+        },
+        "becHedef": {},
+        "becCikti": {
+          "hayalet": false
+        },
+        "mek": {
+          "etkiKalan": 0
+        }
+      },
+      "expected": {
+        "durum": {
+          "kanca": [
+            3,
+            4
+          ],
+          "kancaHedef": null,
+          "hayalet": false,
+          "donusum": false,
+          "iz": [],
+          "ruzgar": false
+        },
+        "nitro": false
+      }
+    },
+    {
+      "name": "kanca bina hedefsiz nokta",
+      "kosu": {
+        "bec": {
+          "yerel": {
+            "grappling-hook": {
+              "kalan": 1,
+              "hedef": "#bina",
+              "nokta": [
+                8,
+                9
+              ]
+            }
+          }
+        },
+        "becHedef": {},
+        "becCikti": {
+          "hayalet": false
+        },
+        "mek": {
+          "etkiKalan": 0
+        }
+      },
+      "expected": {
+        "durum": {
+          "kanca": [
+            8,
+            9
+          ],
+          "kancaHedef": null,
+          "hayalet": false,
+          "donusum": false,
+          "iz": [],
+          "ruzgar": false
+        },
+        "nitro": false
+      }
+    },
+    {
+      "name": "kanca bitti",
+      "kosu": {
+        "bec": {
+          "yerel": {
+            "grappling-hook": {
+              "kalan": 0,
+              "hedef": "rakip",
+              "uc": [
+                1,
+                2,
+                3
+              ]
+            }
+          }
+        },
+        "becHedef": {},
+        "becCikti": {
+          "hayalet": false
+        },
+        "mek": {
+          "etkiKalan": 0
+        }
+      },
+      "expected": {
+        "durum": {
+          "kanca": null,
+          "kancaHedef": null,
+          "hayalet": false,
+          "donusum": false,
+          "iz": [],
+          "ruzgar": false
+        },
+        "nitro": false
+      }
+    },
+    {
+      "name": "hedef var",
+      "kosu": {
+        "bec": {
+          "yerel": {}
+        },
+        "becHedef": {
+          "grappling-hook": [
+            11,
+            12.5,
+            13
+          ]
+        },
+        "becCikti": {
+          "hayalet": false
+        },
+        "mek": {
+          "etkiKalan": 0
+        }
+      },
+      "expected": {
+        "durum": {
+          "kanca": null,
+          "kancaHedef": [
+            11,
+            12.5,
+            13
+          ],
+          "hayalet": false,
+          "donusum": false,
+          "iz": [],
+          "ruzgar": false
+        },
+        "nitro": false
+      }
+    },
+    {
+      "name": "hedef null",
+      "kosu": {
+        "bec": {
+          "yerel": {}
+        },
+        "becHedef": {
+          "grappling-hook": null
+        },
+        "becCikti": {
+          "hayalet": false
+        },
+        "mek": {
+          "etkiKalan": 0
+        }
+      },
+      "expected": {
+        "durum": {
+          "kanca": null,
+          "kancaHedef": null,
+          "hayalet": false,
+          "donusum": false,
+          "iz": [],
+          "ruzgar": false
+        },
+        "nitro": false
+      }
+    },
+    {
+      "name": "bağlıyken hedef",
+      "kosu": {
+        "bec": {
+          "yerel": {
+            "grappling-hook": {
+              "kalan": 1,
+              "uc": [
+                1,
+                2,
+                3
+              ]
+            }
+          }
+        },
+        "becHedef": {
+          "grappling-hook": [
+            4,
+            5,
+            6
+          ]
+        },
+        "becCikti": {
+          "hayalet": false
+        },
+        "mek": {
+          "etkiKalan": 0
+        }
+      },
+      "expected": {
+        "durum": {
+          "kanca": [
+            1,
+            3,
+            2
+          ],
+          "kancaHedef": [
+            4,
+            5,
+            6
+          ],
+          "hayalet": false,
+          "donusum": false,
+          "iz": [],
+          "ruzgar": false
+        },
+        "nitro": false
+      }
+    },
+    {
+      "name": "hayalet",
+      "kosu": {
+        "bec": {
+          "yerel": {}
+        },
+        "becHedef": {},
+        "becCikti": {
+          "hayalet": true
+        },
+        "mek": {
+          "etkiKalan": 0
+        }
+      },
+      "expected": {
+        "durum": {
+          "kanca": null,
+          "kancaHedef": null,
+          "hayalet": true,
+          "donusum": false,
+          "iz": [],
+          "ruzgar": false
+        },
+        "nitro": false
+      }
+    },
+    {
+      "name": "dönüşüm iz",
+      "kosu": {
+        "bec": {
+          "yerel": {
+            "risk-taker": {
+              "kalan": 3,
+              "iz": [
+                [
+                  1,
+                  2,
+                  1.5
+                ],
+                [
+                  3,
+                  4,
+                  0.2
+                ]
+              ]
+            }
+          }
+        },
+        "becHedef": {},
+        "becCikti": {
+          "hayalet": false
+        },
+        "mek": {
+          "etkiKalan": 0
+        }
+      },
+      "expected": {
+        "durum": {
+          "kanca": null,
+          "kancaHedef": null,
+          "hayalet": false,
+          "donusum": true,
+          "iz": [
+            [
+              1,
+              2,
+              1.5
+            ],
+            [
+              3,
+              4,
+              0.2
+            ]
+          ],
+          "ruzgar": false
+        },
+        "nitro": false
+      }
+    },
+    {
+      "name": "dönüşüm kapalı iz",
+      "kosu": {
+        "bec": {
+          "yerel": {
+            "risk-taker": {
+              "kalan": 0,
+              "iz": [
+                [
+                  9,
+                  9,
+                  0.4
+                ]
+              ]
+            }
+          }
+        },
+        "becHedef": {},
+        "becCikti": {
+          "hayalet": false
+        },
+        "mek": {
+          "etkiKalan": 0
+        }
+      },
+      "expected": {
+        "durum": {
+          "kanca": null,
+          "kancaHedef": null,
+          "hayalet": false,
+          "donusum": false,
+          "iz": [
+            [
+              9,
+              9,
+              0.4
+            ]
+          ],
+          "ruzgar": false
+        },
+        "nitro": false
+      }
+    },
+    {
+      "name": "slipstream",
+      "kosu": {
+        "bec": {
+          "yerel": {
+            "slipstream-engine": {
+              "kalan": 0.5
+            }
+          }
+        },
+        "becHedef": {},
+        "becCikti": {
+          "hayalet": false
+        },
+        "mek": {
+          "etkiKalan": 0
+        }
+      },
+      "expected": {
+        "durum": {
+          "kanca": null,
+          "kancaHedef": null,
+          "hayalet": false,
+          "donusum": false,
+          "iz": [],
+          "ruzgar": true
+        },
+        "nitro": false
+      }
+    },
+    {
+      "name": "volt kanat",
+      "kosu": {
+        "bec": {
+          "yerel": {
+            "volt-kanat": {
+              "kalan": 4
+            }
+          }
+        },
+        "becHedef": {},
+        "becCikti": {
+          "hayalet": false
+        },
+        "mek": {
+          "etkiKalan": 0
+        }
+      },
+      "expected": {
+        "durum": {
+          "kanca": null,
+          "kancaHedef": null,
+          "hayalet": false,
+          "donusum": false,
+          "iz": [],
+          "ruzgar": true
+        },
+        "nitro": false
+      }
+    },
+    {
+      "name": "nitro",
+      "kosu": {
+        "bec": {
+          "yerel": {}
+        },
+        "becHedef": {},
+        "becCikti": {
+          "hayalet": false
+        },
+        "mek": {
+          "etkiKalan": 0.3
+        }
+      },
+      "expected": {
+        "durum": {
+          "kanca": null,
+          "kancaHedef": null,
+          "hayalet": false,
+          "donusum": false,
+          "iz": [],
+          "ruzgar": false
+        },
+        "nitro": true
+      }
+    },
+    {
+      "name": "nitro bitti",
+      "kosu": {
+        "bec": {
+          "yerel": {}
+        },
+        "becHedef": {},
+        "becCikti": {
+          "hayalet": false
+        },
+        "mek": {
+          "etkiKalan": 0
+        }
+      },
+      "expected": {
+        "durum": {
+          "kanca": null,
+          "kancaHedef": null,
+          "hayalet": false,
+          "donusum": false,
+          "iz": [],
+          "ruzgar": false
+        },
+        "nitro": false
+      }
+    }
+  ],
+  "markers": [
+    {
+      "name": "bölge1 türleri",
+      "kosu": {
+        "etkinlikler": [
+          {
+            "id": 0,
+            "ty": "gp",
+            "x": 0,
+            "z": 0,
+            "yapildi": false
+          },
+          {
+            "id": 1,
+            "ty": "rx",
+            "x": 10,
+            "z": -1,
+            "yapildi": false
+          },
+          {
+            "id": 2,
+            "ty": "rl",
+            "x": 20,
+            "z": -2,
+            "yapildi": false
+          },
+          {
+            "id": 3,
+            "ty": "dp",
+            "x": 30,
+            "z": -3,
+            "yapildi": true
+          },
+          {
+            "id": 4,
+            "ty": "dg",
+            "x": 40,
+            "z": -4,
+            "yapildi": false
+          }
+        ],
+        "sandiklar": [
+          {
+            "id": 0,
+            "x": 1,
+            "z": 2,
+            "lanetli": false,
+            "acildi": false
+          },
+          {
+            "id": 1,
+            "x": 3,
+            "z": 4,
+            "lanetli": true,
+            "acildi": false
+          },
+          {
+            "id": 2,
+            "x": 5,
+            "z": 6,
+            "lanetli": false,
+            "acildi": true
+          }
+        ]
+      },
+      "expected": [
+        {
+          "x": 0,
+          "z": 0,
+          "color": 16734780,
+          "height": 70,
+          "chest": false,
+          "label": "ASFALT"
+        },
+        {
+          "x": 10,
+          "z": -1,
+          "color": 13666888,
+          "height": 70,
+          "chest": false,
+          "label": "RALLİKROS"
+        },
+        {
+          "x": 20,
+          "z": -2,
+          "color": 5226356,
+          "height": 70,
+          "chest": false,
+          "label": "RALLİ"
+        },
+        {
+          "x": 40,
+          "z": -4,
+          "color": 16765500,
+          "height": 70,
+          "chest": false,
+          "label": "DRAG"
+        },
+        {
+          "x": 1,
+          "z": 2,
+          "color": 16773288,
+          "height": null,
+          "chest": true,
+          "label": null
+        },
+        {
+          "x": 3,
+          "z": 4,
+          "color": 16727240,
+          "height": null,
+          "chest": true,
+          "label": null
+        },
+        {
+          "x": 100,
+          "z": 200,
+          "color": 3983615,
+          "height": 40,
+          "chest": false,
+          "label": "ATÖLYE"
+        },
+        {
+          "x": 300,
+          "z": 400,
+          "color": 16722474,
+          "height": 140,
+          "chest": false,
+          "label": "BOSS"
+        }
+      ]
+    },
+    {
+      "name": "şehir sokak",
+      "kosu": {
+        "etkinlikler": [
+          {
+            "id": 0,
+            "ty": "gp",
+            "sokak": "ab",
+            "x": 0,
+            "z": 0,
+            "yapildi": false
+          },
+          {
+            "id": 1,
+            "ty": "rl",
+            "sokak": "tur",
+            "x": 10,
+            "z": -1,
+            "yapildi": false
+          },
+          {
+            "id": 2,
+            "ty": "gp",
+            "sokak": "kovala",
+            "x": 20,
+            "z": -2,
+            "yapildi": false
+          },
+          {
+            "id": 3,
+            "ty": "dg",
+            "x": 30,
+            "z": -3,
+            "yapildi": false
+          }
+        ],
+        "sandiklar": [
+          {
+            "id": 0,
+            "x": 7,
+            "z": 8,
+            "lanetli": true,
+            "acildi": false
+          }
+        ]
+      },
+      "expected": [
+        {
+          "x": 0,
+          "z": 0,
+          "color": 16748504,
+          "height": 70,
+          "chest": false,
+          "label": null
+        },
+        {
+          "x": 10,
+          "z": -1,
+          "color": 16748504,
+          "height": 70,
+          "chest": false,
+          "label": null
+        },
+        {
+          "x": 20,
+          "z": -2,
+          "color": 16748504,
+          "height": 70,
+          "chest": false,
+          "label": null
+        },
+        {
+          "x": 30,
+          "z": -3,
+          "color": 16765500,
+          "height": 70,
+          "chest": false,
+          "label": "DRAG"
+        },
+        {
+          "x": 7,
+          "z": 8,
+          "color": 16727240,
+          "height": null,
+          "chest": true,
+          "label": null
+        },
+        {
+          "x": 100,
+          "z": 200,
+          "color": 3983615,
+          "height": 40,
+          "chest": false,
+          "label": "ATÖLYE"
+        },
+        {
+          "x": 300,
+          "z": 400,
+          "color": 16722474,
+          "height": 140,
+          "chest": false,
+          "label": "BOSS"
+        }
+      ]
+    }
+  ]
+}

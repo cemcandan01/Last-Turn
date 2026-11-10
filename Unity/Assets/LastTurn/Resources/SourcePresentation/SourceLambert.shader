@@ -1,13 +1,13 @@
 Shader "LastTurn/SourceLambert"
 {
-  Properties { _Color("Renk",Color)=(1,1,1,1) _MainTex("Doku",2D)="white" {} _Lit("Lambert",Float)=1 _Cull("Yüz",Float)=2 _ZWrite("Derinlik",Float)=1 }
+  Properties { _Color("Renk",Color)=(1,1,1,1) _MainTex("Doku",2D)="white" {} _Lit("Lambert",Float)=1 _Cull("Yüz",Float)=2 _ZWrite("Derinlik",Float)=1 _DstBlend("Karışım",Float)=10 _ZTest("Derinlik sınaması",Float)=4 }
   SubShader
   {
     Tags { "RenderType"="Opaque" }
     Pass
     {
       Tags { "LightMode"="ForwardBase" }
-      Cull [_Cull] ZWrite [_ZWrite] Blend SrcAlpha OneMinusSrcAlpha
+      Cull [_Cull] ZWrite [_ZWrite] ZTest [_ZTest] Blend SrcAlpha [_DstBlend]
       CGPROGRAM
       #pragma vertex vert
       #pragma fragment frag

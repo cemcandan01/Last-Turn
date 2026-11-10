@@ -18,7 +18,7 @@ namespace LastTurn.Prototype
     }
     [Serializable] public sealed class Node
     {
-      public string name,tag; public int parent,geometry; public bool visible;
+      public string name,tag; public int parent,geometry; public bool visible,sprite;
       public float[] position,rotation,scale,instances; public int[] materials;
     }
     [Serializable] public sealed class Geometry { public float[] positions,normals,uv,colors; public int[] indices; public Group[] groups; }
@@ -26,19 +26,36 @@ namespace LastTurn.Prototype
     [Serializable] public sealed class Surface
     {
       public string name; public float[] color,repeat,offset; public float opacity;
-      public bool transparent,doubleSided,basic,glass,mirror,repeatWrap; public int texture;
+      public bool transparent,doubleSided,basic,glass,mirror,repeatWrap,additive,overlay; public int texture;
     }
     [Serializable] public sealed class TextureFile { public string file; }
     private sealed class Shared { public Graph graph; public Mesh[] meshes; public Material[] materials; }
     private static readonly Dictionary<string,Shared> cache=new Dictionary<string,Shared>();
     private readonly List<UnityEngine.Object> owned=new List<UnityEngine.Object>();
     public readonly Dictionary<string,Transform> Tags=new Dictionary<string,Transform>();
+    /// Aynı etiketli havuzlar (60 toz, 26 kor) için sıralı liste.
+    public readonly List<(string Tag,Transform Node)> Tagged=new List<(string,Transform)>();
     public readonly List<Renderer> MirrorFaces=new List<Renderer>();
     public readonly List<Material> Glass=new List<Material>();
     public Graph Data {get;private set;}
     public int RendererCount {get;private set;}
     private readonly Dictionary<Renderer,Material[]> ghostOriginal=new Dictionary<Renderer,Material[]>();private Material ghostMaterial;private bool ghost;
     public bool GhostMode=>ghost;
+    /// TS uzak-arac-modeli kur(saydam): malzemeler kopyalanır, opaklık 0,45 × özgün (saydamsa), derinlik yazılmaz, gölge yok.
+    public bool Translucent{get;private set;}
+    public void SetTranslucent()
+    {
+      if(Translucent)return;Translucent=true;var copies=new Dictionary<Material,Material>();
+      foreach(var renderer in GetComponentsInChildren<Renderer>(true))
+      {
+        var mats=renderer.sharedMaterials;
+        for(int i=0;i<mats.Length;i++){var m=mats[i];if(!m)continue;if(!copies.TryGetValue(m,out var k)){k=new Material(m);var c=k.color;c.a=.45f*(m.renderQueue>=3000?c.a:1);k.color=c;k.SetFloat("_ZWrite",0);k.renderQueue=3000;owned.Add(k);copies[m]=k;}mats[i]=k;}
+        renderer.sharedMaterials=mats;renderer.shadowCastingMode=ShadowCastingMode.Off;
+      }
+      Glass.Clear();
+    }
+    /// TS beceri-efekt hayaletMat nabzı: yalnız saydamlık değişir.
+    public void SetGhostOpacity(float opacity){if(!ghostMaterial)return;var c=ghostMaterial.color;c.a=opacity;ghostMaterial.color=c;}
     public void SetGhost(bool enabled)
     {
       if(ghost==enabled)return;ghost=enabled;
@@ -67,8 +84,10 @@ namespace LastTurn.Prototype
       {
         var n=data.graph.nodes[i];var node=new GameObject(n.name);node.layer=layer;var t=node.transform;transforms[i]=t;t.SetParent(n.parent<0?root.transform:transforms[n.parent],false);
         t.localPosition=Point(n.position);t.localRotation=Rotation(n.rotation);t.localScale=new Vector3(n.scale[0],n.scale[1],n.scale[2]);
-        if(!string.IsNullOrEmpty(n.tag)){if(n.tag=="panel")view.Tags["panel-"+i]=t;else view.Tags[n.tag]=t;}
+        if(!string.IsNullOrEmpty(n.tag)){if(n.tag=="panel")view.Tags["panel-"+i]=t;else view.Tags[n.tag]=t;view.Tagged.Add((n.tag,t));}
         node.SetActive(n.visible);
+        // Three Sprite: 1×1 merkezli dörtgen; kameraya dönüşü kullanan görünüm yapar.
+        if(n.sprite){node.AddComponent<MeshFilter>().sharedMesh=SpriteQuad();node.AddComponent<MeshRenderer>().sharedMaterial=localMaterials[n.materials[0]];view.RendererCount++;continue;}
         if(n.geometry<0)continue;
         var mats=new Material[data.meshes[n.geometry].subMeshCount];for(int j=0;j<mats.Length;j++)mats[j]=localMaterials[n.materials[n.materials.Length==1?0:Math.Min(j,n.materials.Length-1)]];
         bool mirror=Array.Exists(n.materials,j=>data.graph.materials[j].mirror);
@@ -94,6 +113,12 @@ namespace LastTurn.Prototype
       }
       return view;
     }
+    private static Mesh quad;
+    private static Mesh SpriteQuad()
+    {
+      if(quad)return quad;quad=new Mesh{name="TS sprite"};quad.vertices=new[]{new Vector3(-.5f,-.5f,0),new Vector3(.5f,-.5f,0),new Vector3(.5f,.5f,0),new Vector3(-.5f,.5f,0)};
+      quad.uv=new[]{new Vector2(0,0),new Vector2(1,0),new Vector2(1,1),new Vector2(0,1)};quad.normals=new[]{Vector3.back,Vector3.back,Vector3.back,Vector3.back};quad.colors=new[]{Color.white,Color.white,Color.white,Color.white};quad.triangles=new[]{0,2,1,0,3,2};quad.RecalculateBounds();return quad;
+    }
     private static Mesh MakeMesh(Geometry g)
     {
       var m=new Mesh{name="TS kaynak geometri",indexFormat=IndexFormat.UInt32};var v=new Vector3[g.positions.Length/3];for(int i=0;i<v.Length;i++)v[i]=new Vector3(-g.positions[i*3],g.positions[i*3+1],g.positions[i*3+2]);m.vertices=v;
@@ -113,6 +138,8 @@ namespace LastTurn.Prototype
     {
       var shader=Resources.Load<Shader>("SourcePresentation/SourceLambert");if(!shader)throw new InvalidOperationException("Kaynak sunum shader'ı bulunamadı");
       var m=new Material(shader){name=s.name,color=new Color(s.color[0],s.color[1],s.color[2],s.opacity)};m.SetFloat("_Lit",s.basic?0:1);m.SetFloat("_Cull",s.doubleSided?0:2);m.SetFloat("_ZWrite",s.transparent?0:1);m.renderQueue=s.transparent?3000:2000;
+      // Efekt grafiği: AdditiveBlending ve depthTest=false (Sprite etiketleri renderOrder10 ile en üstte).
+      if(s.additive)m.SetFloat("_DstBlend",1);if(s.overlay){m.SetFloat("_ZTest",8);m.SetFloat("_Cull",0);m.renderQueue=3100;}
       if(s.texture>=0){string path="SourcePresentation/"+Path.GetFileNameWithoutExtension(g.textures[s.texture].file);var texture=Resources.Load<Texture2D>(path);if(!texture)throw new InvalidDataException("Kaynak doku eksik: "+g.key+"/"+s.name+"/"+path);texture.wrapMode=s.repeatWrap?TextureWrapMode.Repeat:TextureWrapMode.Clamp;m.mainTexture=texture;m.mainTextureScale=new Vector2(s.repeat[0],s.repeat[1]);m.mainTextureOffset=new Vector2(s.offset[0],s.offset[1]);}
       return m;
     }

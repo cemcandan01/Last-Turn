@@ -45,6 +45,7 @@ namespace LastTurn.Ui
       Screen = Layer("katman"); Hud = Layer("katman"); Top = Layer("katman");
       kok.Add(Hud); kok.Add(Screen); kok.Add(Top);
       gameObject.AddComponent<MainMenuView>();
+      gameObject.AddComponent<MenuBackdropView>();
       gameObject.AddComponent<GarageView>();
       gameObject.AddComponent<StoreView>();
       gameObject.AddComponent<MutantStartView>();

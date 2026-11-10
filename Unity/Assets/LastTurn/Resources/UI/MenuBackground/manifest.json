@@ -1,0 +1,78 @@
+{
+  "baseline": "df3549e709469f0b519ebfbeaa9f63c1040fee05",
+  "kalmaMs": 6000,
+  "images": [
+    {
+      "source": "public/img/menu/00.webp",
+      "sourceHash": "9104779b358b46efc72d20f58c9f2e9dab23cabb157ef720e799407ee40ba3ea",
+      "file": "menu-00.png",
+      "hash": "0b7bf05ac84c1a0613c2f050e6b1316283bef9ed16e02aea0a0814e90461f745",
+      "width": 1152,
+      "height": 532
+    },
+    {
+      "source": "public/img/menu/01.webp",
+      "sourceHash": "b4377658136862b54864522ad4261d08b74a7f5fecf7bc920a458f2c9dc52572",
+      "file": "menu-01.png",
+      "hash": "2a76ae403e6b74278742563a592e8c106aa2dee9b4c3e7e65d97177d745f01c4",
+      "width": 1152,
+      "height": 532
+    },
+    {
+      "source": "public/img/menu/02.webp",
+      "sourceHash": "d6dcfad41fc3a76713995e0ba393dde3e05dfc471eea30541a19beed08d6a54d",
+      "file": "menu-02.png",
+      "hash": "34979c63c0076a3d962fb0623782b17c1740552283c28a9f9f0b12321fd00d35",
+      "width": 1152,
+      "height": 532
+    },
+    {
+      "source": "public/img/menu/03.webp",
+      "sourceHash": "d7279f21017932b9cd120cbef3f16686803cc7410efad1e8641570b8a5baf78c",
+      "file": "menu-03.png",
+      "hash": "930fba9503d42fe01bfd89fbb91407f7e822ecbbb3924cac0070de6f44890304",
+      "width": 1152,
+      "height": 532
+    },
+    {
+      "source": "public/img/menu/04.webp",
+      "sourceHash": "669b0381a4963df6816689d4fc903d6f394efbc466376b753252df82825bfb43",
+      "file": "menu-04.png",
+      "hash": "75d32c947954ac348970053c099014fbe593f89498b86f5c724e87667cd4d71c",
+      "width": 1152,
+      "height": 532
+    },
+    {
+      "source": "public/img/menu/05.webp",
+      "sourceHash": "1d56484a193a5c54aa3c807b036c3ba8f1c95b1e37f9e9203529186fb1e70473",
+      "file": "menu-05.png",
+      "hash": "4a13fb0f38aa730d4a1965e678690f4d2acc7a01163e96511569a981129bfe92",
+      "width": 1152,
+      "height": 532
+    },
+    {
+      "source": "public/img/menu/06.webp",
+      "sourceHash": "9e7bf406538cac1fd16ffdb0fd93214fa4a99cafb8fdcaa17e0719ab1d71557d",
+      "file": "menu-06.png",
+      "hash": "c65caf2e56f91fbe9e78c345f1608a8a1880999a05d08d1360a20125770175fa",
+      "width": 1152,
+      "height": 532
+    },
+    {
+      "source": "public/img/menu/07.webp",
+      "sourceHash": "5462c3a547eb5b088bc96a3a4d3ae6863d6765ce50b87b55dbb62d7783d020e7",
+      "file": "menu-07.png",
+      "hash": "1c9264f656930a832cc244e4bc562227358b447819087681233bcb69350647a4",
+      "width": 1152,
+      "height": 532
+    },
+    {
+      "source": "public/img/menu/08.webp",
+      "sourceHash": "82d86ede67b862e788a96bae215e749d412bafe8faaa8c11cfc68c9ec77930f6",
+      "file": "menu-08.png",
+      "hash": "3638319313730d903a6fd69d7190f5917008dc41f810827c5fb29b46deb1a8a1",
+      "width": 1152,
+      "height": 532
+    }
+  ]
+}

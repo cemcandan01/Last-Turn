@@ -1,3 +1,10 @@
+# Kaynak efekt/işaret/kapı/menü görseli tamam; tam aktarım sürüyor (10 Kasım 2026) — Claude
+
+- **Devir:** Claude, Cem'in yetkisiyle `3a04f1c`'den tek uygulayıcı; dal `codex/unity-p7-garaj`. Push/merge/PR/yayın yok. Ayrıntı [ana kart](isler/2026-11-01-unity-tam-aktarim.md) → “Kaynak efekt/işaret/kapı/menü görseli paketi”.
+- **Uygulandı:** kaynak kurucularından toz/duman/su/çalı, nitro alevi, skill efektleri (kanca halatı/hedef halkası, hayalet, Risk Taker alev/kor, rüzgâr), sokak kapıları, kaynak işaret sütun/halka/tabela/sandık ve kaynak menü arka plan slaytı; rekor/geliştirici hayaleti TS uzak araç saydamlığı/modeline alındı. Kanca hedefi HUD `TargetPoint`'ten; yeni mekanik/sanat yok.
+- **Kanıt:** `.NET --source-effects` 191 (TS gövdeleri, fark0); gerçek Play UTC 15:03:35 **104 kontrol/447 kaynak/24 Game View, Runtime0** (2 çevrimdışı Package Manager tanısı ayrı). `node Unity/Validation/check-source-effects-proof.mjs`. Fixture'lar kanıtta yazılı. p10–p12 bütün-hash kanıtları tarihsel.
+- **Sonraki:** Mutant DEV laboratuvarı (`mutant-ui.ts` test modu/panel/drift tanısı, `mutant-kosu.ts` test kurulum işlevleri) + iki hayalet görünümünün Play kabulü; ardından kaynak öğesi matrisi, son oynanış, güncel Windows build/iki süreç.
+
 # Claude devri yetkilendirildi; ek kullanım teyidi alındı (10 Kasım 2026)
 
 Cem bu oturumda “Ek kullanım kapalı; doğruladım” yanıtını verdi. Mevcut yordamla yalnız Claude kapsamına24 saatlik manuel teyit kaydedildi; bu otomatik hesap doğrulaması veya API/ek ücret izni değildir. Resmî CLI kontrolü UTC14:17:05'te `claude.ai`/Pro aboneliğini doğruladı; kapasite bilinmiyor. Eski `last-turn-unity-ad` oturumu boşta; aynı dosyalarda paralel uygulama başlatılmaz.
