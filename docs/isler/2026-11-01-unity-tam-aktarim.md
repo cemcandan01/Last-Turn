@@ -6,6 +6,8 @@ Kaynak: `typescript-baseline-0.8.18` → `df3549e709469f0b519ebfbeaa9f63c1040fee
 
 ### Kullanıcının commit isteği — 10 Kasım 2026
 
+**Son durum:** `49ab638` ve `7df9034` yerel commit'leri tamam, kontroller geçti. Claude devamı `8f357de5` oturumunda kotaya takıldı: CLI10 Kasım22:20 İstanbul sıfırlanmasını bildiriyor. Ücretli alternatif veya otomatik yeniden başlatma yok; eski `e6a339a1` ve yeni devam güvenli durduruldu. Korunmuş devam UUID'si `8f357de5-0163-40ab-b604-88a2cf42a8e2`. Genel aktarım açık; yeni kod yazılmadı, push yapılmadı.
+
 Claude `e6a339a1` aktif olduğundan yerel commit öncesinde geçici durduruldu; Codex yalnız commit hazırlığı/kısa doğrulama yaptı. `b0a55b6` üzerindeki tamamlanmış test uyarlamaları **`49ab638`** ile kaydedildi. Enerji971.504 koşul/7.920 adım, fark1,78e−14; doğal boss/görev29, kaynak sunum357 ve motor sesi106 güncel proof kontrolü geçti. Oyun hataları hâlâ reddedilir; yalnız oyun stack'ine değmeyen Package Manager/Search tanıları ayrı tutulur. Uzun regresyon/build yapılmadı.
 
 Kaynak dosyası matrisi ve doğrulayıcısı122/122 kapsam/karşılık/kanıt başvurusunu doğrular (99 doğrulanmış,15 platform eşdeğeri,2 kullanıcı kararı,6 ortam sınırı); fonksiyon başına yeni kabul veya genel tamamlanma iddiası değildir. Matris ve devir notu ayrı yerel commit'e alınır. Kalan genel kapanış aynı Claude konuşmasında sürdürülecek; push/merge/PR/yayın yetkisi verilmedi. `_Recovery` ve gerçek kayıtlar korunur.

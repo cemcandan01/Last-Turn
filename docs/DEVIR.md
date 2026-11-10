@@ -1,3 +1,11 @@
+# Commitler tamam; Claude oturum kotası nedeniyle bekliyor (10 Kasım 2026)
+
+İstenen değişiklikler `49ab638` (test uyarlamaları) ve `7df9034` (kaynak matrisi/devir) ile yerel commit'e alındı. Kontroller geçti; yalnız korunan `_Recovery`/meta untracked kaldı. Push/merge/PR/yayın yok.
+
+Claude'u sürdürme denemesi, native CLI'nin mevcut seçeneklerle `e6a339a1` konuşmasının devam kopyasını `8f357de5` olarak açmasıyla sonuçlandı; ikisi paralel çalışmadı. Yeni devam da resmî **“You've hit your session limit · resets 10:20pm (Europe/Istanbul)”** yanıtını verdi. API/ek kredi veya ücretli yükseltmeye geçilmedi; yeni oturum güvenli durduruldu. **Claude şu anda geliştirmeye devam etmiyor.** Otomatik yeniden başlatma kurulmadı.
+
+Kota sonrası korunmuş devam konuşması `8f357de5-0163-40ab-b604-88a2cf42a8e2`; `claude --bg --resume 8f357de5-0163-40ab-b604-88a2cf42a8e2` mevcut kayıtlı seçeneklerle sürdürür. İlave başlatma bayrakları native CLI'de yeni devam kopyası açabilir. Sonraki asıl iş ana karttaki güncel Windows/iki süreç ve genel kapanış kabulüdür; commit edilmiş işleri yeniden yapma. Kanıt: yerel `tests/cikti/koordinator/claude-commit-sonrasi-devam.json`.
+
 # İstenen yerel commit düzeni (10 Kasım 2026) — Codex
 
 - Cem'in commit isteği için aktif Claude `e6a339a1` geçici olarak durduruldu; aynı dosyalarda paralel uygulama yapılmadı. Önceki dört Claude teslimi zaten commit'liydi (`7fdf537`, `b8c090f`, `09ba95e`, `b0a55b6`), yeniden yazılmadı.
