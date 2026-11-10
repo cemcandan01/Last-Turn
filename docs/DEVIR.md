@@ -1,3 +1,10 @@
+# İstenen yerel commit düzeni (10 Kasım 2026) — Codex
+
+- Cem'in commit isteği için aktif Claude `e6a339a1` geçici olarak durduruldu; aynı dosyalarda paralel uygulama yapılmadı. Önceki dört Claude teslimi zaten commit'liydi (`7fdf537`, `b8c090f`, `09ba95e`, `b0a55b6`), yeniden yazılmadı.
+- **`49ab638`:** enerji testinin mevcut adım dünyasına uyarlanması ve dört Play üreticisi/checker'da oyun hatalarından ayrı Editor tanıları. `.NET --mutant-energy`:971.504 koşul/7.920 adım, en büyük fark1,78e−14. Güncel doğal boss/görev, kaynak sunum ve motor sesi proof checker'ları geçti; runtime hatası yok, çevrimdışı Editor tanıları ayrı korundu. Uzun regresyon veya yeni Windows build çalıştırılmadı.
+- **Kaynak matrisi:** `Unity/Validation/source-matrix.json` + `check-source-matrix.mjs`;122/122 dosya,99 doğrulanmış/15 platform eşdeğeri/2 kullanıcı kararı/6 ortam kabulü. Kapsam ve başvuru kontrolü geçti; bu sayım tek başına bütün işlevlerin yeniden test edildiğini göstermez. Biçim ve diff kontrolleri geçti. Genel aktarım/Windows ürün kabulü hâlâ açık; ana kart güncel kayıttır.
+- Yerel commit dışında push/merge/PR/yayın yok. `_Recovery`/meta korunur. Commit işlemi sonrası aynı Claude konuşmasının sürdürülmesi planlandı; gerçek çalışma durumu CLI `claude agents --json` ve yerel `tests/cikti/koordinator/claude-commit-sonrasi-devam.json` kaydından doğrulanır.
+
 # TS garaj sahnesi F ekranlarına bağlandı (10 Kasım 2026) — Claude
 
 - Onaylı F taslaklarındaki kaynak garaj sahnesi (beton otopark, kolonlar, halka, hüzme, garaj ışığı) garaj/modifiye arka planı ve mağaza önizlemesi oldu. Play 22 kontrol/6 Game View; `node Unity/Validation/check-garage-scene-proof.mjs`.

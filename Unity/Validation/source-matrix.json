@@ -1,0 +1,1068 @@
+{
+  "baseline": "df3549e709469f0b519ebfbeaa9f63c1040fee05",
+  "classes": {
+    "dogrulandi": "Unity’de uygulandı ve doğrulandı",
+    "kabul-eksik": "Uygulandı, bağlantı/kabul eksik",
+    "aktarilmadi": "Aktarılmadı",
+    "platform": "Platforma uygun eşdeğerle karşılandı",
+    "karar": "Kullanıcının açık kararıyla değiştirildi",
+    "ortam": "Ortam/dış yapılandırma nedeniyle doğrulanamadı"
+  },
+  "items": [
+    {
+      "path": "src/arac/araclar.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/VehicleCatalog.cs",
+        "Unity/Assets/LastTurn/Resources/vehicle-catalog.json"
+      ],
+      "evidence": ["--catalog", "--garage"],
+      "note": "15 araç kimlik/değer/fiyat"
+    },
+    {
+      "path": "src/arac/gorunumler.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Prototype/SourceVehicleView.cs",
+        "Unity/Validation/export-source-presentation.mjs"
+      ],
+      "evidence": ["Unity/Validation/check-source-presentation-proof.mjs"],
+      "note": "araç görünümleri kaynak kurucudan"
+    },
+    {
+      "path": "src/arac/istatistik.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/GarageViewModel.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/CatalogPerformance.cs"
+      ],
+      "evidence": ["--garage-ui"],
+      "note": "garaj/mağaza istatistikleri"
+    },
+    {
+      "path": "src/arac/ozellikler.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/GarageViewModel.cs"],
+      "evidence": ["--garage-ui", "--garage-f"],
+      "note": "özellik puanları"
+    },
+    {
+      "path": "src/arac/parcalar.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/VehicleCatalog.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/GarageCommand.cs"
+      ],
+      "evidence": ["--catalog", "--garage"],
+      "note": "parça kataloğu/takma"
+    },
+    {
+      "path": "src/arac/performans.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/CatalogPerformance.cs"],
+      "evidence": ["--catalog"],
+      "note": "performans/sınıf hesabı"
+    },
+    {
+      "path": "src/arac/yaris-lastigi.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/GarageDriveParameters.cs"],
+      "evidence": ["--garage-drive"],
+      "note": "yarış lastiği"
+    },
+    {
+      "path": "src/arayuz/arka-gorsel.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Ui/MenuBackdropView.cs",
+        "Unity/Validation/export-menu-backgrounds.mjs"
+      ],
+      "evidence": ["Unity/Validation/check-source-effects-proof.mjs"],
+      "note": "9 menü görseli; 7fdf537"
+    },
+    {
+      "path": "src/arayuz/ayarlar-ekrani.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Ui/SettingsView.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/SettingsViewModel.cs"
+      ],
+      "evidence": ["--settings-f"],
+      "note": "F §7 Cem onaylı yerleşim"
+    },
+    {
+      "path": "src/arayuz/bildirim.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Prototype/TouchDrivingOverlay.cs",
+        "Unity/Assets/LastTurn/Scripts/Ui/RaceHudView.cs"
+      ],
+      "evidence": ["--hud"],
+      "note": "kısa bildirimler HUD"
+    },
+    {
+      "path": "src/arayuz/dokunma.ts",
+      "class": "ortam",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Prototype/TouchDrivingOverlay.cs"],
+      "evidence": ["--controls"],
+      "note": "sanal cihazla doğrulandı; gerçek telefon kabulü yok"
+    },
+    {
+      "path": "src/arayuz/garaj.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Ui/GarageView.cs",
+        "Unity/Assets/LastTurn/Scripts/Ui/StoreView.cs",
+        "Unity/Assets/LastTurn/Scripts/Ui/GarageVehiclePreview.cs"
+      ],
+      "evidence": ["--garage-ui", "--garage-f", "Unity/Validation/check-garage-scene-proof.mjs"],
+      "note": "F garaj/modifiye/mağaza + TS garaj sahnesi"
+    },
+    {
+      "path": "src/arayuz/hesap-ui.ts",
+      "class": "ortam",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Ui/ProfileView.cs",
+        "Unity/Assets/LastTurn/Scripts/Garage/CloudRuntime.cs"
+      ],
+      "evidence": ["--cloud-sync", "--profile-f"],
+      "note": "sahte sağlayıcıyla tamam; gerçek Google OAuth istemcisi dış ayar"
+    },
+    {
+      "path": "src/arayuz/hud-duzenleyici.ts",
+      "class": "platform",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/PlayerSettings.cs",
+        "Unity/Assets/LastTurn/Scripts/Prototype/SettingsScreen.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/HudLayout.cs"
+      ],
+      "evidence": ["--hud", "--settings-f"],
+      "note": "HUD hazır ayarları/parçaları; masaüstü F HUD panelsiz (Cem P7 kararı), düzenleyici dokunmatik yerleşime uygulanır"
+    },
+    {
+      "path": "src/arayuz/hud.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Ui/RaceHudView.cs",
+        "Unity/Assets/LastTurn/Scripts/Ui/MutantHudView.cs",
+        "Unity/Assets/LastTurn/Scripts/Prototype/RaceHud.cs"
+      ],
+      "evidence": ["--hud", "--mutant-hud"],
+      "note": "F panelsiz HUD"
+    },
+    {
+      "path": "src/arayuz/ikonlar.ts",
+      "class": "karar",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Ui/MutantRewardIcons.cs",
+        "Unity/Assets/LastTurn/Scripts/Ui/Ui.cs"
+      ],
+      "evidence": ["--mutant-rewards"],
+      "note": "F arayüzü (Cem kararı) metin/eğik tuş; Mutant ödül ikonları ayrıca"
+    },
+    {
+      "path": "src/arayuz/kontroller.ts",
+      "class": "ortam",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Prototype/TouchDrivingOverlay.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/DrivingControls.cs"
+      ],
+      "evidence": ["--controls"],
+      "note": "dokunmatik/eğim sanal cihazla; gerçek cihaz kabulü yok"
+    },
+    {
+      "path": "src/arayuz/menu.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Ui/MainMenuView.cs",
+        "Unity/Assets/LastTurn/Scripts/Garage/GameFlow.cs"
+      ],
+      "evidence": ["--career-flow", "--drive-menu-f"],
+      "note": "F ana/yarış/Mutant menüsü (Cem P7-1 revize)"
+    },
+    {
+      "path": "src/arayuz/mini-harita.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/MiniMap.cs",
+        "Unity/Assets/LastTurn/Scripts/Prototype/MiniMapView.cs"
+      ],
+      "evidence": ["--hud"],
+      "note": "mini harita"
+    },
+    {
+      "path": "src/arayuz/mutant-ui.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Ui/MutantStartView.cs",
+        "Unity/Assets/LastTurn/Scripts/Ui/MutantHudView.cs",
+        "Unity/Assets/LastTurn/Scripts/Prototype/MutantDevLab.cs",
+        "Unity/Assets/LastTurn/Scripts/Prototype/MutantScreen.cs"
+      ],
+      "evidence": ["--mutant-menu", "--mutant-lab", "Unity/Validation/check-devlab-proof.mjs"],
+      "note": "F Mutant ekranları + DEV laboratuvarı b8c090f"
+    },
+    {
+      "path": "src/arayuz/seviye-ui.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Ui/LevelUpView.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/CareerLevelUp.cs",
+        "Unity/Assets/LastTurn/Scripts/Ui/ProfileView.cs"
+      ],
+      "evidence": ["--level-up", "Unity/Validation/check-levelup-proof.mjs"],
+      "note": "seviye rozeti/XP + kutlama 09ba95e"
+    },
+    {
+      "path": "src/arayuz/sonuc.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Ui/ResultView.cs",
+        "Unity/Assets/LastTurn/Scripts/Ui/MutantResultView.cs"
+      ],
+      "evidence": ["--race-session", "--career-flow"],
+      "note": "F §9 sonuç"
+    },
+    {
+      "path": "src/arayuz/surus-tuslari.ts",
+      "class": "ortam",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Prototype/TouchDrivingOverlay.cs"],
+      "evidence": ["--controls"],
+      "note": "masaüstünde klavye (Cem kararı); dokunmatikte sanal cihazla"
+    },
+    {
+      "path": "src/bulut/ayar.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/CloudConfig.cs"],
+      "evidence": ["--cloud"],
+      "note": "Firebase ayarı"
+    },
+    {
+      "path": "src/bulut/esitleme.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/CloudSync.cs",
+        "Unity/Assets/LastTurn/Scripts/Garage/CloudRuntime.cs"
+      ],
+      "evidence": ["--cloud-sync"],
+      "note": "sahte Firebase ile eşitleme; canlı Firestore yazılmadı"
+    },
+    {
+      "path": "src/bulut/firebase.ts",
+      "class": "ortam",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/FirebaseRestProvider.cs"],
+      "evidence": ["--cloud-sync"],
+      "note": "REST bağdaştırıcı sahte sağlayıcıyla; canlı sağlayıcı kabulü dış"
+    },
+    {
+      "path": "src/bulut/hesap.ts",
+      "class": "ortam",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/CloudAccount.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/GoogleDesktopAuth.cs"
+      ],
+      "evidence": ["--cloud-sync"],
+      "note": "misafir/e-posta/admin/yeni oyuncu tamam; gerçek Google masaüstü OAuth istemcisi gerekli"
+    },
+    {
+      "path": "src/cekirdek/beceri.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/MutantSkills.cs"],
+      "evidence": ["--mutant-skills", "--mutant-hook"],
+      "note": "skill tanımları"
+    },
+    {
+      "path": "src/cekirdek/bicim.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/RaceViewModel.cs"],
+      "evidence": ["--race-session"],
+      "note": "süre/sayı biçimleri"
+    },
+    {
+      "path": "src/cekirdek/depo.ts",
+      "class": "platform",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/GarageSaveStore.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/RaceRecords.cs"
+      ],
+      "evidence": ["--garage-storage", "--ghost-process"],
+      "note": "localStorage yerine atomik dosya kaydı"
+    },
+    {
+      "path": "src/cekirdek/dom.ts",
+      "class": "platform",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Ui/UiRoot.cs"],
+      "evidence": [],
+      "note": "DOM yardımcıları; UI Toolkit"
+    },
+    {
+      "path": "src/cekirdek/ekran.ts",
+      "class": "platform",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/HudLayout.cs",
+        "Unity/Assets/LastTurn/Scripts/Ui/UiRoot.cs"
+      ],
+      "evidence": ["--hud"],
+      "note": "tarayıcı ekran/güvenli alan; 1920×1080 ölçekli panel"
+    },
+    {
+      "path": "src/cekirdek/matematik.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/RaceRules.cs"],
+      "evidence": ["--gt-physics"],
+      "note": "JS matematik eşleri"
+    },
+    {
+      "path": "src/cekirdek/mekanikler.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/MutantMechanics.cs"],
+      "evidence": ["--mutant-mechanics"],
+      "note": "enerji mekanikleri"
+    },
+    {
+      "path": "src/cekirdek/performans.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Prototype/PerformanceOverlay.cs"],
+      "evidence": ["Unity/Validation/check-levelup-proof.mjs"],
+      "note": "performans göstergesi 09ba95e"
+    },
+    {
+      "path": "src/cekirdek/rastgele.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/SeededRandom.cs"],
+      "evidence": ["--mutant-run"],
+      "note": "mulberry32"
+    },
+    {
+      "path": "src/cizim/arac-modeli.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Prototype/SourceVehicleView.cs",
+        "Unity/Assets/LastTurn/Scripts/Prototype/SourceScene.cs",
+        "Unity/Validation/export-source-presentation.mjs"
+      ],
+      "evidence": ["Unity/Validation/check-source-presentation-proof.mjs"],
+      "note": "15 araç kaynak kurucudan"
+    },
+    {
+      "path": "src/cizim/ayna.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Prototype/SourceVehicleView.cs"],
+      "evidence": ["Unity/Validation/check-source-presentation-proof.mjs"],
+      "note": "arka ayna"
+    },
+    {
+      "path": "src/cizim/beceri-efekt.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Prototype/SourceEffectsView.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/MutantSkillEffectModel.cs"
+      ],
+      "evidence": ["--source-effects", "Unity/Validation/check-source-effects-proof.mjs"],
+      "note": "skill efektleri 7fdf537"
+    },
+    {
+      "path": "src/cizim/dokular.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Validation/export-source-presentation.mjs",
+        "Unity/Assets/LastTurn/Scripts/Prototype/SourceScene.cs"
+      ],
+      "evidence": ["Unity/Validation/check-source-presentation-proof.mjs"],
+      "note": "kaynak dokular PNG"
+    },
+    {
+      "path": "src/cizim/garaj-sahnesi.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Ui/GarageVehiclePreview.cs",
+        "Unity/Validation/export-source-presentation.mjs"
+      ],
+      "evidence": ["Unity/Validation/check-garage-scene-proof.mjs"],
+      "note": "garaj sahnesi b0a55b6; F sürükle-döndür korunur"
+    },
+    {
+      "path": "src/cizim/govde.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Validation/export-source-presentation.mjs"],
+      "evidence": ["Unity/Validation/check-source-presentation-proof.mjs"],
+      "note": "gövde kurucusu"
+    },
+    {
+      "path": "src/cizim/isaretler.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Prototype/MutantWorldMarkers.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/MutantWorldMarkerModel.cs"
+      ],
+      "evidence": ["--source-effects", "Unity/Validation/check-source-effects-proof.mjs"],
+      "note": "işaret/tabela/sandık 7fdf537"
+    },
+    {
+      "path": "src/cizim/kamera.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/ChaseCamera.cs",
+        "Unity/Assets/LastTurn/Scripts/Prototype/GtFollowCamera.cs"
+      ],
+      "evidence": ["--camera"],
+      "note": "kamera kipleri; garaj yörüngesi yerine F vitrin"
+    },
+    {
+      "path": "src/cizim/kokpit.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Prototype/SourceVehicleView.cs"],
+      "evidence": ["Unity/Validation/check-source-presentation-proof.mjs"],
+      "note": "kokpit/gösterge/direksiyon"
+    },
+    {
+      "path": "src/cizim/malzemeler.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Prototype/SourceScene.cs"],
+      "evidence": ["Unity/Validation/check-source-presentation-proof.mjs"],
+      "note": "malzemeler"
+    },
+    {
+      "path": "src/cizim/ortam.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Prototype/SourceEnvironmentView.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/RaceConditions.cs"
+      ],
+      "evidence": ["--conditions", "Unity/Validation/check-source-presentation-proof.mjs"],
+      "note": "108 tema/saat/hava"
+    },
+    {
+      "path": "src/cizim/parcaciklar.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Prototype/SourceEffectsView.cs"],
+      "evidence": ["Unity/Validation/check-source-effects-proof.mjs"],
+      "note": "toz/duman/su/çalı/nitro 7fdf537"
+    },
+    {
+      "path": "src/cizim/sahne.ts",
+      "class": "platform",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Prototype/SourceEnvironmentView.cs",
+        "Unity/Assets/LastTurn/Scripts/Prototype/GtFollowCamera.cs"
+      ],
+      "evidence": ["Unity/Validation/check-source-presentation-proof.mjs"],
+      "note": "Three sahne/renderer; Unity kamera/ışık"
+    },
+    {
+      "path": "src/cizim/sokak-kapilari.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Prototype/SourceEffectsView.cs"],
+      "evidence": ["Unity/Validation/check-source-effects-proof.mjs"],
+      "note": "sokak kapıları 7fdf537"
+    },
+    {
+      "path": "src/cizim/uzak-arac-modeli.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Prototype/DeveloperGhostView.cs",
+        "Unity/Assets/LastTurn/Scripts/Prototype/GtPrototype.cs",
+        "Unity/Assets/LastTurn/Scripts/Prototype/SourceVehicleView.cs"
+      ],
+      "evidence": ["Unity/Validation/check-devlab-proof.mjs"],
+      "note": "rakip/rekor/geliştirici hayaleti modeli ve 0,45 saydamlık"
+    },
+    {
+      "path": "src/cizim/yardimci.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Validation/export-source-presentation.mjs"],
+      "evidence": ["Unity/Validation/check-source-presentation-proof.mjs"],
+      "note": "kurucu yardımcıları"
+    },
+    {
+      "path": "src/cizim/zemin.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Prototype/SourceEnvironmentView.cs"],
+      "evidence": ["Unity/Validation/check-source-presentation-proof.mjs"],
+      "note": "kayan zemin dokusu"
+    },
+    {
+      "path": "src/dunya/bolgeler.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Prototype/WorldData.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/WorldCatalog.cs"
+      ],
+      "evidence": ["--world"],
+      "note": "bölgeler"
+    },
+    {
+      "path": "src/dunya/corak.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/WorldCatalog.cs",
+        "Unity/Validation/export-source-presentation.mjs"
+      ],
+      "evidence": ["--world"],
+      "note": "Çorak hub"
+    },
+    {
+      "path": "src/dunya/dekor.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Validation/export-source-presentation.mjs",
+        "Unity/Assets/LastTurn/Scripts/Core/EnvironmentCollision.cs"
+      ],
+      "evidence": ["--world"],
+      "note": "dekor ve çarpışma nesneleri"
+    },
+    {
+      "path": "src/dunya/dunya.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/WorldCatalog.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/TrackWorld.cs"
+      ],
+      "evidence": ["--world", "--tracks"],
+      "note": "dünya sorgusu"
+    },
+    {
+      "path": "src/dunya/kurucu.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Validation/export-source-presentation.mjs"],
+      "evidence": ["Unity/Validation/check-source-presentation-proof.mjs"],
+      "note": "43 dünya grafiği"
+    },
+    {
+      "path": "src/dunya/pist-ciz.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Validation/export-source-presentation.mjs",
+        "Unity/Assets/LastTurn/Scripts/Prototype/RaceTrackVisuals.cs"
+      ],
+      "evidence": ["Unity/Validation/check-source-presentation-proof.mjs"],
+      "note": "pist çizimi"
+    },
+    {
+      "path": "src/dunya/pist-tanimlari.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/TrackCatalog.cs",
+        "Unity/Assets/LastTurn/Resources/track-catalog.json"
+      ],
+      "evidence": ["--tracks"],
+      "note": "40 pist"
+    },
+    {
+      "path": "src/dunya/pist.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/TrackGeometry.cs"],
+      "evidence": ["--tracks"],
+      "note": "pist geometrisi"
+    },
+    {
+      "path": "src/dunya/sehir-duzen.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/MutantRun.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/WorldCatalog.cs"
+      ],
+      "evidence": ["--mutant-streets", "--world"],
+      "note": "Kule Şehri yerleşimi"
+    },
+    {
+      "path": "src/dunya/sehir.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/WorldCatalog.cs",
+        "Unity/Validation/export-source-presentation.mjs"
+      ],
+      "evidence": ["--mutant-streets", "--world"],
+      "note": "şehir ve sokak rotaları"
+    },
+    {
+      "path": "src/dunya/temalar.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Prototype/SourceEnvironmentView.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/RaceConditions.cs"
+      ],
+      "evidence": ["--conditions"],
+      "note": "temalar"
+    },
+    {
+      "path": "src/dunya/yollar.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/WorldCatalog.cs"],
+      "evidence": ["--world"],
+      "note": "yollar"
+    },
+    {
+      "path": "src/env.d.ts",
+      "class": "platform",
+      "unity": [],
+      "evidence": [],
+      "note": "Vite tür bildirimi"
+    },
+    {
+      "path": "src/fizik/anlik.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/RemoteSnapshots.cs"],
+      "evidence": ["--remote-snapshots"],
+      "note": "anlık görüntü"
+    },
+    {
+      "path": "src/fizik/arac-ornegi.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/PowertrainVehicle.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/OpponentRacer.cs"
+      ],
+      "evidence": ["--opponent-drive"],
+      "note": "araç örneği"
+    },
+    {
+      "path": "src/fizik/carpisma.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/EnvironmentCollision.cs"],
+      "evidence": ["--race-all", "--mutant-damage"],
+      "note": "çarpışma"
+    },
+    {
+      "path": "src/fizik/drift-tani.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/MutantDriftDiagnostics.cs"],
+      "evidence": ["--mutant-lab"],
+      "note": "DEV drift tanısı b8c090f"
+    },
+    {
+      "path": "src/fizik/girdi-kaydi.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/RaceRecords.cs"],
+      "evidence": ["--ghost-process"],
+      "note": "girdi kaydı"
+    },
+    {
+      "path": "src/fizik/ortak.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/PowertrainVehicle.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/RaceDrift.cs"
+      ],
+      "evidence": ["--assists", "--drift-race"],
+      "note": "drift penceresi kariyer + MUTANT yarış dalı b8c090f"
+    },
+    {
+      "path": "src/fizik/simulasyon.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/PowertrainFixedStepRunner.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/PowertrainVehicle.cs"
+      ],
+      "evidence": ["--gt-physics"],
+      "note": "sabit adım"
+    },
+    {
+      "path": "src/fizik/tipler.ts",
+      "class": "platform",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/VehicleState.cs"],
+      "evidence": [],
+      "note": "TS türleri; C# tipleri"
+    },
+    {
+      "path": "src/fizik/veriler.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/VehicleCatalog.cs"],
+      "evidence": ["--catalog", "--assist-levels"],
+      "note": "fizik verileri"
+    },
+    {
+      "path": "src/fizik/yeni/arac-fizigi.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/FourWheelVehicle.cs"],
+      "evidence": ["--gt-physics", "--race-all"],
+      "note": "araç fiziği"
+    },
+    {
+      "path": "src/fizik/yeni/lastik.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/TireModel.cs"],
+      "evidence": ["--gt-physics"],
+      "note": "lastik modeli"
+    },
+    {
+      "path": "src/fizik/yeni/model.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/FourWheelVehicle.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/PowertrainVehicle.cs"
+      ],
+      "evidence": ["--gt-physics", "--race-all", "--dirt-stability"],
+      "note": "model adımı"
+    },
+    {
+      "path": "src/main.ts",
+      "class": "platform",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Garage/GameFlow.cs",
+        "Unity/Assets/LastTurn/Scripts/Ui/UiRoot.cs"
+      ],
+      "evidence": ["--career-flow"],
+      "note": "tarayıcı giriş noktası; Unity sahneleri"
+    },
+    {
+      "path": "src/oyun/api.ts",
+      "class": "platform",
+      "unity": [],
+      "evidence": [],
+      "note": "tarayıcı test API (window.LT); üretim kullanmaz; Unity Editor doğrulamaları"
+    },
+    {
+      "path": "src/oyun/ayarlar.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/PlayerSettings.cs",
+        "Unity/Assets/LastTurn/Scripts/Prototype/PlayerPreferences.cs"
+      ],
+      "evidence": ["--settings-f"],
+      "note": "kalıcı ayarlar"
+    },
+    {
+      "path": "src/oyun/bolge.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Prototype/WorldData.cs",
+        "Unity/Assets/LastTurn/Scripts/Prototype/GtPrototype.cs"
+      ],
+      "evidence": ["--world"],
+      "note": "bölge geçişi"
+    },
+    {
+      "path": "src/oyun/dongu.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Prototype/GtPrototype.cs"],
+      "evidence": ["Unity/Validation/check-source-effects-proof.mjs"],
+      "note": "ana döngü"
+    },
+    {
+      "path": "src/oyun/durum.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Garage/GameFlow.cs"],
+      "evidence": ["--career-flow"],
+      "note": "oyun durumu"
+    },
+    {
+      "path": "src/oyun/ekonomi.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/VehicleCatalog.cs"],
+      "evidence": ["--catalog", "--garage"],
+      "note": "fiyatlar/ödüller"
+    },
+    {
+      "path": "src/oyun/girdi.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/DrivingControls.cs",
+        "Unity/Assets/LastTurn/Scripts/Prototype/GtKeyboardInput.cs"
+      ],
+      "evidence": ["--controls"],
+      "note": "girdi"
+    },
+    {
+      "path": "src/oyun/hayalet-kayit.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/RaceRecords.cs",
+        "Unity/Assets/LastTurn/Scripts/Garage/GarageRace.cs"
+      ],
+      "evidence": ["--ghost-process", "Unity/Validation/check-devlab-proof.mjs"],
+      "note": "rekor hayaleti kayıt/oynatma"
+    },
+    {
+      "path": "src/oyun/ilerleme.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/GarageState.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/CareerLevelUp.cs"
+      ],
+      "evidence": ["--career-flow", "--level-up"],
+      "note": "XP/seviye/kilit"
+    },
+    {
+      "path": "src/oyun/kariyer.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/CareerMenuModel.cs"],
+      "evidence": ["--career-flow"],
+      "note": "kariyer"
+    },
+    {
+      "path": "src/oyun/kurulum.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/GarageDriveParameters.cs"],
+      "evidence": ["--garage-drive", "--assist-levels"],
+      "note": "kurulum"
+    },
+    {
+      "path": "src/oyun/modifiye.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/GarageCommand.cs",
+        "Unity/Assets/LastTurn/Scripts/Ui/GarageView.cs"
+      ],
+      "evidence": ["--garage-ui", "--garage-f"],
+      "note": "modifiye"
+    },
+    {
+      "path": "src/oyun/mutant-beceri.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/MutantAbilityDriver.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/MutantSkills.cs"
+      ],
+      "evidence": ["--mutant-skills", "--mutant-hook"],
+      "note": "skill yürütücü"
+    },
+    {
+      "path": "src/oyun/mutant-denge.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/MutantRun.cs"],
+      "evidence": ["--mutant-race-plan"],
+      "note": "ölçülmüş hedef tablosu"
+    },
+    {
+      "path": "src/oyun/mutant-enerji.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/MutantEnergyController.cs"],
+      "evidence": ["--mutant-energy"],
+      "note": "enerji"
+    },
+    {
+      "path": "src/oyun/mutant-gorev.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/MutantRoadMission.cs"],
+      "evidence": ["--mutant-missions"],
+      "note": "yol görevi; gerçek tamamlanma 684c11b"
+    },
+    {
+      "path": "src/oyun/mutant-kosu.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/MutantRun.cs"],
+      "evidence": ["--mutant-run", "--mutant-lab"],
+      "note": "koşu + test laboratuvarı"
+    },
+    {
+      "path": "src/oyun/mutant.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Prototype/MutantRuntime.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/MutantGameSession.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/MutantSkillEffectModel.cs"
+      ],
+      "evidence": ["--mutant-session", "--source-effects"],
+      "note": "koşu bağlantısı; gerçek boss→bölge3 684c11b"
+    },
+    {
+      "path": "src/oyun/piste-donus.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/RaceRun.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/RaceSession.cs"
+      ],
+      "evidence": ["--race-drive"],
+      "note": "piste dönüş"
+    },
+    {
+      "path": "src/oyun/profil.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/RaceRecords.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/ProfileViewModel.cs"
+      ],
+      "evidence": ["--profile-f", "--ghost-process"],
+      "note": "profil/rekor"
+    },
+    {
+      "path": "src/oyun/rakip.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/OpponentRacer.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/MutantAbilityDriver.cs"
+      ],
+      "evidence": ["--opponent-drive", "--mutant-opponents"],
+      "note": "rakip"
+    },
+    {
+      "path": "src/oyun/sinematik.ts",
+      "class": "platform",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Ui/MenuBackdropView.cs"],
+      "evidence": ["Unity/Validation/check-source-effects-proof.mjs"],
+      "note": "TS menüde görseller yüklenemezse canlı çekim; Unity görseller pakette (yüklenemez durumu yok), çekimler menü görsellerinin kaynağı"
+    },
+    {
+      "path": "src/oyun/surus.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Prototype/GtPrototype.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/PowertrainVehicle.cs"
+      ],
+      "evidence": ["--race-drive", "--drift-race"],
+      "note": "sürüş bağlantısı (driftYarisi dahil)"
+    },
+    {
+      "path": "src/oyun/uzak.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/RemoteSnapshots.cs",
+        "Unity/Assets/LastTurn/Scripts/Prototype/DeveloperGhostView.cs"
+      ],
+      "evidence": ["--remote-snapshots", "Unity/Validation/check-devlab-proof.mjs"],
+      "note": "uzak araç/geliştirici hayaleti"
+    },
+    {
+      "path": "src/oyun/yaris-kurallari.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/RaceRules.cs"],
+      "evidence": ["--race-rules"],
+      "note": "yarış kuralları"
+    },
+    {
+      "path": "src/oyun/yarislar.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/RaceSession.cs",
+        "Unity/Assets/LastTurn/Scripts/Prototype/RaceData.cs"
+      ],
+      "evidence": ["--race-session", "--race-types", "--race-all"],
+      "note": "yarışlar"
+    },
+    {
+      "path": "src/oyun/yildiz.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/RaceRecords.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/GarageState.cs"
+      ],
+      "evidence": ["--career-flow"],
+      "note": "yıldızlar"
+    },
+    {
+      "path": "src/pwa/kayit.ts",
+      "class": "platform",
+      "unity": [],
+      "evidence": [],
+      "note": "PWA kurulum/güncelleme; Windows bağımsız ürün"
+    },
+    {
+      "path": "src/pwa/sw-sablon.js",
+      "class": "platform",
+      "unity": [],
+      "evidence": [],
+      "note": "service worker önbelleği; yerel ürün dosyaları"
+    },
+    {
+      "path": "src/ses/baglam.ts",
+      "class": "platform",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Prototype/GameAudio.cs"],
+      "evidence": ["--audio"],
+      "note": "WebAudio bağlamı; Unity AudioListener/AudioSource"
+    },
+    {
+      "path": "src/ses/efektler.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/AudioDirector.cs",
+        "Unity/Assets/LastTurn/Resources/Audio"
+      ],
+      "evidence": ["--audio"],
+      "note": "25 olay/müzik WAV kaynak sentezinden"
+    },
+    {
+      "path": "src/ses/hedefler.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/EngineAudioMixer.cs"],
+      "evidence": ["--engine-audio"],
+      "note": "motor ses hedefleri"
+    },
+    {
+      "path": "src/ses/kayit.ts",
+      "class": "platform",
+      "unity": ["Unity/Validation/export-engine-audio.mjs"],
+      "evidence": ["--engine-audio"],
+      "note": "web ses kayıt test aracı; üretim kullanmaz, WAV/iz doğrulaması eşdeğeri"
+    },
+    {
+      "path": "src/ses/motor-isci.ts",
+      "class": "platform",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Prototype/SourceEngineAudioDsp.cs"],
+      "evidence": ["--engine-audio"],
+      "note": "AudioWorklet; ön üretilmiş katman + DSP"
+    },
+    {
+      "path": "src/ses/motor.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Prototype/SourceEngineAudio.cs",
+        "Unity/Assets/LastTurn/Scripts/Core/EngineAudioMixer.cs"
+      ],
+      "evidence": ["--engine-audio"],
+      "note": "15 motor/150 katman"
+    },
+    {
+      "path": "src/ses/muzik.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Resources/Audio/muzik.wav",
+        "Unity/Assets/LastTurn/Scripts/Core/AudioDirector.cs"
+      ],
+      "evidence": ["--audio"],
+      "note": "menü müziği"
+    },
+    {
+      "path": "src/ses/sentez.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Validation/export-audio-clips.mjs"],
+      "evidence": ["--audio"],
+      "note": "sentez WAV üretimi"
+    },
+    {
+      "path": "src/ses/ses.ts",
+      "class": "dogrulandi",
+      "unity": [
+        "Unity/Assets/LastTurn/Scripts/Core/AudioDirector.cs",
+        "Unity/Assets/LastTurn/Scripts/Prototype/GameAudio.cs"
+      ],
+      "evidence": ["--audio"],
+      "note": "ses yönetimi"
+    },
+    {
+      "path": "src/stil.css",
+      "class": "karar",
+      "unity": ["Unity/Assets/LastTurn/Resources/UI/lt.uss"],
+      "evidence": ["--hud", "--garage-f"],
+      "note": "Cem P7 F arayüz kararı; kaynak menü/HUD stilinin yerine onaylı F"
+    },
+    {
+      "path": "src/yz/cizgi.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/OpponentPilot.cs"],
+      "evidence": ["--opponents"],
+      "note": "yarış çizgisi"
+    },
+    {
+      "path": "src/yz/kisilik.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/OpponentPilot.cs"],
+      "evidence": ["--opponents"],
+      "note": "kişilikler"
+    },
+    {
+      "path": "src/yz/pilot.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/OpponentPilot.cs"],
+      "evidence": ["--opponents", "--mutant-pilot"],
+      "note": "pilot"
+    },
+    {
+      "path": "src/yz/yarisci.ts",
+      "class": "dogrulandi",
+      "unity": ["Unity/Assets/LastTurn/Scripts/Core/OpponentRacer.cs"],
+      "evidence": ["--opponent-drive"],
+      "note": "yarışçı"
+    }
+  ]
+}
