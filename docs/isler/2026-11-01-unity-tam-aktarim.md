@@ -4,6 +4,10 @@ Kaynak: `typescript-baseline-0.8.18` → `df3549e709469f0b519ebfbeaa9f63c1040fee
 
 ## Sahiplik ve kabul
 
+### Kota sonrası devam — 10 Kasım 2026
+
+Cem kalan işlerin devamını istedi. `ea9d0a7`/temiz izlenen çalışma ağacı ve aktif uygulayıcı olmadığı doğrulandı. Claude Pro aboneliği ve geçerli manuel ek-kullanım kapalı teyidi UTC20:49:25'te maliyet kapısından geçti; kota sıfırlanması ancak gerçek devam yanıtıyla doğrulanacak. Korunmuş `8f357de5` konuşması aynı çalışma alanında tek uygulayıcı olarak kaldığı Windows/build/iki süreç kabulünden sürdürülecek. Sonraki kayıt: `tests/cikti/koordinator/claude-kota-sonrasi-devam.json`; önceki kota engeli notları tarihsel. Ücretli alternatif ve izinsiz yayın hâlâ yok.
+
 ### Kullanıcının commit isteği — 10 Kasım 2026
 
 **Son durum:** `49ab638` ve `7df9034` yerel commit'leri tamam, kontroller geçti. Claude devamı `8f357de5` oturumunda kotaya takıldı: CLI10 Kasım22:20 İstanbul sıfırlanmasını bildiriyor. Ücretli alternatif veya otomatik yeniden başlatma yok; eski `e6a339a1` ve yeni devam güvenli durduruldu. Korunmuş devam UUID'si `8f357de5-0163-40ab-b604-88a2cf42a8e2`. Genel aktarım açık; yeni kod yazılmadı, push yapılmadı.

@@ -1,3 +1,9 @@
+# Kalan kapanış için devam yetkisi yenilendi (10 Kasım 2026)
+
+Cem kota sıfırlanmasından sonra kalan işlerin sürdürülmesini istedi. Yerel `ea9d0a7` ve yalnız korunan `_Recovery`/meta doğrulandı; yeni uygulama veya aktif Claude işi yoktu. UTC20:49:25 kontrolünde Claude Pro/`claude.ai` aboneliği ve halen geçerli kapalı ek-kullanım kullanıcı teyidi doğrulandı; kalan kota CLI oturum kontrolünden öğrenilemiyor. Aynı `8f357de5-0163-40ab-b604-88a2cf42a8e2` konuşması kayıtlı güvenli seçeneklerle sürdürülecek; bu satır gerçek model başlangıcı kabulü değildir. Canlı durum `claude agents --json` ve yerel `tests/cikti/koordinator/claude-kota-sonrasi-devam.json` ile doğrulanır.
+
+Kalan tek ana hedef güncel kaynaklarla Windows ürününü ve iki ayrı süreçte kayıt kabulünü tamamlamak, sonra genel kapanışın açıklarını kanıtlarıyla teslim etmektir. Başarılı p10/p11/p12 ve matris/enerji kontrolleri aynı kaynak kapsamı korunuyorsa tekrar edilmez. Yeni geniş regresyon, ücretli araç/API/ek kredi veya push/merge/PR/yayın yetkisi yok. Claude devralınca Codex aynı dosyalarda yazmaz; ana Editor ve gerçek kayıtlar korunur.
+
 # Commitler tamam; Claude oturum kotası nedeniyle bekliyor (10 Kasım 2026)
 
 İstenen değişiklikler `49ab638` (test uyarlamaları) ve `7df9034` (kaynak matrisi/devir) ile yerel commit'e alındı. Kontroller geçti; yalnız korunan `_Recovery`/meta untracked kaldı. Push/merge/PR/yayın yok.
