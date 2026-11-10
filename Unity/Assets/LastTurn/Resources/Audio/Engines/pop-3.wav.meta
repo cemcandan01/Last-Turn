@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 178ac3e9a53829c8251aa70a9148863d
+AudioImporter:
+  serializedVersion: 7
+  defaultSettings:
+    loadType: 0
+    sampleRateSetting: 0
+    sampleRateOverride: 22050
+    compressionFormat: 0
+    quality: 1
+  forceToMono: 1
+  normalize: 0
+  preloadAudioData: 1

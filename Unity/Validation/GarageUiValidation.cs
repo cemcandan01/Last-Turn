@@ -19,6 +19,7 @@ internal static class GarageUiValidation
     var fresh = new GarageState(catalog);
     var cars = GarageViewModel.Cars(fresh);
     for(int i=0;i<catalog.Data["cars"].Items.Count();i++)Check(GarageViewModel.Detail(fresh,i).ModelKey==catalog.Data["cars"][i]["k"].S(),"kaynak model kimliği "+i);
+    foreach(var row in cars)Check(row.CanListen==(row.Owned||row.Block==""||row.Block=="para"),"kilitli araç dinlemesi kaynak sınırında "+row.Index);
     Check(cars.Length == catalog.Data["cars"].Items.Count(), "her araç için satır");
     Check(cars[fresh.SelectedCar].Owned && cars[fresh.SelectedCar].Selected && cars[fresh.SelectedCar].Primary.Kind == GarageCommandKind.SelectCar,
       "başlangıç aracı sahip/seçili");

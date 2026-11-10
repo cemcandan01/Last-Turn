@@ -15,6 +15,7 @@ if(args.Contains("--cloud")){CloudValidation.Run();return;}
 if(args.Contains("--cloud-sync")){CloudSyncValidation.Run();return;}
 if(args.Contains("--hud")){HudValidation.Run();return;}
 if(args.Contains("--audio")){AudioValidation.Run();return;}
+if(args.Contains("--engine-audio")){EngineAudioValidation.Run();return;}
 if(args.Contains("--conditions")){ConditionsValidation.Run();return;}
 if(args.Contains("--race-preparation")){RacePreparationValidation.Run();return;}
 if(args.Contains("--camera")){CameraValidation.Run();return;}

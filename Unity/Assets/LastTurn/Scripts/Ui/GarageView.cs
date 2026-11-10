@@ -51,6 +51,7 @@ namespace LastTurn.Ui
       if(confirm!=""&&Time.unscaledTimeAsDouble>confirmUntil){confirm="";Rebuild();}
       money.text="SEVİYE "+seen.Level+"   •   "+seen.Balance.ToString("N0")+" para";
       message.text=confirm!=""?"Satın almak için aynı işlemi tekrar onayla. Esc: vazgeç.":GarageSession.Message;
+      var audioLabel=page.Q("garage-listen-engine")?.Q<Label>(className:"yazi");if(audioLabel!=null)audioLabel.text=SourceEngineAudio.ListeningKey==Detail.ModelKey?"DİNLENİYOR…":"MOTORU DİNLE";
       // Açan tuşu aynı karede ikinci kez işleme (Yarış E → Garaj E → Mağaza).
       if(changed)return;
       var k=Keyboard.current;if(k==null)return;
@@ -72,6 +73,7 @@ namespace LastTurn.Ui
         if(k.leftArrowKey.wasPressedThisFrame&&i>0)ViewCar(owned[i-1].Index);
         else if(k.rightArrowKey.wasPressedThisFrame&&i+1<owned.Length)ViewCar(owned[i+1].Index);
         else if(k.mKey.wasPressedThisFrame)Open(true);
+        else if(k.lKey.wasPressedThisFrame)SourceEngineAudio.Listen(Detail.ModelKey);
         else if(k.enterKey.wasPressedThisFrame)SelectOrRace();
       }
     }
@@ -108,6 +110,7 @@ namespace LastTurn.Ui
       left.Add(Ui.Text(Detail.Class+Detail.Score.ToString("0"),"g-class"));left.Add(Ui.Text(Detail.Description,"g-copy"));
       left.Add(Ui.Section("KURULUM"));left.Add(Ui.Text("Lastik  •  "+Detail.TireName,"g-copy"));left.Add(Ui.Text("Takılı parça  •  "+Detail.Parts.Length+" / 12","g-copy"));
       left.Add(Ui.Text(Detail.PartNames.Length==0?"Stok kurulum":string.Join(" · ",Detail.PartNames),"g-copy"));content.Add(left);
+      var listen=Ui.Button("MOTORU DİNLE","L",()=>SourceEngineAudio.Listen(Detail.ModelKey),small:true);listen.name="garage-listen-engine";left.Add(listen);
       var center=new VisualElement();center.AddToClassList("g-preview");center.Add(preview.Image);content.Add(center);preview.Build(Detail,ViewedCar);
       var right=Box();right.AddToClassList("g-right");right.Add(Ui.Section("ÖZELLİKLER"));Stats(right,false);content.Add(right);
       var actions=Box("g-actions");AddButton(actions,"MODİFİYE","M",()=>Open(true));AddButton(actions,cars.First(c=>c.Index==ViewedCar).Selected?"YARIŞ SEÇ":"ARACI SEÇ","Enter",SelectOrRace,!GarageSession.Store.ReadOnly,true);content.Add(actions);

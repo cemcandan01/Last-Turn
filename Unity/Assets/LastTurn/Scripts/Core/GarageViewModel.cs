@@ -9,7 +9,7 @@ namespace LastTurn.Core
   public sealed class GarageCarRow
   {
     public int Index; public string Name = "", Description = "", Block = "", BlockText = "";
-    public bool Owned, Selected; public double Price, RequiredLevel, MissingMoney;
+    public bool Owned, Selected, CanListen; public double Price, RequiredLevel, MissingMoney;
     public string Type = "", Availability = "";
     public GarageCommand Primary = null!;
   }
@@ -79,6 +79,7 @@ namespace LastTurn.Core
         rows[i] = new GarageCarRow
         {
           Index = i, Name = cars[i]["n"].S(), Description = cars[i]["d"].S(), Owned = owned, Selected = state.SelectedCar == i,
+          CanListen=owned||block==""||block=="para",
           Price = price["para"].N(), RequiredLevel = price["seviye"].N(), Block = block, BlockText = BlockText(block),
           Type = cars[i]["ty"].S(), MissingMoney = owned ? 0 : Math.Max(0, price["para"].N()-state.Balance),
           Availability = owned ? "Sahipsin" : block == "seviye" ? "Seviye "+price["seviye"].N().ToString("0")+" veya aynı tür kupa başarısı" : BlockText(block),

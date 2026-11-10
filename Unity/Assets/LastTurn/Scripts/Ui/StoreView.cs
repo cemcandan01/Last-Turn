@@ -20,6 +20,7 @@ namespace LastTurn.Ui
     public int VisibleCarCount=>rows.Length;
     public bool Confirming=>confirm;
     public GarageCarRow Offer {get;private set;}
+    public string ModelKey {get;private set;}="";
     private static readonly (string Key,string Name)[] Filters={ ("","TÜMÜ"),("gp","PİST"),("rx","RALLİKROS"),("rl","RALLİ"),("dp","DRİFT"),("dg","DRAG") };
     private VisualElement page,content,carTab,partsTab;private Label money,message;
     private GarageScreen legacy;private GarageState seen;private GarageVehiclePreview preview;
@@ -48,11 +49,13 @@ namespace LastTurn.Ui
       if(confirm&&Time.unscaledTimeAsDouble>until){confirm=false;Rebuild();}
       money.text="SEVİYE "+seen.Level+"   •   "+seen.Balance.ToString("N0")+" para";
       message.text=confirm?"Satın almak için tekrar onayla. Esc: vazgeç.":GarageSession.Message;
+      var audioLabel=page.Q("store-listen-engine")?.Q<Label>(className:"yazi");if(audioLabel!=null)audioLabel.text=SourceEngineAudio.ListeningKey==ModelKey?"DİNLENİYOR…":"MOTORU DİNLE";
       if(changed)return;
       var k=Keyboard.current;if(k==null)return;
       if(k.escapeKey.wasPressedThisFrame){Back();return;}
       if(k.qKey.wasPressedThisFrame){OpenGarage();return;}if(k.eKey.wasPressedThisFrame){GameFlow.RaceMenu();return;}
       if(k.tabKey.wasPressedThisFrame){OpenParts();return;}
+      if(k.lKey.wasPressedThisFrame&&Offer!=null&&Offer.CanListen){SourceEngineAudio.Listen(ModelKey);return;}
       int i=Array.FindIndex(rows,r=>r.Index==ViewedCar);
       if(k.leftArrowKey.wasPressedThisFrame&&i>0)ViewCar(rows[i-1].Index);
       else if(k.rightArrowKey.wasPressedThisFrame&&i+1<rows.Length)ViewCar(rows[i+1].Index);
@@ -84,12 +87,13 @@ namespace LastTurn.Ui
       var left=Box("s-featured");content.Add(left);
       if(Offer!=null)
       {
-        var d=GarageViewModel.Detail(seen,ViewedCar);left.Add(Ui.Section("ÖNE ÇIKAN  /  "+Filters.FirstOrDefault(f=>f.Key==Offer.Type).Name));left.Add(Ui.Text(Ui.Upper(d.Name),"baslik","g-name"));
+        var d=GarageViewModel.Detail(seen,ViewedCar);ModelKey=d.ModelKey;left.Add(Ui.Section("ÖNE ÇIKAN  /  "+Filters.FirstOrDefault(f=>f.Key==Offer.Type).Name));left.Add(Ui.Text(Ui.Upper(d.Name),"baslik","g-name"));
         left.Add(Ui.Text(d.Class+d.Score.ToString("0")+"  •  "+d.Power.ToString("0")+" HP  •  "+d.Mass.ToString("0")+" KG","g-class"));
         var image=Box("s-preview");image.Add(preview.Image);left.Add(image);preview.Build(d,ViewedCar);
         var info=Box("g-panel");foreach(var stat in d.Stats)info.Add(Ui.Text(stat.Label+"   "+stat.Current.ToString("0.00"),"s-stat"));
         info.Add(Ui.Text(Offer.Description,"g-copy"));info.Add(Ui.Text(Offer.Price.ToString("N0")+" para"+(Offer.MissingMoney>0?"  •  "+Offer.MissingMoney.ToString("N0")+" eksik":""),"g-price"));
         info.Add(Ui.Text(Offer.Availability,"g-copy"));var buy=Ui.Button(Offer.Owned?"GARAJDA GÖR":confirm?"SATIN ALMAYI ONAYLA":"SATIN AL","Enter",Activate,true);buy.name="store-buy";buy.SetEnabled(!GarageSession.Store.ReadOnly&&(Offer.Owned||Offer.Block==""));info.Add(buy);left.Add(info);
+        if(Offer.CanListen){var listen=Ui.Button("MOTORU DİNLE","L",()=>SourceEngineAudio.Listen(ModelKey),small:true);listen.name="store-listen-engine";info.Add(listen);}
       }
       var right=Box("s-catalog");content.Add(right);var tabs=Box("s-tabs");
       carTab=Ui.Tab("ARAÇLAR",()=>{});carTab.AddToClassList("sec");tabs.Add(carTab);partsTab=Ui.Tab("PARÇALAR",OpenParts);tabs.Add(partsTab);right.Add(tabs);

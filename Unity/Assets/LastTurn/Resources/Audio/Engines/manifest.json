@@ -1,0 +1,1661 @@
+{
+  "baseline": "df3549e709469f0b519ebfbeaa9f63c1040fee05",
+  "sources": {
+    "src/ses/sentez.ts": "573941beb4e4233e620c6db72f7cb05e02af8ab59a0ac67df153e728fcd4aec1",
+    "src/cekirdek/rastgele.ts": "566f429f4c859bc259b1e2a8cf66caca977eae7a8af7dfe2bb629bb9ad6f0413",
+    "src/ses/hedefler.ts": "cfbd1077bbbf70b91d86acd5b8996e2d07559a56ff9bf9ddbf7caac977151497",
+    "src/ses/motor.ts": "52faf74bc73e7f7a10bc97e0480bb6cd6f8b7e5989b72b4f10a45fc2d6f90c23",
+    "src/cekirdek/matematik.ts": "658c7a895e5d3bab8db4d644c2be8eb21335b4ce189f0180f99199b9cd0ea879"
+  },
+  "profiles": [
+    {
+      "key": "gt",
+      "rpm": 8200,
+      "vtec": 0.7,
+      "turbo": 0,
+      "compressor": 0,
+      "gears": 0,
+      "pops": 0.15,
+      "valve": 0,
+      "layers": [
+        {
+          "rpm": 900,
+          "gas": "gt-0-gas",
+          "off": "gt-0-off"
+        },
+        {
+          "rpm": 1968,
+          "gas": "gt-1-gas",
+          "off": "gt-1-off"
+        },
+        {
+          "rpm": 3444,
+          "gas": "gt-2-gas",
+          "off": "gt-2-off"
+        },
+        {
+          "rpm": 5248,
+          "gas": "gt-3-gas",
+          "off": "gt-3-off"
+        },
+        {
+          "rpm": 7380,
+          "gas": "gt-4-gas",
+          "off": "gt-4-off"
+        }
+      ]
+    },
+    {
+      "key": "rx",
+      "rpm": 7800,
+      "vtec": 0,
+      "turbo": 1,
+      "compressor": 0,
+      "gears": 0.8,
+      "pops": 0.5,
+      "valve": 1,
+      "layers": [
+        {
+          "rpm": 900,
+          "gas": "rx-0-gas",
+          "off": "rx-0-off"
+        },
+        {
+          "rpm": 1872,
+          "gas": "rx-1-gas",
+          "off": "rx-1-off"
+        },
+        {
+          "rpm": 3276,
+          "gas": "rx-2-gas",
+          "off": "rx-2-off"
+        },
+        {
+          "rpm": 4992,
+          "gas": "rx-3-gas",
+          "off": "rx-3-off"
+        },
+        {
+          "rpm": 7020,
+          "gas": "rx-4-gas",
+          "off": "rx-4-off"
+        }
+      ]
+    },
+    {
+      "key": "dr",
+      "rpm": 7600,
+      "vtec": 0,
+      "turbo": 0.8,
+      "compressor": 0,
+      "gears": 0,
+      "pops": 0.4,
+      "valve": 2,
+      "layers": [
+        {
+          "rpm": 900,
+          "gas": "dr-0-gas",
+          "off": "dr-0-off"
+        },
+        {
+          "rpm": 1824,
+          "gas": "dr-1-gas",
+          "off": "dr-1-off"
+        },
+        {
+          "rpm": 3192,
+          "gas": "dr-2-gas",
+          "off": "dr-2-off"
+        },
+        {
+          "rpm": 4864,
+          "gas": "dr-3-gas",
+          "off": "dr-3-off"
+        },
+        {
+          "rpm": 6840,
+          "gas": "dr-4-gas",
+          "off": "dr-4-off"
+        }
+      ]
+    },
+    {
+      "key": "rl",
+      "rpm": 7500,
+      "vtec": 0,
+      "turbo": 1,
+      "compressor": 0,
+      "gears": 0.5,
+      "pops": 0.8,
+      "valve": 1,
+      "layers": [
+        {
+          "rpm": 900,
+          "gas": "rl-0-gas",
+          "off": "rl-0-off"
+        },
+        {
+          "rpm": 1800,
+          "gas": "rl-1-gas",
+          "off": "rl-1-off"
+        },
+        {
+          "rpm": 3150,
+          "gas": "rl-2-gas",
+          "off": "rl-2-off"
+        },
+        {
+          "rpm": 4800,
+          "gas": "rl-3-gas",
+          "off": "rl-3-off"
+        },
+        {
+          "rpm": 6750,
+          "gas": "rl-4-gas",
+          "off": "rl-4-off"
+        }
+      ]
+    },
+    {
+      "key": "dg",
+      "rpm": 6800,
+      "vtec": 0,
+      "turbo": 0,
+      "compressor": 1,
+      "gears": 0,
+      "pops": 0.25,
+      "valve": 0,
+      "layers": [
+        {
+          "rpm": 900,
+          "gas": "dg-0-gas",
+          "off": "dg-0-off"
+        },
+        {
+          "rpm": 1632,
+          "gas": "dg-1-gas",
+          "off": "dg-1-off"
+        },
+        {
+          "rpm": 2856,
+          "gas": "dg-2-gas",
+          "off": "dg-2-off"
+        },
+        {
+          "rpm": 4352,
+          "gas": "dg-3-gas",
+          "off": "dg-3-off"
+        },
+        {
+          "rpm": 6120,
+          "gas": "dg-4-gas",
+          "off": "dg-4-off"
+        }
+      ]
+    },
+    {
+      "key": "gt3",
+      "rpm": 9000,
+      "vtec": 0.7,
+      "turbo": 0,
+      "compressor": 0,
+      "gears": 0,
+      "pops": 0.15,
+      "valve": 0,
+      "layers": [
+        {
+          "rpm": 900,
+          "gas": "gt3-0-gas",
+          "off": "gt3-0-off"
+        },
+        {
+          "rpm": 2160,
+          "gas": "gt3-1-gas",
+          "off": "gt3-1-off"
+        },
+        {
+          "rpm": 3780,
+          "gas": "gt3-2-gas",
+          "off": "gt3-2-off"
+        },
+        {
+          "rpm": 5760,
+          "gas": "gt3-3-gas",
+          "off": "gt3-3-off"
+        },
+        {
+          "rpm": 8100,
+          "gas": "gt3-4-gas",
+          "off": "gt3-4-off"
+        }
+      ]
+    },
+    {
+      "key": "t16",
+      "rpm": 7600,
+      "vtec": 0.7,
+      "turbo": 0,
+      "compressor": 0,
+      "gears": 0,
+      "pops": 0.15,
+      "valve": 0,
+      "layers": [
+        {
+          "rpm": 900,
+          "gas": "t16-0-gas",
+          "off": "t16-0-off"
+        },
+        {
+          "rpm": 1824,
+          "gas": "t16-1-gas",
+          "off": "t16-1-off"
+        },
+        {
+          "rpm": 3192,
+          "gas": "t16-2-gas",
+          "off": "t16-2-off"
+        },
+        {
+          "rpm": 4864,
+          "gas": "t16-3-gas",
+          "off": "t16-3-off"
+        },
+        {
+          "rpm": 6840,
+          "gas": "t16-4-gas",
+          "off": "t16-4-off"
+        }
+      ]
+    },
+    {
+      "key": "int",
+      "rpm": 7200,
+      "vtec": 0.7,
+      "turbo": 0,
+      "compressor": 0,
+      "gears": 0,
+      "pops": 0.15,
+      "valve": 0,
+      "layers": [
+        {
+          "rpm": 900,
+          "gas": "int-0-gas",
+          "off": "int-0-off"
+        },
+        {
+          "rpm": 1728,
+          "gas": "int-1-gas",
+          "off": "int-1-off"
+        },
+        {
+          "rpm": 3024,
+          "gas": "int-2-gas",
+          "off": "int-2-off"
+        },
+        {
+          "rpm": 4608,
+          "gas": "int-3-gas",
+          "off": "int-3-off"
+        },
+        {
+          "rpm": 6480,
+          "gas": "int-4-gas",
+          "off": "int-4-off"
+        }
+      ]
+    },
+    {
+      "key": "ae86",
+      "rpm": 8000,
+      "vtec": 0.7,
+      "turbo": 0,
+      "compressor": 0,
+      "gears": 0,
+      "pops": 0.15,
+      "valve": 0,
+      "layers": [
+        {
+          "rpm": 900,
+          "gas": "ae86-0-gas",
+          "off": "ae86-0-off"
+        },
+        {
+          "rpm": 1920,
+          "gas": "ae86-1-gas",
+          "off": "ae86-1-off"
+        },
+        {
+          "rpm": 3360,
+          "gas": "ae86-2-gas",
+          "off": "ae86-2-off"
+        },
+        {
+          "rpm": 5120,
+          "gas": "ae86-3-gas",
+          "off": "ae86-3-off"
+        },
+        {
+          "rpm": 7200,
+          "gas": "ae86-4-gas",
+          "off": "ae86-4-off"
+        }
+      ]
+    },
+    {
+      "key": "supra",
+      "rpm": 7400,
+      "vtec": 0.7,
+      "turbo": 0,
+      "compressor": 0,
+      "gears": 0,
+      "pops": 0.15,
+      "valve": 0,
+      "layers": [
+        {
+          "rpm": 900,
+          "gas": "supra-0-gas",
+          "off": "supra-0-off"
+        },
+        {
+          "rpm": 1776,
+          "gas": "supra-1-gas",
+          "off": "supra-1-off"
+        },
+        {
+          "rpm": 3108,
+          "gas": "supra-2-gas",
+          "off": "supra-2-off"
+        },
+        {
+          "rpm": 4736,
+          "gas": "supra-3-gas",
+          "off": "supra-3-off"
+        },
+        {
+          "rpm": 6660,
+          "gas": "supra-4-gas",
+          "off": "supra-4-off"
+        }
+      ]
+    },
+    {
+      "key": "e30",
+      "rpm": 7000,
+      "vtec": 0.7,
+      "turbo": 0,
+      "compressor": 0,
+      "gears": 0,
+      "pops": 0.15,
+      "valve": 0,
+      "layers": [
+        {
+          "rpm": 900,
+          "gas": "e30-0-gas",
+          "off": "e30-0-off"
+        },
+        {
+          "rpm": 1680,
+          "gas": "e30-1-gas",
+          "off": "e30-1-off"
+        },
+        {
+          "rpm": 2940,
+          "gas": "e30-2-gas",
+          "off": "e30-2-off"
+        },
+        {
+          "rpm": 4480,
+          "gas": "e30-3-gas",
+          "off": "e30-3-off"
+        },
+        {
+          "rpm": 6300,
+          "gas": "e30-4-gas",
+          "off": "e30-4-off"
+        }
+      ]
+    },
+    {
+      "key": "golf",
+      "rpm": 6800,
+      "vtec": 0,
+      "turbo": 1,
+      "compressor": 0,
+      "gears": 0.8,
+      "pops": 0.5,
+      "valve": 1,
+      "layers": [
+        {
+          "rpm": 900,
+          "gas": "golf-0-gas",
+          "off": "golf-0-off"
+        },
+        {
+          "rpm": 1632,
+          "gas": "golf-1-gas",
+          "off": "golf-1-off"
+        },
+        {
+          "rpm": 2856,
+          "gas": "golf-2-gas",
+          "off": "golf-2-off"
+        },
+        {
+          "rpm": 4352,
+          "gas": "golf-3-gas",
+          "off": "golf-3-off"
+        },
+        {
+          "rpm": 6120,
+          "gas": "golf-4-gas",
+          "off": "golf-4-off"
+        }
+      ]
+    },
+    {
+      "key": "niva",
+      "rpm": 6200,
+      "vtec": 0,
+      "turbo": 1,
+      "compressor": 0,
+      "gears": 0.5,
+      "pops": 0.8,
+      "valve": 1,
+      "layers": [
+        {
+          "rpm": 900,
+          "gas": "niva-0-gas",
+          "off": "niva-0-off"
+        },
+        {
+          "rpm": 1488,
+          "gas": "niva-1-gas",
+          "off": "niva-1-off"
+        },
+        {
+          "rpm": 2604,
+          "gas": "niva-2-gas",
+          "off": "niva-2-off"
+        },
+        {
+          "rpm": 3968,
+          "gas": "niva-3-gas",
+          "off": "niva-3-off"
+        },
+        {
+          "rpm": 5580,
+          "gas": "niva-4-gas",
+          "off": "niva-4-off"
+        }
+      ]
+    },
+    {
+      "key": "c33",
+      "rpm": 7000,
+      "vtec": 0,
+      "turbo": 0.8,
+      "compressor": 0,
+      "gears": 0,
+      "pops": 0.4,
+      "valve": 2,
+      "layers": [
+        {
+          "rpm": 900,
+          "gas": "c33-0-gas",
+          "off": "c33-0-off"
+        },
+        {
+          "rpm": 1680,
+          "gas": "c33-1-gas",
+          "off": "c33-1-off"
+        },
+        {
+          "rpm": 2940,
+          "gas": "c33-2-gas",
+          "off": "c33-2-off"
+        },
+        {
+          "rpm": 4480,
+          "gas": "c33-3-gas",
+          "off": "c33-3-off"
+        },
+        {
+          "rpm": 6300,
+          "gas": "c33-4-gas",
+          "off": "c33-4-off"
+        }
+      ]
+    },
+    {
+      "key": "fox",
+      "rpm": 6200,
+      "vtec": 0,
+      "turbo": 0,
+      "compressor": 1,
+      "gears": 0,
+      "pops": 0.25,
+      "valve": 0,
+      "layers": [
+        {
+          "rpm": 900,
+          "gas": "fox-0-gas",
+          "off": "fox-0-off"
+        },
+        {
+          "rpm": 1488,
+          "gas": "fox-1-gas",
+          "off": "fox-1-off"
+        },
+        {
+          "rpm": 2604,
+          "gas": "fox-2-gas",
+          "off": "fox-2-off"
+        },
+        {
+          "rpm": 3968,
+          "gas": "fox-3-gas",
+          "off": "fox-3-off"
+        },
+        {
+          "rpm": 5580,
+          "gas": "fox-4-gas",
+          "off": "fox-4-off"
+        }
+      ]
+    }
+  ],
+  "clips": [
+    {
+      "file": "gt-0-gas.wav",
+      "hash": "072d245bc92fb4b3ce9401aa52256b4472e27f963a70fca2f324aa5348b15f8c",
+      "samples": 23520,
+      "rms": 0.21983602512973036,
+      "peak": 0.9080149531364441
+    },
+    {
+      "file": "gt-0-off.wav",
+      "hash": "eb93c8a0f004a2f2a45b3321393da083cdb34c4c02d31917b796f84517704527",
+      "samples": 23520,
+      "rms": 0.21999102604208884,
+      "peak": 0.7835786938667297
+    },
+    {
+      "file": "gt-1-gas.wav",
+      "hash": "b3d99e619d7cf9f567014f6a3e58756492e9c1f73b742742bbe8c3aadd3b5d48",
+      "samples": 21512,
+      "rms": 0.22000000001367687,
+      "peak": 0.6046928763389587
+    },
+    {
+      "file": "gt-1-off.wav",
+      "hash": "4d9c002f67d71cd628b2925b3419e6b1ce738b89a9cac50c40748504d506b3b3",
+      "samples": 21512,
+      "rms": 0.2199999999741738,
+      "peak": 0.6224460005760193
+    },
+    {
+      "file": "gt-2-gas.wav",
+      "hash": "f52b701bdf37b466d0f6fa3ff4fc77de79b4fb1519f8f124704ebe15f9e991fb",
+      "samples": 22280,
+      "rms": 0.22000000008036874,
+      "peak": 0.5057041645050049
+    },
+    {
+      "file": "gt-2-off.wav",
+      "hash": "76e7b0c71c2e44ffd8b595ab29c263bbae2a1968d027061eb2acb3bc70b578a8",
+      "samples": 22280,
+      "rms": 0.21999999998472908,
+      "peak": 0.5391146540641785
+    },
+    {
+      "file": "gt-3-gas.wav",
+      "hash": "42ca7439c883175034aaf0f1cce7a1a08719e3f1ce4327f2447eedfdc0029a8a",
+      "samples": 22184,
+      "rms": 0.21999999998510805,
+      "peak": 0.67922443151474
+    },
+    {
+      "file": "gt-3-off.wav",
+      "hash": "df3b08a8ecf46e3f23f3c11a5dc69c5593d4f3d8dba32042bd169bd5a3cc29ed",
+      "samples": 22184,
+      "rms": 0.21999999993056743,
+      "peak": 0.4989456534385681
+    },
+    {
+      "file": "gt-4-gas.wav",
+      "hash": "e3fe35a3aa6826d47fd74c42abcc0409e9b9c312859d2fc299ca0bb71ede3077",
+      "samples": 21871,
+      "rms": 0.21972715412181448,
+      "peak": 0.9354931712150574
+    },
+    {
+      "file": "gt-4-off.wav",
+      "hash": "3681fad8eb7d86d1f9e63e390bb929de1f94d106c9ad3dc060f8376f343c955a",
+      "samples": 21871,
+      "rms": 0.21999964314629783,
+      "peak": 0.7476744651794434
+    },
+    {
+      "file": "rx-0-gas.wav",
+      "hash": "d3c67b0f98e7197fa3ced535fe173a510135837d8b7823cea396cf38372412dc",
+      "samples": 23520,
+      "rms": 0.22000000000281883,
+      "peak": 0.556149423122406
+    },
+    {
+      "file": "rx-0-off.wav",
+      "hash": "c56e1c537584ce26fa363f9ff1a87f49f2c6d9147313e30b30c196725f44d78e",
+      "samples": 23520,
+      "rms": 0.22000000003799197,
+      "peak": 0.6814547777175903
+    },
+    {
+      "file": "rx-1-gas.wav",
+      "hash": "5c877ba370839420666133006893b71c1c0b53f3cd5946c8f939c9ed55df23f9",
+      "samples": 22615,
+      "rms": 0.21999999995803807,
+      "peak": 0.46394726634025574
+    },
+    {
+      "file": "rx-1-off.wav",
+      "hash": "ca87a15468b4a69f5baa01dc6b1d8557d8bb7c34ee35bb66f7c5540f93b485e1",
+      "samples": 22615,
+      "rms": 0.22000000007240003,
+      "peak": 0.5061335563659668
+    },
+    {
+      "file": "rx-2-gas.wav",
+      "hash": "287675346b7176912d541e999108bd191417df54a6e959ea51c51d4017b58fac",
+      "samples": 21808,
+      "rms": 0.21999999997040096,
+      "peak": 0.6231637001037598
+    },
+    {
+      "file": "rx-2-off.wav",
+      "hash": "d9b6459ae67d4a66978cb6e50b35516e7b02445dbf488b8599e0560f8bd54caa",
+      "samples": 21808,
+      "rms": 0.21999999995553038,
+      "peak": 0.5870435833930969
+    },
+    {
+      "file": "rx-3-gas.wav",
+      "hash": "f830b4b5669b051d3a31b032c890f00085e131805da7e1bcbdd3b2a56b4c79f9",
+      "samples": 22262,
+      "rms": 0.22000000003252052,
+      "peak": 0.4853120744228363
+    },
+    {
+      "file": "rx-3-off.wav",
+      "hash": "9acb1be238308efc558065c680219abdf149cfc97046dadfa380ff76f60bd976",
+      "samples": 22262,
+      "rms": 0.21999999997030142,
+      "peak": 0.5857210159301758
+    },
+    {
+      "file": "rx-4-gas.wav",
+      "hash": "04f38ad3e677cedc277a019b25fe2ec905cbaf7a048f37b23bfcbbaad10f41df",
+      "samples": 21862,
+      "rms": 0.22000000000935863,
+      "peak": 0.460002064704895
+    },
+    {
+      "file": "rx-4-off.wav",
+      "hash": "f9a4c9f08197ad8f4b465cb51f43a0775a54895daf49e840cb3898491e1bbd26",
+      "samples": 21862,
+      "rms": 0.21999999995059913,
+      "peak": 0.6672451496124268
+    },
+    {
+      "file": "dr-0-gas.wav",
+      "hash": "c4a843f552eae2c3637da41ea3d077f4fc7557ab43dd7082567c84c4a1d62455",
+      "samples": 23520,
+      "rms": 0.21999995990690127,
+      "peak": 0.7294092178344727
+    },
+    {
+      "file": "dr-0-off.wav",
+      "hash": "e34c941b51ebd94f52933632c346d92d461a1ddb05d8421dad002f0cb5938af9",
+      "samples": 23520,
+      "rms": 0.21999999997794217,
+      "peak": 0.6834319829940796
+    },
+    {
+      "file": "dr-1-gas.wav",
+      "hash": "8625776d0912a3251a8e0bd20ba0da9e39d5fa090a972a780df305d8bab19628",
+      "samples": 21760,
+      "rms": 0.2200000000007528,
+      "peak": 0.6574203968048096
+    },
+    {
+      "file": "dr-1-off.wav",
+      "hash": "052a7067f2b26bc99834e47cb7a990d84c6277470225c96f1716c237fcc91406",
+      "samples": 21760,
+      "rms": 0.21999999996191377,
+      "peak": 0.5268210172653198
+    },
+    {
+      "file": "dr-2-gas.wav",
+      "hash": "b06ca78a9b5b6bb3e4889e3388ad550797326242935c69409ea5196779803392",
+      "samples": 22382,
+      "rms": 0.22000000000011774,
+      "peak": 0.46627214550971985
+    },
+    {
+      "file": "dr-2-off.wav",
+      "hash": "f616fca78564388aaef9d1ac015202e3b2ec3ed191d259fa78ca5b205e9feaf1",
+      "samples": 22382,
+      "rms": 0.22000000001972617,
+      "peak": 0.5102089643478394
+    },
+    {
+      "file": "dr-3-gas.wav",
+      "hash": "5a024644cbaa37dbde2b5847fc5c72c505d7f3fe267ae72f2309a0efc28eb7cb",
+      "samples": 22304,
+      "rms": 0.22000000000693148,
+      "peak": 0.5525195598602295
+    },
+    {
+      "file": "dr-3-off.wav",
+      "hash": "2cdbeb277335b541b3e911b6e224eb3475a65cf4f6bf2f24e67f476d0ce63115",
+      "samples": 22304,
+      "rms": 0.2199999999591414,
+      "peak": 0.43122968077659607
+    },
+    {
+      "file": "dr-4-gas.wav",
+      "hash": "485f8a101fba19d1ca6a698876d4bbe77935f5c26cc0c6868664b7107b35683e",
+      "samples": 22050,
+      "rms": 0.21999999998780623,
+      "peak": 0.5633233785629272
+    },
+    {
+      "file": "dr-4-off.wav",
+      "hash": "c657ea271ea997c5cfe1c46041d19b18d774e0a04f9951dd0e8f75990c7b2381",
+      "samples": 22050,
+      "rms": 0.21996247824093568,
+      "peak": 0.8518986105918884
+    },
+    {
+      "file": "rl-0-gas.wav",
+      "hash": "90359bdcb52b518170c63df1c62674c11e06371247e809374818f5ca937c4f9d",
+      "samples": 23520,
+      "rms": 0.21999901876431902,
+      "peak": 0.7811285257339478
+    },
+    {
+      "file": "rl-0-off.wav",
+      "hash": "e8467f2bc85f49030a23a8350c0c8a5c9c137ab5d4bf7555375c5d1da6e9ecc9",
+      "samples": 23520,
+      "rms": 0.2198235425670946,
+      "peak": 0.8279172778129578
+    },
+    {
+      "file": "rl-1-gas.wav",
+      "hash": "2d48571aa22ef698d041df3bfe1a64108f27713d30b434222ce56e5f710a1720",
+      "samples": 22050,
+      "rms": 0.21999888278582394,
+      "peak": 0.7794154286384583
+    },
+    {
+      "file": "rl-1-off.wav",
+      "hash": "893fdd979ac2e7648fc6c18959517c0a9d2b03ff5c31c8a6f93d46bb5cdc1e44",
+      "samples": 22050,
+      "rms": 0.21999999999017053,
+      "peak": 0.5956238508224487
+    },
+    {
+      "file": "rl-2-gas.wav",
+      "hash": "cd003c1c01c1b991aa96b8e01f71a065a2e1503f395bd26969e571a2144dbd20",
+      "samples": 21840,
+      "rms": 0.2199973923755016,
+      "peak": 0.7726054787635803
+    },
+    {
+      "file": "rl-2-off.wav",
+      "hash": "9ebc0dba9b1182d842279a2da830d4c068b222592958e290a30a8ac6b9246621",
+      "samples": 21840,
+      "rms": 0.2200000000279123,
+      "peak": 0.5342098474502563
+    },
+    {
+      "file": "rl-3-gas.wav",
+      "hash": "921c9397d7e75f61035d143d6f1f2325151a587a8acdbda0b83d5207e0925037",
+      "samples": 22050,
+      "rms": 0.21998564641984625,
+      "peak": 0.8252411484718323
+    },
+    {
+      "file": "rl-3-off.wav",
+      "hash": "4b6100ce986cc271cc6684364cf0a38f6dd508ff6ea029832e5d37cd0ec46e34",
+      "samples": 22050,
+      "rms": 0.2199999959431366,
+      "peak": 0.7145414352416992
+    },
+    {
+      "file": "rl-4-gas.wav",
+      "hash": "f5da21a8ad9a7a077d655ca91a08cecf6c89f704d83e0c8980bd2bd49752da9d",
+      "samples": 21952,
+      "rms": 0.21999333230037393,
+      "peak": 0.8248372077941895
+    },
+    {
+      "file": "rl-4-off.wav",
+      "hash": "378a12e92700d74defd2f8e57937ff68d245d149a5baf9c4129c003c7c01452e",
+      "samples": 21952,
+      "rms": 0.21999999995715522,
+      "peak": 0.6360499858856201
+    },
+    {
+      "file": "dg-0-gas.wav",
+      "hash": "4f2e45a888e81ec6fa59b56f14595a01355fc1e9c5b7a082f7261fdea247906f",
+      "samples": 23520,
+      "rms": 0.22000000000556125,
+      "peak": 0.5598176717758179
+    },
+    {
+      "file": "dg-0-off.wav",
+      "hash": "8a976b3b1ff637c02d12102df2eb8e340bd13f8cc2d3066c5c4bf8ebb551e8ec",
+      "samples": 23520,
+      "rms": 0.21999999995097455,
+      "peak": 0.5160874128341675
+    },
+    {
+      "file": "dg-1-gas.wav",
+      "hash": "549c06a868dbc9cc9ed44a6b30d6a71b1d165a7fac63e1645ca573bcd7c35e3f",
+      "samples": 22699,
+      "rms": 0.22000000000263428,
+      "peak": 0.6521813869476318
+    },
+    {
+      "file": "dg-1-off.wav",
+      "hash": "3d4daadb49e240214a13fdc2b3cbca0e52ff4ec6ac86389365a1a618b679521d",
+      "samples": 22699,
+      "rms": 0.21999999993312339,
+      "peak": 0.6162020564079285
+    },
+    {
+      "file": "dg-2-gas.wav",
+      "hash": "65bc2adc84a290f32eda78ad862e14e7076899acfb6f2ce275e503c8f82a2c48",
+      "samples": 22235,
+      "rms": 0.21999999986937546,
+      "peak": 0.6068946123123169
+    },
+    {
+      "file": "dg-2-off.wav",
+      "hash": "458c8738cb816cf1ca310b126f41cea36bdf9383b42b1a18c0b2ad498107b1cd",
+      "samples": 22235,
+      "rms": 0.220000000035898,
+      "peak": 0.48632940649986267
+    },
+    {
+      "file": "dg-3-gas.wav",
+      "hash": "f00c1e75207f9cd73b983b45e98d41039011a594516d6cdd037bb0a91fa7679c",
+      "samples": 21888,
+      "rms": 0.21961749744603395,
+      "peak": 0.9235768914222717
+    },
+    {
+      "file": "dg-3-off.wav",
+      "hash": "8a557d38c03c2d60c60ded29209b5f9b55e0fb788ef12d83143c605490907f7f",
+      "samples": 21888,
+      "rms": 0.2200000000207917,
+      "peak": 0.675854504108429
+    },
+    {
+      "file": "dg-4-gas.wav",
+      "hash": "8292c03b6556a7b7f82d8c10af0c2797c98c8c130abc31fa5de0a4d2b082c617",
+      "samples": 22050,
+      "rms": 0.21603046716300117,
+      "peak": 0.9431288242340088
+    },
+    {
+      "file": "dg-4-off.wav",
+      "hash": "26e4ad6298e87f46680c4351aa928de5063d5e6dcc455b330410a261f81188bd",
+      "samples": 22050,
+      "rms": 0.21998832291866577,
+      "peak": 0.777827262878418
+    },
+    {
+      "file": "gt3-0-gas.wav",
+      "hash": "8e88452b8970eeabc29dfc8db0fdea0a308396db6d399b64b065599081355ed3",
+      "samples": 23520,
+      "rms": 0.2200000000394595,
+      "peak": 0.6234560608863831
+    },
+    {
+      "file": "gt3-0-off.wav",
+      "hash": "65e1f6249a6db04a75e6ac8567c91a7ecb788aa0cc14315201f1bbb43263fd7e",
+      "samples": 23520,
+      "rms": 0.21856203072966698,
+      "peak": 0.8838330507278442
+    },
+    {
+      "file": "gt3-1-gas.wav",
+      "hash": "b061e5519a3697e86567eccc3a82ead49a9e3435b5bb767a968bcffa394c9994",
+      "samples": 22050,
+      "rms": 0.2200000000905654,
+      "peak": 0.4723258316516876
+    },
+    {
+      "file": "gt3-1-off.wav",
+      "hash": "dcd23ca0b5feed0cfe0f684668e06c62984c0ac17e6606383434764f254621c4",
+      "samples": 22050,
+      "rms": 0.2199999999448654,
+      "peak": 0.5685737133026123
+    },
+    {
+      "file": "gt3-2-gas.wav",
+      "hash": "883c3906bf659f74a7bd457583fd64fad4bd192779e2f5c4c000b2ff0f1f621e",
+      "samples": 22400,
+      "rms": 0.2199999997725767,
+      "peak": 0.7070404291152954
+    },
+    {
+      "file": "gt3-2-off.wav",
+      "hash": "bdef0525a229b133a311fbab8012e72f935285e1b7c8f635e1eec081605eafd9",
+      "samples": 22400,
+      "rms": 0.21999999997710903,
+      "peak": 0.5010849833488464
+    },
+    {
+      "file": "gt3-3-gas.wav",
+      "hash": "87799c9803191cce5b51aab36b2ea2094a50669c91c9ff9ef35999f0c6cdb028",
+      "samples": 22050,
+      "rms": 0.22000000006722678,
+      "peak": 0.6602386832237244
+    },
+    {
+      "file": "gt3-3-off.wav",
+      "hash": "ab26dd7058ba981e66913634a9bb986d6351c8af339fd7ee80c94764ea5558ee",
+      "samples": 22050,
+      "rms": 0.21999999993869668,
+      "peak": 0.43461713194847107
+    },
+    {
+      "file": "gt3-4-gas.wav",
+      "hash": "4924f1558ba74f7c2ba2da7d5a80ad4fd9b8bf2ae80c2d290a3983bee742be9b",
+      "samples": 22213,
+      "rms": 0.20887736487763794,
+      "peak": 0.9499873518943787
+    },
+    {
+      "file": "gt3-4-off.wav",
+      "hash": "50dfc5cb091547597d08970d2910e893d6ba138806c769d72216099551b36406",
+      "samples": 22213,
+      "rms": 0.21999999997567285,
+      "peak": 0.6014086604118347
+    },
+    {
+      "file": "t16-0-gas.wav",
+      "hash": "29d3dcb16a6671ba46bebaabf3d4d3560756c1bc8bbe003a1b29f98ddbc673b9",
+      "samples": 23520,
+      "rms": 0.22000000002534847,
+      "peak": 0.6180819869041443
+    },
+    {
+      "file": "t16-0-off.wav",
+      "hash": "86b2a189bc364a94865fbf767b3934b5d42cc6c2d663b32c8299d948cf8c1d3c",
+      "samples": 23520,
+      "rms": 0.21875684920172686,
+      "peak": 0.8800761103630066
+    },
+    {
+      "file": "t16-1-gas.wav",
+      "hash": "a38e79c87cb6fdd12c770f9f6107fd3ccb5213876028b3c107f8aebb182db4b7",
+      "samples": 21760,
+      "rms": 0.21999999994538647,
+      "peak": 0.6257171630859375
+    },
+    {
+      "file": "t16-1-off.wav",
+      "hash": "57649d5f3838748647502267dbcc2d6fdf96e1af96fd5935341a39b3d8e661e4",
+      "samples": 21760,
+      "rms": 0.21999999457806854,
+      "peak": 0.7130089402198792
+    },
+    {
+      "file": "t16-2-gas.wav",
+      "hash": "7eed6ef336d4bc35c814ac1520ebfae5b3e8aca75f08878375eeb72c812da38b",
+      "samples": 22382,
+      "rms": 0.2200000000524926,
+      "peak": 0.48963451385498047
+    },
+    {
+      "file": "t16-2-off.wav",
+      "hash": "9befec9c516358ba181ea56f4a1ce77f46ad7f123327854a3ce547f964cf1e8b",
+      "samples": 22382,
+      "rms": 0.2200000000766192,
+      "peak": 0.47337064146995544
+    },
+    {
+      "file": "t16-3-gas.wav",
+      "hash": "3e658f2532af9a81a526498f5eadceae5a2a420ef1df6607bf1cacf172699939",
+      "samples": 22304,
+      "rms": 0.22000000002793377,
+      "peak": 0.61519855260849
+    },
+    {
+      "file": "t16-3-off.wav",
+      "hash": "a12e3b4d426bd4af029c37cf525de1b70981cd6b11d6d8950ded09a95005beb7",
+      "samples": 22304,
+      "rms": 0.21999999991786448,
+      "peak": 0.43224117159843445
+    },
+    {
+      "file": "t16-4-gas.wav",
+      "hash": "aec5395b1d98249a1d6eb972d6d6971a38330deb981866c2e045fabbdee967af",
+      "samples": 22050,
+      "rms": 0.21934083035394902,
+      "peak": 0.9347316026687622
+    },
+    {
+      "file": "t16-4-off.wav",
+      "hash": "1179a311dd16aea6aa7f16fabcf3c439731346bba2f7d40f5ccf39bbc1a796a7",
+      "samples": 22050,
+      "rms": 0.21999999997396416,
+      "peak": 0.5322840809822083
+    },
+    {
+      "file": "int-0-gas.wav",
+      "hash": "fc26cb178e11821ca7d5a7dd97d6f8c36c298b0c87b852bfc73116089642ebd7",
+      "samples": 23520,
+      "rms": 0.21999999995872963,
+      "peak": 0.61817467212677
+    },
+    {
+      "file": "int-0-off.wav",
+      "hash": "570448ebc869f358d6ac6abfd6cd7e8179bb2ff681c40e76c826af3304b3241c",
+      "samples": 23520,
+      "rms": 0.21874804743054257,
+      "peak": 0.8807412385940552
+    },
+    {
+      "file": "int-1-gas.wav",
+      "hash": "4972e2045c79c12d247484143f7ed212c08782254b3416448c952a7a1a50c5c5",
+      "samples": 21438,
+      "rms": 0.21999999998859424,
+      "peak": 0.5802563428878784
+    },
+    {
+      "file": "int-1-off.wav",
+      "hash": "e1570a9f145b6219431a8398fc0954f3efa77fe0ad833c57be17bd1499b7b2a5",
+      "samples": 21438,
+      "rms": 0.21999955434998564,
+      "peak": 0.7473958730697632
+    },
+    {
+      "file": "int-2-gas.wav",
+      "hash": "a5dbc87245971c9e89b11025b3680762ebb73cf7d600f8a21b1deb53d2b875d4",
+      "samples": 21875,
+      "rms": 0.22000000003637774,
+      "peak": 0.6093782186508179
+    },
+    {
+      "file": "int-2-off.wav",
+      "hash": "144a7992401e3fd07075d221e41fc0086c67f80113f3d20f23f0e29344d467e2",
+      "samples": 21875,
+      "rms": 0.22000000000236575,
+      "peak": 0.5603296756744385
+    },
+    {
+      "file": "int-3-gas.wav",
+      "hash": "e055bc11f140407691be79323b9dfedea9f8312960f4df0eded356ddc611880c",
+      "samples": 21820,
+      "rms": 0.22000000012324783,
+      "peak": 0.5424801707267761
+    },
+    {
+      "file": "int-3-off.wav",
+      "hash": "efddbcf43279a614de5dd0cd62a10751d7e9c4dcea524f2951eff02056cbcc6b",
+      "samples": 21820,
+      "rms": 0.21999999985930857,
+      "peak": 0.3915891647338867
+    },
+    {
+      "file": "int-4-gas.wav",
+      "hash": "3a6dd7213a3559207e3a8d2e4868bb34f25fca23b3752dc50d90836594ddca2f",
+      "samples": 22050,
+      "rms": 0.2199999999707143,
+      "peak": 0.6752654910087585
+    },
+    {
+      "file": "int-4-off.wav",
+      "hash": "15add34c8d5cbf85d825a6f41a99d6f94dae04c0b92a244cbce6451331b73997",
+      "samples": 22050,
+      "rms": 0.21999999998323308,
+      "peak": 0.384559690952301
+    },
+    {
+      "file": "ae86-0-gas.wav",
+      "hash": "31530f1f7f48f7487c6da4afdbc9685d134f39ca8483dfd9b96ad33cbc1cb01e",
+      "samples": 23520,
+      "rms": 0.21999999996985467,
+      "peak": 0.6177780032157898
+    },
+    {
+      "file": "ae86-0-off.wav",
+      "hash": "5bcf7d23ec1b7c01f7d37336a37ea8f48b4d627fad4855e4bfaa28ae259b7a24",
+      "samples": 23520,
+      "rms": 0.21875450108716082,
+      "peak": 0.880285918712616
+    },
+    {
+      "file": "ae86-1-gas.wav",
+      "hash": "f09d0223455d6958b5ee4b06173e1cc5ecfb4e65b1b6a1ce56e3c185d2ac60b8",
+      "samples": 22050,
+      "rms": 0.22000000002068412,
+      "peak": 0.6809840798377991
+    },
+    {
+      "file": "ae86-1-off.wav",
+      "hash": "029b7e2910b5bffff687b78f8fd4a4555039ccfaa9d1b4922f20037d4ac5167c",
+      "samples": 22050,
+      "rms": 0.22000000006746265,
+      "peak": 0.6518486142158508
+    },
+    {
+      "file": "ae86-2-gas.wav",
+      "hash": "6f6b51657b72e8cb05ace1b7f936fa55d9615ba7eaaa55a6b0979a24396b82d8",
+      "samples": 22050,
+      "rms": 0.21999999999622,
+      "peak": 0.5816940069198608
+    },
+    {
+      "file": "ae86-2-off.wav",
+      "hash": "1a3e27e524d1e4c9c165a1998493cf41d7411cc96bd8d2000461c9cf97f6894e",
+      "samples": 22050,
+      "rms": 0.22000000001679565,
+      "peak": 0.4501473605632782
+    },
+    {
+      "file": "ae86-3-gas.wav",
+      "hash": "532dd783e18d685853e710f8531a0d9be794963835baea6ced579b80f48aa5c3",
+      "samples": 22222,
+      "rms": 0.21999985608878428,
+      "peak": 0.7441343069076538
+    },
+    {
+      "file": "ae86-3-off.wav",
+      "hash": "15b2b1f6cbd60bc342bcbc32feeb9e12a29213e5c6602c0675cf78718f2347b0",
+      "samples": 22222,
+      "rms": 0.2199999998807991,
+      "peak": 0.4642540514469147
+    },
+    {
+      "file": "ae86-4-gas.wav",
+      "hash": "4b9f61981a9a06a289827543e4367cd438cfe0403a2fc8ff5ee565ee91ce0f92",
+      "samples": 22050,
+      "rms": 0.21282251103646083,
+      "peak": 0.9494550824165344
+    },
+    {
+      "file": "ae86-4-off.wav",
+      "hash": "f57d713eb29702c8dce259d8cb265be438b81cfd0a3f677a17b18a47c30b68a4",
+      "samples": 22050,
+      "rms": 0.22000000000273828,
+      "peak": 0.5658079385757446
+    },
+    {
+      "file": "supra-0-gas.wav",
+      "hash": "b2beefb26508bd0f59f07b9a0a1145e64439169024c15c86dad1ee01ea843a40",
+      "samples": 23520,
+      "rms": 0.2199999999665561,
+      "peak": 0.6181278228759766
+    },
+    {
+      "file": "supra-0-off.wav",
+      "hash": "9e421ce47d85d5c8d43bba18891ae90f34a383f1d923b975bf896826c7038f0a",
+      "samples": 23520,
+      "rms": 0.21862874508846436,
+      "peak": 0.8861726522445679
+    },
+    {
+      "file": "supra-1-gas.wav",
+      "hash": "8bbd969bcf0cc82cc7360c5553dcd456283e9619314978d8773a9224403854f9",
+      "samples": 22348,
+      "rms": 0.21999999996167457,
+      "peak": 0.61110520362854
+    },
+    {
+      "file": "supra-1-off.wav",
+      "hash": "b9306e0bf371a236139e7dc030ff768b49a480bd1a010a02e44dc0932402a82d",
+      "samples": 22348,
+      "rms": 0.21999999789390937,
+      "peak": 0.7110490798950195
+    },
+    {
+      "file": "supra-2-gas.wav",
+      "hash": "272103d3c59c887102c70864c4d3d7ee930f21d8c07d904ebcfa0281e38fbfc3",
+      "samples": 22135,
+      "rms": 0.21999999995221892,
+      "peak": 0.5471377968788147
+    },
+    {
+      "file": "supra-2-off.wav",
+      "hash": "5b66f01092028620e1010c6980feec26a5111250d9d8c31c540f15c71ce3cc9d",
+      "samples": 22135,
+      "rms": 0.21999999998786757,
+      "peak": 0.53080815076828
+    },
+    {
+      "file": "supra-3-gas.wav",
+      "hash": "5cbe2a977739afd8f9a85a4b25e797979206fe3b24a3d77e86f5eda3344d49f9",
+      "samples": 21789,
+      "rms": 0.22000000002727504,
+      "peak": 0.5676066875457764
+    },
+    {
+      "file": "supra-3-off.wav",
+      "hash": "e577ae30a2407f27f262f7e74abb246157ae00cdea39be73e40b27fc939406c4",
+      "samples": 21789,
+      "rms": 0.21999999990289157,
+      "peak": 0.4114697575569153
+    },
+    {
+      "file": "supra-4-gas.wav",
+      "hash": "1ea0f8d3b0be42e8c0736c638a98d93a1b8d00ec20b6d1b10673d3a65f0f72c5",
+      "samples": 22249,
+      "rms": 0.21970744862928054,
+      "peak": 0.9193717241287231
+    },
+    {
+      "file": "supra-4-off.wav",
+      "hash": "40d67cbcb85b579c39d2c99716e6f23d815fd7d9560d9e4d752cdc014b59cfd9",
+      "samples": 22249,
+      "rms": 0.21999999996192382,
+      "peak": 0.45060744881629944
+    },
+    {
+      "file": "e30-0-gas.wav",
+      "hash": "1693498f3eba3c6154474ab990b09f32f0193bd2fa3194a9c2196c9086a8945d",
+      "samples": 23520,
+      "rms": 0.21981626508038013,
+      "peak": 0.9093731641769409
+    },
+    {
+      "file": "e30-0-off.wav",
+      "hash": "575400a436fb60b62c9cf512531b77bb43fdda1f26c135db7c1a2cb4fcc03e3c",
+      "samples": 23520,
+      "rms": 0.21999055335120188,
+      "peak": 0.7839139699935913
+    },
+    {
+      "file": "e30-1-gas.wav",
+      "hash": "2fed9636f3379132019321be6676489f238ddded490ef3494e02e09574eed06c",
+      "samples": 22050,
+      "rms": 0.219999999987124,
+      "peak": 0.5994055271148682
+    },
+    {
+      "file": "e30-1-off.wav",
+      "hash": "a20f355661615441522cf8e5ec988fe9fd0bbbc1326447fd4e17145c31c891f8",
+      "samples": 22050,
+      "rms": 0.2200000001297514,
+      "peak": 0.6793861389160156
+    },
+    {
+      "file": "e30-2-gas.wav",
+      "hash": "da4ae1451dbdb75e100e1cd6ad967befd98c3ed07e85b6cfbc9a98119c7122ab",
+      "samples": 22500,
+      "rms": 0.22000000009831874,
+      "peak": 0.580321729183197
+    },
+    {
+      "file": "e30-2-off.wav",
+      "hash": "97467561aa31c40d44b549afb51646a78eef98a5779f40540bf731de78cc747f",
+      "samples": 22500,
+      "rms": 0.21999999998587783,
+      "peak": 0.4931093156337738
+    },
+    {
+      "file": "e30-3-gas.wav",
+      "hash": "fd4573b2c7025ffd9e5a5d95c13e957048b90b670402404d1d7a204ccf48e577",
+      "samples": 21853,
+      "rms": 0.21999999994197814,
+      "peak": 0.570732831954956
+    },
+    {
+      "file": "e30-3-off.wav",
+      "hash": "aeb8b41e32ca94679905808657357b081246765a12ce3c4b22f1cbf8f5950ae0",
+      "samples": 21853,
+      "rms": 0.2199999999312924,
+      "peak": 0.5223265886306763
+    },
+    {
+      "file": "e30-4-gas.wav",
+      "hash": "040d821fefeb03ab109568d6e7ae57ed827c99aac8f29eb4ef68b84bc00b6fe5",
+      "samples": 21840,
+      "rms": 0.21999999999503586,
+      "peak": 0.3433810770511627
+    },
+    {
+      "file": "e30-4-off.wav",
+      "hash": "5e8b0c3907d4a64e22d5fc28c2ec05f292e01781b8bd06d7005d7f53280c60a2",
+      "samples": 21840,
+      "rms": 0.2200000000915331,
+      "peak": 0.3364560008049011
+    },
+    {
+      "file": "golf-0-gas.wav",
+      "hash": "170e48af6514d5657ec3fb269b3c358b448fa3b5322b3e5eb5b8a4c51535295f",
+      "samples": 23520,
+      "rms": 0.22000000006255874,
+      "peak": 0.5557497143745422
+    },
+    {
+      "file": "golf-0-off.wav",
+      "hash": "ae7df4a3f8e8140a1a9bce062c8ced99c73281eb6b3d8d94faee8d8e5770d446",
+      "samples": 23520,
+      "rms": 0.2200000000219671,
+      "peak": 0.6898255944252014
+    },
+    {
+      "file": "golf-1-gas.wav",
+      "hash": "83af822e9ad51c3bc6d9b8befa5e922de2fd769a76a8d6ad63ddfa215d419969",
+      "samples": 22699,
+      "rms": 0.2200000000173987,
+      "peak": 0.6220709681510925
+    },
+    {
+      "file": "golf-1-off.wav",
+      "hash": "835b3310a5b80984c401842a29d9a95a14e20ceb48c14b1a068f2d4d6bf5e22f",
+      "samples": 22699,
+      "rms": 0.22000000006852574,
+      "peak": 0.6751640439033508
+    },
+    {
+      "file": "golf-2-gas.wav",
+      "hash": "a34890f9ba5b08b28fb63d007f68d0f7e75b1f02f9312024dd7ce7701abad539",
+      "samples": 22235,
+      "rms": 0.21999999997544759,
+      "peak": 0.5064584612846375
+    },
+    {
+      "file": "golf-2-off.wav",
+      "hash": "f1da503f4b4bb21e6874969289525f502a1ef0e22dbf7b73030fd2fd0c1cc373",
+      "samples": 22235,
+      "rms": 0.2200000000130545,
+      "peak": 0.5920048952102661
+    },
+    {
+      "file": "golf-3-gas.wav",
+      "hash": "f354740202f99d6af5efa66b22d756d5f45a3ed4904ee907cfd6b3a86c8a8b88",
+      "samples": 21888,
+      "rms": 0.22000000001533968,
+      "peak": 0.5238410234451294
+    },
+    {
+      "file": "golf-3-off.wav",
+      "hash": "f1debd22c853d1ba4d4e448029f324e849695742f66566feacff46ba36c4a672",
+      "samples": 21888,
+      "rms": 0.21999999993132008,
+      "peak": 0.6223385334014893
+    },
+    {
+      "file": "golf-4-gas.wav",
+      "hash": "b5fc202c80acb91e6dfcebe66f84b77bab2b3e4a1fede5b0f61dca93ad3f0138",
+      "samples": 22050,
+      "rms": 0.21999999994366595,
+      "peak": 0.6327880620956421
+    },
+    {
+      "file": "golf-4-off.wav",
+      "hash": "4000d51fac4282cda1464602ae8fd7c42c791e883fec811ff724328be7546af2",
+      "samples": 22050,
+      "rms": 0.21999999992654543,
+      "peak": 0.5347917079925537
+    },
+    {
+      "file": "niva-0-gas.wav",
+      "hash": "3e0da8c68222082a68d0379caa0cf8572973d955b53d3e65d5019314c7771641",
+      "samples": 23520,
+      "rms": 0.2199992577233367,
+      "peak": 0.7553392052650452
+    },
+    {
+      "file": "niva-0-off.wav",
+      "hash": "13a6efb41af0d7935a68fe5241eabf16406cc14fbe7401086eef4af9290de344",
+      "samples": 23520,
+      "rms": 0.21977801282014364,
+      "peak": 0.8327533006668091
+    },
+    {
+      "file": "niva-1-gas.wav",
+      "hash": "0d623b037798ef62d71914e7a7bba945dd1a134a964039297a4a3d287c212d06",
+      "samples": 21339,
+      "rms": 0.21999999998262973,
+      "peak": 0.6486591100692749
+    },
+    {
+      "file": "niva-1-off.wav",
+      "hash": "f450c622150b344ddd161b5fe9cd6d788ae3795951557d151ce84e032fca9893",
+      "samples": 21339,
+      "rms": 0.21999999991935323,
+      "peak": 0.6348323822021484
+    },
+    {
+      "file": "niva-2-gas.wav",
+      "hash": "ecb1e376a9ce0041ea7d089a43a84b11ce27219494154587e68ca25e6528ad8a",
+      "samples": 22355,
+      "rms": 0.22000000000154987,
+      "peak": 0.526045560836792
+    },
+    {
+      "file": "niva-2-off.wav",
+      "hash": "5090249b8a45c89cc30c0005b8423b1962851b415684760e1187078ce59d8d53",
+      "samples": 22355,
+      "rms": 0.22000000010264306,
+      "peak": 0.4668995141983032
+    },
+    {
+      "file": "niva-3-gas.wav",
+      "hash": "413ae9de68369f21d9cac6152fd5a8224d95eeda8149a08d5267001e58fdbaf0",
+      "samples": 22006,
+      "rms": 0.2199998431549736,
+      "peak": 0.7346712350845337
+    },
+    {
+      "file": "niva-3-off.wav",
+      "hash": "6667bd96903acfd620dcfe174fe33cd15e1b019a9409256589a9217e63bb3e2b",
+      "samples": 22006,
+      "rms": 0.22000000007215845,
+      "peak": 0.6861746311187744
+    },
+    {
+      "file": "niva-4-gas.wav",
+      "hash": "0f9d4adff12ed3286a1760019eb5d40fba34197abf27cf3881638c8d19ecb1ad",
+      "samples": 21813,
+      "rms": 0.2199990868578954,
+      "peak": 0.7651271224021912
+    },
+    {
+      "file": "niva-4-off.wav",
+      "hash": "69dee7a419841c82a38239d0778a57533fb18208debf02dbdaaa473fe5d710aa",
+      "samples": 21813,
+      "rms": 0.21999925759926547,
+      "peak": 0.7525439262390137
+    },
+    {
+      "file": "c33-0-gas.wav",
+      "hash": "6d253ca24f1722dad097161247bade71ecf4a05de6beecff1618d6f38f70f08f",
+      "samples": 23520,
+      "rms": 0.21999996626178886,
+      "peak": 0.7291108965873718
+    },
+    {
+      "file": "c33-0-off.wav",
+      "hash": "da2acac948409e1623623f1d835ab8a56f2a9c277eb5c40cb36671e31524d905",
+      "samples": 23520,
+      "rms": 0.21999999996348343,
+      "peak": 0.6832894682884216
+    },
+    {
+      "file": "c33-1-gas.wav",
+      "hash": "56ac246bdb8c0e3cfab4806a35eefc1d26a2b15e34b3db1b8a6f8d56b5ae707c",
+      "samples": 22050,
+      "rms": 0.2199999999432442,
+      "peak": 0.5152919888496399
+    },
+    {
+      "file": "c33-1-off.wav",
+      "hash": "4de61c5aa3708c8344feeac6ce97a60dd3a06d25741b4c5aadab957c92090691",
+      "samples": 22050,
+      "rms": 0.22000000009300089,
+      "peak": 0.5785084366798401
+    },
+    {
+      "file": "c33-2-gas.wav",
+      "hash": "74f4f10e9c6aa4bca78926bd617dc343f85cc6274e3b4b4e88c5398f287936f6",
+      "samples": 22500,
+      "rms": 0.21999999996005168,
+      "peak": 0.3650113344192505
+    },
+    {
+      "file": "c33-2-off.wav",
+      "hash": "ce0e7ce50605d8736847fc560413591ca5222f50de80f1ac08933ba63da0581f",
+      "samples": 22500,
+      "rms": 0.22000000009634318,
+      "peak": 0.4098799526691437
+    },
+    {
+      "file": "c33-3-gas.wav",
+      "hash": "5eccd516ed3c5006de264d408a830a6558095b4cee93efb671ba04b7ac5bccbe",
+      "samples": 21853,
+      "rms": 0.2200000000432654,
+      "peak": 0.381290078163147
+    },
+    {
+      "file": "c33-3-off.wav",
+      "hash": "72f9ebd640b880aff7393cd4ecb73bbee306724a2007a54ceadd988fe93720e2",
+      "samples": 21853,
+      "rms": 0.21999989172566448,
+      "peak": 0.7344436645507812
+    },
+    {
+      "file": "c33-4-gas.wav",
+      "hash": "3474947af35923e17a92962be8399db6dc261eff6b64df86bae34c15b4e02fe2",
+      "samples": 21840,
+      "rms": 0.22000000000387226,
+      "peak": 0.38650333881378174
+    },
+    {
+      "file": "c33-4-off.wav",
+      "hash": "6dc5d4756922d27ae6bee725dfe3db0f49081f276074f64d446277306aca8548",
+      "samples": 21840,
+      "rms": 0.22000000005193468,
+      "peak": 0.5340285897254944
+    },
+    {
+      "file": "fox-0-gas.wav",
+      "hash": "ea6d7ade8eebcb23cab3828df9467c35c0b15630c0f44c8e11d746e93020cd04",
+      "samples": 23520,
+      "rms": 0.2199999999887246,
+      "peak": 0.5603318810462952
+    },
+    {
+      "file": "fox-0-off.wav",
+      "hash": "f66baa65fc8d20035bb19ced1b9569a6d3801f49fb30f4766c6e231fd48ff4f1",
+      "samples": 23520,
+      "rms": 0.22000000003621234,
+      "peak": 0.5317350625991821
+    },
+    {
+      "file": "fox-1-gas.wav",
+      "hash": "f6c079f921672df7eded996bfb04ad0306e410c8fb54a3e347ab0f21100f352b",
+      "samples": 21339,
+      "rms": 0.21999834257926282,
+      "peak": 0.8040586113929749
+    },
+    {
+      "file": "fox-1-off.wav",
+      "hash": "0d44488dbfd3d07dd4e33ef0d0fb87440acd9076bfd9a786a5d9d3e0befdc4fe",
+      "samples": 21339,
+      "rms": 0.2200000000402781,
+      "peak": 0.6392744779586792
+    },
+    {
+      "file": "fox-2-gas.wav",
+      "hash": "907ff82c5490533e9340a2a079d5ec42026847cf5d6e1204e6e5f14614bed751",
+      "samples": 22355,
+      "rms": 0.22000000006887915,
+      "peak": 0.5894927978515625
+    },
+    {
+      "file": "fox-2-off.wav",
+      "hash": "27e8416c1168c8a2d707ffbdaeed0605b7ce6746e7cdf262a026d05bd85e2351",
+      "samples": 22355,
+      "rms": 0.2199999999221661,
+      "peak": 0.45189979672431946
+    },
+    {
+      "file": "fox-3-gas.wav",
+      "hash": "3fea28bd119b14cffd208f55739a8f8d525e7b7629d95ac415ccbacc53d00b75",
+      "samples": 22006,
+      "rms": 0.21999999994463396,
+      "peak": 0.5811402797698975
+    },
+    {
+      "file": "fox-3-off.wav",
+      "hash": "27646ae17cde928ecf4508fd75a949fc789c4033ac99ccb883d00cf787c501ee",
+      "samples": 22006,
+      "rms": 0.21999999990669783,
+      "peak": 0.6936445832252502
+    },
+    {
+      "file": "fox-4-gas.wav",
+      "hash": "15387021f2536a9a614bbe29a26dc0a19297dd31b82a8b79a67b5237877e6b63",
+      "samples": 21813,
+      "rms": 0.2115095703965657,
+      "peak": 0.9499644637107849
+    },
+    {
+      "file": "fox-4-off.wav",
+      "hash": "905f0fd2c71782b22b40b5677783b6b113583555d009d3f71042df66396ca102",
+      "samples": 21813,
+      "rms": 0.21985306679866323,
+      "peak": 0.8672406673431396
+    },
+    {
+      "file": "pop-0.wav",
+      "hash": "cb89e8308d31bbf927bcd803fade9a78b1fadc1cef419df3d7c54010f80fa5ca",
+      "samples": 4851,
+      "rms": 0.26359901865014956,
+      "peak": 0.9497482180595398
+    },
+    {
+      "file": "pop-1.wav",
+      "hash": "ac487d6039e49c6eaee2a4fb0bef2e701196bf046445c043cfb83e55988d39fa",
+      "samples": 4851,
+      "rms": 0.25579582338826184,
+      "peak": 0.9497267007827759
+    },
+    {
+      "file": "pop-2.wav",
+      "hash": "daf5f1912d0853a3f121e3a82d0130a16bd24d9f2c2258f728f5e71bd5199180",
+      "samples": 4851,
+      "rms": 0.252128003777373,
+      "peak": 0.9490775465965271
+    },
+    {
+      "file": "pop-3.wav",
+      "hash": "864f8945d8560a184f97a198a743b5430020dd8d7442440e19eab085e02aa434",
+      "samples": 4851,
+      "rms": 0.2597100958305117,
+      "peak": 0.9486588835716248
+    },
+    {
+      "file": "valve-1.wav",
+      "hash": "2b83110812be98c7b56b9b8eeb87d97faa1201a9dcc17bdc92fef00ae67e0946",
+      "samples": 12128,
+      "rms": 0.1963545038644689,
+      "peak": 0.9490050077438354
+    },
+    {
+      "file": "valve-2.wav",
+      "hash": "227d44af853256807bf4cb5c142a66a51d9bbcc78b7f8f0e7f4d850e04252546",
+      "samples": 16538,
+      "rms": 0.18397144422510772,
+      "peak": 0.9499990940093994
+    }
+  ]
+}

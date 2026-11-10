@@ -15,6 +15,7 @@ namespace LastTurn.Prototype
     private readonly Dictionary<string, AudioClip> clips = new Dictionary<string, AudioClip>();
     private AudioSource music, effects, engine, tires, loose, spin, wind;
     private AudioLowPassFilter filter;
+    private SourceEngineAudio layers;
     public static readonly Dictionary<string, int> Fired = new Dictionary<string, int>();
     public static readonly HashSet<string> MissingAssets = new HashSet<string>();
     public static AudioMix LastMix { get; private set; }
@@ -22,7 +23,14 @@ namespace LastTurn.Prototype
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)] private static void Reset() { Fired.Clear(); MissingAssets.Clear(); pending.Clear(); LastMix = null; }
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Install() { SceneManager.sceneLoaded -= Loaded; SceneManager.sceneLoaded += Loaded; Loaded(SceneManager.GetActiveScene(), LoadSceneMode.Single); }
-    private static void Loaded(Scene s, LoadSceneMode m) { new GameObject("Oyun sesi").AddComponent<GameAudio>(); }
+    private static void Loaded(Scene s, LoadSceneMode m)
+    {
+      var sound=new GameObject("Oyun sesi");
+      // Eski prototip sahneleri kamera içeriyordu, dinleyici içermiyordu: isPlaying ses çıkışının kanıtı değildir.
+      if(!Object.FindObjectsByType<AudioListener>(FindObjectsSortMode.None).Any(l=>l.enabled&&l.gameObject.activeInHierarchy))
+      {var camera=Camera.main;(camera?camera.gameObject:sound).AddComponent<AudioListener>();}
+      sound.AddComponent<GameAudio>();
+    }
     /// Arayüz tık sesi (TS arayüz tıkları): dokunmatik düğmeler ve menüler çağırır.
     public static void Click() => pending.Add("tik");
     private AudioClip Clip(string name)
@@ -36,6 +44,7 @@ namespace LastTurn.Prototype
     {
       music = Source("muzik", true); engine = Source("motor", true); tires = Source("lastik-asfalt", true); loose = Source("lastik-gevsek", true); effects = Source("", false);
       spin=Source("savrulma",true);wind=Source("ruzgar-hiz",true);filter=gameObject.AddComponent<AudioLowPassFilter>();
+      layers=gameObject.AddComponent<SourceEngineAudio>();
       foreach (var n in AudioDirector.EventNames) if(n!="bitis")Clip(n);Clip("bitis-win");Clip("bitis-lose");
     }
     private AudioFrame Frame()
@@ -63,10 +72,12 @@ namespace LastTurn.Prototype
     }
     private void Update()
     {
-      var mix = director.Step(Frame(), PlayerPreferences.Current); LastMix = mix;
+      var frame=Frame();var mix = director.Step(frame, PlayerPreferences.Current); LastMix = mix;
       music.volume = (float)mix.Music; music.mute = mix.Music <= 0;
       effects.volume = (float)mix.Effects; effects.mute = mix.Effects <= 0;
       engine.volume = (float)(mix.Effects * mix.EngineMix * (mix.ShiftCut ? .4 : 1)); engine.pitch = Mathf.Clamp((float)(mix.Rpm / 3000), .3f, 3);
+      if(layers.Apply(frame,mix))engine.volume=0;
+      if(layers.Previewing)music.volume=(float)(AudioDirector.Level(PlayerPreferences.Current["muz"])*.9*.12);
       tires.volume = (float)(mix.Effects * Mathf.Clamp01((float)mix.Slip)); loose.volume = (float)(mix.Effects * Mathf.Clamp01((float)mix.Loose));
       spin.volume=(float)(mix.Effects*Mathf.Clamp01((float)mix.Spin));wind.volume=(float)(mix.Effects*Mathf.Clamp01((float)(mix.Speed/70)));
       filter.cutoffFrequency=(float)mix.CockpitCutoff;
