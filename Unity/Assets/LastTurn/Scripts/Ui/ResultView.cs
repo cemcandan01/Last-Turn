@@ -72,7 +72,7 @@ namespace LastTurn.Ui
       var s = Session(); bool wasVisible = Visible; Visible = s != null; Ui.Show(page, Visible);
       if (!Visible) { shown = null; return; }
       if (s != shown) { shown = s; Render(s); }
-      if (!wasVisible) return;
+      if (!wasVisible || LevelUpView.Open) return;
       var k = Keyboard.current; if (k == null) return;
       if (k.enterKey.wasPressedThisFrame || k.numpadEnterKey.wasPressedThisFrame) Next();
       else if (k.gKey.wasPressedThisFrame) Garage();

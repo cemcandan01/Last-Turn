@@ -112,8 +112,10 @@ namespace LastTurn.Garage
     /// TS yarisBitti: kayıtlı garaja yazılır; yazılamazsa durum değişmez ve kazanç 0 döner.
     public static (double Xp, double Money) Reward(string type, int level, int stars)
     {
-      (double, double) result = (0, 0);
+      (double, double) result = (0, 0); int before = GarageSession.State.Level;
       bool saved = GarageSession.Transact(s => { result = s.RaceFinished(type, level, stars); return true; }, "Yarış ödülü garaja kaydedildi.");
+      // TS xpEkle → seviye atlama olayı (kaydedildiyse).
+      if (saved) CareerLevelUps.Observe(before, GarageSession.State.Level);
       return saved ? result : (0, 0);
     }
   }

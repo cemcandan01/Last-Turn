@@ -98,7 +98,12 @@ namespace LastTurn.Garage
         return ok;
       }, info);
     public static bool AdminMoney(double amount) => Admin(s => { s.AddMoney(amount); return true; }, "+" + amount + " para");
-    public static bool AdminXp(double amount) => Admin(s => { s.AddXp(amount); return true; }, "+" + amount + " XP");
+    public static bool AdminXp(double amount)
+    {
+      // TS adminXpEkle → xpEkle(m, "admin"): seviye atlarsa kutlama olayı.
+      int before = GarageSession.State?.Level ?? 1; bool ok = Admin(s => { s.AddXp(amount); return true; }, "+" + amount + " XP");
+      if (ok) CareerLevelUps.Observe(before, GarageSession.State.Level); return ok;
+    }
     public static bool AdminLevel(int level) => level >= 1 && Admin(s => { s.AdminSetLevel(level); return true; }, "Seviye " + level);
     public static bool AdminUnlock(string key, bool open) => Admin(s => s.AdminSetUnlock(key, open), key + (open ? " açıldı" : " kilitlendi"));
     public static bool AdminAll(bool on) => Account != null && Account.AdminAll(on);
@@ -146,8 +151,10 @@ namespace LastTurn.Garage
       }
       public void Merge(CatalogNode remote)
       {
-        Normal();
+        Normal(); int before = GarageSession.State.Level;
         GarageSession.Commit(CloudLocalMapper.Merge(GarageSession.State, remote), "Bulut kaydı birleştirildi.");
+        // TS bulutKaydiBirlestir: birleştirme seviye atlatırsa “bulut” nedenli kutlama.
+        CareerLevelUps.Observe(before, GarageSession.State.Level);
         var store = GarageRace.ProfileStore(); var p = store.Load();
         if (CloudLocalMapper.MergeRecords(p, remote["rekor"])) store.Save(p);
         GameFlow.Refresh();

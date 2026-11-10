@@ -157,9 +157,10 @@ namespace LastTurn.Prototype
       if (!focused || GameFlow.Paused || MutantRuntime.Blocked || SettingsScreen.Open) return;
       if(ManualStepping&&Race==null)return;
       UpdateAirControl();
-      if (Race != null) { UpdateRace(); return; }
+      if (Race != null) { PerformanceOverlay.PhysicsBegin(); UpdateRace(); PerformanceOverlay.PhysicsEnd(); return; }
       if (input.ConsumeRestart()) { ResetVehicle(); return; }
       CurrentInput = input.Read();
+      PerformanceOverlay.PhysicsBegin();
       runner.Advance(Time.deltaTime, _ =>
       {
         previousSteer = Simulation.Engine.SteeringAngle;
@@ -168,6 +169,7 @@ namespace LastTurn.Prototype
       },()=>{if(MutantRuntime.Active){bool go=MutantRuntime.AfterPhysics(Simulation,world);parameters=Simulation.Parameters;return go;}
         if(GarageSession.DriveActive){var v=Simulation.Body.Velocity;pendingProfileKm+=JsMath.Hypot(v.X,v.Z)*PowertrainVehicle.FixedDelta/1000;
         if(Simulation.Body.Steps%1200==0)FlushProfileDistance();}return true;});
+      PerformanceOverlay.PhysicsEnd();
       frameSeconds = Mathf.Lerp(frameSeconds, Time.unscaledDeltaTime, .05f);
     }
     private void LateUpdate() { RenderFrame(Mathf.Min(Time.unscaledDeltaTime, .1f));if(opponentVisual && Opponent!=null){if(opponentSource)opponentSource.Pose(GtPresentation.Position(Opponent.Vehicle.ReferencePoint),GtPresentation.Rotation(Opponent.Vehicle.Body.Orientation),Opponent.Vehicle,Opponent.Vehicle.Body,Opponent.Vehicle.Body,1,false);else opponentVisual.SetPositionAndRotation(GtPresentation.Position(Opponent.Vehicle.Body.Position),GtPresentation.Rotation(Opponent.Vehicle.Body.Orientation));} }

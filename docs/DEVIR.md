@@ -1,3 +1,8 @@
+# Seviye atlama kutlaması + performans göstergesi tamam (10 Kasım 2026) — Claude
+
+- Kaynakta olup Unity'de eksik iki oyuncu özelliği eklendi: sonuçta/menüde seviye atlama kutlaması (açılan pist/araçlar) ve Ayarlar “Performans göstergesi” satırı. `.NET --level-up` 210 aralık fark0; gerçek Play 29 kontrol/6 Game View (gerçek gp_1 ödülüyle 1→3). `node Unity/Validation/check-levelup-proof.mjs`.
+- **Sonraki:** kaynak öğesi matrisi, son kaynaklarla p10/p11/p12 tekrarı, Windows build ve iki süreç kabulü.
+
 # MUTANT drift yarışı dalı + DEV laboratuvarı tamam; tam aktarım sürüyor (10 Kasım 2026) — Claude
 
 - **Kural açığı kapandı:** MUTANT `dp` yarışı TS `driftYarisi` drift penceresi/skor dalını kullanmıyordu; `PowertrainVehicle.DriftRace` + `RaceRun.MutantDrift` ile yalnız MUTANT drift yarışı çalışırken bağlandı. `.NET --drift-race` 36 durum, drift durumu farkı 1,18e−14 (kinematik 2,39e−6 m kaotik spin, kariyer dalında da aynı ölçüldü).

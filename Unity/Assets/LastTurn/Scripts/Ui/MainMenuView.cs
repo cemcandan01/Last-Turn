@@ -223,7 +223,7 @@ namespace LastTurn.Ui
       if (Showing == GameFlow.MenuHub.Race && (m != shown || type != shownType)) Rebuild(m);
       if (Showing == GameFlow.MenuHub.Mutant) { var r = MutantRuntime.Record(); mutantBest.text = r.Region > 0 ? "Bölge " + r.Region + " · " + r.Bosses + " boss" : "Henüz koşu yok"; }
       if (Showing == GameFlow.MenuHub.Home && !homeTiles[homeFocus].ClassListContains("sec")) FocusHome(homeFocus);
-      if(wasVisible)Keys(Keyboard.current);
+      if(wasVisible&&!LevelUpView.Open)Keys(Keyboard.current);
     }
 
     private void Keys(Keyboard k)
