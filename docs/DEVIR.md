@@ -1,3 +1,8 @@
+# Yol kenarı direkleri ve viraj levhaları bütün pistlerde (11 Kasım 2026) — Claude
+
+- Cem Windows sürümünü denedi ("gözüme takılanlar var, sonra bakarız"), görünümün bütün pistlere yayılmasını ve kenar öğelerinin kalmasını seçti. Görünüm zaten `5d9d66d` ile 40 pistte TS dünyası; eklenen yalnız `RoadsideMarkers` (direk + viraj oku, çarpışmasız, duvarlı pistte yok). Eski `RallyVisualSample` kaldırıldı. Play 44/44, fizik bit düzeyinde aynı. Ayrıntı [kart](isler/2026-11-01-unity-tam-aktarim.md) → "Yol kenarı direkleri".
+- Dal `codex/unity-p7-garaj`; 34 önceki commit Cem onayıyla konu dalına push edildi (`4f072ad`). Bu commit henüz push edilmedi; `gelistirme`/yayın yok.
+- **Sonraki tek adım:** Cem'in Windows denemesinde gözüne takılanları listelemesi; sonra görsel faz kapsamı.
 # Genel kaynak aktarımı kapandı; dış/cihaz/insan kabulü açık (10 Kasım 2026) — Claude
 
 - Devralınan `a18af83`. Güncel kaynakla Windows build (UTC16:37, 0 hata) ve iki ayrı WindowsPlayer süreci (25 + 15) geçerli; `check-functional-closure.mjs --career` 238 ürün dosyası/kaynak hashleri güncel. p10–p16, b-closure, P1 ve matris (122/122; 0 aktarılmadı/kabul eksik) checker'ları bugünkü kaynakla geçer. Kod değişmedi, yeniden build gerekmedi.

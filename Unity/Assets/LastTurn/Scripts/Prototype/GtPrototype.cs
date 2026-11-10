@@ -60,7 +60,7 @@ namespace LastTurn.Prototype
     public TrackDefinition RaceDefinition{get;private set;}
     public string RaceMessage { get; private set; } = "";
     public RaceTrackVisuals TrackVisuals => trackVisuals;
-    public RallyVisualSample VisualSample { get; private set; }
+    public RoadsideMarkers Markers { get; private set; }
     public SourceVehicleView SourceVehicle {get;private set;}
     public SourceEnvironmentView SourceEnvironment {get;private set;}
     private string sourceCarKey="";private SourceVehicleView opponentSource;
@@ -314,9 +314,9 @@ namespace LastTurn.Prototype
       RaceWorld.GripMultiplier = Conditions.GripFor(RaceConditions.Theme(info.Region));
       if(mutant==null)RaceWorld.Environment=WorldData.Catalog.Activate(key);
       if(!EnvironmentVisuals)EnvironmentVisuals=gameObject.AddComponent<PhysicalWorldVisuals>();EnvironmentVisuals.Build(world,RaceWorld.Environment,false);
-      // İlk görsel örnek yalnız rl_2 öğle/güneşte (Cem değerlendirmesi); başka pistte/koşulda eski görünüm geri gelir.
-      if(VisualSample){VisualSample.Remove();VisualSample=null;}
-      if(!Resources.Load<TextAsset>("SourcePresentation/world-"+track.Key)&&RallyVisualSample.AppliesTo(track.Key,Conditions,mutant!=null))VisualSample=RallyVisualSample.Apply(this,trackVisuals,EnvironmentVisuals,RaceWorld,followCamera.GetComponent<Camera>());
+      // Yol kenarı direkleri ve viraj levhaları bütün yarış pistlerinde (TS'de yok; Cem kararı, çarpışmasız görsel).
+      if(Markers){Markers.Remove();Markers=null;}
+      if(RoadsideMarkers.Enabled)Markers=RoadsideMarkers.Build(transform,RaceWorld);
       Simulation = new PowertrainVehicle(parameters, world: world); runner = new PowertrainFixedStepRunner(Simulation); ApplyPreferences(); ResetInput();
       Race = new RaceRun(Simulation, RaceWorld, info, hint => new RaceSession(info, track, drive.Career, hint, drive.Career ? GarageRace.Reward : null,
         mutant!=null?(Action<double>)(metres=>MutantRuntime.Run.CutPenalty(metres)):null,mutant:mutant!=null),
