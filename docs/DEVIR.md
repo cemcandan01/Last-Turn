@@ -1,3 +1,7 @@
+# TS garaj sahnesi F ekranlarına bağlandı (10 Kasım 2026) — Claude
+
+- Onaylı F taslaklarındaki kaynak garaj sahnesi (beton otopark, kolonlar, halka, hüzme, garaj ışığı) garaj/modifiye arka planı ve mağaza önizlemesi oldu. Play 22 kontrol/6 Game View; `node Unity/Validation/check-garage-scene-proof.mjs`.
+
 # Seviye atlama kutlaması + performans göstergesi tamam (10 Kasım 2026) — Claude
 
 - Kaynakta olup Unity'de eksik iki oyuncu özelliği eklendi: sonuçta/menüde seviye atlama kutlaması (açılan pist/araçlar) ve Ayarlar “Performans göstergesi” satırı. `.NET --level-up` 210 aralık fark0; gerçek Play 29 kontrol/6 Game View (gerçek gp_1 ödülüyle 1→3). `node Unity/Validation/check-levelup-proof.mjs`.

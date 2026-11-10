@@ -1,0 +1,46 @@
+{
+  "baseline": "df3549e709469f0b519ebfbeaa9f63c1040fee05",
+  "three": "0.186.1",
+  "sources": {
+    "src/cizim/sahne.ts": "812a28ac30790669746cf78434176e83c4ca4c3ddbc0ebca0825e916824916b4",
+    "src/cekirdek/ekran.ts": "c88aaa354f041513b0511aa208c61d4b19d748fb8d8d6fa960169f1eb5018045",
+    "src/arac/araclar.ts": "f99361dc89fcb471ff8db79554bc6c4d0bb774334d015a671593b5c2e536f94b",
+    "src/arac/gorunumler.ts": "a2eeeb46859901c55dd183c7e2a5d33210a5e074f23b94e4ebb5555c48f65228",
+    "src/cizim/arac-modeli.ts": "1e081deb70f41e5f77f517871ee248d4b8213badfee5c18dfafd1ad583d9ead0",
+    "src/cizim/dokular.ts": "6a6ec922e997d624a8bd618878ebb9a41895bfc450f927adc05de105c5715e81",
+    "src/cizim/malzemeler.ts": "23d5d13224a086a46ec446acb0ab984ce7d3e9493f3df4c9fb77d13752d162c2",
+    "src/cizim/yardimci.ts": "f2630c3ba14fb92a769fc7edbde572042ba34e8527cf1ace2ae61ff50b60c43a",
+    "src/cizim/kokpit.ts": "4987b348ab95ea04213b8198410d5ff06311bf863316340ac0aead67f52f59fc",
+    "src/cizim/ayna.ts": "293fbfa9978044e97b6ee3f8d46d10211937b38fc12fa455980602418bb6a69b",
+    "src/cizim/govde.ts": "5cc397ab0f6dd26e3064d789da5d22358dddf92bc2044321b351920a0a802d2a",
+    "src/cekirdek/matematik.ts": "658c7a895e5d3bab8db4d644c2be8eb21335b4ce189f0180f99199b9cd0ea879",
+    "src/cizim/garaj-sahnesi.ts": "285f0cb803abb7ea30090d96aa93d5cbf221371d83f5c3ac0ac9a4e4d492f474",
+    "src/cizim/ortam.ts": "40d85c02f20c2e82bae30d346fb7bfd79e70dba127ec2e4749703f9d5357bb7c",
+    "src/dunya/kurucu.ts": "a60c9dd6703fc9e3defebbe0402a4f700aea1e91f80dc4a4b16da0e30993472c",
+    "src/dunya/temalar.ts": "e6a343912d0032882d84102a696a123e040cfe7bd0c3e5aa838b6b063b9c7a8c",
+    "src/cizim/zemin.ts": "99cf8fb93ea0287923288588fb5ee984c87b332bfdea21f7e5f4f460e8da09b3",
+    "src/cekirdek/rastgele.ts": "566f429f4c859bc259b1e2a8cf66caca977eae7a8af7dfe2bb629bb9ad6f0413"
+  },
+  "file": "garage-scene.bytes",
+  "hash": "18501cc021fcb596310dac1f649a5948113c1e2fa3e29d4bbb14c7ae7e365bb2",
+  "nodes": 71,
+  "lights": 5,
+  "textures": [
+    {
+      "file": "tex-16c9c9e37054c668bae7.png",
+      "hash": "16c9c9e37054c668bae75b3f7e946d062f496e40742769b40bbd65b2acb38752"
+    },
+    {
+      "file": "tex-965f8404dddc16313daa.png",
+      "hash": "965f8404dddc16313daa8c9abd5dc4c56cf74ba9c0b46a9138a29f22b4744995"
+    },
+    {
+      "file": "tex-1e5a1c7f8812d06ab3d1.png",
+      "hash": "1e5a1c7f8812d06ab3d17bc50c67b0078aff438efaa1e41d26c5801592670949"
+    },
+    {
+      "file": "tex-8259629b5e8bc346021f.png",
+      "hash": "8259629b5e8bc346021f264f4b431b2d025f0ef7098c4591df2fe41dd6c9d732"
+    }
+  ]
+}

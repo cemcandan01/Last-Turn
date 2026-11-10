@@ -15,7 +15,10 @@ namespace LastTurn.Prototype
       public int version,id; public string key,label,kind;
       public float[] eye,mirrorPosition,mirrorRotation; public float gaugeRpm,rearCameraFov;
       public Node[] nodes; public Geometry[] geometries; public Surface[] materials; public TextureFile[] textures;
+      /// Garaj sahnesi (TS garaj-sahnesi.ts garajIsigi): ışıklar, arka plan, sis ve yarım küre ışığı.
+      public GraphLight[] lights; public float[] background,fogColor,fogRange,hemiSky,hemiGround; public float hemiIntensity;
     }
+    [Serializable] public sealed class GraphLight { public string type; public float[] color,position,target; public float intensity,angle,penumbra; public bool shadow; }
     [Serializable] public sealed class Node
     {
       public string name,tag; public int parent,geometry; public bool visible,sprite;

@@ -43,7 +43,7 @@ namespace LastTurn.Ui
     }
     private void Update()
     {
-      if(page==null)return;bool active=Wanted();bool changed=active!=Visible;Visible=active;Ui.Show(page,active);preview.SetVisible(active&&!Modifying);
+      if(page==null)return;bool active=Wanted();bool changed=active!=Visible;Visible=active;Ui.Show(page,active);preview.SetVisible(active&&(!Modifying||preview.FullScreen));
       if(!active){confirm="";return;}
       bool mods=legacy.SelectedTab==1;
       if(changed||seen!=GarageSession.State||ViewedCar!=legacy.ViewedCar||mods!=Modifying)
@@ -111,7 +111,9 @@ namespace LastTurn.Ui
       left.Add(Ui.Section("KURULUM"));left.Add(Ui.Text("Lastik  •  "+Detail.TireName,"g-copy"));left.Add(Ui.Text("Takılı parça  •  "+Detail.Parts.Length+" / 12","g-copy"));
       left.Add(Ui.Text(Detail.PartNames.Length==0?"Stok kurulum":string.Join(" · ",Detail.PartNames),"g-copy"));content.Add(left);
       var listen=Ui.Button("MOTORU DİNLE","L",()=>SourceEngineAudio.Listen(Detail.ModelKey),small:true);listen.name="garage-listen-engine";left.Add(listen);
-      var center=new VisualElement();center.AddToClassList("g-preview");center.Add(preview.Image);content.Add(center);preview.Build(Detail,ViewedCar);
+      // F tasarımı (arka-garaj): TS garaj sahnesi tam ekran arka plan; orta alan boş kalır ve sürükleme görüntüye geçer.
+      var center=new VisualElement{pickingMode=PickingMode.Ignore};center.AddToClassList("g-preview");content.Add(center);
+      if(preview.SourceGarage){preview.SetFullScreen(true);page.Insert(0,preview.Image);}else center.Add(preview.Image);preview.Build(Detail,ViewedCar);
       var right=Box();right.AddToClassList("g-right");right.Add(Ui.Section("ÖZELLİKLER"));Stats(right,false);content.Add(right);
       var actions=Box("g-actions");AddButton(actions,"MODİFİYE","M",()=>Open(true));AddButton(actions,cars.First(c=>c.Index==ViewedCar).Selected?"YARIŞ SEÇ":"ARACI SEÇ","Enter",SelectOrRace,!GarageSession.Store.ReadOnly,true);content.Add(actions);
       var row=new ScrollView(ScrollViewMode.Horizontal);row.AddToClassList("g-cars");row.horizontalScrollerVisibility=ScrollerVisibility.Auto;row.verticalScrollerVisibility=ScrollerVisibility.Hidden;

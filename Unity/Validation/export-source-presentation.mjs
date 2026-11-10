@@ -86,6 +86,20 @@ if (process.argv.includes("--check")) {
   }
   for (const t of m.textures)
     if (hash(fs.readFileSync(path.join(out, t.file))) !== t.hash) throw Error("Doku farklı: " + t.file);
+  const garagePath = path.join(out, "garage-manifest.json");
+  if (process.argv.includes("--write") && !fs.existsSync(garagePath)) throw Error("Garaj sahnesi eksik");
+  if (fs.existsSync(garagePath)) {
+    const gm = JSON.parse(fs.readFileSync(garagePath, "utf8"));
+    const b = fs.readFileSync(path.join(out, gm.file));
+    if (gm.baseline !== baseline || hash(b) !== gm.hash) throw Error("Garaj paketi farklı");
+    const g = JSON.parse(gunzipSync(b));
+    if (g.lights.length !== 5 || g.nodes.length !== gm.nodes || !g.fogRange || !g.background)
+      throw Error("Garaj ışık/ortam eksik");
+    for (const t of gm.textures)
+      if (hash(fs.readFileSync(path.join(out, t.file))) !== t.hash)
+        throw Error("Garaj dokusu farklı: " + t.file);
+    for (const [name, sha] of Object.entries(gm.sources)) m.sources[name] ??= sha;
+  }
   const effectsPath = path.join(out, "effects-manifest.json");
   if (process.argv.includes("--write") && !fs.existsSync(effectsPath)) throw Error("Efekt kapsamı eksik");
   if (fs.existsSync(effectsPath)) {
@@ -124,7 +138,8 @@ if (process.argv.includes("--check")) {
   process.exit(0);
 }
 fs.mkdirSync(out, { recursive: true });
-const effectsOnly = process.argv.includes("--effects");
+const effectsOnly = process.argv.includes("--effects"),
+  garageOnly = process.argv.includes("--garage");
 const sourceHashes = {},
   cache = new Map();
 const server = http.createServer((req, res) => {
@@ -347,7 +362,7 @@ try {
     manifest[kind === "car" ? "cars" : "worlds"].push(e);
     console.log(`${kind} ${key}: ${e.nodes} düğüm/${e.vertices} kaynak köşesi`);
   }
-  for (let id = 0; id < (effectsOnly ? 0 : 15); id++) {
+  for (let id = 0; id < (effectsOnly || garageOnly ? 0 : 15); id++) {
     const g = await page.evaluate((id) => {
       const s = globalThis.sourceExport,
         c = s.cars[id];
@@ -470,7 +485,86 @@ try {
       `Efekt grafiği: ${g.nodes.length} düğüm/${g.materials.length} malzeme/${textures.length} doku`,
     );
   }
-  if (process.argv.includes("--worlds") && !effectsOnly) {
+  if (garageOnly) {
+    const g = await page.evaluate(async () => {
+      const s = await import("/ts/src/cizim/sahne.js"),
+        THREE = globalThis.sourceExport.THREE,
+        G = await import("/ts/src/cizim/garaj-sahnesi.js");
+      // Garaj ışığı: dünya ışığını kapatıp showroom ortamına geçer (arka plan, sis, yarım küre).
+      G.garajIsigi(true);
+      const root = new THREE.Group();
+      root.position.set(-G.GX, 0, -G.GZ);
+      G.garG.visible = true;
+      root.add(G.garG);
+      root.updateMatrixWorld(true);
+      const lights = [];
+      G.garG.traverse((o) => {
+        if (!o.isLight) return;
+        const p = new THREE.Vector3(),
+          t = new THREE.Vector3();
+        o.getWorldPosition(p);
+        o.target?.getWorldPosition(t);
+        lights.push({
+          type: o.isSpotLight ? "spot" : "directional",
+          color: [o.color.r, o.color.g, o.color.b],
+          intensity: o.intensity / s.ISIK,
+          position: p.toArray(),
+          target: t.toArray(),
+          angle: o.angle ?? 0,
+          penumbra: o.penumbra ?? 0,
+          shadow: !!o.castShadow,
+        });
+      });
+      return globalThis.serializeSource(root, {
+        id: -3,
+        key: "garage",
+        label: "TS garajı",
+        kind: "garage",
+        lights,
+        background: s.scene.background.toArray(),
+        fogColor: s.scene.fog.color.toArray(),
+        fogRange: [s.scene.fog.near, s.scene.fog.far],
+        hemiSky: s.hemi.color.toArray(),
+        hemiGround: s.hemi.groundColor.toArray(),
+        hemiIntensity: s.hemi.intensity / s.ISIK,
+      });
+    });
+    const textures = [];
+    for (const t of g.textures) {
+      const b = Buffer.from(t.png.split(",")[1], "base64"),
+        sha = hash(b),
+        file = "tex-" + sha.slice(0, 20) + ".png";
+      if (!pngs.has(file)) {
+        pngs.set(file, sha);
+        fs.writeFileSync(path.join(out, file), b);
+        textures.push({ file, hash: sha });
+      }
+      t.file = file;
+      delete t.png;
+    }
+    const file = "garage-scene.bytes",
+      b = gzipSync(Buffer.from(JSON.stringify(g)));
+    fs.writeFileSync(path.join(out, file), b);
+    fs.writeFileSync(
+      path.join(out, "garage-manifest.json"),
+      JSON.stringify(
+        {
+          baseline,
+          three: manifest.three,
+          sources: sourceHashes,
+          file,
+          hash: hash(b),
+          nodes: g.nodes.length,
+          lights: g.lights.length,
+          textures,
+        },
+        null,
+        2,
+      ) + "\n",
+    );
+    console.log(`Garaj grafiği: ${g.nodes.length} düğüm/${g.lights.length} ışık/${textures.length} doku`);
+  }
+  if (process.argv.includes("--worlds") && !effectsOnly && !garageOnly) {
     const ids = await page.evaluate(async () => {
       const d = await import("/ts/src/dunya/dunya.js");
       globalThis.sourceWorld = d;
@@ -510,7 +604,7 @@ try {
       await saveGraph(g, "world", meta.id, meta.key);
     }
   }
-  if (process.argv.includes("--worlds") && !effectsOnly) {
+  if (process.argv.includes("--worlds") && !effectsOnly && !garageOnly) {
     const environments = await page.evaluate(async () => {
       const d = globalThis.sourceWorld,
         e = globalThis.sourceEnv,
@@ -564,7 +658,7 @@ try {
     fs.writeFileSync(path.join(out, file), b);
     manifest.environment = { file, hash: hash(b), count: environments.length };
   }
-  if (!effectsOnly) fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
+  if (!effectsOnly && !garageOnly) fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
   if (process.argv.includes("--write"))
     for (const name of fs.readdirSync(out).filter((n) => n.endsWith(".png"))) {
       const meta = path.join(out, name + ".meta");
