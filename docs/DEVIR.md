@@ -1,3 +1,10 @@
+# Kaynak araç/kokpit/ortam paketi doğrulandı; tam aktarım sürüyor (10 Kasım 2026) — Codex
+
+- **Yerel kod commitleri:** `684c11b` gerçek boss→bölge3→doğal yol görevi, **`5d9d66d`** kaynak sunum. Dal `codex/unity-p7-garaj`, tek Codex; push/merge/PR/yayın yok. Genel görev tamamlanmadı; aynı [ana kart](isler/2026-11-01-unity-tam-aktarim.md) güncel kayıttır.
+- Kaynağın kendi kurucularından15 araç/kokpit,40 pist/3 dünya,112 doku,108 tema/saat/hava kaydı; gerçek direksiyon/ibre/arka ayna, kaynak ortam/yağış/far ve F garajı bağlı. Yeni sanat yok; rl_2 önerisi yayılmadı. Son Play UTC04:11:06: **357/444 kaynak/49 Game View, hata0**;30/60/120 FPS240 sabit adım ikiz fizik izi aynı. Dar garaj132. `node Unity/Validation/check-source-presentation-proof.mjs`, `node Unity/Validation/export-source-presentation.mjs --write --check` geçti. Görseller `Unity/Logs/p11-source-*.png`; temas sayfaları ve temsilî tam görüntüler incelendi. İnsan beğeni/işitme ve cihaz kabulü değildir.
+- **Sıradaki tek paket:** kaynak araç başına ses katmanları + mevcut motor dinleme/kayıt işlevi. Ardından kaynak skill/toz/nitro efektleri/kapılar, geliştirici seçenekleri ve kaynak öğesi envanteri, son oynanış/Windows build/iki süreç kabulü hâlâ açık. Eski build ve p10 bütün-hash kanıtı yeni sunumun kabulü sayılmaz. Google için masaüstü OAuth istemcisi ve gerçek hesap/cihaz sınırları sürer.
+- `_Recovery` ve gerçek kayıtlar/TS/Firebase korundu. Resmî UTC04:03:46 kapasite5 saat%52/hafta%11 kullanılmış; ek kredi yok. Claude başlatılmadı, ek ücret durumu bilinmiyor. Bu paketin izole Editor süreçleri bitti; ana Editor/eski süreçler korunuyor. Kod ve ham kanıt aynı fiziksel çalışma alanında; başka worktree'de var sayılmaz.
+
 # Kaynak tam aktarım sürüyor; gerçek boss/bölge3 görevi doğrulandı (10 Kasım 2026) — Codex
 
 - Başlangıç `a03db69`, `codex/unity-p7-garaj`; tek Codex. Son kullanıcı kapsamı kaynak görseller/kokpit/ayna/ses katmanlarını da içerir; aşağıdaki eski “sonraki” önerilerinin önündedir. Ana kayıt aynı [tam aktarım kartı](isler/2026-11-01-unity-tam-aktarim.md). **Genel görev tamamlanmadı.**
