@@ -1,5 +1,6 @@
 using System.Text.Json;
 using LastTurn.Core;
+if(args.Contains("--engagement")){EngagementValidation.Run();return;}
 if(args.Contains("--source-effects")){SourceEffectsValidation.Run();return;}
 if(args.Contains("--drift-race")){DriftRaceValidation.Run();return;}
 if(args.Contains("--mutant-lab")){MutantLabValidation.Run();return;}

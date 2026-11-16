@@ -69,6 +69,7 @@ namespace LastTurn.Ui
       Place(speedBox, r, "Speed", k); Place(hints, r, "Hint", k);
       title.text = Ui.Upper(s.Event.Name);
       var lines = new List<string>();
+      if (m.Objective != "") lines.Add(m.Objective);
       if (m.Drift != "" || m.X6 != "") lines.Add((m.Drift + "   " + m.X6).Trim());
       if (!string.IsNullOrEmpty(p.RaceMessage)) lines.Add(p.RaceMessage);
       if (!string.IsNullOrEmpty(p.RecordText)) lines.Add(p.RecordText);

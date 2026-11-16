@@ -11,7 +11,7 @@ namespace LastTurn.Core
   // Rekor (best/saveBest), rakip sırası ve MUTANT paneli henüz taşınmadı.
   public sealed class RaceHudModel
   {
-    public string Title = "", Big = "", Sub = "", Countdown = "", Return = "", Note = "", Drift = "", X6 = "";
+    public string Title = "", Big = "", Sub = "", Countdown = "", Return = "", Note = "", Drift = "", X6 = "", Objective = "";
     public bool WrongWay;
   }
 
@@ -86,6 +86,8 @@ namespace LastTurn.Core
           m.X6 = o >= DriftCounter.X6Ratio ? "x6 HAZIR" : o + rest < DriftCounter.X6Ratio ? "x6 KAÇTI" : "%" + JsMath.Round(o * 100);
         }
       }
+      if (!s.Mutant && s.State == RaceState.Running)
+        m.Objective = RaceObjectiveModel.Read(e, e.Type == "dp" ? s.Drift.Score : s.Time, false).Live;
       return m;
     }
 
@@ -128,6 +130,12 @@ namespace LastTurn.Core
         else if (e.Type == "dg") rec = newRecord ? Fmt3(s.Time) + " · YENİ" : previousBest != 0 ? Fmt3(previousBest) : "—";
         else rec = newRecord ? RaceSession.FormatTime(s.Time) + " · YENİ" : previousBest != 0 ? RaceSession.FormatTime(previousBest) : "—";
         r.Rows.Add(("Rekor", rec));
+      }
+      if (!s.Mutant)
+      {
+        var objective = RaceObjectiveModel.Read(e, s.Result, true);
+        r.Rows.Add(("Sonraki hedef", objective.NextStar > 0 ? objective.NextTarget : "3 / 3 yıldız tamam"));
+        if (objective.NextStar > 0) r.Rows.Add(("Gelişim farkı", objective.Improvement));
       }
       return r;
     }
