@@ -50,6 +50,8 @@ Claude: yalnız bu değişikliklerin bağımsız incelemesi; başlatılma ve son
 
 ## Sonraki geliştirme sırası
 
+Son oyun kaynak SHA'sı **`77dede6`** (`257494f` ilk dilim). Bu SHA sonrası yalnız kanıt/devir belgesi güncellenir; Play/build kaynak hash'leri değişmez. Kaynak uygulama Codex, bağımsız inceleme Claude Opus 5.5; önceki menü dosyaları ve recovery hâlâ ayrı yerel değişikliklerdir. Yeni oyun özellikleri bu iki yerel commit'te; push/merge/CI/yayın yok.
+
 1. **Tek sonraki adım:** Yarışlar arası MUTANT dolaşımının temposunu ölçmek: bölge/mesafe/boş geçen süre/etkinlik aralığı; mevcut yol görevlerini ve boss süresini birlikte karşılaştır. Önce sabit tohumlu birkaç doğal koşunun ölçümü; oyuncu oynamadan rastgele daha fazla içerik veya ödül ekleme.
 2. Rakibin geçiş/savunma davranışını temsilî asfalt/toprak/şehir yollarında ölç; yalnız hızlı turu rekabet sayma. Gizli güç/rubber-band yasağı korunur.
 3. Build çeşitliliği: baskın tek yükseltme ve etkisiz seçim taraması; hedef boss'a en az iki rota. Denge değişikliği öncesi `DENGE.md` ölçümleri gerekir.

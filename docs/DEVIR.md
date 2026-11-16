@@ -1,3 +1,11 @@
+# Yarış ustalığı ve MUTANT koşu değerlendirmesi (16 Kasım 2026) — Codex + Claude incelemesi
+
+- Cem araştırma, Claude ile geliştirme ve kendisini beklemeden ilerleme istedi. [Aynı görev kartı](isler/2026-11-16-surukleyici-dongu.md); dal `codex/unity-p7-garaj`, kaynak commit'leri `257494f` → **`77dede6`**. Önceki pit menüsü ve `_Recovery` değişiklikleri korundu, bu görevin commit'lerine katılmadı.
+- Yarış HUD'ında kalan yıldız süre/puan bütçesi; sonuçta sıradaki yıldız ve gelişim farkı. MUTANT sonunda gerçek sayaçlar, yığınlı pasif/skill evrimi/eklenti/parça dökümü ve sonraki deneme önerisi. Uzun listeler klavye ve gamepad ile erişilir. Fizik, ekonomi, yıldız eşikleri ve kayıt şeması değişmedi.
+- **Claude Pro gerçek salt okunur incelemesi:** `claude-opus-5-5`, `61b5230b-a7bf-4054-9b27-99a0951c9654`; dört kaynak dosyası. Sekiz bulgu yerelde değerlendirildi; doğrulanan veri/süre/erişim sorunları düzeltildi. Kullanıcının güncel ek kullanım kapalı teyidi kaydedildi; API/ek kredi yok. Ayrıntı ve sınırlamalar kartta.
+- **Kanıt:** Core **1.252 / 40 etkinlik**, yarış oturumu **293.455**, mevcut MUTANT HUD **870**, özet **7**; Unity Play **26 kontrol / 10 görüntü / runtime 0**. Yeni Windows Development paketi `Unity/Builds/EngagementWindows-20261116/LastTurn.exe`; build **0 hata**, iki ayrı WindowsPlayer süreci **25 + 15** kontrol; tam garaj/parça/ayar yeniden yüklendi. `node Unity/Validation/check-engagement-proof.mjs --build` güncel kaynakları doğrular. Paket önceki yerel pit menüsünü de içerir; yalnız bu görev commit'leri menü çalışmasının tamamını içermez.
+- Push/merge/CI/yayın ve tam regresyon yok. **Tek sonraki adım:** aynı kartta MUTANT bölgelerindeki boş dolaşım/etkinlik temposunu sabit tohumlarla ölçmek; ölçüm öncesi dengeyi değiştirme. İnsan sürüş/keyif kabulü açık; kalıcı arka plan ajanı veya otomatik gelecek çalışma kurulmadı.
+
 # Güvenli piste dönüş ve ters dönme sayacı (11 Kasım 2026) — Claude
 
 - Cem'in Windows denemesindeki ralli takılmaları: dönüş artık rl/rx pistlerinde rampa/çamur/dik yokuş dışındaki ilk güvenli noktaya (yalnız takılmışken); ters kalan araç için HUD 5…1 ve otomatik dönüş. Fizik değişmedi. `.NET --recovery` 705, TS eşdeğerlik testleri değişmedi, Unity Play 11/11. Ayrıntı [kart](isler/2026-11-01-unity-tam-aktarim.md) → "Güvenli piste dönüş".
