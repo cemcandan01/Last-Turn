@@ -134,7 +134,7 @@ namespace LastTurn.Core
       if (!s.Mutant)
       {
         var objective = RaceObjectiveModel.Read(e, s.Result, true);
-        r.Rows.Add(("Sonraki hedef", objective.NextStar > 0 ? objective.NextTarget : "3 / 3 yıldız tamam"));
+        r.Rows.Add(("Sonraki hedef", !objective.Available ? "Hedef bilgisi yok" : objective.NextStar > 0 ? objective.NextTarget : e.Stars.Length + " / " + e.Stars.Length + " yıldız tamam"));
         if (objective.NextStar > 0) r.Rows.Add(("Gelişim farkı", objective.Improvement));
       }
       return r;

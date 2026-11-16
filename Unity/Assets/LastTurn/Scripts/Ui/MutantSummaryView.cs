@@ -12,7 +12,7 @@ namespace LastTurn.Ui
     public static MutantSummaryView Instance{get;private set;}
     public static bool CoversCurrentScreen=>MutantRuntime.Active&&!MutantRuntime.Starting&&MutantRuntime.Panel=="summary"&&!GameFlow.Paused&&!SettingsScreen.Open;
     public bool Visible{get;private set;}
-    private VisualElement page,go;private Label reason,region,bosses,record,notice,stats,build,nextAttempt;private MutantRun run;private ScrollView overview;
+    private VisualElement page,go;private Label reason,region,bosses,record,notice,stats,build,nextAttempt;private MutantRun run;private ScrollView overview,detailView;
     private void Start()
     {
       Instance=this;page=new VisualElement{name="b-mutant-summary"};page.AddToClassList("katman");page.AddToClassList("mc-page");page.AddToClassList("mt-page");page.styleSheets.Add(Resources.Load<StyleSheet>("UI/mutant-choice"));page.styleSheets.Add(Resources.Load<StyleSheet>("UI/mutant-terminal"));page.style.backgroundImage=Resources.Load<Texture2D>("UI/MutantB/background");
@@ -22,18 +22,20 @@ namespace LastTurn.Ui
       var layout=new VisualElement();layout.AddToClassList("mt-body");page.Add(layout);var left=new ScrollView();left.AddToClassList("mt-left");layout.Add(left);left.Add(Ui.Text("KOŞU BİTTİ","mt-kicker"));reason=Text(left,"summary-reason","mt-title");region=Text(left,"summary-region","mt-title");bosses=Text(left,"summary-bosses","mt-copy");notice=Text(left,"summary-notice","mt-copy");
       var right=new VisualElement();right.AddToClassList("mt-panel");layout.Add(right);right.Add(Ui.Text("EN İYİ KOŞU","mt-kicker"));var detail=new ScrollView();detail.AddToClassList("mt-detail");right.Add(detail);record=Text(detail,"summary-record","mt-title");detail.Add(Ui.Text("Mutant menüsüne dönerek yeniden başlayabilirsin.","mt-copy"));
       overview=left;overview.name="summary-overview";stats=Text(left,"summary-stats","mt-copy");left.Add(Ui.Text("BU KOŞUDAKİ KURULUM","mt-kicker"));build=Text(left,"summary-build","mt-copy");
-      detail.Add(Ui.Text("SONRAKİ DENEME","mt-kicker"));nextAttempt=Text(detail,"summary-next-attempt","mt-copy");
+      detailView=detail;detail.Add(Ui.Text("SONRAKİ DENEME","mt-kicker"));nextAttempt=Text(detail,"summary-next-attempt","mt-copy");
       var actions=new VisualElement();actions.AddToClassList("mt-actions");right.Add(actions);go=Ui.Button("MUTANT MENÜSÜ","Enter",Exit,true);go.name="summary-exit";go.focusable=true;go.AddToClassList("mc-selected");actions.Add(go);var frame=new VisualElement{pickingMode=PickingMode.Ignore};frame.AddToClassList("mc-frame");right.Add(frame);
-      page.Add(Ui.Hints(("↑/↓","Kurulumu kaydır"),("Enter","Mutant menüsü"),("Esc","Duraklat")));UiRoot.Instance.Screen.Add(page);Ui.Show(page,false);
+      page.Add(Ui.Hints(("↑/↓","Kurulumu kaydır"),("Shift + ↑/↓","Sağ panel"),("Enter / A","Mutant menüsü"),("Esc","Duraklat")));UiRoot.Instance.Screen.Add(page);Ui.Show(page,false);
     }
     private static Label Text(VisualElement parent,string name,string css){var e=Ui.Text("",css);e.name=name;parent.Add(e);return e;}
     private void Update()
     {
       bool was=Visible;Visible=CoversCurrentScreen;Ui.Show(page,Visible);if(!Visible)return;
       if(!was||run!=MutantRuntime.Run){run=MutantRuntime.Run;var m=MutantRuntime.Summary();reason.text=m.Reason;region.text="BÖLGE "+m.Region;bosses.text=m.Bosses+" boss yenildi.";record.text=m.RecordText;notice.text=m.Notice;stats.text=m.Stats;build.text=string.Join("\n\n",m.Build);nextAttempt.text=m.NextAttempt;overview.scrollOffset=Vector2.zero;go.Focus();return;}
+      var pad=Gamepad.current;
+      if(pad!=null){if(pad.buttonSouth.wasPressedThisFrame){Exit();return;}if(pad.dpad.up.wasPressedThisFrame||pad.dpad.down.wasPressedThisFrame){var scroll=pad.rightShoulder.isPressed?detailView:overview;scroll.scrollOffset+=new Vector2(0,pad.dpad.up.wasPressedThisFrame?-64:64);}}
       var k=Keyboard.current;if(k==null)return;
       if(k.upArrowKey.wasPressedThisFrame||k.downArrowKey.wasPressedThisFrame||k.pageUpKey.wasPressedThisFrame||k.pageDownKey.wasPressedThisFrame)
-      {float distance=k.pageUpKey.wasPressedThisFrame||k.pageDownKey.wasPressedThisFrame?240:64;bool up=k.upArrowKey.wasPressedThisFrame||k.pageUpKey.wasPressedThisFrame;overview.scrollOffset+=new Vector2(0,up?-distance:distance);}
+      {float distance=k.pageUpKey.wasPressedThisFrame||k.pageDownKey.wasPressedThisFrame?240:64;bool up=k.upArrowKey.wasPressedThisFrame||k.pageUpKey.wasPressedThisFrame;var scroll=k.leftShiftKey.isPressed||k.rightShiftKey.isPressed?detailView:overview;scroll.scrollOffset+=new Vector2(0,up?-distance:distance);}
       else if(k.tabKey.wasPressedThisFrame||k.leftArrowKey.wasPressedThisFrame||k.rightArrowKey.wasPressedThisFrame)go.Focus();else if(k.enterKey.wasPressedThisFrame||k.numpadEnterKey.wasPressedThisFrame)Exit();
     }
     public void Exit(){if(CoversCurrentScreen)MutantRuntime.Exit();}

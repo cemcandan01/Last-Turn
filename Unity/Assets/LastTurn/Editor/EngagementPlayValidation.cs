@@ -27,6 +27,7 @@ namespace LastTurn.EditorValidation
     private static double began,at,shotAt;private static string shot;private static int width;private static RenderTexture target;
     private static RaceTestDriver driver;
     private static Keyboard keyboard;
+    private static Gamepad gamepad;
     private static string Project=>Path.GetDirectoryName(Application.dataPath);
     private static GtPrototype P=>UnityEngine.Object.FindFirstObjectByType<GtPrototype>();
     static EngagementPlayValidation(){EditorApplication.playModeStateChanged+=Changed;}
@@ -35,6 +36,8 @@ namespace LastTurn.EditorValidation
       if(!Application.isBatchMode||Application.productName!="LastTurnUiValidation"||Application.companyName!="LastTurnPitUiValidation"||!Environment.GetCommandLineArgs().Contains("-lastTurnUiValidation"))throw new InvalidOperationException("Ayrı doğrulama ürünü gerekir.");
       foreach(var type in typeof(EngagementPlayValidation).Assembly.GetTypes().Where(t=>t.Namespace=="LastTurn.EditorValidation"))
       {var f=type.GetField("Active",BindingFlags.NonPublic|BindingFlags.Static);if(f!=null&&f.IsLiteral&&f.FieldType==typeof(string))SessionState.SetBool((string)f.GetRawConstantValue(),false);}
+      InputSystem.settings.backgroundBehavior=InputSettings.BackgroundBehavior.IgnoreFocus;
+      InputSystem.settings.editorInputBehaviorInPlayMode=InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
       GarageSceneBuilder.Open();SessionState.SetBool(Active,true);EditorApplication.EnterPlaymode();
     }
     private static void Changed(PlayModeStateChange state)
@@ -71,6 +74,14 @@ namespace LastTurn.EditorValidation
       Add(()=>Check(UiRoot.Instance.Root.Q<Label>("summary-build").text.Contains("Parçalar"),"Uzun kurulum çizildi"));Shots("mutant-uzun-kurulum");
       Add(()=>InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.PageDown)));Add(()=>InputSystem.QueueStateEvent(keyboard,new KeyboardState()));
       Add(()=>Check(UiRoot.Instance.Root.Q<ScrollView>("summary-overview").scrollOffset.y>0,"PageDown uzun kurulumu kaydırdı"));Shots("mutant-kaydirilmis-kurulum");
+      Add(()=>{var page=UiRoot.Instance.Root.Q("b-mutant-summary");page.Q<Label>("summary-next-attempt").text=string.Join("\n",Enumerable.Repeat("Uzun öneri erişim sınırı",30));});
+      Add(()=>InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.LeftShift,Key.PageDown)));Add(()=>InputSystem.QueueStateEvent(keyboard,new KeyboardState()));
+      Add(()=>Check(UiRoot.Instance.Root.Q("b-mutant-summary").Query<ScrollView>().ToList().Any(s=>s.name!="summary-overview"&&s.scrollOffset.y>0),"Shift PageDown sağ paneli kaydırdı"));
+      Add(()=>{gamepad=InputSystem.AddDevice<Gamepad>("EngagementPad");UiRoot.Instance.Root.Q<ScrollView>("summary-overview").scrollOffset=Vector2.zero;});
+      Add(()=>InputSystem.QueueStateEvent(gamepad,new GamepadState().WithButton(GamepadButton.DpadDown)));Add(()=>InputSystem.QueueStateEvent(gamepad,new GamepadState()));
+      Add(()=>Check(UiRoot.Instance.Root.Q<ScrollView>("summary-overview").scrollOffset.y>0,"Gamepad yön tuşu kurulumu kaydırdı"));
+      Add(()=>InputSystem.QueueStateEvent(gamepad,new GamepadState().WithButton(GamepadButton.South)));Add(()=>InputSystem.QueueStateEvent(gamepad,new GamepadState()));
+      Add(()=>Check(!MutantRuntime.Active,"Gamepad onayı Mutant menüsüne döndü"));
       Add(()=>Check(proof.errors.Count==0,"Çalışma anı hata yok"));
     }
     private static bool Capture()
@@ -99,6 +110,7 @@ namespace LastTurn.EditorValidation
     {
       SessionState.SetBool(Active,false);EditorApplication.update-=Tick;Application.logMessageReceived-=Logged;proof.result=error==null?"engagement-play-passed":"failed";proof.error=error?.ToString()??"";proof.utc=DateTime.UtcNow.ToString("O");
       if(keyboard!=null&&keyboard.added)InputSystem.RemoveDevice(keyboard);
+      if(gamepad!=null&&gamepad.added)InputSystem.RemoveDevice(gamepad);
       proof.sources=Directory.GetFiles(Path.Combine(Application.dataPath,"LastTurn"),"*",SearchOption.AllDirectories).Where(f=>new[]{".cs",".uss",".json",".jpg"}.Contains(Path.GetExtension(f))).OrderBy(f=>f,StringComparer.Ordinal).Select(f=>{using(var h=SHA256.Create())return new Source{path=f.Substring(Project.Length+1).Replace('\\','/'),hash=BitConverter.ToString(h.ComputeHash(File.ReadAllBytes(f))).Replace("-","")};}).ToArray();
       File.WriteAllText(Path.Combine(Project,"Logs/engagement-play.json"),JsonUtility.ToJson(proof,true));if(error!=null)Debug.LogException(error);EditorApplication.Exit(error==null?0:1);
     }

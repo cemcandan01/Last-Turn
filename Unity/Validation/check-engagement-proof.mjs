@@ -44,3 +44,40 @@ for (const name of play.images) {
 console.log(
   `Ustalık: Core ${core.checks} / 40 etkinlik; Unity ${play.checks.length} kontrol / 10 görüntü, ${sources.size} güncel kaynak, runtime 0.`,
 );
+if (process.argv.includes("--build")) {
+  const build = JSON.parse(await readFile(join(fixture, "Logs/engagement-build.json"), "utf8"));
+  if (build.result !== "Succeeded" || build.errors !== 0) throw new Error("Windows build başarısız.");
+  const built = new Map(build.sources.map((s) => [s.path, s.hash.toLowerCase()]));
+  if (built.size !== sources.size || [...sources].some(([p, h]) => built.get(p) !== h))
+    throw new Error("Build ile Play kaynakları farklı.");
+  const output = join(unity, "Builds/EngagementWindows-20261116");
+  const exe = await readFile(join(output, "LastTurn.exe"));
+  if (exe.toString("ascii", 0, 2) !== "MZ") throw new Error("Windows ürünü eksik.");
+  const write = JSON.parse(await readFile(join(output, "Validation/player-write-proof.json"), "utf8"));
+  const reload = JSON.parse(await readFile(join(output, "Validation/player-reload-proof.json"), "utf8"));
+  for (const p of [write, reload]) {
+    if (
+      p.result !== "player-passed" ||
+      p.error ||
+      p.errors.length ||
+      p.platform !== "WindowsPlayer" ||
+      !p.checks.length
+    )
+      throw new Error("Windows süreç kabulü eksik: " + p.pass);
+    if (Date.parse(p.utc) < Date.parse(build.utc)) throw new Error("Eski Windows süreç kanıtı.");
+  }
+  // İkinci süreç yüklemeden sonra yeniden sürüş başlatır; bitiş hash'lerinin aynı olması beklenmez.
+  // Açılıştaki tam State.Snapshot eşitliği gerçek runtime kontrolünde sınanır.
+  if (
+    write.checks.length < 25 ||
+    reload.checks.length < 15 ||
+    ![write, reload].every((p) => /^[A-F0-9]{64}$/.test(p.saveHash)) ||
+    !reload.checks.includes("Yeni süreç aynı garajı yükledi") ||
+    !reload.checks.includes("Yeni süreç satın alınan parçayı yükledi") ||
+    !reload.checks.includes("Yeni süreç ayarları yükledi")
+  )
+    throw new Error("İki süreçte kayıt yükleme kanıtı eksik.");
+  console.log(
+    `Windows: build 0 hata; ilk süreç ${write.checks.length}, yeniden açılış ${reload.checks.length} kontrol; tam garaj kaydı ve ayarlar yeniden yüklendi.`,
+  );
+}

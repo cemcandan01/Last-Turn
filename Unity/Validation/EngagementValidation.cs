@@ -33,8 +33,11 @@ internal static class EngagementValidation
       if(e.Type=="dp")Check(RaceObjectiveModel.Read(e,0,false).NextStar==1,"Bankalanmamış kombo puan sayılmaz");
       else Check(RaceObjectiveModel.Read(e,e.Stars[0]+1,false).Live.Contains("aşıldı"),"Süre bittiğinde hayali hedef yok");
     }
-    Check(RaceObjectiveModel.Read(new RaceEventInfo(),0,true).Result=="","Boş eşikler");
-    Check(RaceObjectiveModel.Read(events.Events[0],double.NaN,true).Result=="","Geçersiz telemetri");
+    Check(!RaceObjectiveModel.Read(new RaceEventInfo(),0,true).Available,"Boş eşikler tamamlanmış sayılmaz");
+    Check(!RaceObjectiveModel.Read(events.Events[0],double.NaN,true).Available,"Geçersiz telemetri tamamlanmış sayılmaz");
+    var timed=events.Find("gp",1);
+    Check(RaceObjectiveModel.Read(timed,timed.Stars[2]-.04,false).Live.Contains("< 0.1 sn"),"Canlı küçük süre sıfır değil");
+    Check(RaceObjectiveModel.Read(timed,timed.Stars[2]+.04,true).NextTarget.EndsWith(RaceSession.FormatTime(timed.Stars[2])),"Hedef süre biçimi ekrandaki yıldızla aynı");
     var catalog=CatalogNode.Parse(Read("mutant-catalog.json"));var run=new MutantRun(53,catalog);
     var empty=MutantSummaryModel.Read(run,new MutantRecord());
     Check(empty.Build.Any(x=>x.Contains("Stok kurulum"))&&empty.Build.Any(x=>x=="Skill'ler: Yok"),"Boş kurulum");
