@@ -5,6 +5,7 @@ import { resolve, join, relative, extname } from "node:path";
 const unity = resolve(import.meta.dirname, "..");
 const fixture = join(unity, "Logs/P7StoreEditor");
 const core = JSON.parse(await readFile(join(unity, "../tests/cikti/mutant-navigation.json"), "utf8"));
+const feedback = JSON.parse(await readFile(join(unity, "../tests/cikti/mutant-road-feedback.json"), "utf8"));
 const play = JSON.parse(await readFile(join(fixture, "Logs/pacing-play.json"), "utf8"));
 if (
   core.result !== "mutant-navigation-passed" ||
@@ -20,7 +21,9 @@ async function hash(path) {
     .update(await readFile(path))
     .digest("hex");
 }
-for (const source of core.sources)
+if (feedback.result !== "mutant-road-feedback-passed" || feedback.checks < 254)
+  throw new Error("Gerçek ödül sınır kanıtı eksik.");
+for (const source of [...core.sources, ...feedback.sources])
   if ((await hash(join(unity, "Assets/LastTurn", source.path))) !== source.hash.toLowerCase())
     throw new Error("Eski yönlendirme kanıtı: " + source.path);
 async function files(path) {
@@ -45,6 +48,9 @@ const required = [
   "pacing-world-3840",
   "pacing-city-1280",
   "pacing-city-1920",
+  "pacing-reward-1280",
+  "pacing-summary-1280",
+  "pacing-summary-1920",
 ];
 for (const name of required)
   if (!play.images.includes("Logs/engagement-" + name + ".png")) throw new Error("Eksik görüntü: " + name);

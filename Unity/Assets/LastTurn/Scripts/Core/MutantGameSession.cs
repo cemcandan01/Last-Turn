@@ -18,8 +18,10 @@ namespace LastTurn.Core
     public readonly int? Id;
     public readonly bool Wrecked;
     public readonly MutantRoadMissionEvent? Mission;
-    public MutantSessionEvent(string kind,string detail="",int? id=null,bool wrecked=false,MutantRoadMissionEvent? mission=null)
-    {Kind=kind;Detail=detail;Id=id;Wrecked=wrecked;Mission=mission;}
+    // Gerçekte bu görevden uygulanan tutarlar; kapasitede kesilen enerji ödül sayılmaz.
+    public readonly double AwardedMoney,AwardedEnergy;
+    public MutantSessionEvent(string kind,string detail="",int? id=null,bool wrecked=false,MutantRoadMissionEvent? mission=null,double awardedMoney=0,double awardedEnergy=0)
+    {Kind=kind;Detail=detail;Id=id;Wrecked=wrecked;Mission=mission;AwardedMoney=awardedMoney;AwardedEnergy=awardedEnergy;}
   }
 
   // mutant.ts mutantAdimi/yolGoreviAdimi: fizik sonrasındaki kaynak sıra korunur.
@@ -78,12 +80,15 @@ namespace LastTurn.Core
         });
         if(mission!=null)
         {
+          double awardedMoney=0,awardedEnergy=0;
           if(mission.Kind=="tamam")
           {
+            double moneyBefore=Run.State["para"].N(),energyBefore=Run.State["mek"]["enerji"].N();
             Run.State.Set("para",CatalogNode.Num(Run.State["para"].N()+mission.Mission.Money));var energy=Run.State["mek"];
             energy.Set("enerji",CatalogNode.Num(Math.Min(energy["kapasite"].N(),energy["enerji"].N()+mission.Mission.Energy)));
+            awardedMoney=Run.State["para"].N()-moneyBefore;awardedEnergy=energy["enerji"].N()-energyBefore;
           }
-          events.Add(new MutantSessionEvent("gorev",mission.Kind,mission:mission));
+          events.Add(new MutantSessionEvent("gorev",mission.Kind,mission:mission,awardedMoney:awardedMoney,awardedEnergy:awardedEnergy));
         }
       }
       bool city=Run.Region>=2;var shop=Run.Catalog[city?"cityWorkshop":"workshop"];var boss=Run.Catalog[city?"cityBoss":"bossPlace"];

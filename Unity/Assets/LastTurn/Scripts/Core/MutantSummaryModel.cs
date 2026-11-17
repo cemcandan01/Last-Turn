@@ -8,10 +8,10 @@ namespace LastTurn.Core
   public sealed class MutantSummaryModel
   {
     public string Reason="",Notice="",RecordText="";
-    public int Region,Bosses;
+    public int Region,Bosses,RoadMissions;
     public string Stats="", NextAttempt="";
     public string[] Build=Array.Empty<string>();
-    public static MutantSummaryModel Read(MutantRun run,MutantRecord record,string notice="",bool readable=true)
+    public static MutantSummaryModel Read(MutantRun run,MutantRecord record,string notice="",bool readable=true,int completedRoadMissions=0)
     {
       var s=run.State;var c=run.Catalog;
       string N(string key)=>s[key].N().ToString("0",CultureInfo.InvariantCulture);
@@ -27,7 +27,8 @@ namespace LastTurn.Core
           +(evo==null?"":" · "+evo["ad"].S())+(addons==""?"":" ("+addons+")");}));
       string parts=Names("parcalar","parts","n");
       var m=new MutantSummaryModel{Reason=s["pert"].B()?"Araç pert oldu.":run.Finished?"Boss hedefi kaçırıldı.":"Koşu sürüyor.",Notice=notice,Region=run.Region,Bosses=(int)s["yenilenBoss"].N(),RecordText=!readable?"Rekor okunamadı; mevcut dosya korundu.":record.Region==0?"Henüz kaydedilmiş rekor yok.":"Bölge "+record.Region+" · "+record.Bosses+" boss"};
-      m.Stats=MutantMenuModel.Time(Math.Max(0,s["zaman"].N()))+" hazırlık süresi · "+N("tamamlanan")+" etkinlik · Sv "+N("seviye")
+      m.RoadMissions=Math.Max(0,completedRoadMissions);
+      m.Stats=MutantMenuModel.Time(Math.Max(0,s["zaman"].N()))+" hazırlık süresi · "+N("tamamlanan")+" etkinlik · "+m.RoadMissions+" yol görevi · Sv "+N("seviye")
         +"\n"+N("carpma")+" çarpma · "+N("spin")+" spin";
       m.Build=new[]{"Pasifler: "+(passives==""?"Yok":passives),"Skill'ler: "+(skills==""?"Yok":skills),"Parçalar: "+(parts==""?"Stok kurulum":parts)};
       string weakness=s["boss"]["zayif"].S();

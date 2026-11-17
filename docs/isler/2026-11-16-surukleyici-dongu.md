@@ -78,3 +78,12 @@ Dosya sahibi Codex: yeni pacing ölçüm/kanıtı, `MutantHudModel`, ilgili HUD 
 - Claude Pro inceleme oturumu **`8149674f-57d3-41cb-9f18-334b9050c0e4`**, model `claude-opus-5-5`; dört dosya, aynı `8e1a4f8`, kaynak/hedef değişmeden bitti. Görev sırasında hedef kaybını ve ödülün görünmemesini doğruladı; sandık sızıntısını kendisine marker modeli verilmediği için doğrulayamadığını doğru belirtti. Sandık bulgusu Codex tarafından model/miniharita ve önceki kullanıcı kararıyla doğrulandı. Abonelik, güncel önceki teyit; API/ek kredi yok. Kanıt aynı adlı yerel koordinatör JSON'unda.
 
 Sıradaki iş başladı: yol görevinin gerçekten uygulanmış para/enerji kazancını göstermek ve tamamlanan yol görevlerini koşu özetine taşımak. Aynı ödülü ikinci kez verme veya kapasitede kesilen enerjiyi kazanılmış gösterme yok.
+
+### İş 2 tamam — uygulanan ödül ve koşu katkısı
+
+- İlk iş commit'i **`9db5919`**. Ardından yeni işe geçildi: `MutantSessionEvent` yalnız görev ödülü uygulanırken gerçek para/enerji farkını taşır. Callback içindeki başka enerji kazancı görev ödülü sayılmaz. `MutantRoadFeedback` salt metin üretir; runtime bu metni mevcut HUD bildirim kanalına verir. Tam enerjide +0, 90/100 enerjide +10 yazılır; nominal +20 kazanılmış sayılmaz. Ödül hesabı/kapasite/kazanç hızı aynı.
+- Koşu özeti `Session.Missions.Completed` değerini alır; pist etkinliği ve yol görevi ayrı sayılır. Kayıt anahtarı veya koşu durumu alanı eklenmedi, tekrar okuma ödeme yapmaz.
+- `.NET --mutant-road-feedback`: **254 kontrol** / 3 bölge / 100 ve 200 kapasite / dolu-kısmi-boş enerji / aynı adım başka enerji kaynağı / kaçan görev / tekrar render / sonraki adım çift ödeme. Mevcut TS oturumu **5.302**, yol görevi **2.368**, özet **7** geçti; kaynak hesap farkı 0.
+- Güncel Unity Play **17 kontrol / 8 görüntü / 245 kaynak / runtime 0**: önceki dolaşım kontrolleri + gerçek fizik sonrası tamamlanma, gerçek HUD'da **+49 para / +10 enerji**, 100 kapasite ve özette **1 yol görevi**. Görüntüdeki erken görev tamamlanması kontrollü test girdisidir, normal oyunun hedefi değiştirilmez. 720p ödül ve özet görüntüleri incelendi. Doğrulayıcı `node Unity/Validation/check-pacing-proof.mjs` hem saf ödül hem yönlendirme kaynaklarını bağlar.
+
+Sıradaki iş: temsilî asfalt/toprak/şehir rakiplerinde doğal bitiş, temas ve toparlanma verisini ölçmek; yalnız tur süresinden geçiş/savunma kalitesi çıkarma. İkinci bağımsız inceleme bu iki dilimin son kaynakları üzerinden yapılacak.

@@ -130,7 +130,7 @@ namespace LastTurn.Prototype
         if(e.Kind=="isaret"){Panel=e.Detail=="etkinlik"?"event":e.Detail=="sandik"?"chest":e.Detail=="atolye"?"shop":"boss";MarkerId=e.Id??0;if(Panel=="chest")Run.ChestOffer(MarkerId);}
         else if(e.Kind=="sureDoldu")Panel="boss";
         else if(e.Kind=="hasar"){if(e.Wrecked)Panel="summary";else {hudNote=(e.Detail=="carpma"?"Çarpma":"Spin")+" · Gövde "+Math.Round(Run.State["govde"].N()).ToString("0");if(!LastTurn.Ui.MutantHudView.OwnsDrive)TouchDrivingOverlay.Note(hudNote,1.4f);}}
-        else if(e.Kind=="gorev"){Message=e.Detail=="tamam"?"Yol görevi tamamlandı.":e.Detail=="kacti"?"Yol görevi kaçtı.":MutantRoadMissions.Name(e.Mission.Mission);hudNote=Message;}
+        else if(e.Kind=="gorev"){Message=MutantRoadFeedback.Read(e);hudNote=Message;}
       }
       if(Abilities!=null)
       {
@@ -186,8 +186,8 @@ namespace LastTurn.Prototype
     public static MutantRecord Record(){try{return new MutantRecordStore(RecordDirectory!=""?RecordDirectory:Path.Combine(Application.persistentDataPath,"LastTurnMutant")).Load();}catch(Exception){return new MutantRecord();}}
     public static MutantSummaryModel Summary()
     {
-      try{var store=new MutantRecordStore(RecordDirectory!=""?RecordDirectory:Path.Combine(Application.persistentDataPath,"LastTurnMutant"));var record=store.Load();return MutantSummaryModel.Read(Run,record,Message,!store.ReadOnly);}
-      catch(Exception){return MutantSummaryModel.Read(Run,new MutantRecord(),Message,false);}
+      try{var store=new MutantRecordStore(RecordDirectory!=""?RecordDirectory:Path.Combine(Application.persistentDataPath,"LastTurnMutant"));var record=store.Load();return MutantSummaryModel.Read(Run,record,Message,!store.ReadOnly,Session?.Missions.Completed??0);}
+      catch(Exception){return MutantSummaryModel.Read(Run,new MutantRecord(),Message,false,Session?.Missions.Completed??0);}
     }
   }
 }

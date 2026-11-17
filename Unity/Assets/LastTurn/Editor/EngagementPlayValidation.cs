@@ -69,6 +69,11 @@ namespace LastTurn.EditorValidation
       Wait(()=>P&&P.Simulation!=null&&P.OpenTerrain!=null&&P.OpenTerrain.Region.Key=="city"&&MutantHudView.Instance&&MutantHudView.Instance.Visible);
       Add(()=>MutantRuntime.Session.Missions.Active=new MutantRoadMission{Kind="kilpayi",Progress=1,Target=4,Remaining=25});
       Add(()=>{Check(UiRoot.Instance.Hud.Q<Label>("mh-navigation").text.StartsWith("Etkinlik "),"Şehirde görünür etkinlik havuzu");Check(UnityEngine.Object.FindFirstObjectByType<MiniMapView>().Markers==10,"Şehir miniharitasında gizli sandık yok");});Shots("pacing-city",1280,1920);
+      Add(()=>{var reward=MutantRoadMissions.Reward(MutantRuntime.Run.Region);MutantRuntime.Run.State["mek"].Set("enerji",CatalogNode.Num(90));MutantRuntime.Session.Missions.Active=new MutantRoadMission{Kind="hiz",Target=1,Progress=1,Remaining=25,Money=reward.Money,Energy=reward.Energy};});
+      Add(()=>{Check(MutantRuntime.Session.Missions.Completed==1,"Gerçek fizik sonrası görev tamamlandı");Check(MutantRuntime.Message.Contains("+49 para")&&MutantRuntime.Message.Contains("+10 enerji"),"Runtime kapasiteye sığan gerçek ödülü bildirdi");Check(UiRoot.Instance.Hud.Q<Label>("mh-notice").text==MutantRuntime.Message,"Gerçek HUD ödül bandı");Check(MutantRuntime.Run.State["mek"]["enerji"].N()==100,"Enerji kapasitesi aşılmadı");});Shots("pacing-reward",1280);
+      Add(()=>{MutantRuntime.Run.EnterBoss();MutantRuntime.Run.FinishBoss(false);typeof(MutantRuntime).GetProperty("Panel").SetValue(null,"summary");});
+      Wait(()=>MutantSummaryView.Instance&&MutantSummaryView.Instance.Visible);
+      Add(()=>Check(UiRoot.Instance.Root.Q<Label>("summary-stats").text.Contains("1 yol görevi"),"Koşu özetinde gerçek yol görevi sayısı"));Shots("pacing-summary",1280,1920);
       Add(()=>Check(proof.errors.Count==0,"Dolaşım çalışma anı hata yok"));
     }
     private static void Setup()
