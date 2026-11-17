@@ -51,8 +51,29 @@ internal static class OpponentTrafficValidation
     Check(control.Offset==0&&double.IsPositiveInfinity(control.SpeedLimit),"Trafik bitince çizgiye yumuşak dönüş");
     foreach(var other in new[]{At(z:200),At(z:20,y:6),At(z:20,heading:Math.PI),At(x:30,z:20),new OpponentTrafficCar(double.NaN,1,20,0,12,0,1.8,4.4)})
     {var t=new OpponentTraffic(2);t.Step(straight,0,new OpponentTrafficFrame(At(),other),1d/60);Check(t.Offset==0&&double.IsPositiveInfinity(t.SpeedLimit),"Uzak/ayrı yükseklik/ters yön/pist dışı/geçersiz bağlam eski yolu bozmaz");}
-    var tight=new OpponentTraffic(2);tight.Step(Plan(radius:65),0,frame,1d/60);Check(tight.Side==0&&tight.Offset==0&&tight.SpeedLimit<20,"Sert virajda geçiş değil takip");
+    double curveHeading=20d/65;var curveOther=At(x:65*(1-Math.Cos(curveHeading)),z:65*Math.Sin(curveHeading),speed:12,heading:curveHeading);
+    var tight=new OpponentTraffic(2);tight.Step(Plan(radius:65),0,new OpponentTrafficFrame(At(),curveOther),1d/60);Check(tight.Side==0&&tight.Offset==0&&tight.SpeedLimit<20,"Sert virajda geçiş değil takip");
     var narrow=new OpponentTraffic(2);narrow.Step(Plan(width:1.9),0,frame,1d/60);Check(narrow.Side==0&&narrow.SpeedLimit<20,"Dar kesitte fren");
+    var hairpin=Plan(radius:25);double turn=12d/25;
+    var curvedOther=At(x:25*(1-Math.Cos(turn)),z:25*Math.Sin(turn),speed:6,heading:turn);
+    var bend=new OpponentTraffic(2);bend.Step(hairpin,0,new OpponentTrafficFrame(At(speed:9),curvedOther),1d/60);
+    Check(bend.Side==0&&bend.SpeedLimit<9,"Keskin virajda iki araç kendi yol kesitinde aynı koridorda görülür");
+    var cutIn=new OpponentTraffic(2);for(int i=0;i<180;i++)cutIn.Step(straight,0,frame,1d/60);
+    cutIn.Step(straight,0,new OpponentTrafficFrame(At(x:3),At(x:3,z:15,speed:6)),1d/60);
+    Check(cutIn.SpeedLimit<20&&cutIn.SideChanges==1,"Seçili geçiş koridoruna giren oyuncuya fren; ani taraf değişimi yok");
+    var changing=Plan();for(int i=0;i<changing.N;i++)changing.Offset[i]=2;
+    double prior=cutIn.Offset;cutIn.Step(changing,0,new OpponentTrafficFrame(At(x:3),At(z:2)),1d/60);
+    Check(cutIn.Offset<prior&&prior-cutIn.Offset<=1.2/60+1e-12,"Yan yana kilitli hedef yeni kenar payına hız sınırlı döner");
+    foreach(var recovery in new[]{(X:7.2,Heading:-.4,Beta:0d,Upright:true),(X:0d,Heading:0d,Beta:.8,Upright:true),(X:0d,Heading:0d,Beta:0d,Upright:false)})
+    {
+      var clean=new OpponentPilot(straight,2,0,0);var loaded=new OpponentPilot(straight,2,0,0);
+      for(int i=0;i<180;i++){clean.Step(0,0,0,0,20,0,1d/60,true);loaded.Step(0,0,0,0,20,0,1d/60,true,frame);}
+      Check(loaded.Traffic.Offset>2,"Kurtarma denemesi öncesinde gerçek geçiş hedefi etkin");
+      var a=clean.Step(recovery.X,0,recovery.Heading,0,20,recovery.Beta,1d/60,true);
+      var self=new OpponentTrafficCar(recovery.X,1,0,0,20,recovery.Heading,1.8,4.4,recovery.Upright);
+      var b=loaded.Step(recovery.X,0,recovery.Heading,0,20,recovery.Beta,1d/60,true,new OpponentTrafficFrame(self,At(z:20,speed:12)));
+      Check(a.Steering==b.Steering&&a.Throttle==b.Throttle&&a.Brake==b.Brake,"Pist dışı/kayma/devrilmede artık trafik hedefi kurtarma komutunu değiştirmez");
+    }
     var varying=Plan(width:1.9);for(int i=0;i<varying.N;i++){varying.Offset[i]=Math.Sin(i*.15)*.5;varying.X[i]=varying.Offset[i];}
     var noCorridor=new OpponentTraffic(2);noCorridor.Step(varying,0,frame,1d/60);Check(noCorridor.Side==0&&noCorridor.SpeedLimit<20,"Sabit yan koridor yokken takip freni kaybolmaz");
     var seamPlan=Plan(radius:100,closed:true);int seam=seamPlan.N-5;double angle=seamPlan.S[seam]/100;
@@ -143,6 +164,9 @@ internal static class OpponentTrafficValidation
     for(int i=0;i<720;i++)waiting.Step(traffic:stopped);
     Console.WriteLine($"Trafik bekleyişi: dönüş {waiting.Returns}, mod {waiting.Pilot.Mode}, trafik {waiting.Pilot.Traffic.State}, hız {waiting.Vehicle.Body.Velocity.Length:F2}, sınır {waiting.Pilot.Traffic.SpeedLimit:F2}.");
     Check(waiting.Returns==0&&waiting.Vehicle.Body.Velocity.Length<1,"Bilinçli trafik bekleyişi otomatik dönüşe dönüşmez");
+    var waitPosition=waiting.Vehicle.ReferencePoint;
+    for(int i=0;i<600;i++)waiting.Step(traffic:new OpponentTrafficCar(stopped.X+200,stopped.Y,stopped.Z,0,0,stopped.Heading,stopped.Width,stopped.Length));
+    Check(waiting.Returns==0&&JsMath.Hypot(waiting.Vehicle.ReferencePoint.X-waitPosition.X,waiting.Vehicle.ReferencePoint.Z-waitPosition.Z)>10,"Engel ayrılınca bekleyişten normal sürüşe döner");
     var fullRaces=new List<object>();
     foreach(var sample in new[]{(Seed:7u,Region:1,Type:"gp"),(Seed:53u,Region:1,Type:"rx"),(Seed:83u,Region:2,Type:"ab")})
     {

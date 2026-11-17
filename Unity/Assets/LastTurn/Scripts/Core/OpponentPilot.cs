@@ -86,7 +86,8 @@ namespace LastTurn.Core
       {
         ReverseTime-=dt;double target=Direction(c.Ahead(i,10));if(ReverseTime<=0||(edge&&ReverseTime<1.2)){Mode="yaris";Stuck=-1.5;}TargetSpeed=0;return Input(-Math.Sign(target),0,1);
       }
-      Traffic.Step(c,i,traffic,dt,Mode=="yaris"&&!outside&&!reversed);trafficOffset=Traffic.Offset;
+      bool trafficAllowed=Mode=="yaris"&&!outside&&!reversed&&Math.Abs(beta)<=c.SlipLimit&&(!traffic.HasValue||traffic.Value.Self.Upright);
+      Traffic.Step(c,i,traffic,dt,trafficAllowed);trafficOffset=trafficAllowed?Traffic.Offset:0;
       double look=outside?Clamp(1.3*Math.Abs(lateral),8,c.Look+c.LookSpeed*speed):c.Look+c.LookSpeed*speed;
       double angle=Direction(c.Ahead(i,look)),lockLimit=(speed<6?.45+.55*speed/6:1)*(outside?.55:1),counter=Math.Abs(beta)>.15&&speed>5?1.5*(beta-Math.Sign(beta)*.15):0;
       double steer=reversed?Math.Sign(angle):Clamp(Clamp(angle*2.4,-lockLimit,lockLimit)+counter,-1,1);
