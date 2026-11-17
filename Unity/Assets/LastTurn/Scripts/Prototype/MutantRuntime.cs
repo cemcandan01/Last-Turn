@@ -130,7 +130,7 @@ namespace LastTurn.Prototype
         if(e.Kind=="isaret"){Panel=e.Detail=="etkinlik"?"event":e.Detail=="sandik"?"chest":e.Detail=="atolye"?"shop":"boss";MarkerId=e.Id??0;if(Panel=="chest")Run.ChestOffer(MarkerId);}
         else if(e.Kind=="sureDoldu")Panel="boss";
         else if(e.Kind=="hasar"){if(e.Wrecked)Panel="summary";else {hudNote=(e.Detail=="carpma"?"Çarpma":"Spin")+" · Gövde "+Math.Round(Run.State["govde"].N()).ToString("0");if(!LastTurn.Ui.MutantHudView.OwnsDrive)TouchDrivingOverlay.Note(hudNote,1.4f);}}
-        else if(e.Kind=="gorev"){Message=MutantRoadFeedback.Read(e);hudNote=Message;}
+        else if(e.Kind=="gorev"){hudNote=MutantRoadFeedback.Read(e);if(!LastTurn.Ui.MutantHudView.OwnsDrive)TouchDrivingOverlay.Note(hudNote,2.2f);}
       }
       if(Abilities!=null)
       {

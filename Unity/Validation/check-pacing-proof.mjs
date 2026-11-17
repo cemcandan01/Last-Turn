@@ -65,3 +65,36 @@ for (const name of play.images) {
 console.log(
   `Dolaşım: Core ${core.checks}, Unity ${play.checks.length}, ${play.images.length} görüntü, ${sources.size} güncel kaynak; runtime 0.`,
 );
+if (process.argv.includes("--build")) {
+  const build = JSON.parse(await readFile(join(fixture, "Logs/pacing-build.json"), "utf8"));
+  if (build.result !== "Succeeded" || build.errors !== 0) throw new Error("Yeni Windows build başarısız.");
+  const built = new Map(build.sources.map((s) => [s.path, s.hash.toLowerCase()]));
+  if (built.size !== sources.size || [...sources].some(([p, h]) => built.get(p) !== h))
+    throw new Error("Build/Play kaynakları farklı.");
+  const folder = join(unity, "Builds/EngagementWindows-20261117");
+  if ((await readFile(join(folder, "LastTurn.exe"))).toString("ascii", 0, 2) !== "MZ")
+    throw new Error("Windows ürünü eksik.");
+  const proofs = await Promise.all(
+    ["write", "reload"].map(async (pass) =>
+      JSON.parse(await readFile(join(folder, "Validation/player-" + pass + "-proof.json"), "utf8")),
+    ),
+  );
+  for (const p of proofs)
+    if (
+      p.result !== "player-passed" ||
+      p.error ||
+      p.errors.length ||
+      p.platform !== "WindowsPlayer" ||
+      Date.parse(p.utc) < Date.parse(build.utc)
+    )
+      throw new Error("Windows süreç kabulü geçersiz.");
+  if (
+    proofs[0].checks.length < 25 ||
+    proofs[1].checks.length < 15 ||
+    !proofs[1].checks.includes("Yeni süreç aynı garajı yükledi")
+  )
+    throw new Error("İki süreç kayıt kanıtı eksik.");
+  console.log(
+    `Windows 17 Kasım: build 0 hata; iki ayrı süreç ${proofs[0].checks.length} + ${proofs[1].checks.length}; garaj/ayar/parça yüklendi.`,
+  );
+}

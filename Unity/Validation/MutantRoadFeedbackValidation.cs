@@ -10,7 +10,7 @@ internal static class MutantRoadFeedbackValidation
     string Read(string name)=>File.ReadAllText(Path.Combine(root,"Unity/Assets/LastTurn/Resources",name));
     var catalog=CatalogNode.Parse(Read("mutant-catalog.json"));var vehicles=new VehicleCatalog(Read("vehicle-catalog.json"));
     int checks=0;void Check(bool ok,string label){checks++;if(!ok)throw new Exception("Yol görevi geri bildirimi: "+label);}
-    foreach(int region in new[]{1,2,3})foreach(double capacity in new[]{100d,200})foreach(double missing in new[]{0d,10,100})foreach(double callbackGain in new[]{0d,5})
+    foreach(int region in new[]{1,2,3})foreach(double capacity in new[]{100d,200})foreach(double missing in new[]{0d,.001,.04,10,100})foreach(double callbackGain in new[]{0d,5})
     {
       var run=new MutantRun(53,catalog);run.Choose(run.State["secenekler"][0].S());while(run.Region<region){run.EnterBoss();run.FinishBoss(true);while(run.State["faz"].S()=="secim")run.Choose(run.State["secenekler"][0].S());}
       var energy=run.State["mek"];energy.Set("kapasite",CatalogNode.Num(capacity));energy.Set("enerji",CatalogNode.Num(capacity-missing));
@@ -19,10 +19,11 @@ internal static class MutantRoadFeedbackValidation
       session.EnergyAndSkills=(_,_,_,_)=>{energy.Set("enerji",CatalogNode.Num(Math.Min(capacity,energy["enerji"].N()+callbackGain)));return false;};
       double beforeMoney=run.State["para"].N(),expectedEnergy=Math.Min(20,Math.Max(0,missing-callbackGain));
       var e=session.Step(new MutantSessionInput{X=10000,Z=10000,Speed=10,HasSimulation=true},1d/60).Single(x=>x.Kind=="gorev");
-      Check(e.Detail=="tamam"&&e.AwardedMoney==reward.Money&&e.AwardedEnergy==expectedEnergy,"Yalnız görevden gerçek kapasite farkı");
+      Check(e.Detail=="tamam"&&e.AwardedMoney==reward.Money&&Math.Abs(e.AwardedEnergy-expectedEnergy)<1e-10,"Yalnız görevden gerçek kapasite farkı");
       Check(run.State["para"].N()==beforeMoney+reward.Money&&energy["enerji"].N()==Math.Min(capacity,capacity-missing+callbackGain+20),"Kaynak ödül hesabı aynı");
       string state=run.State.ToString(),text=MutantRoadFeedback.Read(e);
-      Check(text.Contains("+"+reward.Money+" para")&&text.Contains("+"+expectedEnergy+" enerji"),"Bildirimin tutarı uygulananla aynı");
+      string gain=expectedEnergy>0&&expectedEnergy<.01?"+0.01'den az":expectedEnergy.ToString("+0.##",System.Globalization.CultureInfo.InvariantCulture);
+      Check(text.Contains("+"+reward.Money+" para")&&text.Contains(gain+" enerji"),"Bildirimin tutarı uygulananla aynı");
       for(int i=0;i<60;i++)MutantRoadFeedback.Read(e);
       Check(state==run.State.ToString()&&session.Missions.Completed==1,"Tekrar render ödül üretmez");
       Check(MutantSummaryModel.Read(run,new MutantRecord(),completedRoadMissions:session.Missions.Completed).Stats.Contains("1 yol görevi"),"Özet gerçek görev sayısını alır");
@@ -33,6 +34,8 @@ internal static class MutantRoadFeedbackValidation
       Check(missed.Detail=="kacti"&&missed.AwardedMoney==0&&missed.AwardedEnergy==0&&MutantRoadFeedback.Read(missed)=="Yol görevi kaçtı.","Kaçan göreve ödül bildirimi yok");
     }
     Check(MutantRoadFeedback.Read(new MutantSessionEvent("hasar"))=="","Görev dışı olay");
+    var negative=new MutantSessionEvent("gorev","tamam",mission:new MutantRoadMissionEvent("tamam",new MutantRoadMission()),awardedEnergy:-3);
+    Check(MutantRoadFeedback.Read(negative).Contains("-3 enerji")&&!MutantRoadFeedback.Read(negative).Contains("+-"),"Negatif telemetri işareti bozulmaz, kural değişmez");
     Check(MutantSummaryModel.Read(new MutantRun(1,catalog),new MutantRecord(),completedRoadMissions:-1).RoadMissions==0,"Negatif sunum sayacı");
     string[] sources={"Scripts/Core/MutantGameSession.cs","Scripts/Core/MutantRoadFeedback.cs","Scripts/Core/MutantSummaryModel.cs","Scripts/Prototype/MutantRuntime.cs"};
     var proof=new{result="mutant-road-feedback-passed",utc=DateTime.UtcNow.ToString("O"),checks,sources=sources.Select(p=>new{path=p,hash=Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(Path.Combine(root,"Unity/Assets/LastTurn",p))))})};
