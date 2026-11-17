@@ -47,6 +47,11 @@ internal static class OpponentTrafficValidation
     for(int i=0;i<120;i++)control.Step(straight,0,new OpponentTrafficFrame(At(),At(z:2,speed:20)),1d/60);
     Check(control.SideChanges==1&&Math.Abs(control.Offset-held)<1e-12&&control.State=="yan-yana","Yan yana yeni taraf seçmez");
     var grid=new OpponentTraffic(2);grid.Step(straight,0,new OpponentTrafficFrame(At(x:3),At()),1d/60);Check(grid.Offset==3&&grid.SideChanges==0,"Başlangıçta yan yana oyuncunun üstüne yarış çizgisine dönmez");
+    grid.Step(Plan(width:3),0,new OpponentTrafficFrame(At(x:3),At(z:20,speed:30)),1d/60);
+    grid.Step(straight,0,new OpponentTrafficFrame(At(x:2.9),At(z:2,speed:20)),1d/60);
+    Check(Math.Abs(grid.Offset-2.9)<1e-12,"Ayrılıp yeniden yan yana gelen araç mevcut yanına yeniden hizalanır");
+    var edgeGrid=new OpponentTraffic(2);edgeGrid.Step(Plan(width:1.9),0,new OpponentTrafficFrame(At(x:.8),At(z:2)),1d/60);
+    Check(edgeGrid.Offset>.77,"Uygun koridor yokken ilk hizalama mevcut yandan merkeze sıçramaz");
     for(int i=0;i<240;i++)control.Step(straight,0,null,1d/60);
     Check(control.Offset==0&&double.IsPositiveInfinity(control.SpeedLimit),"Trafik bitince çizgiye yumuşak dönüş");
     foreach(var other in new[]{At(z:200),At(z:20,y:6),At(z:20,heading:Math.PI),At(x:30,z:20),new OpponentTrafficCar(double.NaN,1,20,0,12,0,1.8,4.4)})
@@ -73,6 +78,7 @@ internal static class OpponentTrafficValidation
       var self=new OpponentTrafficCar(recovery.X,1,0,0,20,recovery.Heading,1.8,4.4,recovery.Upright);
       var b=loaded.Step(recovery.X,0,recovery.Heading,0,20,recovery.Beta,1d/60,true,new OpponentTrafficFrame(self,At(z:20,speed:12)));
       Check(a.Steering==b.Steering&&a.Throttle==b.Throttle&&a.Brake==b.Brake,"Pist dışı/kayma/devrilmede artık trafik hedefi kurtarma komutunu değiştirmez");
+      Check(loaded.Traffic.Offset==0,"Kurtarma sonrası yeniden etkinleşecek eski trafik hedefi temizlenir");
     }
     var varying=Plan(width:1.9);for(int i=0;i<varying.N;i++){varying.Offset[i]=Math.Sin(i*.15)*.5;varying.X[i]=varying.Offset[i];}
     var noCorridor=new OpponentTraffic(2);noCorridor.Step(varying,0,frame,1d/60);Check(noCorridor.Side==0&&noCorridor.SpeedLimit<20,"Sabit yan koridor yokken takip freni kaybolmaz");
@@ -80,6 +86,9 @@ internal static class OpponentTrafficValidation
     var seamSelf=new OpponentTrafficCar(seamPlan.X[seam],1,seamPlan.Z[seam],Math.Sin(angle)*20,Math.Cos(angle)*20,angle,1.8,4.4);
     var seamOther=new OpponentTrafficCar(seamPlan.X[5],1,seamPlan.Z[5],Math.Sin(seamPlan.S[5]/100)*12,Math.Cos(seamPlan.S[5]/100)*12,seamPlan.S[5]/100,1.8,4.4);
     var seamControl=new OpponentTraffic(2);seamControl.Step(seamPlan,seam,new OpponentTrafficFrame(seamSelf,seamOther),1d/60);Check(seamControl.SpeedLimit<20,"Tur dikişinde yakın oyuncu yerel geometriyle görülür");
+    var crossing=Plan();for(int i=498;i<crossing.N;i++){crossing.CenterX[i]=.1;crossing.CenterZ[i]=19+(i-498)*2;}
+    var local=new OpponentTraffic(2);local.Step(crossing,0,new OpponentTrafficFrame(At(),At(x:.1,z:20,speed:12)),1d/60);
+    Check(local.SpeedLimit<20,"Üst üste gelen uzak yol kesiti pilotun yerel izdüşümünü çalmaz");
 
     Encounter Sim(string name,bool traffic,double width,double radius,int seconds,int fps=60,uint seed=2)
     {

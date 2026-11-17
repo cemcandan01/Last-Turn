@@ -6,7 +6,7 @@ const unity = resolve(import.meta.dirname, "..");
 const fixture = join(unity, "Logs/P7StoreEditor");
 const core = JSON.parse(await readFile(join(unity, "../tests/cikti/opponent-traffic.json"), "utf8"));
 const play = JSON.parse(await readFile(join(fixture, "Logs/traffic-play.json"), "utf8"));
-if (core.result !== "opponent-traffic-passed" || core.checks < 7434 || core.fullRaces.length !== 6)
+if (core.result !== "opponent-traffic-passed" || core.checks < 7450 || core.fullRaces.length !== 6)
   throw new Error("İki araç/altın yol/FPS ve tam yarış kanıtı gerekli.");
 if (core.fullRaces.filter((r) => r.traffic).some((r) => r.overlaps || r.returns || !r.finished))
   throw new Error("Tam yarış trafik ayrışması başarısız.");

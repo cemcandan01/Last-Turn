@@ -43,11 +43,12 @@ namespace LastTurn.Core
       public RoadPoint(double along,double lane,double tx,double tz){Along=along;Lane=lane;Tx=tx;Tz=tz;}
     }
     // Her araç kendi yol kesitine izdüşer; virajda öndeki aracın yanal sapması sahte engel üretmez.
-    private static RoadPoint Project(OpponentPlan p,OpponentTrafficCar car)
+    private static RoadPoint Project(OpponentPlan p,OpponentTrafficCar car,int hint)
     {
       double best=double.PositiveInfinity;var point=default(RoadPoint);int count=p.Open?p.N-1:p.N;
       for(int i=0;i<count;i++)
       {
+        double route=p.S[i]-p.S[hint];if(!p.Open){if(route>p.Length/2)route-=p.Length;else if(route < -p.Length/2)route+=p.Length;}if(Math.Abs(route)>65)continue;
         int j=(i+1)%p.N;double dx=p.CenterX[j]-p.CenterX[i],dz=p.CenterZ[j]-p.CenterZ[i],sq=dx*dx+dz*dz;if(sq<1e-12)continue;
         double t=Clamp(((car.X-p.CenterX[i])*dx+(car.Z-p.CenterZ[i])*dz)/sq,0,1),x=p.CenterX[i]+t*dx,z=p.CenterZ[i]+t*dz,d=(car.X-x)*(car.X-x)+(car.Z-z)*(car.Z-z);
         if(d>=best)continue;best=d;double nx=p.Nx[i]*(1-t)+p.Nx[j]*t,nz=p.Nz[i]*(1-t)+p.Nz[j]*t,n=JsMath.Hypot(nx,nz),length=Math.Sqrt(sq);if(n<1e-9){nx=dz/length;nz=-dx/length;}else{nx/=n;nz/=n;}
@@ -60,11 +61,12 @@ namespace LastTurn.Core
     {
       SpeedLimit=double.PositiveInfinity;
       if(!(dt>0)||double.IsNaN(dt)||double.IsInfinity(dt))return;
-      if(!allowed||!frame.HasValue||!frame.Value.Self.Valid||!frame.Value.Other.Valid||!frame.Value.Self.Upright){Release(dt);return;}
+      if(!allowed){Offset=0;Release(dt);return;}
+      if(!frame.HasValue||!frame.Value.Self.Valid||!frame.Value.Other.Valid||!frame.Value.Self.Upright){Release(dt);return;}
       var a=frame.Value.Self;var b=frame.Value.Other;
       double dx=b.X-a.X,dz=b.Z-a.Z,distance=JsMath.Hypot(dx,dz);
       if(distance>55||Math.Abs(b.Y-a.Y)>2.5){Release(dt);return;}
-      var own=Project(plan,a);var other=Project(plan,b);
+      var own=Project(plan,a,index);var other=Project(plan,b,index);
       if(Math.Sin(a.Heading)*own.Tx+Math.Cos(a.Heading)*own.Tz<.5||Math.Sin(b.Heading)*other.Tx+Math.Cos(b.Heading)*other.Tz<.5){Release(dt);return;}
       double along=other.Along-own.Along;if(!plan.Open){if(along>plan.Length/2)along-=plan.Length;else if(along < -plan.Length/2)along+=plan.Length;}
       double selfLane=own.Lane,otherLane=other.Lane;
@@ -81,13 +83,13 @@ namespace LastTurn.Core
       {
         // Yan yana iken yeni geçiş tarafı veya oyuncuya geç kapatma seçilmez.
         // İlk hizalama yeni şerit seçmez: hedefi aracın zaten bulunduğu yana koyar.
-        if(!anchored&&!committed){target=Clamp(selfLane-plan.Offset[index],min,max);Offset=target;anchored=true;}
+        if(!anchored&&!committed){target=selfLane-plan.Offset[index];Offset=target;anchored=true;}
         beside=true;
         State="yan-yana";Move(Clamp(target,min,max),dt);
       }
       else if(along>0)
       {
-        beside=false;
+        beside=false;anchored=false;
         if(!committed&&gentle&&limit>separation&&Math.Abs(selfLane-otherLane)<separation&&otherSpeed<speed+2)
         {
           double passingSeparation=separation+.5;
