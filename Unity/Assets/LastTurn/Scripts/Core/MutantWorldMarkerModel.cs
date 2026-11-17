@@ -18,6 +18,9 @@ namespace LastTurn.Core
     public string? Label=>Kind=="chest"?null:Color switch{0xff5a3c=>"ASFALT",0xd08a48=>"RALLİKROS",0x4fbf74=>"RALLİ",0xb67cff=>"DRİFT",0xffd23c=>"DRAG",0x3cc8ff=>"ATÖLYE",0xff2a2a=>"BOSS",_=>null};
     public double X,Z;
     public bool Used;
+    // Sandıklar dünyada keşfedilir; harita ve yönlendirme aynı görünür hedef havuzunu kullanır.
+    public static MutantWorldMarkerModel[] ReadMap(MutantRun run)
+      =>Read(run).Where(m=>!m.Used&&m.Kind!="chest").ToArray();
     public static MutantWorldMarkerModel[] Read(MutantRun run)
     {
       var menu=run.State;bool city=run.Region>=2;var shop=run.Catalog[city?"cityWorkshop":"workshop"];var boss=run.Catalog[city?"cityBoss":"bossPlace"];

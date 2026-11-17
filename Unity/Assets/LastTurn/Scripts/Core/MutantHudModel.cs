@@ -14,7 +14,7 @@ namespace LastTurn.Core
   // Salt sunum: fizik/ödül/giriş işlemi çağırmaz, koşuya yazmaz.
   public sealed class MutantHudModel
   {
-    public string Region="", Boss="", Resources="", Progress="", Mission="", NitroText="";
+    public string Region="", Boss="", Resources="", Progress="", Mission="", Navigation="", NitroText="";
     public double EnergyFill;public bool NitroReady,NitroOpen;
     public MutantHudSlot[] Slots=Array.Empty<MutantHudSlot>();
     private static string N(double n)=>n.ToString("0.#",CultureInfo.InvariantCulture);
@@ -28,8 +28,21 @@ namespace LastTurn.Core
       m.NitroText=N(n.Energy)+" / "+N(n.Capacity)+" · "+(n.Open?N(n.Left)+" sn":n.Ready?"HAZIR":"HAZIR DEĞİL")+" · maliyet "+N(n.Cost);
       m.Slots=abilities.Skills().Take(3).Select(s=>{var p=MutantSkillSlot.Read(s);var definition=run.Catalog["skills"].Items.FirstOrDefault(d=>d["id"].S()==s.Id);var evo=definition?["evrimler"].Items.FirstOrDefault(e=>e["id"].S()==s.Evolution);
         return new MutantHudSlot{Id=s.Id,IconKey=s.Evolution!=null?"evolution/"+s.Evolution:"skill/"+s.Id,Name=s.Name,Detail=s.Hook!=null?"Sv "+s.Level+(evo!=null?" · "+evo["ad"].S():"")+" · Hak "+N(s.Charges)+"/"+N(s.MaxCharges)+(s.Hook.Available&&!s.Open?" · "+N(s.Hook.Distance)+" m":""):"Sv "+s.Level+(evo!=null?" · "+evo["ad"].S():"")+(s.Kind=="aktif"?"":" · kendiliğinden"),Text=p.Text,State=p.State,Fill=p.Fill};}).ToArray();
-      if(!racing){var mission=session?.Missions.Active;if(mission!=null)m.Mission=MutantRoadMissions.Name(mission)+" · "+N(mission.Progress)+" / "+N(mission.Target)+" · "+N(mission.Remaining)+" sn";
-        else {var nearest=MutantWorldMarkerModel.Read(run).Where(p=>!p.Used).OrderBy(p=>JsMath.Hypot(p.X-x,p.Z-z)).FirstOrDefault();if(nearest!=null)m.Mission=nearest.Name+" · "+N(JsMath.Hypot(nearest.X-x,nearest.Z-z))+" m";}}
+      if(!racing)
+      {
+        var mission=session?.Missions.Active;
+        if(mission!=null)
+        {
+          string kind=mission.Kind=="drift"?"Drift":mission.Kind=="hiz"?"Hız":mission.Kind=="kilpayi"?"Kıl payı":"Havada";
+          string unit=mission.Kind=="hiz"?" km/sa":mission.Kind=="kilpayi"?" engel":" sn";
+          m.Mission=kind+" "+N(mission.Progress)+" / "+N(mission.Target)+unit+" · "+N(Math.Max(0,mission.Remaining))+" sn";
+        }
+        var visible=MutantWorldMarkerModel.ReadMap(run);
+        var nearest=visible.Where(p=>p.Kind=="event").OrderBy(p=>JsMath.Hypot(p.X-x,p.Z-z)).FirstOrDefault()
+          ??visible.OrderBy(p=>JsMath.Hypot(p.X-x,p.Z-z)).FirstOrDefault();
+        if(nearest!=null)m.Navigation=(nearest.Kind=="event"?"Etkinlik ":nearest.Kind=="shop"?"Atölye ":"Boss ")
+          +N(JsMath.Hypot(nearest.X-x,nearest.Z-z))+" m · "+nearest.Name;
+      }
       return m;
     }
   }

@@ -19,8 +19,8 @@ internal static class MutantHudValidation
     Check(m.Slots[2].Detail.Contains("kendiliğinden")&&m.Slots[0].Detail.Contains("Sv 3"),"Aktif tetikli ve seviye");
     for(int i=0;i<3;i++){var s=driver.Skills()[i];var p=MutantSkillSlot.Read(s);Check(m.Slots[i].Fill==p.Fill&&m.Slots[i].Text==p.Text&&m.Slots[i].State==p.State,"Slot üreticisi aynı "+i);}
     var nitro=driver.Nitro();Check(m.EnergyFill==nitro.Energy/nitro.Capacity&&m.NitroReady==nitro.Ready,"Nitro üreticisi aynı");
-    Check(m.Mission!=""&&Model(true).Mission=="","Yakın işaret yalnız dünyada");
-    session.Missions.Active=new MutantRoadMission{Kind="drift",Target=40,Progress=12,Remaining=17};Check(Model().Mission.Contains("12 / 40")&&Model().Mission.Contains("17 sn"),"Gerçek görev önceliği ve ilerlemesi");
+    Check(m.Navigation!=""&&Model(true).Navigation=="","Yakın etkinlik yalnız dünyada");
+    session.Missions.Active=new MutantRoadMission{Kind="drift",Target=40,Progress=12,Remaining=17};Check(Model().Mission.Contains("12 / 40")&&Model().Mission.Contains("17 sn")&&Model().Navigation!="","Görev ve etkinlik birlikte görünür");
     run.State["mek"].Set("kapasite",CatalogNode.Num(0));Check(Model().EnergyFill==0,"Sıfır kapasite güvenli");run.State["mek"].Set("kapasite",CatalogNode.Num(100));run.State["mek"].Set("enerji",CatalogNode.Num(200));Check(Model().EnergyFill==1,"Gösterim sınırı");
     run.State.Set("beceriler",CatalogNode.Arr(Array.Empty<CatalogNode>()));Check(Model().Slots.Length==0,"Boş yuvalar güvenli");
     string reference="";double referenceGain=-1;long referenceSeq=-1;

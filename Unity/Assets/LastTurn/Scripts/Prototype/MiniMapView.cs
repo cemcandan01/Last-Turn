@@ -38,12 +38,11 @@ namespace LastTurn.Prototype
       }
       if (MutantRuntime.Active && p.Race == null)
       {
-        var st = MutantRuntime.Run.State; bool city = MutantRuntime.Run.Region >= 2; var cat = MutantRuntime.Run.Catalog;
-        var all = st["etkinlikler"].Items.Where(e => !e["yapildi"].B()).Select(e => (e["x"].N(), e["z"].N(), new Color(1, .55f, .15f)))
-          .Concat(st["sandiklar"].Items.Where(e => !e["acildi"].B()).Select(e => (e["x"].N(), e["z"].N(), new Color(1, .85f, .2f))))
-          .Append((cat[city ? "cityWorkshop" : "workshop"][0].N(), cat[city ? "cityWorkshop" : "workshop"][1].N(), new Color(.3f, .8f, 1)))
-          .Append((cat[city ? "cityBoss" : "bossPlace"][0].N(), cat[city ? "cityBoss" : "bossPlace"][1].N(), new Color(.9f, .2f, .3f)));
-        foreach (var (x, z, c) in all) { var m = Map.Marker(x, z); marks.Add((m.X, m.Y, c)); }
+        foreach (var marker in MutantWorldMarkerModel.ReadMap(MutantRuntime.Run))
+        {
+          var color=marker.Kind=="shop"?new Color(.3f,.8f,1):marker.Kind=="boss"?new Color(.9f,.2f,.3f):new Color(1,.55f,.15f);
+          var m=Map.Marker(marker.X,marker.Z);marks.Add((m.X,m.Y,color));
+        }
       }
       if (p.Opponent != null) { var o = p.Opponent.Vehicle.ReferencePoint; var c = Map.Car(o.X, o.Z); if (c != null) cars.Add((c.Value.X, c.Value.Y, c.Value.Radius, new Color(1, .3f, .3f))); }
       var ghost = p.GhostShown ? p.Race.Ghost : null; if (ghost != null) { var o = ghost.Vehicle.ReferencePoint; var c = Map.Car(o.X, o.Z); if (c != null) cars.Add((c.Value.X, c.Value.Y, c.Value.Radius, new Color(1, 1, 1, .7f))); }

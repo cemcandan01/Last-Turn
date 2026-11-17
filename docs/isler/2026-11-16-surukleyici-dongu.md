@@ -58,3 +58,23 @@ Son oyun kaynak SHA'sı **`77dede6`** (`257494f` ilk dilim). Bu SHA sonrası yal
 4. Ses, hız hissi ve kişilik: mevcut efekt/skill geri bildiriminin okunabilirliği ile çevre çeşitliliğini küçük örneklerde değerlendir. Bu kaynak/ekran testleri insanın eğlendiği iddiası değildir.
 
 Bu sıra aynı kartın devamıdır; yeni görev/devir sistemi veya zamanlanmış arka plan ajanı kurulmadı. İnsan sürüş/keyif kabulü, tam regresyon ve canlıya çıkış açık kalır.
+
+## Devam — 17 Kasım 2026: dolaşım temposu ve görev geri bildirimi
+
+Cem: “geliştirmeye devam edin işin bitince yeni işe başla”. Sahip Codex, başlangıç `8e1a4f8`, aynı dal. Fetch başarılı; önceki menü/recovery değişiklikleri aynı ve korunuyor. Önceki testlerin tamamını yeniden koşmak yerine etkilenen kapsam kullanılacak. Mevcut Claude Pro oturumu ve önceki konuşma teyidi halen geçerli; resmi kapasite bilinmiyor, API/ek kredi yok.
+
+Sıralı iki iş: (1) sabit tohumlarla gerçek dünya/etkinlik geometrisi ve yol görevi aralıklarını ölç; HUD'da gizli sandıkların açıklanmasını ve görevin yön bilgisini örtmesini gider; (2) görev bitişinin gerçek kazancını ve koşu içindeki yol görevi ilerlemesini görünür kıl. Her adım bittiğinde kanıtıyla kaydet ve sıradakine geç. Sonrasında YZ rekabet ölçümüne geçilebilir. Süre/ödül/fizik değişimi yalnız somut ölçümle gerekçelendirilir; bu ilk iki işin performans/edinme etkisi sıfırdır.
+
+Kabul: üç bölge ve birden fazla sabit tohumda en yakın görünür etkinlik mesafeleri/varsayımsal yol süreleri ayrı raporlanır; bu değerler insan sürüşü sayılmaz. Gizli sandık konumu HUD'dan sızmaz; yol görevi varken etkinlik yönlendirmesi kaybolmaz. Görev sonucu yalnız gerçekten uygulanmış ödülü bildirir, tekrarlanan render para/enerji üretmez. Boş havuz, yarış içi, bölge geçişi, tam enerji ve uzun metin sınırları .NET ve gerçek Unity Play'de sınanır. Saf kural/oturum/görünüm ayrımı korunur.
+
+Dosya sahibi Codex: yeni pacing ölçüm/kanıtı, `MutantHudModel`, ilgili HUD görünümü/stili ve görev bildirimi adaptörü; gerekiyorsa saf sunum modeli. Claude rolü yalnız mevcut kaynaklardan bağımsız keşif/inceleme; aynı dosyalara yazmaz.
+
+### İş 1 tamam — görünür etkinlik ve keşif
+
+- [Ölçüm](../denge/2026-11-17-mutant-dolasim.md): 192 geometri, 9 gerçek fizik yaklaşması / 393 kontrol. 8 yaklaşma 7,9–31,7 sn'de kapıya ulaştı; 83/bölge2 basit nokta takipçisi şehir engelinde kaldı (90 sn / 313,7 m). İnsan veya rota bulma ölçümü değil. Süre/ödül/konum ayarı yapılmadı.
+- İlk etkinliğe ortalama kuş uçuşu 91,7 / 216,8 / 225,7 m. Başlangıçların 20/192'sinde eski HUD en yakın gizli sandığı seçiyordu; miniharita da kaynak TS kararına aykırı olarak üç sandığı çiziyordu. `ReadMap` saf görünür havuzu ortaklaştırıldı; 3B keşfedilecek sandıklar korunarak harita/HUD'dan kaldırıldı. HUD yakın etkinliği önceler; bütün etkinlikler bitince atölye/boss bilgisi kalır.
+- Görev ve etkinlik mesafesi ayrı satır; dört görev türünde kısa ilerleme. Masaüstü yerleşimi 4K'da da referans UI ölçeğini korur; dokunmatik yerleşime yayılmadı. HUD kural testi 23.955 koşul + 210 masaüstü yerleşim geçti. `.NET --mutant-navigation` **2.304**, mevcut `--mutant-hud` **870**, `--mutant-markers` **154** geçti.
+- Gerçek grafik Unity Play **12 kontrol / 5 görüntü / runtime 0**: 720p/1080p/4K'da görev ve mesafe panel içinde; hub ve şehirde miniharita veri listesi 8 etkinlik + atölye + boss. Batch'te IMGUI miniharita noktaları görüntüye alınmaz; sayı Update yolunda doğrulanır, yeni resimler HUD/kamera çizimidir. Hub 720p ve şehir 1080p görsel olarak incelendi. `node Unity/Validation/check-pacing-proof.mjs`: 244 güncel kaynak. Ham kanıt `Logs/P7StoreEditor/Logs/pacing-play.json`.
+- Claude Pro inceleme oturumu **`8149674f-57d3-41cb-9f18-334b9050c0e4`**, model `claude-opus-5-5`; dört dosya, aynı `8e1a4f8`, kaynak/hedef değişmeden bitti. Görev sırasında hedef kaybını ve ödülün görünmemesini doğruladı; sandık sızıntısını kendisine marker modeli verilmediği için doğrulayamadığını doğru belirtti. Sandık bulgusu Codex tarafından model/miniharita ve önceki kullanıcı kararıyla doğrulandı. Abonelik, güncel önceki teyit; API/ek kredi yok. Kanıt aynı adlı yerel koordinatör JSON'unda.
+
+Sıradaki iş başladı: yol görevinin gerçekten uygulanmış para/enerji kazancını göstermek ve tamamlanan yol görevlerini koşu özetine taşımak. Aynı ödülü ikinci kez verme veya kapasitede kesilen enerjiyi kazanılmış gösterme yok.

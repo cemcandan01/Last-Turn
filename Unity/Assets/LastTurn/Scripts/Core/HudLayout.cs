@@ -92,7 +92,7 @@ namespace LastTurn.Core
     /// altta gösterge, drag devir çubuğu hızın üstünde, ipucu satırı sol altta.
     private static Dictionary<string,HudRect> Desktop(HudLayoutInput i)
     {
-      var r=new Dictionary<string,HudRect>(StringComparer.Ordinal);double W=i.Width,H=i.Height,u=Unit(W,H),m=Math.Max(12,Math.Min(W,H)*.03);
+      var r=new Dictionary<string,HudRect>(StringComparer.Ordinal);double W=i.Width,H=i.Height,u=Math.Max(Unit(W,H),Math.Min(W,H)*140/1080),m=Math.Max(12,Math.Min(W,H)*.03);
       double line=Math.Max(16,u*.3),side=W*.38;
       // sağ üst: miniharita
       double map=i.Map=="kapali"?0:Math.Min(H*(i.Map=="kucuk"?.15:.2),W*.2);
@@ -102,7 +102,7 @@ namespace LastTurn.Core
       double tw=Math.Min(W*.3,Math.Max(220,u*3.2)),th=u*.95;
       if(i.Racing)r["Timer"]=new HudRect((W-tw)/2,m,tw,th);
       double leftW=Math.Min(side,(W-tw)/2-m*2),y=m;
-      if(i.Mutant){r["MutantBar"]=new HudRect(m,y,leftW,u*.9);y+=u*.9+m*.5;}
+      if(i.Mutant){r["MutantBar"]=new HudRect(m,y,leftW,u*1.2);y+=u*1.2+m*.5;}
       if(i.Racing){r["Title"]=new HudRect(m,y,leftW,line);y+=line+m*.5;}
       // sağ alt: hız + vites
       double sw=Math.Min(W*.16,u*2.4),sh=u*1.15;r["Speed"]=new HudRect(W-m-sw,H-m-sh,sw,sh);

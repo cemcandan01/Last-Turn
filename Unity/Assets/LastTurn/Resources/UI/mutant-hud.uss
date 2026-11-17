@@ -6,6 +6,7 @@
 .mh-boss { height: 23px; font-size: 19px; color: rgb(238,124,206); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mh-resources, .mh-progress { height: 22px; font-size: 18px; }
 .mh-mission { height: 22px; font-size: 18px; color: rgb(182,255,36); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mh-navigation { height: 22px; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mh-nitro-title { font-size: 20px; -unity-font-style: bold; color: rgb(182,255,36); }
 .mh-nitro-text { font-size: 18px; white-space: normal; }
 .mh-name { width: 80%; font-size: 21px; -unity-font-style: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

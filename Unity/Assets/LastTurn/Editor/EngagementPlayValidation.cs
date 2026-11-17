@@ -21,6 +21,7 @@ namespace LastTurn.EditorValidation
   public static class EngagementPlayValidation
   {
     private const string Active="LastTurn.Engagement.Active";
+    private const string Pacing="LastTurn.Engagement.Pacing";
     [Serializable] private sealed class Source {public string path,hash;}
     [Serializable] private sealed class Proof {public string result,utc,error;public List<string> checks=new List<string>(),images=new List<string>(),errors=new List<string>();public Source[] sources;}
     private static Proof proof;private static readonly List<Action> steps=new List<Action>();private static int index,stepped;
@@ -31,14 +32,16 @@ namespace LastTurn.EditorValidation
     private static string Project=>Path.GetDirectoryName(Application.dataPath);
     private static GtPrototype P=>UnityEngine.Object.FindFirstObjectByType<GtPrototype>();
     static EngagementPlayValidation(){EditorApplication.playModeStateChanged+=Changed;}
-    public static void StartBatch()
+    public static void StartBatch()=>Begin(false);
+    public static void StartPacingBatch()=>Begin(true);
+    private static void Begin(bool pacing)
     {
       if(!Application.isBatchMode||Application.productName!="LastTurnUiValidation"||Application.companyName!="LastTurnPitUiValidation"||!Environment.GetCommandLineArgs().Contains("-lastTurnUiValidation"))throw new InvalidOperationException("Ayrı doğrulama ürünü gerekir.");
       foreach(var type in typeof(EngagementPlayValidation).Assembly.GetTypes().Where(t=>t.Namespace=="LastTurn.EditorValidation"))
       {var f=type.GetField("Active",BindingFlags.NonPublic|BindingFlags.Static);if(f!=null&&f.IsLiteral&&f.FieldType==typeof(string))SessionState.SetBool((string)f.GetRawConstantValue(),false);}
       InputSystem.settings.backgroundBehavior=InputSettings.BackgroundBehavior.IgnoreFocus;
       InputSystem.settings.editorInputBehaviorInPlayMode=InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
-      GarageSceneBuilder.Open();SessionState.SetBool(Active,true);EditorApplication.EnterPlaymode();
+      SessionState.SetBool(Pacing,pacing);GarageSceneBuilder.Open();SessionState.SetBool(Active,true);EditorApplication.EnterPlaymode();
     }
     private static void Changed(PlayModeStateChange state)
     {
@@ -49,9 +52,24 @@ namespace LastTurn.EditorValidation
     private static void Check(bool yes,string text){if(!yes)throw new InvalidOperationException(text);proof.checks.Add(text);}
     private static void Add(Action action)=>steps.Add(action);
     private static void Wait(Func<bool> ready)=>Add(()=>{if(!ready())index--;});
-    private static void Shots(string name)
+    private static void Shots(string name,params int[] sizes)
     {
-      foreach(int w in new[]{1280,1920})Add(()=>{width=w;target=new RenderTexture(w,w*9/16,24,RenderTextureFormat.ARGB32);UiRoot.Instance.Settings.clearColor=true;UiRoot.Instance.Settings.colorClearValue=Color.clear;UiRoot.Instance.Settings.targetTexture=target;Hud.SizeOverride=new Vector2(w,w*9/16);shot=name+"-"+w;shotAt=EditorApplication.timeSinceStartup;});
+      foreach(int w in sizes.Length==0?new[]{1280,1920}:sizes)Add(()=>{width=w;target=new RenderTexture(w,w*9/16,24,RenderTextureFormat.ARGB32);UiRoot.Instance.Settings.clearColor=true;UiRoot.Instance.Settings.colorClearValue=Color.clear;UiRoot.Instance.Settings.targetTexture=target;Hud.SizeOverride=new Vector2(w,w*9/16);shot=name+"-"+w;shotAt=EditorApplication.timeSinceStartup;});
+    }
+    private static void SetupPacing()
+    {
+      string dir=Path.Combine(Project,"Logs/Pacing/"+Guid.NewGuid().ToString("N"));GarageSession.Open(Path.Combine(dir,"garage.json"),true);MutantRuntime.RecordDirectory=Path.Combine(dir,"mutant");
+      GameFlow.MainMenu();Add(()=>MutantRuntime.Start(53));Wait(()=>MutantStartView.Instance&&MutantStartView.Instance.Visible);
+      Add(()=>{MutantRuntime.SelectCar(MutantRuntime.Model.StartingCarsCards[0].Id);MutantRuntime.Choose(MutantRuntime.Run.State["secenekler"][0].S());});
+      Wait(()=>P&&P.Simulation!=null&&P.Race==null&&MutantHudView.Instance&&MutantHudView.Instance.Visible);
+      Add(()=>MutantRuntime.Session.Missions.Active=new MutantRoadMission{Kind="hiz",Progress=40,Target=115,Remaining=25});
+      Add(()=>{Check(UiRoot.Instance.Hud.Q<Label>("mh-navigation").text.StartsWith("Etkinlik "),"Yakın etkinlik gerçek HUD'da");Check(UiRoot.Instance.Hud.Q<Label>("mh-mission").text.Contains("40 / 115"),"Görev ve etkinlik birlikte");Check(UnityEngine.Object.FindFirstObjectByType<MiniMapView>().Markers==10,"Miniharitada 8 etkinlik + atölye + boss; sandık yok");});
+      Shots("pacing-world",1280,1920,3840);
+      Add(()=>{var r=MutantRuntime.Run;r.EnterBoss();r.FinishBoss(true);while(r.State["faz"].S()=="secim")r.Choose(r.State["secenekler"][0].S());MutantRuntime.OpenWorld();});
+      Wait(()=>P&&P.Simulation!=null&&P.OpenTerrain!=null&&P.OpenTerrain.Region.Key=="city"&&MutantHudView.Instance&&MutantHudView.Instance.Visible);
+      Add(()=>MutantRuntime.Session.Missions.Active=new MutantRoadMission{Kind="kilpayi",Progress=1,Target=4,Remaining=25});
+      Add(()=>{Check(UiRoot.Instance.Hud.Q<Label>("mh-navigation").text.StartsWith("Etkinlik "),"Şehirde görünür etkinlik havuzu");Check(UnityEngine.Object.FindFirstObjectByType<MiniMapView>().Markers==10,"Şehir miniharitasında gizli sandık yok");});Shots("pacing-city",1280,1920);
+      Add(()=>Check(proof.errors.Count==0,"Dolaşım çalışma anı hata yok"));
     }
     private static void Setup()
     {
@@ -90,6 +108,9 @@ namespace LastTurn.EditorValidation
       int height=width*9/16;var a=new Texture2D(width,height,TextureFormat.RGBA32,false);var b=new Texture2D(width,height,TextureFormat.RGBA32,false);var scene=new RenderTexture(width,height,24);var old=RenderTexture.active;var camera=Camera.main;
       try
       {
+        if(shot.StartsWith("pacing-world"))
+          foreach(string name in new[]{"mh-navigation","mh-mission"})
+          {var label=UiRoot.Instance.Hud.Q<Label>(name);var area=label.parent.worldBound;Check(label.resolvedStyle.display!=DisplayStyle.None&&label.worldBound.yMax<=area.yMax+1&&label.worldBound.yMin>=area.yMin-1,"Görev/mesafe panel içinde: "+name+" / "+width);}
         if(shot.StartsWith("yaris-sonuc"))
           foreach(var label in UiRoot.Instance.Root.Q("f-result").Query<Label>(className:"rs-row-value").ToList())
             Check(label.worldBound.xMax<=label.parent.worldBound.xMax+1&&label.worldBound.xMin>=label.parent.worldBound.xMin-1,"Sonuç satırı kendi alanına sığıyor: "+label.text+" / "+width);
@@ -103,16 +124,16 @@ namespace LastTurn.EditorValidation
     }
     private static void Tick()
     {
-      try{if(EditorApplication.timeSinceStartup-began>180)throw new TimeoutException("Ustalık Play "+index+"/"+steps.Count);if(Capture()){at=EditorApplication.timeSinceStartup;return;}if(EditorApplication.timeSinceStartup-at<.3)return;at=EditorApplication.timeSinceStartup;if(steps.Count==0){if(!UiRoot.Instance)return;Setup();return;}if(index>=steps.Count){Finish(null);return;}steps[index++]();}
+      try{if(EditorApplication.timeSinceStartup-began>180)throw new TimeoutException("Ustalık Play "+index+"/"+steps.Count);if(Capture()){at=EditorApplication.timeSinceStartup;return;}if(EditorApplication.timeSinceStartup-at<.3)return;at=EditorApplication.timeSinceStartup;if(steps.Count==0){if(!UiRoot.Instance)return;if(SessionState.GetBool(Pacing,false))SetupPacing();else Setup();return;}if(index>=steps.Count){Finish(null);return;}steps[index++]();}
       catch(Exception e){Finish(e);}
     }
     private static void Finish(Exception error)
     {
-      SessionState.SetBool(Active,false);EditorApplication.update-=Tick;Application.logMessageReceived-=Logged;proof.result=error==null?"engagement-play-passed":"failed";proof.error=error?.ToString()??"";proof.utc=DateTime.UtcNow.ToString("O");
+      bool pacing=SessionState.GetBool(Pacing,false);SessionState.SetBool(Active,false);EditorApplication.update-=Tick;Application.logMessageReceived-=Logged;proof.result=error==null?(pacing?"pacing-play-passed":"engagement-play-passed"):"failed";proof.error=error?.ToString()??"";proof.utc=DateTime.UtcNow.ToString("O");
       if(keyboard!=null&&keyboard.added)InputSystem.RemoveDevice(keyboard);
       if(gamepad!=null&&gamepad.added)InputSystem.RemoveDevice(gamepad);
       proof.sources=Directory.GetFiles(Path.Combine(Application.dataPath,"LastTurn"),"*",SearchOption.AllDirectories).Where(f=>new[]{".cs",".uss",".json",".jpg"}.Contains(Path.GetExtension(f))).OrderBy(f=>f,StringComparer.Ordinal).Select(f=>{using(var h=SHA256.Create())return new Source{path=f.Substring(Project.Length+1).Replace('\\','/'),hash=BitConverter.ToString(h.ComputeHash(File.ReadAllBytes(f))).Replace("-","")};}).ToArray();
-      File.WriteAllText(Path.Combine(Project,"Logs/engagement-play.json"),JsonUtility.ToJson(proof,true));if(error!=null)Debug.LogException(error);EditorApplication.Exit(error==null?0:1);
+      File.WriteAllText(Path.Combine(Project,pacing?"Logs/pacing-play.json":"Logs/engagement-play.json"),JsonUtility.ToJson(proof,true));if(error!=null)Debug.LogException(error);EditorApplication.Exit(error==null?0:1);
     }
   }
 }

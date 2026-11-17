@@ -1,5 +1,7 @@
 using System.Text.Json;
 using LastTurn.Core;
+if(args.Contains("--mutant-pacing")){MutantPacingValidation.Run();return;}
+if(args.Contains("--mutant-navigation")){MutantNavigationValidation.Run();return;}
 if(args.Contains("--engagement")){EngagementValidation.Run();return;}
 if(args.Contains("--source-effects")){SourceEffectsValidation.Run();return;}
 if(args.Contains("--drift-race")){DriftRaceValidation.Run();return;}
