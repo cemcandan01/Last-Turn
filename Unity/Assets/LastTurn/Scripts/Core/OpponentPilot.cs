@@ -58,15 +58,17 @@ namespace LastTurn.Core
     public string Mode="bekle";public int Index,Lap,Recoveries,EdgeCorrections,OffTrackSteps;
     public double Progress,Time,Stuck,ReverseTime,TargetSpeed;
     public readonly OpponentPlan Plan;public readonly uint Seed;
-    public OpponentPilot(OpponentPlan plan,uint seed,double x,double z){Plan=plan;Seed=seed;Index=plan.Nearest(x,z,0,true);}
+    public readonly OpponentTraffic Traffic;
+    public OpponentPilot(OpponentPlan plan,uint seed,double x,double z){Plan=plan;Seed=seed;Index=plan.Nearest(x,z,0,true);Traffic=new OpponentTraffic(seed);}
     private static double Clamp(double v,double a,double b)=>Math.Max(a,Math.Min(b,v));
     private static double Angle(double a)=>Math.Atan2(Math.Sin(a),Math.Cos(a));
     private static DrivingInput Input(double steering,double gas,double brake,bool handbrake=false)=>new DrivingInput(gas,brake,steering,true,true,handbrake);
-    public DrivingInput Step(double x,double z,double heading,double vx,double vz,double beta,double dt,bool started)
+    public DrivingInput Step(double x,double z,double heading,double vx,double vz,double beta,double dt,bool started,OpponentTrafficFrame? traffic=null)
     {
       var c=Plan;double speed=JsMath.Hypot(vx,vz),along=vx*Math.Sin(heading)+vz*Math.Cos(heading);int previous=Index,i=c.Nearest(x,z,previous);double ds=c.S[i]-c.S[previous];
       if(!c.Open){if(ds < -c.Length/2){ds+=c.Length;Lap++;}else if(ds>c.Length/2){ds-=c.Length;Lap--;}}Progress+=ds;Index=i;
-      double Direction(int j)=>Angle(Math.Atan2(c.X[j]-x,c.Z[j]-z)-heading);
+      double trafficOffset=0;
+      double Direction(int j)=>Angle(Math.Atan2((trafficOffset==0?c.X[j]:c.X[j]+c.Nx[j]*trafficOffset)-x,(trafficOffset==0?c.Z[j]:c.Z[j]+c.Nz[j]*trafficOffset)-z)-heading);
       if(started)Time+=dt;
       if(!started||Time<c.Reaction){Mode="bekle";TargetSpeed=0;return Input(0,0,0,true);}if(Mode=="bekle")Mode="yaris";
       double lateral=(x-c.CenterX[i])*c.Nx[i]+(z-c.CenterZ[i])*c.Nz[i],outward=Math.Sign(lateral)*(vx*c.Nx[i]+vz*c.Nz[i]);bool outside=Math.Abs(lateral)>c.HalfWidth+.8,edge=Math.Abs(lateral)>c.HalfWidth-1.5 && outward>.2;
@@ -79,15 +81,16 @@ namespace LastTurn.Core
         else{ReverseTime+=dt;bool reverse=ReverseTime<0;if(!reverse&&((edge&&along>.3)||ReverseTime>3))ReverseTime=-1.8;else if(reverse&&edge&&along<-.3)ReverseTime=0;
           return reverse?Input(-sign,0,along < -3?0:.8):Input(sign,along<3?.7:0,along>5?.5:0);}
       }
-      if(Mode=="yaris"){if(speed<1)Stuck+=dt;else Stuck=Math.Max(Math.Min(Stuck,0),Stuck-2*dt);if(Stuck>c.Patience){Mode="geri";ReverseTime=1.6;Stuck=0;Recoveries++;}}
+      if(Mode=="yaris"){if(speed<1&&Traffic.SpeedLimit>=1)Stuck+=dt;else Stuck=Math.Max(Math.Min(Stuck,0),Stuck-2*dt);if(Stuck>c.Patience){Mode="geri";ReverseTime=1.6;Stuck=0;Recoveries++;}}
       if(Mode=="geri")
       {
         ReverseTime-=dt;double target=Direction(c.Ahead(i,10));if(ReverseTime<=0||(edge&&ReverseTime<1.2)){Mode="yaris";Stuck=-1.5;}TargetSpeed=0;return Input(-Math.Sign(target),0,1);
       }
+      Traffic.Step(c,i,traffic,dt,Mode=="yaris"&&!outside&&!reversed);trafficOffset=Traffic.Offset;
       double look=outside?Clamp(1.3*Math.Abs(lateral),8,c.Look+c.LookSpeed*speed):c.Look+c.LookSpeed*speed;
       double angle=Direction(c.Ahead(i,look)),lockLimit=(speed<6?.45+.55*speed/6:1)*(outside?.55:1),counter=Math.Abs(beta)>.15&&speed>5?1.5*(beta-Math.Sign(beta)*.15):0;
       double steer=reversed?Math.Sign(angle):Clamp(Clamp(angle*2.4,-lockLimit,lockLimit)+counter,-1,1);
-      int k=c.Ahead(i,2+speed*.25);double targetSpeed=c.Speed[k]*c.Variation(Seed,Lap,k/25);TargetSpeed=targetSpeed;double gap=targetSpeed-along;
+      int k=c.Ahead(i,2+speed*.25);double targetSpeed=c.Speed[k]*c.Variation(Seed,Lap,k/25);if(!double.IsPositiveInfinity(Traffic.SpeedLimit))targetSpeed=Math.Min(targetSpeed,Traffic.SpeedLimit);TargetSpeed=targetSpeed;double gap=targetSpeed-along;
       double gas=gap>0?Clamp(gap/2.5,0,1):0,brake=gap<-.8?Clamp(-gap/4,0,1):0;
       if(speed>8&&Math.Abs(beta)>(outside?.6:c.SlipLimit))gas*=.3;if(reversed)gas=Math.Min(gas,.4);double finalSteer=steer;
       if(outside){OffTrackSteps++;brake=speed>15&&gap < -3?Math.Min(brake,.4):0;if(speed<12&&!reversed)gas=Math.Max(gas,.6);}

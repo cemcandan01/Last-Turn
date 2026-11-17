@@ -22,6 +22,7 @@ namespace LastTurn.EditorValidation
   {
     private const string Active="LastTurn.Engagement.Active";
     private const string Pacing="LastTurn.Engagement.Pacing";
+    private const string Traffic="LastTurn.Engagement.Traffic";
     [Serializable] private sealed class Source {public string path,hash;}
     [Serializable] private sealed class Proof {public string result,utc,error;public List<string> checks=new List<string>(),images=new List<string>(),errors=new List<string>();public Source[] sources;}
     private static Proof proof;private static readonly List<Action> steps=new List<Action>();private static int index,stepped;
@@ -34,14 +35,15 @@ namespace LastTurn.EditorValidation
     static EngagementPlayValidation(){EditorApplication.playModeStateChanged+=Changed;}
     public static void StartBatch()=>Begin(false);
     public static void StartPacingBatch()=>Begin(true);
-    private static void Begin(bool pacing)
+    public static void StartTrafficBatch()=>Begin(false,true);
+    private static void Begin(bool pacing,bool traffic=false)
     {
       if(!Application.isBatchMode||Application.productName!="LastTurnUiValidation"||Application.companyName!="LastTurnPitUiValidation"||!Environment.GetCommandLineArgs().Contains("-lastTurnUiValidation"))throw new InvalidOperationException("Ayrı doğrulama ürünü gerekir.");
       foreach(var type in typeof(EngagementPlayValidation).Assembly.GetTypes().Where(t=>t.Namespace=="LastTurn.EditorValidation"))
       {var f=type.GetField("Active",BindingFlags.NonPublic|BindingFlags.Static);if(f!=null&&f.IsLiteral&&f.FieldType==typeof(string))SessionState.SetBool((string)f.GetRawConstantValue(),false);}
       InputSystem.settings.backgroundBehavior=InputSettings.BackgroundBehavior.IgnoreFocus;
       InputSystem.settings.editorInputBehaviorInPlayMode=InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
-      SessionState.SetBool(Pacing,pacing);GarageSceneBuilder.Open();SessionState.SetBool(Active,true);EditorApplication.EnterPlaymode();
+      SessionState.SetBool(Pacing,pacing);SessionState.SetBool(Traffic,traffic);GarageSceneBuilder.Open();SessionState.SetBool(Active,true);EditorApplication.EnterPlaymode();
     }
     private static void Changed(PlayModeStateChange state)
     {
@@ -75,6 +77,25 @@ namespace LastTurn.EditorValidation
       Wait(()=>MutantSummaryView.Instance&&MutantSummaryView.Instance.Visible);
       Add(()=>{Check(UiRoot.Instance.Root.Q<Label>("summary-stats").text.Contains("1 yol görevi"),"Koşu özetinde gerçek yol görevi sayısı");Check(UiRoot.Instance.Root.Q<Label>("summary-notice").text=="","Pert özetinde eski görev mesajı yok");});Shots("pacing-summary",1280,1920);
       Add(()=>Check(proof.errors.Count==0,"Dolaşım çalışma anı hata yok"));
+    }
+    private static void SetupTraffic()
+    {
+      string dir=Path.Combine(Project,"Logs/Traffic/"+Guid.NewGuid().ToString("N"));GarageSession.Open(Path.Combine(dir,"garage.json"),true);MutantRuntime.RecordDirectory=Path.Combine(dir,"mutant");GameFlow.MainMenu();
+      var snapshot=typeof(GtPrototype).GetField("playerTraffic",BindingFlags.NonPublic|BindingFlags.Instance);
+      Add(()=>MutantRuntime.Start(53));Wait(()=>MutantStartView.Instance&&MutantStartView.Instance.Visible);
+      Add(()=>{MutantRuntime.SelectCar(MutantRuntime.Model.StartingCarsCards[0].Id);MutantRuntime.Choose(MutantRuntime.Run.State["secenekler"][0].S());});Wait(()=>P&&P.Simulation!=null&&!MutantRuntime.Blocked);
+      Add(()=>MutantRuntime.StartRace(MutantRuntime.Model.Events.First(e=>e.Type=="gp").Id,0));Wait(()=>P&&P.Race!=null&&P.Race.Event.Type=="gp"&&P.Opponent!=null);
+      Add(()=>{P.Race.Session.TickCountdown(4);driver=RaceTestDriver.For("gp");OpponentTrafficCar before=default;for(int i=0;i<120;i++){before=OpponentTrafficCar.Read(P.Simulation);P.StepRace(driver.Input(P.Race));}var cached=(OpponentTrafficCar)snapshot.GetValue(P);Check(cached.X==before.X&&cached.Z==before.Z&&cached.Vx==before.Vx&&cached.Vz==before.Vz,"Gerçek yarış bağı aynı adımın başlangıç oyuncu pozunu taşır");Check(P.Opponent.Pilot.Traffic.State!="serbest","MUTANT rakibi yakın trafik kararına girdi");});Shots("traffic-mutant",1280,1920);
+      Add(()=>{bool passed=false;for(int i=0;i<720&&!passed;i++){var command=driver.Input(P.Race);double speed=P.Simulation.Body.Velocity.Length;P.StepRace(new DrivingInput(speed<12?Math.Min(command.Throttle,.4):0,speed>13?.3:command.Brake,command.Steering,true,true));var a=OpponentTrafficCar.Read(P.Simulation);var b=OpponentTrafficCar.Read(P.Opponent.Vehicle);passed=(b.X-a.X)*Math.Sin(a.Heading)+(b.Z-a.Z)*Math.Cos(a.Heading)>3;}Check(passed,"Gerçek MUTANT yarışında yavaş oyuncuyu doğal fizikle geçti");Check(P.Opponent.Returns==0&&P.Race.Teleports==0,"Geçişte iki araçta da otomatik konum dönüşü yok");});Shots("traffic-overtake",1280,1920);
+      Add(()=>{GameFlow.Pause(true);double time=P.Opponent.Time;for(int i=0;i<30;i++)P.StepRace(new DrivingInput(1,0,0));Check(P.Opponent.Time==time,"Duraklatmada trafik ve rakip ilerlemez");GameFlow.Pause(false);P.RestartRace();Check(P.Opponent.Pilot.Traffic.Offset==0&&P.Opponent.Pilot.Traffic.SideChanges==0&&snapshot.GetValue(P)==null,"Tekrarda yan seçimi ve oyuncu anlık görüntüsü sıfır");});
+      Add(()=>MutantRuntime.Exit());Wait(()=>UnityEngine.SceneManagement.SceneManager.GetActiveScene().name=="Garage");
+      Add(()=>{MutantRuntime.RecordDirectory=Path.Combine(dir,"drag");MutantRuntime.Start(53);});Wait(()=>MutantStartView.Instance&&MutantStartView.Instance.Visible);
+      Add(()=>{MutantRuntime.SelectCar(MutantRuntime.Model.StartingCarsCards[0].Id);MutantRuntime.Choose(MutantRuntime.Run.State["secenekler"][0].S());});Wait(()=>P&&P.Simulation!=null&&!MutantRuntime.Blocked);
+      Add(()=>MutantRuntime.StartRace(MutantRuntime.Model.Events.First(e=>e.Type=="dg").Id,0));Wait(()=>P&&P.Race!=null&&P.Race.Event.Type=="dg");
+      Add(()=>{P.Race.Session.TickCountdown(4);driver=RaceTestDriver.For("dg");for(int i=0;i<60;i++)P.StepRace(driver.Input(P.Race));Check(snapshot.GetValue(P)==null&&P.Opponent.Pilot.Traffic.Offset==0,"MUTANT drag yeni trafik çizgisine girmez");});Shots("traffic-drag",1280);
+      Add(()=>MutantRuntime.Exit());Wait(()=>UnityEngine.SceneManagement.SceneManager.GetActiveScene().name=="Garage");Add(()=>Check(TestPanelActions.StartRace("gp_1"),"Kariyer asfalt açıldı"));Wait(()=>P&&P.Race!=null&&P.Race.Event.Type=="gp");
+      Add(()=>{P.Race.Session.TickCountdown(4);driver=RaceTestDriver.For("gp");for(int i=0;i<60;i++)P.StepRace(driver.Input(P.Race));Check(snapshot.GetValue(P)==null,"Kariyer trafik bağlamı almıyor");});Shots("traffic-career",1280);
+      Add(()=>Check(proof.errors.Count==0,"Trafik çalışma anı hata yok"));
     }
     private static void Setup()
     {
@@ -129,16 +150,16 @@ namespace LastTurn.EditorValidation
     }
     private static void Tick()
     {
-      try{if(EditorApplication.timeSinceStartup-began>180)throw new TimeoutException("Ustalık Play "+index+"/"+steps.Count);if(Capture()){at=EditorApplication.timeSinceStartup;return;}if(EditorApplication.timeSinceStartup-at<.3)return;at=EditorApplication.timeSinceStartup;if(steps.Count==0){if(!UiRoot.Instance)return;if(SessionState.GetBool(Pacing,false))SetupPacing();else Setup();return;}if(index>=steps.Count){Finish(null);return;}steps[index++]();}
+      try{if(EditorApplication.timeSinceStartup-began>180)throw new TimeoutException("Ustalık Play "+index+"/"+steps.Count);if(Capture()){at=EditorApplication.timeSinceStartup;return;}if(EditorApplication.timeSinceStartup-at<.3)return;at=EditorApplication.timeSinceStartup;if(steps.Count==0){if(!UiRoot.Instance)return;if(SessionState.GetBool(Traffic,false))SetupTraffic();else if(SessionState.GetBool(Pacing,false))SetupPacing();else Setup();return;}if(index>=steps.Count){Finish(null);return;}steps[index++]();}
       catch(Exception e){Finish(e);}
     }
     private static void Finish(Exception error)
     {
-      bool pacing=SessionState.GetBool(Pacing,false);SessionState.SetBool(Active,false);EditorApplication.update-=Tick;Application.logMessageReceived-=Logged;proof.result=error==null?(pacing?"pacing-play-passed":"engagement-play-passed"):"failed";proof.error=error?.ToString()??"";proof.utc=DateTime.UtcNow.ToString("O");
+      bool pacing=SessionState.GetBool(Pacing,false),traffic=SessionState.GetBool(Traffic,false);SessionState.SetBool(Active,false);EditorApplication.update-=Tick;Application.logMessageReceived-=Logged;proof.result=error==null?(traffic?"traffic-play-passed":pacing?"pacing-play-passed":"engagement-play-passed"):"failed";proof.error=error?.ToString()??"";proof.utc=DateTime.UtcNow.ToString("O");
       if(keyboard!=null&&keyboard.added)InputSystem.RemoveDevice(keyboard);
       if(gamepad!=null&&gamepad.added)InputSystem.RemoveDevice(gamepad);
       proof.sources=Directory.GetFiles(Path.Combine(Application.dataPath,"LastTurn"),"*",SearchOption.AllDirectories).Where(f=>new[]{".cs",".uss",".json",".jpg"}.Contains(Path.GetExtension(f))).OrderBy(f=>f,StringComparer.Ordinal).Select(f=>{using(var h=SHA256.Create())return new Source{path=f.Substring(Project.Length+1).Replace('\\','/'),hash=BitConverter.ToString(h.ComputeHash(File.ReadAllBytes(f))).Replace("-","")};}).ToArray();
-      File.WriteAllText(Path.Combine(Project,pacing?"Logs/pacing-play.json":"Logs/engagement-play.json"),JsonUtility.ToJson(proof,true));if(error!=null)Debug.LogException(error);EditorApplication.Exit(error==null?0:1);
+      File.WriteAllText(Path.Combine(Project,traffic?"Logs/traffic-play.json":pacing?"Logs/pacing-play.json":"Logs/engagement-play.json"),JsonUtility.ToJson(proof,true));if(error!=null)Debug.LogException(error);EditorApplication.Exit(error==null?0:1);
     }
   }
 }

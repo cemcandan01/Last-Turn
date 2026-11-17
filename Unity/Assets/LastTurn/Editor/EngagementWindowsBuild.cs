@@ -14,6 +14,7 @@ namespace LastTurn.EditorValidation
     [Serializable] private sealed class Proof {public string result,utc,path;public int errors;public Source[] sources;}
     public static void Build()=>BuildFor("EngagementWindows-20261116","engagement-build.json");
     public static void BuildPacing()=>BuildFor("EngagementWindows-20261117","pacing-build.json");
+    public static void BuildTraffic()=>BuildFor("TrafficWindows-20261117","traffic-build.json");
     private static void BuildFor(string folder,string proofName)
     {
       if(Application.productName!="LastTurnUiValidation"||Application.companyName!="LastTurnPitUiValidation"||!Environment.GetCommandLineArgs().Contains("-lastTurnUiValidation"))throw new InvalidOperationException("Yalnız ayrı doğrulama ürünü.");

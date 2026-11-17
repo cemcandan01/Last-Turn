@@ -32,10 +32,11 @@ namespace LastTurn.Core
       this.seed=seed;Track=track;World=world;Plan=plan;Laps=info.Laps>0?info.Laps:1;OpenFinishBack=info.Type=="dg"?1:4;
       Vehicle=new PowertrainVehicle(parameters,world:world);Vehicle.Place(startX,startZ,startHeading);Pilot=new OpponentPilot(plan,seed,startX,startZ);Hint=track.Geometry.Nearest(startX,startZ,0,true).Index;
     }
-    public DrivingInput Step(bool started=true)
+    public DrivingInput Step(bool started=true,OpponentTrafficCar? traffic=null)
     {
       var position=Vehicle.ReferencePoint;var s=Vehicle.Body;var f=s.Orientation.Rotate(new BodyVector(0,0,1));double heading=Math.Atan2(f.X,f.Z);
-      var input=Pilot.Step(position.X,position.Z,heading,s.Velocity.X,s.Velocity.Z,beta,PowertrainVehicle.FixedDelta,started);
+      OpponentTrafficFrame? frame=started&&!FinishTime.HasValue&&traffic.HasValue?new OpponentTrafficFrame(OpponentTrafficCar.Read(Vehicle),traffic.Value):(OpponentTrafficFrame?)null;
+      var input=Pilot.Step(position.X,position.Z,heading,s.Velocity.X,s.Velocity.Z,beta,PowertrainVehicle.FixedDelta,started,frame);
       if(FinishTime.HasValue){double speed=JsMath.Hypot(s.Velocity.X,s.Velocity.Z);input=new DrivingInput(speed>12?0:Math.Min(input.Throttle,.3),speed>16?.3:0,input.Steering,true,true,input.Handbrake);}
       Vehicle.Step(recording.Record(input));beta=RaceDrift.Detect(Vehicle.Body).Beta;
       if(!started)return input;
@@ -47,6 +48,8 @@ namespace LastTurn.Core
     }
     private void ReturnIfStuck()
     {
+      // Yakın araç için bilinçli duruş takılma değildir; eski kurtarma bu bekleyişi ışınlamaya çevirmesin.
+      if(Pilot.Mode=="yaris"&&Pilot.Traffic.SpeedLimit<1&&Vehicle.Body.Velocity.Length<1){lastProgress=Pilot.Progress;stalled=0;return;}
       var d=Pilot;if(d.Progress>lastProgress+5){lastProgress=d.Progress;stalled=0;return;}stalled+=PowertrainVehicle.FixedDelta;if(stalled<8)return;
       var g=Track.Geometry;int j=g.Open?Math.Max(0,Hint-3):(Hint-3+g.N)%g.N;double x=g.X[j],z=g.Z[j];Vehicle.Place(x,z,Math.Atan2(g.Tx[j],g.Tz[j]));recording.Clear();beta=0;
       Pilot=new OpponentPilot(Plan,seed,x,z){Mode="yaris",Time=d.Time,Lap=d.Lap,Progress=d.Progress,Recoveries=d.Recoveries,Stuck=-1.5};

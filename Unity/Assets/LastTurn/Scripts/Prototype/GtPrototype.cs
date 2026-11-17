@@ -183,7 +183,7 @@ namespace LastTurn.Prototype
     }
     private void CreateOpponent()
     {
-      Opponent=null;if(opponentVisual){opponentVisual.gameObject.SetActive(false);Destroy(opponentVisual.gameObject);}
+      playerTraffic=null;Opponent=null;if(opponentVisual){opponentVisual.gameObject.SetActive(false);Destroy(opponentVisual.gameObject);}
       if(MutantRuntime.Active)
       {
         var plan=MutantRuntime.RacePlan;if(plan==null||plan.Opponent==null)return;
@@ -351,7 +351,7 @@ namespace LastTurn.Prototype
       if (Race.Session.State != RaceState.Running) return;
       runner.Advance(Time.deltaTime, _ =>
       {
-        previousSteer = Simulation.Engine.SteeringAngle; var i = CurrentInput; int shift = input.ConsumeShift();
+        CaptureOpponentTraffic();previousSteer = Simulation.Engine.SteeringAngle; var i = CurrentInput; int shift = input.ConsumeShift();
         lastQuantized = Race.Record(new DrivingInput(i.Throttle, i.Brake, i.Steering, i.AnalogThrottle, i.AnalogSteering, i.Handbrake, shift));
         return lastQuantized;
       }, AfterRaceStep);
@@ -363,11 +363,20 @@ namespace LastTurn.Prototype
       bool mutantContinue=true;
       if(mutantDrive){mutantContinue=MutantRuntime.AfterPhysics(Simulation,world,true,Opponent);parameters=Simulation.Parameters;}
       int teleports = Race.Teleports; Race.AfterPhysicsStep(lastQuantized);
-      Opponent?.Step();
+      StepOpponent();
       ObserveRaceDistance();if(Simulation.Body.Steps%1200==0)FlushProfileDistance();
       if (Race.Teleports != teleports) { runner.SyncPrevious(); followCamera.ResetFollow(); }
       return Race.PhysicsRunning&&mutantContinue;
     }
+    private void StepOpponent()
+    {
+      if(Opponent==null)return;
+      Opponent.Step(traffic:Race.Session.State==RaceState.Running?playerTraffic:(OpponentTrafficCar?)null);
+    }
+    private OpponentTrafficCar? playerTraffic;
+    // İki araç da aynı sabit adımın başlangıç pozunu görür; render sırası karar üretmez.
+    private void CaptureOpponentTraffic()
+    {bool enabled=mutantDrive&&(Race.Event.Type=="gp"||Race.Event.Type=="rx"||Race.Event.Type=="rl");playerTraffic=enabled?OpponentTrafficCar.Read(Simulation):(OpponentTrafficCar?)null;}
     /// TS ↺: pist dışı ilk çıkış noktasına ya da en yakın pist noktasına (süre durmaz).
     public void RespawnRace() { if (Race.Respawn()) { runner.SyncPrevious(); followCamera.ResetFollow(); RenderFrame(0); } }
     public string RecordText { get; private set; } = "";
@@ -390,9 +399,9 @@ namespace LastTurn.Prototype
       CurrentInput = value;
       if (Race.Session.State == RaceState.Countdown) { Race.TickCountdown(PowertrainVehicle.FixedDelta, value); Opponent?.Step(false); return; }
       if (Race.Session.State != RaceState.Running) return;
-      previousSteer = Simulation.Engine.SteeringAngle;
+      CaptureOpponentTraffic();previousSteer = Simulation.Engine.SteeringAngle;
       if(mutantDrive){var q=Race.Record(value);Simulation.Step(q);MutantRuntime.AfterPhysics(Simulation,world,true,Opponent);parameters=Simulation.Parameters;Race.AfterPhysicsStep(q);}else Race.Step(value);
-      Opponent?.Step();ObserveRaceDistance();if(Simulation.Body.Steps%1200==0)FlushProfileDistance();runner.SyncPrevious();
+      StepOpponent();ObserveRaceDistance();if(Simulation.Body.Steps%1200==0)FlushProfileDistance();runner.SyncPrevious();
     }
     public void ConfigureRace(string key, RaceTrackVisuals visuals)
     {
