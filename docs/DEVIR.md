@@ -1,3 +1,9 @@
+# Yakın düello görünürlüğü (20 Kasım 2026)
+
+`codex/unity-p7-garaj` dalında `e4adafb` oyuncunun yanındaki rakibin tarafını gösterir. Kaporta ve cam sahne ışığına ve bakış yönüne tepki verir. Oyuncu ve rakibin stop lambaları kendi servis frenine bağlıdır. Grafik Play sürüşünde 19 kontrol ve sekiz görüntü kaydedildi. [Görev kartı](isler/2026-11-16-surukleyici-dongu.md) ve [Windows denemesi](../Unity/Builds/DuelWindows-20261120/LastTurn.exe).
+
+Uygulama ve doğrulama Codex tarafından tamamlandı. Claude Code kuruluşun abonelik erişimini kapattığını bildirdi. Koordinatör raporu `312b6f51-0339-43bd-96d7-4b4bd9870436` içinde kayıtlıdır. Ortak çalışmanın devamı için kuruluş erişimi açılmalıdır. Sonraki geliştirme ölçümü MUTANT yükseltme seçeneklerinin boss karşısındaki etkisidir.
+
 # MUTANT yakın trafik (17 Kasım 2026) — Codex + Claude incelemeleri
 
 - Cem “devam edinn” dedi; aynı [kart](isler/2026-11-16-surukleyici-dongu.md), dal `codex/unity-p7-garaj`. İlk uygulama **`89452f3`**, viraj/kurtarma **`3872a9b`**, son oyun kaynağı **`70ed44e`**. Önceki pit menüsü ve `_Recovery` ayrı yerel değişiklik olarak korundu.
