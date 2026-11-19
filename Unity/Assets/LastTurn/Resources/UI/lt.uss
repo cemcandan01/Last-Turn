@@ -934,3 +934,15 @@
 .rs-gain { background-color:rgb(255,208,181); }
 .rs-actions { position:absolute; right:96px; bottom:96px; flex-direction:row; }
 .rs-actions > .ltb { margin-left:22px; }
+
+.hud-rakip {
+  position: absolute;
+  top: 54%;
+  padding: 4px 10px;
+  background-color: rgba(20, 25, 30, .88);
+  border-bottom-width: 2px;
+  border-bottom-color: rgb(255, 170, 55);
+  color: rgb(255, 198, 107);
+  font-size: 16px;
+  -unity-font-style: bold;
+}

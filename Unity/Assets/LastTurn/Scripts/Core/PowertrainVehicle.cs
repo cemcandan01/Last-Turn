@@ -175,7 +175,7 @@ namespace LastTurn.Core
       double holdBrake = Math.Abs(vl) < .6 && throttle < .05 && brake < .05 ? .3 : 0;
       var next = new PowertrainState { Gas = gas, Steering = st, Rpm = rpm, Gear = gear, ShiftTimer = timer,
         Turbo = boost, EngineTorque = torque, DriveTorque = drive, CoupledRpm = coupled, EffectiveGas = throttle,
-        EffectiveBrake = brake + holdBrake, SlipLimit = slipLimit, SteeringAngle = delta, LaunchHold = hold };
+        BrakeLights = brake > .02, EffectiveBrake = brake + holdBrake, SlipLimit = slipLimit, SteeringAngle = delta, LaunchHold = hold };
       // Gövde başarısızsa motorun kısmen ilerlemiş durumu yayımlanmaz.
       body.Step(new VehicleCommand(delta, drive, brake + holdBrake, input.Handbrake, p.Abs, slipLimit, assist),SkillInput,st);
       Engine = next;

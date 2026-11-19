@@ -40,6 +40,14 @@ namespace LastTurn.Prototype
     public readonly List<(string Tag,Transform Node)> Tagged=new List<(string,Transform)>();
     public readonly List<Renderer> MirrorFaces=new List<Renderer>();
     public readonly List<Material> Glass=new List<Material>();
+    public Material TailLamp {get; private set;}
+    // TS malzemeler.ts içindeki yüzey renkleri kaynak pakette RGB olarak saklanır.
+    private static bool HasPigment(Surface surface, byte red, byte green, byte blue)
+    {
+      var rgb = surface.color;
+      return rgb != null && rgb.Length == 3 && Mathf.RoundToInt(rgb[0]*255)==red
+        && Mathf.RoundToInt(rgb[1]*255)==green && Mathf.RoundToInt(rgb[2]*255)==blue;
+    }
     public Graph Data {get;private set;}
     public int RendererCount {get;private set;}
     private readonly Dictionary<Renderer,Material[]> ghostOriginal=new Dictionary<Renderer,Material[]>();private Material ghostMaterial;private bool ghost;
@@ -76,6 +84,7 @@ namespace LastTurn.Prototype
         if(g==null||g.version!=1||g.nodes==null||g.geometries==null)throw new InvalidDataException("Kaynak sunum grafiği geçersiz: "+key);
         var meshes=new Mesh[g.geometries.Length];for(int i=0;i<meshes.Length;i++)meshes[i]=MakeMesh(g.geometries[i]);
         var materials=new Material[g.materials.Length];for(int i=0;i<materials.Length;i++)materials[i]=MakeMaterial(g,g.materials[i]);
+        if (g.kind=="car") ConfigureFinish(g, materials);
         data=new Shared{graph=g,meshes=meshes,materials=materials};cache.Add(key,data);
       }
       var root=new GameObject("TS sunum · "+data.graph.label);root.transform.SetParent(parent,false);root.layer=layer;
@@ -83,6 +92,16 @@ namespace LastTurn.Prototype
       var localMaterials=(Material[])data.materials.Clone();
       for(int i=0;i<localMaterials.Length;i++)if(data.graph.materials[i].glass||data.graph.materials[i].mirror)
       {var m=new Material(localMaterials[i]);view.owned.Add(m);localMaterials[i]=m;if(data.graph.materials[i].glass)view.Glass.Add(m);}
+      if (data.graph.kind=="car")
+      {
+        int lamp=Array.FindIndex(data.graph.materials,s=>s.basic && HasPigment(s,200,30,40));
+        if (lamp>=0)
+        {
+          view.TailLamp=new Material(localMaterials[lamp]);
+          view.owned.Add(view.TailLamp);
+          localMaterials[lamp]=view.TailLamp;
+        }
+      }
       for(int i=0;i<transforms.Length;i++)
       {
         var n=data.graph.nodes[i];var node=new GameObject(n.name);node.layer=layer;var t=node.transform;transforms[i]=t;t.SetParent(n.parent<0?root.transform:transforms[n.parent],false);
@@ -115,6 +134,25 @@ namespace LastTurn.Prototype
         }
       }
       return view;
+    }
+    private static void ConfigureFinish(Graph graph, Material[] materials)
+    {
+      // Karoser, ön ve arka camla aynı grubun ilk ağıdır.
+      var window = Array.Find(graph.nodes, n => Array.Exists(n.materials, i => graph.materials[i].glass));
+      if (window == null) return;
+      var body = Array.Find(graph.nodes, n => n.parent == window.parent && n.geometry >= 0 && n.materials.Length > 0);
+      if (body != null) Finish(materials[body.materials[0]], .32f);
+      for (int i = 0; i < materials.Length; i++)
+      {
+        var s = graph.materials[i];
+        if (s.glass || (!s.basic && HasPigment(s,24,35,45))) Finish(materials[i], .66f);
+      }
+    }
+
+    private static void Finish(Material mat, float amount)
+    {
+      mat.EnableKeyword("VEHICLE_FINISH");
+      mat.SetFloat("_Finish",amount);
     }
     private static Mesh quad;
     private static Mesh SpriteQuad()

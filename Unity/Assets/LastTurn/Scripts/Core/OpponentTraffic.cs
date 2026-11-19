@@ -14,6 +14,29 @@ namespace LastTurn.Core
     public bool Valid=>Finite(X)&&Finite(Y)&&Finite(Z)&&Finite(Vx)&&Finite(Vz)&&Finite(Heading)&&Finite(Width)&&Finite(Length)&&Width>0&&Length>0;
     private static bool Finite(double v)=>!double.IsNaN(v)&&!double.IsInfinity(v);
   }
+  public enum RivalSide { Clear, Left, Right }
+
+  public static class RaceSpotter
+  {
+    public static RivalSide Read(OpponentTrafficCar car, OpponentTrafficCar rival, RivalSide previous)
+    {
+      if (!car.Valid || !rival.Valid || !car.Upright || !rival.Upright ||
+          Math.Abs(car.Y-rival.Y)>2 || Math.Cos(car.Heading-rival.Heading)<.5)
+        return RivalSide.Clear;
+
+      double dx=rival.X-car.X, dz=rival.Z-car.Z;
+      double sin=Math.Sin(car.Heading), cos=Math.Cos(car.Heading);
+      double along=dx*sin+dz*cos, across=dx*cos-dz*sin;
+      // Fizik +X, sürücünün soludur. Tam arkadaki araç şerit uyarısı üretmez.
+      var side=across>0 ? RivalSide.Left : RivalSide.Right;
+      double margin=previous==side ? .8 : 0;
+      double width=(car.Width+rival.Width)*.5, length=(car.Length+rival.Length)*.5;
+      if (Math.Abs(across)<width*.45 || Math.Abs(across)>width+3+margin ||
+          along < -length-2-margin || along > length+margin) return RivalSide.Clear;
+      return side;
+    }
+  }
+
   public readonly struct OpponentTrafficFrame
   {
     public readonly OpponentTrafficCar Self,Other;

@@ -15,6 +15,8 @@ namespace LastTurn.Ui
   {
     private VisualElement root, left, timer, speedBox, hints;
     private Label title, info, big, sub, speed, gear, unit, countdown, note, back, wrong, hintText;
+    private Label leftRival, rightRival;
+    private RivalSide rivalSide;
     private GtPrototype p; private RaceSession seenSession; private int seenNotes; private string lastNote = ""; private float noteUntil;
     public bool Visible { get; private set; }
     /// Doğrulama: son çizilen süre/hız metni.
@@ -32,7 +34,31 @@ namespace LastTurn.Ui
       countdown = Center(140, .30f); note = Center(48, .38f); back = Center(40, .5f); wrong = Center(56, .2f); wrong.text = "GERİ DÖN"; wrong.AddToClassList("uyari");
       hints = Box(); hintText = Ui.Text("", "hud-ipucu"); hints.Add(hintText);
       foreach (var e in new VisualElement[] { left, timer, speedBox, hints }) root.Add(e);
+      leftRival = SideMarker("◀  SOLDA", true);
+      rightRival = SideMarker("SAĞDA  ▶", false);
       UiRoot.Instance.Hud.Add(root);
+    }
+
+    private Label SideMarker(string label, bool leftSide)
+    {
+      var marker = Ui.Text(label, "hud-rakip");
+      marker.name = leftSide ? "rival-left" : "rival-right";
+      if (leftSide) marker.style.left = Length.Percent(12);
+      else marker.style.right = Length.Percent(12);
+      root.Add(marker);
+      Ui.Show(marker, false);
+      return marker;
+    }
+
+    private void DrawRival(RaceSession session)
+    {
+      var rival=p ? p.Opponent : null;
+      if (session != seenSession) rivalSide = RivalSide.Clear;
+      rivalSide = session?.State == RaceState.Running && rival != null && !rival.FinishTime.HasValue
+        ? RaceSpotter.Read(OpponentTrafficCar.Read(p.Simulation), OpponentTrafficCar.Read(rival.Vehicle), rivalSide)
+        : RivalSide.Clear;
+      Ui.Show(leftRival, rivalSide == RivalSide.Left);
+      Ui.Show(rightRival, rivalSide == RivalSide.Right);
     }
 
     private static VisualElement Box() { var e = new VisualElement { pickingMode = PickingMode.Ignore }; e.style.position = Position.Absolute; return e; }
@@ -53,6 +79,7 @@ namespace LastTurn.Ui
       if (!p) p = FindFirstObjectByType<GtPrototype>();
       var race = p ? p.Race : null;
       bool world=MutantRuntime.Active&&!MutantRuntime.Blocked&&race==null&&p&&p.Simulation!=null&&!SettingsScreen.Open;
+      DrawRival(race?.Session);
       if(world){Ui.Show(root,true);Visible=true;foreach(var e in new VisualElement[]{left,timer,hints,countdown,note,back,wrong})Ui.Show(e,false);Place(speedBox,Hud.Rects(p),"Speed",UiRoot.Instance.PixelToPanel);DrawSpeed();return;}
       Visible = race != null && p.Simulation != null && race.Session.State != RaceState.Finished && !GameFlow.Paused && !SettingsScreen.Open && MutantRuntime.Panel == "";
       Ui.Show(root, Visible); if (!Visible) return;

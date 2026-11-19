@@ -1,6 +1,6 @@
 Shader "LastTurn/SourceLambert"
 {
-  Properties { _Color("Renk",Color)=(1,1,1,1) _MainTex("Doku",2D)="white" {} _Lit("Lambert",Float)=1 _Cull("Yüz",Float)=2 _ZWrite("Derinlik",Float)=1 _DstBlend("Karışım",Float)=10 _ZTest("Derinlik sınaması",Float)=4 }
+  Properties { _Finish("Yüzey cilası", Range(0,1))=0 _Color("Renk",Color)=(1,1,1,1) _MainTex("Doku",2D)="white" {} _Lit("Lambert",Float)=1 _Cull("Yüz",Float)=2 _ZWrite("Derinlik",Float)=1 _DstBlend("Karışım",Float)=10 _ZTest("Derinlik sınaması",Float)=4 }
   SubShader
   {
     Tags { "RenderType"="Opaque" }
@@ -13,14 +13,34 @@ Shader "LastTurn/SourceLambert"
       #pragma fragment frag
       #pragma multi_compile_fog
       #pragma multi_compile_fwdbase
+      #pragma multi_compile_local __ VEHICLE_FINISH
       #include "UnityCG.cginc"
       #include "Lighting.cginc"
       #include "AutoLight.cginc"
-      sampler2D _MainTex; float4 _MainTex_ST,_Color; float _Lit;
+      sampler2D _MainTex; float4 _MainTex_ST,_Color; float _Lit,_Finish;
       struct input { float4 vertex:POSITION; float3 normal:NORMAL; float2 uv:TEXCOORD0; float4 color:COLOR; };
-      struct output { float4 pos:SV_POSITION; float2 uv:TEXCOORD0; float4 color:COLOR; UNITY_FOG_COORDS(1) SHADOW_COORDS(2) float3 normal:TEXCOORD3; };
-      output vert(input v) { output o;o.pos=UnityObjectToClipPos(v.vertex);o.uv=TRANSFORM_TEX(v.uv,_MainTex);o.normal=UnityObjectToWorldNormal(v.normal);o.color=v.color*_Color;UNITY_TRANSFER_FOG(o,o.pos);TRANSFER_SHADOW(o);return o; }
-      fixed4 frag(output i):SV_Target { fixed4 c=tex2D(_MainTex,i.uv)*i.color;float3 n=normalize(i.normal);float3 light=ShadeSH9(float4(n,1))+_LightColor0.rgb*max(0,dot(n,_WorldSpaceLightPos0.xyz))*SHADOW_ATTENUATION(i);c.rgb*=lerp(float3(1,1,1),light,_Lit);UNITY_APPLY_FOG(i.fogCoord,c);return c; }
+      struct output { float4 pos:SV_POSITION; float2 uv:TEXCOORD0; float4 color:COLOR; UNITY_FOG_COORDS(1) SHADOW_COORDS(2) float3 normal:TEXCOORD3;
+      #ifdef VEHICLE_FINISH
+        float3 viewDir:TEXCOORD4;
+      #endif
+       };
+      output vert(input v) { output o;o.pos=UnityObjectToClipPos(v.vertex);o.uv=TRANSFORM_TEX(v.uv,_MainTex);o.normal=UnityObjectToWorldNormal(v.normal);o.color=v.color*_Color;
+      #ifdef VEHICLE_FINISH
+        o.viewDir=UnityWorldSpaceViewDir(mul(unity_ObjectToWorld,v.vertex).xyz);
+      #endif
+      UNITY_TRANSFER_FOG(o,o.pos);TRANSFER_SHADOW(o);return o; }
+      fixed4 frag(output i):SV_Target { fixed4 c=tex2D(_MainTex,i.uv)*i.color;float3 n=normalize(i.normal);float3 light=ShadeSH9(float4(n,1))+_LightColor0.rgb*max(0,dot(n,_WorldSpaceLightPos0.xyz))*SHADOW_ATTENUATION(i);c.rgb*=lerp(float3(1,1,1),light,_Lit);
+        #ifdef VEHICLE_FINISH
+          float3 view=normalize(i.viewDir);
+          float3 skyRay=reflect(-view,n);
+          float horizon=smoothstep(-.22,.35,skyRay.y);
+          float fresnel=pow(1-saturate(dot(view,n)),3);
+          float3 sky=lerp(unity_AmbientGround.rgb,unity_FogColor.rgb,horizon);
+          c.rgb+=sky*_Finish*(.22+.78*fresnel);
+          float sun=pow(saturate(dot(skyRay,normalize(_WorldSpaceLightPos0.xyz))),32);
+          c.rgb+=_LightColor0.rgb*sun*_Finish*SHADOW_ATTENUATION(i);
+        #endif
+        UNITY_APPLY_FOG(i.fogCoord,c);return c; }
       ENDCG
     }
     Pass

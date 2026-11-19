@@ -11,6 +11,14 @@ namespace LastTurn.Prototype
     private Transform steering,speedNeedle,rpmNeedle,interior;
     private readonly Transform[] wheels=new Transform[4],spins=new Transform[4];
     private readonly float[] wheelY=new float[4];
+    private bool? brakeShown;
+    private void DrawBrakeLights(bool braking)
+    {
+      if (!Scene.TailLamp || brakeShown == braking) return;
+      Scene.TailLamp.color = braking ? new Color(1f,.22f,.12f) : new Color(.51f,.048f,.07f);
+      brakeShown = braking;
+    }
+
     private Camera rear;private RenderTexture target;private Material mirror;private int frames;
     public Vector3 Eye=>SourceScene.Point(Scene.Data.eye);
     public static SourceVehicleView Create(string key,Transform parent,int layer=0)
@@ -23,6 +31,7 @@ namespace LastTurn.Prototype
     public void Pose(Vector3 origin,Quaternion rotation,PowertrainVehicle simulation,VehicleState previous,VehicleState current,float alpha,bool cockpit)
     {
       transform.SetPositionAndRotation(origin,rotation);SetCockpit(cockpit);
+      DrawBrakeLights(simulation.Engine.BrakeLights);
       if(steering)steering.localRotation=Quaternion.AngleAxis((float)(simulation.Engine.SteeringAngle*2.5*Mathf.Rad2Deg),Vector3.forward);
       if(speedNeedle)speedNeedle.localRotation=Quaternion.AngleAxis(135+Mathf.Clamp01((float)current.Velocity.Length*3.6f/320)*270,Vector3.forward);
       if(rpmNeedle)rpmNeedle.localRotation=Quaternion.AngleAxis(135+Mathf.Clamp01((float)simulation.Engine.Rpm/1000/Scene.Data.gaugeRpm)*270,Vector3.forward);

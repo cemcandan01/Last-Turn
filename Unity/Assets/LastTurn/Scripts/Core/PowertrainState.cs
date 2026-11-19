@@ -12,6 +12,7 @@ namespace LastTurn.Core
     public double DriveTorque { get; internal set; }
     public double CoupledRpm { get; internal set; }
     public double EffectiveGas { get; internal set; }
+    public bool BrakeLights { get; internal set; }
     public double EffectiveBrake { get; internal set; }
     public double SlipLimit { get; internal set; }
     public double SteeringAngle { get; internal set; }

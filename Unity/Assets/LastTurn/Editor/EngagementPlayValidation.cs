@@ -56,7 +56,7 @@ namespace LastTurn.EditorValidation
     private static void Wait(Func<bool> ready)=>Add(()=>{if(!ready())index--;});
     private static void Shots(string name,params int[] sizes)
     {
-      foreach(int w in sizes.Length==0?new[]{1280,1920}:sizes)Add(()=>{width=w;target=new RenderTexture(w,w*9/16,24,RenderTextureFormat.ARGB32);UiRoot.Instance.Settings.clearColor=true;UiRoot.Instance.Settings.colorClearValue=Color.clear;UiRoot.Instance.Settings.targetTexture=target;Hud.SizeOverride=new Vector2(w,w*9/16);shot=name+"-"+w;shotAt=EditorApplication.timeSinceStartup;});
+      foreach(int w in sizes.Length==0?new[]{1280,1920}:sizes)Add(()=>{width=w;target=new RenderTexture(w,w*9/16,24,RenderTextureFormat.ARGB32);UiRoot.Instance.Settings.clearColor=true;UiRoot.Instance.Settings.colorClearValue=Color.clear;UiRoot.Instance.Settings.targetTexture=target;Hud.SizeOverride=new Vector2(w,w*9/16);shot=(Environment.GetCommandLineArgs().Contains("-duelProof") && name.StartsWith("traffic-") ? "duel-"+name.Substring(8) : name)+"-"+w;shotAt=EditorApplication.timeSinceStartup;});
     }
     private static void SetupPacing()
     {
@@ -78,6 +78,25 @@ namespace LastTurn.EditorValidation
       Add(()=>{Check(UiRoot.Instance.Root.Q<Label>("summary-stats").text.Contains("1 yol görevi"),"Koşu özetinde gerçek yol görevi sayısı");Check(UiRoot.Instance.Root.Q<Label>("summary-notice").text=="","Pert özetinde eski görev mesajı yok");});Shots("pacing-summary",1280,1920);
       Add(()=>Check(proof.errors.Count==0,"Dolaşım çalışma anı hata yok"));
     }
+    private static void CheckDuel()
+    {
+      var player=P.SourceVehicle.Scene;
+      var rival=P.OpponentVisual.GetComponent<SourceVehicleView>().Scene;
+      Check(player.TailLamp && rival.TailLamp && player.TailLamp!=rival.TailLamp,"Her araç kendi stop lambasını kullanır");
+      Check(player.Glass.Any(m=>m.IsKeywordEnabled("VEHICLE_FINISH")) &&
+            !ShaderUtil.ShaderHasError(player.Glass[0].shader),"Araç camı cila shaderı derlendi");
+      OpponentTrafficCar At(double x,double z,double y=0,double heading=0) =>
+        new OpponentTrafficCar(x,y,z,0,0,heading,1.8,4.4);
+      RivalSide Side(OpponentTrafficCar other,RivalSide last=RivalSide.Clear) =>
+        RaceSpotter.Read(At(0,0),other,last);
+      Check(Side(At(3,0))==RivalSide.Left && Side(At(-3,0))==RivalSide.Right,"Sürücünün iki yanındaki rakip ayırt edildi");
+      Check(Side(At(3,-7))==RivalSide.Clear && Side(At(3,-7),RivalSide.Left)==RivalSide.Left,"Kenar titreşimini önleyen giriş ve çıkış mesafeleri");
+      Check(Side(At(0,-3))==RivalSide.Clear && Side(At(3,0,4))==RivalSide.Clear &&
+            Side(At(3,0,0,Math.PI))==RivalSide.Clear,"Arkada, üst katta ve ters yönde uyarı kapalı");
+      P.StepRace(new DrivingInput(0,.8,0,true,true));
+      Check(P.Simulation.Engine.BrakeLights,"Gerçek fren girdisi stop sinyali verdi");
+    }
+
     private static void SetupTraffic()
     {
       string dir=Path.Combine(Project,"Logs/Traffic/"+Guid.NewGuid().ToString("N"));GarageSession.Open(Path.Combine(dir,"garage.json"),true);MutantRuntime.RecordDirectory=Path.Combine(dir,"mutant");GameFlow.MainMenu();
@@ -85,8 +104,23 @@ namespace LastTurn.EditorValidation
       Add(()=>MutantRuntime.Start(53));Wait(()=>MutantStartView.Instance&&MutantStartView.Instance.Visible);
       Add(()=>{MutantRuntime.SelectCar(MutantRuntime.Model.StartingCarsCards[0].Id);MutantRuntime.Choose(MutantRuntime.Run.State["secenekler"][0].S());});Wait(()=>P&&P.Simulation!=null&&!MutantRuntime.Blocked);
       Add(()=>MutantRuntime.StartRace(MutantRuntime.Model.Events.First(e=>e.Type=="gp").Id,0));Wait(()=>P&&P.Race!=null&&P.Race.Event.Type=="gp"&&P.Opponent!=null);
+      if (Environment.GetCommandLineArgs().Contains("-duelProof"))
+      {
+        Add(()=>{P.ManualStepping=true; P.Race.Session.TickCountdown(4);});
+        Add(()=>Check(UiRoot.Instance.Hud.Q<Label>("rival-left").resolvedStyle.display!=DisplayStyle.None &&
+                      UiRoot.Instance.Hud.Q<Label>("rival-right").resolvedStyle.display==DisplayStyle.None,"Gerçek startta sol rakip uyarısı görünüyor"));
+        Shots("duel-grid",1280);
+      }
       Add(()=>{P.Race.Session.TickCountdown(4);driver=RaceTestDriver.For("gp");OpponentTrafficCar before=default;for(int i=0;i<120;i++){before=OpponentTrafficCar.Read(P.Simulation);P.StepRace(driver.Input(P.Race));}var cached=(OpponentTrafficCar)snapshot.GetValue(P);Check(cached.X==before.X&&cached.Z==before.Z&&cached.Vx==before.Vx&&cached.Vz==before.Vz,"Gerçek yarış bağı aynı adımın başlangıç oyuncu pozunu taşır");Check(P.Opponent.Pilot.Traffic.State!="serbest","MUTANT rakibi yakın trafik kararına girdi");});Shots("traffic-mutant",1280,1920);
       Add(()=>{bool passed=false;for(int i=0;i<720&&!passed;i++){var command=driver.Input(P.Race);double speed=P.Simulation.Body.Velocity.Length;P.StepRace(new DrivingInput(speed<12?Math.Min(command.Throttle,.4):0,speed>13?.3:command.Brake,command.Steering,true,true));var a=OpponentTrafficCar.Read(P.Simulation);var b=OpponentTrafficCar.Read(P.Opponent.Vehicle);passed=(b.X-a.X)*Math.Sin(a.Heading)+(b.Z-a.Z)*Math.Cos(a.Heading)>3;}Check(passed,"Gerçek MUTANT yarışında yavaş oyuncuyu doğal fizikle geçti");Check(P.Opponent.Returns==0&&P.Race.Teleports==0,"Geçişte iki araçta da otomatik konum dönüşü yok");});Shots("traffic-overtake",1280,1920);
+      if (Environment.GetCommandLineArgs().Contains("-duelProof"))
+      {
+        Add(CheckDuel);
+        Add(()=>Check(P.SourceVehicle.Scene.TailLamp.color.r>.9f,"Fren stop rengi gerçek araçta uygulandı"));
+        Shots("duel-brake",1280);
+        Add(()=>P.StepRace(new DrivingInput(.6,0,0,true,true)));
+        Add(()=>Check(!P.Simulation.Engine.BrakeLights && P.SourceVehicle.Scene.TailLamp.color.r<.6f,"Fren bırakıldığında normal stop rengi geri geldi"));
+      }
       Add(()=>{GameFlow.Pause(true);double time=P.Opponent.Time;for(int i=0;i<30;i++)P.StepRace(new DrivingInput(1,0,0));Check(P.Opponent.Time==time,"Duraklatmada trafik ve rakip ilerlemez");GameFlow.Pause(false);P.RestartRace();Check(P.Opponent.Pilot.Traffic.Offset==0&&P.Opponent.Pilot.Traffic.SideChanges==0&&snapshot.GetValue(P)==null,"Tekrarda yan seçimi ve oyuncu anlık görüntüsü sıfır");});
       Add(()=>MutantRuntime.Exit());Wait(()=>UnityEngine.SceneManagement.SceneManager.GetActiveScene().name=="Garage");
       Add(()=>{MutantRuntime.RecordDirectory=Path.Combine(dir,"drag");MutantRuntime.Start(53);});Wait(()=>MutantStartView.Instance&&MutantStartView.Instance.Visible);
@@ -159,7 +193,7 @@ namespace LastTurn.EditorValidation
       if(keyboard!=null&&keyboard.added)InputSystem.RemoveDevice(keyboard);
       if(gamepad!=null&&gamepad.added)InputSystem.RemoveDevice(gamepad);
       proof.sources=Directory.GetFiles(Path.Combine(Application.dataPath,"LastTurn"),"*",SearchOption.AllDirectories).Where(f=>new[]{".cs",".uss",".json",".jpg"}.Contains(Path.GetExtension(f))).OrderBy(f=>f,StringComparer.Ordinal).Select(f=>{using(var h=SHA256.Create())return new Source{path=f.Substring(Project.Length+1).Replace('\\','/'),hash=BitConverter.ToString(h.ComputeHash(File.ReadAllBytes(f))).Replace("-","")};}).ToArray();
-      File.WriteAllText(Path.Combine(Project,traffic?"Logs/traffic-play.json":pacing?"Logs/pacing-play.json":"Logs/engagement-play.json"),JsonUtility.ToJson(proof,true));if(error!=null)Debug.LogException(error);EditorApplication.Exit(error==null?0:1);
+      File.WriteAllText(Path.Combine(Project,Environment.GetCommandLineArgs().Contains("-duelProof")?"Logs/duel-play.json":traffic?"Logs/traffic-play.json":pacing?"Logs/pacing-play.json":"Logs/engagement-play.json"),JsonUtility.ToJson(proof,true));if(error!=null)Debug.LogException(error);EditorApplication.Exit(error==null?0:1);
     }
   }
 }
