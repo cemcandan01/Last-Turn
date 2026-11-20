@@ -1,31 +1,20 @@
 ---
 name: surum-yayinla
-description: Last Turn konu sohbetinde yapılan işi gönderir. Kendi işinin kapsamındaki testleri (tip, ESLint, biçim, alan) koşar, Türkçe commit atar ve işi kendiliğinden deneme sürümüne (gelistirme, /dev/) birleştirip yama numarasını artırır (0.1.4 → 0.1.5); kullanıcı "bekle" / "denemeye gönderme" dediyse iş kendi dalında kalır ve "push" deyince gider. Regresyon açıksa (sürüm dondurulmuşsa) bekletir. Canlıya (master) konu sohbetinden gönderilmez; yalnız kullanıcının açıkça istediği acil düzeltme istisnadır. Her geliştirme bitince ve kullanıcı "push", "gönder", "denemeye gönder" dediğinde kullan.
+description: Last Turn'de biten işi konu dalından gönderir. Kapsamdaki kontrolleri koşar, Türkçe commit atar; Cem "gönder", "denemeye gönder", "push" dediğinde gelistirme dalına birleştirir. Cem bekle dediyse iş kendi dalında kalır.
 ---
 
 # Konu dalından gönder
 
-Akış (`docs/SUREC.md`): konu dalı → testler geçince **kendiliğinden** `gelistirme` (deneme, https://cemcandan01.github.io/Last-Turn/dev/) → gece regresyonu → onay → `master` (canlı). Konu sohbeti yalnız kendi dalına ve `gelistirme`'ye yazar.
+Akış (`AGENTS.md` → "Dallar ve yayın", ayrıntı `docs/SUREC.md`): konu dalı → ilgili kontroller → `gelistirme` (deneme) → regresyon → `master` (canlı). Konu dalları `master`a yazmaz; canlıya çıkış regresyon ve Cem'in onayı ister. Rebase ve force-push yok; başka ajanın dalına yazılmaz.
 
-1. `oyun-test` skill'ini uygula: tip denetimi, ESLint, biçim, `npm run alan -- <dal>` (konu dalı ve dokunulan dallar). Testler geçmeden gönderme.
-2. `docs/notlar/<dal>.md` dal notunu güncelle (en fazla 15 satır: son yapılanlar, kararlar ve nedeni, denenip bırakılanlar, kullanıcının tercihleri, açık işler; dosya yoksa oluştur). Yeni sohbet önceki sohbeti hatırlamaz, bağlamı buradan alır.
-3. `git status` ile istenmeyen dosya olmadığını kontrol et (`dist/`, `tests/cikti/`, `node_modules/` yok sayılır). Türkçe commit: kısa başlık, boş satır, değişiklikler madde madde. Konu dalına gönder: `git push -u origin <konu>`.
-4. **Bekletilen iş:** kullanıcı bu iş için "bekle", "denemeye gönderme" ya da "push etme" dediyse burada dur: `merkez` skill'iyle merkezi tazele ve yönetmene haber ver ("<dal>: iş hazır, senin push'unu bekliyor (<iş>)"), ne yapıldığını kısaca yaz ve "denemeye göndermem için 'push' de" diye bitir. Bekletilen iş bu sürüme girmez ama regresyonu da durdurmaz. Diğer bütün durumlarda (varsayılan) 5'e geç.
-5. **Denemeye gönder** (varsayılan; bekletilen iş için kullanıcının "push"u)
-   - **Dondurma var mı?** `git fetch origin && git ls-remote --exit-code --heads origin regresyon` ve varsa `git show origin/regresyon:docs/regresyon/durum.json`. Dal duruyor ve durum "tamamlandi" değilse bir sürüm regresyonda ya da canlı onayı bekliyor: `gelistirme`'ye gönderme. Kullanıcıya yaz ve bildir: "<dal>: iş hazır, 0.1 regresyonda olduğu için kendi dalında bekliyor; regresyon canlıya çıkınca 0.2'ye girer, o zaman 'push' de." (Kullanıcı ısrar ederse bunun regresyondaki sürüme gireceğini söyle ve regression sohbetiyle çakışmaması için sor.)
-   - Yoksa:
-     ```
-     git checkout gelistirme && git pull origin gelistirme && git merge --no-ff --no-edit <konu>
-     npm version patch --no-git-tag-version          # 0.1.4 → 0.1.5
-     npm run kontrol
-     git commit -am "Deneme 0.1.5: <konu> — <kısa özet>"
-     git push origin gelistirme
-     git checkout <konu> && git merge --no-edit gelistirme && git push origin <konu>
-     ```
-   - Çakışma: iki işi de koruyarak çöz, dokunulan diğer dalın senaryolarını da koş (`npm run alan -- <konu>,<diğer>`). Aynı satırı ters yönde değiştiren iki iş varsa kullanıcıya sor.
-   - Push reddedilirse (aynı anda başka bir sohbet de gönderdi): `git pull origin gelistirme`; `package.json` sürüm satırı çakışırsa ikisinin büyüğünün bir fazlasını yaz; `npm run kontrol`; tekrar gönder.
-6. GitHub Actions "Yayın" iş akışını izle (`mcp__github__actions_list`, ~3-5 dk): tip denetimi, ESLint, derleme → deneme sürümü yayını → yeni sürümün adreste göründüğü denetimi (tarayıcı dumanı yok). Kalırsa hatayı oku; kendi işinden geldiyse hemen düzelt ve tekrar gönder.
-7. Yayın bitince (yeni sürüm deneme adresinde görününce) `merkez` skill'iyle merkezi tazele ve yönetmene `mcp__claude-code-remote__send_message` (`@parent`; yerel SendMessage ulaşmaz) ile haber ver: "<dal>: <sürüm> denemede (<iş>)" + görsel ya da oynanış işiyse kanıt tarifi (hangi ekran, hangi `LT.*` ifadesi; ör. `--js "LT.startWorld(1)" --bekle 1500`). Yönetmenin açtığı sohbette kullanıcıya **hiçbir şey gönderme** (SendUserFile dahil; yönetmen kanıtı kendisi alır, telefon bildirimini de o gönderir). Yönetmen açmadıysa (kullanıcı doğrudan bu sohbetle yazışıyorsa) kullanıcıya kısa yaz: sürüm numarası (ör. 0.1.5), ne değişti, "telefonda deneme uygulamasından bakabilirsin; beğenmezsen söyle, düzeltip tekrar gönderirim, 'geri al' dersen geri alırım". Canlıya çıkışın gece regresyonundan sonra onayla olacağını hatırlat.
-   - **"Geri al":** `gelistirme`'deki o işin birleştirme commit'ini `git revert -m 1 <commit>` ile geri al (konu dalında aynısını yap ki tekrar gönderilmesin), yama +1, kontrol, gönder.
-8. **Acil düzeltme** (yalnız kullanıcı açıkça "canlıya acil düzeltme" / "hemen canlıya" derse): `docs/SUREC.md` → "Acil düzeltme" adımları. Başka hiçbir durumda konu sohbeti `master`'a yazmaz.
-9. Hiçbir dalda rebase ya da force-push yok; başka sohbetin konu dalına yazılmaz.
+1. **Kontroller:** `oyun-test` skill'ini işin kapsamına göre uygula. Geçmeden gönderme. Oynanış/görsel değişiklikte `denetci` ajanından diff denetimi iste.
+2. **Kayıt:** görev kartını (`docs/isler/`) ve ilgili `docs/notlar/<alan>.md`yi (en çok 15 satır) güncelle; `docs/DEVIR.md`ye yeni giriş en üste. Kartta sahip, dal, son SHA, test kapsamı + sonuç + kanıt, açık engel, tek sonraki adım olsun.
+3. **Commit:** `git status` ile yalnız bu işin dosyaları olduğunu doğrula. Başkasına ait kirli değişikliği commit'e alma. Türkçe commit: kısa başlık, boş satır, madde madde; sonuna ortamın verdiği yazar satırı.
+4. **Gönderme onayı:** push ve `gelistirme`ye birleştirme dışarıya dönük adımlardır; Cem istemeden yapma. "Bekle" / "denemeye gönderme" dediyse burada dur, işin hazır olduğunu söyle.
+5. **Denemeye gönder (Cem isteyince):**
+   - Regresyon dondurması var mı: `git ls-remote --exit-code --heads origin regresyon` ve `durum.json`; "tamamlandi" değilse iş kendi dalında bekler, Cem'e söyle.
+   - Yoksa konu dalını `gelistirme`ye `--no-ff` birleştir, çakışmayı iki işi de koruyarak çöz (ters yönde aynı satır varsa Cem'e sor), `git push origin gelistirme`. **Oyun değişikliğinde yama sürümü +1**; yalnız süreç/belge değişikliğinde sürüm artmaz.
+   - Unity'de özellik PR'ları `gelistirme`yi hedefler.
+6. **Doğrula:** yerel / push / CI / deneme adresi durumlarını ayrı ayrı doğrula ve ayrı raporla. CI kalırsa hatayı oku, kendi işinden geldiyse düzelt.
+7. **Geri alma:** `git revert -m 1 <birleştirme-commit'i>`; konu dalında aynısını yap.
+8. **Acil düzeltme:** yalnız Cem açıkça "canlıya acil düzeltme" derse (`docs/SUREC.md` → "Acil düzeltme").
