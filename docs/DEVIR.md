@@ -1,3 +1,9 @@
+# Araç başına görsel atölye (20 Kasım 2026)
+
+Garajın parça modifiyesi ekranındaki **Görsel Atölye** düğmesi spoiler, kaporta, çamurluk ve çıkartma önizlemesini açar. Seçimler araç bazında yerel kayda ve pistteki oyuncu modeline uygulanır. Kaynak `97b9ade`, dal `codex/unity-p7-garaj`, uygulayıcı Codex. [Aynı görev kartı](isler/2026-11-16-surukleyici-dongu.md) ve [Windows oyunu](../Unity/Builds/AtelierWindows-20261120/LastTurn.exe).
+
+Unity Play 15 kaynak modelde toplam 101 kontrolden geçti. Windows build sıfır hata ile tamamlandı. Claude abonelik erişimi kuruluş tarafından kapalı olduğu için bağımsız incelemesi tamamlanamadı. Bir sonraki kullanıcı denemesinde farklı gövde tiplerinde boya ve çıkartma yerleşiminin görünürlüğü değerlendirilebilir.
+
 # Dört araçlı pist yarışları (20 Kasım 2026)
 
 Asfalt ve rallikrosta üç fiziksel rakip, ortak araç teması, dört satırlı canlı sıralama ve geçiş bildirimi uygulandı. MUTANT asfalt ve rallikros düellolarında da mevcut rakiple temas işler. Sahip Codex, dal `codex/unity-p7-garaj`, oyun kaynağı `da55603`. [Aynı kart](isler/2026-11-16-surukleyici-dongu.md) ve [Windows denemesi](../Unity/Builds/CircuitWindows-20261120/LastTurn.exe).
