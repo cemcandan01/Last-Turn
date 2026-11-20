@@ -1,3 +1,9 @@
+# Dört araçlı pist yarışları (20 Kasım 2026)
+
+Asfalt ve rallikrosta üç fiziksel rakip, ortak araç teması, dört satırlı canlı sıralama ve geçiş bildirimi uygulandı. MUTANT asfalt ve rallikros düellolarında da mevcut rakiple temas işler. Sahip Codex, dal `codex/unity-p7-garaj`, oyun kaynağı `da55603`. [Aynı kart](isler/2026-11-16-surukleyici-dongu.md) ve [Windows denemesi](../Unity/Builds/CircuitWindows-20261120/LastTurn.exe).
+
+Gerçek grafik Play koşumunda gp_1 ve rx_1 tam yarışları dahil 19 kontrol ve dört görüntü alındı. Windows build sıfır hata ile tamamlandı. Üründe iki ayrı süreçte 25 + 15 kontrol geçti. Sonraki ölçüm kalabalık yarışlarda farklı güçteki araçların uzun yarış temposu ve dar viraj temas sıklığıdır.
+
 # Yakın düello görünürlüğü (20 Kasım 2026)
 
 `codex/unity-p7-garaj` dalında `e4adafb` oyuncunun yanındaki rakibin tarafını gösterir. Kaporta ve cam sahne ışığına ve bakış yönüne tepki verir. Oyuncu ve rakibin stop lambaları kendi servis frenine bağlıdır. Grafik Play sürüşünde 19 kontrol ve sekiz görüntü kaydedildi. [Görev kartı](isler/2026-11-16-surukleyici-dongu.md) ve [Windows denemesi](../Unity/Builds/DuelWindows-20261120/LastTurn.exe).
