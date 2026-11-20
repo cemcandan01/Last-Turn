@@ -1,3 +1,9 @@
+# Eleme yarışı, MUTANT ikilileri ve çıkartma katmanları (20 Kasım 2026)
+
+Asfalt ve rallikros yarış hazırlığından **Eleme · 3 Tur** seçilebilir. MUTANT ödül kartları üç ikilinin eşini ve sürüşte nasıl tetikleneceğini gösterir. Garaj → Parça Modifiyesi → Görsel Atölye ekranında araç başına üç çıkartma katmanı düzenlenebilir. Uygulayıcı Codex, oyun kaynağı `53628e0`. [Windows oyunu](../Unity/Builds/ElemeWindows-20261120/LastTurn.exe) ve [ölçümler ile görev kartı](isler/2026-11-16-surukleyici-dongu.md).
+
+Unity Play'de 26 oyun akışı ve 20 boss karşılaştırma kontrolü geçti. Windows paketinde ayrı süreçlerde 25 kayıt yazma ve 15 yeniden yükleme kontrolü geçti. Aynı otomatik pilotla dört boss süresi 212,08–212,13 saniyeydi. Viraj Çıkışı ikilisinin etkisi ayrı fizik sürüşünde ölçüldü. Oyuncu sürüşüne dayalı denge değerlendirmesi açık.
+
 # Araç başına görsel atölye (20 Kasım 2026)
 
 Garajın parça modifiyesi ekranındaki **Görsel Atölye** düğmesi spoiler, kaporta, çamurluk ve çıkartma önizlemesini açar. Seçimler araç bazında yerel kayda ve pistteki oyuncu modeline uygulanır. Kaynak `97b9ade`, dal `codex/unity-p7-garaj`, uygulayıcı Codex. [Aynı görev kartı](isler/2026-11-16-surukleyici-dongu.md) ve [Windows oyunu](../Unity/Builds/AtelierWindows-20261120/LastTurn.exe).
