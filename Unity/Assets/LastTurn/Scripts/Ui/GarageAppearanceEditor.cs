@@ -1,5 +1,6 @@
 using System;
 using LastTurn.Core;
+using LastTurn.Garage;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -8,7 +9,7 @@ namespace LastTurn.Ui
   internal static class GarageAppearanceEditor
   {
     private static readonly string[] Wings={"Fabrika","Dudak","Sokak","Pist"};
-    private static readonly string[] Graphics={"Yok","İkiz şerit","Kıvılcım","Dama"};
+    private static readonly string[] Graphics={"Yok","İkiz şerit","Kıvılcım","Dama","İmza","Zafer","Efsane"};
     private static readonly string[] Layers={"Kaporta","Çamurluk","Ana desen","Seçili katman"};
     private static readonly string[] Palette={"E8E5DC","252C34","C62835","F16930","E6BA47","209C8B","2863BF","854AC4"};
 
@@ -17,7 +18,7 @@ namespace LastTurn.Ui
     {
       var layout=new VisualElement();layout.AddToClassList("style-layout");container.Add(layout);
       var stage=new VisualElement();stage.AddToClassList("style-stage");layout.Add(stage);
-      stage.Add(Ui.Text(name,"style-title"));stage.Add(preview.Image);
+      stage.Add(Ui.Text(name,"style-title"));stage.Add(Ui.Text("Canlı önizleme · Fareyle aracı döndür","g-copy"));stage.Add(preview.Image);
       var turn=new VisualElement();turn.AddToClassList("style-row");stage.Add(turn);
       Button ActionButton(VisualElement parent,string text,Action click,string id="")
       {
@@ -25,8 +26,19 @@ namespace LastTurn.Ui
       }
       ActionButton(turn,"◀  DÖNDÜR",()=>preview.RotateBy(-35));ActionButton(turn,"DÖNDÜR  ▶",()=>preview.RotateBy(35));
       var tools=new VisualElement();tools.AddToClassList("style-menu");layout.Add(tools);
-      var menu=new ScrollView(ScrollViewMode.Vertical);menu.style.flexGrow=1;menu.style.minHeight=0;tools.Add(menu);
-      menu.Add(Ui.Text("GÖRSEL ATÖLYE","style-title"));
+      tools.Add(Ui.Text("GÖRSEL MODİFİYE","style-title"));
+      var navigation=new VisualElement();navigation.AddToClassList("style-row");tools.Add(navigation);
+      var panels=new ScrollView[3];var tabs=new Button[3];
+      for(int i=0;i<3;i++){panels[i]=new ScrollView(ScrollViewMode.Vertical);panels[i].style.flexGrow=1;panels[i].style.minHeight=0;tools.Add(panels[i]);}
+      for(int i=0;i<3;i++){
+        int section=i;tabs[i]=new Button(()=>{
+          for(int j=0;j<3;j++){Ui.Show(panels[j],j==section);tabs[j].EnableInClassList("style-selected",j==section);}
+          if(section==2)preview.ShowRearQuarter();else preview.ShowFrontQuarter();
+        }){text=new[]{"BOYA","ÇIKARTMA","SPOILER"}[i],name="style-section-"+i};
+        tabs[i].AddToClassList("style-button");tabs[i].style.flexGrow=1;navigation.Add(tabs[i]);Ui.Show(panels[i],i==0);
+      }
+      tabs[0].AddToClassList("style-selected");
+      VisualElement menu=panels[2];
       Action refresh=()=>{};
       void Changed(){previewStyle(style);refresh();}
       VisualElement Row(string heading)
@@ -40,9 +52,14 @@ namespace LastTurn.Ui
         return result;
       }
       var wings=Choices("SPOILER",Wings,i=>{style.Wing=i;Changed();},"wing-");
+      menu=panels[1];
       var graphics=Choices("ANA DESEN",Graphics,i=>{style.Graphic=i;Changed();},"graphic-");
+      for(int i=4;i<graphics.Length;i++){
+        var goal=CareerMilestones.Read(GarageSession.State)[i-4];
+        graphics[i].SetEnabled(goal.Unlocked);graphics[i].tooltip=goal.Name+" · "+goal.Progress+" / "+goal.Target;
+      }
       int layer=0,slot=0;
-      var extra=new Foldout{text="Çıkartma katmanları",value=false,name="decal-foldout"};menu.Add(extra);
+      var extra=new Foldout{text="Çıkartma katmanları",value=true,name="decal-foldout"};menu.Add(extra);
       var slots=new Button[3];var shapes=new Button[4];var surfaces=new Button[3];
       VisualElement Line(string title){
         extra.Add(Ui.Text(title,"style-caption"));var row=new VisualElement();row.AddToClassList("style-row");extra.Add(row);return row;
@@ -76,6 +93,7 @@ namespace LastTurn.Ui
       var degrees=Slider("Dönüş (°)","decal-angle",-180,180,(d,v)=>{d.Angle=v;return d;});
       var size=Slider("Boyut","decal-size",-4,6,(d,v)=>{d.Size=v;return d;});
       var number=Slider("Numara","decal-number",0,99,(d,v)=>{d.Number=v;return d;});number.showInputField=true;
+      menu=panels[0];
       var layers=Choices("BOYANACAK YÜZEY",Layers,i=>{layer=i;refresh();},"paint-layer-");
       int CurrentColor()=>layer==0?style.Paint:layer==1?style.Fender:layer==2?style.Ink:style.Layer(slot).Color;
       void Tint(int rgb){if(layer==0)style.Paint=rgb;else if(layer==1)style.Fender=rgb;else if(layer==2)style.Ink=rgb;else{var d=style.Layer(slot);d.Color=rgb;style.SetLayer(slot,d);}Changed();}
@@ -91,6 +109,7 @@ namespace LastTurn.Ui
       var applyHex=ActionButton(custom,"Rengi uygula",()=>{if(CarAppearance.TryColor(hexInput.value,out int color))Tint(color);});
       hexInput.RegisterValueChangedCallback(e=>applyHex.SetEnabled(CarAppearance.TryColor(e.newValue,out _)));
       ActionButton(custom,"Sıfırla",()=>Tint(0));
+      menu=panels[1];
       var fit=Row("ÇIKARTMA YERLEŞİMİ");var offset=new SliderInt("Konum",-2,2){name="style-position"};fit.Add(offset);
       var scale=new SliderInt("Boyut",-2,2){name="style-scale"};fit.Add(scale);fit.AddToClassList("style-sliders");
       offset.RegisterValueChangedCallback(e=>{style.Shift=e.newValue;Changed();});

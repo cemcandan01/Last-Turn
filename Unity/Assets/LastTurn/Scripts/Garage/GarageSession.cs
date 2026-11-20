@@ -73,7 +73,7 @@ namespace LastTurn.Garage
       if(!DriveActive || DriveSetup==null)return false;
       parameters=GarageDriveParameters.Create(Catalog,DriveSetup,terrain,RaceType);return true;
     }
-    public static void ReturnToGarage(){DriveActive=false;DriveSetup=null;LastTurn.Prototype.WorldData.Clear();SceneManager.LoadScene("Garage");}
+    public static void ReturnToGarage(){GarageTestSession.Clear();DriveActive=false;DriveSetup=null;LastTurn.Prototype.WorldData.Clear();SceneManager.LoadScene("Garage");}
   }
 
   public sealed class GarageDriveOverlay : MonoBehaviour

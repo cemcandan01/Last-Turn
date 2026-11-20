@@ -128,16 +128,20 @@ namespace LastTurn.Ui
       var lines = new List<string>();
       bool knockout=p.Field!=null && p.Field.Knockout;
       if(knockout)lines.Add(p.Field.Remaining==2?"Final · Çizgiyi ilk geç":p.Field.Remaining==4?"1. eleme · İlk üçe gir":"2. eleme · İlk ikiye gir");
-      else if (!WorldData.Championship && m.Objective != "") lines.Add(m.Objective);
+      else if (!GarageTestSession.Active && !WorldData.Championship && m.Objective != "") lines.Add(m.Objective);
       if (m.Drift != "" || m.X6 != "") lines.Add((m.Drift + "   " + m.X6).Trim());
       if (!string.IsNullOrEmpty(p.RaceMessage)) lines.Add(p.RaceMessage);
-      if (!knockout && !WorldData.Championship && !string.IsNullOrEmpty(p.RecordText)) lines.Add(p.RecordText);
+      if (!GarageTestSession.Active && !knockout && !WorldData.Championship && !string.IsNullOrEmpty(p.RecordText)) lines.Add(p.RecordText);
       // TS hud.ts: güneş dışında hava adı gösterilir (zemin daha kaygan)
       if (p.Conditions.Weather != "sun" || p.Conditions.Night) lines.Add(p.Conditions.Label);
       if(p.Field!=null && s.State==RaceState.Countdown)lines.Add("Doruk geç frenler · Ece boşluk bırakır · Bora fırsat kollar");
       if (p.Field == null && p.Opponent != null) lines.Add(p.OpponentText());
+      if(MutantRuntime.RacePlan?.Boss==true && MutantRuntime.Encounter!=null){
+        var encounter=MutantRuntime.Encounter;lines.Add(encounter.Phase+" · "+encounter.Left.ToString("0.0")+" sn");
+        if(s.Event.Type=="dp")lines.Add("Şov pencereleri "+MutantRuntime.ShowProgress.Windows+" / 2");
+      }
       info.text = string.Join("\n", lines);
-      big.text = m.Big; sub.text = WorldData.Championship?"Tur "+System.Math.Min(s.Event.Laps,s.Lap+1)+"/"+s.Event.Laps:knockout?"Tur "+System.Math.Min(3,s.Lap+1)+"/3":m.Sub;
+      big.text = m.Big; sub.text = GarageTestSession.Active?"Serbest deneme · Y ile A/B":WorldData.Championship?"Tur "+System.Math.Min(s.Event.Laps,s.Lap+1)+"/"+s.Event.Laps:knockout?"Tur "+System.Math.Min(3,s.Lap+1)+"/3":m.Sub;
       DrawSpeed();
       countdown.text = m.Countdown; note.text = p.Feedback.Current!=""?p.Feedback.Current:m.Note;note.EnableInClassList("vurgu",p.Feedback.Current!=""); back.text = m.Return; Ui.Show(wrong, m.WrongWay);
       // masaüstü ipucu: yalnız ilk saniyelerde

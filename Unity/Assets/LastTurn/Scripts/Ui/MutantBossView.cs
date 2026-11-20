@@ -52,7 +52,7 @@ namespace LastTurn.Ui
       if(!Visible){if(!OwnsBoss)shown="";else if(GameFlow.Paused&&!SettingsScreen.Open&&Time.frameCount!=SettingsScreen.ClosedFrame&&Keyboard.current!=null&&Keyboard.current.escapeKey.wasPressedThisFrame)GameFlow.Pause(false);return;}
       var m=MutantRuntime.Model;status.text="BÖLGE "+m.Region+"  ·  BOSS "+m.Timer+"  ·  GÖVDE "+m.Body.ToString("0")+"  ·  "+m.Money.ToString("0")+" PARA";
       where.text="BÖLGE "+m.Region+" / "+(m.CanLeaveBoss?"BOSS "+m.Timer:"SÜRE DOLDU");title.text=m.BossName;description.text=m.BossDescription;type.text="Tür: "+TypeName(m.BossType);
-      weakness.text=m.BossWeakness;abilities.text=string.Join("\n\n",m.BossAbilities);target.text="HEDEF: "+(m.BossDuel?"Boss'u geç":m.BossTarget.ToString("0.##")+(m.BossType=="dp"?" puan":" sn"));
+      weakness.text=m.BossWeakness;abilities.text=string.Join("\n\n",m.BossAbilities)+"\n\n"+BossEncounter.Description(m.BossId);target.text="HEDEF: "+(m.BossDuel?"Boss'u geç":m.BossTarget.ToString("0.##")+(m.BossType=="dp"?" puan":" sn"));
       bool changed=shown!=m.BossId||canBack!=m.CanLeaveBoss;
       if(changed){shown=m.BossId;canBack=m.CanLeaveBoss;emblem.style.backgroundImage=Resources.Load<Texture2D>("UI/MutantB/boss/"+m.BossId);emblem.tooltip=m.BossName;Details.scrollOffset=Vector2.zero;Ui.Show(back,canBack);hints.Clear();hints.Add(Ui.Hints(("←|→","Seç"),("Enter","Onayla"),("PgUp|PgDn","Ayrıntılar"),("Esc",canBack?"Geri":"Duraklat")));Sync(0,true);}
       go.SetEnabled(!m.Finished&&m.SelectedCar>=0);

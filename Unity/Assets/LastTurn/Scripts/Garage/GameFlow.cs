@@ -21,6 +21,7 @@ namespace LastTurn.Garage
     /// Sonuç ekranı "Sıradaki": garaja dönünce bu pistin hazırlığı açılır (MainMenuView tüketir).
     public static string NextRace {get;set;}="";
     private static CareerMenuModel cached;private static GarageState seen;
+    public static bool VisualWorkshopRequested {get;set;}
     private static bool preparationReturn;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void Reset(){Hub=MenuHub.Home;Home=true;Profile=false;Paused=false;GarageTab=0;LastRaceKey="gp_1";Message="";cached=null;seen=null;preparationReturn=false;}
@@ -46,6 +47,13 @@ namespace LastTurn.Garage
       var screen=UnityEngine.Object.FindFirstObjectByType<GarageScreen>();if(screen)screen.SelectTrack(key);
     }
     /// F MAĞAZA sekmesi: garaj ekranı satın alınabilir araçlar listesiyle açılır.
+    public static void OpenVisualWorkshop()
+    {
+      RaceMenu();Browse(1);
+      var screen=UnityEngine.Object.FindFirstObjectByType<GarageScreen>();
+      if(screen){screen.SelectShop(false);screen.ViewCar(GarageSession.State.SelectedCar);}
+      VisualWorkshopRequested=true;
+    }
     public static void OpenStore()
     {
       preparationReturn=false;

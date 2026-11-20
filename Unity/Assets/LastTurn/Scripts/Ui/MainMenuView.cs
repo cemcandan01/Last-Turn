@@ -65,6 +65,7 @@ namespace LastTurn.Ui
     }
 
     // ---------- ana menü ----------
+    private Label milestoneText;
     private void BuildHome()
     {
       home.Add(Ui.Shade(.6f, .85f));
@@ -97,6 +98,16 @@ namespace LastTurn.Ui
         t.AddManipulator(new Clickable(() => OpenHome(n))); t.RegisterCallback<PointerEnterEvent>(_ => FocusHome(n));
         homeTiles[i] = t; tiles.Add(t);
       }
+      var featurePanel=new VisualElement();Ui.Absolute(featurePanel,left:58,top:240);featurePanel.style.width=550;
+      var workshop=Ui.Button("GÖRSEL MODİFİYE","",GameFlow.OpenVisualWorkshop,true);
+      workshop.name="home-visual-workshop";workshop.style.marginTop=18;featurePanel.Add(workshop);
+      var milestone=new VisualElement();milestone.style.marginTop=20;
+      milestone.Add(Ui.Section("KARİYER HEDEFİN"));milestoneText=Ui.Text("","g-copy");milestone.Add(milestoneText);
+      var goalButton=Ui.Button("HEDEFE GİT","",()=>{
+        var key=CareerMilestones.NextEvent(GarageSession.State,GameFlow.Menu().Events);
+        if(key!="")GameFlow.OpenRace(key);else GameFlow.RaceMenu();
+      },small:true);goalButton.name="career-goal";milestone.Add(goalButton);featurePanel.Add(milestone);
+      home.Add(featurePanel);
       home.Add(tiles);
       status = Ui.Text("", "durum", "golge"); Ui.Absolute(status, left: 58, bottom: 30); status.style.maxWidth = 1000; home.Add(status);
       home.Add(Ui.Hints(("←|→", "Seç"), ("1|2|3|4", "Kısayol"), ("Enter", "Aç")));
@@ -229,6 +240,7 @@ namespace LastTurn.Ui
       // Sonuç ekranında "Sıradaki": yarış menüsünden o pistin hazırlığına geçilir.
       if (GameFlow.NextRace != "") { var next = GameFlow.NextRace; GameFlow.NextRace = ""; GameFlow.OpenRace(next); return; }
       CareerMenuModel m; try { m = GameFlow.Menu(); } catch (Exception e) { status.text = "Menü okunamadı: " + e.Message; return; }
+      var milestoneGoal=CareerMilestones.Next(GarageSession.State);milestoneText.text=milestoneGoal.Name+" · "+milestoneGoal.Progress+" / "+milestoneGoal.Target+"\nÖdül · "+milestoneGoal.Reward+(milestoneGoal.Unlocked?" · AÇILDI":"");
       foreach (var b in badges) b.Set(m);
       moneyLabel.text = m.Money.ToString("N0") + " para";
       string msg = GameFlow.Message != "" ? GameFlow.Message : GarageSession.Message ?? ""; status.text = msg; raceStatus.text = msg;

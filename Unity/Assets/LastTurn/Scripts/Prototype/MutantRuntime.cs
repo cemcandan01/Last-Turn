@@ -14,6 +14,8 @@ namespace LastTurn.Prototype
   {
     public static MutantRun Run {get;private set;}
     public static MutantGameSession Session {get;private set;}
+    public static BossEncounter Encounter {get;private set;}
+    public static BossShowProgress ShowProgress {get;private set;}=new BossShowProgress();
     public static MutantRacePlan RacePlan {get;private set;}
     /// P4: nitro/skill tuşları, enerji adımı, fizik girdisi ve HUD görünüm modeli (kural durumu Run.State'te).
     public static MutantAbilityDriver Abilities {get;private set;}
@@ -43,7 +45,7 @@ namespace LastTurn.Prototype
     public static MutantHudModel HudModel(double x,double z)=>MutantHudModel.Read(Run,Active?Model:null,Abilities,Session,x,z,InRace);
     private static BodyVector? returnPoint;private static double returnHeading;private static int refreshed;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void Reset(){Run=null;Session=null;RacePlan=null;Abilities=null;OpponentLink=null;Car=-1;Panel="";Message="";ResultPassed=null;returnPoint=null;refreshed=0;RecordDirectory="";Starting=false;rewards=null;HudFeedback=new MutantHudFeedback();}
+    private static void Reset(){Run=null;Session=null;RacePlan=null;Encounter=null;ShowProgress=new BossShowProgress();Abilities=null;OpponentLink=null;Car=-1;Panel="";Message="";ResultPassed=null;returnPoint=null;refreshed=0;RecordDirectory="";Starting=false;rewards=null;HudFeedback=new MutantHudFeedback();}
     public static void Start(uint seed,bool test=false)
     {
       GarageSession.EnsureLoaded();var asset=Resources.Load<TextAsset>("mutant-catalog");
@@ -108,9 +110,14 @@ namespace LastTurn.Prototype
       vehicle.Reconfigure(Session.BuildPhysics());refreshed=Session.VehicleRefreshes;
     }
     private static double Heading(VehicleState body){var f=body.Orientation.Rotate(new BodyVector(0,0,1));return Math.Atan2(f.X,f.Z);}
-    public static bool AfterPhysics(PowertrainVehicle vehicle,IVehicleWorld world,bool raceStarted=true,OpponentRacer opponent=null)
+    public static bool AfterPhysics(PowertrainVehicle vehicle,IVehicleWorld world,bool raceStarted=true,OpponentRacer opponent=null,double raceTime=0,double bankedScore=0)
     {
       if(!Active||Session==null)return true;
+      if(RacePlan?.Boss==true && raceStarted){
+        Encounter=BossEncounter.Read(Run.State["boss"]["id"].S(),raceTime);
+        if(opponent!=null)opponent.Pilot.Style=Encounter.Style;
+        if(RacePlan.Event.Type=="dp")ShowProgress.Observe(raceTime,bankedScore);
+      }
       var p=vehicle.ReferencePoint;var drift=RaceDrift.Detect(vehicle.Body,vehicle.Assist.On);
       var near=world is IVehicleCollisionWorld collision?collision.Near(p.X,p.Z,vehicle.Body.Position.Y).ToArray():Array.Empty<WorldObstacle>();
       var obstacles=near.Where(o=>o.Type=="solid"||o.Type=="box").Select(o=>new MutantRoadObstacle("e:"+o.X.ToString("F1",CultureInfo.InvariantCulture)+","+o.Z.ToString("F1",CultureInfo.InvariantCulture),o.X,o.Z,o.Type=="box"?JsMath.Hypot(o.HalfX,o.HalfZ):o.Radius)).ToArray();
@@ -141,6 +148,7 @@ namespace LastTurn.Prototype
       HudFeedback.Observe(Run,Abilities);if(hudNote!="")HudFeedback.Note(hudNote);
       Refresh(vehicle);return !Blocked;
     }
+    public static void ResetEncounter(){Encounter=null;ShowProgress=new BossShowProgress();}
     public static void OpenRoutes(){if(Active && !Blocked && !InRace)Panel="route";}
     public static bool ChooseRoute(int risk){if(Panel!="route" || !MutantRoute.Choose(Run,risk))return false;ClosePanel();return true;}
     public static void ClosePanel(){Panel="";Message="";}
@@ -160,6 +168,7 @@ namespace LastTurn.Prototype
     public static void StartRace(int eventId,int risk,bool boss=false,bool keepReturn=false)
     {
       var p=UnityEngine.Object.FindFirstObjectByType<GtPrototype>();if(p&&!keepReturn){returnPoint=p.Simulation.ReferencePoint;var f=p.Simulation.Body.Orientation.Rotate(new BodyVector(0,0,1));returnHeading=Math.Atan2(f.X,f.Z);}
+      Encounter=null;ShowProgress=new BossShowProgress();
       var data=RaceData.Load();RacePlan=MutantRacePlan.Create(Run,Car,eventId,risk,boss,data.Events,data.Tracks,WorldData.Catalog);
       if(boss){Run.EnterBoss();Session.ClearPendingBoss();}else Run.LockDeposit(eventId);
       Panel="";Message="";ResultPassed=null;GameFlow.Pause(false);WorldData.Clear();SceneManager.LoadScene("RaceTest");
@@ -167,6 +176,7 @@ namespace LastTurn.Prototype
     public static void Finished(RaceRun race,OpponentRacer opponent)
     {
       bool passed=RacePlan.Passed(race.Session,opponent);
+      if(RacePlan.Boss && RacePlan.Event.Type=="dp")passed=passed && ShowProgress.Windows>=2;
       ResultPassed=passed;
       if(RacePlan.Boss)
       {

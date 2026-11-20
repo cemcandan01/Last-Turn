@@ -28,7 +28,8 @@ namespace LastTurn.Ui
     private CarAppearance draftStyle;
     public void OpenStyling()
     {
-      if(!Modifying)return;
+      if(ViewedCar<0 || !GarageSession.State.OwnsCar(ViewedCar))return;
+      legacy.SelectTab(1);Modifying=true;
       styling=true;preview.ShowRearQuarter();confirm="";draftStyle=GarageSession.State.Appearance(ViewedCar);Rebuild();
     }
     private void CloseStyling()
@@ -59,6 +60,7 @@ namespace LastTurn.Ui
       bool mods=legacy.SelectedTab==1;
       if(changed||seen!=GarageSession.State||ViewedCar!=legacy.ViewedCar||mods!=Modifying)
       {if(!mods||ViewedCar!=legacy.ViewedCar)styling=false;ViewedCar=legacy.ViewedCar;Modifying=mods;seen=GarageSession.State;Rebuild();}
+      if(GameFlow.VisualWorkshopRequested){GameFlow.VisualWorkshopRequested=false;OpenStyling();}
       if(confirm!=""&&Time.unscaledTimeAsDouble>confirmUntil){confirm="";Rebuild();}
       money.text="SEVİYE "+seen.Level+"   •   "+seen.Balance.ToString("N0")+" para";
       message.text=confirm!=""?"Satın almak için aynı işlemi tekrar onayla. Esc: vazgeç.":GarageSession.Message;
@@ -124,6 +126,11 @@ namespace LastTurn.Ui
       }
       else if(Modifying)BuildMods(cats);else BuildGarage();
     }
+    private void TestSetup()
+    {
+      var chosen=parts.FirstOrDefault(p=>p.Id==part);
+      GarageTestSession.Start(ViewedCar,Modifying?part:"",Modifying && chosen!=null && chosen.Equipped);
+    }
     private void BuildGarage()
     {
       var left=Box();left.AddToClassList("g-left");left.Add(Ui.Section("SAHİP OLUNAN ARAÇ"));left.Add(Ui.Text(Ui.Upper(Detail.Name),"baslik","g-name"));
@@ -135,7 +142,7 @@ namespace LastTurn.Ui
       var center=new VisualElement{pickingMode=PickingMode.Ignore};center.AddToClassList("g-preview");content.Add(center);
       if(preview.SourceGarage){preview.SetFullScreen(true);page.Insert(0,preview.Image);}else center.Add(preview.Image);preview.Build(Detail,ViewedCar);
       var right=Box();right.AddToClassList("g-right");right.Add(Ui.Section("ÖZELLİKLER"));Stats(right,false);content.Add(right);
-      var actions=Box("g-actions");AddButton(actions,"MODİFİYE","M",()=>Open(true));AddButton(actions,cars.First(c=>c.Index==ViewedCar).Selected?"YARIŞ SEÇ":"ARACI SEÇ","Enter",SelectOrRace,!GarageSession.Store.ReadOnly,true);content.Add(actions);
+      var actions=Box("g-actions");AddButton(actions,"PARÇA MODİFİYESİ","M",()=>Open(true));var visual=Ui.Button("GÖRSEL MODİFİYE","",OpenStyling,true);visual.name="garage-visual-workshop";actions.Add(visual);AddButton(actions,cars.First(c=>c.Index==ViewedCar).Selected?"YARIŞ SEÇ":"ARACI SEÇ","Enter",SelectOrRace,!GarageSession.Store.ReadOnly,true);var test=Ui.Button("TEST ALANI","",TestSetup,small:true);test.name="garage-test-start";actions.Add(test);content.Add(actions);
       var row=new ScrollView(ScrollViewMode.Horizontal);row.AddToClassList("g-cars");row.horizontalScrollerVisibility=ScrollerVisibility.Auto;row.verticalScrollerVisibility=ScrollerVisibility.Hidden;
       foreach(var car in cars.Where(c=>c.Owned))
       {var card=Box("kart");card.name="car-"+car.Index;card.AddToClassList("g-car");card.EnableInClassList("sec",car.Index==ViewedCar);card.Add(Ui.Text(car.Selected?"SÜRÜŞ İÇİN SEÇİLİ":"GARAJ","ust"));card.Add(Ui.Text(car.Name,"ad"));int id=car.Index;card.AddManipulator(new Clickable(()=>ViewCar(id)));row.Add(card);if(car.Index==ViewedCar)row.schedule.Execute(()=>row.ScrollTo(card));}
@@ -145,7 +152,7 @@ namespace LastTurn.Ui
     private void BuildMods((string Id,string Label)[] cats)
     {
       var columns=Box("g-mods");var categories=Vertical();categories.AddToClassList("g-categories");categories.Add(Ui.Section("KATEGORİ"));
-      var appearance=Ui.Button("GÖRSEL ATÖLYE","",OpenStyling,true);appearance.name="open-styling";categories.Add(appearance);
+      var appearance=Ui.Button("GÖRSEL ATÖLYE","",OpenStyling,true);appearance.name="open-styling";categories.Add(appearance);var test=Ui.Button("PARÇAYI PİSTTE DENE","",TestSetup,small:true);test.name="garage-test-part";categories.Add(test);
       for(int i=0;i<cats.Length;i++){int n=i;var b=Ui.Tab(Ui.Upper(cats[i].Label),()=>SelectCategory(n));b.EnableInClassList("sec",i==category);categories.Add(b);}columns.Add(categories);
       var middle=Vertical();middle.AddToClassList("g-parts");middle.Add(Ui.Section("MODİFİYE  /  "+Ui.Upper(Detail.Name)));
       var packages=Box("g-packages");foreach(var p in GarageViewModel.Packages(GarageSession.State,ViewedCar))AddButton(packages,p.Name+" · "+(p.Owned?"Tak":p.Cost.ToString("N0")),"",()=>Execute(p.Command),p.Enabled&&!GarageSession.Store.ReadOnly);middle.Add(packages);

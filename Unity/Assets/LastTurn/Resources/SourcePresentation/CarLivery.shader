@@ -103,6 +103,9 @@ Shader "LastTurn/CarLivery"
                 float cells=fmod(floor((z+2)*5)+floor((y+1)*5),2);
                 decal=insideBand(z,.85)*insideBand(y,.20)*cells*outer;
             }
+            if(_Pattern==4)decal=insideBand(abs(p.x-_Fit.y)-.23*_Fit.z,.045*_Fit.z)*step(.35,p.y)+insideBand(y+.17*z,.045)*outer;
+            if(_Pattern==5)decal=insideBand(y,.28)*insideBand(z,1.35)*step(.5,fmod(floor((z+2)*8)+floor((y+1)*8),2))*outer;
+            if(_Pattern==6){float bolt=y-.22*z-.09*sin(z*8);decal=insideBand(bolt,.06)*insideBand(z,1.6)*outer+insideBand(abs(p.x-_Fit.y)-.32*_Fit.z,.045*_Fit.z)*step(.35,p.y);}
             float3 pigment=lerp(base,_Ink.rgb,saturate(decal));
             float edge=abs(p.x)/_Wheels.w;
             pigment=lerp(pigment,_Tint0.rgb,layerMask(p,_Layer0,_Pose0,_Size0,edge));

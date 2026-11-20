@@ -26,7 +26,7 @@ namespace LastTurn.Core
     public CarAppearance Appearance(int car)=>appearances.TryGetValue(car,out var style)?style:default;
     public bool SetAppearance(int car,CarAppearance style)
     {
-      if(!OwnsCar(car)||!style.Valid)return false;
+      if(!OwnsCar(car)||!style.Valid || !CareerMilestones.CanUse(this,style.Graphic))return false;
       if(style.IsStock)appearances.Remove(car);else appearances[car]=style;
       return true;
     }

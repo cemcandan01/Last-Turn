@@ -27,11 +27,16 @@ namespace LastTurn.Garage
         d.Parameters = GarageDriveParameters.Create(GarageSession.Catalog, d.Setup, false, info.Type);
         // Drag'e özel manuel vites ve kalkış (Cem kararı); diğer türlerde otomatik.
         d.Parameters.ManualGearbox = info.Type == "dg";
-        if(LastTurn.Prototype.WorldData.OpponentTest)d.Parameters.ManualGearbox=false;
+        if(GarageTestSession.Active || LastTurn.Prototype.WorldData.OpponentTest)d.Parameters.ManualGearbox=false;
         bool open = state.TrackOpen(info.Type, info.Level);
         d.Career = open && GarageSession.Catalog.CareerEligible(info.Type, info.Level, car, state.Equipped(car));
         d.Message = !open ? "Pist kilitli: ödülsüz deneme." : d.Career ? "Kariyer yarışı: ödül garaja işlenir." : "Deneme: araç bu yarışın puan bütçesini aşıyor, ödül yok.";
-        if(LastTurn.Prototype.WorldData.OpponentTest){d.Career=false;d.Message="Kaynak YZ doğrulama yarışı; kariyer/rekor/ödül değişmez.";}
+        if(GarageTestSession.Active || LastTurn.Prototype.WorldData.OpponentTest){d.Career=false;d.Message="Kaynak YZ doğrulama yarışı; kariyer/rekor/ödül değişmez.";}
+        if(GarageTestSession.Active){
+          d.Car=GarageTestSession.Car;d.Setup=GarageTestSession.Setup;
+          d.Parameters=GarageDriveParameters.Create(GarageSession.Catalog,d.Setup,false,"gp");d.Career=false;
+          d.Message="Kurulum test alanı · Y ile A/B değiştir";
+        }
         if (GarageSession.Store.ReadOnly) d.Message += " Kayıt salt okunur: ödül yazılamaz.";
       }
       catch (Exception e) { d.Parameters = null; d.Setup = null; d.Career = false; d.Message = "Garaj açılamadı; GT test aracı, ödülsüz. " + e.Message; }
@@ -52,7 +57,7 @@ namespace LastTurn.Garage
     /// TS startEvent: seçili aracın kullanım sayacı.
     public static void Started(int car)
     {
-      if(LastTurn.Prototype.WorldData.OpponentTest || (LastTurn.Prototype.WorldData.Knockout || LastTurn.Prototype.WorldData.Championship))return;
+      if(GarageTestSession.Active || LastTurn.Prototype.WorldData.OpponentTest || (LastTurn.Prototype.WorldData.Knockout || LastTurn.Prototype.WorldData.Championship))return;
       if (GarageSession.Store == null || GarageSession.Store.ReadOnly) return;
       try { var store = ProfileStore(); var p = store.Load(); p.Started(car); store.Save(p); }
       catch (IOException e) { LastMessage = "Yarış profili yazılamadı: " + e.Message; }
@@ -62,7 +67,7 @@ namespace LastTurn.Garage
     public static void Finished(RaceRun run, Drive drive)
     {
       LastPreviousBest = double.NaN; LastNewRecord = false; LastGhostSaved = false; LastMessage = "";
-      if(LastTurn.Prototype.WorldData.OpponentTest || (LastTurn.Prototype.WorldData.Knockout || LastTurn.Prototype.WorldData.Championship))return;
+      if(GarageTestSession.Active || LastTurn.Prototype.WorldData.OpponentTest || (LastTurn.Prototype.WorldData.Knockout || LastTurn.Prototype.WorldData.Championship))return;
       if (GarageSession.Store == null || GarageSession.Store.ReadOnly) { LastMessage = "Kayıt salt okunur: rekor yazılmadı."; return; }
       try
       {
@@ -87,7 +92,7 @@ namespace LastTurn.Garage
     // TS surusAdimi: yarış dışındaki yol ve yarıda bırakılan yarış da toplam yola dahildir.
     public static bool Distance(double km)
     {
-      if(LastTurn.Prototype.WorldData.OpponentTest)return true;
+      if(GarageTestSession.Active || LastTurn.Prototype.WorldData.OpponentTest)return true;
       if(double.IsNaN(km)||double.IsInfinity(km)||km<0)return false;if(km==0)return true;
       if(GarageSession.Store==null || GarageSession.Store.ReadOnly)return false;
       try { var store=ProfileStore();var p=store.Load();p.Drove(km*1000,0,1);store.Save(p);return true; }
@@ -97,7 +102,7 @@ namespace LastTurn.Garage
     /// Kayıtlı hayaleti kendi araç kurulumuyla oyuncudan ayrı fizikte oynat (yoksa null).
     public static GhostPlayer Ghost(RaceEventInfo info, TrackDefinition track, string recordKey, double currentGrip = 1)
     {
-      if(LastTurn.Prototype.WorldData.OpponentTest || (LastTurn.Prototype.WorldData.Knockout || LastTurn.Prototype.WorldData.Championship))return null;
+      if(GarageTestSession.Active || LastTurn.Prototype.WorldData.OpponentTest || (LastTurn.Prototype.WorldData.Knockout || LastTurn.Prototype.WorldData.Championship))return null;
       try
       {
         GarageSession.EnsureLoaded(); var g = ProfileStore().LoadGhost(recordKey);

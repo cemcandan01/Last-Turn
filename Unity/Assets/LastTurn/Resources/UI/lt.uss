@@ -979,3 +979,14 @@
 #decal-foldout .unity-toggle__text, .decal-slider .unity-base-field__label { color:rgb(248,231,205); }
 .decal-slider .unity-base-field__label { min-width:86px; width:86px; }
 .style-menu .unity-text-field__input { background-color: rgb(15,19,22); color: rgb(249,238,215); }
+
+
+.style-stage { border-top-width:3px; border-top-color:#f17b4d; background-color:#151e22; padding:22px; }
+.style-menu { width:44%; background-color:#20292b; padding:22px; }
+.style-title { -unity-font-definition:resource("UI/Fonts/BarlowCondensed-Bold"); font-size:36px; margin-bottom:8px; }
+.style-button { min-height:38px; padding:8px 14px; border-radius:0; font-size:17px; }
+.style-swatch { width:45px; height:40px; }
+.style-footer { justify-content:flex-end; padding-top:16px; }
+.style-commit { background-color:#f17b4d; color:#172126; min-width:130px; }
+.style-menu .unity-foldout__text { color:#e8e5dc; font-size:19px; }
+.style-menu .unity-base-slider { margin-top:8px; margin-bottom:8px; }

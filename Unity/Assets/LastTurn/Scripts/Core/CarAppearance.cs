@@ -31,7 +31,7 @@ namespace LastTurn.Core
     public void SetLayer(int index,DecalLayer value){if(index==0)Bottom=value;else if(index==1)Middle=value;else if(index==2)Top=value;}
     public bool IsStock => Equals(default(CarAppearance));
     public bool Valid => ColorValid(Paint) && ColorValid(Fender) && ColorValid(Ink) && Bottom.Valid && Middle.Valid && Top.Valid &&
-      Wing>=0 && Wing<=3 && Graphic>=0 && Graphic<=3 && Math.Abs((long)Shift)<=2 && Math.Abs((long)Scale)<=2;
+      Wing>=0 && Wing<=3 && Graphic>=0 && Graphic<=6 && Math.Abs((long)Shift)<=2 && Math.Abs((long)Scale)<=2;
     private static bool ColorValid(int value)=>value>=0 && value<=0x1000000;
     public static bool TryColor(string hex,out int value)
     {

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using LastTurn.Core;
+if (args.Contains("--workshop-career-boss")) { WorkshopCareerBossValidation.Run(); return; }
 if (args.Contains("--rival-style")) { RivalStyleValidation.Run(); return; }
 if (args.Contains("--handling-record")) { DrivingFeelValidation.Run(true); return; }
 if (args.Contains("--handling")) { DrivingFeelValidation.Run(); return; }

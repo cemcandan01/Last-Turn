@@ -53,6 +53,7 @@ namespace LastTurn.Ui
     public void SetVisible(bool value){visible=value;if(rig)rig.SetActive(value);}
     private LastTurn.Prototype.SourceVehicleView sourceModel;
     public void SetAppearance(CarAppearance style)=>LastTurn.Prototype.CarStyling.Show(sourceModel,style);
+    public void ShowFrontQuarter(){angle=35;}
     public void ShowRearQuarter(){angle=125;}
     public void RotateBy(float degrees){angle+=degrees;}
     public void Build(GarageCarDetail d,int id)

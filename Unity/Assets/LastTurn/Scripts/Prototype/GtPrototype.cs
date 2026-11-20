@@ -252,6 +252,7 @@ namespace LastTurn.Prototype
       foreach(var view in fieldViews){view.gameObject.SetActive(false);Destroy(view.gameObject);}
       fieldViews.Clear(); Field=null;
       playerTraffic=null;Opponent=null;if(opponentVisual){opponentVisual.gameObject.SetActive(false);Destroy(opponentVisual.gameObject);}
+      if(GarageTestSession.Active)return;
       if(MutantRuntime.Active)
       {
         var plan=MutantRuntime.RacePlan;if(plan==null||plan.Opponent==null)return;
@@ -375,6 +376,7 @@ namespace LastTurn.Prototype
       Feedback=new DrivingFeedback();feedbackSerial=0;
       FlushProfileDistance();observedRaceKm=0;
       var data = RaceData.Load();var mutant=MutantRuntime.Active?MutantRuntime.RacePlan:null;
+      if(mutant?.Boss==true)MutantRuntime.ResetEncounter();
       var info = mutant!=null?mutant.Event:data.Event(key); var track = mutant!=null?mutant.Track:data.Tracks.Tracks[info.Index];
       if(mutant==null && WorldData.Knockout)info=info.ThreeLapCopy();
       // Mutant planı sahnenin varsayılan gp_1 kimliğini de geçersiz kılar; görsel önbellek gerçek pistle eşleşir.
@@ -418,6 +420,7 @@ namespace LastTurn.Prototype
       // TS mutantYarisAyari → beceriYarisBasi: rakip gövdesi, takip kredisi ve near-miss kayıtları her yarış başında sıfırlanır.
       if(mutant!=null)MutantRuntime.Abilities?.RaceStart();
       CreateOpponent();
+      if(GarageTestSession.Active)Race.Session.TickCountdown(4);
       runner.SyncPrevious(); previousSteer = 0; followCamera.ResetFollow(); RenderFrame(0);
     }
     private void UpdateRace()
@@ -447,7 +450,7 @@ namespace LastTurn.Prototype
     private bool AfterRaceStep()
     {
       bool mutantContinue=true;
-      if(mutantDrive){mutantContinue=MutantRuntime.AfterPhysics(Simulation,world,true,Opponent);parameters=Simulation.Parameters;}
+      if(mutantDrive){mutantContinue=MutantRuntime.AfterPhysics(Simulation,world,true,Opponent,Race.Session.Time,Race.Session.Drift.Score);parameters=Simulation.Parameters;}
       if(Field!=null && Field.Drive()) Race.Recording.Cut=true;
       int teleports = Race.Teleports; Race.AfterPhysicsStep(lastQuantized);
       StepOpponent();
@@ -506,7 +509,7 @@ namespace LastTurn.Prototype
       if (Race.Session.State != RaceState.Running) return;
       int previousTeleports=Race.Teleports;
       CaptureOpponentTraffic();previousSteer = Simulation.Engine.SteeringAngle;
-      if(mutantDrive){var q=Race.Record(value);Simulation.Step(q);MutantRuntime.AfterPhysics(Simulation,world,true,Opponent);parameters=Simulation.Parameters;Race.AfterPhysicsStep(q);}
+      if(mutantDrive){var q=Race.Record(value);Simulation.Step(q);MutantRuntime.AfterPhysics(Simulation,world,true,Opponent,Race.Session.Time,Race.Session.Drift.Score);parameters=Simulation.Parameters;Race.AfterPhysicsStep(q);}
       else if(Field!=null)
       {
         var q=Race.Record(value); Simulation.Step(q);

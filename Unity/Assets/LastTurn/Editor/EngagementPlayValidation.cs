@@ -229,6 +229,79 @@ namespace LastTurn.EditorValidation
       using(var down=PointerDownEvent.GetPooled(new Event{type=EventType.MouseDown,button=0,mousePosition=point}))e.SendEvent(down);
       using(var up=PointerUpEvent.GetPooled(new Event{type=EventType.MouseUp,button=0,mousePosition=point}))e.SendEvent(up);
     }
+    private static void SetupWorkshopCareerBoss()
+    {
+      string path=Path.Combine(Project,"Logs/WorkshopPlus",Guid.NewGuid().ToString("N"),"garage.json");
+      GarageSession.Open(path,true);GameFlow.MainMenu();
+      Wait(()=>UnityEngine.Object.FindFirstObjectByType<MainMenuView>()?.Visible==true);
+      Shots("yeni-ana-menu",1280,1920);
+      Add(()=>Click("home-visual-workshop"));
+      Wait(()=>UiRoot.Instance.Root.Q("style-save")!=null);
+      Add(()=>{Check(UiRoot.Instance.Root.Q("style-section-0")!=null,"Ana menüden görsel modifiye doğrudan açıldı");Click("swatch-2863BF");});
+      Shots("yeni-atolye-boya",1280,1920);
+      Add(()=>Click("style-section-2"));Add(()=>Click("wing-2"));Shots("yeni-atolye-spoiler",1280);
+      Add(()=>Click("style-section-1"));Add(()=>Click("graphic-2"));Add(()=>Click("decal-shape-2"));
+      Shots("yeni-atolye-cikartma",1280);
+      Add(()=>Click("style-save"));
+      Add(()=>{
+        GarageSession.Open(path,true);
+        Check(GarageSession.State.Appearance(GarageSession.State.SelectedCar).Wing==2,"Atölye görünümü yeniden açıldı");
+        GameFlow.RaceMenu();GameFlow.Browse(0);
+      });
+      Wait(()=>GarageView.Instance && GarageView.Instance.Visible && !GarageView.Instance.Modifying);
+      Add(()=>Click("garage-test-start"));
+      Wait(()=>P && P.Race!=null && GarageTestSession.Active);
+      Add(()=>{Check(GarageTestSession.Active,"Garajdan serbest test açıldı");GameFlow.LeaveDrive(0);});
+      Wait(()=>UnityEngine.SceneManagement.SceneManager.GetActiveScene().name=="Garage");
+      Add(()=>GarageView.Instance.Open(true));
+      Wait(()=>GarageView.Instance.Modifying);
+      Add(()=>{
+        var categories=GarageViewModel.Categories(GarageSession.Catalog);
+        for(int c=0;c<categories.Length;c++){
+          GarageView.Instance.SelectCategory(c);
+          for(int i=0;i<40;i++){GarageView.Instance.SelectPart(i);if(GarageView.Instance.PreviewPart=="motor-yaris")return;}
+        }
+        throw new InvalidOperationException("Denenecek motor parçası bulunamadı");
+      });
+      Add(()=>Click("garage-test-part"));
+      Wait(()=>P && P.Race!=null && GarageTestSession.Active);
+      Add(()=>{P.ManualStepping=true;Check(P.Field==null && !P.Race.Session.Career,"A/B test alanı ödülsüz ve rakipsiz");});
+      Shots("parca-test-alani",1280);
+      Add(()=>Click("garage-test-toggle"));
+      Add(()=>Check(GarageTestSession.Preview && P.AppliedGarageCarId==GarageTestSession.After.Car["k"].S() && P.Parameters.PeakTorque==GarageDriveParameters.Create(GarageSession.Catalog,GarageTestSession.After,false,"gp").PeakTorque && GarageTestSession.AfterResult.Hundred<GarageTestSession.BeforeResult.Hundred && !GarageSession.State.Equipped(GarageTestSession.Car).Contains("motor-yaris"),"A/B satın almadan seçili motorun fizik kurulumu değiştirdi"));
+      Add(()=>GameFlow.LeaveDrive(0));
+      Wait(()=>UnityEngine.SceneManagement.SceneManager.GetActiveScene().name=="Garage");
+      Add(()=>{
+        GarageSession.Transact(g=>{g.RaceFinished("gp",1,1);g.RaceFinished("rx",1,1);g.RaceFinished("rl",1,1);return true;},"Kariyer hedef senaryosu");
+        GameFlow.OpenVisualWorkshop();
+      });
+      Wait(()=>UiRoot.Instance.Root.Q("style-section-1")!=null);
+      Add(()=>Click("style-section-1"));Add(()=>Click("graphic-4"));Add(()=>Click("style-save"));
+      Add(()=>Check(GarageSession.State.Appearance(GarageSession.State.SelectedCar).Graphic==4,"Kariyer ödülü atölyede uygulanır"));
+      Add(()=>{GameFlow.MainMenu();MutantRuntime.Start(53);});
+      Wait(()=>MutantStartView.Instance && MutantStartView.Instance.Visible);
+      Add(()=>{
+        MutantRuntime.SelectCar(MutantRuntime.Model.StartingCarsCards[0].Id);
+        MutantRuntime.Choose(MutantRuntime.Run.State["secenekler"][0].S());
+      });
+      Wait(()=>P && P.Simulation!=null && P.Race==null && !MutantRuntime.Blocked);
+      Add(()=>{
+        var boss=MutantRuntime.Run.Catalog["bosses"].Items.First(b=>b["id"].S()=="gece-sahini");
+        MutantRuntime.Run.State.Set("boss",boss.Clone());
+        typeof(MutantRuntime).GetProperty("Panel").SetValue(null,"boss");
+      });
+      Wait(()=>MutantBossView.Instance && MutantBossView.Instance.Visible);Shots("boss-yeni-karsilasma",1280);
+      Add(()=>Click("mutant-boss-challenge"));
+      Wait(()=>P && P.Race!=null && MutantRuntime.RacePlan?.Boss==true);
+      Add(()=>{
+        P.ManualStepping=true;P.Race.Session.TickCountdown(4);
+        for(int i=0;i<600;i++)P.StepRace(new DrivingInput(.6,0,0,false,false));
+        Check(MutantRuntime.Encounter!=null && P.Opponent.Pilot.Style!=null && P.Opponent.Pilot.Style.ThrottleCap<1,"Boss toparlanması gazı kısıtladı, davranışı normal fizik yolunda çalışır");
+      });
+      Shots("boss-firsat-penceresi",1280);
+      Add(()=>Check(proof.errors.Count==0,"Atölye, test alanı ve boss çalışma anı hatasız"));
+    }
+
     private static void SetupQuality()
     {
       string path=Path.Combine(Project,"Logs/Quality",Guid.NewGuid().ToString("N"),"garage.json");
@@ -610,16 +683,16 @@ namespace LastTurn.EditorValidation
     }
     private static void Tick()
     {
-      try{if(EditorApplication.timeSinceStartup-began>(BossPairsProof || Environment.GetCommandLineArgs().Contains("-championshipProof")?720:180))throw new TimeoutException("Play "+index+"/"+steps.Count+" · "+string.Join(" / ",proof.checks.Skip(Math.Max(0,proof.checks.Count-3))));if(Capture()){at=EditorApplication.timeSinceStartup;return;}if(EditorApplication.timeSinceStartup-at<.3)return;at=EditorApplication.timeSinceStartup;if(steps.Count==0){if(!UiRoot.Instance)return;if(Environment.GetCommandLineArgs().Contains("-qualityProof"))SetupQuality();else if(Environment.GetCommandLineArgs().Contains("-worldlifeProof"))SetupWorldLife();else if(Environment.GetCommandLineArgs().Contains("-championshipProof"))SetupChampionship();else if(Environment.GetCommandLineArgs().Contains("-feelProof"))SetupFeel();else if(BossPairsProof)SetupBossPairs();else if(ChoicesProof)SetupChoices();else if(AtelierProof)SetupAtelier();else if(CircuitProof)SetupCircuit();else if(SessionState.GetBool(Traffic,false))SetupTraffic();else if(SessionState.GetBool(Pacing,false))SetupPacing();else Setup();return;}if(index>=steps.Count){Finish(null);return;}steps[index++]();}
+      try{if(EditorApplication.timeSinceStartup-began>(BossPairsProof || Environment.GetCommandLineArgs().Contains("-championshipProof")?720:180))throw new TimeoutException("Play "+index+"/"+steps.Count+" · "+string.Join(" / ",proof.checks.Skip(Math.Max(0,proof.checks.Count-3))));if(Capture()){at=EditorApplication.timeSinceStartup;return;}if(EditorApplication.timeSinceStartup-at<.3)return;at=EditorApplication.timeSinceStartup;if(steps.Count==0){if(!UiRoot.Instance)return;if(Environment.GetCommandLineArgs().Contains("-workshopPlusProof"))SetupWorkshopCareerBoss();else if(Environment.GetCommandLineArgs().Contains("-qualityProof"))SetupQuality();else if(Environment.GetCommandLineArgs().Contains("-worldlifeProof"))SetupWorldLife();else if(Environment.GetCommandLineArgs().Contains("-championshipProof"))SetupChampionship();else if(Environment.GetCommandLineArgs().Contains("-feelProof"))SetupFeel();else if(BossPairsProof)SetupBossPairs();else if(ChoicesProof)SetupChoices();else if(AtelierProof)SetupAtelier();else if(CircuitProof)SetupCircuit();else if(SessionState.GetBool(Traffic,false))SetupTraffic();else if(SessionState.GetBool(Pacing,false))SetupPacing();else Setup();return;}if(index>=steps.Count){Finish(null);return;}steps[index++]();}
       catch(Exception e){Finish(e);}
     }
     private static void Finish(Exception error)
     {
-      bool pacing=SessionState.GetBool(Pacing,false),traffic=SessionState.GetBool(Traffic,false);SessionState.SetBool(Active,false);EditorApplication.update-=Tick;Application.logMessageReceived-=Logged;proof.result=error==null?(Environment.GetCommandLineArgs().Contains("-qualityProof")?"quality-play-passed":Environment.GetCommandLineArgs().Contains("-worldlifeProof")?"worldlife-play-passed":Environment.GetCommandLineArgs().Contains("-championshipProof")?"championship-play-passed":BossPairsProof?"boss-pairs-passed":ChoicesProof?"choices-play-passed":AtelierProof?"atelier-play-passed":CircuitProof?"circuit-play-passed":traffic?"traffic-play-passed":pacing?"pacing-play-passed":"engagement-play-passed"):"failed";proof.error=error?.ToString()??"";proof.utc=DateTime.UtcNow.ToString("O");
+      bool pacing=SessionState.GetBool(Pacing,false),traffic=SessionState.GetBool(Traffic,false);SessionState.SetBool(Active,false);EditorApplication.update-=Tick;Application.logMessageReceived-=Logged;proof.result=error==null?(Environment.GetCommandLineArgs().Contains("-workshopPlusProof")?"workshop-plus-play-passed":Environment.GetCommandLineArgs().Contains("-qualityProof")?"quality-play-passed":Environment.GetCommandLineArgs().Contains("-worldlifeProof")?"worldlife-play-passed":Environment.GetCommandLineArgs().Contains("-championshipProof")?"championship-play-passed":BossPairsProof?"boss-pairs-passed":ChoicesProof?"choices-play-passed":AtelierProof?"atelier-play-passed":CircuitProof?"circuit-play-passed":traffic?"traffic-play-passed":pacing?"pacing-play-passed":"engagement-play-passed"):"failed";proof.error=error?.ToString()??"";proof.utc=DateTime.UtcNow.ToString("O");
       if(keyboard!=null&&keyboard.added)InputSystem.RemoveDevice(keyboard);
       if(gamepad!=null&&gamepad.added)InputSystem.RemoveDevice(gamepad);
       proof.sources=Directory.GetFiles(Path.Combine(Application.dataPath,"LastTurn"),"*",SearchOption.AllDirectories).Where(f=>new[]{".cs",".uss",".json",".jpg",".shader"}.Contains(Path.GetExtension(f))).OrderBy(f=>f,StringComparer.Ordinal).Select(f=>{using(var h=SHA256.Create())return new Source{path=f.Substring(Project.Length+1).Replace('\\','/'),hash=BitConverter.ToString(h.ComputeHash(File.ReadAllBytes(f))).Replace("-","")};}).ToArray();
-      File.WriteAllText(Path.Combine(Project,Environment.GetCommandLineArgs().Contains("-qualityProof")?"Logs/quality-play.json":Environment.GetCommandLineArgs().Contains("-worldlifeProof")?"Logs/worldlife-play.json":Environment.GetCommandLineArgs().Contains("-championshipProof")?"Logs/championship-play.json":Environment.GetCommandLineArgs().Contains("-feelProof")?"Logs/feel-play.json":BossPairsProof?"Logs/boss-pairs.json":ChoicesProof?"Logs/choices-play.json":AtelierProof?"Logs/atelier-play.json":CircuitProof?"Logs/circuit-play.json":Environment.GetCommandLineArgs().Contains("-duelProof")?"Logs/duel-play.json":traffic?"Logs/traffic-play.json":pacing?"Logs/pacing-play.json":"Logs/engagement-play.json"),JsonUtility.ToJson(proof,true));if(error!=null)Debug.LogException(error);EditorApplication.Exit(error==null?0:1);
+      File.WriteAllText(Path.Combine(Project,Environment.GetCommandLineArgs().Contains("-workshopPlusProof")?"Logs/workshop-plus-play.json":Environment.GetCommandLineArgs().Contains("-qualityProof")?"Logs/quality-play.json":Environment.GetCommandLineArgs().Contains("-worldlifeProof")?"Logs/worldlife-play.json":Environment.GetCommandLineArgs().Contains("-championshipProof")?"Logs/championship-play.json":Environment.GetCommandLineArgs().Contains("-feelProof")?"Logs/feel-play.json":BossPairsProof?"Logs/boss-pairs.json":ChoicesProof?"Logs/choices-play.json":AtelierProof?"Logs/atelier-play.json":CircuitProof?"Logs/circuit-play.json":Environment.GetCommandLineArgs().Contains("-duelProof")?"Logs/duel-play.json":traffic?"Logs/traffic-play.json":pacing?"Logs/pacing-play.json":"Logs/engagement-play.json"),JsonUtility.ToJson(proof,true));if(error!=null)Debug.LogException(error);EditorApplication.Exit(error==null?0:1);
     }
   }
 }

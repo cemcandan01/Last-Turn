@@ -120,13 +120,19 @@ namespace LastTurn.Core
         };
       }).ToArray();
 
+    public static CatalogSetup PreviewSetup(GarageState state,int car,string part,bool remove=false)
+    {
+      var catalog=state.Catalog;
+      string category=catalog.Data["parts"].Items.FirstOrDefault(p=>p["id"].S()==part)?["kat"].S()??"";
+      var ids=remove?state.Equipped(car).Where(id=>catalog.Data["parts"].Items.First(p=>p["id"].S()==id)["kat"].S()!=category):
+        state.Equipped(car).Concat(string.IsNullOrEmpty(part)?Array.Empty<string>():new[]{part});
+      return catalog.Setup(car,ids,state.AssistLevel);
+    }
     public static GarageCarDetail Detail(GarageState state, int car, string previewPart = "",bool removePreview=false)
     {
       var catalog = state.Catalog; var setup = state.Setup(car);
       var current = CatalogPerformance.Calculate(catalog, setup);
-      string category=catalog.Data["parts"].Items.FirstOrDefault(p=>p["id"].S()==previewPart)?["kat"].S()??"";
-      var ids = removePreview?state.Equipped(car).Where(id=>catalog.Data["parts"].Items.First(p=>p["id"].S()==id)["kat"].S()!=category):state.Equipped(car).Concat(string.IsNullOrEmpty(previewPart) ? Array.Empty<string>() : new[] { previewPart });
-      var previewSetup=catalog.Setup(car,ids);var preview = CatalogPerformance.Calculate(catalog, previewSetup);
+      var previewSetup=PreviewSetup(state,car,previewPart,removePreview);var preview = CatalogPerformance.Calculate(catalog, previewSetup);
       var data = catalog.Data["cars"][car];
       return new GarageCarDetail
       {
