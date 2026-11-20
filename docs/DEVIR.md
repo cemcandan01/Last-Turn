@@ -1,3 +1,15 @@
+## 20 Kasım 2026 — Atölye, kalan öncelikler 4–6
+
+Son özellik commit'i 2c1d5fa, dal codex/unity-p7-garaj. Kullanıcı kalan işleri ve görünmeyen görsel modifiyeyi istedi. Aynı kart docs/isler/2026-11-16-surukleyici-dongu.md. Sahip Codex, bu tur Claude/API çağrısı yok.
+
+Ana menüde GÖRSEL MODİFİYE doğrudan açılır; garaj / parça ekranında da giriş vardır. Büyük döndürülen araç, boya/çıkartma/spoiler sekmeleri ve kayıt-vazgeç. Garajda TEST ALANI, seçili parçada PARÇAYI PİSTTE DENE. Satın almadan gerçek kurulumla Y tuşu A/B değişimi; sabit asfalt 0–100 / 60–0 / slalom ölçümü. Ödül, kullanım/mesafe ve rekor yazımı kapalı. Kariyer hedefleri mevcut yıldızlardan 3 biten etkinlik, 18 yıldız, 12 tam yıldızlı etkinlik üzerinden üç desen açar. MUTANT boss’larında farklı atak/toparlanma pedal-fren kararları, açıklama ve dönem HUD'ı; Drift Kraliçesi toplam hedefe ek iki farklı şov penceresinde puan bankalamayı ister.
+
+Kanıt yeni saf 23, kayıt 66, garaj F 342, MUTANT planı 12.952, rakip 85.711 kontrol; proje kontrolü geçti. Son Unity Play 23 / 9 görüntü / 0 hata. Windows Succeeded / 0 hata; bağımsız süreçte 25 yazma + 15 yeniden yükleme. Play/build 267 kaynak SHA256 çalışma ağacıyla aynı. Ürün Unity/Builds/AtolyePlusWindows-20261120/LastTurn.exe. Raporlar Unity/Logs/P7StoreEditor/Logs/workshop-plus-play.json, workshop-plus-build.json ve ürün Validation dizini.
+
+Önceki Pit menü tasarımı kirli çalışma ağacında korunur, ürüne dahildir. Üç örtüşen UI dosyasında bu turun ekleri index'te ayrıldı. Commit tek başına eski ana menü yerleşimine yeni giriş/ödül panelini ekler; test edilen ürün mevcut çalışma ağacıdır. Diğer kirli/untracked menü ve Recovery dosyaları kapsam dışıdır. İnsan görsel/sürüş/eğlence/zorluk kabulü açık. Push, merge, yayın ve tam regresyon yok.
+
+---
+
 # Sürüş tepkileri, rakip karakterleri ve Yeşil Vadi görsel örneği (20 Kasım 2026)
 
 Kullanıcının öncelik sırasıyla ilk üç geliştirme tamamlandı. Sahip Codex, oyun kaynağı `bc7b002`. 15 stok araçta ölçüm yapıldı. Fren sonunda geri vitese geçişe 0,45 sn bekleme, gaz bırakılıp frenlenince çekiş kesme ve klavye karşı direksiyonun sıfırdan geçişine hızlandırma eklendi. Eski hayaletler eski kontrol eğrisiyle oynar. Doruk, Ece ve Bora farklı takip/fren/geçiş kararları kullanır ve sahadaki üçüncü araç dolu koridoru kapatır.
