@@ -56,7 +56,7 @@ namespace LastTurn.Core
       var car=Apply(setup.Car,run["pasifler"].Items.Select(p=>p.S()),run["govde"].N(100),
         energy["etkiKalan"].N(),energy["etkiGuc"].N(1),effect["guc"].N(1),effect["tutus"].N(1));
       car=DirtBalance(car,catalog.Data["tires"][tire]["g"][0].N(1));
-      return new CatalogSetup{Car=car,Tuning=setup.Tuning,Assists=setup.Assists,Parts=setup.Parts,
+      return new CatalogSetup{Car=car,Tuning=setup.Tuning,Assists=MutantSlice.TuneAssists(car["k"].S(),setup.Assists),Parts=setup.Parts,
         Preset=setup.Preset,Tire=tire,Affinity=setup.Affinity};
     }
   }

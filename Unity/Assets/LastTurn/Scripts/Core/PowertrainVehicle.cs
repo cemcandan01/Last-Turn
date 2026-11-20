@@ -229,7 +229,7 @@ namespace LastTurn.Core
         if (!dr.On && dr.Cool <= 0)
         {
           dr.Nc = ab >= p.Entry && v >= 7 && g > .2 ? dr.Nc + dt : 0;
-          dr.Hold = Math.Abs(st) > .6 && g > .5 && v >= 10 ? dr.Hold + dt : 0;
+          dr.Hold = Math.Abs(st) > p.HoldSteer && g > p.HoldGas && v >= 10 ? dr.Hold + dt : 0;
           if (dr.Nc >= p.Prepare) { dr.On = true; dr.T = 0; dr.Dir = -Math.Sign(be); dr.Bt = Clamp(ab, p.Entry, p.Max); }
           else if (dr.Hold >= p.Force) { dr.On = true; dr.T = 0; dr.Dir = Math.Sign(st); dr.Bt = p.Entry; }
           if (dr.On) dr.Nc = dr.Hold = 0;
@@ -241,7 +241,7 @@ namespace LastTurn.Core
           double ic = st * dr.Dir, gas = Clamp(g, 0, 1);
           dr.Bt += ((ic > .25 ? .4 * ic : ic < -.25 ? 1.0 * ic : 0) + (gas - .55) * .24) * dt;
           dr.Bt = Clamp(dr.Bt, 0, p.Max);
-          if (ab > p.Max + .12) { dr.On = false; dr.Cool = .9; dr.Nc = 0; Spins++; }
+          if (ab > p.Max + p.SpinMargin) { dr.On = false; dr.Cool = p.SpinCool; dr.Nc = 0; Spins++; }
           else if (v < 5 || dr.Bt < p.Entry * .5 || (ab < p.Entry * .6 && dr.T > .6)) dr.On = false;
         }
       }

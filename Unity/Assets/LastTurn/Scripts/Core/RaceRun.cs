@@ -34,7 +34,7 @@ namespace LastTurn.Core
     /// world: aracın sürüldüğü pist dünyası (PowertrainVehicle'a verilen aynı nesne). session: başlangıç ipucuyla oturum.
     public RaceRun(PowertrainVehicle vehicle, TrackWorld world, RaceEventInfo info, Func<int, RaceSession> session, double driftMaxAngle = double.PositiveInfinity)
     {
-      DriftBetaLimit = driftMaxAngle + 0.12;
+      DriftBetaLimit = driftMaxAngle + RaceDrift.SpinMargin;
       Vehicle = vehicle ?? throw new ArgumentNullException(nameof(vehicle)); World = world ?? throw new ArgumentNullException(nameof(world));
       Event = info ?? throw new ArgumentNullException(nameof(info)); create = session ?? throw new ArgumentNullException(nameof(session));
       Recovery = new TrackRecovery(world);

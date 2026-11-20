@@ -46,11 +46,19 @@ namespace LastTurn.Core
       double degree = 19 + 15 * Pay(dmax, 0.55, 1.06) + 9 * Pay(t["lock"].N(), 0.4, 1.0) + 5 * Pay(t["diff"].N(), 0.2, 1.2) + 4 * (1 - awd) + 3 * Pay(a["dft"].N(), 0.2, 1);
       double ready = 0.45 * Pay(t["diff"].N(), 0.2, 1.15) + 0.3 * Pay(dmax, 0.55, 1.06) + 0.15 * (1 - awd) + 0.1 * Pay(a["ini"].IsNumber ? a["ini"].N() : 0, 0, 1);
       double control = TrackGeometry.Clamp((degree - 19) / 36, 0, 1);
-      return new DriftRaceProfile
+      var profile = new DriftRaceProfile
       {
         Entry = TrackGeometry.Clamp(17 - 7 * ready, 9, 17) * Math.PI / 180, Prepare = 0.2 - 0.1 * ready,
         Max = TrackGeometry.Clamp(degree, 22, 58) * Math.PI / 180, Force = 0.25 + 0.35 * (1 - ready), Support = 0.3 + 0.7 * Math.Pow(control, 1.5),
       };
+      // MUTANT dilimi: direksiyon + gazla giriş kolaylaşır, azami açı genişler, spin cezası yumuşar (Cem, 21 Kasım 2026).
+      if (MutantSlice.DriftLoose)
+      {
+        profile.Entry *= MutantSlice.DriftEntryScale; profile.Prepare *= MutantSlice.DriftEntryScale; profile.Force *= MutantSlice.DriftForceScale;
+        profile.Max += MutantSlice.DriftMaxBonus * Math.PI / 180; profile.HoldSteer = MutantSlice.DriftHoldSteer; profile.HoldGas = MutantSlice.DriftHoldGas;
+        profile.SpinMargin = MutantSlice.DriftSpinMargin; profile.SpinCool = MutantSlice.DriftSpinCool;
+      }
+      return profile;
     }
 
     /// TS AdimSonucu.cimTeker: adım başında çimde (yüzey 2) olan teker sayısı.
@@ -64,9 +72,17 @@ namespace LastTurn.Core
       double dmax = c["dmax"].IsNumber ? c["dmax"].N() : 0.8;
       double degree = 19 + 15 * Pay(dmax, 0.55, 1.06) + 9 * Pay(t["lock"].N(), 0.4, 1.0) + 5 * Pay(t["diff"].N(), 0.2, 1.2)
         + 4 * (1 - TrackGeometry.Clamp(c["awd"].N(), 0, 1)) + 3 * Pay(setup.Assists["dft"].N(), 0.2, 1);
-      return TrackGeometry.Clamp(degree, 22, 58) * Math.PI / 180;
+      double max = TrackGeometry.Clamp(degree, 22, 58) * Math.PI / 180;
+      return MutantSlice.DriftLoose ? max + MutantSlice.DriftMaxBonus * Math.PI / 180 : max;
     }
+    /// Komboyu yakan ve spin sayılan açı payı (TS: 0,12 rad); dilimde daha geniş.
+    public static double SpinMargin => MutantSlice.DriftLoose ? MutantSlice.DriftSpinMargin : DriftRaceProfile.DefaultSpinMargin;
   }
   /// TS driftYarisProfili sonucu (rad/sn/oran).
-  public sealed class DriftRaceProfile { public double Entry, Prepare, Max, Force, Support; }
+  public sealed class DriftRaceProfile
+  {
+    public const double DefaultSpinMargin = 0.12;
+    public double Entry, Prepare, Max, Force, Support;
+    public double HoldSteer = 0.6, HoldGas = 0.5, SpinMargin = DefaultSpinMargin, SpinCool = 0.9;
+  }
 }

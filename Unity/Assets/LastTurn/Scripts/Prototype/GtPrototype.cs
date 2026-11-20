@@ -155,6 +155,7 @@ namespace LastTurn.Prototype
     private void Update()
     {
       if (!focused || GameFlow.Paused || MutantRuntime.Blocked || SettingsScreen.Open) return;
+      if(MutantRuntime.Active&&MutantRuntime.DevAvailable&&UnityEngine.InputSystem.Keyboard.current!=null&&UnityEngine.InputSystem.Keyboard.current.f3Key.wasPressedThisFrame)ToggleMutantGround();
       if(ManualStepping&&Race==null)return;
       UpdateAirControl();
       if (Race != null) { PerformanceOverlay.PhysicsBegin(); UpdateRace(); PerformanceOverlay.PhysicsEnd(); return; }
@@ -614,8 +615,15 @@ namespace LastTurn.Prototype
       sun.transform.rotation = Quaternion.Euler(45,-30,0); var light = sun.GetComponent<Light>(); light.type = LightType.Directional; light.intensity = 1.15f;
     }
 
+    private void ToggleMutantGround()
+    {
+      MutantRuntime.ToggleGround();
+      // Drift yarışı profili hemen yenilenir; kombo açı sınırı yarış başında okunur (R ile yeniden başlatınca tam uygulanır).
+      if(Race!=null&&Race.Event.Type=="dp"&&raceDrive.Setup!=null)Race.MutantDrift=RaceDrift.Profile(raceDrive.Setup);
+    }
     private void OnGUI()
     {
+      if(MutantRuntime.Active&&MutantRuntime.DevAvailable)GUI.Label(new Rect(Screen.width-340,8,330,22),"[F3] Zemin: "+(MutantSlice.SoftGround?"YENİ (yumuşak asfalt, gevşek drift)":"ESKİ"));
       // Mutant açık dünyasında koşu durum çubuğu kullanılır; telemetri yalnız GT/arazi/serbest sürüşte ve ortak Info alanında.
       if (Simulation == null || GameFlow.Paused || Race!=null || MutantRuntime.Active || SettingsScreen.Open || !Hud.TryGet(this,"Info",out var info)) { TelemetryBottom = 0; return; }
       if (title == null)

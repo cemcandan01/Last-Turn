@@ -200,3 +200,19 @@
 - [ ] **Step 4: Commit:** `MUTANT dilimi: devir ve kanıt`.
 
 **Kontrol noktası 7 (Cem oynar):** Paketlenmiş oyunda baştan sona koşu. "Dilim eğlenceli mi?" kararı Cem'indir; test geçmesi bunun kanıtı sayılmaz.
+
+## Notlar (Cem, 21 Kasım 2026, 1. kontrol noktası geri bildirimi)
+
+**Görev 3'e eklenecek (şimdi yapılmaz):**
+- Volt Kanat havadayken zemin etkileri (su, çamur) ve engeller etkilemez.
+- Flying Dutchman zemin etkilerini de engeller.
+- Ralli tek araçlı, zamana karşı; rakip yalnız rallikrosta.
+
+**Sonraya (dilim dışı, şimdi yapılmaz):**
+- Boss'lar oyuncunun gücüyle ölçeklenmiyor.
+- Rakip arabalar titriyor.
+- Öne geçip fren yapınca yapay zeka sert frenleyip istismar edilebiliyor.
+- Para/XP kazanımı ekranda hissedilmiyor.
+- Rallide yavaş girilen yokuşta araç çıkamıyor; oyuncu bunun kendi kararının sonucu olduğunu hissetmeli.
+
+**Kontrol noktası 1 sonrası düzeltme işleri:** (1) yarış/açık dünya zemin tepkisi teşhisi (rapor.md), (2) tüm yarış tiplerinde açık dünya zemin tepkisi, (3) Tilki ağır ve kayan drift arabası / Tavşan çevik, çıkışta hızlı, toprakta yapışkan, güç dengesi yakın, (4) Grappling Hook yeniden tasarım: tuşu bırakana kadar tutar, hız/gerilim fazlaysa kopar, kopunca bekleme uzar.

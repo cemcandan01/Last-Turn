@@ -48,7 +48,7 @@ namespace LastTurn.Prototype
     private static void Reset(){MutantSlice.Enabled=false;Run=null;Session=null;RacePlan=null;Encounter=null;ShowProgress=new BossShowProgress();Abilities=null;OpponentLink=null;Car=-1;Panel="";Message="";ResultPassed=null;returnPoint=null;refreshed=0;RecordDirectory="";Starting=false;rewards=null;HudFeedback=new MutantHudFeedback();}
     public static void Start(uint seed,bool test=false)
     {
-      MutantSlice.Enabled=true;GarageSession.EnsureLoaded();var asset=Resources.Load<TextAsset>("mutant-catalog");
+      MutantSlice.Enabled=true;MutantSlice.SoftGround=true;GarageSession.EnsureLoaded();var asset=Resources.Load<TextAsset>("mutant-catalog");
       if(!asset)throw new InvalidOperationException("Mutant verisi bulunamadı.");
       Run=new MutantRun(seed,CatalogNode.Parse(asset.text),test&&DevAvailable);rewards=null;Session=null;RacePlan=null;Car=-1;Panel="start";Message="";ResultPassed=null;returnPoint=null;Starting=true;HudFeedback=new MutantHudFeedback();GameFlow.Pause(false);
     }
@@ -67,6 +67,8 @@ namespace LastTurn.Prototype
 
     // ---- TS mutant-ui.ts DEV test laboratuvarı: yalnız geliştirme yapısında (TS import.meta.env.DEV || /dev/).
     public static bool DevAvailable=>Debug.isDebugBuild;
+    /// Geliştirici A/B (F3): eski/yeni zemin ayarı. Araç parametreleri bir sonraki fizik adımında yenilenir.
+    public static void ToggleGround(){if(!Active||!DevAvailable||Session==null)return;MutantSlice.SoftGround=!MutantSlice.SoftGround;Session.SelectCar(Session.SelectedCar);}
     public static bool TestRun=>Active&&Run.IsTest;
     /// TS drift ölçümleri (driftDevGoster): test koşusundaki MUTANT drift yarışında tanı satırı.
     public static bool DriftDiagnostics=true;
