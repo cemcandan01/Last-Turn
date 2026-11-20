@@ -223,9 +223,9 @@ namespace LastTurn.Prototype
           x=grid.X+Math.Cos(grid.Heading)*lane; z=grid.Z-Math.Sin(grid.Heading)*lane;
         }
         var world=new TrackWorld(track){Environment=RaceWorld.Environment,GripMultiplier=RaceWorld.GripMultiplier};
-        var plan=WorldData.Opponents.Plan(track.Key,i==0?"deneyimli":"caylak");
-        racers[i]=new OpponentRacer(physics,world,track,info,plan,(uint)(731+i),x,z,grid.Heading);
-        string key=cars[i].car["k"].S(); names[i+1]=WorldData.Championship?RivalChampionship.Names[i+1]:key.ToUpperInvariant();
+        var plan=WorldData.Opponents.Plan(track.Key,"deneyimli");
+        racers[i]=new OpponentRacer(physics,world,track,info,plan,(uint)(731+i),x,z,grid.Heading,RivalDrivingStyle.For(i));
+        string key=cars[i].car["k"].S(); names[i+1]=RivalDrivingStyle.For(i).Name;
         fieldViews.Add(SourceVehicleView.Create(key,transform));
       }
       Field=new CircuitField(Simulation,racers,names,WorldData.Knockout);

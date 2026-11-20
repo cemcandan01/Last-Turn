@@ -51,6 +51,7 @@ namespace LastTurn.Prototype
       return rgb != null && rgb.Length == 3 && Mathf.RoundToInt(rgb[0]*255)==red
         && Mathf.RoundToInt(rgb[1]*255)==green && Mathf.RoundToInt(rgb[2]*255)==blue;
     }
+    private Material[] surfaces;
     public Graph Data {get;private set;}
     public int RendererCount {get;private set;}
     private readonly Dictionary<Renderer,Material[]> ghostOriginal=new Dictionary<Renderer,Material[]>();private Material ghostMaterial;private bool ghost;
@@ -92,7 +93,7 @@ namespace LastTurn.Prototype
       }
       var root=new GameObject("TS sunum · "+data.graph.label);root.transform.SetParent(parent,false);root.layer=layer;
       var view=root.AddComponent<SourceScene>();view.Data=data.graph;var transforms=new Transform[data.graph.nodes.Length];
-      var localMaterials=(Material[])data.materials.Clone();
+      var localMaterials=(Material[])data.materials.Clone();view.surfaces=localMaterials;
       for(int i=0;i<localMaterials.Length;i++)if(data.graph.materials[i].glass||data.graph.materials[i].mirror)
       {var m=new Material(localMaterials[i]);view.owned.Add(m);localMaterials[i]=m;if(data.graph.materials[i].glass)view.Glass.Add(m);}
       if (data.graph.kind=="car")
@@ -151,6 +152,18 @@ namespace LastTurn.Prototype
         }
       }
       return view;
+    }
+    public void RefineSurface(int index,Shader shader,float mode)
+    {
+      if(!shader || index<0 || index>=surfaces.Length)return;
+      var original=surfaces[index];var replacement=new Material(original){shader=shader};
+      replacement.SetFloat("_Mode",mode);owned.Add(replacement);
+      foreach(var renderer in GetComponentsInChildren<Renderer>()){
+        var materials=renderer.sharedMaterials;bool changed=false;
+        for(int i=0;i<materials.Length;i++)if(materials[i]==original){materials[i]=replacement;changed=true;}
+        if(changed)renderer.sharedMaterials=materials;
+      }
+      surfaces[index]=replacement;
     }
     private static void ConfigureFinish(Graph graph, Material[] materials)
     {

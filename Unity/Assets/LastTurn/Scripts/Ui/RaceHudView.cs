@@ -134,6 +134,7 @@ namespace LastTurn.Ui
       if (!knockout && !WorldData.Championship && !string.IsNullOrEmpty(p.RecordText)) lines.Add(p.RecordText);
       // TS hud.ts: güneş dışında hava adı gösterilir (zemin daha kaygan)
       if (p.Conditions.Weather != "sun" || p.Conditions.Night) lines.Add(p.Conditions.Label);
+      if(p.Field!=null && s.State==RaceState.Countdown)lines.Add("Doruk geç frenler · Ece boşluk bırakır · Bora fırsat kollar");
       if (p.Field == null && p.Opponent != null) lines.Add(p.OpponentText());
       info.text = string.Join("\n", lines);
       big.text = m.Big; sub.text = WorldData.Championship?"Tur "+System.Math.Min(s.Event.Laps,s.Lap+1)+"/"+s.Event.Laps:knockout?"Tur "+System.Math.Min(3,s.Lap+1)+"/3":m.Sub;

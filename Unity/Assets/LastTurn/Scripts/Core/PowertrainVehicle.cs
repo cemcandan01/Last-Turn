@@ -19,6 +19,8 @@ namespace LastTurn.Core
     public DriftAssistState Assist { get; private set; } = new DriftAssistState();
     /// TS S.pv: önceki adımın başındaki hız yönü (drift yalpa desteği); yerleştirmede sıfırlanır.
     private double? previousCourse;
+    private double reverseWait;
+    public bool LegacyControls {get;set;}
     /// TS olay.spin: drift penceresi aşıldı (yardımlı araçta).
     public int Spins { get; private set; }
     /// TS cx.driftYarisi: MUTANT drift yarışı çalışırken drift penceresinin yarış dalı (null: kariyer/serbest dal).
@@ -48,13 +50,13 @@ namespace LastTurn.Core
     {
       PowertrainParameters.GearRatio(initialGear);
       body.Reset(initialSpeed);
-      Engine = Initial(initialGear); Assist = new DriftAssistState(); previousCourse = null;
+      reverseWait=0;Engine = Initial(initialGear); Assist = new DriftAssistState(); previousCourse = null;
     }
     /// Yarış başlangıcı / piste dönüş (TS reset karşılığı): araç durur, zemine oturtulur, motor ilk durumuna döner.
     public void Place(double x, double z, double heading)
     {
       body.Reset(0, 0, heading, x, z);
-      Engine = Initial(1); Assist = new DriftAssistState(); previousCourse = null;
+      reverseWait=0;Engine = Initial(1); Assist = new DriftAssistState(); previousCourse = null;
     }
     /// Gövdenin (0, 0, 0) referans noktası: TS S.x/S.z; yüzey ve yarış sorguları buradan yapılır.
     public BodyVector ReferencePoint => Body.Orientation.Rotate(new BodyVector(0, -p.Chassis.CgY, -p.Chassis.CgZ)) + Body.Position;
@@ -67,6 +69,9 @@ namespace LastTurn.Core
       var previous = Engine;
       double dt = FixedDelta;
       double rate = input.AnalogSteering ? 14 * p.SteeringSensitivity : input.Steering == 0 ? 10 : (SmoothSteeringPreference ?? p.SmoothSteering) ? 6.5 * p.SteeringSensitivity : 30;
+      // Karşı direksiyonda eski yöne takılmadan sıfırdan geç; parça hassasiyeti yine belirleyicidir.
+      if(!LegacyControls && !input.AnalogSteering && (SmoothSteeringPreference??p.SmoothSteering) && input.Steering*previous.Steering<0)
+        rate=Math.Max(rate,14*p.SteeringSensitivity);
       double st = previous.Steering + (input.Steering - previous.Steering) * Math.Min(1, rate * dt);
       double gas = previous.Gas + (input.Throttle - previous.Gas) * Math.Min(1, dt * (2 + 18 * p.ThrottleResponse));
       var forward = Body.Orientation.Rotate(new BodyVector(0, 0, 1));
@@ -109,7 +114,11 @@ namespace LastTurn.Core
       // TCS, aşağıdaki kayma sınırıyla her tahrik tekerinin birleşik lastik
       // kuvvetine uygulanır. Gövde açısıyla ikinci kez gaz kesmek kalkışı boğar.
       int gear = previous.Gear;
-      if (brake > 0 && vl < .5 && input.Throttle < .05) gear = -1;
+      // İleri sürüşte fren, motorun kalan gazına karşı çalışmasın.
+      if(!LegacyControls && brake>.05 && input.Throttle<.05 && gear>=1)throttle=0;
+      bool reverseRequest=brake>(LegacyControls?0:.05) && vl<.5 && input.Throttle<.05;
+      reverseWait=reverseRequest?reverseWait+dt:0;
+      if (reverseRequest && (LegacyControls || reverseWait>=.45)) gear = -1;
       else if (gear == -1 && input.Throttle > .05) gear = 1;
       if (gear == -1) { throttle = brake; brake = 0; }
       double slipLimit = 1e9;

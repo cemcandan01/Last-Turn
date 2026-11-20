@@ -54,7 +54,7 @@ namespace LastTurn.Core
           double separation=dx*dx+dz*dz;
           if(separation<best){best=separation;nearest=j;}
         }
-        Rivals[i-1].Step(traffic:double.IsPositiveInfinity(best)?(OpponentTrafficCar?)null:snapshot[nearest]);
+        Rivals[i-1].Step(traffic:double.IsPositiveInfinity(best)?(OpponentTrafficCar?)null:snapshot[nearest],nearby:snapshot);
       }
       bool touched=false;
       for(int i=0;i<cars.Length;i++) for(int j=i+1;j<cars.Length;j++)

@@ -1,5 +1,8 @@
 using System.Text.Json;
 using LastTurn.Core;
+if (args.Contains("--rival-style")) { RivalStyleValidation.Run(); return; }
+if (args.Contains("--handling-record")) { DrivingFeelValidation.Run(true); return; }
+if (args.Contains("--handling")) { DrivingFeelValidation.Run(); return; }
 if (args.Contains("--mutant-route")) { MutantRouteValidation.Run(); return; }
 if (args.Contains("--championship")) { ChampionshipValidation.Run(); return; }
 if(args.Contains("--mutant-pairs")){MutantPairsValidation.Run();return;}

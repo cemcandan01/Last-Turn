@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace LastTurn.Core
 {
@@ -40,7 +41,8 @@ namespace LastTurn.Core
   public readonly struct OpponentTrafficFrame
   {
     public readonly OpponentTrafficCar Self,Other;
-    public OpponentTrafficFrame(OpponentTrafficCar self,OpponentTrafficCar other){Self=self;Other=other;}
+    public readonly IReadOnlyList<OpponentTrafficCar> Nearby;
+    public OpponentTrafficFrame(OpponentTrafficCar self,OpponentTrafficCar other,IReadOnlyList<OpponentTrafficCar> nearby=null!){Self=self;Other=other;Nearby=nearby;}
   }
 
   // Yakın trafik için hedef çizgi ve fren sınırı. Tur/sıra farkı kullanmaz; güç veya konum yazmaz.
@@ -51,6 +53,7 @@ namespace LastTurn.Core
     public string State {get;private set;}="serbest";
     public int Side {get;private set;}
     public int SideChanges {get;private set;}
+    public RivalDrivingStyle Style {get;set;}=null!;
     private bool committed;
     private bool beside;
     private bool anchored;
@@ -58,7 +61,7 @@ namespace LastTurn.Core
     private readonly int preference;
     public OpponentTraffic(uint seed){preference=(seed&1)==0?1:-1;}
     private static double Clamp(double v,double lo,double hi)=>Math.Max(lo,Math.Min(hi,v));
-    private void Move(double desired,double dt){double step=1.2*dt;Offset+=Clamp(desired-Offset,-step,step);if(Math.Abs(Offset)<1e-10)Offset=0;}
+    private void Move(double desired,double dt){double step=(Style?.LaneRate??1.2)*dt;Offset+=Clamp(desired-Offset,-step,step);if(Math.Abs(Offset)<1e-10)Offset=0;}
     private void Release(double dt){committed=false;beside=false;anchored=false;Side=0;target=0;Move(0,dt);State=Offset==0?"serbest":"cizgiye-donus";}
     private readonly struct RoadPoint
     {
@@ -80,6 +83,20 @@ namespace LastTurn.Core
       }
       return point;
     }
+    private static bool LaneFree(OpponentPlan plan,int index,OpponentTrafficFrame frame,RoadPoint own,double lane,double speed)
+    {
+      if(frame.Nearby==null)return true;
+      var a=frame.Self;
+      foreach(var car in frame.Nearby){
+        if(!car.Valid || Math.Abs(car.Y-a.Y)>2.5 || JsMath.Hypot(car.X-a.X,car.Z-a.Z)<.05)continue;
+        var point=Project(plan,car,index);double gap=point.Along-own.Along;
+        if(!plan.Open){if(gap>plan.Length/2)gap-=plan.Length;else if(gap<-plan.Length/2)gap+=plan.Length;}
+        double span=(a.Length+car.Length)*.5,clearance=(a.Width+car.Width)*.5+.4;
+        if(Math.Abs(gap)<span+speed*.65+3 && Math.Abs(point.Lane-lane)<clearance)return false;
+        if(Math.Abs(gap)<span+3 && point.Lane>Math.Min(own.Lane,lane)-clearance && point.Lane<Math.Max(own.Lane,lane)+clearance)return false;
+      }
+      return true;
+    }
     public void Step(OpponentPlan plan,int index,OpponentTrafficFrame? frame,double dt,bool allowed=true)
     {
       SpeedLimit=double.PositiveInfinity;
@@ -100,7 +117,7 @@ namespace LastTurn.Core
       double limit=Math.Max(0,plan.HalfWidth-a.Width/2-1.8),min=-limit,max=limit;
       bool gentle=true;
       double look=Math.Max(24,plan.Look+plan.LookSpeed*speed);
-      for(double d=0;d<=look;d+=4){int j=plan.Ahead(index,d);min=Math.Max(min,-limit-plan.Offset[j]);max=Math.Min(max,limit-plan.Offset[j]);if(Math.Abs(plan.Curvature[j])>.006)gentle=false;}
+      for(double d=0;d<=look;d+=4){int j=plan.Ahead(index,d);min=Math.Max(min,-limit-plan.Offset[j]);max=Math.Min(max,limit-plan.Offset[j]);if(Math.Abs(plan.Curvature[j])>(Style?.CurveLimit??.006))gentle=false;}
       if(min>max){min=max=0;gentle=false;}
       if(Math.Abs(along)<=span+3||(beside&&Math.Abs(along)<=span+5))
       {
@@ -115,20 +132,23 @@ namespace LastTurn.Core
         beside=false;anchored=false;
         if(!committed&&gentle&&limit>separation&&Math.Abs(selfLane-otherLane)<separation&&otherSpeed<speed+2)
         {
-          double passingSeparation=separation+.5;
+          double passingSeparation=separation+(Style?.PassingMargin??.5);
           double first=otherLane+preference*passingSeparation-plan.Offset[index],second=otherLane-preference*passingSeparation-plan.Offset[index];
-          bool Fits(double delta)=>delta>=min&&delta<=max;
+          bool Fits(double delta)=>delta>=min && delta<=max && LaneFree(plan,index,frame.Value,own,plan.Offset[index]+delta,speed);
           double selected=Fits(first)?first:Fits(second)?second:double.NaN;
           if(!double.IsNaN(selected)){target=selected;committed=true;int side=Math.Sign(target);if(side!=0&&side!=Side){SideChanges++;Side=side;}}
         }
-        if(committed){Move(Clamp(target,min,max),dt);State="gecis";}
+        if(committed){
+          if(LaneFree(plan,index,frame.Value,own,plan.Offset[index]+target,speed)){Move(Clamp(target,min,max),dt);State="gecis";}
+          else{target=Offset;committed=false;State="bosluk-bekle";SpeedLimit=Math.Max(0,otherSpeed-2);}
+        }
         else{Move(0,dt);target=0;State="takip";}
       }
       else{State=committed?"gecisi-tamamla":"cizgiyi-koru";Move(Clamp(target,min,max),dt);}
       // Yalnız öndeki yakın araçla aynı koridordayken fren: uzaktaki oyuncunun tur temposuna bağlanmaz.
       if(along>0&&Math.Abs(selfLane-otherLane)<separation)
       {
-        double free=along-span,safe=2+speed*.45;
+        double free=along-span,safe=2+speed*(Style?.Headway??.45);
         SpeedLimit=Math.Max(0,otherSpeed+(free-safe)*.6);
       }
     }
