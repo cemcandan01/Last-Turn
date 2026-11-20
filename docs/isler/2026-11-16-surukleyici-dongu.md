@@ -200,3 +200,23 @@ Menü uygulayıcısı ve ses uygulayıcısı kota hatasıyla durdu. Dosyalara ya
 Sonraki tasarım seçenekleri tekrar karşılaşılan rakipli şampiyona, sürüş başarısını hissettiren ses/görsel geri bildirim, MUTANT bölgelerinde kısa hedef ve riskli rota seçimleri, pist çevresinde seyirci/servis alanı/yerel ses. Öncelik önerisi rakipli şampiyona. Araştırma dayanakları EA Vol.8 lig/rakip ilerlemesi ve Supergiant Hades II karşılaşma/ilerleme yapısı. Bunlar tasarım çıkarımıdır.
 
 Gerçek Unity Play 14 kontrol ve beş görüntü ile geçti. Kamera dört kipte döndürülüp geri döndürüldü. Ses örneklerinin RMS seviyeleri 0,13 ve 0,085, tepe seviyeleri 0,495 ve 0,402 olarak ölçüldü. Klipler kırpılmıyor. Unity proje yapısı kontrolü geçti. Kanıt Unity/Logs/P7StoreEditor/Logs/feel-play.json. Menü görüntüleri 1280 ve 1920 pikselde alındı. Menü ve ses beğenisi için insan kabulü açık.
+
+
+## 20 Kasım — Rakipler Kupası ve sürüş geri bildirimi
+
+Kullanıcı önce önerilen 1 ve 2'nin tamamlanmasını seçti. Sahip Codex, dal codex/unity-p7-garaj, başlangıç kaynağı 0305cfb. Önceki pit menüsü ve sadeleştirme çalışma ağacı devam ediyor.
+
+Kabul ölçütleri üç gerçek yarışta aynı rakip kimlikleri ve araçları, 10/6/3/1 puan ve görünür toplam tablo, yarışlar arasında diskten devam, tekrar çağrıda tek puan, kupa bitiminde rövanş ve kozmetik arma. Sürüşte temiz sollama, gerçek yakın geçiş, temiz drift çıkışı ve son tur kısa yazılı/sesli geri bildirim üretmeli. Temas, pist dışı, havada veya dönüş sırasında temiz başarı verilmemeli.
+
+Rakipler Kupası Yarış menüsünden açılıyor. gp_1 / gp_2 / gp_3 mevcut asfalt pistleri, Doruk / Ece / Bora sabit araçları, katalog pilotları ve gerçek fizik. Kupa pistlerine kendi girişinden erişilir. Kupa aracı başlangıçta sabitlenir, garajda geliştirilebilir. Eşit puanda galibiyet sayısı ve son yarışın sırası kullanılır. Yarış bitiminde henüz bitirmemiş araçlar o anki pist ilerlemesiyle sınıflandırılır. Altın arma kazanımı kalıcıdır, oyuncu düğmeyle uygulayınca seçili aracın en üst çıkartma katmanına yerleşir. Mevcut arma biçiminin altın renkli önayarıdır. Güç kazancı sıfır. Edinme maliyeti üç yarışı genel klasmanda kazanmak, süre gerçek insan sürüşüyle ölçülmedi.
+
+Kupa kaydı GarageState snapshot içinde saklanır ve GarageSession aday kopya/kayıt işlemini kullanır. Normal kariyer ödülü ve rekor akışına kupa sonuçları yazılmaz. Aynı bitiş sıra numarası yeniden işlenmez. Yeni rövanş puanları sıfırlar ve kozmetik kazanımı korur.
+
+DrivingFeedback saf katmanı sabit adımda hız, sıra, tur, drift, temas ve yakın araç konumundan kısa süreli bildirim üretir. Üç saniyelik bekleme ve 0,8 saniyelik temiz sürüş koşulu var. Yakın geçiş için aracın yakından önden arkaya geçmesi gerekir. HUD mevcut orta bildirim alanını kullanır, ses mevcut kasa efektini düşük şiddette çalar. İlk Unity kupa sürüşü tamamlandı. Eklenen bildirim kontrolü test adımlamasının normal sürüşteki geri bildirim yoluna bağlı olmadığını yakaladı. İki giriş aynı yardımcıya bağlandı.
+
+Kısa çekirdek doğrulaması 15 kontrol, garaj kayıt regresyonu 66 kontrol geçti. Unity son görsel ve paket kanıtı aşağıya eklenecek. İnsan sürüş ve keyif değerlendirmesi açık.
+
+
+Son kaynak 15c55d4. Unity Play 26 kontrol ve altı görüntüyle geçti, çalışma anı hatası 0. Üç tam gerçek fizik yarışında otomatik pilot toplam 15 puanla üçüncü, Doruk 21 puanla birinci oldu. Genel derece ile son yarış derecesi ayrı gösterildi. Arma ödülü ayrıca kontrollü şampiyonluk senaryosunda kayıt ve diskten yeniden açılışla doğrulandı. Son tur bildirimi görüntüde ve ses kanalı sayacında doğrulandı.
+
+Windows derlemesi sıfır hata ile tamamlandı. Ayrı süreçlerde 25 yazma ve 15 yeniden yükleme kontrolü geçti. Play ve build raporlarında 256 kaynak özeti çalışma ağacıyla eşleşti. Kanıtlar Unity/Logs/P7StoreEditor/Logs/championship-play.json ve championship-build.json, ürün Unity/Builds/KupaWindows-20261120/LastTurn.exe. Menü görsel tabanı önceki çalışma ağacındadır. Kupa kaynak commit'i önceki menü çalışmasının tamamını içermez. Push/merge/yayın yapılmadı. İnsan sürüş, zorluk ve beğeni değerlendirmesi açık. Sonraki adım oyuncunun kupa temposu ve bildirim sıklığı değerlendirmesidir.

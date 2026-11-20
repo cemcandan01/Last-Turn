@@ -1,3 +1,9 @@
+# Rakipler Kupası ve sürüş geri bildirimi (20 Kasım 2026)
+
+Kullanıcının seçimiyle önce 1 ve 2 tamamlandı. Oyun kaynağı `15c55d4`, sahip Codex. Yarış → Rakipler Kupası üç asfalt yarışını aynı Doruk, Ece ve Bora ile puan tablosuna bağlar. Kupa kaydı garajla saklanır. Kazanan altın arma önayarını kupa menüsünden seçili aracın üst çıkartma katmanına uygulayabilir. Temiz sollama, yakın geçiş, drift çıkışı ve son tur kısa yazılı/sesli bildirim üretir.
+
+[Windows oyunu](../Unity/Builds/KupaWindows-20261120/LastTurn.exe) ve [aynı kart](isler/2026-11-16-surukleyici-dongu.md). Çekirdek 15, garaj kaydı 66, Unity Play üç tam yarışla 26, Windows ayrı süreçlerde 25 + 15 kontrol geçti. Play / derlemedeki 256 kaynak özeti çalışma ağacıyla eşleşti. Yeni paket mevcut sade menü değişikliklerini de içerir. İnsan sürüşü ve zorluk/keyif kabulü açık. Sonraki adım oyuncu sürüşünde kupa temposunu ve bildirim sıklığını değerlendirmek.
+
 # Eleme yarışı, MUTANT ikilileri ve çıkartma katmanları (20 Kasım 2026)
 
 Asfalt ve rallikros yarış hazırlığından **Eleme · 3 Tur** seçilebilir. MUTANT ödül kartları üç ikilinin eşini ve sürüşte nasıl tetikleneceğini gösterir. Garaj → Parça Modifiyesi → Görsel Atölye ekranında araç başına üç çıkartma katmanı düzenlenebilir. Uygulayıcı Codex, oyun kaynağı `53628e0`. [Windows oyunu](../Unity/Builds/ElemeWindows-20261120/LastTurn.exe) ve [ölçümler ile görev kartı](isler/2026-11-16-surukleyici-dongu.md).
