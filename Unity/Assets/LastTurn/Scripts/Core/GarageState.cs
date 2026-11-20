@@ -31,6 +31,7 @@ namespace LastTurn.Core
       return true;
     }
 
+    public RivalChampionship Championship {get;private set;}=new RivalChampionship();
     public VehicleCatalog Catalog { get; }
     /// TS ilerleme adminKip: admin oturumunda her araç, parça ve pist açık görünür; kayda yazılmaz. Yalnız CloudAccount
     /// sunucu admins/{uid} onayından sonra açar, oturum değişince kapatır.
@@ -291,6 +292,7 @@ namespace LastTurn.Core
     public CatalogNode Snapshot()
     {
       var root = CatalogNode.Obj();
+      root.Set("championship",Championship.Save());
       root.Set("version", CatalogNode.Num(Version));
       root.Set("baseline", CatalogNode.Str(VehicleCatalog.Baseline));
       root.Set("catalogGeneration", CatalogNode.Num(CatalogGeneration));
@@ -418,6 +420,8 @@ namespace LastTurn.Core
         int car = Integer(snapshot["selectedCar"], "Seçili araç", 0, int.MaxValue);
         if (state.OwnsCar(car)) state.SelectedCar = car;
       }
+      state.Championship=RivalChampionship.Load(snapshot["championship"]);
+      if(state.Championship.Active && !state.ValidCar(state.Championship.Car))throw new ArgumentException("Şampiyona aracı geçersiz.");
       if(snapshot["appearances"].IsObject)
         foreach(var pair in snapshot["appearances"].Fields)
           if(int.TryParse(pair.Key,out int id) && state.ValidCar(id) && pair.Value.IsObject)

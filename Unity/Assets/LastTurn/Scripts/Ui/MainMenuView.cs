@@ -35,7 +35,7 @@ namespace LastTurn.Ui
     public int HomeItemCount => HomeItems.Length;
     public bool ConfirmOpen => confirm != null && !confirm.ClassListContains("gizli");
     public bool MutantHelpOpen=>mutantHelp!=null&&!mutantHelp.ClassListContains("gizli");
-    private Label mutantHelp;
+    private Label mutantHelp,cupTable;private VisualElement cupPanel;
 
     private sealed class ProfileBadge
     {
@@ -124,6 +124,9 @@ namespace LastTurn.Ui
       var tabs = new VisualElement(); tabs.AddToClassList("sekmeler"); tabs.pickingMode = PickingMode.Ignore; tabs.Add(Ui.Key("Q"));
       for (int i = 0; i < RaceTabs.Length; i++) { int n = i; var t = Ui.Tab(RaceTabs[i], () => OpenRaceTab(n)); if (i == 0) t.AddToClassList("sec"); tabs.Add(t); }
       tabs.Add(Ui.Key("E")); bar.Add(tabs);
+      var cupButton=Ui.Button("RAKİPLER KUPASI","",ToggleCup,small:true);
+      cupButton.name="championship-menu";bar.Add(cupButton);
+
       var mini = new VisualElement(); mini.AddToClassList("mini"); mini.pickingMode = PickingMode.Ignore;
       var badge = new ProfileBadge(); var sv = new VisualElement { pickingMode = PickingMode.Ignore }; sv.AddToClassList("sv"); badge.Level = Ui.Text("1"); sv.Add(badge.Level); mini.Add(sv);
       badge.Line = Ui.Text(""); mini.Add(badge.Line); var sep = new VisualElement(); sep.AddToClassList("ayrac"); mini.Add(sep);
@@ -140,6 +143,15 @@ namespace LastTurn.Ui
       }
       head.Add(types); race.Add(head);
       cards = Row(); cards.style.alignItems = Align.Stretch; Ui.Absolute(cards, left: 58, right: 58, bottom: 88); cards.style.height = 214; race.Add(cards);
+      cupPanel=new VisualElement{name="championship-panel"};cupPanel.AddToClassList("g-panel");
+      Ui.Absolute(cupPanel,left:58,right:58,top:135,bottom:95);cupPanel.style.backgroundColor=new Color(.12f,.16f,.17f,1);
+      cupPanel.Add(Ui.Text("RAKİPLER KUPASI","baslik"));
+      cupPanel.Add(Ui.Text("Üç asfalt yarışı. Doruk, Ece ve Bora’ya karşı 10 / 6 / 3 / 1 puan. Eşit puanda galibiyet sayısı, sonra son yarış belirler. Kazanan altın arma kazanır.","g-copy"));
+      cupTable=Ui.Text("","g-copy");cupTable.style.whiteSpace=WhiteSpace.Normal;cupTable.style.marginTop=20;cupTable.style.fontSize=28;cupPanel.Add(cupTable);
+      var cupGo=Ui.Button("KUPAYA GİR / DEVAM ET","",()=>{if(!ChampionshipSession.Start())cupTable.text=ChampionshipSession.Message+"\n"+GarageSession.Message;},true);
+      cupGo.name="championship-start";cupGo.style.maxWidth=600;cupPanel.Add(cupGo);
+      var prize=Ui.Button("ALTIN ARMAYI UYGULA","",()=>{ChampionshipSession.ApplyPrize();cupTable.text=GarageSession.Message;},small:true);prize.name="championship-prize";prize.style.maxWidth=600;cupPanel.Add(prize);
+      cupPanel.Add(Ui.Button("KAPAT","",()=>Ui.Show(cupPanel,false),small:true));race.Add(cupPanel);Ui.Show(cupPanel,false);
       raceStatus = Ui.Text("", "durum", "golge"); Ui.Absolute(raceStatus, left: 58, bottom: 30); raceStatus.style.maxWidth = 900; race.Add(raceStatus);
       race.Add(Ui.Hints(("Q|E", "Sekme"), ("↑|↓", "Tür"), ("←|→", "Pist"), ("Enter", "Seç"), ("Esc", "Ana menü")));
     }
@@ -220,6 +232,10 @@ namespace LastTurn.Ui
       foreach (var b in badges) b.Set(m);
       moneyLabel.text = m.Money.ToString("N0") + " para";
       string msg = GameFlow.Message != "" ? GameFlow.Message : GarageSession.Message ?? ""; status.text = msg; raceStatus.text = msg;
+      if(Showing==GameFlow.MenuHub.Race && cupPanel!=null && !cupPanel.ClassListContains("gizli")){
+        cupTable.text=ChampionshipSession.Table()+"\n"+ChampionshipSession.Message+"\n"+(GarageSession.State.Championship.Complete?"Rövanş için kupaya yeniden gir.":"Başladığın araçla devam et. Garajda geliştirebilirsin.");
+        cupPanel.Q("championship-prize").SetEnabled(GarageSession.State.Championship.Unlocked);
+      }
       if (Showing == GameFlow.MenuHub.Race && (m != shown || type != shownType)) Rebuild(m);
       if (Showing == GameFlow.MenuHub.Mutant) { var r = MutantRuntime.Record(); mutantBest.text = r.Region > 0 ? "Bölge " + r.Region + " · " + r.Bosses + " boss" : "Henüz koşu yok"; }
       if (Showing == GameFlow.MenuHub.Home && !homeTiles[homeFocus].ClassListContains("sec")) FocusHome(homeFocus);
@@ -229,6 +245,12 @@ namespace LastTurn.Ui
     private void Keys(Keyboard k)
     {
       if (k == null) return;
+      if(Showing==GameFlow.MenuHub.Race && cupPanel!=null && !cupPanel.ClassListContains("gizli")){
+        if(k.escapeKey.wasPressedThisFrame){Ui.Show(cupPanel,false);return;}
+        if(k.enterKey.wasPressedThisFrame)ChampionshipSession.Start();
+        return;
+      }
+
       bool enter = k.enterKey.wasPressedThisFrame || k.numpadEnterKey.wasPressedThisFrame, esc = k.escapeKey.wasPressedThisFrame;
       switch (Showing)
       {
@@ -254,6 +276,11 @@ namespace LastTurn.Ui
       }
     }
 
+    private void ToggleCup()
+    {
+      bool open=cupPanel.ClassListContains("gizli");Ui.Show(cupPanel,open);
+      if(open)cupPanel.Q("championship-start").Focus();
+    }
     private void SelectType(int n) { type = n; GameAudio.Click(); }
 
     private void Rebuild(CareerMenuModel m)

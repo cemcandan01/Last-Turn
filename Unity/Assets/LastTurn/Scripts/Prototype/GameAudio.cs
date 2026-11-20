@@ -33,6 +33,7 @@ namespace LastTurn.Prototype
       sound.AddComponent<GameAudio>();
     }
     /// Arayüz tık sesi (TS arayüz tıkları): dokunmatik düğmeler ve menüler çağırır.
+    public static void Celebrate() => pending.Add("kasa");
     public static void Click() => pending.Add("tik");
     private AudioClip Clip(string name)
     {
@@ -94,7 +95,7 @@ namespace LastTurn.Prototype
       filter.cutoffFrequency=(float)mix.CockpitCutoff;
       foreach (var s in new[] { engine, tires, loose,spin,wind }) s.mute = mix.Effects <= 0;
       foreach (var e in director.Events) Play(e.Name, (float)e.Strength);
-      foreach (var n in pending) Play(n, 1); pending.Clear();
+      foreach (var n in pending) Play(n, n=="kasa"?.25f:1); pending.Clear();
     }
     // Temas kareleri arasında çıtırtıyı önler. Gaz kesilince kısa bir lastik kuyruğu kalır.
     private static float SmoothTire(float current, float target, float dt)

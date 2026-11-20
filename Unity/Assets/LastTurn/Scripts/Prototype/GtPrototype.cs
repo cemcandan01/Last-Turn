@@ -190,6 +190,9 @@ namespace LastTurn.Prototype
       if(MutantRuntime.Active){MutantRuntime.AfterPhysics(Simulation,world);parameters=Simulation.Parameters;}
       runner.SyncPrevious();
     }
+    public DrivingFeedback Feedback {get;private set;}=new DrivingFeedback();
+    private int feedbackSerial;
+    private int championshipRound;private bool championshipSaved;
     public CircuitField Field {get;private set;}
     private readonly List<SourceVehicleView> fieldViews=new List<SourceVehicleView>();
 
@@ -221,7 +224,7 @@ namespace LastTurn.Prototype
         var world=new TrackWorld(track){Environment=RaceWorld.Environment,GripMultiplier=RaceWorld.GripMultiplier};
         var plan=WorldData.Opponents.Plan(track.Key,i==0?"deneyimli":"caylak");
         racers[i]=new OpponentRacer(physics,world,track,info,plan,(uint)(731+i),x,z,grid.Heading);
-        string key=cars[i].car["k"].S(); names[i+1]=key.ToUpperInvariant();
+        string key=cars[i].car["k"].S(); names[i+1]=WorldData.Championship?RivalChampionship.Names[i+1]:key.ToUpperInvariant();
         fieldViews.Add(SourceVehicleView.Create(key,transform));
       }
       Field=new CircuitField(Simulation,racers,names,WorldData.Knockout);
@@ -368,6 +371,7 @@ namespace LastTurn.Prototype
     public void InitializeRace() => InitializeRace(RaceTrack);
     public void InitializeRace(string key)
     {
+      Feedback=new DrivingFeedback();feedbackSerial=0;
       FlushProfileDistance();observedRaceKm=0;
       var data = RaceData.Load();var mutant=MutantRuntime.Active?MutantRuntime.RacePlan:null;
       var info = mutant!=null?mutant.Event:data.Event(key); var track = mutant!=null?mutant.Track:data.Tracks.Tracks[info.Index];
@@ -377,6 +381,8 @@ namespace LastTurn.Prototype
       if (key != RaceTrack) { trackVisuals.Build(track,mutant?.World); RaceTrack = key; }
       RaceDefinition=track;
       var drive = mutant!=null?new GarageRace.Drive{Parameters=MutantRuntime.Session.BuildPhysics(),Setup=MutantRuntime.Session.BuildSetup(),Car=MutantRuntime.Car,Career=false,Message="Mutant koşusu"}:GarageRace.Prepare(info);
+      if(WorldData.Championship){drive.Career=false;drive.Message="Rakipler Kupası · 10 / 6 / 3 / 1 puan";}
+      championshipRound=GarageSession.State.Championship.Round;championshipSaved=false;
       if(WorldData.Knockout){drive.Career=false;drive.Message="Eleme · İlk iki turda sonuncu elenir. Finalde çizgiyi ilk geç.";}
       parameters = drive.Parameters ?? GtPrototypeParameters.Create(); RaceMessage = drive.Message;
       AppliedGarageCarId = "";
@@ -443,13 +449,27 @@ namespace LastTurn.Prototype
       if(Field!=null && Field.Drive()) Race.Recording.Cut=true;
       int teleports = Race.Teleports; Race.AfterPhysicsStep(lastQuantized);
       StepOpponent();
+      UpdateDrivingFeedback(Race.Teleports!=teleports);
       ObserveRaceDistance();if(Simulation.Body.Steps%1200==0)FlushProfileDistance();
       if (Race.Teleports != teleports) { runner.SyncPrevious(); followCamera.ResetFollow(); }
       return Race.PhysicsRunning&&mutantContinue;
     }
+    private void UpdateDrivingFeedback(bool teleported)
+    {
+      var rivals=Field!=null?Field.Rivals.Select(r=>OpponentTrafficCar.Read(r.Vehicle)).ToArray():Opponent!=null?new[]{OpponentTrafficCar.Read(Opponent.Vehicle)}:Array.Empty<OpponentTrafficCar>();
+      Feedback.Step(PowertrainVehicle.FixedDelta,OpponentTrafficCar.Read(Simulation),rivals,Field?.PlayerRank??1,
+        Race.Session.Lap,Race.Event.Laps,Race.Session.State==RaceState.Running,Simulation.Assist.On,
+        Simulation.Body.Steps*PowertrainVehicle.FixedDelta-Simulation.Body.LastHitTime<.2,Race.Session.Wrong.WrongWay || Race.Session.OffTrack.First!=null || Simulation.Body.Airborne || teleported);
+      if(Feedback.Serial!=feedbackSerial){feedbackSerial=Feedback.Serial;GameAudio.Celebrate();}
+    }
     private void StepOpponent()
     {
-      if(Field!=null){Field.UpdateOrder(Race);return;}
+      if(Field!=null){
+        Field.UpdateOrder(Race);
+        if(WorldData.Championship && Race.Session.State==RaceState.Finished && !championshipSaved)
+          championshipSaved=ChampionshipSession.Finish(championshipRound,(int[])Field.Order.Clone());
+        return;
+      }
       if(Opponent==null)return;
       Opponent.Step(traffic:Race.Session.State==RaceState.Running?playerTraffic:(OpponentTrafficCar?)null);
       if(mutantDrive && Race.Session.State==RaceState.Running && (Race.Event.Type=="gp" || Race.Event.Type=="rx"))
@@ -474,7 +494,7 @@ namespace LastTurn.Prototype
       }
       catch (Exception e) { return "Rekor okunamadı: " + e.Message; }
     }
-    public void RestartRace() { if(mutantDrive){InitializeRace(MutantRuntime.RacePlan.Track.Key);return;}FlushProfileDistance();if (raceDrive != null && raceDrive.Parameters != null) GarageRace.Started(raceDrive.Car); Race.Restart();CreateOpponent(); observedRaceKm=0;RecordText = RaceRecordText(); runner.SyncPrevious(); previousSteer = 0; followCamera.ResetFollow(); RenderFrame(0); RestartCount++; }
+    public void RestartRace() { if(WorldData.Championship && championshipSaved)return; Feedback=new DrivingFeedback();feedbackSerial=0; if(mutantDrive){InitializeRace(MutantRuntime.RacePlan.Track.Key);return;}FlushProfileDistance();if (raceDrive != null && raceDrive.Parameters != null) GarageRace.Started(raceDrive.Car); Race.Restart();CreateOpponent(); observedRaceKm=0;RecordText = RaceRecordText(); runner.SyncPrevious(); previousSteer = 0; followCamera.ResetFollow(); RenderFrame(0); RestartCount++; }
     /// Doğrulama: bir sabit adım (geri sayımda 1/60 sn sayaç, yarışta fizik + yarış adımı).
     public void StepRace(DrivingInput value)
     {
@@ -482,6 +502,7 @@ namespace LastTurn.Prototype
       CurrentInput = value;
       if (Race.Session.State == RaceState.Countdown) { Race.TickCountdown(PowertrainVehicle.FixedDelta, value); CountdownOpponents(); return; }
       if (Race.Session.State != RaceState.Running) return;
+      int previousTeleports=Race.Teleports;
       CaptureOpponentTraffic();previousSteer = Simulation.Engine.SteeringAngle;
       if(mutantDrive){var q=Race.Record(value);Simulation.Step(q);MutantRuntime.AfterPhysics(Simulation,world,true,Opponent);parameters=Simulation.Parameters;Race.AfterPhysicsStep(q);}
       else if(Field!=null)
@@ -491,7 +512,7 @@ namespace LastTurn.Prototype
         Race.AfterPhysicsStep(q);
       }
       else Race.Step(value);
-      StepOpponent();ObserveRaceDistance();if(Simulation.Body.Steps%1200==0)FlushProfileDistance();runner.SyncPrevious();
+      StepOpponent();UpdateDrivingFeedback(Race.Teleports!=previousTeleports);ObserveRaceDistance();if(Simulation.Body.Steps%1200==0)FlushProfileDistance();runner.SyncPrevious();
     }
     public void ConfigureRace(string key, RaceTrackVisuals visuals)
     {

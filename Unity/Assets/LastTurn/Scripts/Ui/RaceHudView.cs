@@ -124,21 +124,21 @@ namespace LastTurn.Ui
       if (r.ContainsKey("Title")) Place(left, r, "Title", k); else Place(left, r, "RacePanel", k);
       if (r.ContainsKey("Timer")) Place(timer, r, "Timer", k); else { Ui.Show(timer, true); timer.style.left = Length.Percent(35); timer.style.width = Length.Percent(30); timer.style.top = 12; }
       Place(speedBox, r, "Speed", k); Place(hints, r, "Hint", k);
-      title.text = Ui.Upper(s.Event.Name);
+      title.text = Ui.Upper(s.Event.Name)+(WorldData.Championship?" · KUPA "+(GarageSession.State.Championship.Round+1)+"/3":"");
       var lines = new List<string>();
       bool knockout=p.Field!=null && p.Field.Knockout;
       if(knockout)lines.Add(p.Field.Remaining==2?"Final · Çizgiyi ilk geç":p.Field.Remaining==4?"1. eleme · İlk üçe gir":"2. eleme · İlk ikiye gir");
-      else if (m.Objective != "") lines.Add(m.Objective);
+      else if (!WorldData.Championship && m.Objective != "") lines.Add(m.Objective);
       if (m.Drift != "" || m.X6 != "") lines.Add((m.Drift + "   " + m.X6).Trim());
       if (!string.IsNullOrEmpty(p.RaceMessage)) lines.Add(p.RaceMessage);
-      if (!knockout && !string.IsNullOrEmpty(p.RecordText)) lines.Add(p.RecordText);
+      if (!knockout && !WorldData.Championship && !string.IsNullOrEmpty(p.RecordText)) lines.Add(p.RecordText);
       // TS hud.ts: güneş dışında hava adı gösterilir (zemin daha kaygan)
       if (p.Conditions.Weather != "sun" || p.Conditions.Night) lines.Add(p.Conditions.Label);
       if (p.Field == null && p.Opponent != null) lines.Add(p.OpponentText());
       info.text = string.Join("\n", lines);
-      big.text = m.Big; sub.text = knockout?"Tur "+System.Math.Min(3,s.Lap+1)+"/3":m.Sub;
+      big.text = m.Big; sub.text = WorldData.Championship?"Tur "+System.Math.Min(s.Event.Laps,s.Lap+1)+"/"+s.Event.Laps:knockout?"Tur "+System.Math.Min(3,s.Lap+1)+"/3":m.Sub;
       DrawSpeed();
-      countdown.text = m.Countdown; note.text = m.Note; back.text = m.Return; Ui.Show(wrong, m.WrongWay);
+      countdown.text = m.Countdown; note.text = p.Feedback.Current!=""?p.Feedback.Current:m.Note;note.EnableInClassList("vurgu",p.Feedback.Current!=""); back.text = m.Return; Ui.Show(wrong, m.WrongWay);
       // masaüstü ipucu: yalnız ilk saniyelerde
       bool hint = s.State == RaceState.Countdown || s.Time < 6;
       hintText.text = hint ? "W/S gaz–fren · A/D direksiyon · Boşluk el freni · T piste dön · R yeniden başlat · V kamera · Esc duraklat"

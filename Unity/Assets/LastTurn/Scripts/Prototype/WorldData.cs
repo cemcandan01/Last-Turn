@@ -10,12 +10,13 @@ namespace LastTurn.Prototype
     private static WorldCatalog catalog;private static OpponentCatalog opponents;
     public static string OpenKey{get;private set;}="";
     public static bool OpponentTest{get;private set;}
+    public static bool Championship{get;private set;}
     public static bool Knockout{get;private set;}
     public static WorldCatalog Catalog=>catalog??(catalog=new WorldCatalog(Text("world-catalog"),RaceData.Load().Tracks));
     public static OpponentCatalog Opponents=>opponents??(opponents=new OpponentCatalog(Text("opponent-catalog")));
     private static string Text(string name){var t=Resources.Load<TextAsset>(name);if(!t)throw new InvalidOperationException(name+" verisi eksik.");return t.text;}
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]private static void Reset(){Clear();catalog=null;opponents=null;}
-    public static void Clear(){Knockout=false;OpenKey="";OpponentTest=false;}
+    public static void Clear(){Championship=false;Knockout=false;OpenKey="";OpponentTest=false;}
     public static void PrepareMutantWorld(string key){Clear();Catalog.Region(key);OpenKey=key;}
     public static bool Open(string key)
     {
@@ -34,6 +35,14 @@ namespace LastTurn.Prototype
       if(info.Type!="gp" && info.Type!="rx")return false;
       Knockout=true;
       if(TestPanelActions.StartRace(key))return true;
+      Clear();return false;
+    }
+    public static bool StartChampionship(string key)
+    {
+      Clear();
+      if(key!=GarageSession.State.Championship.Track)return false;
+      Championship=true;RaceData.Selected=key;
+      if(TestPanelActions.OpenScene("RaceTest"))return true;
       Clear();return false;
     }
     public static bool StartCareer(string key){Clear();return TestPanelActions.StartRace(key);}

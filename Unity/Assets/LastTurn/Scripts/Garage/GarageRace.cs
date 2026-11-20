@@ -52,7 +52,7 @@ namespace LastTurn.Garage
     /// TS startEvent: seçili aracın kullanım sayacı.
     public static void Started(int car)
     {
-      if(LastTurn.Prototype.WorldData.OpponentTest || LastTurn.Prototype.WorldData.Knockout)return;
+      if(LastTurn.Prototype.WorldData.OpponentTest || (LastTurn.Prototype.WorldData.Knockout || LastTurn.Prototype.WorldData.Championship))return;
       if (GarageSession.Store == null || GarageSession.Store.ReadOnly) return;
       try { var store = ProfileStore(); var p = store.Load(); p.Started(car); store.Save(p); }
       catch (IOException e) { LastMessage = "Yarış profili yazılamadı: " + e.Message; }
@@ -62,7 +62,7 @@ namespace LastTurn.Garage
     public static void Finished(RaceRun run, Drive drive)
     {
       LastPreviousBest = double.NaN; LastNewRecord = false; LastGhostSaved = false; LastMessage = "";
-      if(LastTurn.Prototype.WorldData.OpponentTest || LastTurn.Prototype.WorldData.Knockout)return;
+      if(LastTurn.Prototype.WorldData.OpponentTest || (LastTurn.Prototype.WorldData.Knockout || LastTurn.Prototype.WorldData.Championship))return;
       if (GarageSession.Store == null || GarageSession.Store.ReadOnly) { LastMessage = "Kayıt salt okunur: rekor yazılmadı."; return; }
       try
       {
@@ -97,7 +97,7 @@ namespace LastTurn.Garage
     /// Kayıtlı hayaleti kendi araç kurulumuyla oyuncudan ayrı fizikte oynat (yoksa null).
     public static GhostPlayer Ghost(RaceEventInfo info, TrackDefinition track, string recordKey, double currentGrip = 1)
     {
-      if(LastTurn.Prototype.WorldData.OpponentTest || LastTurn.Prototype.WorldData.Knockout)return null;
+      if(LastTurn.Prototype.WorldData.OpponentTest || (LastTurn.Prototype.WorldData.Knockout || LastTurn.Prototype.WorldData.Championship))return null;
       try
       {
         GarageSession.EnsureLoaded(); var g = ProfileStore().LoadGhost(recordKey);

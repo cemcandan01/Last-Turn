@@ -21,7 +21,7 @@ namespace LastTurn.Ui
     public string ValueText => value.text;
     public int StarsShown { get; private set; }
 
-    private VisualElement page, stars, rows, levelFill, levelGain, primary;
+    private VisualElement page, stars, rows, levelFill, levelGain, primary, again;
     private Label where, value, delta, deltaText, record, header, reward, level, note;
     private GtPrototype driver; private RaceSession shown;
 
@@ -59,7 +59,7 @@ namespace LastTurn.Ui
 
       var buttons = new VisualElement(); buttons.AddToClassList("rs-actions");
       var garage = Ui.Button("GARAJ", "G", Garage); garage.name = "result-garage"; buttons.Add(garage);
-      var again = Ui.Button("TEKRAR", "R", Again); again.name = "result-again"; buttons.Add(again);
+      again = Ui.Button("TEKRAR", "R", Again); again.name = "result-again"; buttons.Add(again);
       primary = Ui.Button("", "Enter", Next, primary: true); primary.name = "result-next"; buttons.Add(primary);
       page.Add(buttons);
       page.Add(Ui.Hints(("Esc", "Yarış menüsü")));
@@ -71,6 +71,7 @@ namespace LastTurn.Ui
       if (page == null) return;
       var s = Session(); bool wasVisible = Visible; Visible = s != null; Ui.Show(page, Visible);
       if (!Visible) { shown = null; return; }
+      Ui.Show(again,!WorldData.Championship);
       if (s != shown) { shown = s; Render(s); }
       if (!wasVisible || LevelUpView.Open) return;
       var k = Keyboard.current; if (k == null) return;
@@ -82,6 +83,19 @@ namespace LastTurn.Ui
 
     private void Render(RaceSession s)
     {
+      if(WorldData.Championship && driver.Field!=null){
+        var cup=GarageSession.State.Championship;
+        where.text="RAKİPLER KUPASI · "+cup.Round+"/3";
+        value.text=cup.Complete?(System.Array.IndexOf(cup.Standings,0)+1)+". GENEL":driver.Field.PlayerRank+". SIRA";
+        deltaText.text=cup.Complete?(cup.Standings[0]==0?"ŞAMPİYONSUN · Kupa menüsünden altın armanı uygula.":RivalChampionship.Names[cup.Standings[0]]+" kupayı kazandı. Rövanş için yeniden dene."):ChampionshipSession.Message!=""?"Kayıt tamamlanamadı. Menüye dönmeden kayıt sorununu çöz.":"Puanlar kaydedildi. Sıradaki yarışta aynı rakiplerle karşılaşacaksın.";
+        Ui.Show(delta,false);Ui.Show(record,false);header.text=cup.Complete?"Son yarış "+driver.Field.PlayerRank+". sıra":"10 / 6 / 3 / 1 puan";stars.Clear();StarsShown=0;
+        rows.Clear();var points=cup.Points;
+        foreach(int id in cup.Standings)rows.Add(Row(RivalChampionship.Names[id],points[id]+" puan"));
+        reward.text=cup.Unlocked?"Altın arma açıldı":"Kupa ödülü · Altın arma";
+        note.text=ChampionshipSession.Message;level.text="";levelFill.style.width=levelGain.style.width=0;
+        NextKey="";primary.Q<Label>(className:"yazi").text=cup.Complete?"YARIŞ MENÜSÜ":"SIRADAKİ KUPA YARIŞI";
+        return;
+      }
       if(driver.Field!=null && driver.Field.Knockout){
         var field=driver.Field;int rank=field.PlayerRank;
         where.text=Ui.Upper(s.Event.Name)+" · ELEME";value.text=rank==1?"KAZANDIN":rank+". SIRA";
@@ -126,7 +140,7 @@ namespace LastTurn.Ui
       var e = new VisualElement(); e.AddToClassList("rs-row"); e.Add(Ui.Text(label, "g-copy", "soluk")); e.Add(Ui.Text(val, "dar", "rs-row-value")); return e;
     }
 
-    public void Next() { GameAudio.Click(); GameFlow.LeaveDrive(2, false, NextKey); }
+    public void Next() { GameAudio.Click(); if(WorldData.Championship && !GarageSession.State.Championship.Complete){ChampionshipSession.Start();return;} GameFlow.LeaveDrive(2, false, NextKey); }
     public void Garage() { GameAudio.Click(); GameFlow.LeaveDrive(0); }
     public void Again() { GameAudio.Click(); if (driver) driver.RestartRace(); }
 
