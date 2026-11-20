@@ -105,6 +105,7 @@ Bitirirken görev kartına sahip, dal, son SHA, test kapsamı + sonuç + kanıt,
 
 ## Açık sorunlar ve bekleyen kararlar
 
+- **Dal senkronu:** `gelistirme` dalı 7 Kasım'da (`b465ec8`, Deneme 0.8.25) kalmış; `docs-cleanup`/garaj zinciri 86 commit ileride. Dallar ayrıca senkronize edilecek (Cem onayı ve deneme yayını süreciyle). O zamana kadar MUTANT dilimi `mutant-dilim` dalında (`docs-cleanup` `2a77671` tabanlı, ayrı worktree) geliştirilir.
 - Çalışma ağacında (`codex/unity-p7-garaj`) Pit menü tasarımı ve diğer UI/Recovery dosyaları commit edilmemiş; kart `docs/isler/2026-11-14-profesyonel-menu.md`. Başkasının yarım işini commit'e alma.
 - Son paketler (atölye, rota, kupa, sürüş tepkileri) için **insan görsel/sürüş/eğlence/zorluk kabulü açık**; rota ödül dengesi ve ses beğenisi ölçülmemiş. Kart: `docs/isler/2026-11-16-surukleyici-dongu.md`.
 - Dış ayar ve cihaz kabul maddeleri: `docs/FIREBASE.md`, `docs/CIHAZ.md` (9 Kasım devir kaydına göre gerçek Google girişi tek dış ayar bekliyordu; güncelliği doğrulanmadı).
