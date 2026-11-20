@@ -97,6 +97,57 @@ namespace LastTurn.EditorValidation
       Check(P.Simulation.Engine.BrakeLights,"Gerçek fren girdisi stop sinyali verdi");
     }
 
+    private static bool CircuitProof => Environment.GetCommandLineArgs().Contains("-circuitProof");
+    private static void SetupCircuit()
+    {
+      string dir=Path.Combine(Project,"Logs/Circuit/"+Guid.NewGuid().ToString("N"));
+      GarageSession.Open(Path.Combine(dir,"garage.json"),true);
+      foreach(string key in new[]{"gp_1","rx_1"})
+      {
+        Add(()=>Check(TestPanelActions.StartRace(key),key+" normal yarış girişi"));
+        Wait(()=>P && P.RaceTrack==key && P.Field!=null);
+        Add(()=>{
+          P.ManualStepping=true;
+          Check(!WorldData.OpponentTest && P.Field.Rivals.Length==3,key+" oyuncu ve üç fiziksel rakip");
+          Check(P.Field.PlayerRank>=3 && P.Field.Order.Distinct().Count()==4,key+" dört ayrı start sırası");
+          Check(UiRoot.Instance.Hud.Q("circuit-standings").resolvedStyle.display==DisplayStyle.Flex,key+" canlı sıralama alanı");
+          P.Race.Session.TickCountdown(4);
+          driver=RaceTestDriver.For(P.Race.Event.Type);
+          for(int i=0;i<150;i++) P.StepRace(driver.Input(P.Race));
+          Check(P.Field.Rivals.All(r=>r.Time>2 && r.Vehicle.Body.Velocity.Length>1),key+" bütün rakipler sürüyor");
+        });
+        Shots("grid-"+key.Replace('_','-'),1280,1920);
+        Add(()=>{
+          var rival=P.Field.Rivals[0].Vehicle;
+          var pose=OpponentTrafficCar.Read(rival);
+          // Temas fixture'ı: oyuncuyu arka tampona yerleştir, iki aracı normal yarış adımıyla ilerlet.
+          double gap=(OpponentTrafficCar.Read(P.Simulation).Length+pose.Length)*.5-.4;
+          P.Simulation.Place(pose.X-gap*Math.Sin(pose.Heading),pose.Z-gap*Math.Cos(pose.Heading),pose.Heading);
+          typeof(VehicleState).GetProperty("Velocity").SetValue(P.Simulation.Body,rival.Body.Velocity+
+            new BodyVector(Math.Sin(pose.Heading)*8,0,Math.Cos(pose.Heading)*8));
+          int hits=P.Field.PlayerContacts;
+          P.StepRace(new DrivingInput(.3,0,0));
+          Check(P.Field.PlayerContacts>hits && P.Simulation.Body.LastImpactSpeed>2 && rival.Body.LastImpactSpeed>2,key+" iki gövdede gerçek temas darbesi");
+          Check(P.Race.Recording.Cut,key+" temaslı sürüş girdi hayaleti olarak kaydedilmez");
+          P.RestartRace(); P.ManualStepping=true;
+          Check(P.Field.PlayerContacts==0 && !P.Race.Recording.Cut,key+" tekrarda temiz grid");
+          P.Race.Session.TickCountdown(4);
+          driver=RaceTestDriver.For(P.Race.Event.Type);
+        });
+        int rounds=0;
+        Add(()=>{
+          for(int i=0;i<360 && P.Race.PhysicsRunning;i++){
+            P.StepRace(driver.Input(P.Race)); driver.RespawnIfStuck(P.Race);
+          }
+          if(P.Race.PhysicsRunning && ++rounds<75){index--;return;}
+          Check(P.Race.Session.State==RaceState.Finished && P.Field.PlayerRank>=1 && P.Field.PlayerRank<=4,key+" doğal yarış bitişi ve sonuç sırası");
+        });
+        Add(()=>GameFlow.LeaveDrive()); Wait(()=>SceneManagerName()=="Garage");
+      }
+      Add(()=>Check(proof.errors.Count==0,"Çalışma zamanı hatası yok"));
+    }
+    private static string SceneManagerName()=>UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+
     private static void SetupTraffic()
     {
       string dir=Path.Combine(Project,"Logs/Traffic/"+Guid.NewGuid().ToString("N"));GarageSession.Open(Path.Combine(dir,"garage.json"),true);MutantRuntime.RecordDirectory=Path.Combine(dir,"mutant");GameFlow.MainMenu();
@@ -184,16 +235,16 @@ namespace LastTurn.EditorValidation
     }
     private static void Tick()
     {
-      try{if(EditorApplication.timeSinceStartup-began>180)throw new TimeoutException("Ustalık Play "+index+"/"+steps.Count);if(Capture()){at=EditorApplication.timeSinceStartup;return;}if(EditorApplication.timeSinceStartup-at<.3)return;at=EditorApplication.timeSinceStartup;if(steps.Count==0){if(!UiRoot.Instance)return;if(SessionState.GetBool(Traffic,false))SetupTraffic();else if(SessionState.GetBool(Pacing,false))SetupPacing();else Setup();return;}if(index>=steps.Count){Finish(null);return;}steps[index++]();}
+      try{if(EditorApplication.timeSinceStartup-began>180)throw new TimeoutException("Ustalık Play "+index+"/"+steps.Count);if(Capture()){at=EditorApplication.timeSinceStartup;return;}if(EditorApplication.timeSinceStartup-at<.3)return;at=EditorApplication.timeSinceStartup;if(steps.Count==0){if(!UiRoot.Instance)return;if(CircuitProof)SetupCircuit();else if(SessionState.GetBool(Traffic,false))SetupTraffic();else if(SessionState.GetBool(Pacing,false))SetupPacing();else Setup();return;}if(index>=steps.Count){Finish(null);return;}steps[index++]();}
       catch(Exception e){Finish(e);}
     }
     private static void Finish(Exception error)
     {
-      bool pacing=SessionState.GetBool(Pacing,false),traffic=SessionState.GetBool(Traffic,false);SessionState.SetBool(Active,false);EditorApplication.update-=Tick;Application.logMessageReceived-=Logged;proof.result=error==null?(traffic?"traffic-play-passed":pacing?"pacing-play-passed":"engagement-play-passed"):"failed";proof.error=error?.ToString()??"";proof.utc=DateTime.UtcNow.ToString("O");
+      bool pacing=SessionState.GetBool(Pacing,false),traffic=SessionState.GetBool(Traffic,false);SessionState.SetBool(Active,false);EditorApplication.update-=Tick;Application.logMessageReceived-=Logged;proof.result=error==null?(CircuitProof?"circuit-play-passed":traffic?"traffic-play-passed":pacing?"pacing-play-passed":"engagement-play-passed"):"failed";proof.error=error?.ToString()??"";proof.utc=DateTime.UtcNow.ToString("O");
       if(keyboard!=null&&keyboard.added)InputSystem.RemoveDevice(keyboard);
       if(gamepad!=null&&gamepad.added)InputSystem.RemoveDevice(gamepad);
       proof.sources=Directory.GetFiles(Path.Combine(Application.dataPath,"LastTurn"),"*",SearchOption.AllDirectories).Where(f=>new[]{".cs",".uss",".json",".jpg"}.Contains(Path.GetExtension(f))).OrderBy(f=>f,StringComparer.Ordinal).Select(f=>{using(var h=SHA256.Create())return new Source{path=f.Substring(Project.Length+1).Replace('\\','/'),hash=BitConverter.ToString(h.ComputeHash(File.ReadAllBytes(f))).Replace("-","")};}).ToArray();
-      File.WriteAllText(Path.Combine(Project,Environment.GetCommandLineArgs().Contains("-duelProof")?"Logs/duel-play.json":traffic?"Logs/traffic-play.json":pacing?"Logs/pacing-play.json":"Logs/engagement-play.json"),JsonUtility.ToJson(proof,true));if(error!=null)Debug.LogException(error);EditorApplication.Exit(error==null?0:1);
+      File.WriteAllText(Path.Combine(Project,CircuitProof?"Logs/circuit-play.json":Environment.GetCommandLineArgs().Contains("-duelProof")?"Logs/duel-play.json":traffic?"Logs/traffic-play.json":pacing?"Logs/pacing-play.json":"Logs/engagement-play.json"),JsonUtility.ToJson(proof,true));if(error!=null)Debug.LogException(error);EditorApplication.Exit(error==null?0:1);
     }
   }
 }

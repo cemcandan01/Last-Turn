@@ -15,8 +15,13 @@ namespace LastTurn.Ui
   {
     private VisualElement root, left, timer, speedBox, hints;
     private Label title, info, big, sub, speed, gear, unit, countdown, note, back, wrong, hintText;
+    private VisualElement standings;
+    private Label positionTitle, passLabel;
+    private readonly Label[] places=new Label[4];
     private Label leftRival, rightRival;
     private RivalSide rivalSide;
+    private readonly RivalSide[] fieldSides=new RivalSide[3];
+    private CircuitField seenField;
     private GtPrototype p; private RaceSession seenSession; private int seenNotes; private string lastNote = ""; private float noteUntil;
     public bool Visible { get; private set; }
     /// Doğrulama: son çizilen süre/hız metni.
@@ -34,6 +39,10 @@ namespace LastTurn.Ui
       countdown = Center(140, .30f); note = Center(48, .38f); back = Center(40, .5f); wrong = Center(56, .2f); wrong.text = "GERİ DÖN"; wrong.AddToClassList("uyari");
       hints = Box(); hintText = Ui.Text("", "hud-ipucu"); hints.Add(hintText);
       foreach (var e in new VisualElement[] { left, timer, speedBox, hints }) root.Add(e);
+      standings=Box(); standings.name="circuit-standings"; standings.AddToClassList("circuit-standings");
+      positionTitle=Ui.Text("","circuit-rank"); standings.Add(positionTitle);
+      for(int i=0;i<places.Length;i++){places[i]=Ui.Text("","circuit-place");standings.Add(places[i]);}
+      passLabel=Ui.Text("POZİSYON KAZANDIN","circuit-pass");standings.Add(passLabel);root.Add(standings);
       leftRival = SideMarker("◀  SOLDA", true);
       rightRival = SideMarker("SAĞDA  ▶", false);
       UiRoot.Instance.Hud.Add(root);
@@ -52,6 +61,27 @@ namespace LastTurn.Ui
 
     private void DrawRival(RaceSession session)
     {
+      var field=p ? p.Field : null;
+      Ui.Show(standings,field!=null && session!=null);
+      if(field!=null && session!=null)
+      {
+        if(seenField!=field){System.Array.Clear(fieldSides,0,fieldSides.Length);seenField=field;}
+        positionTitle.text="SIRALAMA   "+field.PlayerRank+" / "+field.Order.Length;
+        var self=OpponentTrafficCar.Read(p.Simulation);
+        bool leftOn=false,rightOn=false;
+        for(int i=0;i<field.Order.Length;i++)
+        {
+          int id=field.Order[i];
+          places[i].text=(i+1)+"     "+field.Names[id];
+          places[i].EnableInClassList("circuit-player",id==0);
+          if(id==0 || session.State!=RaceState.Running || field.Rivals[id-1].FinishTime.HasValue)continue;
+          var side=RaceSpotter.Read(self,OpponentTrafficCar.Read(field.Rivals[id-1].Vehicle),fieldSides[id-1]);
+          fieldSides[id-1]=side;
+          leftOn|=side==RivalSide.Left;rightOn|=side==RivalSide.Right;
+        }
+        Ui.Show(leftRival,leftOn);Ui.Show(rightRival,rightOn);
+        Ui.Show(passLabel,session.Time<field.PassNoticeUntil);return;
+      }
       var rival=p ? p.Opponent : null;
       if (session != seenSession) rivalSide = RivalSide.Clear;
       rivalSide = session?.State == RaceState.Running && rival != null && !rival.FinishTime.HasValue
@@ -102,7 +132,7 @@ namespace LastTurn.Ui
       if (!string.IsNullOrEmpty(p.RecordText)) lines.Add(p.RecordText);
       // TS hud.ts: güneş dışında hava adı gösterilir (zemin daha kaygan)
       if (p.Conditions.Weather != "sun" || p.Conditions.Night) lines.Add(p.Conditions.Label);
-      if (p.Opponent != null) lines.Add(p.OpponentText());
+      if (p.Field == null && p.Opponent != null) lines.Add(p.OpponentText());
       info.text = string.Join("\n", lines);
       big.text = m.Big; sub.text = m.Sub;
       DrawSpeed();

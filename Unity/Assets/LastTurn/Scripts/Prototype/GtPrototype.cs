@@ -172,7 +172,7 @@ namespace LastTurn.Prototype
       PerformanceOverlay.PhysicsEnd();
       frameSeconds = Mathf.Lerp(frameSeconds, Time.unscaledDeltaTime, .05f);
     }
-    private void LateUpdate() { RenderFrame(Mathf.Min(Time.unscaledDeltaTime, .1f));if(opponentVisual && Opponent!=null){if(opponentSource)opponentSource.Pose(GtPresentation.Position(Opponent.Vehicle.ReferencePoint),GtPresentation.Rotation(Opponent.Vehicle.Body.Orientation),Opponent.Vehicle,Opponent.Vehicle.Body,Opponent.Vehicle.Body,1,false);else opponentVisual.SetPositionAndRotation(GtPresentation.Position(Opponent.Vehicle.Body.Position),GtPresentation.Rotation(Opponent.Vehicle.Body.Orientation));} }
+    private void LateUpdate() { if(Field!=null) RenderField(); RenderFrame(Mathf.Min(Time.unscaledDeltaTime, .1f));if(opponentVisual && Opponent!=null){if(opponentSource)opponentSource.Pose(GtPresentation.Position(Opponent.Vehicle.ReferencePoint),GtPresentation.Rotation(Opponent.Vehicle.Body.Orientation),Opponent.Vehicle,Opponent.Vehicle.Body,Opponent.Vehicle.Body,1,false);else opponentVisual.SetPositionAndRotation(GtPresentation.Position(Opponent.Vehicle.Body.Position),GtPresentation.Rotation(Opponent.Vehicle.Body.Orientation));} }
     public void TeleportWorld(int index){if(OpenTerrain==null||index<0||index>=OpenTerrain.Region.Teleports.Length)return;openSpawn=index;ResetVehicle();}
     public void StepWorld(DrivingInput value)
     {
@@ -181,8 +181,62 @@ namespace LastTurn.Prototype
       if(MutantRuntime.Active){MutantRuntime.AfterPhysics(Simulation,world);parameters=Simulation.Parameters;}
       runner.SyncPrevious();
     }
+    public CircuitField Field {get;private set;}
+    private readonly List<SourceVehicleView> fieldViews=new List<SourceVehicleView>();
+
+    private void CreateField()
+    {
+      var track=RaceWorld.Track;
+      var geometry=track.Geometry;
+      var info=Race.Event;
+      var catalog=GarageSession.Catalog;
+      var cars=catalog.Data["cars"].Items.Select((car,index)=>(car,index))
+        .Where(entry=>entry.car["ty"].S()==info.Type).Take(3).ToArray();
+      var racers=new OpponentRacer[cars.Length];
+      var names=new string[cars.Length+1]; names[0]="SEN";
+      int start=geometry.Nearest(info.StartX,info.StartZ,0,true).Index;
+      for(int i=0;i<racers.Length;i++)
+      {
+        var setup=catalog.Setup(cars[i].index,Array.Empty<string>());
+        var physics=OpponentRacer.CreateParameters(catalog,setup,info.Type);
+        var grid=geometry.At(geometry.S[start]+(i<2?11:0));
+        double lane=Math.Min(geometry.HalfWidth-physics.Chassis.Width*.5-.35,3.5)*(i==1?-1:1);
+        double x=grid.X+Math.Cos(grid.Heading)*lane, z=grid.Z-Math.Sin(grid.Heading)*lane;
+        // Son sıradaki rakip oyuncunun gerçek start noktasının boş tarafına dizilir.
+        if(i==2)
+        {
+          double side=(info.StartX-grid.X)*Math.Cos(grid.Heading)-(info.StartZ-grid.Z)*Math.Sin(grid.Heading);
+          lane=side>0?-lane:lane;
+          x=grid.X+Math.Cos(grid.Heading)*lane; z=grid.Z-Math.Sin(grid.Heading)*lane;
+        }
+        var world=new TrackWorld(track){Environment=RaceWorld.Environment,GripMultiplier=RaceWorld.GripMultiplier};
+        var plan=WorldData.Opponents.Plan(track.Key,i==0?"deneyimli":"caylak");
+        racers[i]=new OpponentRacer(physics,world,track,info,plan,(uint)(731+i),x,z,grid.Heading);
+        string key=cars[i].car["k"].S(); names[i+1]=key.ToUpperInvariant();
+        fieldViews.Add(SourceVehicleView.Create(key,transform));
+      }
+      Field=new CircuitField(Simulation,racers,names);
+      Opponent=racers[0]; Field.UpdateOrder(Race);
+    }
+    private void RenderField()
+    {
+      for(int i=0;i<fieldViews.Count;i++)
+      {
+        var car=Field.Rivals[i].Vehicle;
+        fieldViews[i].Pose(GtPresentation.Position(car.ReferencePoint),GtPresentation.Rotation(car.Body.Orientation),
+          car,car.Body,car.Body,1,false);
+      }
+    }
+    private void CountdownOpponents()
+    {
+      if(Field==null){Opponent?.Step(false);return;}
+      foreach(var racer in Field.Rivals) racer.Step(false);
+    }
+
     private void CreateOpponent()
     {
+      foreach(var view in fieldViews){view.gameObject.SetActive(false);Destroy(view.gameObject);}
+      fieldViews.Clear(); Field=null;
       playerTraffic=null;Opponent=null;if(opponentVisual){opponentVisual.gameObject.SetActive(false);Destroy(opponentVisual.gameObject);}
       if(MutantRuntime.Active)
       {
@@ -194,7 +248,11 @@ namespace LastTurn.Prototype
         Opponent=new OpponentRacer(opParameters,mutantWorld,plan.Track,plan.Event,WorldData.Opponents.Plan(plan.Track.Key,spec["kisilik"].S()),(uint)spec["tohum"].N(),spawn.X,spawn.Z,spawn.Heading);
         CreateOpponentVisual(opSetup.Car["k"].S());return;
       }
-      if(!WorldData.OpponentTest)return;
+      if(!WorldData.OpponentTest)
+      {
+        if(Race.Event.Type=="gp" || Race.Event.Type=="rx") CreateField();
+        return;
+      }
       var info=Race.Event;var track=RaceWorld.Track;var g=track.Geometry;int i=g.Nearest(info.StartX,info.StartZ,0,true).Index;
       var opWorld=new TrackWorld(track){Environment=RaceWorld.Environment,GripMultiplier=RaceWorld.GripMultiplier};
       var opponentParameters=raceDrive.Setup!=null?OpponentRacer.CreateParameters(GarageSession.Catalog,raceDrive.Setup,info.Type):parameters;
@@ -204,6 +262,7 @@ namespace LastTurn.Prototype
     private void CreateOpponentVisual(string key){opponentSource=SourceVehicleView.Create(key,transform);if(opponentSource){opponentVisual=opponentSource.transform;return;}var o=GameObject.CreatePrimitive(PrimitiveType.Cube);o.name="Fiziksel YZ rakip";o.GetComponent<Collider>().enabled=false;Destroy(o.GetComponent<Collider>());o.transform.localScale=new Vector3((float)parameters.Chassis.Width,.7f,(float)(parameters.Chassis.Wheelbase+1.69));o.GetComponent<Renderer>().material.color=new Color(.1f,.45f,.9f);opponentVisual=o.transform;}
     public string OpponentText()
     {
+      if(Field!=null)return "Sıralama "+Field.PlayerRank+" / "+Field.Order.Length;
       if(Opponent==null)return "";var rank=Opponent.Rank(Race.Session.Lap,RaceWorld.Hint,Race.Session.Armed!=0);
       if(Race.Session.State==RaceState.Finished)return Opponent.PlayerWon(Race.Session.Time)?"Rakipten önce bitirdin • doğrulama yarışı, kariyer ödülü yok":"Rakip önce bitirdi • doğrulama yarışı, kariyer ödülü yok";
       return "Sıra "+rank.Rank+" / 2 • fark "+(double.IsInfinity(rank.Gap)?"rakip bitti":rank.Gap.ToString("0.0")+" m");
@@ -344,7 +403,7 @@ namespace LastTurn.Prototype
         // Geri sayım sabit adımla; drag manuelde motor devri bu sırada gazla tutulur (araç durur).
         countdownTime += Math.Min(Time.deltaTime, .1);
         while (countdownTime >= PowertrainVehicle.FixedDelta && Race.Session.State == RaceState.Countdown)
-        { Race.TickCountdown(PowertrainVehicle.FixedDelta, CurrentInput); Opponent?.Step(false); countdownTime -= PowertrainVehicle.FixedDelta; }
+        { Race.TickCountdown(PowertrainVehicle.FixedDelta, CurrentInput); CountdownOpponents(); countdownTime -= PowertrainVehicle.FixedDelta; }
         return;
       }
       countdownTime = 0;
@@ -362,6 +421,7 @@ namespace LastTurn.Prototype
     {
       bool mutantContinue=true;
       if(mutantDrive){mutantContinue=MutantRuntime.AfterPhysics(Simulation,world,true,Opponent);parameters=Simulation.Parameters;}
+      if(Field!=null && Field.Drive()) Race.Recording.Cut=true;
       int teleports = Race.Teleports; Race.AfterPhysicsStep(lastQuantized);
       StepOpponent();
       ObserveRaceDistance();if(Simulation.Body.Steps%1200==0)FlushProfileDistance();
@@ -370,13 +430,16 @@ namespace LastTurn.Prototype
     }
     private void StepOpponent()
     {
+      if(Field!=null){Field.UpdateOrder(Race);return;}
       if(Opponent==null)return;
       Opponent.Step(traffic:Race.Session.State==RaceState.Running?playerTraffic:(OpponentTrafficCar?)null);
+      if(mutantDrive && Race.Session.State==RaceState.Running && (Race.Event.Type=="gp" || Race.Event.Type=="rx"))
+        VehicleContact.Resolve(Simulation,Opponent.Vehicle);
     }
     private OpponentTrafficCar? playerTraffic;
     // İki araç da aynı sabit adımın başlangıç pozunu görür; render sırası karar üretmez.
     private void CaptureOpponentTraffic()
-    {bool enabled=mutantDrive&&(Race.Event.Type=="gp"||Race.Event.Type=="rx"||Race.Event.Type=="rl");playerTraffic=enabled?OpponentTrafficCar.Read(Simulation):(OpponentTrafficCar?)null;}
+    {Field?.Capture();bool enabled=mutantDrive&&(Race.Event.Type=="gp"||Race.Event.Type=="rx"||Race.Event.Type=="rl");playerTraffic=enabled?OpponentTrafficCar.Read(Simulation):(OpponentTrafficCar?)null;}
     /// TS ↺: pist dışı ilk çıkış noktasına ya da en yakın pist noktasına (süre durmaz).
     public void RespawnRace() { if (Race.Respawn()) { runner.SyncPrevious(); followCamera.ResetFollow(); RenderFrame(0); } }
     public string RecordText { get; private set; } = "";
@@ -397,10 +460,17 @@ namespace LastTurn.Prototype
     {
       if(GameFlow.Paused||MutantRuntime.Blocked)return;
       CurrentInput = value;
-      if (Race.Session.State == RaceState.Countdown) { Race.TickCountdown(PowertrainVehicle.FixedDelta, value); Opponent?.Step(false); return; }
+      if (Race.Session.State == RaceState.Countdown) { Race.TickCountdown(PowertrainVehicle.FixedDelta, value); CountdownOpponents(); return; }
       if (Race.Session.State != RaceState.Running) return;
       CaptureOpponentTraffic();previousSteer = Simulation.Engine.SteeringAngle;
-      if(mutantDrive){var q=Race.Record(value);Simulation.Step(q);MutantRuntime.AfterPhysics(Simulation,world,true,Opponent);parameters=Simulation.Parameters;Race.AfterPhysicsStep(q);}else Race.Step(value);
+      if(mutantDrive){var q=Race.Record(value);Simulation.Step(q);MutantRuntime.AfterPhysics(Simulation,world,true,Opponent);parameters=Simulation.Parameters;Race.AfterPhysicsStep(q);}
+      else if(Field!=null)
+      {
+        var q=Race.Record(value); Simulation.Step(q);
+        if(Field.Drive()) Race.Recording.Cut=true;
+        Race.AfterPhysicsStep(q);
+      }
+      else Race.Step(value);
       StepOpponent();ObserveRaceDistance();if(Simulation.Body.Steps%1200==0)FlushProfileDistance();runner.SyncPrevious();
     }
     public void ConfigureRace(string key, RaceTrackVisuals visuals)

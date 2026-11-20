@@ -44,7 +44,14 @@ namespace LastTurn.Prototype
           var m=Map.Marker(marker.X,marker.Z);marks.Add((m.X,m.Y,color));
         }
       }
-      if (p.Opponent != null) { var o = p.Opponent.Vehicle.ReferencePoint; var c = Map.Car(o.X, o.Z); if (c != null) cars.Add((c.Value.X, c.Value.Y, c.Value.Radius, new Color(1, .3f, .3f))); }
+      void Rival(OpponentRacer rival)
+      {
+        var point=rival.Vehicle.ReferencePoint;
+        var marker=Map.Car(point.X,point.Z);
+        if(marker.HasValue) cars.Add((marker.Value.X,marker.Value.Y,marker.Value.Radius,new Color(1,.3f,.3f)));
+      }
+      if(p.Field!=null){foreach(var rival in p.Field.Rivals) Rival(rival);}
+      else if(p.Opponent!=null) Rival(p.Opponent);
       var ghost = p.GhostShown ? p.Race.Ghost : null; if (ghost != null) { var o = ghost.Vehicle.ReferencePoint; var c = Map.Car(o.X, o.Z); if (c != null) cars.Add((c.Value.X, c.Value.Y, c.Value.Radius, new Color(1, 1, 1, .7f))); }
       Segments = track.Count; Markers = marks.Count; Cars = cars.Count;
     }

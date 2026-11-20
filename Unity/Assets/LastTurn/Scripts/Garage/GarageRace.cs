@@ -82,7 +82,7 @@ namespace LastTurn.Garage
       }
       catch (IOException e) { LastMessage = "Rekor/hayalet yazılamadı: " + e.Message; }
     }
-    private static string inputsNote(RaceRun run) => run.Recording.Cut ? "Piste dönüş/yeniden doğ kaydı kesti: hayalet yok." : "";
+    private static string inputsNote(RaceRun run) => run.Recording.Cut ? "Temas veya piste dönüş nedeniyle bu sürüşün hayaleti kaydedilmedi." : "";
 
     // TS surusAdimi: yarış dışındaki yol ve yarıda bırakılan yarış da toplam yola dahildir.
     public static bool Distance(double km)

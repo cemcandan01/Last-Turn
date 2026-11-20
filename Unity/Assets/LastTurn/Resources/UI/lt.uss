@@ -946,3 +946,16 @@
   font-size: 16px;
   -unity-font-style: bold;
 }
+
+.circuit-standings {
+  right: 2%; top: 4%;
+  min-width: 145px;
+  padding: 7px 13px;
+  background-color: rgba(18, 22, 26, .88);
+  border-top-width: 2px; border-top-color: rgb(242, 171, 64);
+}
+.circuit-rank, .circuit-pass { color: rgb(255, 192, 90); -unity-font-style: bold; }
+.circuit-rank { font-size: 17px; margin-bottom: 4px; }
+.circuit-place { color: rgb(223, 226, 224); font-size: 16px; }
+.circuit-player { color: rgb(255, 197, 96); -unity-font-style: bold; }
+.circuit-pass { font-size: 13px; }

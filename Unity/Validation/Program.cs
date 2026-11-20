@@ -1,5 +1,6 @@
 using System.Text.Json;
 using LastTurn.Core;
+if(args.Contains("--vehicle-contact")){VehicleContactValidation.Run();return;}
 if(args.Contains("--opponent-traffic")){OpponentTrafficValidation.Run();return;}
 if(args.Contains("--mutant-pacing")){MutantPacingValidation.Run();return;}
 if(args.Contains("--mutant-navigation")){MutantNavigationValidation.Run();return;}
