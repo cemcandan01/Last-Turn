@@ -183,3 +183,20 @@ Cem’in seçtiği üç özellik aynı Windows sürümünde. Dal `codex/unity-p7
 - Aynı araç, `gp_7` asfalt boss’u, koşu tohumu 53, rakip tohumu 3011556222 ve aynı pilot girdileriyle dört koşu tamamlandı. Referans 212,13 sn, drift ikilisi 212,13 sn, fren ikilisi 212,08 sn, onarım ikilisi 212,13 sn. Fren bir kez tetiklendi. Pilot diğer iki etkinin koşuluna girmedi. Bu sürüş bütün kurulumları performanslarına göre sıralamaya yetmiyor. [20 kontrollü boss raporu](../../Unity/Logs/P7StoreEditor/Logs/boss-pairs.json).
 - Ayrı fizik ve kural testinde 16 kontrol geçti. Aynı girdilerle 0,85 sn sonunda tek pasifle 84,72 km/sa, drift ikilisiyle 90,64 km/sa ölçüldü. Hareketsiz veya tekrarlı onarım, onarım sınırı, enerji ve fren bekleme süresi de sınandı. Ödül seçiminin 740 ve garaj kaydının 66 kontrolü geçti.
 - Windows derlemesi sıfır hata ile tamamlandı. Play, boss ve derleme raporlarındaki 253 kaynak özeti çalışma ağacıyla eşleşti. Paketlenmiş oyunda iki ayrı süreçte 25 yazma ve 15 yeniden yükleme kontrolü geçti. [Windows oyunu](../../Unity/Builds/ElemeWindows-20261120/LastTurn.exe), [yazma](../../Unity/Builds/ElemeWindows-20261120/Validation/player-write-proof.json) ve [yeniden yükleme](../../Unity/Builds/ElemeWindows-20261120/Validation/player-reload-proof.json).
+
+
+## 20 Kasım — patinaj sesi, menü açıklığı ve serbest bakış
+
+Sahip Codex, mevcut dal ve kart devamı. Kullanıcı asfalt patinajındaki uzay gemisi hissini, menü karmaşasını, sağ fareyle bakışı ve oyunun boşluk hissini bildirdi.
+
+Kabul ölçütleri lastik/savrulmada farklı ton içermeyen döngüler ve yumuşak temas geçişi, ana menüde tekrar eden dekorasyonun kaldırılması ve kayıt işlemlerinin açılır menüden erişilmesi, yarış hazırlığında saat/havanın katlanması, dört kamera kipinde sağ tuşla bakış ve bırakınca dönüş, duraklama/odak kaybında imleç serbestliği.
+
+Asfalt ve savrulmada aynı iki saniyelik tonal dosya üst üste çalıyordu. Bağımsız dört ve beş saniyelik bant süzülmüş gürültü döngüleri üretildi. GameAudio geçişleri 45/90 ms ile yumuşatıyor. Üretim betiği ve manifest güncellendi. Yeni kayıt sesinin öznel beğenisi oyuncu denemesinde değerlendirilecek.
+
+Bakış fare piksel farkını kullanır, ilk kilitleme sıçramasını yutar. Takipte araç çevresinde döner, kaput ve kokpitte bakış yönünü değiştirir. Dikey açı sınırlıdır, zemin yüksekliği uygulanır. Sağ tuş bırakılınca üstel dönüş yapar. Ayarlar kontroller tablosunda gösterilir.
+
+Menü uygulayıcısı ve ses uygulayıcısı kota hatasıyla durdu. Dosyalara yazılmış değişiklikler Codex tarafından devralınıp tamamlandı. Claude kuruluş erişimi önceki turda engelliydi.
+
+Sonraki tasarım seçenekleri tekrar karşılaşılan rakipli şampiyona, sürüş başarısını hissettiren ses/görsel geri bildirim, MUTANT bölgelerinde kısa hedef ve riskli rota seçimleri, pist çevresinde seyirci/servis alanı/yerel ses. Öncelik önerisi rakipli şampiyona. Araştırma dayanakları EA Vol.8 lig/rakip ilerlemesi ve Supergiant Hades II karşılaşma/ilerleme yapısı. Bunlar tasarım çıkarımıdır.
+
+Gerçek Unity Play 14 kontrol ve beş görüntü ile geçti. Kamera dört kipte döndürülüp geri döndürüldü. Ses örneklerinin RMS seviyeleri 0,13 ve 0,085, tepe seviyeleri 0,495 ve 0,402 olarak ölçüldü. Klipler kırpılmıyor. Unity proje yapısı kontrolü geçti. Kanıt Unity/Logs/P7StoreEditor/Logs/feel-play.json. Menü görüntüleri 1280 ve 1920 pikselde alındı. Menü ve ses beğenisi için insan kabulü açık.

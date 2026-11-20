@@ -10,7 +10,7 @@
     "src/cekirdek/matematik.ts": "658c7a895e5d3bab8db4d644c2be8eb21335b4ce189f0180f99199b9cd0ea879"
   },
   "renderer": "Local Edge OfflineAudioContext; 22050 Hz PCM16",
-  "scope": "TS sentezinden işlevsel sesler; motor tek referans katmanı, profesyonel/araç başına ses tasarımı değil.",
+  "scope": "Asfalt patinajı ve savrulma Unity için bağımsız sürtünme katmanlarıdır. Diğer klipler TS kaynağından gelir.",
   "clips": [
     {
       "file": "tik.wav",
@@ -174,11 +174,11 @@
     },
     {
       "file": "lastik-asfalt.wav",
-      "sha256": "f212ee33f46f5c3033006af4e396409df3126a87d8273f6c8dd5ed5b9aef2331",
-      "seconds": 2,
+      "sha256": "967c42f84ed7f19222d6fd6b223f662110669cf64b922b061755ee7f630b92de",
       "channels": 1,
-      "peak": 0.9066656827926636,
-      "rms": 0.21174820397377445
+      "seconds": 4,
+      "rms": 0.13000002238528605,
+      "peak": 0.49497970519119844
     },
     {
       "file": "lastik-gevsek.wav",
@@ -190,11 +190,11 @@
     },
     {
       "file": "savrulma.wav",
-      "sha256": "f212ee33f46f5c3033006af4e396409df3126a87d8273f6c8dd5ed5b9aef2331",
-      "seconds": 2,
+      "sha256": "b74ff43041ee2f4378505372db4a2011173e060c2d355731b7830dfd984be7ea",
       "channels": 1,
-      "peak": 0.9066656827926636,
-      "rms": 0.21174820397377445
+      "seconds": 5,
+      "rms": 0.08500003624888959,
+      "peak": 0.40247810296945097
     },
     {
       "file": "ruzgar-hiz.wav",

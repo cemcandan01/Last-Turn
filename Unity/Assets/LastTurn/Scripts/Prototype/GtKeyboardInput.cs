@@ -10,6 +10,7 @@ namespace LastTurn.Prototype
     private readonly InputActionMap map = new InputActionMap("GT Test");
     private readonly InputAction throttle, brake, left, right, handbrake, restart, shiftUp, shiftDown, nitro, camera, respawn, airHold, airDelta;
     private readonly InputAction[] skills = new InputAction[3];
+    private readonly InputAction lookHold;
     private bool restartPending; private int shiftPending;
     /// TS mutant-ui.ts: N nitro, 1/2/3 yuva sırasıyla skill (basılı tutma Volt Kanat için ayrıca bildirilir).
     public event Action NitroPressed;
@@ -49,6 +50,7 @@ namespace LastTurn.Prototype
       }
       // Havada burun denetimi: sol fare tuşuyla sürükleme (TS dokunmatik sürükleme alanı).
       airHold = map.AddAction("HavaSurukle", InputActionType.Button, "<Mouse>/leftButton");
+      lookHold = map.AddAction("SerbestBakis", InputActionType.Button, "<Mouse>/rightButton");
       airDelta = map.AddAction("HavaDelta", InputActionType.Value, "<Mouse>/delta"); airDelta.expectedControlType = "Vector2";
     }
     /// Ayarlar → Kontroller tablosu: eylem adı ve bağlı tuş yolları, sürüşte kullanılan eşlemenin kendisinden okunur.
@@ -85,6 +87,9 @@ namespace LastTurn.Prototype
       return Controls.Physics(s, PlayerPreferences.Orientation);
     }
     public bool AirHeld => airHold.IsPressed() && (Touch == null || !Touch.MouseOnControl);
+    public bool LookHeld => lookHold.IsPressed();
+    public bool LookPressed => lookHold.WasPressedThisFrame();
+    public UnityEngine.Vector2 MouseDelta => airDelta.ReadValue<UnityEngine.Vector2>();
     /// Kare başına fare kayması (piksel; y aşağı pozitif, DOM sürükleme yönü).
     public (double X, double Y) AirDelta { get { var d = airDelta.ReadValue<UnityEngine.Vector2>(); return (d.x, -d.y); } }
     public bool ConsumeRestart() { bool value = restartPending; restartPending = false; return value; }

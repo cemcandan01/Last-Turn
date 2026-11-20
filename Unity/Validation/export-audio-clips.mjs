@@ -1,11 +1,12 @@
 // Sabit TS sentezini mevcut yerel Edge OfflineAudioContext ile WAV'a dönüştürür.
-// Yeni ses tasarımı, indirme veya servis yok; src/ değiştirilmez.
+// Unity asfalt/kızak katmanlarını yerel PCM üreticisiyle aynı pakete ekler.
 import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import ts from "typescript";
 import { chromium } from "playwright";
+import { renderTire, tireNames } from "./asphalt-tire-audio.mjs";
 const root = path.resolve(import.meta.dirname, "../..");
 const dest = path.join(root, "Unity/Assets/LastTurn/Resources/Audio");
 const baseline = "df3549e709469f0b519ebfbeaa9f63c1040fee05";
@@ -28,6 +29,24 @@ for (const name of sourceNames) {
   sources[name] = hash(ref);
 }
 const manifestPath = path.join(dest, "source-manifest.json");
+const tireScope = "Asfalt patinajı ve savrulma Unity için bağımsız sürtünme katmanlarıdır. Diğer klipler TS kaynağından gelir.";
+function writeClip(name, { data, ...properties }) {
+  const bytes = Buffer.isBuffer(data) ? data : Buffer.from(data, "base64");
+  const file = name + ".wav";
+  fs.writeFileSync(path.join(dest, file), bytes);
+  return { file, sha256: hash(bytes), ...properties };
+}
+if (process.argv.includes("--tires")) {
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+  for (const name of tireNames) {
+    const index = manifest.clips.findIndex((c) => c.file === name + ".wav");
+    if (index < 0) throw Error("Manifestte eksik katman: " + name);
+    manifest.clips[index] = writeClip(name, renderTire(name));
+  }
+  manifest.scope = tireScope;
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
+  process.exit(0);
+}
 if (process.argv.includes("--check")) {
   const m = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
   if (m.baseline !== baseline || JSON.stringify(m.sources) !== JSON.stringify(sources))
@@ -37,7 +56,11 @@ if (process.argv.includes("--check")) {
     if (hash(b) !== a.sha256 || b.toString("ascii", 0, 4) !== "RIFF" || b.readUInt32LE(24) !== 22050)
       throw Error("Ses WAV farklı: " + a.file);
   }
-  console.log(`${m.clips.length} TS ses klibi / kaynak ve WAV hashleri doğrulandı. İşitme kabulü değildir.`);
+  for (const name of tireNames) {
+    if (hash(renderTire(name).data) !== m.clips.find((c) => c.file === name + ".wav")?.sha256)
+      throw Error("Asfalt ses üretimi ve paket farklı: " + name);
+  }
+  console.log(`${m.clips.length} ses klibi / kaynak ve WAV hashleri doğrulandı.`);
   process.exit(0);
 }
 // Yalnız mevcut TypeScript derleyicisi: CommonJS modülleri bellekte bağlanır.
@@ -114,6 +137,10 @@ try {
   fs.mkdirSync(dest, { recursive: true });
   const clips = [];
   for (const name of names) {
+    if (tireNames.includes(name)) {
+      clips.push(writeClip(name, renderTire(name)));
+      continue;
+    }
     const result = await page.evaluate(async (name) => {
       const { synth, ui, Muzik, SampleSeconds } = globalThis.audioSource;
       // Kaynakta rastgele davul/çarpma varyasyonu var; yalnız dışa aktarım tekrarlanabilir.
@@ -170,10 +197,6 @@ try {
           play(synth.motorKatmani(p, 3000, 1, 7000, sr, 11, synth.motorEq("gt", 0)), true);
           break;
         }
-        case "lastik-asfalt":
-        case "savrulma":
-          play(synth.lastikOtmesi(sr), true);
-          break;
         case "lastik-gevsek":
           play(synth.cakil(sr), true);
           break;
@@ -228,17 +251,7 @@ try {
         binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
       return { data: btoa(binary), seconds: n / sr, channels: ch, peak, rms: Math.sqrt(sum / (n * ch)) };
     }, name);
-    const bytes = Buffer.from(result.data, "base64"),
-      file = name + ".wav";
-    fs.writeFileSync(path.join(dest, file), bytes);
-    clips.push({
-      file,
-      sha256: hash(bytes),
-      seconds: result.seconds,
-      channels: result.channels,
-      peak: result.peak,
-      rms: result.rms,
-    });
+    clips.push(writeClip(name, result));
   }
   fs.writeFileSync(
     manifestPath,
@@ -247,15 +260,14 @@ try {
         baseline,
         sources,
         renderer: "Local Edge OfflineAudioContext; 22050 Hz PCM16",
-        scope:
-          "TS sentezinden işlevsel sesler; motor tek referans katmanı, profesyonel/araç başına ses tasarımı değil.",
+        scope: tireScope,
         clips,
       },
       null,
       2,
     ) + "\n",
   );
-  console.log(clips.length + " TS ses klibi üretildi; kaynaklar değişmedi.");
+  console.log(clips.length + " ses klibi üretildi.");
 } finally {
   await browser.close();
 }

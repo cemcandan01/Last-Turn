@@ -229,6 +229,49 @@ namespace LastTurn.EditorValidation
       using(var down=PointerDownEvent.GetPooled(new Event{type=EventType.MouseDown,button=0,mousePosition=point}))e.SendEvent(down);
       using(var up=PointerUpEvent.GetPooled(new Event{type=EventType.MouseUp,button=0,mousePosition=point}))e.SendEvent(up);
     }
+    private static void SetupFeel()
+    {
+      string path=Path.Combine(Project,"Logs/Feel",Guid.NewGuid().ToString("N"),"garage.json");
+      GarageSession.Open(path,true);
+      GameFlow.MainMenu();
+      Wait(()=>UnityEngine.Object.FindFirstObjectByType<MainMenuView>()?.Visible==true);
+      Shots("sade-menu",1280,1920);
+      Add(()=>GameFlow.RaceMenu());
+      Shots("sade-kariyer",1280);
+      Add(()=>GameFlow.OpenRace("gp_1"));
+      Wait(()=>RacePreparationView.Instance && RacePreparationView.Instance.Visible);
+      Shots("sade-hazirlik",1280);
+      Add(()=>RacePreparationView.Instance.StartRace());
+      Wait(()=>P && P.Simulation!=null);
+      Add(()=>{
+        P.ManualStepping=true;
+        var camera=P.FollowCamera;
+        var origin=Vector3.zero;
+        var frame=new CameraFrame{HitAge=10};
+        var view=camera.transform;
+        for(int mode=0;mode<4;mode++)
+        {
+          camera.ResetFollow();frame.Mode=mode;
+          camera.Render(origin,Quaternion.identity,0,.016f,frame);
+          var before=view.rotation;
+          camera.UpdateLook(true,true,true,Vector2.zero,.016f);
+          camera.UpdateLook(true,false,true,new Vector2(300,80),.016f);
+          camera.Render(origin,Quaternion.identity,0,.016f,frame);
+          Check(Quaternion.Angle(before,view.rotation)>15,"Sağ sürükleme kamera kipi "+mode);
+          for(int i=0;i<90;i++)camera.UpdateLook(true,false,false,Vector2.zero,1f/60);
+          camera.Render(origin,Quaternion.identity,0,.016f,frame);
+          Check(Quaternion.Angle(before,view.rotation)<.1f,"Bırakınca geri dönüş "+mode);
+          camera.UpdateLook(true,true,true,Vector2.zero,.016f);
+          camera.UpdateLook(false,false,true,Vector2.zero,.016f);
+          Check(UnityEngine.Cursor.lockState!=CursorLockMode.Locked,"Duraklamada imleç serbest "+mode);
+        }
+        camera.ResetFollow();
+        Check(GtKeyboardInput.Bindings().Any(x=>x.Action=="SerbestBakis" && x.Paths.Contains("<Mouse>/rightButton")),"Sağ fare gerçek girdi eşlemesi");
+      });
+      Shots("serbest-bakis",1280);
+      Add(()=>Check(proof.errors.Count==0,"Sürüş ve menü çalışma anı hatasız"));
+    }
+
     private static void SetupChoices()
     {
       string path=Path.Combine(Project,"Logs/Choices",Guid.NewGuid().ToString("N"),"garage.json");
@@ -415,7 +458,7 @@ namespace LastTurn.EditorValidation
     }
     private static void Tick()
     {
-      try{if(EditorApplication.timeSinceStartup-began>(BossPairsProof?720:180))throw new TimeoutException("Play "+index+"/"+steps.Count+" · "+string.Join(" / ",proof.checks.Skip(Math.Max(0,proof.checks.Count-3))));if(Capture()){at=EditorApplication.timeSinceStartup;return;}if(EditorApplication.timeSinceStartup-at<.3)return;at=EditorApplication.timeSinceStartup;if(steps.Count==0){if(!UiRoot.Instance)return;if(BossPairsProof)SetupBossPairs();else if(ChoicesProof)SetupChoices();else if(AtelierProof)SetupAtelier();else if(CircuitProof)SetupCircuit();else if(SessionState.GetBool(Traffic,false))SetupTraffic();else if(SessionState.GetBool(Pacing,false))SetupPacing();else Setup();return;}if(index>=steps.Count){Finish(null);return;}steps[index++]();}
+      try{if(EditorApplication.timeSinceStartup-began>(BossPairsProof?720:180))throw new TimeoutException("Play "+index+"/"+steps.Count+" · "+string.Join(" / ",proof.checks.Skip(Math.Max(0,proof.checks.Count-3))));if(Capture()){at=EditorApplication.timeSinceStartup;return;}if(EditorApplication.timeSinceStartup-at<.3)return;at=EditorApplication.timeSinceStartup;if(steps.Count==0){if(!UiRoot.Instance)return;if(Environment.GetCommandLineArgs().Contains("-feelProof"))SetupFeel();else if(BossPairsProof)SetupBossPairs();else if(ChoicesProof)SetupChoices();else if(AtelierProof)SetupAtelier();else if(CircuitProof)SetupCircuit();else if(SessionState.GetBool(Traffic,false))SetupTraffic();else if(SessionState.GetBool(Pacing,false))SetupPacing();else Setup();return;}if(index>=steps.Count){Finish(null);return;}steps[index++]();}
       catch(Exception e){Finish(e);}
     }
     private static void Finish(Exception error)
@@ -424,7 +467,8 @@ namespace LastTurn.EditorValidation
       if(keyboard!=null&&keyboard.added)InputSystem.RemoveDevice(keyboard);
       if(gamepad!=null&&gamepad.added)InputSystem.RemoveDevice(gamepad);
       proof.sources=Directory.GetFiles(Path.Combine(Application.dataPath,"LastTurn"),"*",SearchOption.AllDirectories).Where(f=>new[]{".cs",".uss",".json",".jpg",".shader"}.Contains(Path.GetExtension(f))).OrderBy(f=>f,StringComparer.Ordinal).Select(f=>{using(var h=SHA256.Create())return new Source{path=f.Substring(Project.Length+1).Replace('\\','/'),hash=BitConverter.ToString(h.ComputeHash(File.ReadAllBytes(f))).Replace("-","")};}).ToArray();
-      File.WriteAllText(Path.Combine(Project,BossPairsProof?"Logs/boss-pairs.json":ChoicesProof?"Logs/choices-play.json":AtelierProof?"Logs/atelier-play.json":CircuitProof?"Logs/circuit-play.json":Environment.GetCommandLineArgs().Contains("-duelProof")?"Logs/duel-play.json":traffic?"Logs/traffic-play.json":pacing?"Logs/pacing-play.json":"Logs/engagement-play.json"),JsonUtility.ToJson(proof,true));if(error!=null)Debug.LogException(error);EditorApplication.Exit(error==null?0:1);
+      File.WriteAllText(Path.Combine(Project,Environment.GetCommandLineArgs().Contains("-feelProof")?"Logs/feel-play.json":BossPairsProof?"Logs/boss-pairs.json":ChoicesProof?"Logs/choices-play.json":AtelierProof?"Logs/atelier-play.json":CircuitProof?"Logs/circuit-play.json":Environment.GetCommandLineArgs().Contains("-duelProof")?"Logs/duel-play.json":traffic?"Logs/traffic-play.json":pacing?"Logs/pacing-play.json":"Logs/engagement-play.json"),JsonUtility.ToJson(proof,true));if(error!=null)Debug.LogException(error);EditorApplication.Exit(error==null?0:1);
     }
   }
 }
+

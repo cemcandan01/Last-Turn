@@ -14,6 +14,7 @@ namespace LastTurn.Prototype
     private readonly AudioDirector director = new AudioDirector();
     private readonly Dictionary<string, AudioClip> clips = new Dictionary<string, AudioClip>();
     private AudioSource music, effects, engine, tires, loose, spin, wind;
+    private float tireGain, slideGain;
     private AudioLowPassFilter filter;
     private SourceEngineAudio layers;
     public static readonly Dictionary<string, int> Fired = new Dictionary<string, int>();
@@ -78,12 +79,28 @@ namespace LastTurn.Prototype
       engine.volume = (float)(mix.Effects * mix.EngineMix * (mix.ShiftCut ? .4 : 1)); engine.pitch = Mathf.Clamp((float)(mix.Rpm / 3000), .3f, 3);
       if(layers.Apply(frame,mix))engine.volume=0;
       if(layers.Previewing)music.volume=(float)(AudioDirector.Level(PlayerPreferences.Current["muz"])*.9*.12);
-      tires.volume = (float)(mix.Effects * Mathf.Clamp01((float)mix.Slip)); loose.volume = (float)(mix.Effects * Mathf.Clamp01((float)mix.Loose));
-      spin.volume=(float)(mix.Effects*Mathf.Clamp01((float)mix.Spin));wind.volume=(float)(mix.Effects*Mathf.Clamp01((float)(mix.Speed/70)));
+      float slip = Mathf.Clamp01((float)mix.Slip);
+      float slide = Mathf.Clamp01((float)mix.Spin) * Mathf.Clamp01(slip * 2);
+      if (frame.Mode == "drive")
+      {
+        tireGain = SmoothTire(tireGain, slip, Time.deltaTime);
+        slideGain = SmoothTire(slideGain, slide, Time.deltaTime);
+      }
+      else { tireGain = 0; slideGain = 0; }
+      tires.volume = (float)mix.Effects * tireGain;
+      spin.volume = (float)mix.Effects * slideGain;
+      loose.volume = (float)(mix.Effects * Mathf.Clamp01((float)mix.Loose));
+      wind.volume=(float)(mix.Effects*Mathf.Clamp01((float)(mix.Speed/70)));
       filter.cutoffFrequency=(float)mix.CockpitCutoff;
       foreach (var s in new[] { engine, tires, loose,spin,wind }) s.mute = mix.Effects <= 0;
       foreach (var e in director.Events) Play(e.Name, (float)e.Strength);
       foreach (var n in pending) Play(n, 1); pending.Clear();
+    }
+    // Temas kareleri arasında çıtırtıyı önler. Gaz kesilince kısa bir lastik kuyruğu kalır.
+    private static float SmoothTire(float current, float target, float dt)
+    {
+      float seconds = target > current ? 0.045f : 0.09f;
+      return Mathf.Lerp(current, target, 1 - Mathf.Exp(-dt / seconds));
     }
     private void Play(string name, float strength)
     {

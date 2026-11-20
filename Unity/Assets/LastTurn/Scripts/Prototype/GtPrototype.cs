@@ -131,7 +131,7 @@ namespace LastTurn.Prototype
       else if(!input.AirHeld&&a.Finger)a.AirRelease();
     }
     private void OnEnable() { input?.Enable(); }
-    private void OnDisable() { FlushProfileDistance();input?.Disable(); }
+    private void OnDisable() { FlushProfileDistance();input?.Disable(); if(followCamera)followCamera.CancelLook(); }
     private void OnApplicationQuit(){FlushProfileDistance();}
     private void OnApplicationPause(bool paused){if(paused)FlushProfileDistance();}
     private void ObserveRaceDistance(){if(Race==null||mutantDrive)return;pendingProfileKm+=Math.Max(0,Race.Km-observedRaceKm);observedRaceKm=Race.Km;}
@@ -142,7 +142,7 @@ namespace LastTurn.Prototype
       if(!GarageRace.Distance(pendingProfileKm))return false;pendingProfileKm=0;return true;
     }
     private void OnDestroy() { PlayerPreferences.Changed -= ApplyPreferences; input?.Dispose(); }
-    private void OnApplicationFocus(bool value) { focused = value; if (value) input?.Enable(); else input?.Disable(); }
+    private void OnApplicationFocus(bool value) { focused = value; if (value) input?.Enable(); else { input?.Disable(); if(followCamera)followCamera.CancelLook(); } }
     public void ResetVehicle()
     {
       FlushProfileDistance();
@@ -172,7 +172,16 @@ namespace LastTurn.Prototype
       PerformanceOverlay.PhysicsEnd();
       frameSeconds = Mathf.Lerp(frameSeconds, Time.unscaledDeltaTime, .05f);
     }
-    private void LateUpdate() { if(Field!=null) RenderField(); RenderFrame(Mathf.Min(Time.unscaledDeltaTime, .1f));if(opponentVisual && Opponent!=null){if(opponentSource)opponentSource.Pose(GtPresentation.Position(Opponent.Vehicle.ReferencePoint),GtPresentation.Rotation(Opponent.Vehicle.Body.Orientation),Opponent.Vehicle,Opponent.Vehicle.Body,Opponent.Vehicle.Body,1,false);else opponentVisual.SetPositionAndRotation(GtPresentation.Position(Opponent.Vehicle.Body.Position),GtPresentation.Rotation(Opponent.Vehicle.Body.Orientation));} }
+    private void LateUpdate()
+    {
+      float dt = Mathf.Min(Time.unscaledDeltaTime, .1f);
+      if (input != null && followCamera)
+      {
+        bool driving = focused && !GameFlow.Paused && !SettingsScreen.Open && !MutantRuntime.Blocked
+          && (Race == null || Race.Session.State != RaceState.Finished);
+        followCamera.UpdateLook(driving, input.LookPressed, input.LookHeld, input.MouseDelta, dt);
+      }
+      if(Field!=null) RenderField(); RenderFrame(dt);if(opponentVisual && Opponent!=null){if(opponentSource)opponentSource.Pose(GtPresentation.Position(Opponent.Vehicle.ReferencePoint),GtPresentation.Rotation(Opponent.Vehicle.Body.Orientation),Opponent.Vehicle,Opponent.Vehicle.Body,Opponent.Vehicle.Body,1,false);else opponentVisual.SetPositionAndRotation(GtPresentation.Position(Opponent.Vehicle.Body.Position),GtPresentation.Rotation(Opponent.Vehicle.Body.Orientation));} }
     public void TeleportWorld(int index){if(OpenTerrain==null||index<0||index>=OpenTerrain.Region.Teleports.Length)return;openSpawn=index;ResetVehicle();}
     public void StepWorld(DrivingInput value)
     {

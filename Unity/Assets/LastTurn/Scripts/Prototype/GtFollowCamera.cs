@@ -18,11 +18,52 @@ namespace LastTurn.Prototype
     private float fov = 62;
     private bool initialized;
     private Camera view;
+    private float lookYaw, lookPitch;
+    private bool captured, previousVisible;
+    private CursorLockMode previousLock;
     public float Fov => fov;
     /// Yumuşatmanın yöneldiği TS görüş açısı (doğrulama ve HUD).
     public float TargetFov { get; private set; }
     public int Mode { get; private set; }
-    public void ResetFollow() { initialized = false; chase.Reset(); }
+    public void ResetFollow() { initialized = false; chase.Reset(); CancelLook(); }
+    public void CancelLook()
+    {
+      ReleaseCursor();
+      lookYaw = lookPitch = 0;
+    }
+    private void ReleaseCursor()
+    {
+      if (!captured) return;
+      captured = false;
+      Cursor.lockState = previousLock;
+      Cursor.visible = previousVisible;
+    }
+    private void OnDisable() => CancelLook();
+
+    public void UpdateLook(bool allowed, bool pressed, bool held, Vector2 delta, float dt)
+    {
+      if (!allowed) { CancelLook(); return; }
+      if (!held) ReleaseCursor();
+      else if (pressed && !captured)
+      {
+        previousLock = Cursor.lockState;
+        previousVisible = Cursor.visible;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        captured = true;
+        return; // İmleç kilitlenirken oluşan konum sıçramasını yut.
+      }
+      if (captured)
+      {
+        lookYaw = Mathf.DeltaAngle(0, lookYaw + delta.x * .18f);
+        lookPitch = Mathf.Clamp(lookPitch - delta.y * .15f, -35f, 55f);
+        return;
+      }
+      float decay = Mathf.Exp(-9f * dt);
+      lookYaw *= decay;
+      lookPitch *= decay;
+      if (Mathf.Abs(lookYaw) + Mathf.Abs(lookPitch) < .05f) lookYaw = lookPitch = 0;
+    }
     /// Kameranın altındaki zemin (Unity x,z → y). Pistte fizik dünyasının yüksekliği; atanmazsa düz zemin (y=0).
     public Func<double, double, double> Ground = (x, z) => 0;
     /// Yalnız önce/sonra doğrulaması: eski mutlak y ≥ 1 tabanını yeniden üretir.
@@ -48,7 +89,7 @@ namespace LastTurn.Prototype
         var eye = cockpit ? (c.HasSourceEye?origin+body*c.SourceEye:origin-right*.4f+up*1.3f-forward*.2f) : origin + up * .95f + forward * (c.FrontAxle - .1f);
         var look = cockpit ? eye - up * .15f + forward * 14 : eye - up * .27f + forward * 16;
         eye += up * (UnityEngine.Random.value - .5f) * shake * .4f;
-        transform.SetPositionAndRotation(eye, Quaternion.LookRotation(look - eye, up));
+        transform.SetPositionAndRotation(eye, Quaternion.LookRotation(look - eye, up) * Quaternion.Euler(lookPitch, lookYaw, 0));
       }
       else
       {
@@ -57,7 +98,17 @@ namespace LastTurn.Prototype
         var p = chase.Step(origin.x, origin.y, origin.z, flat.x, flat.z, speed, dt, near ? 0 : 1, c.Drifting,
           LegacyAbsoluteFloor ? (x, z) => 0 : Ground, (UnityEngine.Random.value - .5f) * shake * .6f, (UnityEngine.Random.value - .5f) * shake);
         var position = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
-        transform.SetPositionAndRotation(position, Quaternion.LookRotation(new Vector3((float)p.TX, (float)p.TY, (float)p.TZ) - position, Vector3.up));
+        var target = new Vector3((float)p.TX, (float)p.TY, (float)p.TZ);
+        if (lookYaw != 0 || lookPitch != 0)
+        {
+          var pivot = origin + Vector3.up * 1.2f;
+          var right = Vector3.Cross(Vector3.up, target - position).normalized;
+          var orbit = Quaternion.AngleAxis(lookYaw, Vector3.up) * Quaternion.AngleAxis(lookPitch, right);
+          position = pivot + orbit * (position - pivot);
+          target = pivot + orbit * (target - pivot);
+          position.y = Mathf.Max(position.y, (float)Ground(position.x, position.z) + 1f);
+        }
+        transform.SetPositionAndRotation(position, Quaternion.LookRotation(target - position, Vector3.up));
       }
       view.fieldOfView = fov;
     }
