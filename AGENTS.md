@@ -1,5 +1,16 @@
 # Last Turn: ortak geliştirici rehberi (tek doğruluk kaynağı)
 
+## Tasarım sütunları (her kararda bunlara bak)
+
+Cem, 20 Kasım 2026: oyun genişledi ama derinleşmedi. Bundan sonra içerik eklemek yerine çekirdek derinleştirilir.
+
+1. **Araba = Hades'teki silah.** Her araba belirgin şekilde farklı hissettirir (ağırlık, yol tutuş, hızlanma, drift davranışı) ve ustalık ister.
+2. **Skill = Slay the Spire'daki kart.** Koşu başına sınırlı skill yuvası var. Skill'ler sadece sayı artırmaz, kuralları değiştirir ve birbirleriyle combo kurar. Oyuncu arabasına, yarış tipine ve piste göre build yapar.
+3. **Tempo:** ölü zaman yok, yarışlar kısa ve yoğun.
+4. **Tehdit:** hataların bedeli var, boss'lar gerçek bir sınav.
+
+**Karar (Cem, 20 Kasım 2026): MUTANT dikey dilimi.** MUTANT dilimi TS 0.8.18 referansından ayrılabilir; kariyer TS'ye bağlı kalır. Dilim: Bordo Tilki + Bozkır Tavşanı (Kara Boğa sonra), rakipli asfalt ve rallikros, sabit boss Gece Şahini, 3 skill yuvası, 10 kartlık set, yarışlar arası seçim düğümleri (açık dünyada sürüş yok), meta ilerleme yok. Dondurulanlar (açık dünya, sandık, atölye, Bölge 2–3, drift/drag, ekonomi) silinmez; "dilim modu" bayrağıyla kapatılır.
+
 Claude Code, Codex ve diğer ajanlar bu dosyayı okur. `CLAUDE.md` yalnız buraya yönlendirir. Cem projeyi Claude ve Codex ile dönüşümlü geliştirir; kota bitince diğerine geçilir. **Ortak bellek sohbet değil bu repodur.** Kullanıcının güncel talimatları ve ortamın üst düzey kuralları her zaman önceliklidir.
 
 ## Okuma düzeni (token tasarrufu)
