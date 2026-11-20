@@ -10,7 +10,7 @@ namespace LastTurn.Core
     public static CatalogNode Apply(CatalogNode stock, IEnumerable<string> passives, double body=100,
       double nitroRemaining=0, double nitroPower=1, double skillPower=1, double skillGrip=1)
     {
-      var car=stock.Clone();var ids=passives.ToArray();
+      var car=MutantSlice.TuneCar(stock).Clone();var ids=passives.ToArray();
       int Count(string id)=>ids.Count(p=>p==id);
       void Multiply(string field,double factor)=>car.Set(field,CatalogNode.Num(car[field].N()*factor));
       void Grip(int index,double factor)

@@ -45,10 +45,10 @@ namespace LastTurn.Prototype
     public static MutantHudModel HudModel(double x,double z)=>MutantHudModel.Read(Run,Active?Model:null,Abilities,Session,x,z,InRace);
     private static BodyVector? returnPoint;private static double returnHeading;private static int refreshed;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void Reset(){Run=null;Session=null;RacePlan=null;Encounter=null;ShowProgress=new BossShowProgress();Abilities=null;OpponentLink=null;Car=-1;Panel="";Message="";ResultPassed=null;returnPoint=null;refreshed=0;RecordDirectory="";Starting=false;rewards=null;HudFeedback=new MutantHudFeedback();}
+    private static void Reset(){MutantSlice.Enabled=false;Run=null;Session=null;RacePlan=null;Encounter=null;ShowProgress=new BossShowProgress();Abilities=null;OpponentLink=null;Car=-1;Panel="";Message="";ResultPassed=null;returnPoint=null;refreshed=0;RecordDirectory="";Starting=false;rewards=null;HudFeedback=new MutantHudFeedback();}
     public static void Start(uint seed,bool test=false)
     {
-      GarageSession.EnsureLoaded();var asset=Resources.Load<TextAsset>("mutant-catalog");
+      MutantSlice.Enabled=true;GarageSession.EnsureLoaded();var asset=Resources.Load<TextAsset>("mutant-catalog");
       if(!asset)throw new InvalidOperationException("Mutant verisi bulunamadı.");
       Run=new MutantRun(seed,CatalogNode.Parse(asset.text),test&&DevAvailable);rewards=null;Session=null;RacePlan=null;Car=-1;Panel="start";Message="";ResultPassed=null;returnPoint=null;Starting=true;HudFeedback=new MutantHudFeedback();GameFlow.Pause(false);
     }

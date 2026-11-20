@@ -73,6 +73,7 @@ namespace LastTurn.Core
     public static int[] StartingCars(uint seed, CatalogNode catalog, bool test = false)
     {
       if (test) return Enumerable.Range(0, (int)catalog["carsCount"].N()).ToArray();
+      if (MutantSlice.Enabled) return (int[])MutantSlice.StartingCars.Clone();
       var candidates = catalog["startingCars"].Items.Select(x => (int)x.N()).ToList();
       var random = new SeededRandom(seed ^ 0x5bd1e995u);
       var result = new System.Collections.Generic.List<int>();
