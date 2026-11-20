@@ -164,6 +164,119 @@ namespace LastTurn.EditorValidation
       Shots("atelier-race",1280);
     }
 
+    private static bool ChoicesProof=>Environment.GetCommandLineArgs().Contains("-choicesProof");
+    private static bool BossPairsProof=>Environment.GetCommandLineArgs().Contains("-bossPairsProof");
+
+    private static void SetupBossPairs()
+    {
+      string dir=Path.Combine(Project,"Logs/PairBoss",Guid.NewGuid().ToString("N"));
+      GarageSession.Open(Path.Combine(dir,"garage.json"),true);
+      var setups=new[]{Array.Empty<string>(),new[]{"aci","temiz-cikis"},new[]{"asfalt","fren"},new[]{"zirh","tamirci"}};
+      string bossKey=null;int selected=-1;
+      foreach(var pair in setups)
+      {
+        int ticks=0,activations=0;bool hasPair=pair.Length>0;
+        Add(()=>{MutantRuntime.RecordDirectory=dir;MutantRuntime.Start(53);});
+        Wait(()=>MutantStartView.Instance && MutantStartView.Instance.Visible);
+        Add(()=>{
+          var run=MutantRuntime.Run;
+          run.State.Set("pasifler",CatalogNode.Arr(hasPair?new[]{CatalogNode.Str(pair[0])}:Array.Empty<CatalogNode>()));
+          string offer=hasPair?pair[1]:"guc";
+          run.State.Set("secenekler",CatalogNode.Arr(new[]{offer,"ogrenci","b:grappling-hook"}.Select(CatalogNode.Str)));
+          int car=MutantRuntime.Model.StartingCarsCards[0].Id;if(selected<0)selected=car;
+          Check(car==selected,"Aynı başlangıç aracı");MutantRuntime.SelectCar(car);
+        });
+        Add(()=>{
+          if(hasPair)Check(UiRoot.Instance.Root.Query<Label>().ToList().Any(l=>l.text!=null && l.text.Contains(" sende.")),"Sahip olunan eş ödül kartında");
+        });
+        if(hasPair && pair[0]=="aci")Shots("mutant-ikili",1280);
+        Add(()=>{Check(MutantRuntime.Choose(hasPair?pair[1]:"guc"),"Ödül normal seçim yolundan alındı");});
+        Wait(()=>P && P.Simulation!=null && !MutantRuntime.Starting && !MutantRuntime.InRace);
+        Add(()=>{
+          var r=MutantRuntime.Run;
+          if(!hasPair)r.State.Set("pasifler",CatalogNode.Arr(Array.Empty<CatalogNode>()));
+          // Aynı tohum, asfalt boss'u ve ikiliden bağımsız aynı başlangıç enerjisi.
+          r.State.Set("boss",r.Catalog["bosses"].Items.First(b=>b["ty"].S()=="gp").Clone());
+          r.State["mek"].Set("enerji",CatalogNode.Num(40));
+          MutantRuntime.StartRace(0,0,true);
+        });
+        Wait(()=>P && P.Race!=null && P.Opponent!=null && MutantRuntime.RacePlan.Boss);
+        Add(()=>{
+          P.ManualStepping=true;driver=RaceTestDriver.For("gp");P.Race.Session.TickCountdown(4);
+          string key=P.RaceTrack+"/"+MutantRuntime.RacePlan.Opponent["tohum"].N();
+          if(bossKey==null)bossKey=key;Check(key==bossKey,"Aynı boss, pist ve rakip tohumu "+key);
+        });
+        Add(()=>{
+          for(int i=0;i<300 && !MutantRuntime.Blocked && P.Race.PhysicsRunning && ticks<15000;i++,ticks++){
+            var input=driver.Input(P.Race);
+            // Her kurulum aynı fren/manzara kaçınma hareketini aynı fizik adımında alır.
+            if(ticks>=900 && ticks<930)input=new DrivingInput(0,.65,.42,true,true);
+            P.StepRace(input);driver.RespawnIfStuck(P.Race);
+            if(MutantRuntime.Abilities.Pairs.Notice!="")activations++;
+          }
+          if(P.Race.PhysicsRunning && !MutantRuntime.Blocked && ticks<15000){index--;return;}
+          Check(ticks>100 && (MutantRuntime.Blocked || !P.Race.PhysicsRunning),"Boss sürüşü · "+(hasPair?string.Join("+",pair):"stok")+" · "+P.Race.Session.Time.ToString("0.00")+" sn · "+(MutantRuntime.ResultPassed==true?"kazandı":P.Race.PhysicsRunning?"pert":"kaybetti")+" · "+activations+" ikili bildirimi");
+        });
+        Add(()=>MutantRuntime.Exit());Wait(()=>SceneManagerName()=="Garage");
+      }
+      Add(()=>Check(proof.errors.Count==0,"Boss çalışma anı hatasız"));
+    }
+    private static void Click(string name){
+      var e=UiRoot.Instance.Root.Q(name);
+      Check(e!=null && e.enabledInHierarchy,name+" erişilebilir");
+      var scroll=e.GetFirstAncestorOfType<ScrollView>();if(scroll!=null)scroll.ScrollTo(e);
+      var point=e.worldBound.center;
+      using(var down=PointerDownEvent.GetPooled(new Event{type=EventType.MouseDown,button=0,mousePosition=point}))e.SendEvent(down);
+      using(var up=PointerUpEvent.GetPooled(new Event{type=EventType.MouseUp,button=0,mousePosition=point}))e.SendEvent(up);
+    }
+    private static void SetupChoices()
+    {
+      string path=Path.Combine(Project,"Logs/Choices",Guid.NewGuid().ToString("N"),"garage.json");
+      GarageSession.Open(path,true);int id=GarageSession.State.SelectedCar;
+      Wait(()=>GarageView.Instance && UnityEngine.Object.FindFirstObjectByType<GarageScreen>());
+      Add(()=>{GameFlow.RaceMenu();GameFlow.Browse(1);});Wait(()=>GarageView.Instance.Modifying);
+      Add(()=>Click("open-styling"));Add(()=>Click("swatch-2863BF"));
+      Add(()=>{UiRoot.Instance.Root.Q<Foldout>("decal-foldout").value=true;
+        GarageView.Instance.GetComponent<GarageVehiclePreview>().RotateBy(-65);});
+      for(int i=0;i<3;i++){
+        int slot=i;Add(()=>Click("decal-slot-"+slot));Add(()=>Click("decal-shape-"+(slot+1)));
+      }
+      Add(()=>Click("decal-slot-1"));Add(()=>Click("decal-mirror"));
+      Add(()=>{var root=UiRoot.Instance.Root;root.Q<SliderInt>("decal-number").value=52;
+        root.Q<SliderInt>("decal-angle").value=12;root.Q<SliderInt>("decal-size").value=2;});
+      Add(()=>Click("swatch-E6BA47"));Add(()=>Click("decal-slot-2"));Add(()=>Click("swatch-209C8B"));
+      Shots("katmanlar",1280,1920);
+      Add(()=>Click("style-save"));Add(()=>{
+        GarageSession.Open(path,true);var s=GarageSession.State.Appearance(id);
+        Check(s.Bottom.Shape==1 && s.Middle.Shape==2 && s.Top.Shape==3 && s.Top.X<0,"Üç bağımsız katman diskte");
+        Check(s.Middle.Angle==12 && s.Middle.Size==2 && s.Middle.Number==52 && s.Middle.Mirror && s.Middle.Color!=s.Top.Color,"Numara, dönüş, ölçek, ayna ve iki renk korundu");
+        GameFlow.OpenRace("gp_1");});
+      Wait(()=>RacePreparationView.Instance && RacePreparationView.Instance.Visible);
+      Add(()=>Click("preparation-knockout"));Wait(()=>P && P.Field!=null && P.Field.Knockout);
+      Add(()=>{P.ManualStepping=true;P.Race.Session.TickCountdown(4);Check(!P.Race.Session.Career && P.Race.Event.Laps==3 && P.Field.Remaining==4,"Dört araçlı yarış hazırlıktan açıldı");});
+      Shots("eleme-grid",1280);
+      // Kontrollü bitiş çizgileri: üçüncü geçişle sonuncu çıkar, ikinci kapıyla son iki kalır.
+      void Lap(object obj,int n)=>obj.GetType().GetProperty("Lap").SetValue(obj,n);
+      Add(()=>{Lap(P.Race.Session,1);Lap(P.Field.Rivals[0],1);P.Field.UpdateOrder(P.Race);
+        Check(P.Field.Remaining==4,"İlk iki geçişte kimse elenmedi");Lap(P.Field.Rivals[1],1);P.Field.UpdateOrder(P.Race);
+        Check(P.Field.Remaining==3 && P.Field.IsOut(3),"Dördüncü sürücü elendi");});
+      Add(()=>{Lap(P.Race.Session,2);Lap(P.Field.Rivals[0],2);P.Field.UpdateOrder(P.Race);
+        Check(P.Field.Remaining==2 && P.Field.IsOut(2),"İkinci turda üçüncü elendi");});
+      Shots("eleme-final",1280);
+      Add(()=>{Lap(P.Field.Rivals[0],3);P.Field.UpdateOrder(P.Race);Check(P.Field.PlayerRank==2 && !P.Race.PhysicsRunning,"Rakip ilk geçince final bitti");});
+      Wait(()=>ResultView.Instance && ResultView.Instance.Visible);
+      Add(()=>{Check(ResultView.Instance.ValueText=="2. SIRA","Eleme sonuç ekranı");P.RestartRace();P.ManualStepping=true;P.Race.Session.TickCountdown(4);
+        Check(P.Field.Remaining==4,"Tekrar tüm rakipleri geri getirdi");driver=RaceTestDriver.For("gp");});
+      int rounds=0;
+      Add(()=>{
+        for(int i=0;i<320 && P.Race.PhysicsRunning;i++){P.StepRace(driver.Input(P.Race));driver.RespawnIfStuck(P.Race);}
+        if(P.Race.PhysicsRunning && ++rounds<80){index--;return;}
+        Check(!P.Race.PhysicsRunning && P.Field.Remaining<4,"Gerçek fizik sürüşüyle eleme yarışı tamamlandı");
+      });
+      Shots("eleme-sonuc",1280);
+      Add(()=>Check(proof.errors.Count==0,"Çalışma anı hatasız"));
+    }
+
     private static bool CircuitProof => Environment.GetCommandLineArgs().Contains("-circuitProof");
     private static void SetupCircuit()
     {
@@ -302,16 +415,16 @@ namespace LastTurn.EditorValidation
     }
     private static void Tick()
     {
-      try{if(EditorApplication.timeSinceStartup-began>180)throw new TimeoutException("Play "+index+"/"+steps.Count+" · "+string.Join(" / ",proof.checks.Skip(Math.Max(0,proof.checks.Count-3))));if(Capture()){at=EditorApplication.timeSinceStartup;return;}if(EditorApplication.timeSinceStartup-at<.3)return;at=EditorApplication.timeSinceStartup;if(steps.Count==0){if(!UiRoot.Instance)return;if(AtelierProof)SetupAtelier();else if(CircuitProof)SetupCircuit();else if(SessionState.GetBool(Traffic,false))SetupTraffic();else if(SessionState.GetBool(Pacing,false))SetupPacing();else Setup();return;}if(index>=steps.Count){Finish(null);return;}steps[index++]();}
+      try{if(EditorApplication.timeSinceStartup-began>(BossPairsProof?720:180))throw new TimeoutException("Play "+index+"/"+steps.Count+" · "+string.Join(" / ",proof.checks.Skip(Math.Max(0,proof.checks.Count-3))));if(Capture()){at=EditorApplication.timeSinceStartup;return;}if(EditorApplication.timeSinceStartup-at<.3)return;at=EditorApplication.timeSinceStartup;if(steps.Count==0){if(!UiRoot.Instance)return;if(BossPairsProof)SetupBossPairs();else if(ChoicesProof)SetupChoices();else if(AtelierProof)SetupAtelier();else if(CircuitProof)SetupCircuit();else if(SessionState.GetBool(Traffic,false))SetupTraffic();else if(SessionState.GetBool(Pacing,false))SetupPacing();else Setup();return;}if(index>=steps.Count){Finish(null);return;}steps[index++]();}
       catch(Exception e){Finish(e);}
     }
     private static void Finish(Exception error)
     {
-      bool pacing=SessionState.GetBool(Pacing,false),traffic=SessionState.GetBool(Traffic,false);SessionState.SetBool(Active,false);EditorApplication.update-=Tick;Application.logMessageReceived-=Logged;proof.result=error==null?(AtelierProof?"atelier-play-passed":CircuitProof?"circuit-play-passed":traffic?"traffic-play-passed":pacing?"pacing-play-passed":"engagement-play-passed"):"failed";proof.error=error?.ToString()??"";proof.utc=DateTime.UtcNow.ToString("O");
+      bool pacing=SessionState.GetBool(Pacing,false),traffic=SessionState.GetBool(Traffic,false);SessionState.SetBool(Active,false);EditorApplication.update-=Tick;Application.logMessageReceived-=Logged;proof.result=error==null?(BossPairsProof?"boss-pairs-passed":ChoicesProof?"choices-play-passed":AtelierProof?"atelier-play-passed":CircuitProof?"circuit-play-passed":traffic?"traffic-play-passed":pacing?"pacing-play-passed":"engagement-play-passed"):"failed";proof.error=error?.ToString()??"";proof.utc=DateTime.UtcNow.ToString("O");
       if(keyboard!=null&&keyboard.added)InputSystem.RemoveDevice(keyboard);
       if(gamepad!=null&&gamepad.added)InputSystem.RemoveDevice(gamepad);
       proof.sources=Directory.GetFiles(Path.Combine(Application.dataPath,"LastTurn"),"*",SearchOption.AllDirectories).Where(f=>new[]{".cs",".uss",".json",".jpg",".shader"}.Contains(Path.GetExtension(f))).OrderBy(f=>f,StringComparer.Ordinal).Select(f=>{using(var h=SHA256.Create())return new Source{path=f.Substring(Project.Length+1).Replace('\\','/'),hash=BitConverter.ToString(h.ComputeHash(File.ReadAllBytes(f))).Replace("-","")};}).ToArray();
-      File.WriteAllText(Path.Combine(Project,AtelierProof?"Logs/atelier-play.json":CircuitProof?"Logs/circuit-play.json":Environment.GetCommandLineArgs().Contains("-duelProof")?"Logs/duel-play.json":traffic?"Logs/traffic-play.json":pacing?"Logs/pacing-play.json":"Logs/engagement-play.json"),JsonUtility.ToJson(proof,true));if(error!=null)Debug.LogException(error);EditorApplication.Exit(error==null?0:1);
+      File.WriteAllText(Path.Combine(Project,BossPairsProof?"Logs/boss-pairs.json":ChoicesProof?"Logs/choices-play.json":AtelierProof?"Logs/atelier-play.json":CircuitProof?"Logs/circuit-play.json":Environment.GetCommandLineArgs().Contains("-duelProof")?"Logs/duel-play.json":traffic?"Logs/traffic-play.json":pacing?"Logs/pacing-play.json":"Logs/engagement-play.json"),JsonUtility.ToJson(proof,true));if(error!=null)Debug.LogException(error);EditorApplication.Exit(error==null?0:1);
     }
   }
 }

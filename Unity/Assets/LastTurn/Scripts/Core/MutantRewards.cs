@@ -19,6 +19,7 @@ namespace LastTurn.Core
   public sealed class MutantRewardCard
   {
     public string Offer="",IconKey="",Name="",Description="",KindText="",SourceText="",LevelText="",EffectText="",VehicleText="",Compatibility="",CurseText="";
+    public string PairEffect="";
     public string RarityText="",RarityColor="",RaritySymbol="";
     public RewardRarity Rarity;public int Level;public bool Known,Compatible,NeedsReplacement,Cursed;
     public RewardNumber[] VehicleEffects=Array.Empty<RewardNumber>();
@@ -108,6 +109,10 @@ namespace LastTurn.Core
         c.VehicleEffects=numbers.ToArray();
       }
       c.Compatibility=!c.Compatible?"Mevcut durumda uygun teklif değil / sınırda":c.NeedsReplacement?"3 yuva dolu · alınırken skill değiştirilir":"Uygun · keşif seçeneği; üstünlük garantisi yok";
+      if(c.Compatible){
+        string pair=MutantPairs.Preview(run.State,d.Id,run.Catalog,out c.PairEffect);
+        if(pair!="")c.Compatibility=pair;
+      }
       return c;
     }
   }

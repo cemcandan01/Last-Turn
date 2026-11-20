@@ -66,15 +66,15 @@ namespace LastTurn.Ui
       if(field!=null && session!=null)
       {
         if(seenField!=field){System.Array.Clear(fieldSides,0,fieldSides.Length);seenField=field;}
-        positionTitle.text="SIRALAMA   "+field.PlayerRank+" / "+field.Order.Length;
+        positionTitle.text=field.Knockout?(field.Remaining==2?"FİNAL DÜELLOSU":"ELEME")+"   "+field.PlayerRank+" / "+field.Remaining:"SIRALAMA   "+field.PlayerRank+" / "+field.Order.Length;
         var self=OpponentTrafficCar.Read(p.Simulation);
         bool leftOn=false,rightOn=false;
         for(int i=0;i<field.Order.Length;i++)
         {
           int id=field.Order[i];
-          places[i].text=(i+1)+"     "+field.Names[id];
+          places[i].text=(i+1)+"     "+field.Names[id]+(field.IsOut(id)?" · ELENDİ":"");
           places[i].EnableInClassList("circuit-player",id==0);
-          if(id==0 || session.State!=RaceState.Running || field.Rivals[id-1].FinishTime.HasValue)continue;
+          if(id==0 || field.IsOut(id) || session.State!=RaceState.Running || field.Rivals[id-1].FinishTime.HasValue)continue;
           var side=RaceSpotter.Read(self,OpponentTrafficCar.Read(field.Rivals[id-1].Vehicle),fieldSides[id-1]);
           fieldSides[id-1]=side;
           leftOn|=side==RivalSide.Left;rightOn|=side==RivalSide.Right;
@@ -126,15 +126,17 @@ namespace LastTurn.Ui
       Place(speedBox, r, "Speed", k); Place(hints, r, "Hint", k);
       title.text = Ui.Upper(s.Event.Name);
       var lines = new List<string>();
-      if (m.Objective != "") lines.Add(m.Objective);
+      bool knockout=p.Field!=null && p.Field.Knockout;
+      if(knockout)lines.Add(p.Field.Remaining==2?"Final · Çizgiyi ilk geç":p.Field.Remaining==4?"1. eleme · İlk üçe gir":"2. eleme · İlk ikiye gir");
+      else if (m.Objective != "") lines.Add(m.Objective);
       if (m.Drift != "" || m.X6 != "") lines.Add((m.Drift + "   " + m.X6).Trim());
       if (!string.IsNullOrEmpty(p.RaceMessage)) lines.Add(p.RaceMessage);
-      if (!string.IsNullOrEmpty(p.RecordText)) lines.Add(p.RecordText);
+      if (!knockout && !string.IsNullOrEmpty(p.RecordText)) lines.Add(p.RecordText);
       // TS hud.ts: güneş dışında hava adı gösterilir (zemin daha kaygan)
       if (p.Conditions.Weather != "sun" || p.Conditions.Night) lines.Add(p.Conditions.Label);
       if (p.Field == null && p.Opponent != null) lines.Add(p.OpponentText());
       info.text = string.Join("\n", lines);
-      big.text = m.Big; sub.text = m.Sub;
+      big.text = m.Big; sub.text = knockout?"Tur "+System.Math.Min(3,s.Lap+1)+"/3":m.Sub;
       DrawSpeed();
       countdown.text = m.Countdown; note.text = m.Note; back.text = m.Return; Ui.Show(wrong, m.WrongWay);
       // masaüstü ipucu: yalnız ilk saniyelerde

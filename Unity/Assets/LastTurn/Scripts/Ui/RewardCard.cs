@@ -18,6 +18,7 @@ namespace LastTurn.Ui
       var top=new VisualElement();top.AddToClassList("rc-top");top.Add(Ui.Text(model.RaritySymbol+" "+model.RarityText,"rc-rarity"));top.Add(Ui.Text(model.SourceText,"rc-source"));Add(top);
       Add(Ui.Text(model.Name,"rc-title"));Add(Ui.Text(model.KindText+" · "+model.LevelText,"rc-level"));
       Details=new ScrollView(ScrollViewMode.Vertical){horizontalScrollerVisibility=ScrollerVisibility.Hidden};Details.AddToClassList("rc-details");Add(Details);
+      if(model.PairEffect!="")Details.Add(Ui.Text(model.PairEffect,"rc-effect"));
       if(compact){Details.Add(Ui.Text(model.EffectText,"rc-effect"));Details.Add(Ui.Text(model.VehicleText,"rc-vehicle"));if(model.Description!=model.EffectText)Details.Add(Ui.Text(model.Description,"rc-description"));}
       else {Details.Add(Ui.Text(model.Description,"rc-description"));Add(Ui.Text("KATALOG ETKİSİ","rc-caption"));Add(Ui.Text(model.EffectText,"rc-effect"));Add(Ui.Text("MEVCUT ARAÇ / KOŞUL","rc-caption"));Add(Ui.Text(model.VehicleText,"rc-vehicle"));}
       var foot=new VisualElement();foot.AddToClassList("rc-foot");foot.Add(Ui.Text(model.Compatibility,"rc-compatibility"));

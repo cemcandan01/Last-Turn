@@ -94,6 +94,11 @@ namespace LastTurn.Core
     public double StartHold { get; private set; }
     public bool Manual => Vehicle.Parameters.ManualGearbox;
 
+    internal void EndElimination(){
+      if(Session.State!=RaceState.Running)return;
+      Session.EndElimination();
+      if(Session.State==RaceState.Finished)Finished?.Invoke(this);
+    }
     public bool PhysicsRunning => Session.State == RaceState.Running;
 
     /// Fizik adımı + yarış adımı. Yarış çalışmıyorsa (geri sayım/bitti) fizik ilerlemez (TS: donuk / sonuç ekranı).

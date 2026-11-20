@@ -82,6 +82,15 @@ namespace LastTurn.Ui
 
     private void Render(RaceSession s)
     {
+      if(driver.Field!=null && driver.Field.Knockout){
+        var field=driver.Field;int rank=field.PlayerRank;
+        where.text=Ui.Upper(s.Event.Name)+" · ELEME";value.text=rank==1?"KAZANDIN":rank+". SIRA";
+        deltaText.text=rank==1?"Final düellosunu kazandın.":field.IsOut(0)?"Eleme çizgisinde yarışın sona erdi.":"Final düellosunu tamamladın.";
+        Ui.Show(delta,false);Ui.Show(record,false);header.text="Dört araç · Üç tur";stars.Clear();StarsShown=0;
+        rows.Clear();for(int i=0;i<field.Order.Length;i++)rows.Add(Row((i+1)+". sıra",field.Names[field.Order[i]]));
+        reward.text="Ödülsüz eleme yarışı";level.text=note.text="";levelFill.style.width=levelGain.style.width=0;
+        NextKey="";primary.Q<Label>(className:"yazi").text="YARIŞ MENÜSÜ";return;
+      }
       var garageState = GarageSession.State;
       var r = RaceViewModel.Result(s, garageState != null ? garageState.StarsOf(s.Event.Type, s.Event.Level) : 0, GarageRace.LastPreviousBest, GarageRace.LastNewRecord);
       var h = DriveMenuModel.Headline(s);

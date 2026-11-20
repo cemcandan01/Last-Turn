@@ -121,7 +121,7 @@ namespace LastTurn.Prototype
         foreach(var (k,v) in new[]{("x",o.X),("z",o.Z),("h",Heading(ob)),("vx",ob.Velocity.X),("vz",ob.Velocity.Z)})rival.Set(k,CatalogNode.Num(v));
       }
       Abilities?.BeginStep(new MutantAbilityContext{X=p.X,Z=p.Z,Heading=Heading(b),Vx=b.Velocity.X,Vz=b.Velocity.Z,Y=b.Position.Y,Vy=b.Velocity.Y,
-        Ground=world.Height(p.X,p.Z),Steering=vehicle.Engine.Steering,Beta=drift.Beta,Airborne=b.Airborne,DriftOn=vehicle.Assist.On,
+        Ground=world.Height(p.X,p.Z),Throttle=vehicle.Engine.Gas,Brake=vehicle.Engine.EffectiveBrake,Steering=vehicle.Engine.Steering,Beta=drift.Beta,Airborne=b.Airborne,DriftOn=vehicle.Assist.On,
         DriftDirection=vehicle.Assist.Dir,DriftCool=vehicle.Assist.Cool,Racing=InRace,RaceRunning=raceStarted,Track=RacePlan?.Track.Geometry,Opponent=rival,Obstacles=near});
       string hudNote="";
       foreach(var e in Session.Step(new MutantSessionInput{X=p.X,Z=p.Z,Speed=drift.Speed,Hit=vehicle.Body.LastHitTime,Beta=drift.Beta,
@@ -137,6 +137,7 @@ namespace LastTurn.Prototype
         if(opponent!=null&&OpponentLink!=null&&Abilities.OpponentEffect)OpponentLink.Apply(opponent.Vehicle,Abilities.OpponentAcceleration,Abilities.OpponentBody);
         vehicle.SkillInput=Abilities.Physics(PowertrainVehicle.FixedDelta);
       }
+      if(Abilities!=null && hudNote=="" && Abilities.Pairs.Notice!="")hudNote=Abilities.Pairs.Notice;
       HudFeedback.Observe(Run,Abilities);if(hudNote!="")HudFeedback.Note(hudNote);
       Refresh(vehicle);return !Blocked;
     }

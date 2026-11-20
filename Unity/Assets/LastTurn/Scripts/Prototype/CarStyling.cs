@@ -37,7 +37,7 @@ namespace LastTurn.Prototype
       var bounds=mesh.bounds;
       var front=scene.Tags["wheel-pivot-0"].localPosition;
       var rear=scene.Tags["wheel-pivot-2"].localPosition;
-      if(style.Paint!=0 || style.Fender!=0 || style.Graphic!=0)
+      if(style.Paint!=0 || style.Fender!=0 || style.Graphic!=0 || style.Bottom.Shape!=0 || style.Middle.Shape!=0 || style.Top.Shape!=0)
       {
         var shader=Resources.Load<Shader>("SourcePresentation/CarLivery");
         foreach(var surface in scene.PaintSurfaces)
@@ -50,6 +50,13 @@ namespace LastTurn.Prototype
           paint.SetVector("_Wheels",new Vector4(front.z,rear.z,front.y,bounds.extents.x));
           paint.SetVector("_Fit",new Vector4(style.Shift*.32f,style.Shift*.14f,1+style.Scale*.18f,0));
           paint.SetFloat("_Pattern",style.Graphic);
+          for(int i=0;i<3;i++){
+            var layer=style.Layer(i);float angle=layer.Angle*Mathf.Deg2Rad;
+            paint.SetVector("_Layer"+i,new Vector4(layer.Shape,layer.Surface,layer.Mirror?1:0,layer.Number));
+            paint.SetVector("_Pose"+i,new Vector4(layer.X*.1f,layer.Y*.1f,Mathf.Cos(angle),Mathf.Sin(angle)));
+            paint.SetFloat("_Size"+i,1+layer.Size*.13f);
+            paint.SetColor("_Tint"+i,ColorOf(layer.Color,Color.white));
+          }
           paint.SetFloat("_Showroom",gameObject.layer==31?1:0);
           paint.SetMatrix("_MeshToCar",transform.worldToLocalMatrix*surface.localToWorldMatrix);
           surface.sharedMaterial=paint;

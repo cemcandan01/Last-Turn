@@ -16,12 +16,18 @@ namespace LastTurn.Core
     public int PlayerContacts { get; private set; }
     public double PassNoticeUntil { get; private set; }
 
-    public CircuitField(PowertrainVehicle player, OpponentRacer[] rivals, string[] names)
+    public bool Knockout {get;}
+    public int Remaining {get;private set;}
+    private readonly int[] completed,place;
+    public bool IsOut(int id)=>place[id]>0;
+
+    public CircuitField(PowertrainVehicle player, OpponentRacer[] rivals, string[] names,bool knockout=false)
     {
       Rivals=rivals; Names=names;
       int n=rivals.Length+1;
       cars=new PowertrainVehicle[n]; snapshot=new OpponentTrafficCar[n];
       distance=new double[n]; finish=new double[n]; Order=new int[n];
+      Knockout=knockout;Remaining=n;completed=new int[n];place=new int[n];
       cars[0]=player;
       for(int i=1;i<n;i++) cars[i]=rivals[i-1].Vehicle;
       for(int i=0;i<n;i++) Order[i]=i;
@@ -36,11 +42,12 @@ namespace LastTurn.Core
     {
       for(int i=1;i<cars.Length;i++)
       {
+        if(IsOut(i))continue;
         int nearest=0; double best=double.PositiveInfinity;
         var self=snapshot[i];
         for(int j=0;j<cars.Length;j++)
         {
-          if(j==i) continue;
+          if(j==i || IsOut(j)) continue;
           var other=snapshot[j]; double dx=other.X-self.X,dz=other.Z-self.Z;
           double along=dx*Math.Sin(self.Heading)+dz*Math.Cos(self.Heading);
           if(along < -self.Length || Math.Abs(self.Y-other.Y)>2) continue;
@@ -52,7 +59,7 @@ namespace LastTurn.Core
       bool touched=false;
       for(int i=0;i<cars.Length;i++) for(int j=i+1;j<cars.Length;j++)
       {
-        if(VehicleContact.Resolve(cars[i],cars[j]) && i==0) touched=true;
+        if(!IsOut(i) && !IsOut(j) && VehicleContact.Resolve(cars[i],cars[j]) && i==0) touched=true;
       }
       if(touched) PlayerContacts++;
       return touched;
@@ -66,11 +73,13 @@ namespace LastTurn.Core
     public void UpdateOrder(RaceRun race)
     {
       var s=race.Session; var g=race.World.Geometry;
+      completed[0]=s.Lap;
       distance[0]=Progress(g,cars[0],s.Lap,race.World.Hint,s.Armed!=0);
       finish[0]=s.State==RaceState.Finished?s.Time:double.PositiveInfinity;
       for(int i=1;i<cars.Length;i++)
       {
         var rival=Rivals[i-1];
+        completed[i]=rival.Lap;
         distance[i]=Progress(g,cars[i],rival.Lap,rival.Hint,rival.Armed);
         finish[i]=rival.FinishTime??double.PositiveInfinity;
       }
@@ -81,11 +90,20 @@ namespace LastTurn.Core
         while(j>0 && Ahead(id,Order[j-1])){Order[j]=Order[j-1];j--;}
         Order[j]=id;
       }
+      if(Knockout && Remaining>2){
+        int gate=Order.Length-Remaining+1, crossed=0;
+        for(int i=0;i<Remaining;i++)if(completed[Order[i]]>=gate)crossed++;
+        if(crossed>=Remaining-1){
+          int last=Order[Remaining-1];place[last]=Remaining--;
+          if(last==0)race.EndElimination();
+        }
+      }
+      if(Knockout && Remaining==2 && completed[Order[0]]>=3)race.EndElimination();
       int rank=Array.IndexOf(Order,0)+1;
       if(PlayerRank>rank && s.State==RaceState.Running && s.Time>1) PassNoticeUntil=s.Time+1.5;
       PlayerRank=rank;
     }
-    private bool Ahead(int a,int b) => finish[a]!=finish[b] ? finish[a]<finish[b] :
+    private bool Ahead(int a,int b) => place[a]!=place[b] ? place[a]<place[b] : Knockout && completed[a]!=completed[b] ? completed[a]>completed[b] : finish[a]!=finish[b] ? finish[a]<finish[b] :
       double.IsPositiveInfinity(finish[a]) && distance[a]>distance[b]+.05;
   }
 

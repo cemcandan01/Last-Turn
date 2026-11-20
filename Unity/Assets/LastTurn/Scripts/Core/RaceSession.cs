@@ -17,6 +17,10 @@ namespace LastTurn.Core
     public int Index, Level, Difficulty, Region, Laps;
     public string Key = "", Type = "", Name = "", Description = "", Preset = "";
     public double Limit, StartX, StartZ, StartHeading;
+    public RaceEventInfo ThreeLapCopy()
+    {
+      var copy=(RaceEventInfo)MemberwiseClone();copy.Laps=3;return copy;
+    }
     public double[] Stars = Array.Empty<double>();
   }
 
@@ -124,6 +128,8 @@ namespace LastTurn.Core
       Event = info; Track = track; Career = career&&!mutant; Mutant=mutant;g = track.Geometry; edge = TrackRules.Edge(g, track.Layout.Kerbs.Length > 0);
       RecordKey = mutant?"mutant_"+info.Key:career ? info.Key : "deneme_" + info.Key; this.reward = Career ? reward : null; this.cutPenalty=cutPenalty;Previous = startHint;
     }
+
+    internal void EndElimination(){if(!Career && !Mutant && State==RaceState.Running)State=RaceState.Finished;}
 
     public bool IsDrift => Event.Type == "dp";
     /// TS: drift yarışında puan, diğerlerinde süre.

@@ -14,6 +14,7 @@ namespace LastTurn.EditorValidation
     [Serializable] private sealed class Proof {public string result,utc,path;public int errors;public Source[] sources;}
     public static void Build()=>BuildFor("EngagementWindows-20261116","engagement-build.json");
     public static void BuildPacing()=>BuildFor("EngagementWindows-20261117","pacing-build.json");
+    public static void BuildChoices()=>BuildFor("ElemeWindows-20261120","choices-build.json");
     public static void BuildAtelier()=>BuildFor("AtelierWindows-20261120","atelier-build.json");
     public static void BuildGrid()=>BuildFor("CircuitWindows-20261120","circuit-build.json");
     public static void BuildDuel()=>BuildFor("DuelWindows-20261120","duel-build.json");

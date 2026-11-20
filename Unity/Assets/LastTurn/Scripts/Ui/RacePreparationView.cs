@@ -51,6 +51,10 @@ namespace LastTurn.Ui
       var right=Box("g-panel");right.AddToClassList("r-options");right.Add(Ui.Section("ARAÇ  •  TAVAN "+Model.Budget));right.Add(Ui.Text(Model.Car.Name,"baslik","g-name"));right.Add(Ui.Text(Model.Car.Class+Model.Car.Score.ToString("0"),"g-class"));right.Add(Ui.Text(Model.Status,"g-copy"));var change=Ui.Button("ARACI DEĞİŞTİR","C",GameFlow.ChangePreparationCar,small:true);change.name="preparation-car";right.Add(change);
       right.Add(Ui.Section("GÜNÜN SAATİ"));var times=Box("r-chips");for(int i=0;i<RaceConditions.TimesOfDay.Length;i++){int n=i;var t=RaceConditions.TimesOfDay[i];var b=Ui.Tab(Ui.Upper(t.Name),()=>SelectTime(n));b.name="preparation-time-"+i;b.EnableInClassList("sec",GameFlow.Conditions.TimeOfDay==t.Key);times.Add(b);}right.Add(times);
       right.Add(Ui.Section("HAVA"));var weathers=Box("r-chips");for(int i=0;i<RaceConditions.Weathers.Length;i++){int n=i;var w=RaceConditions.Weathers[i];var b=Ui.Tab(Ui.Upper(w.Name),()=>SelectWeather(n));b.name="preparation-weather-"+i;b.EnableInClassList("sec",GameFlow.Conditions.Weather==w.Key);weathers.Add(b);}right.Add(weathers);
+      if(info.Type=="gp" || info.Type=="rx"){
+        var elimination=Ui.Button("ELEME · 3 TUR","",()=>WorldData.StartKnockout(key),small:true);
+        elimination.name="preparation-knockout";elimination.SetEnabled(Model.Open);right.Add(elimination);
+      }
       var go=Ui.Button(Model.Career?"YARIŞA BAŞLA":"DENEMEYE BAŞLA","Enter",()=>StartRace(),true);go.name="preparation-start";go.SetEnabled(Model.Open);right.Add(go);content.Add(right);
     }
     private static VisualElement Box(string cls){var e=new VisualElement();e.AddToClassList(cls);return e;}

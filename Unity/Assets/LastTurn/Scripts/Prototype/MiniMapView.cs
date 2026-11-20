@@ -50,7 +50,7 @@ namespace LastTurn.Prototype
         var marker=Map.Car(point.X,point.Z);
         if(marker.HasValue) cars.Add((marker.Value.X,marker.Value.Y,marker.Value.Radius,new Color(1,.3f,.3f)));
       }
-      if(p.Field!=null){foreach(var rival in p.Field.Rivals) Rival(rival);}
+      if(p.Field!=null){for(int i=0;i<p.Field.Rivals.Length;i++)if(!p.Field.IsOut(i+1))Rival(p.Field.Rivals[i]);}
       else if(p.Opponent!=null) Rival(p.Opponent);
       var ghost = p.GhostShown ? p.Race.Ghost : null; if (ghost != null) { var o = ghost.Vehicle.ReferencePoint; var c = Map.Car(o.X, o.Z); if (c != null) cars.Add((c.Value.X, c.Value.Y, c.Value.Radius, new Color(1, 1, 1, .7f))); }
       Segments = track.Count; Markers = marks.Count; Cars = cars.Count;

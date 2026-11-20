@@ -215,13 +215,14 @@ namespace LastTurn.Prototype
         string key=cars[i].car["k"].S(); names[i+1]=key.ToUpperInvariant();
         fieldViews.Add(SourceVehicleView.Create(key,transform));
       }
-      Field=new CircuitField(Simulation,racers,names);
+      Field=new CircuitField(Simulation,racers,names,WorldData.Knockout);
       Opponent=racers[0]; Field.UpdateOrder(Race);
     }
     private void RenderField()
     {
       for(int i=0;i<fieldViews.Count;i++)
       {
+        if(Field.IsOut(i+1)){fieldViews[i].gameObject.SetActive(false);continue;}
         var car=Field.Rivals[i].Vehicle;
         fieldViews[i].Pose(GtPresentation.Position(car.ReferencePoint),GtPresentation.Rotation(car.Body.Orientation),
           car,car.Body,car.Body,1,false);
@@ -361,11 +362,13 @@ namespace LastTurn.Prototype
       FlushProfileDistance();observedRaceKm=0;
       var data = RaceData.Load();var mutant=MutantRuntime.Active?MutantRuntime.RacePlan:null;
       var info = mutant!=null?mutant.Event:data.Event(key); var track = mutant!=null?mutant.Track:data.Tracks.Tracks[info.Index];
+      if(mutant==null && WorldData.Knockout)info=info.ThreeLapCopy();
       // Mutant planı sahnenin varsayılan gp_1 kimliğini de geçersiz kılar; görsel önbellek gerçek pistle eşleşir.
       if(mutant!=null)key=track.Key;
       if (key != RaceTrack) { trackVisuals.Build(track,mutant?.World); RaceTrack = key; }
       RaceDefinition=track;
       var drive = mutant!=null?new GarageRace.Drive{Parameters=MutantRuntime.Session.BuildPhysics(),Setup=MutantRuntime.Session.BuildSetup(),Car=MutantRuntime.Car,Career=false,Message="Mutant koşusu"}:GarageRace.Prepare(info);
+      if(WorldData.Knockout){drive.Career=false;drive.Message="Eleme · İlk iki turda sonuncu elenir. Finalde çizgiyi ilk geç.";}
       parameters = drive.Parameters ?? GtPrototypeParameters.Create(); RaceMessage = drive.Message;
       AppliedGarageCarId = "";
       if (drive.Setup != null && drive.Parameters != null)
@@ -455,6 +458,7 @@ namespace LastTurn.Prototype
     {
       try
       {
+        if(WorldData.Knockout)return "Eleme · Üç tur";
         double best = GarageRace.ProfileStore().Load().Best(Race.Session.RecordKey);
         string value = best == 0 ? "—" : Race.Event.Type == "dp" ? best.ToString(System.Globalization.CultureInfo.InvariantCulture) + " puan" : RaceSession.FormatTime(best);
         return "Rekor " + value + " · hayalet " + (Race.Ghost != null ? RaceSession.FormatTime(Race.Ghost.Record.Result) + " (" + Race.Ghost.Record.Inputs.Count + " adım)" : "yok");

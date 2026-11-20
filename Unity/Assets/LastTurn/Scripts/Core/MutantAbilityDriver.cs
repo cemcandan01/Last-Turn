@@ -8,6 +8,7 @@ namespace LastTurn.Core
   // TS surus.ts → mutantAdimi cevre: fizik sonrası oyuncu gövdesi, drift penceresi, pist/dünya ve rakip.
   public sealed class MutantAbilityContext
   {
+    public double Throttle,Brake;
     public double X,Z,Heading,Vx,Vz,Y,Vy,Ground,Steering,Beta,DriftDirection,DriftCool;
     public bool Airborne,DriftOn,Racing,RaceRunning=true,HasBody=true;
     public TrackGeometry? Track;
@@ -59,6 +60,7 @@ namespace LastTurn.Core
     public readonly MutantRun Run;
     public readonly MutantEnergyController Energy;
     private readonly MutantSkillWorldFactory worlds;
+    public MutantPairs Pairs {get;}=new MutantPairs();
     private bool nitro,stepNitro;
     private readonly List<string> requests=new List<string>(),held=new List<string>();
     private string[] stepRequests=Array.Empty<string>();
@@ -85,7 +87,7 @@ namespace LastTurn.Core
     // Aşağı sürükleme burnu kaldırır, sağa sürükleme sağa çevirir (piksel).
     public void AirDrag(double dx,double dy){Finger=true;pitch+=dy*AirDragAngle;yaw-=dx*AirDragAngle;}
     public void AirRelease()=>Finger=false;
-    public void RaceStart(){Energy.RaceStart();observedWorld=null;context=null;}
+    public void RaceStart(){Pairs.Reset();Energy.RaceStart();observedWorld=null;context=null;}
     /// TS mutantAdimi başı: bu adımın tuşları alınır, kuyruk her durumda boşalır.
     public void BeginStep(MutantAbilityContext c)
     {context=c;stepNitro=nitro;stepRequests=requests.ToArray();nitro=false;requests.Clear();OpponentEffect=false;}
@@ -111,6 +113,7 @@ namespace LastTurn.Core
       }
       var drift=new DriftObserverInput{Vx=c.Vx,Vz=c.Vz,Air=c.Airborne,DriftOn=c.DriftOn,Direction=c.DriftDirection,Cool=c.DriftCool,Beta=c.Beta};
       bool changed=Energy.Step(drift,world,MutantSkillWorldFactory.Obstacles(c.Obstacles).Items,dt,stepNitro,c.Racing&&!running?Array.Empty<string>():stepRequests,hit);
+      bool repaired=Pairs.Step(Run.State,c,dt,hit,session?.Spinning ?? false);
       if(stepRequests.Contains("grappling-hook")&&LastHookAttempt!=null)LastHookAttempt.Linked=Run.State["bec"]["yerel"]["grappling-hook"]["kalan"].N()>0;
       if(c.Opponent!=null)
       {
@@ -118,13 +121,14 @@ namespace LastTurn.Core
         OpponentAcceleration=a!=null&&a.Has("x")?(a["x"].N(),a["z"].N()):((double,double)?)null;
         var body=Run.State["bec"]["hedefler"]["rakip"];OpponentBody=body.Has("govde")?body["govde"].N():100;
       }
-      return changed;
+      return changed || repaired;
     }
     /// TS mutantOyuncuIvmesi + mutantUcus + mutantHayalet: sonraki fizik adımının girdisi; koşu etkisi yoksa null (fizik aynı).
     public VehicleSkillInput? Physics(double dt)
     {
       var s=Run.State;var c=s["becCikti"];var u=c["ucus"];string phase=s["faz"].S();
       double x=c["oyuncuIvme"]["x"].N()+u["x"].N(),z=c["oyuncuIvme"]["z"].N()+u["z"].N();
+      if(Pairs.Boosting && context!=null){x+=3.8*Math.Sin(context.Heading);z+=3.8*Math.Cos(context.Heading);}
       VehicleFlightInput? flight=null;
       if(phase=="surus"||phase=="boss")
       {
