@@ -1,3 +1,11 @@
+# Sürüş tepkileri, rakip karakterleri ve Yeşil Vadi görsel örneği (20 Kasım 2026)
+
+Kullanıcının öncelik sırasıyla ilk üç geliştirme tamamlandı. Sahip Codex, oyun kaynağı `bc7b002`. 15 stok araçta ölçüm yapıldı. Fren sonunda geri vitese geçişe 0,45 sn bekleme, gaz bırakılıp frenlenince çekiş kesme ve klavye karşı direksiyonun sıfırdan geçişine hızlandırma eklendi. Eski hayaletler eski kontrol eğrisiyle oynar. Doruk, Ece ve Bora farklı takip/fren/geçiş kararları kullanır ve sahadaki üçüncü araç dolu koridoru kapatır.
+
+Yeşil Vadi görsel örnek pisttir. Ayrıntılı asfalt/çim, toprak omuzlar, geniş taçlı ağaçlar ve gündüz/gece gölge-far aydınlatması vardır. [Windows oyunu](../Unity/Builds/KaliteWindows-20261120/LastTurn.exe), [gündüz görüntüsü](../Unity/Logs/P7StoreEditor/Logs/engagement-kalite-gunduz-1280.png) ve [aynı kart](isler/2026-11-16-surukleyici-dongu.md).
+
+15 araç / 34 sürüş kontrolü, 11 karakter kontrolü, 24.641 giriş ve 7.450 trafik kontrolü geçti. Ayrı hayalet yazma/okuma süreci aynı bitişi üretti. Drag 20, Unity Play tam yarışla 7 kontrol / 5 görüntü / çalışma anı hatası 0. Windows build 0 hata, iki gerçek süreç 25 + 15 kayıt kontrolü. Play/build içinde 262 kaynak özeti çalışma ağacıyla eşleşir. Paket önceki sade menüleri de içerir. İnsan sürüşünde zorluk/keyif/görsel beğeni ve kare hızı değerlendirmesi açık. Sonraki adım oyuncu geri bildirimiyle bu üçünü değerlendirmek.
+
 # MUTANT rota seçimi ve yaşayan pist çevresi (20 Kasım 2026)
 
 Kalan 3 ve 4 tamamlandı. Sahip Codex, oyun kaynağı `e3b1abb`. MUTANT dünyasında **M** veya **Rota Seç** düğmesi iki etkinliklik güvenli / meydan okuma rotasını açar. Risk 0 / 2 koşuluyla sırayla iki galibiyet, normal etkinlik kazancına ek 60 / 120 koşu parası verir. HUD ve beyaz miniharita işareti sıradaki hedefi gösterir. Pist çevresinde seyirciler, tribünler, servis alanları, bayraklar ve konumsal seyirci/servis/doğa sesleri eklendi.
