@@ -1,3 +1,9 @@
+# MUTANT rota seçimi ve yaşayan pist çevresi (20 Kasım 2026)
+
+Kalan 3 ve 4 tamamlandı. Sahip Codex, oyun kaynağı `e3b1abb`. MUTANT dünyasında **M** veya **Rota Seç** düğmesi iki etkinliklik güvenli / meydan okuma rotasını açar. Risk 0 / 2 koşuluyla sırayla iki galibiyet, normal etkinlik kazancına ek 60 / 120 koşu parası verir. HUD ve beyaz miniharita işareti sıradaki hedefi gösterir. Pist çevresinde seyirciler, tribünler, servis alanları, bayraklar ve konumsal seyirci/servis/doğa sesleri eklendi.
+
+[Windows oyunu](../Unity/Builds/RotaWindows-20261120/LastTurn.exe) ve [aynı görev kartı](isler/2026-11-16-surukleyici-dongu.md). Rota 608, mevcut yönlendirme 2.304, etkinlik 818, HUD 870 kontrol geçti. Beş yarış türünde Unity Play 27 kontrol / 9 görüntü / çalışma anı hatası 0. Windows build 0 hata, paket ayrı süreçlerde 25 + 15 kayıt kontrolü. Play ve build içindeki 259 kaynak özeti çalışma ağacıyla eşleşti. Mevcut sade menü değişiklikleri pakette bulunur. Rota ödül dengesi, ses beğenisi ve gerçek oyuncu temposu değerlendirmesi açık. Sonraki adım oyuncu sürüşüyle bu üçünü değerlendirmek.
+
 # Rakipler Kupası ve sürüş geri bildirimi (20 Kasım 2026)
 
 Kullanıcının seçimiyle önce 1 ve 2 tamamlandı. Oyun kaynağı `15c55d4`, sahip Codex. Yarış → Rakipler Kupası üç asfalt yarışını aynı Doruk, Ece ve Bora ile puan tablosuna bağlar. Kupa kaydı garajla saklanır. Kazanan altın arma önayarını kupa menüsünden seçili aracın üst çıkartma katmanına uygulayabilir. Temiz sollama, yakın geçiş, drift çıkışı ve son tur kısa yazılı/sesli bildirim üretir.

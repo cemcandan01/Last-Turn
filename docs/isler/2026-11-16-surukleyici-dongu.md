@@ -220,3 +220,21 @@ Kısa çekirdek doğrulaması 15 kontrol, garaj kayıt regresyonu 66 kontrol ge�
 Son kaynak 15c55d4. Unity Play 26 kontrol ve altı görüntüyle geçti, çalışma anı hatası 0. Üç tam gerçek fizik yarışında otomatik pilot toplam 15 puanla üçüncü, Doruk 21 puanla birinci oldu. Genel derece ile son yarış derecesi ayrı gösterildi. Arma ödülü ayrıca kontrollü şampiyonluk senaryosunda kayıt ve diskten yeniden açılışla doğrulandı. Son tur bildirimi görüntüde ve ses kanalı sayacında doğrulandı.
 
 Windows derlemesi sıfır hata ile tamamlandı. Ayrı süreçlerde 25 yazma ve 15 yeniden yükleme kontrolü geçti. Play ve build raporlarında 256 kaynak özeti çalışma ağacıyla eşleşti. Kanıtlar Unity/Logs/P7StoreEditor/Logs/championship-play.json ve championship-build.json, ürün Unity/Builds/KupaWindows-20261120/LastTurn.exe. Menü görsel tabanı önceki çalışma ağacındadır. Kupa kaynak commit'i önceki menü çalışmasının tamamını içermez. Push/merge/yayın yapılmadı. İnsan sürüş, zorluk ve beğeni değerlendirmesi açık. Sonraki adım oyuncunun kupa temposu ve bildirim sıklığı değerlendirmesidir.
+
+
+## 20 Kasım — Kalan 3 ve 4, MUTANT rotaları ve pist çevresi
+
+Kullanıcı kalan iki seçeneği istedi. Sahip Codex, dal codex/unity-p7-garaj, taban 667ade9. Mevcut sade menü ve pit değişiklikleri korunur. Yeni ajan veya API kullanımı yapılmadı.
+
+Kabul ölçütleri MUTANT dünyasında iki rota önizlemesi ve tek seçim, iki farklı etkinlikte sıralı tamamlama, doğru risk ve gerçek bonusun tek uygulanması, bölge değişiminde yeni seçim, HUD/miniharitada sonraki hedef. Pist çevresinde yol/engel/sudan uzak seyirci, tribün, servis alanı ve bayraklar; efekt ses düzeyi ve duraklamaya uyan konumsal ses. Beş yarış türünde derleme ve görüntü kontrolü, Windows paketinde kayıt açılışı.
+
+Güvenli rota risk 0, meydan okuma risk 2 ile iki mevcut etkinliğe yönlendirir. Mevcut etkinlik kazançlarına ek bonus 60 / 120 koşu parasıdır. Bonus bölge başına en fazla bir kez, iki hedef sırasıyla ve gerekli riskte kazanılınca verilir. Başarısızlık, sırasız veya düşük riskli tamamlama bonusu bitirir. Yeni araç, pist veya kalıcı güç yok. Bonus iki yarışlık edinme maliyetine bağlıdır. Oyuncu süre ve denge ölçümü açık. Seçim ekranında sayaç mevcut panel duraklatmasıyla durur. Etkinlik risk kartı önceden seçilir, oyuncu başka risk seçerse rota koşulunu karşılamayabilir. Rota sonuçları Run.State içinde, kurallar saf katmandadır. HUD sıradaki etkinliği, miniharita beyaz hedefi gösterir.
+
+Pistlerde en fazla üç küçük kamp, her kampta 21 seyirci, basamaklı tribün, servis çadırı, çalışma masası, lastik rafı, servis aracı ve bayrak var. Toplu renk meshleri ve bayraklarla en fazla dokuz çizim parçası. Collider üretilmez. Yol ve engel uzaklığıyla birlikte dokuz ayak izi noktası ve zemin eğimi kontrol edilir. Drag bariyerlerinin geniş dairesel yaklaşımı güvenli konumları eliyordu, kutu açıklığı gerçek eksen sınırlarıyla düzeltildi. Bu yardımcı eski kenar levhaları için de kullanılır.
+
+Sesler yerel olarak üretilen sekiz saniyelik seyirci, servis ve doğa katmanlarıdır. Seyirci tepki şiddeti sürüş bildirimi sırasında artar. Doppler 0, mesafe ile azalma, ses ayarı ve duraklama uygulanır. Ölçülen RMS sırasıyla 0,049 / 0,016 / 0,045, tepe en fazla 0,65. İnsan dinleme/beğeni kabulü açık.
+
+
+Son oyun kaynağı e3b1abb. Rota testleri 608, mevcut yönlendirme 2.304, etkinlik 818, HUD 870 kontrol geçti. Son Unity Play 27 kontrol ve dokuz görüntüyle beş yarış türünde geçti, çalışma anı hatası 0. Başlangıçtaki drag yerleşim sorunu ve mevcut büyük tribünün seyirciyi örtmesi görsel incelemede düzeltildi. Drag seyircileri dört metre yükseltilmiş destekli platformdadır. Kamp ayak izi sınır kutusuyla engel çakışması da kontrol edilir. Önceki menü değişiklikleri pakette bulunur ve kaynak commit'in kapsamından ayrıdır.
+
+Windows build Succeeded / 0 hata. İki ayrı süreçte 25 yazma ve 15 yeniden yükleme kontrolü geçti. Play/build içindeki 259 kaynak özeti çalışma ağacıyla, üç WAV dosyası da doğrulama kopyasıyla eşleşti. Kanıt Unity/Logs/P7StoreEditor/Logs/worldlife-play.json ve worldlife-build.json; ürün Unity/Builds/RotaWindows-20261120/LastTurn.exe. İnsan sürüşü, bonus dengesi ve dinleme beğenisi açık. Push/merge/yayın ve tam regresyon yapılmadı. Sonraki adım oyuncu sürüşünde rota temposu ve ortam seslerini değerlendirmek.
