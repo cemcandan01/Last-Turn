@@ -141,6 +141,8 @@ namespace LastTurn.Prototype
       HudFeedback.Observe(Run,Abilities);if(hudNote!="")HudFeedback.Note(hudNote);
       Refresh(vehicle);return !Blocked;
     }
+    public static void OpenRoutes(){if(Active && !Blocked && !InRace)Panel="route";}
+    public static bool ChooseRoute(int risk){if(Panel!="route" || !MutantRoute.Choose(Run,risk))return false;ClosePanel();return true;}
     public static void ClosePanel(){Panel="";Message="";}
     public static bool Buy(string id){if(!Active||Session==null)return false;var part=Run.Catalog["parts"].Items.FirstOrDefault(p=>p["id"].S()==id);if(part==null||!Run.BuyPart(id,(int)part["sv"].N()))return false;Session.SelectCar(Car);return true;}
     public static bool Repair(){if(!Active||Session==null||!Run.Repair())return false;Session.SelectCar(Car);return true;}
@@ -172,7 +174,11 @@ namespace LastTurn.Prototype
         try{new MutantRecordStore(RecordDirectory!=""?RecordDirectory:Path.Combine(Application.persistentDataPath,"LastTurnMutant")).AfterBossResult(Run.State["faz"].S(),Run.Region,(int)Run.State["yenilenBoss"].N());}
         catch(Exception e){Message="Mutant rekoru yazılamadı: "+e.Message;}
       }
-      else Run.FinishEvent(RacePlan.EventId,passed,RacePlan.Risk,RacePlan.BeatOpponent(race.Session,opponent));
+      else {
+        var outcome=Run.FinishEvent(RacePlan.EventId,passed,RacePlan.Risk,RacePlan.BeatOpponent(race.Session,opponent));
+        if(outcome!=null && outcome["rotaPara"].N()>0)Message="Rota tamamlandı · +"+outcome["rotaPara"].N().ToString("0")+" para.";
+        else if(MutantRoute.Read(Run).Failed)Message="Rota bonusu kaçtı. Diğer etkinliklere devam edebilirsin.";
+      }
       Message=(passed?"Hedef geçildi.":"Hedef kaçırıldı.")+" "+Message;Panel=Run.Finished?"summary":"result";
     }
     public static void Continue()

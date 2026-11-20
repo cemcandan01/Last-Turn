@@ -70,8 +70,11 @@ namespace LastTurn.Ui
     private void Rebuild(MutantEventCard row)
     {
       Risks.Clear();cards.Clear();rows=row?.Risks??Array.Empty<MutantRiskCard>();Selected=0;Focused=rows.Length>0?0:1;Info.scrollOffset=Vector2.zero;
+      var route=MutantRoute.Read(MutantRuntime.Run);
+      if(route.NextId==boundId){Selected=System.Array.FindIndex(rows,r=>r.Risk==route.Risk);if(Selected<0)Selected=0;Focused=Selected;}
       kicker.text=row==null?"ETKİNLİK BULUNAMADI":row.Title+" / "+row.LevelName;title.text=row?.Name??"Bu etkinlik artık kullanılamıyor.";type.text=row?.TypeName??"Dünyaya dönüp başka bir işaret seçebilirsin.";
       notice.text=row==null?"Etkinlik bulunamadı veya tamamlanmış. Yarış başlatılmadı.":"Seçim ve Geri koşu kaynaklarını değiştirmez.";
+      if(route.NextId==boundId)notice.text=route.Name+" · Sıradaki hedef · En az risk "+route.Risk+" seç. İki etkinliği sırayla kazan, +"+route.Bonus+" para al.";
       Ui.Show(instruction,row!=null);
       for(int i=0;i<rows.Length;i++){
         int at=i;var r=rows[i];var card=new VisualElement{name="mutant-event-risk-"+i,focusable=true,tabIndex=0};card.AddToClassList("me-risk");

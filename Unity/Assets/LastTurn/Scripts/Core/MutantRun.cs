@@ -189,6 +189,7 @@ namespace LastTurn.Core
     public CatalogNode? FinishEvent(int id,bool passed,int risk=0,bool? beatOpponent=null)
     {
       var e=State["etkinlikler"].Items.FirstOrDefault(x=>x["id"].N()==id);if(e==null||e["yapildi"].B())return null;e.Set("yapildi",Bool(true));Set("tamamlanan",N("tamamlanan")+1);
+      int routeBonus=MutantRoute.Finish(this,id,passed,risk);Set("para",N("para")+routeBonus);
       if(Test)return Obj(("xp",State["xp"]),("para",CatalogNode.Num(0)),("gecti",Bool(passed)),("seviyeAtladi",Bool(false)),("ekSure",CatalogNode.Num(0)),("ceza",CatalogNode.Num(0)),("kapora",Null()));
       double multiplier=new[]{1d,2,3.5}[risk];bool gambler=risk==2&&Count("kumarbaz")>0;double share=passed?(gambler?5:multiplier):risk==0?.3:0,penalty=passed?0:new[]{0d,45,90}[risk]*(gambler?2:1),before=N("seviye");
       Set("kalan",Math.Max(0,N("kalan")-penalty));AddXp((40+20*e["sev"].N())*share);
@@ -196,7 +197,7 @@ namespace LastTurn.Core
       Set("para",N("para")+money);double extra=passed?20*Count("zaman"):0;Set("govde",Math.Min(100,N("govde")+12*Count("tamirci")));Set("kalan",N("kalan")+extra);
       var deposit=ApplyDeposit(e,passed);
       if(N("bekleyenSecim")>0){Phase="secim";DrawChoices();if(Strings("secenekler").Length==0){Set("bekleyenSecim",0);Phase="surus";}}
-      return Obj(("xp",State["xp"]),("para",CatalogNode.Num(money)),("gecti",Bool(passed)),("seviyeAtladi",Bool(N("seviye")>before)),("ekSure",CatalogNode.Num(extra)),("ceza",CatalogNode.Num(penalty)),("kapora",deposit??Null()),("rakipPara",CatalogNode.Num(opponentMoney)),("rakipGecti",beatOpponent.HasValue?Bool(beatOpponent.Value):Null()));
+      return Obj(("xp",State["xp"]),("para",CatalogNode.Num(money)),("gecti",Bool(passed)),("seviyeAtladi",Bool(N("seviye")>before)),("ekSure",CatalogNode.Num(extra)),("ceza",CatalogNode.Num(penalty)),("kapora",deposit??Null()),("rotaPara",CatalogNode.Num(routeBonus)),("rakipPara",CatalogNode.Num(opponentMoney)),("rakipGecti",beatOpponent.HasValue?Bool(beatOpponent.Value):Null()));
     }
     public CatalogNode? LockDeposit(int eventId)
     {

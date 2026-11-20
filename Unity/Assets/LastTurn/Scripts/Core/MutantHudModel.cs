@@ -38,9 +38,10 @@ namespace LastTurn.Core
           m.Mission=kind+" "+N(mission.Progress)+" / "+N(mission.Target)+unit+" · "+N(Math.Max(0,mission.Remaining))+" sn";
         }
         var visible=MutantWorldMarkerModel.ReadMap(run);
-        var nearest=visible.Where(p=>p.Kind=="event").OrderBy(p=>JsMath.Hypot(p.X-x,p.Z-z)).FirstOrDefault()
+        var route=MutantRoute.Read(run);
+        var nearest=visible.FirstOrDefault(p=>p.Key=="e"+route.NextId)??visible.Where(p=>p.Kind=="event").OrderBy(p=>JsMath.Hypot(p.X-x,p.Z-z)).FirstOrDefault()
           ??visible.OrderBy(p=>JsMath.Hypot(p.X-x,p.Z-z)).FirstOrDefault();
-        if(nearest!=null)m.Navigation=(nearest.Kind=="event"?"Etkinlik ":nearest.Kind=="shop"?"Atölye ":"Boss ")
+        if(nearest!=null)m.Navigation=(route.NextId>=0?route.Status+" · ":"")+(nearest.Kind=="event"?"Etkinlik ":nearest.Kind=="shop"?"Atölye ":"Boss ")
           +N(JsMath.Hypot(nearest.X-x,nearest.Z-z))+" m · "+nearest.Name;
       }
       return m;

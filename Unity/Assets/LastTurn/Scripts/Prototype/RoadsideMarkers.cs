@@ -85,14 +85,19 @@ namespace LastTurn.Prototype
     }
 
     /// Öğe yeri boş mu: başka yol parçası, engel, koni ya da su üstünde değil.
-    private static bool Clear(TrackWorld world, double x, double z, double hw, double room)
+    internal static bool Clear(TrackWorld world, double x, double z, double hw, double room)
     {
       var g = world.Geometry; if (!g.ClearOf(x, z, hw + .8)) return false;
       var env = world.Environment; if (env == null) return true;
       foreach (var o in env.Objects)
       {
-        double r = o.Type == "box" ? Math.Sqrt(o.HalfX * o.HalfX + o.HalfZ * o.HalfZ) : o.Radius;
-        double dx = o.X - x, dz = o.Z - z, lim = r + room; if (dx * dx + dz * dz < lim * lim) return false;
+        double dx=Math.Abs(o.X-x),dz=Math.Abs(o.Z-z);
+        if(o.Type=="box"){
+          dx=Math.Max(0,dx-o.HalfX);dz=Math.Max(0,dz-o.HalfZ);
+          if(dx*dx+dz*dz<room*room)return false;
+        } else {
+          double limit=o.Radius+room;if(dx*dx+dz*dz<limit*limit)return false;
+        }
       }
       foreach (var c in env.Cones) { double dx = c.X - x, dz = c.Z - z; if (dx * dx + dz * dz < (1 + room) * (1 + room)) return false; }
       return true;

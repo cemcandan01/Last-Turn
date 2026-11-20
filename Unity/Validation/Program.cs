@@ -1,5 +1,6 @@
 using System.Text.Json;
 using LastTurn.Core;
+if (args.Contains("--mutant-route")) { MutantRouteValidation.Run(); return; }
 if (args.Contains("--championship")) { ChampionshipValidation.Run(); return; }
 if(args.Contains("--mutant-pairs")){MutantPairsValidation.Run();return;}
 if(args.Contains("--vehicle-contact")){VehicleContactValidation.Run();return;}

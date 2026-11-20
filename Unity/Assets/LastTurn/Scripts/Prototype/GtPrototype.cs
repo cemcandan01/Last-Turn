@@ -192,6 +192,7 @@ namespace LastTurn.Prototype
     }
     public DrivingFeedback Feedback {get;private set;}=new DrivingFeedback();
     private int feedbackSerial;
+    public TracksideLife Trackside {get;private set;}
     private int championshipRound;private bool championshipSaved;
     public CircuitField Field {get;private set;}
     private readonly List<SourceVehicleView> fieldViews=new List<SourceVehicleView>();
@@ -401,6 +402,7 @@ namespace LastTurn.Prototype
       // Yol kenarı direkleri ve viraj levhaları bütün yarış pistlerinde (TS'de yok; Cem kararı, çarpışmasız görsel).
       if(Markers){Markers.Remove();Markers=null;}
       if(RoadsideMarkers.Enabled)Markers=RoadsideMarkers.Build(transform,RaceWorld);
+      if(Trackside)Destroy(Trackside.gameObject);Trackside=TracksideLife.Build(transform,RaceWorld);
       Simulation = new PowertrainVehicle(parameters, world: world); runner = new PowertrainFixedStepRunner(Simulation); ApplyPreferences(); ResetInput();
       Race = new RaceRun(Simulation, RaceWorld, info, hint => new RaceSession(info, track, drive.Career, hint, drive.Career ? GarageRace.Reward : null,
         mutant!=null?(Action<double>)(metres=>MutantRuntime.Run.CutPenalty(metres)):null,mutant:mutant!=null),

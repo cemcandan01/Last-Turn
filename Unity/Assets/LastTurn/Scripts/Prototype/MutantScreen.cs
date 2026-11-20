@@ -18,6 +18,7 @@ namespace LastTurn.Prototype
     private void Update()
     {
       if(!MutantRuntime.Active)return;
+      if(LastTurn.Ui.MutantRouteView.HandledFrame==Time.frameCount)return;
       if(LastTurn.Ui.MutantBossView.HandledFrame==Time.frameCount)return;
       if(LastTurn.Ui.MutantEventView.HandledFrame==Time.frameCount)return;
       if(LastTurn.Ui.MutantWorkshopView.HandledFrame==Time.frameCount)return;
@@ -26,11 +27,12 @@ namespace LastTurn.Prototype
       // Ödül görünümü Esc'i değiştirme iptali/duraklatma olarak kendisi işler.
       if(LastTurn.Ui.MutantChoiceView.OwnsChoice)return;
       if(LastTurn.Ui.MutantBossView.OwnsBoss)return;
-      if(!SettingsScreen.Open&&Time.frameCount!=SettingsScreen.ClosedFrame&&Keyboard.current!=null&&Keyboard.current.escapeKey.wasPressedThisFrame)GameFlow.Pause(!GameFlow.Paused);
+      if(MutantRuntime.Panel!="route"&&!SettingsScreen.Open&&Time.frameCount!=SettingsScreen.ClosedFrame&&Keyboard.current!=null&&Keyboard.current.escapeKey.wasPressedThisFrame)GameFlow.Pause(!GameFlow.Paused);
     }
     private bool Button(string name)=>GUILayout.Button(name,button,GUILayout.MinHeight(44));
     private void OnGUI()
     {
+      if(MutantRuntime.Panel=="route")return;
       if(!MutantRuntime.Active)return;
       if(LastTurn.Ui.MutantStartView.CoversCurrentScreen||LastTurn.Ui.SettingsView.CoversCurrentScreen||LastTurn.Ui.PauseView.CoversCurrentScreen)return;
       if(LastTurn.Ui.MutantChoiceView.CoversCurrentScreen)return;
