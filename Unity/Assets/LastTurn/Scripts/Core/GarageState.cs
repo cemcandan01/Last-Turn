@@ -22,6 +22,14 @@ namespace LastTurn.Core
     private readonly Dictionary<string, int> stars = new Dictionary<string, int>(StringComparer.Ordinal);
     private readonly Dictionary<int, string[]> equipped = new Dictionary<int, string[]>();
     private double earned, xp;
+    private readonly Dictionary<int,CarAppearance> appearances=new Dictionary<int,CarAppearance>();
+    public CarAppearance Appearance(int car)=>appearances.TryGetValue(car,out var style)?style:default;
+    public bool SetAppearance(int car,CarAppearance style)
+    {
+      if(!OwnsCar(car)||!style.Valid)return false;
+      if(style.IsStock)appearances.Remove(car);else appearances[car]=style;
+      return true;
+    }
 
     public VehicleCatalog Catalog { get; }
     /// TS ilerleme adminKip: admin oturumunda her araç, parça ve pist açık görünür; kayda yazılmaz. Yalnız CloudAccount
@@ -307,6 +315,12 @@ namespace LastTurn.Core
         if (ids.Length > 0) fitted.Set(p.Key.ToString(CultureInfo.InvariantCulture), CatalogNode.Arr(ids.Select(CatalogNode.Str)));
       }
       root.Set("equipped", fitted);
+      if(appearances.Count>0)
+      {
+        var styles=CatalogNode.Obj();
+        foreach(var pair in appearances)styles.Set(pair.Key.ToString(CultureInfo.InvariantCulture),pair.Value.Save());
+        root.Set("appearances",styles);
+      }
       return root;
     }
 
@@ -404,6 +418,13 @@ namespace LastTurn.Core
         int car = Integer(snapshot["selectedCar"], "Seçili araç", 0, int.MaxValue);
         if (state.OwnsCar(car)) state.SelectedCar = car;
       }
+      if(snapshot["appearances"].IsObject)
+        foreach(var pair in snapshot["appearances"].Fields)
+          if(int.TryParse(pair.Key,out int id) && state.ValidCar(id) && pair.Value.IsObject)
+          {
+            var style=CarAppearance.Load(pair.Value);
+            if(!style.IsStock)state.appearances[id]=style;
+          }
       return state;
     }
   }

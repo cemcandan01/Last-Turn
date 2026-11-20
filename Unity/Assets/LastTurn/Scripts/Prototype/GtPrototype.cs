@@ -301,7 +301,14 @@ namespace LastTurn.Prototype
       Vector3 origin = vehicleRoot.TransformPoint(ModelPoint(0, 0, 0, parameters.Chassis));
       string sourceKey=AppliedGarageCarId!=""?AppliedGarageCarId:terrainMode?"rl":"gt";
       if(sourceKey!=sourceCarKey&&SourceVehicle){SourceVehicle.gameObject.SetActive(false);Destroy(SourceVehicle.gameObject);SourceVehicle=null;}
-      if(!SourceVehicle){SourceVehicle=SourceVehicleView.Create(sourceKey,transform);sourceCarKey=sourceKey;}
+      if(!SourceVehicle)
+      {
+        SourceVehicle=SourceVehicleView.Create(sourceKey,transform);sourceCarKey=sourceKey;
+        var state=GarageSession.State;
+        int car=MutantRuntime.Active?MutantRuntime.Car:(raceDrive?.Car ?? state?.SelectedCar ?? -1);
+        if(state!=null && !string.IsNullOrEmpty(AppliedGarageCarId) && car>=0)
+          CarStyling.Show(SourceVehicle,state.Appearance(car));
+      }
       if(SourceVehicle)
       {
         foreach(var renderer in vehicleRoot.GetComponentsInChildren<Renderer>())renderer.enabled=false;

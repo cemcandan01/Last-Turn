@@ -97,6 +97,73 @@ namespace LastTurn.EditorValidation
       Check(P.Simulation.Engine.BrakeLights,"Gerçek fren girdisi stop sinyali verdi");
     }
 
+    private static bool AtelierProof=>Environment.GetCommandLineArgs().Contains("-atelierProof");
+    private static void SetupAtelier()
+    {
+      string path=Path.Combine(Project,"Logs/Atelier",Guid.NewGuid().ToString("N"),"garage.json");
+      GarageSession.Open(path,true);
+      int id=GarageSession.State.SelectedCar;
+      var balance=GarageSession.State.Balance;var equipped=GarageSession.State.Equipped(id);
+      VisualElement Element(string name)=>UiRoot.Instance.Root.Q(name);
+      void Choose(string name)
+      {
+        var control=Element(name);
+        Check(control!=null && control.enabledInHierarchy,name+" etkin");
+        var point=control.worldBound.center;
+        using(var down=PointerDownEvent.GetPooled(new Event{type=EventType.MouseDown,button=0,mousePosition=point}))control.SendEvent(down);
+        using(var up=PointerUpEvent.GetPooled(new Event{type=EventType.MouseUp,button=0,mousePosition=point}))control.SendEvent(up);
+      }
+      void Open()=>Choose("open-styling");
+      Wait(()=>GarageView.Instance && UnityEngine.Object.FindFirstObjectByType<GarageScreen>());
+      Add(()=>{GameFlow.RaceMenu();GameFlow.Browse(1);});
+      foreach(var car in GarageSession.Catalog.Data["cars"].Items)
+      {
+        string model=car["k"].S();
+        Add(()=>{
+          var holder=new GameObject("Atölye model testi");holder.SetActive(false);
+          try
+          {
+            var view=SourceVehicleView.Create(model,holder.transform);
+            Check(view && view.Scene.BodyShell && view.Scene.PaintSurfaces.Contains(view.Scene.BodyShell),model+" boyanabilir karoser");
+            var stock=view.Scene.BodyShell.sharedMaterial;
+            foreach(int type in new[]{1,2,3})
+            {
+              CarStyling.Show(view,new CarAppearance{Wing=type,Fender=0x123457,Graphic=type});
+              var addon=view.Scene.BodyShell.GetComponentsInChildren<MeshFilter>(true).Single(f=>f.name=="Atölye · spoiler" && f.gameObject.activeSelf);
+              Check(addon.sharedMesh.vertexCount>=24 && view.Scene.FactoryWing.All(r=>!r.enabled),model+" takılı spoiler "+type);
+            }
+            CarStyling.Show(view,default);
+            Check(view.Scene.BodyShell.sharedMaterial==stock && view.Scene.FactoryWing.All(r=>r.enabled),model+" fabrika görünümü geri alındı");
+          }
+          finally{UnityEngine.Object.Destroy(holder);}
+        });
+      }
+      Wait(()=>GarageView.Instance && GarageView.Instance.Modifying);
+      Add(Open);Add(()=>Check(Element("wing-3")!=null,"Atölye açıldı"));
+      Add(()=>Choose("wing-3"));Add(()=>Choose("graphic-1"));Add(()=>Choose("swatch-F16930"));
+      Add(()=>Choose("paint-layer-1"));Add(()=>Choose("swatch-252C34"));
+      Add(()=>Choose("paint-layer-2"));Add(()=>Choose("swatch-E8E5DC"));
+      Add(()=>{((SliderInt)Element("style-position")).value=1;((SliderInt)Element("style-scale")).value=1;
+        Check(GarageSession.State.Appearance(id).IsStock,"Önizleme kaydı değiştirmedi");});
+      Shots("atelier-preview",1280,1920);
+      Add(()=>Choose("style-save"));
+      var expected=new CarAppearance{Paint=0xF16931,Fender=0x252C35,Ink=0xE8E5DD,Wing=3,Graphic=1,Shift=1,Scale=1};
+      Add(()=>{Check(GarageSession.State.Appearance(id).Equals(expected),"Seçilen yedi alan kaydedildi");
+        GarageSession.Open(path,true);Check(GarageSession.State.Appearance(id).Equals(expected),"Diskten geri yüklenen araç tasarımı");
+        Check(GarageSession.State.Balance==balance && equipped.SequenceEqual(GarageSession.State.Equipped(id)),"Bakiye ve takılı performans parçaları korundu");
+        Check(GarageSession.State.Appearance(id==0?1:0).IsStock,"Başka aracın görünümü bağımsız");});
+      Add(Open);Add(()=>Choose("graphic-2"));Add(()=>Choose("swatch-2863BF"));Add(()=>Choose("wing-2"));
+      Shots("atelier-side",1280);
+      Add(()=>Choose("style-reset"));Add(()=>Choose("style-cancel"));
+      Add(()=>{Check(GarageSession.State.Appearance(id).Equals(expected),"Vazgeç fabrika taslağını attı");Check(TestPanelActions.StartRace("gp_1"),"Atölyeden sonra normal yarış açıldı");});
+      Wait(()=>P && P.SourceVehicle && P.Race!=null);
+      Add(()=>{var scene=P.SourceVehicle.Scene;var shader=Resources.Load<Shader>("SourcePresentation/CarLivery");
+        Check(shader && !ShaderUtil.ShaderHasError(shader) && scene.BodyShell.sharedMaterial.shader==shader,"Pistte özel boya ve desen shaderı");
+        Check(scene.BodyShell.transform.Find("Atölye · spoiler") && scene.FactoryWing.All(r=>!r.enabled),"Pistte oyuncunun özel spoilerı");
+        Check(proof.errors.Count==0,"Atölye ve yarış çalışma anı hatasız");});
+      Shots("atelier-race",1280);
+    }
+
     private static bool CircuitProof => Environment.GetCommandLineArgs().Contains("-circuitProof");
     private static void SetupCircuit()
     {
@@ -235,16 +302,16 @@ namespace LastTurn.EditorValidation
     }
     private static void Tick()
     {
-      try{if(EditorApplication.timeSinceStartup-began>180)throw new TimeoutException("Ustalık Play "+index+"/"+steps.Count);if(Capture()){at=EditorApplication.timeSinceStartup;return;}if(EditorApplication.timeSinceStartup-at<.3)return;at=EditorApplication.timeSinceStartup;if(steps.Count==0){if(!UiRoot.Instance)return;if(CircuitProof)SetupCircuit();else if(SessionState.GetBool(Traffic,false))SetupTraffic();else if(SessionState.GetBool(Pacing,false))SetupPacing();else Setup();return;}if(index>=steps.Count){Finish(null);return;}steps[index++]();}
+      try{if(EditorApplication.timeSinceStartup-began>180)throw new TimeoutException("Play "+index+"/"+steps.Count+" · "+string.Join(" / ",proof.checks.Skip(Math.Max(0,proof.checks.Count-3))));if(Capture()){at=EditorApplication.timeSinceStartup;return;}if(EditorApplication.timeSinceStartup-at<.3)return;at=EditorApplication.timeSinceStartup;if(steps.Count==0){if(!UiRoot.Instance)return;if(AtelierProof)SetupAtelier();else if(CircuitProof)SetupCircuit();else if(SessionState.GetBool(Traffic,false))SetupTraffic();else if(SessionState.GetBool(Pacing,false))SetupPacing();else Setup();return;}if(index>=steps.Count){Finish(null);return;}steps[index++]();}
       catch(Exception e){Finish(e);}
     }
     private static void Finish(Exception error)
     {
-      bool pacing=SessionState.GetBool(Pacing,false),traffic=SessionState.GetBool(Traffic,false);SessionState.SetBool(Active,false);EditorApplication.update-=Tick;Application.logMessageReceived-=Logged;proof.result=error==null?(CircuitProof?"circuit-play-passed":traffic?"traffic-play-passed":pacing?"pacing-play-passed":"engagement-play-passed"):"failed";proof.error=error?.ToString()??"";proof.utc=DateTime.UtcNow.ToString("O");
+      bool pacing=SessionState.GetBool(Pacing,false),traffic=SessionState.GetBool(Traffic,false);SessionState.SetBool(Active,false);EditorApplication.update-=Tick;Application.logMessageReceived-=Logged;proof.result=error==null?(AtelierProof?"atelier-play-passed":CircuitProof?"circuit-play-passed":traffic?"traffic-play-passed":pacing?"pacing-play-passed":"engagement-play-passed"):"failed";proof.error=error?.ToString()??"";proof.utc=DateTime.UtcNow.ToString("O");
       if(keyboard!=null&&keyboard.added)InputSystem.RemoveDevice(keyboard);
       if(gamepad!=null&&gamepad.added)InputSystem.RemoveDevice(gamepad);
-      proof.sources=Directory.GetFiles(Path.Combine(Application.dataPath,"LastTurn"),"*",SearchOption.AllDirectories).Where(f=>new[]{".cs",".uss",".json",".jpg"}.Contains(Path.GetExtension(f))).OrderBy(f=>f,StringComparer.Ordinal).Select(f=>{using(var h=SHA256.Create())return new Source{path=f.Substring(Project.Length+1).Replace('\\','/'),hash=BitConverter.ToString(h.ComputeHash(File.ReadAllBytes(f))).Replace("-","")};}).ToArray();
-      File.WriteAllText(Path.Combine(Project,CircuitProof?"Logs/circuit-play.json":Environment.GetCommandLineArgs().Contains("-duelProof")?"Logs/duel-play.json":traffic?"Logs/traffic-play.json":pacing?"Logs/pacing-play.json":"Logs/engagement-play.json"),JsonUtility.ToJson(proof,true));if(error!=null)Debug.LogException(error);EditorApplication.Exit(error==null?0:1);
+      proof.sources=Directory.GetFiles(Path.Combine(Application.dataPath,"LastTurn"),"*",SearchOption.AllDirectories).Where(f=>new[]{".cs",".uss",".json",".jpg",".shader"}.Contains(Path.GetExtension(f))).OrderBy(f=>f,StringComparer.Ordinal).Select(f=>{using(var h=SHA256.Create())return new Source{path=f.Substring(Project.Length+1).Replace('\\','/'),hash=BitConverter.ToString(h.ComputeHash(File.ReadAllBytes(f))).Replace("-","")};}).ToArray();
+      File.WriteAllText(Path.Combine(Project,AtelierProof?"Logs/atelier-play.json":CircuitProof?"Logs/circuit-play.json":Environment.GetCommandLineArgs().Contains("-duelProof")?"Logs/duel-play.json":traffic?"Logs/traffic-play.json":pacing?"Logs/pacing-play.json":"Logs/engagement-play.json"),JsonUtility.ToJson(proof,true));if(error!=null)Debug.LogException(error);EditorApplication.Exit(error==null?0:1);
     }
   }
 }

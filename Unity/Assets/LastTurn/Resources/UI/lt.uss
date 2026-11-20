@@ -959,3 +959,19 @@
 .circuit-place { color: rgb(223, 226, 224); font-size: 16px; }
 .circuit-player { color: rgb(255, 197, 96); -unity-font-style: bold; }
 .circuit-pass { font-size: 13px; }
+
+.style-layout { position: absolute; left: 3%; right: 3%; top: 0; bottom: 0; flex-direction: row; }
+.style-stage { flex-grow: 1; flex-basis: 0; margin-right: 18px; padding: 14px; background-color: rgb(19,23,26); }
+.style-stage > Image { flex-grow: 1; min-height: 0; }
+.style-menu { width: 41%; padding: 16px; background-color: rgb(27,31,34); }
+.style-title { color: rgb(245,236,216); font-size: 27px; -unity-font-style: bold; }
+.style-caption { color: rgb(239,165,85); margin-top: 10px; margin-bottom: 4px; font-size: 14px; -unity-font-style: bold; }
+.style-row { flex-direction: row; flex-wrap: wrap; align-items: center; }
+.style-button { background-color: rgb(47,53,57); background-image: none; color: rgb(248,241,222); border-width: 1px; border-color: rgb(85,89,86); border-radius: 3px; padding: 4px 10px; margin: 2px; font-size: 16px; }
+.style-swatch { width: 33px; height: 29px; }
+.style-selected, .style-button:focus { border-color: rgb(255,187,95); border-width: 2px; }
+.style-commit { background-color: rgb(248,176,83); color: rgb(24,27,29); -unity-font-style: bold; }
+.style-sliders { flex-direction: column; align-items: stretch; }
+.style-sliders .unity-base-slider__label { min-width: 56px; width: 62px; color: white; }
+
+.style-menu .unity-text-field__input { background-color: rgb(15,19,22); color: rgb(249,238,215); }

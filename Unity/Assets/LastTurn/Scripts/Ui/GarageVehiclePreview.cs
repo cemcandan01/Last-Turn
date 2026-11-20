@@ -51,11 +51,17 @@ namespace LastTurn.Ui
       if(value){Image.style.position=Position.Absolute;Image.style.left=Image.style.top=Image.style.right=Image.style.bottom=0;}else{Image.style.position=Position.Relative;}
     }
     public void SetVisible(bool value){visible=value;if(rig)rig.SetActive(value);}
+    private LastTurn.Prototype.SourceVehicleView sourceModel;
+    public void SetAppearance(CarAppearance style)=>LastTurn.Prototype.CarStyling.Show(sourceModel,style);
+    public void ShowRearQuarter(){angle=125;}
+    public void RotateBy(float degrees){angle+=degrees;}
     public void Build(GarageCarDetail d,int id)
     {
-      if(id==shown&&car)return;shown=id;if(car)Destroy(car);foreach(var item in resources)if(item)Destroy(item);resources.Clear();
+      if(id==shown&&car){SetAppearance(LastTurn.Garage.GarageSession.State.Appearance(id));return;}shown=id;if(car)Destroy(car);foreach(var item in resources)if(item)Destroy(item);resources.Clear();
       car=new GameObject("Katalog aracı");car.transform.SetParent(rig.transform,false);
       var model=LastTurn.Prototype.SourceVehicleView.Create(d.ModelKey,car.transform,31);
+      sourceModel=model;
+      SetAppearance(LastTurn.Garage.GarageSession.State.Appearance(id));
       // TS garaj modu: araç platformda (S.y = 0,12).
       if(model){model.SetCockpit(false);if(garage)model.transform.localPosition=new Vector3(0,.12f,0);return;}
       Color color=new Color(((d.BodyColor>>16)&255)/255f,((d.BodyColor>>8)&255)/255f,(d.BodyColor&255)/255f);

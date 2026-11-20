@@ -41,6 +41,9 @@ namespace LastTurn.Prototype
     public readonly List<Renderer> MirrorFaces=new List<Renderer>();
     public readonly List<Material> Glass=new List<Material>();
     public Material TailLamp {get; private set;}
+    public MeshRenderer BodyShell {get; private set;}
+    public readonly List<MeshRenderer> PaintSurfaces=new List<MeshRenderer>();
+    public readonly List<Renderer> FactoryWing=new List<Renderer>();
     // TS malzemeler.ts içindeki yüzey renkleri kaynak pakette RGB olarak saklanır.
     private static bool HasPigment(Surface surface, byte red, byte green, byte blue)
     {
@@ -102,6 +105,10 @@ namespace LastTurn.Prototype
           localMaterials[lamp]=view.TailLamp;
         }
       }
+      var window=data.graph.kind=="car"?Array.Find(data.graph.nodes,n=>Array.Exists(n.materials,j=>data.graph.materials[j].glass)):null;
+      var shell=window==null?null:Array.Find(data.graph.nodes,n=>n.parent==window.parent && n.geometry>=0 && n.materials.Length>0);
+      int wingStart=-1;
+      var wing=FactoryWingSpec(data.graph.key);
       for(int i=0;i<transforms.Length;i++)
       {
         var n=data.graph.nodes[i];var node=new GameObject(n.name);node.layer=layer;var t=node.transform;transforms[i]=t;t.SetParent(n.parent<0?root.transform:transforms[n.parent],false);
@@ -131,6 +138,16 @@ namespace LastTurn.Prototype
         else
         {
           node.AddComponent<MeshFilter>().sharedMesh=data.meshes[n.geometry];var renderer=node.AddComponent<MeshRenderer>();renderer.sharedMaterials=mats;view.RendererCount++;if(mirror)view.MirrorFaces.Add(renderer);
+          if(shell!=null && n.parent==shell.parent)
+          {
+            if(n==shell)view.BodyShell=renderer;
+            if(n.materials.Length==1 && (n.materials[0]==shell.materials[0] ||
+              (n.tag=="panel" && !HasPigment(data.graph.materials[n.materials[0]],24,35,45))))
+              view.PaintSurfaces.Add(renderer);
+            if(wing.count>0 && wingStart<0 && Mathf.Abs(n.position[0])<.001f && Mathf.Abs(n.position[2]-wing.z)<.001f && n.position[1]>.8f)
+              wingStart=i;
+            if(wingStart>=0 && i<wingStart+wing.count)view.FactoryWing.Add(renderer);
+          }
         }
       }
       return view;
@@ -146,6 +163,18 @@ namespace LastTurn.Prototype
       {
         var s = graph.materials[i];
         if (s.glass || (!s.basic && HasPigment(s,24,35,45))) Finish(materials[i], .66f);
+      }
+    }
+    // Kaynak arac-modeli.ts içindeki kanat plakası ve hemen sonraki ayak/yan plakalar.
+    private static (float z,int count) FactoryWingSpec(string key)
+    {
+      switch(key){
+        case "gt": return (-2.1f,1); case "rx": return (-1.78f,5);
+        case "dr": return (-1.98f,5); case "rl": return (-1.98f,3);
+        case "gt3": return (-2.06f,5); case "t16": return (-1.8f,5);
+        case "int": return (-1.32f,5); case "ae86": return (-1.98f,1);
+        case "supra": return (-2.1f,6); case "golf": return (-1.62f,5);
+        case "c33": return (-2.18f,1); default:return (0,0);
       }
     }
 
