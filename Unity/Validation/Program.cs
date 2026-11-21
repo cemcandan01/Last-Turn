@@ -21,6 +21,7 @@ if(args.Contains("--level-up")){LevelUpValidation.Run();return;}
 if(args.Contains("--mutant-slice-cars")){MutantSliceCarsValidation.Run();return;}
 if(args.Contains("--remote-snapshots")){RemoteSnapshotValidation.Run();return;}
 if(args.Contains("--mutant-hook")){MutantHookValidation.Run();return;}
+if(args.Contains("--mutant-slice-hook")){MutantSliceHookValidation.Run();return;}
 if(args.Contains("--mutant-hud")){MutantHudValidation.Run();return;}
 if(args.Contains("--mutant-event")){MutantEventValidation.Run();return;}
 if(args.Contains("--mutant-workshop")){MutantWorkshopValidation.Run();return;}

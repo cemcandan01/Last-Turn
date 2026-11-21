@@ -21,7 +21,7 @@ namespace LastTurn.Core
   public sealed class MutantSkillHud
   {
     public string Id="",Name="",Kind="";public int Level;public string? Evolution;public string[] Addons=Array.Empty<string>();
-    public bool Open,Ready;public double Left,Wait,Charges,MaxCharges,Duration,FullWait;public double? Bar;
+    public bool Open,Ready;public double Left,Wait,Charges,MaxCharges,Duration,FullWait;public double? Bar,Tension;
     public string? Blocker;public double[]? TargetPoint;public CatalogNode? Target,Point;
     public MutantHookQuery? Hook;
   }
@@ -35,6 +35,7 @@ namespace LastTurn.Core
     public static (double Fill,string Text,string State) Read(MutantSkillHud b,bool refusedAtStart=false)
     {
       if(b.Id=="grappling-hook"&&b.Hook!=null){
+        if(b.Open&&b.Tension.HasValue){double t=b.Tension.Value;string zone=MutantHookRope.Zone(t);return (Math.Max(0,Math.Min(1,t)),"GERİLİM %"+Round(100*t).ToString("0"),zone=="kirmizi"?"tehlike":zone=="sari"?"uyari":"on");}
         if(b.Open){string kind=b.Target?.S()=="#kose"?"kose":b.Target?.S()=="#bina"?"gok":"rakip";return (Math.Max(0,Math.Min(1,b.Left/4)),"BAĞLI · "+MutantHookQuery.KindName(kind),"on");}
         if(b.MaxCharges>0&&b.Charges<=0)return (Math.Max(0,Math.Min(1,1-b.Wait/Math.Max(b.FullWait,.01))),b.Wait>0?"HAK YOK · "+Seconds(b.Wait):"HAK YOK",b.Wait>0?"bekle":"engel");
         if(refusedAtStart||b.Blocker=="basla")return (1,"BAŞLANGIÇ","engel");
@@ -152,12 +153,13 @@ namespace LastTurn.Core
         var p=MutantSkills.Parameters(id,o);var block=s["becEngel"][id];string? blocker=block.ToString()=="null"||block.ToString()==""?null:block.S();
         double maxCharges=p["sarj"].N(0),charges=maxCharges!=0&&has?MutantSkills.Charges(y,p):maxCharges;
         double wait=maxCharges!=0?(charges<maxCharges?Math.Max(0,p["bekleme"].N(double.NaN)-y["dolum"].N(0)):0):y["bekleme"].N(0);
+        if(MutantSkills.SnapCooling(id,y)){wait=y["bekleme"].N(0);}
         bool open=y["kalan"].N(0)>0;bool bar=id=="risk-taker"||id=="slipstream-engine";
         var point=s["becHedef"][id];var evolution=o["evrim"];
         MutantHookQuery? hook=null;if(id=="grappling-hook"){hook=observedWorld==null?new MutantHookQuery{Reason="context"}:MutantSkills.InspectHook(o,p,observedWorld);blocker=observedWorld==null?"hedef":context!=null&&context.Racing&&!context.RaceRunning?"basla":MutantSkills.Blocker(s["bec"],Equipped,observedWorld,id);}
         return new MutantSkillHud{Id=id,Name=t["ad"].S(),Kind=t["tur"].S(),Level=(int)o["seviye"].N(),Evolution=evolution.ToString()=="null"?null:evolution.S(),
           Addons=o["eklentiler"].Items.Select(e=>e.S()).ToArray(),Open=open,Left=y["kalan"].N(0),Wait=wait,Charges=charges,MaxCharges=maxCharges,
-          Duration=p["sure"].IsNumber?p["sure"].N():MutantSkills.Releases(id)?4:0,FullWait=p["bekleme"].N(0),
+          Duration=p["sure"].IsNumber?p["sure"].N():MutantSkills.Releases(id)?4:0,FullWait=MutantSkills.SnapCooling(id,y)?MutantHookRope.SnapCooldown(p["bekleme"].N(0)):p["bekleme"].N(0),Tension=MutantSlice.Enabled&&id=="grappling-hook"&&open?y["gerilim"].N(0):(double?)null,
           Bar=bar?Math.Floor(100*Math.Max(0,Math.Min(1,has?MutantSkills.Bar(id,y,p):0))+.5):(double?)null,
           Blocker=blocker,Hook=hook,TargetPoint=point.Items.Any()?point.Items.Select(n=>n.N()).ToArray():null,
           Target=open&&y.Has("hedef")&&y["hedef"].ToString()!="null"?y["hedef"].Clone():null,

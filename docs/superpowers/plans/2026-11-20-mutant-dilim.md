@@ -43,11 +43,11 @@
 - Produces: `public static class MutantSlice { public static bool Enabled {get;set;} /* varsayılan false */; public static readonly string[] CarKeys = {"c33","golf"}; public static CatalogNode TuneCar(CatalogNode car); }` `TuneCar` yalnız `Enabled` iken ve `car["k"]` bir `CarKeys` değeriyse alanları değiştirilmiş bir klon döndürür, aksi halde aynı düğümü.
 - Consumes: `MutantVehicle.Apply(CatalogNode stock, IEnumerable<string> passives, ...)`; `GarageBenchResult.Measure(VehicleCatalog, CatalogSetup)` (`GarageBench.cs`: `Hundred`, `Brake60`, `Slip`).
 
-- [ ] **Step 1: Failing test.** `MutantSliceCarsValidation.Run()` iki araç için `MutantSlice.Enabled=true` ve `false` ile `GarageBenchResult.Measure` alır. Assertion'lar: (a) `Enabled=false` iken `Measure` sonuçları ayarsız referansla birebir aynı; (b) `Enabled=true` iken Tilki ile Tavşan arasında `Brake60` farkı ≥ %15, `Slip` farkı ≥ %15, `Hundred` farkı ≥ %10; (c) `TuneCar` yarı tanımlı araçta (`k` yok) aynı düğümü döndürür.
-- [ ] **Step 2: Run** `dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --mutant-slice-cars`. Expected: derleme hatası ya da FAIL (`MutantSlice` yok).
-- [ ] **Step 3: Implement** `MutantSlice.TuneCar` ve `MutantVehicle.Apply` başında çağrı. Başlangıç değerleri (hissederek ayarlanacak, kontrol noktasında Cem'le revize edilir): Bordo Tilki `iz` ×1.25, `rb` ×0.85, `brk` ×0.8, `dmax` +0.12, `trq` ×1.1; Bozkır Tavşanı `iz` ×0.75, `rb` ×1.12, `brk` ×1.3, `awd` 0.65, `hp` ×1.1. Değerler `MutantSlice` içinde adlandırılmış sabitlerdir.
-- [ ] **Step 4: Run** aynı komut. Expected: PASS. Ardından `--garage-f` ve `--mutant-hud` koşulup değişmediği doğrulanır (bayrak kapalı).
-- [ ] **Step 5: Commit** (`MutantSlice.cs`, `MutantVehicle.cs`, doğrulama dosyaları): `MUTANT dilimi: dilim bayrağı ve iki araba ayrışması`.
+- [x] **Step 1: Failing test.** `MutantSliceCarsValidation.Run()` iki araç için `MutantSlice.Enabled=true` ve `false` ile `GarageBenchResult.Measure` alır. Assertion'lar: (a) `Enabled=false` iken `Measure` sonuçları ayarsız referansla birebir aynı; (b) `Enabled=true` iken Tilki ile Tavşan arasında `Brake60` farkı ≥ %15, `Slip` farkı ≥ %15, `Hundred` farkı ≥ %10; (c) `TuneCar` yarı tanımlı araçta (`k` yok) aynı düğümü döndürür.
+- [x] **Step 2: Run** `dotnet run --project Unity/Validation/LastTurn.Core.Validation.csproj --configuration Release -- --mutant-slice-cars`. Expected: derleme hatası ya da FAIL (`MutantSlice` yok).
+- [x] **Step 3: Implement** `MutantSlice.TuneCar` ve `MutantVehicle.Apply` başında çağrı. Başlangıç değerleri (hissederek ayarlanacak, kontrol noktasında Cem'le revize edilir): Bordo Tilki `iz` ×1.25, `rb` ×0.85, `brk` ×0.8, `dmax` +0.12, `trq` ×1.1; Bozkır Tavşanı `iz` ×0.75, `rb` ×1.12, `brk` ×1.3, `awd` 0.65, `hp` ×1.1. Değerler `MutantSlice` içinde adlandırılmış sabitlerdir.
+- [x] **Step 4: Run** aynı komut. Expected: PASS. Ardından `--garage-f` ve `--mutant-hud` koşulup değişmediği doğrulanır (bayrak kapalı).
+- [x] **Step 5: Commit** (`MutantSlice.cs`, `MutantVehicle.cs`, doğrulama dosyaları): `MUTANT dilimi: dilim bayrağı ve iki araba ayrışması`.
 
 **Kontrol noktası 1 (Cem oynar):** Task 2'nin başlangıç ekranı hazır olmadan sürülemez; bu yüzden Task 2 ile birlikte onaylanır.
 
@@ -62,14 +62,14 @@
 - Consumes: `MutantSlice.Enabled`, `MutantMenuModel.Read(MutantRun, VehicleCatalog, int selectedCar)`.
 - Produces: `MutantMenuModel.StartingCarsCards` dilimde tam 2 kart (`golf`/`c33`).
 
-- [ ] **Step 1: Failing test:** `Enabled=true` iken `Read(...).StartingCarsCards.Length==2` ve kart `Type`'ları `rx`/`dp` değil `c33`/`golf` araç kimlikleriyle eşleşir; `Enabled=false` iken eski 3/5 kart davranışı aynı.
-- [ ] **Step 2: Run** `--mutant-slice-cars`; FAIL.
-- [ ] **Step 3: Implement** filtre ve bayrağın `MutantRuntime` giriş/çıkışında açılıp kapanması.
-- [ ] **Step 4: Run** `--mutant-slice-cars` PASS; `--mutant-summary` ve `--mutant-hud` değişmeden geçer.
-- [ ] **Step 5: Unity derle + Play doğrulaması** `EngagementPlayValidation` benzeri mevcut MUTANT başlangıç doğrulamasıyla (Editor'ı görünür açma; `-batchmode`).
-- [ ] **Step 6: Commit:** `MUTANT dilimi: iki araçlı başlangıç ekranı`.
+- [x] **Step 1: Failing test:** `Enabled=true` iken `Read(...).StartingCarsCards.Length==2` ve kart `Type`'ları `rx`/`dp` değil `c33`/`golf` araç kimlikleriyle eşleşir; `Enabled=false` iken eski 3/5 kart davranışı aynı.
+- [x] **Step 2: Run** `--mutant-slice-cars`; FAIL.
+- [x] **Step 3: Implement** filtre ve bayrağın `MutantRuntime` giriş/çıkışında açılıp kapanması.
+- [x] **Step 4: Run** `--mutant-slice-cars` PASS; `--mutant-summary` ve `--mutant-hud` değişmeden geçer.
+- [ ] **Step 5: Unity derle + Play doğrulaması** `EngagementPlayValidation` benzeri mevcut MUTANT başlangıç doğrulamasıyla (Editor'ı görünür açma; `-batchmode`). (açık: koşulduğuna dair kayıt yok)
+- [x] **Step 6: Commit:** `MUTANT dilimi: iki araçlı başlangıç ekranı`.
 
-**Kontrol noktası 1 (Cem oynar):** MUTANT → iki araç → serbest sürüş (mevcut Geliştirici modu, F2) ve Atölye A/B (0–100, 60–0, slalom). Cem iki arabayı sürüp "gerçekten farklı mı?" der. Onay yoksa Task 1 sabitleri birlikte ayarlanır, sonraki göreve geçilmez.
+**Kontrol noktası 1 (Cem oynadı, 21 Kasım; geri bildirim "Notlar" bölümünde):** MUTANT → iki araç → serbest sürüş (mevcut Geliştirici modu, F2) ve Atölye A/B (0–100, 60–0, slalom). Cem iki arabayı sürüp "gerçekten farklı mı?" der. Onay yoksa Task 1 sabitleri birlikte ayarlanır, sonraki göreve geçilmez.
 
 ### Task 3: Dilim kart seti ve 3 yuva
 
@@ -215,4 +215,20 @@
 - Para/XP kazanımı ekranda hissedilmiyor.
 - Rallide yavaş girilen yokuşta araç çıkamıyor; oyuncu bunun kendi kararının sonucu olduğunu hissetmeli.
 
-**Kontrol noktası 1 sonrası düzeltme işleri:** (1) yarış/açık dünya zemin tepkisi teşhisi (rapor.md), (2) tüm yarış tiplerinde açık dünya zemin tepkisi, (3) Tilki ağır ve kayan drift arabası / Tavşan çevik, çıkışta hızlı, toprakta yapışkan, güç dengesi yakın, (4) Grappling Hook yeniden tasarım: tuşu bırakana kadar tutar, hız/gerilim fazlaysa kopar, kopunca bekleme uzar.
+**Kontrol noktası 1 sonrası düzeltme işleri:**
+- [x] (1) yarış/açık dünya zemin tepkisi teşhisi (96ab3ed; F3 zemin A/B). Cem testi bekliyor.
+- [x] (2) tüm yarış tiplerinde zemin tepkisi (96ab3ed: yumuşak asfalt, gevşek drift yarışı). Cem testi bekliyor.
+- [x] (3) Tilki ağır/kayan, Tavşan çevik/yapışkan, güç dengesi yakın (96ab3ed). Cem testi bekliyor.
+- [x] (4) Grappling Hook yeniden tasarım: aşağıdaki "Kanca yeniden tasarımı" adımı (Görev 3'ten önce).
+
+### Kanca yeniden tasarımı (Görev 3'ten önce, ayrı adım; Cem kararları 21 Kasım 2026)
+
+Dilim bayrağı açıkken; bayrak kapalıyken TS davranışı ve `--mutant-hook` birebir aynı kalır.
+- Tuş basılı kaldıkça bağlı, otomatik süre yok. Bırakınca araç o anki hız ve yönle devam eder.
+- Gerilim = dönüş yükü (teğet hız² / yarıçap) ÷ seviye dayanımı. HUD'da yeşil (<0,6) / sarı (<1) / kırmızı (≥1) çubuk. Kırmızıda ~0,25 sn kalırsa kopar.
+- Kopunca bekleme ×2,5. İlk sürümde yalnız köşe/çıpa hedefi; rakip hedefi sonraya.
+
+- [x] **Step 1:** saf model `MutantHookRope` + `--mutant-slice-hook` .NET testi (yazılır, FAIL görülür).
+- [x] **Step 2:** modeli `MutantSkills` kanca adımına bağla (dilim bayrağı altında), HUD çubuğu.
+- [x] **Step 3:** `--mutant-hook`, `--mutant-slice-cars`, `--mutant-hud`, `--mutant-summary`, `--garage-f` geçti. `--mutant-ability` (powertrain downshift-gt) ve `--opponents` (rx_1 direksiyon) 96ab3ed'de de kırmızı: kanca değişikliğinden önce, HEAD'de doğrulandı; 96ab3ed'in PowertrainVehicle/RaceDrift değişikliği şüpheli, ayrıca bakılacak.
+- [x] **Step 4:** Commit `MUTANT dilimi: kanca yeniden tasarımı`, Cem denemesi (kontrol noktası).

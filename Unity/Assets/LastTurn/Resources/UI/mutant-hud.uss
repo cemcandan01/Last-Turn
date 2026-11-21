@@ -16,6 +16,10 @@
 .mh-fill { height: 4px; background-color: rgb(238,124,206); }
 .mh-ready .mh-fill, .mh-on .mh-fill { background-color: rgb(182,255,36); }
 .mh-on { color: rgb(182,255,36); }
+.mh-warn .mh-fill { background-color: rgb(255,196,40); }
+.mh-warn { color: rgb(255,196,40); }
+.mh-danger .mh-fill { background-color: rgb(255,64,52); }
+.mh-danger { color: rgb(255,64,52); }
 .mh-icon { position: absolute; right: 0; top: 0; width: 34px; height: 34px; margin: 0; -unity-background-scale-mode: scale-to-fit; }
 .mh-notice { position: absolute; left: 24%; top: 25%; width: 52%; font-size: 26px; -unity-text-align: middle-center; color: rgb(182,255,36); }
 .mh-hint-text { font-size: 16px; white-space: nowrap; }

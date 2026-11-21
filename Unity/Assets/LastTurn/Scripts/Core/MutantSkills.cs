@@ -10,7 +10,7 @@ namespace LastTurn.Core
   public static class MutantSkills
   {
     public const int Slots=3,MaxLevel=3,MaxAddons=2,MaxDamage=10;
-    public const double MaxAcceleration=12,MaxFlightAcceleration=60,Gravity=24;
+    public const double HoldMax=3600,MaxAcceleration=12,MaxFlightAcceleration=60,Gravity=24;
     private sealed class Definition
     {
       public readonly string Id;public readonly bool Active,Toggle;public readonly string[] Tags;public readonly CatalogNode[] Levels;
@@ -65,6 +65,7 @@ namespace LastTurn.Core
       var list=Normalize(equipped);var o=list.FirstOrDefault(x=>x["id"].S()==id);var t=Find(id);if(o==null||t==null)return null;
       var y=state["yerel"].Has(id)?state["yerel"][id]:Local();var p=Parameters(id,o);
       if(y["kalan"].N()>0)return t.Toggle?null:"etkin";
+      if(SnapCooling(id,y))return "bekleme";
       if(p["sarj"].N()!=0?Charges(y,p)<=0:y["bekleme"].N()>0)return "bekleme";
       var flags=Flags(state,list);if(!t.Active)return id=="slipstream-engine"&&!world.Targets.Items.Any()?"rakip":null;
       if(flags["saldiriKapali"].B()&&t.Tags.Any(tag=>tag=="saldiri"||tag=="konum"))return "faz";
@@ -83,6 +84,8 @@ namespace LastTurn.Core
       var body=world.Targets.Items.First(h=>h["id"].S()==target["id"].S());return new[]{body["x"].N(),1,body["z"].N()};
     }
     public static double Bar(string id,CatalogNode local,CatalogNode parameters)=>id=="risk-taker"?local["deger"].N()/100:id=="slipstream-engine"?local["deger"].N()/parameters["enCok"].N():0;
+    // Dilimde ip koptuktan sonra kanca (hak kalsa da) bekleme bitene kadar kapalıdır.
+    public static bool SnapCooling(string id,CatalogNode local)=>MutantSlice.Enabled&&id=="grappling-hook"&&local["bekleme"].N()>0;
     private static bool Airborne(MutantSkillWorld world)=>world.Player["y"].N()-world.Ground>2.5;
     private static CatalogNode? HookTarget(CatalogNode instance,CatalogNode parameters,MutantSkillWorld world)
       =>InspectHook(instance,parameters,world).Target;
@@ -91,7 +94,7 @@ namespace LastTurn.Core
       var p=world.Player;bool reverse=instance["evrim"].S()=="ters-kanca";string? nearest=null;double nearestDistance=double.PositiveInfinity;
       var q=new MutantHookQuery{Range=parameters["menzil"].N(),Cone=reverse?.6:.45,Reverse=reverse,Airborne=Airborne(world)};
       foreach(var h in world.Targets.Items){double dx=h["x"].N()-p["x"].N(),dz=h["z"].N()-p["z"].N(),d=H(dx,dz);double angle=Math.Abs(Delta(Math.Atan2(dx,dz),p["h"].N()+(reverse?Math.PI:0)));var c=new MutantHookCandidate{Id=h["id"].S(),Distance=d,Angle=angle,InRange=!(d<8||d>q.Range),InCone=!(angle>q.Cone)};q.Candidates.Add(c);if(!c.InRange||!c.InCone)continue;if(d<nearestDistance){nearestDistance=d;nearest=h["id"].S();}}
-      if(nearest!=null){q.Kind="rakip";q.Id=nearest;q.Distance=nearestDistance;q.Target=Obj(("tur",Str("rakip")),("id",Str(nearest)));q.Reason="target";return q;}if(reverse){q.Reason="no-opponent";return q;}
+      if(nearest!=null&&!MutantSlice.Enabled){q.Kind="rakip";q.Id=nearest;q.Distance=nearestDistance;q.Target=Obj(("tur",Str("rakip")),("id",Str(nearest)));q.Reason="target";return q;}if(reverse){q.Reason="no-opponent";return q;}
       if(q.Airborne){var g=world.Sky?.Invoke();q.Reason=g==null?"no-building":"target";if(g!=null){q.Kind="gok";q.Target=Obj(("tur",Str("gok")),("p",g["p"]),("uc",g["uc"]));q.Distance=H(g["p"][0].N()-p["x"].N(),g["p"][1].N()-p["y"].N(),g["p"][2].N()-p["z"].N());}return q;}
       double side=Math.Abs(world.Steering)>.15?Math.Sign(world.Steering):0;q.Corner=world.CornerQuery!=null?world.CornerQuery(side):new MutantCornerQuery{Target=world.Corner?.Invoke(side)};var k=q.Corner.Target;q.Reason=k==null?"no-corner":"target";if(k!=null){q.Kind="kose";q.Target=Obj(("tur",Str("kose")),("p",k["p"]),("uc",k["uc"]));q.Distance=H(k["p"][0].N()-p["x"].N(),k["p"][1].N()-p["z"].N());}return q;
     }
@@ -137,7 +140,7 @@ namespace LastTurn.Core
     private static void Begin(Context c)
     {
       if(c.Id=="grappling-hook"){
-        var h=HookTarget(c.Instance,c.Parameters,c.World);if(h==null)return;var p=c.World.Player;c.Y("kalan",4);
+        var h=HookTarget(c.Instance,c.Parameters,c.World);if(h==null)return;var p=c.World.Player;c.Y("kalan",MutantSlice.Enabled?HoldMax:4);if(MutantSlice.Enabled){c.Y("gerilim",0);c.Y("kirmizi",0);}
         switch(h["tur"].S()){
           case "rakip":c.Local.Set("hedef",h["id"]);c.Local.Set("nokta",Null());c.Emit(Obj(("tur",Str("KonumEtkisi")),("hedef",h["id"]),("etki",Str("cekme")),("kaynak",Str(c.Id))));return;
           case "gok":c.Local.Set("hedef",Str("#bina"));c.Local.Set("nokta",Coords(h["p"][0].N(),h["p"][2].N()));c.Y("deger",h["p"][1].N());c.Local.Set("uc",h["uc"].Clone());c.Y("sayac",Math.Max(10,.85*H(h["p"][0].N()-p["x"].N(),h["p"][1].N()-p["y"].N(),h["p"][2].N()-p["z"].N())));return;
@@ -146,13 +149,21 @@ namespace LastTurn.Core
       }
       if(c.Id=="flying-dutchman"||c.Id=="volt-kanat"){c.Y("kalan",c.P("sure"));c.Local.Set("islenen",Arr(Array.Empty<CatalogNode>()));if(c.Id=="volt-kanat")c.Y("sayac",8);}
     }
+    // Dilim ipi: yük hıza ve yarıçapa bağlı; kırmızıda kalınca kopar, bekleme x2,5. Gevşek ipte tangent=0 (sayaç söner).
+    private static void RopeStep(Context c,double tangent,double radius)
+    {
+      var rope=new MutantHookRope();rope.Restore(c.Y("gerilim"),c.Y("kirmizi"));int level=(int)Math.Max(1,Math.Floor(c.Instance["seviye"].N(1)));
+      bool snap=rope.Step(level,tangent,radius,c.Dt);c.Y("gerilim",rope.Tension);c.Y("kirmizi",rope.RedTime);
+      if(snap){c.Y("kalan",0);c.Y("ozelBekleme",MutantHookRope.SnapCooldown(c.P("bekleme")));}
+    }
     private static void Pendulum(Context c)
     {
       var p=c.World.Player;double dx=c.Local["nokta"][0].N()-p["x"].N(),dy=c.Y("deger")-p["y"].N(),dz=c.Local["nokta"][1].N()-p["z"].N(),d=H(dx,dy,dz);if(d==0)d=1;
       if(p["vx"].N()*dx+p["vz"].N()*dz<0&&p["vy"].N()<=0&&H(dx,dz)>6){c.Y("kalan",0);return;}
       if(p["y"].N()-c.World.Ground<1.2&&p["vy"].N()<=0){c.Y("kalan",0);return;}
-      c.Y("sayac",Math.Max(10,Math.Min(c.Y("sayac"),d)-3*c.Dt));double stretch=d-c.Y("sayac");if(stretch<=0)return;
+      c.Y("sayac",Math.Max(10,Math.Min(c.Y("sayac"),d)-3*c.Dt));double stretch=d-c.Y("sayac");if(stretch<=0){if(MutantSlice.Enabled)RopeStep(c,0,d);return;}
       double ux=dx/d,uy=dy/d,uz=dz/d,radial=p["vx"].N()*ux+p["vy"].N()*uy+p["vz"].N()*uz,a=Math.Min(54,28*Math.Min(stretch,3)+5*Math.Max(0,-radial));c.Flight(ux*a,uy*a,uz*a,0);
+      if(MutantSlice.Enabled)RopeStep(c,Math.Sqrt(Math.Max(0,H(p["vx"].N(),p["vy"].N(),p["vz"].N())*H(p["vx"].N(),p["vy"].N(),p["vz"].N())-radial*radial)),d);
     }
     private static void CornerStep(Context c)
     {
@@ -160,12 +171,14 @@ namespace LastTurn.Core
       if(Math.Abs(Delta(Direction(p),c.Y("deger")))>1.6||d>c.Y("sayac")+10||Airborne(c.World)){c.Y("kalan",0);return;}
       c.Y("sayac",Math.Max(4,Math.Min(c.Y("sayac"),d)));Set(c.Output,"tutus",c.Output["tutus"].N()*1.3);
       double ux=rx/d,uz=rz/d,vr=p["vx"].N()*ux+p["vz"].N()*uz,vt=p["vx"].N()*uz-p["vz"].N()*ux,stretch=d-c.Y("sayac"),ax=0,az=0;double? roll=null;
+      if(MutantSlice.Enabled)RopeStep(c,stretch>.05?Math.Abs(vt):0,d);
       if(stretch>.05){double a=Math.Min(60,vt*vt/d+30*stretch+6*Math.Max(0,vr));ax-=ux*a;az-=uz*a;roll=vt/d+3*Delta(Direction(p),p["h"].N());}
       double ropeSpeed=Math.Sqrt(.5*60*c.Y("sayac")),tangent=v>ropeSpeed?-Math.Min(24,(v-ropeSpeed)*5):v<45?5:0;if(v>1){ax+=p["vx"].N()/v*tangent;az+=p["vz"].N()/v*tangent;}c.Flight(ax,0,az,1,roll:roll);
     }
     private static void HookStep(Context c)
     {
-      if(c.Y("kalan")<=0)return;string target=c.Local["hedef"].S();if(target=="#bina"){Pendulum(c);return;}if(target=="#kose"){CornerStep(c);return;}
+      if(c.Y("kalan")<=0)return;if(MutantSlice.Enabled&&c.World.Held!=null&&!c.World.Held.Contains(c.Id)){c.Y("kalan",0);return;}
+      string target=c.Local["hedef"].S();if(target=="#bina"){Pendulum(c);return;}if(target=="#kose"){CornerStep(c);return;}
       var p=c.World.Player;var h=c.World.Targets.Items.FirstOrDefault(t=>t["id"].S()==target);if(h==null){c.Y("kalan",0);return;}
       bool reverse=c.Instance["evrim"].S()=="ters-kanca";double dx=h["x"].N()-p["x"].N(),dz=h["z"].N()-p["z"].N(),d=H(dx,dz);if(d<7||d>c.P("menzil")*1.3){c.Y("kalan",0);return;}
       double ux=dx/d,uz=dz/d,closing=(p["vx"].N()-h["vx"].N())*ux+(p["vz"].N()-h["vz"].N())*uz;
@@ -229,6 +242,7 @@ namespace LastTurn.Core
         if(c.Y("kalan")>0){if(t.Toggle)c.Y("kalan",0);continue;}
         double charges=c.P("sarj")!=0?Charges(c.Local,c.Parameters):0;
         if(c.P("sarj")!=0?charges<=0:c.Y("bekleme")>0)continue;
+        if(SnapCooling(c.Id,c.Local))continue;
         if(c.Id=="grappling-hook"&&HookTarget(o,c.Parameters,world)==null)continue;Begin(c);
         if(c.P("sarj")!=0&&c.Y("kalan")>0){c.Y("sarj",charges-1);c.Y("sarjUst",c.P("sarj"));}
       }
@@ -238,7 +252,7 @@ namespace LastTurn.Core
         if(!wasActive&&c.Y("bekleme")>0)c.Y("bekleme",Math.Max(0,c.Y("bekleme")-validDt));
         if(c.P("sarj")!=0){double n=Charges(c.Local,c.Parameters);c.Y("sarjUst",c.P("sarj"));c.Y("sarj",n);if(n<c.P("sarj")){c.Y("dolum",c.Y("dolum")+validDt);if(c.Y("dolum")>=c.P("bekleme")){c.Y("sarj",n+1);c.Y("dolum",0);}}else c.Y("dolum",0);}
         SkillStep(c);if(c.Y("kalan")>0)c.Y("kalan",Math.Max(0,c.Y("kalan")-validDt));
-        if(wasActive&&c.Y("kalan")<=0){c.Y("bekleme",c.P("sarj")!=0?0:c.Local["ozelBekleme"].N(c.Parameters["bekleme"].N()));c.Local.Remove("uc");c.Local.Remove("ozelBekleme");c.Local.Set("hedef",Null());c.Local.Set("nokta",Null());c.Local.Set("islenen",Arr(Array.Empty<CatalogNode>()));c.Y("uzatma",0);}
+        if(wasActive&&c.Y("kalan")<=0){c.Y("bekleme",c.P("sarj")!=0&&!c.Local.Has("ozelBekleme")?0:c.Local["ozelBekleme"].N(c.Parameters["bekleme"].N()));c.Local.Remove("uc");c.Local.Remove("ozelBekleme");c.Local.Set("hedef",Null());c.Local.Set("nokta",Null());c.Local.Set("islenen",Arr(Array.Empty<CatalogNode>()));c.Y("uzatma",0);}
       }
       // Durumlar tüm skill adımlarından sonra işler; ateşin ürettiği olayın nedensel derinliği birdir.
       foreach(var pair in d["hedefler"].Fields){string id=pair.Key;var target=pair.Value;var body=world.Targets.Items.FirstOrDefault(h=>h["id"].S()==id);
