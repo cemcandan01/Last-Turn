@@ -71,6 +71,14 @@
 
 **Kontrol noktası 1 (Cem oynar):** MUTANT → iki araç → serbest sürüş (mevcut Geliştirici modu, F2) ve Atölye A/B (0–100, 60–0, slalom). Cem iki arabayı sürüp "gerçekten farklı mı?" der. Onay yoksa Task 1 sabitleri birlikte ayarlanır, sonraki göreve geçilmez.
 
+### Task 2.5: Kanca saf modeli (Cem kararı, 21 Kasım 2026)
+
+Tasarım onaylı. Kararlar:
+- Kopma sonrası bekleme süresi x2,5 ile başlar (sonra ayarlanır).
+- İlk sürümde yalnız köşe/çıpa hedefi vardır; rakip hedefi sonraya (Task 4 "Kancalı Şok" buna bağlı).
+- Mevcut tuş basılı tutmalı çalışır.
+- Saf model .NET testiyle yazılır, Task 3'ten önce ayrı adım olarak; bitince Cem test için çağrılır, onaysız Task 3'e geçilmez.
+
 ### Task 3: Dilim kart seti ve 3 yuva
 
 **Files:**

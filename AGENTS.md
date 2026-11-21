@@ -109,6 +109,7 @@ Bitirirken görev kartına sahip, dal, son SHA, test kapsamı + sonuç + kanıt,
 - Çalışma ağacında (`codex/unity-p7-garaj`) Pit menü tasarımı ve diğer UI/Recovery dosyaları commit edilmemiş; kart `docs/isler/2026-11-14-profesyonel-menu.md`. Başkasının yarım işini commit'e alma.
 - Son paketler (atölye, rota, kupa, sürüş tepkileri) için **insan görsel/sürüş/eğlence/zorluk kabulü açık**; rota ödül dengesi ve ses beğenisi ölçülmemiş. Kart: `docs/isler/2026-11-16-surukleyici-dongu.md`.
 - Dış ayar ve cihaz kabul maddeleri: `docs/FIREBASE.md`, `docs/CIHAZ.md` (9 Kasım devir kaydına göre gerçek Google girişi tek dış ayar bekliyordu; güncelliği doğrulanmadı).
+- **Kırık testler:** `--drift-race` ve `--assists` doğrulamaları kırık; henüz onarılmadı (Cem, 21 Kasım 2026).
 - Skill'ler (`.claude/skills`) ve alt ajanlar bu belgedeki kurallarla hizalandı (yönetmen sohbeti ve gece 00:00/04:00 otomasyonu kaldırıldı; tam regresyon yalnız Cem isteyince).
 - `docs/notlar/` bazı dosyaları 15 satır sınırını aşıyor (`modifiye.md`, `unity.md`).
 - `SUREC.md` “Özet CLAUDE.md → Dallar ve yayın” der; bu özet artık yukarıdaki “Dallar ve yayın” bölümündedir.

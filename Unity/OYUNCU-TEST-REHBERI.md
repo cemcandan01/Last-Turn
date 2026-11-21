@@ -63,7 +63,7 @@ Otomatik Play ayrı kayıtta gerçek UI Toolkit paneli, sentetik klavye ve panel
 2. Tür filtrelerine fareyle bas; yalnız o tür görünmeli. Oklar veya fare kartı seçsin, sol vitrin/özellik/fiyat güncellensin. Katalogda sahip olunan araçlar da görünür; üzerlerinde SAHİPSİN yazar.
 3. Kilitli araçta gerekli seviye/kupa bilgisi, eksik para ve kapalı satın alma düğmesi görünmeli. Bakiye yetmezken işlem uygulanmamalı.
 4. Satın alınabilir aracı Enter veya düğmeyle onayla: ilk basış para harcamaz; Esc iptal eder. Üç saniye içinde ikinci onay yalnız tek bedel harcar. GARAJDA GÖR alınan aracı açar; Garaj'da Enter sürüşe seçer. Yeniden yükleme sahipliği, seçimi ve bakiyeyi korur.
-5. PARÇALAR veya Tab, sahip olunan araçla mevcut Modifiye ekranına gider; yeni parça/mağaza ekonomisi yoktur. Tak/sök/geri akışını kontrol et. Üç ekran boyutunda satın alma düğmesi ve alt gezinme görünür kalmalı.
+5. PARÇALAR veya P, sahip olunan araçla mevcut Modifiye ekranına gider; Tab artık odak gezinmesine ayrılmıştır. Yeni parça/mağaza ekonomisi yoktur. Tak/sök/geri akışını kontrol et. Üç ekran boyutunda satın alma düğmesi ve alt gezinme görünür kalmalı.
 
 ## P7-4 Mutant başlangıcı F §5a–d (6 Kasım 2026)
 

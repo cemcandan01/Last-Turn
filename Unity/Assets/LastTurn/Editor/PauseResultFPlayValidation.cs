@@ -203,7 +203,8 @@ namespace LastTurn.EditorValidation
       proof.sources = Directory.GetFiles(Path.Combine(Application.dataPath, "LastTurn"), "*", SearchOption.AllDirectories).Where(f => Path.GetExtension(f) == ".cs" || Path.GetExtension(f) == ".uss").OrderBy(f => f, StringComparer.Ordinal).Select(f => new Source { path = f.Substring(Project.Length + 1).Replace('\\', '/'), hash = Hash(f) }).ToArray();
       File.WriteAllText(Path.Combine(Project, "Logs/p7-pause-result-f-play.json"), JsonUtility.ToJson(proof, true));
       Debug.Log("P7 duraklatma/sonuç F Play: " + proof.result + " (" + proof.checks.Count + " kontrol) " + proof.error);
-      EditorApplication.ExitPlaymode(); EditorApplication.delayCall += () => EditorApplication.Exit(e == null ? 0 : 1);
+      // Play'den çıkıştaki domain yenilemesi delayCall'ı kaybedebilir; kanıt yazıldıktan sonra test Editor'ını doğrudan kapat.
+      EditorApplication.Exit(e == null ? 0 : 1);
     }
   }
 }

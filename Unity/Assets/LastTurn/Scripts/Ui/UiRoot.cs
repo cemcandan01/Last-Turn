@@ -41,7 +41,9 @@ namespace LastTurn.Ui
       Root.pickingMode = PickingMode.Ignore;
       var sheet = Resources.Load<StyleSheet>("UI/lt");
       if (sheet) Root.styleSheets.Add(sheet); else Debug.LogError("Arayüz stili bulunamadı: Resources/UI/lt.uss");
-      var kok = Layer("lt-kok"); Root.Add(kok);
+      var pit = Resources.Load<StyleSheet>("UI/pit");
+      if (pit) Root.styleSheets.Add(pit); else Debug.LogError("Pit arayüz stili bulunamadı: Resources/UI/pit.uss");
+      var kok = Layer("lt-kok"); kok.AddToClassList("pit-root"); Root.Add(kok);
       Screen = Layer("katman"); Hud = Layer("katman"); Top = Layer("katman");
       kok.Add(Hud); kok.Add(Screen); kok.Add(Top);
       gameObject.AddComponent<MainMenuView>();

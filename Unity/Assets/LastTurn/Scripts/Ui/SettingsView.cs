@@ -77,6 +77,7 @@ namespace LastTurn.Ui
     private void Keys(Keyboard k)
     {
       if (k == null) return;
+      if(Ui.ActivateFocused(k))return;
       if (k.escapeKey.wasPressedThisFrame) { Back(); return; }
       if (k.qKey.wasPressedThisFrame) { GameAudio.Click(); Select((Section + SettingsViewModel.Sections.Length - 1) % SettingsViewModel.Sections.Length); }
       else if (k.eKey.wasPressedThisFrame) { GameAudio.Click(); Select((Section + 1) % SettingsViewModel.Sections.Length); }
@@ -180,6 +181,7 @@ namespace LastTurn.Ui
       ["YenidenBaslat"] = "Yeniden başlat", ["VitesYukari"] = "Vites yükselt (Drag)", ["VitesAsagi"] = "Vites düşür (Drag)", ["Nitro"] = "Nitro (Mutant)",
       ["Kamera"] = "Kamera", ["PisteDon"] = "Piste dön", ["Beceri1"] = "Skill 1 (Mutant)", ["Beceri2"] = "Skill 2 (Mutant)", ["Beceri3"] = "Skill 3 (Mutant)",
       ["HavaSurukle"] = "Havada burun (sürükle)",
+      ["SerbestBakis"] = "Etrafa bak (basılı tut ve sürükle)",
     };
 
     private static string KeyName(string path)
@@ -189,6 +191,7 @@ namespace LastTurn.Ui
       {
         case "upArrow": return "↑"; case "downArrow": return "↓"; case "leftArrow": return "←"; case "rightArrow": return "→";
         case "space": return "Boşluk"; case "escape": return "Esc"; case "leftButton": return "Sol fare";
+        case "rightButton": return "Sağ fare";
         default: return k.ToUpperInvariant();
       }
     }

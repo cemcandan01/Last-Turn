@@ -74,7 +74,7 @@ namespace LastTurn.Ui
       Ui.Show(again,!WorldData.Championship);
       if (s != shown) { shown = s; Render(s); }
       if (!wasVisible || LevelUpView.Open) return;
-      var k = Keyboard.current; if (k == null) return;
+      var k = Keyboard.current; if (k == null) return; if(Ui.ActivateFocused(k))return;
       if (k.enterKey.wasPressedThisFrame || k.numpadEnterKey.wasPressedThisFrame) Next();
       else if (k.gKey.wasPressedThisFrame) Garage();
       else if (k.escapeKey.wasPressedThisFrame) { GameAudio.Click(); GameFlow.LeaveDrive(); }

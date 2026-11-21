@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Last Turn — menü deneyimi</title>
+    <link rel="stylesheet" href="menu-profesyonel.css" />
+    <link rel="stylesheet" href="menu-pit.css" />
+  </head>
+  <body>
+    <a class="skip" href="#content">İçeriğe geç</a>
+    <div id="app">
+      <header class="topbar">
+        <button class="brand" data-route="home" aria-label="Last Turn ana menü">
+          LAST<span>TURN</span><i></i>
+        </button>
+        <span class="edition">BAĞIMSIZ MOTORSPORLARI<br />SÜRÜCÜ TERMİNALİ / LT</span>
+        <nav aria-label="Ana gezinme">
+          <button data-route="race">YARIŞ</button>
+          <button data-route="mutant">MUTANT</button>
+        </nav>
+        <button class="driver" data-route="profile">
+          <span class="level">08</span><span>CEM<small>Sürücü profili</small></span>
+        </button>
+        <button class="settings-link" data-route="settings" aria-label="Ayarlar">
+          AYARLAR <span aria-hidden="true">↗</span>
+        </button>
+      </header>
+      <main id="content" tabindex="-1"></main>
+      <footer>
+        <div class="location"><span class="live-dot"></span><span id="location">ANA MENÜ</span></div>
+        <div id="hints">
+          <span id="context-hints"></span>
+          <span><kbd>Tab</kbd> Odak</span><span><kbd>Enter</kbd> Seç</span
+          ><button id="back"><kbd>Esc</kbd> Geri</button>
+        </div>
+        <button class="prototype" id="about">TASARIM ÖRNEĞİ <span>02</span></button>
+      </footer>
+    </div>
+    <dialog id="dialog" aria-labelledby="dialog-title">
+      <form method="dialog">
+        <span class="eyebrow" id="dialog-tag">LAST TURN</span>
+        <h2 id="dialog-title"></h2>
+        <p id="dialog-copy"></p>
+        <div class="dialog-actions">
+          <button value="cancel" class="quiet">VAZGEÇ <kbd>Esc</kbd></button
+          ><button value="confirm" class="primary" id="dialog-confirm">TAMAM</button>
+        </div>
+      </form>
+    </dialog>
+    <div class="toast" id="toast" role="status"></div>
+    <script type="module" src="menu-profesyonel.mjs"></script>
+  </body>
+</html>

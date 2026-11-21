@@ -38,7 +38,7 @@ namespace LastTurn.Ui
       var tab=Ui.Tab("MAĞAZA",()=>{});tab.AddToClassList("sec");bar.Add(tab);bar.Add(Ui.Key("E"));money=Ui.Text("","g-money");bar.Add(money);page.Add(bar);
       content=new VisualElement();content.AddToClassList("s-content");page.Add(content);
       message=Ui.Text("","g-message");page.Add(message);var back=Ui.Button("GERİ","Esc",Back,small:true);Ui.Absolute(back,left:58,bottom:22);page.Add(back);
-      page.Add(Ui.Hints(("←|→","Araç"),("Enter","Satın al / Garaj"),("Tab","Parçalar"),("Q|E","Sekme")));
+      page.Add(Ui.Hints(("←|→","Araç"),("Enter","Satın al / Garaj"),("P","Parçalar"),("Tab","Odak"),("Q|E","Sekme")));
       UiRoot.Instance.Screen.Add(page);preview=gameObject.AddComponent<GarageVehiclePreview>();Ui.Show(page,false);
     }
     private void Update()
@@ -52,10 +52,10 @@ namespace LastTurn.Ui
       message.text=confirm?"Satın almak için tekrar onayla. Esc: vazgeç.":GarageSession.Message;
       var audioLabel=page.Q("store-listen-engine")?.Q<Label>(className:"yazi");if(audioLabel!=null)audioLabel.text=SourceEngineAudio.ListeningKey==ModelKey?"DİNLENİYOR…":"MOTORU DİNLE";
       if(changed)return;
-      var k=Keyboard.current;if(k==null)return;
+      var k=Keyboard.current;if(k==null)return;if(Ui.ActivateFocused(k))return;
       if(k.escapeKey.wasPressedThisFrame){Back();return;}
       if(k.qKey.wasPressedThisFrame){OpenGarage();return;}if(k.eKey.wasPressedThisFrame){GameFlow.RaceMenu();return;}
-      if(k.tabKey.wasPressedThisFrame){OpenParts();return;}
+      if(k.pKey.wasPressedThisFrame){OpenParts();return;}
       if(k.lKey.wasPressedThisFrame&&Offer!=null&&Offer.CanListen){SourceEngineAudio.Listen(ModelKey);return;}
       int i=Array.FindIndex(rows,r=>r.Index==ViewedCar);
       if(k.leftArrowKey.wasPressedThisFrame&&i>0)ViewCar(rows[i-1].Index);

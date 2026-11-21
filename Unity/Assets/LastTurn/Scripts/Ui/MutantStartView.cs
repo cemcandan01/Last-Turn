@@ -20,7 +20,7 @@ namespace LastTurn.Ui
     private readonly List<RewardCard> rewardCards=new List<RewardCard>();
     private void Start()
     {
-      Instance=this;page=new VisualElement{name="f-mutant-start"};page.AddToClassList("katman");page.AddToClassList("mut-ton");page.Add(Ui.Shade());
+      Instance=this;page=new VisualElement{name="f-mutant-start"};page.AddToClassList("katman");page.AddToClassList("mut-ton");page.style.backgroundImage=Resources.Load<Texture2D>("UI/MutantB/background");page.Add(Ui.Shade());
       var bar=new VisualElement();bar.AddToClassList("ustbar");bar.Add(Ui.Logo());var badge=new VisualElement();badge.AddToClassList("mut-ad");badge.Add(new Skew());badge.Add(Ui.Text("MUTANT"));bar.Add(badge);page.Add(bar);
       content=new VisualElement();content.AddToClassList("m-content");page.Add(content);UiRoot.Instance.Screen.Add(page);Ui.Show(page,false);
     }

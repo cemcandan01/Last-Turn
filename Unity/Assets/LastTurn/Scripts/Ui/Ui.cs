@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -8,6 +9,29 @@ namespace LastTurn.Ui
   public static class Ui
   {
     public static readonly Color Accent = new Color(1, .478f, .235f);
+    private static readonly ConditionalWeakTable<VisualElement, Action> commands = new ConditionalWeakTable<VisualElement, Action>();
+
+    // Tab odağı ve Boşluk etkinleştirmesi; Enter mevcut ekranın tek girdi yolundan geçer.
+    public static void Bind(VisualElement element, Action command)
+    {
+      if(command==null)return;
+      element.focusable=true;element.tabIndex=0;commands.Add(element,command);
+      element.AddManipulator(new Clickable(command));
+      element.RegisterCallback<KeyDownEvent>(e=>{if(e.keyCode==KeyCode.Space&&element.enabledInHierarchy){command();e.StopPropagation();}});
+    }
+
+    public static bool ActivateFocused(UnityEngine.InputSystem.Keyboard keyboard)
+    {
+      if(keyboard==null)return false;
+      var focused=UiRoot.Instance?.Root?.focusController?.focusedElement as VisualElement;
+      // Oklar ekranın seçimini yönetir. Önceki fare/Tab düğmesinin odağı Enter'ı ele geçirmesin.
+      if(keyboard.upArrowKey.wasPressedThisFrame||keyboard.downArrowKey.wasPressedThisFrame||keyboard.leftArrowKey.wasPressedThisFrame||keyboard.rightArrowKey.wasPressedThisFrame)
+      {focused?.Blur();return false;}
+      if(!keyboard.enterKey.wasPressedThisFrame&&!keyboard.numpadEnterKey.wasPressedThisFrame)return false;
+      if(focused==null||!focused.enabledInHierarchy||!commands.TryGetValue(focused,out var command))return false;
+      for(var e=focused;e!=null;e=e.parent)if(e.resolvedStyle.display==DisplayStyle.None||e.resolvedStyle.visibility==Visibility.Hidden)return false;
+      command();return true;
+    }
 
     public static Label Text(string text, params string[] classes)
     {
@@ -21,14 +45,14 @@ namespace LastTurn.Ui
     {
       var b = new VisualElement(); b.AddToClassList("ltb"); if (primary) b.AddToClassList("ana"); if (small) b.AddToClassList("kucuk");
       b.Add(new Skew()); b.Add(Text(text, "yazi")); if (!string.IsNullOrEmpty(key)) b.Add(Key(key));
-      if (click != null) b.AddManipulator(new Clickable(click));
+      Bind(b,click);
       return b;
     }
 
     public static VisualElement Tab(string text, Action click)
     {
       var b = new VisualElement(); b.AddToClassList("sekme"); b.Add(new Skew()); b.Add(Text(text, "yazi"));
-      b.AddManipulator(new Clickable(click)); return b;
+      Bind(b,click); return b;
     }
 
     public static VisualElement Section(string text)

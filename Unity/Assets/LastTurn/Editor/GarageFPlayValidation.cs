@@ -95,7 +95,7 @@ namespace LastTurn.EditorValidation
       Tap(Key.Enter);steps.Add(()=>Check(view.Visible&&view.ViewedCar==car,"Satın alınan araç Garaj'da görünür"));Tap(Key.Enter);
       steps.Add(()=>{Check(GarageSession.State.SelectedCar==car,"Satın alınan araç sürüşe seçilir");GarageSession.Reload();});
       steps.Add(()=>Check(GarageSession.State.SelectedCar==car&&GarageSession.State.OwnsCar(car)&&GarageSession.State.Balance==balance,"Mağaza sahiplik/seçim/bakiye diskten korunur"));
-      Tap(Key.E);Tap(Key.Tab);steps.Add(()=>Check(view.Visible&&view.Modifying&&GarageSession.State.OwnsCar(view.ViewedCar),"Mağaza Parçalar mevcut Modifiye'ye sahip olunan araçla gider"));Tap(Key.Escape);Tap(Key.E);
+      Tap(Key.E);Tap(Key.P);steps.Add(()=>Check(view.Visible&&view.Modifying&&GarageSession.State.OwnsCar(view.ViewedCar),"Mağaza Parçalar mevcut Modifiye'ye sahip olunan araçla gider"));Tap(Key.Escape);Tap(Key.E);
       steps.Add(()=>{GarageSession.Open(Path.Combine(Project,"Logs/P7Garage/"+Guid.NewGuid().ToString("N")+"/garage.json"),true);var offer=GarageViewModel.Cars(GarageSession.State).First(c=>!c.Owned);StoreView.Instance.ViewCar(offer.Index);balance=GarageSession.State.Balance;});
       steps.Add(()=>{var offer=StoreView.Instance.Offer;Check(offer.Block!=""&&!UiRoot.Instance.Screen.Q("store-buy").enabledSelf,"Yetersiz para/kilit satın almayı kapatır");StoreView.Instance.Activate();Check(GarageSession.State.Balance==balance&&!GarageSession.State.OwnsCar(offer.Index),"Engelli işlem sahiplik ve bakiyeyi değiştirmez");});
       steps.Add(()=>{car=GarageSession.State.SelectedCar;StoreView.Instance.ViewCar(Math.Max(0,car-1));});

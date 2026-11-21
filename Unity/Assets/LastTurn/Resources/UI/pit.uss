@@ -1,0 +1,174 @@
+/* Cem'in onayladığı pit panosu / yarış afişi. Ölçüler 1920×1080 sunum birimidir.
+   Yalnız sunum: gerçek metinler, nadirlik ve komutlar mevcut modellerden gelir. */
+.pit-root { color:#eae5d8; }
+.pit-root .logo { flex-direction:column; width:140px; height:84px; justify-content:center; }
+.pit-root .logo > Label, .pit-root .logo > Label.turn { font-size:36px; margin:0; padding:0; color:#eae5d8; }
+.pit-root .baslik, .pit-root .kart > Label.ad, .pit-root .st-title { -unity-font-definition:resource("UI/Fonts/BarlowCondensed-Bold"); }
+.pit-root .ustbar { border-bottom-width:1px; border-bottom-color:#ddd8c94d; padding-bottom:24px; }
+.pit-root .bb > .cizgi { width:10px; height:10px; rotate:-12deg; background-color:#f17b4d; }
+.pit-root .bb > Label { color:#f17b4d; letter-spacing:2px; }
+.pit-root .ltb { border-left-width:3px; border-left-color:#ddd8c959; background-color:#20292b; }
+.pit-root .ltb > .skew, .pit-root .sekme > .skew { display:none; }
+.pit-root .ltb.ana { background-color:#ddd8c9; border-left-width:6px; border-left-color:#f17b4d; }
+.pit-root .ltb.ana > Label.yazi, .pit-root .ltb.ana > .t { color:#20292b; }
+.pit-root .ltb:hover { background-color:#344043; }
+.pit-root .ltb.ana:hover { background-color:#f17b4d; }
+.pit-root .ltb:focus, .pit-root .sekme:focus { border-top-width:2px; border-right-width:2px; border-bottom-width:2px; border-color:#eae5d8; }
+.pit-root .ltb > Label.yazi { -unity-font-definition:resource("UI/Fonts/Barlow-SemiBold"); font-size:24px; letter-spacing:1px; color:#eae5d8; }
+.pit-root .ltb.kucuk > Label.yazi { font-size:18px; }
+.pit-root .sekme { background-color:#20292b; border-width:1px; border-color:#ddd8c942; }
+.pit-root .sekme.sec { background-color:#ddd8c9; border-color:#ddd8c9; }
+.pit-root .sekme.sec > Label.yazi { color:#20292b; }
+.pit-root .sekme:hover { background-color:#344043; }
+.pit-root .sekme.sec:hover { background-color:#ddd8c9; }
+.pit-root .sekme > Label.yazi { -unity-font-definition:resource("UI/Fonts/BarlowCondensed-Bold"); letter-spacing:1px; }
+.pit-root .g-panel, .pit-root .g-effect, .pit-root .cam { background-color:#20292be8; border-radius:0; border-width:0; border-top-width:3px; border-top-color:#ddd8c9; }
+.pit-root .g-panel, .pit-root .g-effect { padding-top:24px; }
+.pit-root .g-copy { color:#b8beb9; }
+.pit-root .g-price, .pit-root .g-class { color:#eae5d8; }
+.pit-root .kart { border-radius:0; border-width:1px; border-color:#ddd8c94d; background-color:#242d30; transition-duration:0s; }
+.pit-root .kart.sec { translate:0 0; border-width:1px; border-left-width:5px; border-left-color:#f17b4d; background-color:#344043; }
+.pit-root .kart:hover { border-color:#ddd8c9; }
+.pit-root .kart:focus { border-width:3px; border-color:#eae5d8; }
+.pit-root .parcali { border-radius:0; background-color:#20292b; }
+.pit-root .parca.sec { background-color:#ddd8c9; }
+.pit-root .parca.sec > Label { color:#20292b; }
+.pit-root .parca:focus { border-width:2px; border-color:#eae5d8; }
+.pit-root .g-bar, .pit-root .xpcubuk { border-radius:0; background-color:#ddd8c926; }
+.pit-root .g-fill, .pit-root .xpcubuk > VisualElement { background-color:#f17b4d; }
+.pit-root .sv { border-radius:0; background-color:#ddd8c9; border-width:0; rotate:-4deg; }
+.pit-root .sv > Label { color:#20292b; }
+.pit-root .t { border-radius:0; }
+.pit-root .ipuclari { bottom:24px; }
+.pit-root .m-content .ipuclari { bottom:-70px; }
+.pit-root .onay { border-top-color:#f17b4d; }
+.pit-root #pit-career, .pit-root #f-store, .pit-root #f-profile, .pit-root #f-settings, .pit-root #f-race-preparation { background-color:#1b2225; }
+.pit-root #f-garage .g-panel { background-color:#20292bef; }
+.pit-root .st-row, .pit-root .st-track, .pit-root .st-slider .parca { border-radius:0; }
+.pit-root .st-row.sec { border-left-color:#f17b4d; background-color:#ddd8c91a; }
+.pit-root .st-sections .sekme { margin-bottom:10px; }
+.pit-root .pz-page { background-color:#1b2225eb; }
+.pit-root .pz-action { background-color:transparent; border-left-color:#ddd8c9; }
+.pit-root .pz-action.sec { background-color:#344043; border-left-width:6px; border-left-color:#f17b4d; }
+.pit-root .rs-page { background-color:#1b2225eb; }
+.pit-root .rs-row { border-bottom-width:1px; border-bottom-color:#ddd8c926; }
+
+/* Ana menü: solda bölüm dizini, sağda gerçek oyun görselinden baskı afişi. */
+.pit-root .pit-home { background-color:#1b2225; }
+.pit-home-header { position:absolute; left:58px; top:28px; right:58px; height:82px; padding-bottom:20px; border-bottom-width:1px; border-bottom-color:#ddd8c94d; }
+.pit-edition { margin-left:36px; font-size:15px; letter-spacing:2px; color:#b8beb9; white-space:normal; }
+.pit-driver { margin-right:30px; padding:6px 16px; }
+.pit-driver:focus { border-width:2px; border-color:#eae5d8; }
+.pit-level { width:44px; height:44px; margin-right:15px; -unity-text-align:middle-center; background-color:#ddd8c9; color:#20292b; rotate:-4deg; -unity-font-definition:resource("UI/Fonts/BarlowCondensed-Bold"); font-size:32px; }
+.pit-driver-name { font-size:20px; }
+.pit-driver-line { color:#b8beb9; font-size:17px; }
+.pit-home-body { position:absolute; left:58px; right:58px; top:145px; bottom:170px; }
+.pit-index { width:550px; margin-right:80px; flex-shrink:0; }
+.pit-index-caption { height:48px; border-top-width:4px; border-top-color:#eae5d8; justify-content:space-between; margin-bottom:22px; }
+.pit-index-caption > Label { font-size:17px; letter-spacing:1px; }
+.pit-home-link { min-height:140px; border-bottom-width:1px; border-bottom-color:#ddd8c94d; }
+.pit-home-link:hover { background-color:#ddd8c908; }
+.pit-home-link.sec .pit-index-number { color:#f17b4d; }
+.pit-home-link:focus { border-width:2px; border-color:#eae5d8; }
+.pit-index-number { width:52px; font-size:18px; color:#b8beb9; align-self:flex-start; margin-top:24px; }
+.pit-index-title { -unity-font-definition:resource("UI/Fonts/BarlowCondensed-Bold"); font-size:80px; margin-bottom:0; }
+.pit-index-sub { font-size:18px; color:#b8beb9; margin-top:6px; white-space:normal; }
+.pit-index-mark { width:40px; color:#b8beb9; font-size:32px; }
+.pit-utility-link { min-height:86px; }
+.pit-utility-link .pit-index-title { font-size:42px; }
+.pit-utility-link .pit-index-sub { font-size:16px; }
+.pit-utility-link .pit-index-number { margin-top:12px; }
+.pit-dispatch { margin-top:26px; }
+.pit-dispatch .ltb { height:70px; margin-top:12px; }
+.pit-dispatch .pit-index-sub { font-size:16px; }
+.pit-poster { flex-grow:1; min-width:0; overflow:hidden; border-width:1px; border-color:#ddd8c959; -unity-background-scale-mode:scale-and-crop; }
+.pit-poster-label { height:48px; background-color:#ddd8c9; color:#20292b; justify-content:space-between; padding-left:24px; padding-right:24px; }
+.pit-poster-label > Label { font-size:16px; letter-spacing:1px; }
+.pit-poster-last, .pit-poster-turn { position:absolute; left:34px; -unity-font-definition:resource("UI/Fonts/BarlowCondensed-Bold"); font-size:232px; color:#ddd8c9; margin:0; }
+.pit-poster-last { top:60px; }
+.pit-poster-turn { top:242px; color:rgba(0,0,0,0); -unity-text-outline-color:#ddd8c9; -unity-text-outline-width:2px; }
+.pit-start-tag { position:absolute; right:34px; top:70px; width:138px; padding:12px; background-color:#f17b4d; color:#20292b; border-top-width:8px; border-top-color:#ddd8c9; rotate:7deg; align-items:center; }
+.pit-start-tag > Label { font-size:17px; }
+.pit-start-tag > .pit-start-number { -unity-font-definition:resource("UI/Fonts/BarlowCondensed-Bold"); font-size:100px; }
+.pit-poster-foot { position:absolute; left:0; right:0; bottom:0; height:132px; padding:24px; background-color:#182226e8; justify-content:space-between; align-items:flex-end; }
+.pit-barcode { width:140px; height:34px; }
+.pit-serial { font-size:12px; margin-top:8px; }
+.pit-scene-name { -unity-font-definition:resource("UI/Fonts/BarlowCondensed-Bold"); font-size:36px; -unity-text-align:middle-right; }
+.pit-poster-foot .pit-index-sub { font-size:16px; -unity-text-align:middle-right; }
+.pit-home-tools { position:absolute; left:58px; bottom:86px; }
+.pit-home-tools .ltb { margin-right:18px; height:44px; padding-left:12px; padding-right:12px; }
+.pit-home-tools .ltb > Label.yazi { font-size:16px; }
+.pit-home-status { position:absolute; left:58px; right:900px; bottom:35px; font-size:17px; }
+
+/* MUTANT: aynı baskı dili; koyu petrol, asit yeşili ve tehlike etiketleri.
+   Renkler durumu destekler; teklif/lanet/nadirlik metni ve gerçek ikonlar korunur. */
+.pit-career-head { position:absolute; left:58px; right:58px; top:160px; }
+.pit-career-head > .baslik { font-size:66px; margin-top:8px; margin-bottom:14px; }
+.pit-career-head .parcali { align-self:flex-start; }
+.pit-career-scroll { position:absolute; left:58px; width:560px; top:360px; bottom:110px; background-color:#ddd8c9; }
+.pit-career-list { padding:8px 16px; }
+.pit-root #pit-career .kart { background-color:rgba(0,0,0,0); color:#20292b; min-height:124px; flex-shrink:0; border-radius:0; border-width:0; border-bottom-width:1px; border-bottom-color:#20292b66; padding:12px 18px; }
+.pit-root #pit-career .kart.sec { background-color:#c6c2b5; border-left-width:5px; border-left-color:#20292b; }
+.pit-root #pit-career .kart:focus { border-width:3px; border-color:#20292b; }
+.pit-root #pit-career .kart > Label.ust { color:#3b4b47; font-size:17px; }
+.pit-root #pit-career .kart > Label.ad { color:#20292b; font-size:32px; }
+.pit-root #pit-career .kart .alt > Label { color:#3b4b47; font-size:19px; }
+.pit-root #pit-career .kart.kilit { opacity:.7; }
+.pit-career-detail { position:absolute; left:680px; right:58px; top:180px; bottom:110px; padding-left:30px; border-left-width:1px; border-left-color:#ddd8c94d; }
+.pit-career-map { flex-grow:1; min-height:240px; margin-bottom:24px; background-color:#273235; border-width:1px; border-color:#ddd8c94d; }
+.pit-career-name { font-size:58px; white-space:normal; }
+.pit-career-detail .ltb { align-self:flex-end; margin-top:22px; }
+.pit-root .mut-ton, .pit-root .pit-mutant { background-color:#172421; -unity-background-image-tint-color:#344b3c; -unity-background-scale-mode:scale-and-crop; }
+.pit-root .mc-page { background-color:#172421; -unity-background-image-tint-color:#344b3c; color:#e6e5d5; }
+.pit-root .mut-ad { background-color:#c9de80; border-radius:0; border-top-width:6px; border-top-color:#e6e5d5; }
+.pit-root .mut-ad > .skew { display:none; }
+.pit-root .mut-ad > Label { -unity-font-definition:resource("UI/Fonts/BarlowCondensed-Bold"); color:#182421; }
+.pit-root .mc-badge { -unity-font-definition:resource("UI/Fonts/BarlowCondensed-Bold"); color:#c9de80; letter-spacing:3px; }
+.pit-root .mc-heading, .pit-root .ms-title, .pit-root .mb-title, .pit-root .mt-title, .pit-root .mr-title { -unity-font-definition:resource("UI/Fonts/BarlowCondensed-Bold"); color:#e6e5d5; }
+.pit-root .mc-page .mc-card, .pit-root .ms-card, .pit-root .mb-panel, .pit-root .mt-panel { border-radius:0; background-color:#1c2c28f5; border-width:1px; border-color:#758671; border-top-width:4px; }
+.pit-root .mc-page .mc-card.mc-selected, .pit-root .mc-page .mc-card:focus, .pit-root .ms-card.mc-selected { background-color:#34473b; }
+.pit-root .mc-frame { display:none; }
+.pit-root .mc-page .mc-card .rc-title, .pit-root .ms-part-name { -unity-font-definition:resource("UI/Fonts/BarlowCondensed-Bold"); font-size:36px; }
+.pit-root .reward-card { background-color:#1c2c28; border-radius:0; color:#e6e5d5; }
+.pit-root .reward-card:focus { background-color:#34473b; }
+.pit-root .rc-title { -unity-font-definition:resource("UI/Fonts/BarlowCondensed-Bold"); }
+.pit-root .rc-level, .pit-root .mc-card .rc-level, .pit-root .mc-key, .pit-root .ms-money, .pit-root .ms-price, .pit-root .mb-target, .pit-root .mt-title { color:#c9de80; }
+.pit-root .mc-copy, .pit-root .ms-copy, .pit-root .ms-small, .pit-root .mb-copy, .pit-root .mt-copy { color:#c4ccbe; }
+.pit-root .mc-notice, .pit-root .ms-kicker, .pit-root .ms-notice, .pit-root .mb-kicker, .pit-root .mt-kicker, .pit-root .rc-caption { color:#ecc18f; }
+.pit-root .rc-curse, .pit-root .mt-curse { color:#ff9b8d; }
+.pit-root .mc-page .ltb { background-color:#263931; border-left-color:#c9de80; }
+.pit-root .mc-page .ltb.ana { background-color:#c9de80; border-left-color:#e6e5d5; }
+.pit-root .mc-page .ltb.ana > Label.yazi { color:#182421; }
+.pit-root .mc-page .ltb.ana:hover { background-color:#dce6ba; }
+.pit-root .mc-page .ltb:focus { border-color:#e6e5d5; }
+.pit-root .mut-ton .bb > .cizgi, .pit-root .pit-mutant .bb > .cizgi { background-color:#c9de80; }
+.pit-root .mut-ton .bb > Label, .pit-root .pit-mutant .bb > Label { color:#c9de80; }
+.pit-root .mut-ton .g-panel, .pit-root .pit-mutant .cam { border-top-color:#c9de80; background-color:#1c2c28ee; }
+.pit-root .mut-ton .kart { background-color:#1c2c28; }
+.pit-root .mut-ton .kart.sec { border-left-color:#c9de80; background-color:#34473b; }
+.pit-root .mut-ton .ltb.ana, .pit-root .pit-mutant .ltb.ana { background-color:#c9de80; border-left-color:#e6e5d5; }
+.pit-root .mc-icon-fallback { border-radius:0; border-color:#c9de80; color:#c9de80; }
+.pit-root .mh-root { color:#e6e5d5; }
+.pit-root .mh-region, .pit-root .mh-mission, .pit-root .mh-nitro-title, .pit-root .mh-notice { color:#c9de80; }
+.pit-root .mh-boss { color:#ecc18f; }
+.pit-root .mh-fill { background-color:#ecc18f; }
+.pit-root .mh-ready .mh-fill, .pit-root .mh-on .mh-fill { background-color:#c9de80; }
+.pit-root .mh-on { color:#c9de80; }
+.pit-root .mh-summary { border-left-width:3px; border-left-color:#c9de80; padding-left:8px; }
+.pit-root .mh-name, .pit-root .mh-nitro-title { -unity-font-definition:resource("UI/Fonts/BarlowCondensed-Bold"); }
+.pit-root .mc-bar { padding-bottom:24px; border-bottom-width:1px; border-bottom-color:#c9de8052; }
+.pit-root .mc-badge { background-color:#c9de80; color:#182421; padding:6px 16px; }
+.pit-root .me-title, .pit-root .me-risk-name { -unity-font-definition:resource("UI/Fonts/BarlowCondensed-Bold"); }
+.pit-root .me-kicker, .pit-root .mr-kicker { color:#ecc18f; }
+.pit-root .me-copy, .pit-root .me-small, .pit-root .mr-copy, .pit-root .mr-note { color:#c4ccbe; }
+.pit-root .me-target, .pit-root .me-selected-label { color:#c9de80; }
+.pit-root .me-risk { border-radius:0; border-width:1px; border-left-width:4px; background-color:#1c2c28f5; }
+.pit-root .me-risk.mc-selected { background-color:#34473b; border-color:#c9de80; }
+.pit-root .mr-panel { background-color:#c8cfb3; border-radius:0; border-width:0; border-top-width:6px; border-top-color:#e6e5d5; color:#182421; }
+.pit-root .mr-panel .mr-kicker, .pit-root .mr-panel .mr-label { color:#3b4b3a; }
+.pit-root .mr-panel .mr-value { color:#182421; }
+.pit-root .mr-panel .ltb.ana { background-color:#182421; border-left-color:#e6e5d5; }
+.pit-root .mr-panel .ltb.ana > Label.yazi { color:#e6e5d5; }
+.pit-root .mr-panel .ltb.ana > .t { color:#e6e5d5; border-color:#e6e5d5; }
+.pit-root .mr-panel .ltb.ana:hover { background-color:#34473b; }
+.pit-root .mr-title.mr-failed { color:#ff9b8d; }

@@ -32,7 +32,7 @@ namespace LastTurn.Ui
       bool active=Wanted(),changed=active!=Visible;Visible=active;Ui.Show(page,active);if(!active)return;
       if(changed||seen!=GarageSession.State||key!=legacy.SelectedRaceKey)Refresh();
       money.text="SEVİYE "+GarageSession.State.Level+"   •   "+GarageSession.State.Balance.ToString("N0")+" para";message.text=TestPanelActions.Error;
-      if(changed)return;var k=Keyboard.current;if(k==null)return;
+      if(changed)return;var k=Keyboard.current;if(k==null)return;if(Ui.ActivateFocused(k))return;
       if(k.escapeKey.wasPressedThisFrame){GameFlow.RaceMenu();return;}
       if(k.cKey.wasPressedThisFrame||k.eKey.wasPressedThisFrame){GameFlow.ChangePreparationCar();return;}
       if(k.qKey.wasPressedThisFrame){GameFlow.OpenStore();return;}
@@ -49,8 +49,9 @@ namespace LastTurn.Ui
       var row=Box("r-track-row");var map=new TrackMap(Model);map.AddToClassList("r-map");row.Add(map);var stars=Box("g-panel");stars.AddToClassList("r-targets");stars.Add(Ui.Section("YILDIZ HEDEFLERİ"));for(int i=0;i<Model.Targets.Length;i++)stars.Add(Ui.Text((i+1)+" YILDIZ   "+Model.Targets[i],"r-stat"));stars.Add(Ui.Section(Model.Career?"KARİYER REKORUN":"DENEME REKORUN"));stars.Add(Ui.Text(Model.Record,"g-class"));row.Add(stars);left.Add(row);
       var reward=Box("g-panel");reward.AddToClassList("r-reward");reward.Add(Ui.Section("3 YILDIZ ÖDÜL ÖNGÖRÜSÜ"));reward.Add(Ui.Text("+"+Model.Xp.ToString("0")+" XP   •   +"+Model.Money.ToString("0")+" para","g-class"));reward.Add(Ui.Text("Mevcut en iyi yıldızına göre; ödül yarış bitişinde hesaplanır.","g-copy"));left.Add(reward);content.Add(left);
       var right=Box("g-panel");right.AddToClassList("r-options");right.Add(Ui.Section("ARAÇ  •  TAVAN "+Model.Budget));right.Add(Ui.Text(Model.Car.Name,"baslik","g-name"));right.Add(Ui.Text(Model.Car.Class+Model.Car.Score.ToString("0"),"g-class"));right.Add(Ui.Text(Model.Status,"g-copy"));var change=Ui.Button("ARACI DEĞİŞTİR","C",GameFlow.ChangePreparationCar,small:true);change.name="preparation-car";right.Add(change);
-      right.Add(Ui.Section("GÜNÜN SAATİ"));var times=Box("r-chips");for(int i=0;i<RaceConditions.TimesOfDay.Length;i++){int n=i;var t=RaceConditions.TimesOfDay[i];var b=Ui.Tab(Ui.Upper(t.Name),()=>SelectTime(n));b.name="preparation-time-"+i;b.EnableInClassList("sec",GameFlow.Conditions.TimeOfDay==t.Key);times.Add(b);}right.Add(times);
-      right.Add(Ui.Section("HAVA"));var weathers=Box("r-chips");for(int i=0;i<RaceConditions.Weathers.Length;i++){int n=i;var w=RaceConditions.Weathers[i];var b=Ui.Tab(Ui.Upper(w.Name),()=>SelectWeather(n));b.name="preparation-weather-"+i;b.EnableInClassList("sec",GameFlow.Conditions.Weather==w.Key);weathers.Add(b);}right.Add(weathers);
+      var conditions=new Foldout{text="Saat ve hava",value=false};right.Add(conditions);
+      conditions.Add(Ui.Section("GÜNÜN SAATİ"));var times=Box("r-chips");for(int i=0;i<RaceConditions.TimesOfDay.Length;i++){int n=i;var t=RaceConditions.TimesOfDay[i];var b=Ui.Tab(Ui.Upper(t.Name),()=>SelectTime(n));b.name="preparation-time-"+i;b.EnableInClassList("sec",GameFlow.Conditions.TimeOfDay==t.Key);times.Add(b);}conditions.Add(times);
+      conditions.Add(Ui.Section("HAVA"));var weathers=Box("r-chips");for(int i=0;i<RaceConditions.Weathers.Length;i++){int n=i;var w=RaceConditions.Weathers[i];var b=Ui.Tab(Ui.Upper(w.Name),()=>SelectWeather(n));b.name="preparation-weather-"+i;b.EnableInClassList("sec",GameFlow.Conditions.Weather==w.Key);weathers.Add(b);}conditions.Add(weathers);
       if(info.Type=="gp" || info.Type=="rx"){
         var elimination=Ui.Button("ELEME · 3 TUR","",()=>WorldData.StartKnockout(key),small:true);
         elimination.name="preparation-knockout";elimination.SetEnabled(Model.Open);right.Add(elimination);
@@ -59,7 +60,7 @@ namespace LastTurn.Ui
     }
     private static VisualElement Box(string cls){var e=new VisualElement();e.AddToClassList(cls);return e;}
     private void OnDestroy(){if(Instance==this)Instance=null;page?.RemoveFromHierarchy();}
-    private sealed class TrackMap:VisualElement
+    internal sealed class TrackMap:VisualElement
     {
       public TrackMap(RacePreparationModel model)
       {

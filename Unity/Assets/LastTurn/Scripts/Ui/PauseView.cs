@@ -70,6 +70,7 @@ namespace LastTurn.Ui
     private void Keys(Keyboard k)
     {
       if (k == null || items.Count == 0) return;
+      if(Ui.ActivateFocused(k))return;
       if (k.upArrowKey.wasPressedThisFrame) { GameAudio.Click(); SetFocus((Focus + items.Count - 1) % items.Count); }
       else if (k.downArrowKey.wasPressedThisFrame) { GameAudio.Click(); SetFocus((Focus + 1) % items.Count); }
       else if (k.enterKey.wasPressedThisFrame || k.numpadEnterKey.wasPressedThisFrame) Run(Focus);

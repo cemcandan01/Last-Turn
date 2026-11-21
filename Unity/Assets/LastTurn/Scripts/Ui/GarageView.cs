@@ -69,6 +69,7 @@ namespace LastTurn.Ui
       if(changed)return;
       var k=Keyboard.current;if(k==null)return;
       if(styling){if(k.escapeKey.wasPressedThisFrame)CloseStyling();return;}
+      if(Ui.ActivateFocused(k))return;
       if(k.escapeKey.wasPressedThisFrame){if(confirm!=""){confirm="";Rebuild();}else Back();return;}
       if(k.qKey.wasPressedThisFrame){GameFlow.RaceMenu();return;}if(k.eKey.wasPressedThisFrame){GameFlow.OpenStore();return;}
       if(Modifying)
